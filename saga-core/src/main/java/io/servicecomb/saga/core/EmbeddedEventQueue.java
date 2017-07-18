@@ -18,11 +18,11 @@ package io.servicecomb.saga.core;
 
 import java.util.Iterator;
 import java.util.Queue;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 
 class EmbeddedEventQueue implements EventQueue {
 
-  private final Queue<SagaEvent> events = new LinkedBlockingDeque<>();
+  private final Queue<SagaEvent> events = new LinkedBlockingQueue<>();
 
   @Override
   public void offer(SagaEvent sagaEvent) {

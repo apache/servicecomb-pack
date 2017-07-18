@@ -2,5 +2,8 @@ sudo: required
 
 language: java
 
+jdk:
+  - oraclejdk8
+
 script:
   - mvn clean install -Pjacoco coveralls:report
