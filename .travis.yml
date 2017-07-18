@@ -1,0 +1,6 @@
+sudo: required
+
+language: java
+
+script:
+  - mvn clean install -Pjacoco coveralls:report
