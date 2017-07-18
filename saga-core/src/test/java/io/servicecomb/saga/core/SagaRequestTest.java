@@ -16,11 +16,29 @@
 
 package io.servicecomb.saga.core;
 
-import static io.servicecomb.saga.core.Operation.NO_OP;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-class SagaStartedEvent extends SagaEvent<Operation> {
+import org.junit.Test;
 
-  SagaStartedEvent(long id) {
-    super(id, NO_OP);
+public class SagaRequestTest {
+
+  private final Transaction transaction = mock(Transaction.class);
+  private final Compensation compensation = mock(Compensation.class);
+
+  private final SagaRequest request = new SagaRequest(transaction, compensation);
+
+  @Test
+  public void runTransactionOnCommit() {
+    request.commit();
+
+    verify(transaction).run();
+  }
+
+  @Test
+  public void runCompensationOnAbort() {
+    request.abort();
+
+    verify(compensation).run();
   }
 }

@@ -1,6 +1,5 @@
 package io.servicecomb.saga.core;
 
-public interface Transaction {
+interface Transaction extends Operation {
 
-  void execute();
 }

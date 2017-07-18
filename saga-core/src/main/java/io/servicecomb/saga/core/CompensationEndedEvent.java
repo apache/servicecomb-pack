@@ -16,11 +16,9 @@
 
 package io.servicecomb.saga.core;
 
-import static io.servicecomb.saga.core.Operation.NO_OP;
+class CompensationEndedEvent extends SagaEvent<Compensation> {
 
-class SagaStartedEvent extends SagaEvent<Operation> {
-
-  SagaStartedEvent(long id) {
-    super(id, NO_OP);
+  CompensationEndedEvent(long id, Compensation compensation) {
+    super(id, compensation);
   }
 }

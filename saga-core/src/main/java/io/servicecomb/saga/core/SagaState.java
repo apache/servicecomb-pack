@@ -16,11 +16,10 @@
 
 package io.servicecomb.saga.core;
 
-import static io.servicecomb.saga.core.Operation.NO_OP;
+import java.util.Deque;
+import java.util.Queue;
 
-class SagaStartedEvent extends SagaEvent<Operation> {
+interface SagaState {
 
-  SagaStartedEvent(long id) {
-    super(id, NO_OP);
-  }
+  void invoke(Deque<SagaRequest> executedRequests, Queue<SagaRequest> pendingRequests);
 }

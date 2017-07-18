@@ -16,7 +16,21 @@
 
 package io.servicecomb.saga.core;
 
-public interface SagaEvent {
+public abstract class SagaEvent<T extends Operation> {
 
-  long id();
+  private final T payload;
+  private final long id;
+
+  public SagaEvent(long id, T payload) {
+    this.id = id;
+    this.payload = payload;
+  }
+
+  long id() {
+    return id;
+  }
+
+  T payload() {
+    return payload;
+  }
 }

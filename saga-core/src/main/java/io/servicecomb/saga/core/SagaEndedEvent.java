@@ -16,17 +16,11 @@
 
 package io.servicecomb.saga.core;
 
-class SagaEndedEvent implements SagaEvent {
+import static io.servicecomb.saga.core.Operation.NO_OP;
 
-  private final long id;
+class SagaEndedEvent extends SagaEvent<Operation> {
 
-  public SagaEndedEvent(long id) {
-
-    this.id = id;
-  }
-
-  @Override
-  public long id() {
-    return id;
+  SagaEndedEvent(long id) {
+    super(id, NO_OP);
   }
 }

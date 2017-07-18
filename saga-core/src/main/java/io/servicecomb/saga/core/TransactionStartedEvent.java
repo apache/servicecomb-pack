@@ -16,19 +16,9 @@
 
 package io.servicecomb.saga.core;
 
-public class TransactionStartedEvent implements SagaEvent {
+class TransactionStartedEvent extends SagaEvent<Transaction> {
 
-  private final long id;
-  private final Transaction transaction;
-
-  public TransactionStartedEvent(long id, Transaction transaction) {
-
-    this.id = id;
-    this.transaction = transaction;
-  }
-
-  @Override
-  public long id() {
-    return id;
+  TransactionStartedEvent(long id, Transaction transaction) {
+    super(id, transaction);
   }
 }

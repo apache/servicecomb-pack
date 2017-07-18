@@ -16,11 +16,30 @@
 
 package io.servicecomb.saga.core;
 
-import static io.servicecomb.saga.core.Operation.NO_OP;
+class SagaRequest {
 
-class SagaStartedEvent extends SagaEvent<Operation> {
+  private final Transaction transaction;
+  private final Compensation compensation;
 
-  SagaStartedEvent(long id) {
-    super(id, NO_OP);
+  SagaRequest(Transaction transaction, Compensation compensation) {
+
+    this.transaction = transaction;
+    this.compensation = compensation;
+  }
+
+  void commit() {
+    transaction.run();
+  }
+
+  void abort() {
+    compensation.run();
+  }
+
+  Transaction transaction() {
+    return transaction;
+  }
+
+  Compensation compensation() {
+    return compensation;
   }
 }
