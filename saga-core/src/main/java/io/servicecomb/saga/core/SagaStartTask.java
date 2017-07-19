@@ -16,10 +16,24 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.Deque;
-import java.util.Queue;
+class SagaStartTask implements SagaTask {
 
-interface SagaState {
+  private final IdGenerator<Long> idGenerator;
+  private final EventQueue eventQueue;
 
-  void invoke(Deque<SagaTask> executedTasks, Queue<SagaTask> pendingTasks);
+  SagaStartTask(EventQueue eventQueue, IdGenerator<Long> idGenerator) {
+
+    this.idGenerator = idGenerator;
+    this.eventQueue = eventQueue;
+  }
+
+  @Override
+  public void commit() {
+    eventQueue.offer(new SagaStartedEvent(idGenerator.nextId()));
+  }
+
+  @Override
+  public void abort() {
+    eventQueue.offer(new SagaEndedEvent(idGenerator.nextId()));
+  }
 }

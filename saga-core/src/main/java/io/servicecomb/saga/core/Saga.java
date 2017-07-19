@@ -16,7 +16,6 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -30,72 +29,66 @@ public class Saga {
   private final SagaState compensationState;
   private final SagaState transactionState;
 
+  private volatile SagaState currentState;
+
   public Saga(IdGenerator<Long> idGenerator, EventQueue eventQueue, SagaRequest[] requests) {
     this.idGenerator = idGenerator;
     this.eventQueue = eventQueue;
     this.requests = requests;
-    this.compensationState = new CompensationState(idGenerator, eventQueue);
-    this.transactionState = new TransactionState(eventQueue, idGenerator);
+    this.compensationState = CompensationState.INSTANCE;
+    this.transactionState = TransactionState.INSTANCE;
   }
 
   public void run() {
-    Deque<SagaRequest> executedRequests = new LinkedList<>();
-    Queue<SagaRequest> pendingRequests = new LinkedList<>();
-    Collections.addAll(pendingRequests, requests);
+    Deque<SagaTask> executedTasks = new LinkedList<>();
+    Queue<SagaTask> pendingTasks = populatePendingSagaTasks();
 
-    eventQueue.offer(new SagaStartedEvent(idGenerator.nextId()));
-
-    try {
-      transactionState.invoke(executedRequests, pendingRequests);
-    } catch (Exception e) {
-      compensationState.invoke(executedRequests, pendingRequests);
-    }
-
-    eventQueue.offer(new SagaEndedEvent(idGenerator.nextId()));
+    currentState = transactionState;
+    do {
+      try {
+        currentState.invoke(executedTasks, pendingTasks);
+      } catch (Exception e) {
+        currentState = compensationState;
+      }
+    } while (!pendingTasks.isEmpty() && !executedTasks.isEmpty());
   }
 
-  private static class CompensationState implements SagaState {
+  public void abort() {
+    currentState = compensationState;
+    new SagaAbortTask(eventQueue, idGenerator).commit();
+  }
 
-    private final IdGenerator<Long> idGenerator;
-    private final EventQueue eventQueue;
+  private Queue<SagaTask> populatePendingSagaTasks() {
+    Queue<SagaTask> pendingTasks = new LinkedList<>();
 
-    CompensationState(IdGenerator<Long> idGenerator, EventQueue eventQueue) {
-      this.idGenerator = idGenerator;
-      this.eventQueue = eventQueue;
+    pendingTasks.add(new SagaStartTask(eventQueue, idGenerator));
+
+    for (SagaRequest request : requests) {
+      pendingTasks.add(new RequestProcessTask(request, eventQueue, idGenerator));
     }
+
+    pendingTasks.add(new SagaEndTask(eventQueue, idGenerator));
+    return pendingTasks;
+  }
+
+  private enum CompensationState implements SagaState {
+    INSTANCE;
 
     @Override
-    public void invoke(Deque<SagaRequest> executedRequests, Queue<SagaRequest> pendingRequests) {
-      while (executedRequests.peek() != null) {
-        SagaRequest executedRequest = executedRequests.pop();
-
-        eventQueue.offer(new CompensationStartedEvent(idGenerator.nextId(), executedRequest.compensation()));
-        executedRequest.abort();
-        eventQueue.offer(new CompensationEndedEvent(idGenerator.nextId(), executedRequest.compensation()));
-      }
+    public void invoke(Deque<SagaTask> executedTasks, Queue<SagaTask> pendingTasks) {
+      executedTasks.pop().abort();
     }
   }
 
-  private static class TransactionState implements SagaState {
+  private enum TransactionState implements SagaState {
+    INSTANCE;
 
-    private final EventQueue eventQueue;
-    private final IdGenerator<Long> idGenerator;
+    @Override
+    public void invoke(Deque<SagaTask> executedTasks, Queue<SagaTask> pendingTasks) {
+      SagaTask request = pendingTasks.poll();
+      executedTasks.push(request);
 
-    TransactionState(EventQueue eventQueue, IdGenerator<Long> idGenerator) {
-      this.eventQueue = eventQueue;
-      this.idGenerator = idGenerator;
-    }
-
-
-    public void invoke(Deque<SagaRequest> executedRequests, Queue<SagaRequest> pendingRequests) {
-      while (pendingRequests.peek() != null) {
-        SagaRequest request = pendingRequests.poll();
-        executedRequests.push(request);
-
-        eventQueue.offer(new TransactionStartedEvent(idGenerator.nextId(), request.transaction()));
-        request.commit();
-        eventQueue.offer(new TransactionEndedEvent(idGenerator.nextId(), request.transaction()));
-      }
+      request.commit();
     }
   }
 }

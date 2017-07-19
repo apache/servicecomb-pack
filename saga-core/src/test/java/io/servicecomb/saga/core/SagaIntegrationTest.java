@@ -17,21 +17,25 @@
 package io.servicecomb.saga.core;
 
 import static io.servicecomb.saga.core.Operation.NO_OP;
+import static io.servicecomb.saga.core.SagaEventMatcher.eventWith;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
-public class SagaTest {
+public class SagaIntegrationTest {
 
   private final IdGenerator<Long> idGenerator = new LongIdGenerator();
   private final EventQueue eventQueue = new EmbeddedEventQueue();
@@ -60,7 +64,7 @@ public class SagaTest {
   public void transactionsAreRunSuccessfully() {
     saga.run();
 
-    assertThat(instancesOf(eventQueue), contains(
+    assertThat(eventQueue, contains(
         eventWith(1L, NO_OP, SagaStartedEvent.class),
         eventWith(2L, transaction1, TransactionStartedEvent.class),
         eventWith(3L, transaction1, TransactionEndedEvent.class),
@@ -81,12 +85,12 @@ public class SagaTest {
   }
 
   @Test
-  public void compensateCommittedTransactions() {
+  public void compensateCommittedTransactionsOnFailure() {
     doThrow(new RuntimeException("oops")).when(transaction2).run();
 
     saga.run();
 
-    assertThat(instancesOf(eventQueue), contains(
+    assertThat(eventQueue, contains(
         eventWith(1L, NO_OP, SagaStartedEvent.class),
         eventWith(2L, transaction1, TransactionStartedEvent.class),
         eventWith(3L, transaction1, TransactionEndedEvent.class),
@@ -106,26 +110,53 @@ public class SagaTest {
     verify(compensation3, never()).run();
   }
 
-  private List<SagaEvent> instancesOf(EventQueue eventQueue) {
-    List<SagaEvent> transactions = new ArrayList<>();
-    for (SagaEvent event : eventQueue) {
-      transactions.add(event);
-    }
-    return transactions;
-  }
+  @Test
+  public void compensateCommittedTransactionsOnAbort() throws InterruptedException {
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    CountDownLatch latch = new CountDownLatch(1);
 
-  private Matcher<SagaEvent> eventWith(long id, Operation operation, Class<?> aClass) {
-    return new TypeSafeMatcher<SagaEvent>() {
+    doAnswer(new Answer<Void>() {
       @Override
-      protected boolean matchesSafely(SagaEvent sagaEvent) {
-        return sagaEvent.id() == id && sagaEvent.payload().equals(operation) && sagaEvent.getClass().equals(aClass);
+      public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
+        latch.await();
+        return null;
       }
+    }).when(transaction2).run();
 
-      @Override
-      public void describeTo(Description description) {
-        description
-            .appendText("SagaEvent {id=" + id + ", operation=" + operation + ", class=" + aClass.getCanonicalName());
-      }
-    };
+    executor.execute(saga::run);
+
+    await().atMost(1, SECONDS).until(() -> {
+      verify(transaction2).run();
+      return true;
+    });
+
+    saga.abort();
+    latch.countDown();
+
+    await().atMost(1, SECONDS).until(() -> {
+      assertThat(eventQueue, contains(
+          eventWith(1L, NO_OP, SagaStartedEvent.class),
+          eventWith(2L, transaction1, TransactionStartedEvent.class),
+          eventWith(3L, transaction1, TransactionEndedEvent.class),
+          eventWith(4L, transaction2, TransactionStartedEvent.class),
+          eventWith(5L, NO_OP, SagaAbortedEvent.class),
+          eventWith(6L, transaction2, TransactionEndedEvent.class),
+          eventWith(7L, compensation2, CompensationStartedEvent.class),
+          eventWith(8L, compensation2, CompensationEndedEvent.class),
+          eventWith(9L, compensation1, CompensationStartedEvent.class),
+          eventWith(10L, compensation1, CompensationEndedEvent.class),
+          eventWith(11L, NO_OP, SagaEndedEvent.class)));
+      return true;
+    });
+
+    verify(transaction1).run();
+    verify(transaction2).run();
+    verify(transaction3, never()).run();
+
+    verify(compensation1).run();
+    verify(compensation2).run();
+    verify(compensation3, never()).run();
+
+    executor.shutdown();
   }
 }

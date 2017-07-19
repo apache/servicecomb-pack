@@ -16,10 +16,9 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.Deque;
-import java.util.Queue;
+interface SagaTask {
 
-interface SagaState {
+  void commit();
 
-  void invoke(Deque<SagaTask> executedTasks, Queue<SagaTask> pendingTasks);
+  void abort();
 }

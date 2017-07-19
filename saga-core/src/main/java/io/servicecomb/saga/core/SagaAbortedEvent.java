@@ -16,10 +16,11 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.Deque;
-import java.util.Queue;
+import static io.servicecomb.saga.core.Operation.NO_OP;
 
-interface SagaState {
+class SagaAbortedEvent extends SagaEvent {
 
-  void invoke(Deque<SagaTask> executedTasks, Queue<SagaTask> pendingTasks);
+  SagaAbortedEvent(long id) {
+    super(id, NO_OP);
+  }
 }
