@@ -16,12 +16,12 @@
 
 package io.servicecomb.saga.core;
 
-public abstract class SagaEvent<T extends Operation> {
+public abstract class SagaEvent {
 
-  private final T payload;
+  private final Operation payload;
   private final long id;
 
-  public SagaEvent(long id, T payload) {
+  public SagaEvent(long id, Operation payload) {
     this.id = id;
     this.payload = payload;
   }
@@ -30,7 +30,7 @@ public abstract class SagaEvent<T extends Operation> {
     return id;
   }
 
-  T payload() {
+  Operation payload() {
     return payload;
   }
 }

@@ -16,7 +16,7 @@
 
 package io.servicecomb.saga.core;
 
-class CompensationEndedEvent extends SagaEvent<Compensation> {
+class CompensationEndedEvent extends SagaEvent {
 
   CompensationEndedEvent(long id, Compensation compensation) {
     super(id, compensation);

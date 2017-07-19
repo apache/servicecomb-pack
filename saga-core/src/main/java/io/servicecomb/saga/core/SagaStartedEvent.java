@@ -18,7 +18,7 @@ package io.servicecomb.saga.core;
 
 import static io.servicecomb.saga.core.Operation.NO_OP;
 
-class SagaStartedEvent extends SagaEvent<Operation> {
+class SagaStartedEvent extends SagaEvent {
 
   SagaStartedEvent(long id) {
     super(id, NO_OP);

@@ -16,7 +16,7 @@
 
 package io.servicecomb.saga.core;
 
-class TransactionEndedEvent extends SagaEvent<Transaction> {
+class TransactionEndedEvent extends SagaEvent {
 
   TransactionEndedEvent(long id, Transaction transaction) {
     super(id, transaction);
