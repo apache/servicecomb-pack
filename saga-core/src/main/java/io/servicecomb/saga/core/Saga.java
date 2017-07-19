@@ -25,36 +25,39 @@ public class Saga {
   private final IdGenerator<Long> idGenerator;
   private final EventQueue eventQueue;
   private final SagaRequest[] requests;
-
-  private final SagaState compensationState;
-  private final SagaState transactionState;
+  private final RecoveryPolicy recoveryPolicy;
 
   private volatile SagaState currentState;
 
-  public Saga(IdGenerator<Long> idGenerator, EventQueue eventQueue, SagaRequest[] requests) {
+  public Saga(IdGenerator<Long> idGenerator, EventQueue eventQueue, SagaRequest... requests) {
+    this(idGenerator, eventQueue, new BackwardRecovery(), requests);
+  }
+
+  public Saga(IdGenerator<Long> idGenerator, EventQueue eventQueue, RecoveryPolicy recoveryPolicy,
+      SagaRequest... requests) {
+
     this.idGenerator = idGenerator;
     this.eventQueue = eventQueue;
     this.requests = requests;
-    this.compensationState = CompensationState.INSTANCE;
-    this.transactionState = TransactionState.INSTANCE;
+    this.recoveryPolicy = recoveryPolicy;
   }
 
   public void run() {
     Deque<SagaTask> executedTasks = new LinkedList<>();
     Queue<SagaTask> pendingTasks = populatePendingSagaTasks();
 
-    currentState = transactionState;
+    currentState = TransactionState.INSTANCE;
     do {
       try {
         currentState.invoke(executedTasks, pendingTasks);
       } catch (Exception e) {
-        currentState = compensationState;
+        currentState = recoveryPolicy.apply(currentState);
       }
     } while (!pendingTasks.isEmpty() && !executedTasks.isEmpty());
   }
 
   public void abort() {
-    currentState = compensationState;
+    currentState = recoveryPolicy.apply(currentState);
     new SagaAbortTask(eventQueue, idGenerator).commit();
   }
 
@@ -69,26 +72,5 @@ public class Saga {
 
     pendingTasks.add(new SagaEndTask(eventQueue, idGenerator));
     return pendingTasks;
-  }
-
-  private enum CompensationState implements SagaState {
-    INSTANCE;
-
-    @Override
-    public void invoke(Deque<SagaTask> executedTasks, Queue<SagaTask> pendingTasks) {
-      executedTasks.pop().abort();
-    }
-  }
-
-  private enum TransactionState implements SagaState {
-    INSTANCE;
-
-    @Override
-    public void invoke(Deque<SagaTask> executedTasks, Queue<SagaTask> pendingTasks) {
-      SagaTask request = pendingTasks.poll();
-      executedTasks.push(request);
-
-      request.commit();
-    }
   }
 }

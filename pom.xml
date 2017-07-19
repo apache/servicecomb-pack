@@ -57,6 +57,12 @@
         <version>3.0.0</version>
         <scope>test</scope>
       </dependency>
+      <dependency>
+        <groupId>com.github.seanyinx</groupId>
+        <artifactId>unit-scaffolding</artifactId>
+        <version>1.0.0</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

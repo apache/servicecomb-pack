@@ -22,10 +22,12 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.concurrent.CountDownLatch;
@@ -58,6 +60,7 @@ public class SagaIntegrationTest {
 
   private final SagaRequest[] requests = {request1, request2, request3};
 
+  private final RuntimeException exception = new RuntimeException("oops");
   private final Saga saga = new Saga(idGenerator, eventQueue, requests);
 
   @Test
@@ -86,7 +89,7 @@ public class SagaIntegrationTest {
 
   @Test
   public void compensateCommittedTransactionsOnFailure() {
-    doThrow(new RuntimeException("oops")).when(transaction2).run();
+    doThrow(exception).when(transaction2).run();
 
     saga.run();
 
@@ -155,6 +158,38 @@ public class SagaIntegrationTest {
     verify(compensation3, never()).run();
 
     executor.shutdown();
+  }
+
+  @Test
+  public void retriesFailedTransactionTillSuccess() {
+    Saga saga = new Saga(idGenerator, eventQueue, new ForwardRecovery(), requests);
+
+    doThrow(exception).doThrow(exception).doNothing().when(transaction2).run();
+
+    saga.run();
+
+    assertThat(eventQueue, contains(
+        eventWith(1L, NO_OP, SagaStartedEvent.class),
+        eventWith(2L, transaction1, TransactionStartedEvent.class),
+        eventWith(3L, transaction1, TransactionEndedEvent.class),
+        eventWith(4L, transaction2, TransactionStartedEvent.class),
+        eventWith(5L, transaction2, TransactionStartedEvent.class),
+        eventWith(6L, transaction2, TransactionStartedEvent.class),
+        eventWith(7L, transaction2, TransactionEndedEvent.class),
+        eventWith(8L, transaction3, TransactionStartedEvent.class),
+        eventWith(9L, transaction3, TransactionEndedEvent.class),
+        eventWith(10L, NO_OP, SagaEndedEvent.class)
+    ));
+
+    for (Transaction transaction : transactions) {
+      verify(transaction, atLeastOnce()).run();
+    }
+
+    for (Compensation compensation : compensations) {
+      verify(compensation, never()).run();
+    }
+
+    verify(transaction2, times(3)).run();
   }
 
   private void waitTillSlowTransactionStarted(Transaction transaction) {
