@@ -125,10 +125,7 @@ public class SagaIntegrationTest {
 
     executor.execute(saga::run);
 
-    await().atMost(1, SECONDS).until(() -> {
-      verify(transaction2).run();
-      return true;
-    });
+    waitTillSlowTransactionStarted(transaction2);
 
     saga.abort();
     latch.countDown();
@@ -158,5 +155,12 @@ public class SagaIntegrationTest {
     verify(compensation3, never()).run();
 
     executor.shutdown();
+  }
+
+  private void waitTillSlowTransactionStarted(Transaction transaction) {
+    await().atMost(1, SECONDS).until(() -> {
+      verify(transaction).run();
+      return true;
+    });
   }
 }
