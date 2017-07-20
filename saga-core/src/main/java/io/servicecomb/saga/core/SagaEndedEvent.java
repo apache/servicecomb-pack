@@ -31,6 +31,7 @@ class SagaEndedEvent extends SagaEvent {
   public SagaState play(SagaState currentState, Queue<SagaTask> pendingTasks, Deque<SagaTask> executedTasks,
       IdGenerator<Long> eventIdGenerator) {
     eventIdGenerator.nextId();
+    executedTasks.push(pendingTasks.poll());
     return currentState;
   }
 }

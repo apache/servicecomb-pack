@@ -22,6 +22,7 @@ import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
@@ -255,6 +256,35 @@ public class SagaIntegrationTest {
     verify(compensation1).run();
     verify(compensation2).run();
     verify(compensation3, never()).run();
+  }
+
+  @Test
+  public void restoresSagaToEndStateByPlayingAllEvents() {
+    Saga saga = new Saga(idGenerator, eventStore, requests);
+
+    Iterable<SagaEvent> events = asList(
+        new SagaStartedEvent(1L),
+        new TransactionStartedEvent(2L, transaction1),
+        new TransactionEndedEvent(3L, transaction1),
+        new TransactionStartedEvent(4L, transaction2),
+        new TransactionEndedEvent(5L, transaction2),
+        new TransactionStartedEvent(6L, transaction3),
+        new TransactionEndedEvent(7L, transaction3),
+        new SagaEndedEvent(8L)
+    );
+
+    saga.play(events);
+
+    saga.run();
+    assertThat(eventStore.size(), is(0));
+
+    for (Transaction transaction : transactions) {
+      verify(transaction, never()).run();
+    }
+
+    for (Compensation compensation : compensations) {
+      verify(compensation, never()).run();
+    }
   }
 
   private void waitTillSlowTransactionStarted(Transaction transaction) {
