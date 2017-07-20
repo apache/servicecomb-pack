@@ -117,6 +117,7 @@ public class SagaIntegrationTest {
 
   @Test
   public void compensateCommittedTransactionsOnAbort() throws InterruptedException {
+    Saga saga = new Saga(idGenerator, eventStore, new ForwardRecovery(), requests);
     ExecutorService executor = Executors.newSingleThreadExecutor();
     CountDownLatch latch = new CountDownLatch(1);
 

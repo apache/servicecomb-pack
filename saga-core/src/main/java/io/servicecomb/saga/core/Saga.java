@@ -60,7 +60,7 @@ public class Saga {
   }
 
   public void abort() {
-    currentState = recoveryPolicy.apply(currentState);
+    currentState = CompensationState.INSTANCE;
     new SagaAbortTask(taskIdGenerator.nextId(), eventStore, idGenerator).commit();
   }
 
