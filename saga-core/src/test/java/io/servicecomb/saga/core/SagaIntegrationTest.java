@@ -235,15 +235,15 @@ public class SagaIntegrationTest {
         new TransactionEndedEvent(3L, transaction1),
         new TransactionStartedEvent(4L, transaction2),
         new TransactionEndedEvent(5L, transaction2),
-        new CompensationStartedEvent(6L, compensation2)
+        new CompensationStartedEvent(6L, compensation2),
+        new CompensationEndedEvent(7L, compensation2),
+        new CompensationStartedEvent(8L, compensation1)
     );
 
     saga.play(events);
 
     saga.run();
     assertThat(eventStore, contains(
-        eventWith(6L, compensation2, CompensationStartedEvent.class),
-        eventWith(7L, compensation2, CompensationEndedEvent.class),
         eventWith(8L, compensation1, CompensationStartedEvent.class),
         eventWith(9L, compensation1, CompensationEndedEvent.class),
         eventWith(10L, NO_OP, SagaEndedEvent.class)
@@ -254,7 +254,7 @@ public class SagaIntegrationTest {
     verify(transaction3, never()).run();
 
     verify(compensation1).run();
-    verify(compensation2).run();
+    verify(compensation2, never()).run();
     verify(compensation3, never()).run();
   }
 
