@@ -18,16 +18,16 @@ package io.servicecomb.saga.core;
 
 class RequestProcessTask implements SagaTask {
 
-  private final EventQueue eventQueue;
+  private final EventStore eventStore;
   private final IdGenerator<Long> idGenerator;
   private final long id;
   private final SagaRequest request;
 
-  RequestProcessTask(long id, SagaRequest request, EventQueue eventQueue,
+  RequestProcessTask(long id, SagaRequest request, EventStore eventStore,
       IdGenerator<Long> idGenerator) {
     this.id = id;
     this.request = request;
-    this.eventQueue = eventQueue;
+    this.eventStore = eventStore;
     this.idGenerator = idGenerator;
   }
 
@@ -38,15 +38,15 @@ class RequestProcessTask implements SagaTask {
 
   @Override
   public void commit() {
-    eventQueue.offer(new TransactionStartedEvent(idGenerator.nextId(), request.transaction()));
+    eventStore.offer(new TransactionStartedEvent(idGenerator.nextId(), request.transaction()));
     request.commit();
-    eventQueue.offer(new TransactionEndedEvent(idGenerator.nextId(), request.transaction()));
+    eventStore.offer(new TransactionEndedEvent(idGenerator.nextId(), request.transaction()));
   }
 
   @Override
   public void abort() {
-    eventQueue.offer(new CompensationStartedEvent(idGenerator.nextId(), request.compensation()));
+    eventStore.offer(new CompensationStartedEvent(idGenerator.nextId(), request.compensation()));
     request.abort();
-    eventQueue.offer(new CompensationEndedEvent(idGenerator.nextId(), request.compensation()));
+    eventStore.offer(new CompensationEndedEvent(idGenerator.nextId(), request.compensation()));
   }
 }

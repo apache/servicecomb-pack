@@ -41,7 +41,7 @@ import org.mockito.stubbing.Answer;
 public class SagaIntegrationTest {
 
   private final IdGenerator<Long> idGenerator = new LongIdGenerator();
-  private final EventQueue eventQueue = new EmbeddedEventQueue();
+  private final EventStore eventStore = new EmbeddedEventStore();
 
   private final Transaction transaction1 = mock(Transaction.class, "transaction1");
   private final Transaction transaction2 = mock(Transaction.class, "transaction2");
@@ -62,13 +62,13 @@ public class SagaIntegrationTest {
   private final SagaRequest[] requests = {request1, request2, request3};
 
   private final RuntimeException exception = new RuntimeException("oops");
-  private final Saga saga = new Saga(idGenerator, eventQueue, requests);
+  private final Saga saga = new Saga(idGenerator, eventStore, requests);
 
   @Test
   public void transactionsAreRunSuccessfully() {
     saga.run();
 
-    assertThat(eventQueue, contains(
+    assertThat(eventStore, contains(
         eventWith(1L, NO_OP, SagaStartedEvent.class),
         eventWith(2L, transaction1, TransactionStartedEvent.class),
         eventWith(3L, transaction1, TransactionEndedEvent.class),
@@ -94,7 +94,7 @@ public class SagaIntegrationTest {
 
     saga.run();
 
-    assertThat(eventQueue, contains(
+    assertThat(eventStore, contains(
         eventWith(1L, NO_OP, SagaStartedEvent.class),
         eventWith(2L, transaction1, TransactionStartedEvent.class),
         eventWith(3L, transaction1, TransactionEndedEvent.class),
@@ -135,7 +135,7 @@ public class SagaIntegrationTest {
     latch.countDown();
 
     await().atMost(1, SECONDS).until(() -> {
-      assertThat(eventQueue, contains(
+      assertThat(eventStore, contains(
           eventWith(1L, NO_OP, SagaStartedEvent.class),
           eventWith(2L, transaction1, TransactionStartedEvent.class),
           eventWith(3L, transaction1, TransactionEndedEvent.class),
@@ -163,13 +163,13 @@ public class SagaIntegrationTest {
 
   @Test
   public void retriesFailedTransactionTillSuccess() {
-    Saga saga = new Saga(idGenerator, eventQueue, new ForwardRecovery(), requests);
+    Saga saga = new Saga(idGenerator, eventStore, new ForwardRecovery(), requests);
 
     doThrow(exception).doThrow(exception).doNothing().when(transaction2).run();
 
     saga.run();
 
-    assertThat(eventQueue, contains(
+    assertThat(eventStore, contains(
         eventWith(1L, NO_OP, SagaStartedEvent.class),
         eventWith(2L, transaction1, TransactionStartedEvent.class),
         eventWith(3L, transaction1, TransactionEndedEvent.class),
@@ -195,7 +195,7 @@ public class SagaIntegrationTest {
 
   @Test
   public void restoresSagaToTransactionStateByPlayingAllEvents() {
-    Saga saga = new Saga(idGenerator, eventQueue, requests);
+    Saga saga = new Saga(idGenerator, eventStore, requests);
 
     Iterable<SagaEvent> events = asList(
         new SagaStartedEvent(1L),
@@ -207,7 +207,7 @@ public class SagaIntegrationTest {
     saga.play(events);
 
     saga.run();
-    assertThat(eventQueue, contains(
+    assertThat(eventStore, contains(
         eventWith(4L, transaction2, TransactionStartedEvent.class),
         eventWith(5L, transaction2, TransactionEndedEvent.class),
         eventWith(6L, transaction3, TransactionStartedEvent.class),
@@ -226,7 +226,7 @@ public class SagaIntegrationTest {
 
   @Test
   public void restoresSagaToCompensationStateByPlayingAllEvents() {
-    Saga saga = new Saga(idGenerator, eventQueue, requests);
+    Saga saga = new Saga(idGenerator, eventStore, requests);
 
     Iterable<SagaEvent> events = asList(
         new SagaStartedEvent(1L),
@@ -240,7 +240,7 @@ public class SagaIntegrationTest {
     saga.play(events);
 
     saga.run();
-    assertThat(eventQueue, contains(
+    assertThat(eventStore, contains(
         eventWith(6L, compensation2, CompensationStartedEvent.class),
         eventWith(7L, compensation2, CompensationEndedEvent.class),
         eventWith(8L, compensation1, CompensationStartedEvent.class),

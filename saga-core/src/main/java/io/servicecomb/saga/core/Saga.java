@@ -24,7 +24,7 @@ public class Saga {
 
   private final IdGenerator<Long> idGenerator;
   private final IdGenerator<Long> taskIdGenerator;
-  private final EventQueue eventQueue;
+  private final EventStore eventStore;
   private final SagaRequest[] requests;
   private final RecoveryPolicy recoveryPolicy;
 
@@ -32,15 +32,15 @@ public class Saga {
   private final Deque<SagaTask> executedTasks = new LinkedList<>();
   private final Queue<SagaTask> pendingTasks;
 
-  public Saga(IdGenerator<Long> idGenerator, EventQueue eventQueue, SagaRequest... requests) {
-    this(idGenerator, eventQueue, new BackwardRecovery(), requests);
+  public Saga(IdGenerator<Long> idGenerator, EventStore eventStore, SagaRequest... requests) {
+    this(idGenerator, eventStore, new BackwardRecovery(), requests);
   }
 
-  public Saga(IdGenerator<Long> idGenerator, EventQueue eventQueue, RecoveryPolicy recoveryPolicy,
+  public Saga(IdGenerator<Long> idGenerator, EventStore eventStore, RecoveryPolicy recoveryPolicy,
       SagaRequest... requests) {
 
     this.idGenerator = idGenerator;
-    this.eventQueue = eventQueue;
+    this.eventStore = eventStore;
     this.requests = requests;
     this.recoveryPolicy = recoveryPolicy;
     this.taskIdGenerator = new LongIdGenerator();
@@ -61,19 +61,19 @@ public class Saga {
 
   public void abort() {
     currentState = recoveryPolicy.apply(currentState);
-    new SagaAbortTask(taskIdGenerator.nextId(), eventQueue, idGenerator).commit();
+    new SagaAbortTask(taskIdGenerator.nextId(), eventStore, idGenerator).commit();
   }
 
   private Queue<SagaTask> populatePendingSagaTasks(SagaRequest[] requests) {
     Queue<SagaTask> pendingTasks = new LinkedList<>();
 
-    pendingTasks.add(new SagaStartTask(taskIdGenerator.nextId(), eventQueue, idGenerator));
+    pendingTasks.add(new SagaStartTask(taskIdGenerator.nextId(), eventStore, idGenerator));
 
     for (SagaRequest request : requests) {
-      pendingTasks.add(new RequestProcessTask(taskIdGenerator.nextId(), request, eventQueue, idGenerator));
+      pendingTasks.add(new RequestProcessTask(taskIdGenerator.nextId(), request, eventStore, idGenerator));
     }
 
-    pendingTasks.add(new SagaEndTask(taskIdGenerator.nextId(), eventQueue, idGenerator));
+    pendingTasks.add(new SagaEndTask(taskIdGenerator.nextId(), eventStore, idGenerator));
     return pendingTasks;
   }
 

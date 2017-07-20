@@ -26,13 +26,13 @@ import org.junit.Test;
 public class SagaStartTaskTest {
 
   private final IdGenerator<Long> idGenerator = new LongIdGenerator();
-  private final EventQueue eventQueue = new EmbeddedEventQueue();
-  private final SagaStartTask state = new SagaStartTask(0L, eventQueue, idGenerator);
+  private final EventStore eventStore = new EmbeddedEventStore();
+  private final SagaStartTask state = new SagaStartTask(0L, eventStore, idGenerator);
 
   @Test
   public void transitToNextStateAfterEmittingEvent() {
     state.commit();
 
-    assertThat(eventQueue, contains(eventWith(1L, NO_OP, SagaStartedEvent.class)));
+    assertThat(eventStore, contains(eventWith(1L, NO_OP, SagaStartedEvent.class)));
   }
 }

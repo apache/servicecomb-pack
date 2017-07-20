@@ -20,13 +20,13 @@ class SagaStartTask implements SagaTask {
 
   private final long id;
   private final IdGenerator<Long> idGenerator;
-  private final EventQueue eventQueue;
+  private final EventStore eventStore;
 
-  SagaStartTask(long id, EventQueue eventQueue, IdGenerator<Long> idGenerator) {
+  SagaStartTask(long id, EventStore eventStore, IdGenerator<Long> idGenerator) {
     this.id = id;
 
     this.idGenerator = idGenerator;
-    this.eventQueue = eventQueue;
+    this.eventStore = eventStore;
   }
 
   @Override
@@ -36,11 +36,11 @@ class SagaStartTask implements SagaTask {
 
   @Override
   public void commit() {
-    eventQueue.offer(new SagaStartedEvent(idGenerator.nextId()));
+    eventStore.offer(new SagaStartedEvent(idGenerator.nextId()));
   }
 
   @Override
   public void abort() {
-    eventQueue.offer(new SagaEndedEvent(idGenerator.nextId()));
+    eventStore.offer(new SagaEndedEvent(idGenerator.nextId()));
   }
 }

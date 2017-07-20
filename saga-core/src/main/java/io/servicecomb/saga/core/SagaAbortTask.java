@@ -19,12 +19,12 @@ package io.servicecomb.saga.core;
 class SagaAbortTask implements SagaTask {
 
   private final long id;
-  private final EventQueue eventQueue;
+  private final EventStore eventStore;
   private final IdGenerator<Long> idGenerator;
 
-  SagaAbortTask(long id, EventQueue eventQueue, IdGenerator<Long> idGenerator) {
+  SagaAbortTask(long id, EventStore eventStore, IdGenerator<Long> idGenerator) {
     this.id = id;
-    this.eventQueue = eventQueue;
+    this.eventStore = eventStore;
     this.idGenerator = idGenerator;
   }
 
@@ -35,7 +35,7 @@ class SagaAbortTask implements SagaTask {
 
   @Override
   public void commit() {
-    eventQueue.offer(new SagaAbortedEvent(idGenerator.nextId()));
+    eventStore.offer(new SagaAbortedEvent(idGenerator.nextId()));
   }
 
   @Override

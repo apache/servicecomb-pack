@@ -16,26 +16,9 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.Iterator;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
+interface EventStore extends Iterable<SagaEvent> {
 
-class EmbeddedEventQueue implements EventQueue {
+  void offer(SagaEvent sagaEvent);
 
-  private final Queue<SagaEvent> events = new LinkedBlockingQueue<>();
-
-  @Override
-  public void offer(SagaEvent sagaEvent) {
-    events.offer(sagaEvent);
-  }
-
-  @Override
-  public int size() {
-    return events.size();
-  }
-
-  @Override
-  public Iterator<SagaEvent> iterator() {
-    return events.iterator();
-  }
+  int size();
 }
