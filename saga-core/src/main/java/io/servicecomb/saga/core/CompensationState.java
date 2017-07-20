@@ -22,8 +22,20 @@ import java.util.Queue;
 enum CompensationState implements SagaState {
   INSTANCE;
 
+  private long taskId = Long.MAX_VALUE;
+
   @Override
   public void invoke(Deque<SagaTask> executedTasks, Queue<SagaTask> pendingTasks) {
-    executedTasks.pop().abort();
+    SagaTask task = executedTasks.peek();
+    task.abort();
+
+    executedTasks.pop();
+    taskId = task.id();
   }
+
+  @Override
+  public long taskId() {
+    return taskId;
+  }
+
 }

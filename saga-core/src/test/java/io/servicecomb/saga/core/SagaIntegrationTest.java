@@ -18,6 +18,7 @@ package io.servicecomb.saga.core;
 
 import static io.servicecomb.saga.core.Operation.NO_OP;
 import static io.servicecomb.saga.core.SagaEventMatcher.eventWith;
+import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
@@ -42,15 +43,15 @@ public class SagaIntegrationTest {
   private final IdGenerator<Long> idGenerator = new LongIdGenerator();
   private final EventQueue eventQueue = new EmbeddedEventQueue();
 
-  private final Transaction transaction1 = mock(Transaction.class);
-  private final Transaction transaction2 = mock(Transaction.class);
-  private final Transaction transaction3 = mock(Transaction.class);
+  private final Transaction transaction1 = mock(Transaction.class, "transaction1");
+  private final Transaction transaction2 = mock(Transaction.class, "transaction2");
+  private final Transaction transaction3 = mock(Transaction.class, "transaction3");
 
   private final Transaction[] transactions = {transaction1, transaction2, transaction3};
 
-  private final Compensation compensation1 = mock(Compensation.class);
-  private final Compensation compensation2 = mock(Compensation.class);
-  private final Compensation compensation3 = mock(Compensation.class);
+  private final Compensation compensation1 = mock(Compensation.class, "compensation1");
+  private final Compensation compensation2 = mock(Compensation.class, "compensation2");
+  private final Compensation compensation3 = mock(Compensation.class, "compensation3");
 
   private final Compensation[] compensations = {compensation1, compensation2, compensation3};
 
@@ -190,6 +191,70 @@ public class SagaIntegrationTest {
     }
 
     verify(transaction2, times(3)).run();
+  }
+
+  @Test
+  public void restoresSagaToTransactionStateByPlayingAllEvents() {
+    Saga saga = new Saga(idGenerator, eventQueue, requests);
+
+    Iterable<SagaEvent> events = asList(
+        new SagaStartedEvent(1L),
+        new TransactionStartedEvent(2L, transaction1),
+        new TransactionEndedEvent(3L, transaction1),
+        new TransactionStartedEvent(4L, transaction2)
+    );
+
+    saga.play(events);
+
+    saga.run();
+    assertThat(eventQueue, contains(
+        eventWith(4L, transaction2, TransactionStartedEvent.class),
+        eventWith(5L, transaction2, TransactionEndedEvent.class),
+        eventWith(6L, transaction3, TransactionStartedEvent.class),
+        eventWith(7L, transaction3, TransactionEndedEvent.class),
+        eventWith(8L, NO_OP, SagaEndedEvent.class)
+    ));
+
+    verify(transaction1, never()).run();
+    verify(transaction2).run();
+    verify(transaction3).run();
+
+    for (Compensation compensation : compensations) {
+      verify(compensation, never()).run();
+    }
+  }
+
+  @Test
+  public void restoresSagaToCompensationStateByPlayingAllEvents() {
+    Saga saga = new Saga(idGenerator, eventQueue, requests);
+
+    Iterable<SagaEvent> events = asList(
+        new SagaStartedEvent(1L),
+        new TransactionStartedEvent(2L, transaction1),
+        new TransactionEndedEvent(3L, transaction1),
+        new TransactionStartedEvent(4L, transaction2),
+        new TransactionEndedEvent(5L, transaction2),
+        new CompensationStartedEvent(6L, compensation2)
+    );
+
+    saga.play(events);
+
+    saga.run();
+    assertThat(eventQueue, contains(
+        eventWith(6L, compensation2, CompensationStartedEvent.class),
+        eventWith(7L, compensation2, CompensationEndedEvent.class),
+        eventWith(8L, compensation1, CompensationStartedEvent.class),
+        eventWith(9L, compensation1, CompensationEndedEvent.class),
+        eventWith(10L, NO_OP, SagaEndedEvent.class)
+    ));
+
+    verify(transaction1, never()).run();
+    verify(transaction2, never()).run();
+    verify(transaction3, never()).run();
+
+    verify(compensation1).run();
+    verify(compensation2).run();
+    verify(compensation3, never()).run();
   }
 
   private void waitTillSlowTransactionStarted(Transaction transaction) {

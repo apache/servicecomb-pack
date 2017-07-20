@@ -18,9 +18,19 @@ package io.servicecomb.saga.core;
 
 import static io.servicecomb.saga.core.Operation.NO_OP;
 
+import java.util.Deque;
+import java.util.Queue;
+
 class SagaAbortedEvent extends SagaEvent {
 
   SagaAbortedEvent(long id) {
     super(id, NO_OP);
+  }
+
+  @Override
+  public SagaState play(SagaState currentState, Queue<SagaTask> pendingTasks, Deque<SagaTask> executedTasks,
+      IdGenerator<Long> eventIdGenerator) {
+    eventIdGenerator.nextId();
+    return CompensationState.INSTANCE;
   }
 }

@@ -21,6 +21,8 @@ import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,64 +34,61 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class TransactionStateTest {
+public class CompensationStateTest {
 
   private final SagaTask sagaTask1 = Mockito.mock(SagaTask.class);
   private final SagaTask sagaTask2 = Mockito.mock(SagaTask.class);
 
   private final Deque<SagaTask> executedTasks = new LinkedList<>();
   private final Queue<SagaTask> pendingTasks = new LinkedList<>();
-  private final TransactionState transactionState = TransactionState.INSTANCE;
+  private final CompensationState compensationState = CompensationState.INSTANCE;
 
   @Before
   public void setUp() throws Exception {
     when(sagaTask1.id()).thenReturn(1L);
     when(sagaTask2.id()).thenReturn(2L);
 
-    pendingTasks.offer(sagaTask1);
-    pendingTasks.offer(sagaTask2);
+    executedTasks.push(sagaTask1);
+    executedTasks.push(sagaTask2);
   }
 
   @Test
-  public void transferHeadFromPendingTasksToExecutedOnSuccess() {
-    transactionState.invoke(executedTasks, pendingTasks);
+  public void popHeadFromExecutedTasksOnSuccess() {
+    compensationState.invoke(executedTasks, pendingTasks);
 
+    assertThat(pendingTasks.isEmpty(), is(true));
     assertThat(executedTasks, contains(sagaTask1));
-    assertThat(pendingTasks, contains(sagaTask2));
+
+    verify(sagaTask2).abort();
+    verify(sagaTask1, never()).abort();
   }
 
   @Ignore
   @Test
-  public void skipTasksExecuted() {
-    transactionState.invoke(executedTasks, pendingTasks);
-    transactionState.invoke(executedTasks, pendingTasks);
+  public void skipTaskExecuted() {
+    reset(sagaTask1);
+    when(sagaTask1.id()).thenReturn(3L);
 
-    executedTasks.clear();
-    pendingTasks.offer(sagaTask1);
-    pendingTasks.offer(sagaTask2);
+    compensationState.invoke(executedTasks, pendingTasks);
+    compensationState.invoke(executedTasks, pendingTasks);
 
-    transactionState.invoke(executedTasks, pendingTasks);
-    transactionState.invoke(executedTasks, pendingTasks);
+    assertThat(compensationState.taskId(), is(2L));
+    assertThat(executedTasks, contains(sagaTask1));
 
-    assertThat(transactionState.taskId(), is(2L));
-    assertThat(pendingTasks.isEmpty(), is(true));
-    assertThat(executedTasks, contains(sagaTask2, sagaTask1));
-
-    verify(sagaTask1).commit();
-    verify(sagaTask2).commit();
+    verify(sagaTask2).abort();
+    verify(sagaTask1, never()).abort();
   }
 
   @Test
-  public void doNotConsumeHeadFromPendingTasksOnFailure() {
-    doThrow(new RuntimeException("oops")).when(sagaTask1).commit();
+  public void doNotConsumeHeadFromExecutedTasksOnFailure() {
+    doThrow(new RuntimeException("oops")).when(sagaTask2).abort();
 
     try {
-      transactionState.invoke(executedTasks, pendingTasks);
+      compensationState.invoke(executedTasks, pendingTasks);
       expectFailing(RuntimeException.class);
     } catch (RuntimeException ignored) {
     }
 
-    assertThat(executedTasks, contains(sagaTask1));
-    assertThat(pendingTasks, contains(sagaTask1, sagaTask2));
+    assertThat(executedTasks, contains(sagaTask2, sagaTask1));
   }
 }

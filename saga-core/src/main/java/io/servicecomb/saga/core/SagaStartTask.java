@@ -18,13 +18,20 @@ package io.servicecomb.saga.core;
 
 class SagaStartTask implements SagaTask {
 
+  private final long id;
   private final IdGenerator<Long> idGenerator;
   private final EventQueue eventQueue;
 
-  SagaStartTask(EventQueue eventQueue, IdGenerator<Long> idGenerator) {
+  SagaStartTask(long id, EventQueue eventQueue, IdGenerator<Long> idGenerator) {
+    this.id = id;
 
     this.idGenerator = idGenerator;
     this.eventQueue = eventQueue;
+  }
+
+  @Override
+  public long id() {
+    return id;
   }
 
   @Override

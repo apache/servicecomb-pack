@@ -27,7 +27,7 @@ public class SagaStartTaskTest {
 
   private final IdGenerator<Long> idGenerator = new LongIdGenerator();
   private final EventQueue eventQueue = new EmbeddedEventQueue();
-  private final SagaStartTask state = new SagaStartTask(eventQueue, idGenerator);
+  private final SagaStartTask state = new SagaStartTask(0L, eventQueue, idGenerator);
 
   @Test
   public void transitToNextStateAfterEmittingEvent() {

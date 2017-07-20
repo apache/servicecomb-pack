@@ -16,9 +16,22 @@
 
 package io.servicecomb.saga.core;
 
+import java.util.Deque;
+import java.util.Queue;
+
 class TransactionEndedEvent extends SagaEvent {
 
   TransactionEndedEvent(long id, Transaction transaction) {
     super(id, transaction);
+  }
+
+  @Override
+  public SagaState play(SagaState currentState, Queue<SagaTask> pendingTasks, Deque<SagaTask> executedTasks,
+      IdGenerator<Long> eventIdGenerator) {
+
+    eventIdGenerator.nextId();
+    eventIdGenerator.nextId();
+    pendingTasks.poll();
+    return currentState;
   }
 }

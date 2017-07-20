@@ -18,12 +18,19 @@ package io.servicecomb.saga.core;
 
 class SagaAbortTask implements SagaTask {
 
+  private final long id;
   private final EventQueue eventQueue;
   private final IdGenerator<Long> idGenerator;
 
-  SagaAbortTask(EventQueue eventQueue, IdGenerator<Long> idGenerator) {
+  SagaAbortTask(long id, EventQueue eventQueue, IdGenerator<Long> idGenerator) {
+    this.id = id;
     this.eventQueue = eventQueue;
     this.idGenerator = idGenerator;
+  }
+
+  @Override
+  public long id() {
+    return id;
   }
 
   @Override

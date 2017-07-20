@@ -16,6 +16,9 @@
 
 package io.servicecomb.saga.core;
 
+import java.util.Deque;
+import java.util.Queue;
+
 public abstract class SagaEvent {
 
   private final Operation payload;
@@ -33,4 +36,7 @@ public abstract class SagaEvent {
   Operation payload() {
     return payload;
   }
+
+  public abstract SagaState play(SagaState currentState, Queue<SagaTask> pendingTasks, Deque<SagaTask> executedTasks,
+      IdGenerator<Long> eventIdGenerator);
 }

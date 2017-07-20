@@ -23,11 +23,14 @@ import java.util.Queue;
 public class Saga {
 
   private final IdGenerator<Long> idGenerator;
+  private final IdGenerator<Long> taskIdGenerator;
   private final EventQueue eventQueue;
   private final SagaRequest[] requests;
   private final RecoveryPolicy recoveryPolicy;
 
   private volatile SagaState currentState;
+  private final Deque<SagaTask> executedTasks = new LinkedList<>();
+  private final Queue<SagaTask> pendingTasks;
 
   public Saga(IdGenerator<Long> idGenerator, EventQueue eventQueue, SagaRequest... requests) {
     this(idGenerator, eventQueue, new BackwardRecovery(), requests);
@@ -40,13 +43,13 @@ public class Saga {
     this.eventQueue = eventQueue;
     this.requests = requests;
     this.recoveryPolicy = recoveryPolicy;
+    this.taskIdGenerator = new LongIdGenerator();
+    this.pendingTasks = populatePendingSagaTasks(requests);
+
+    currentState = TransactionState.INSTANCE;
   }
 
   public void run() {
-    Deque<SagaTask> executedTasks = new LinkedList<>();
-    Queue<SagaTask> pendingTasks = populatePendingSagaTasks();
-
-    currentState = TransactionState.INSTANCE;
     do {
       try {
         currentState.invoke(executedTasks, pendingTasks);
@@ -58,19 +61,25 @@ public class Saga {
 
   public void abort() {
     currentState = recoveryPolicy.apply(currentState);
-    new SagaAbortTask(eventQueue, idGenerator).commit();
+    new SagaAbortTask(taskIdGenerator.nextId(), eventQueue, idGenerator).commit();
   }
 
-  private Queue<SagaTask> populatePendingSagaTasks() {
+  private Queue<SagaTask> populatePendingSagaTasks(SagaRequest[] requests) {
     Queue<SagaTask> pendingTasks = new LinkedList<>();
 
-    pendingTasks.add(new SagaStartTask(eventQueue, idGenerator));
+    pendingTasks.add(new SagaStartTask(taskIdGenerator.nextId(), eventQueue, idGenerator));
 
     for (SagaRequest request : requests) {
-      pendingTasks.add(new RequestProcessTask(request, eventQueue, idGenerator));
+      pendingTasks.add(new RequestProcessTask(taskIdGenerator.nextId(), request, eventQueue, idGenerator));
     }
 
-    pendingTasks.add(new SagaEndTask(eventQueue, idGenerator));
+    pendingTasks.add(new SagaEndTask(taskIdGenerator.nextId(), eventQueue, idGenerator));
     return pendingTasks;
+  }
+
+  public void play(Iterable<SagaEvent> events) {
+    for (SagaEvent event : events) {
+      currentState = event.play(currentState, pendingTasks, executedTasks, idGenerator);
+    }
   }
 }

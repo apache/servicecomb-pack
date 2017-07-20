@@ -16,9 +16,18 @@
 
 package io.servicecomb.saga.core;
 
+import java.util.Deque;
+import java.util.Queue;
+
 class CompensationStartedEvent extends SagaEvent {
 
   CompensationStartedEvent(long id, Compensation compensation) {
     super(id, compensation);
+  }
+
+  @Override
+  public SagaState play(SagaState currentState, Queue<SagaTask> pendingTasks, Deque<SagaTask> executedTasks,
+      IdGenerator<Long> eventIdGenerator) {
+    return CompensationState.INSTANCE;
   }
 }

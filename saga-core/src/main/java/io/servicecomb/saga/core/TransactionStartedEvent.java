@@ -16,9 +16,19 @@
 
 package io.servicecomb.saga.core;
 
+import java.util.Deque;
+import java.util.Queue;
+
 class TransactionStartedEvent extends SagaEvent {
 
   TransactionStartedEvent(long id, Transaction transaction) {
     super(id, transaction);
+  }
+
+  @Override
+  public SagaState play(SagaState currentState, Queue<SagaTask> pendingTasks, Deque<SagaTask> executedTasks,
+      IdGenerator<Long> eventIdGenerator) {
+    executedTasks.push(pendingTasks.peek());
+    return currentState;
   }
 }

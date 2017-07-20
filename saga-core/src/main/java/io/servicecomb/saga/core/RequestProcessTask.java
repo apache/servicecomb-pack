@@ -20,13 +20,20 @@ class RequestProcessTask implements SagaTask {
 
   private final EventQueue eventQueue;
   private final IdGenerator<Long> idGenerator;
+  private final long id;
   private final SagaRequest request;
 
-  RequestProcessTask(SagaRequest request, EventQueue eventQueue,
+  RequestProcessTask(long id, SagaRequest request, EventQueue eventQueue,
       IdGenerator<Long> idGenerator) {
+    this.id = id;
     this.request = request;
     this.eventQueue = eventQueue;
     this.idGenerator = idGenerator;
+  }
+
+  @Override
+  public long id() {
+    return id;
   }
 
   @Override

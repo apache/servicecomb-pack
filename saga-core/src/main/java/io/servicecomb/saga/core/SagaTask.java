@@ -18,6 +18,8 @@ package io.servicecomb.saga.core;
 
 interface SagaTask {
 
+  long id();
+
   void commit();
 
   void abort();
