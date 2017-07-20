@@ -16,9 +16,6 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class SagaCoordinator {
 
   private final EventStore eventStore;
@@ -30,14 +27,9 @@ public class SagaCoordinator {
   }
 
   public void run() {
-    List<SagaEvent> events = new ArrayList<>(eventStore.size());
-    for (SagaEvent event : eventStore) {
-      events.add(event);
-    }
-
     Saga saga = new Saga(new LongIdGenerator(), eventStore, requests);
 
-    saga.play(events);
+    saga.play(eventStore);
     saga.run();
   }
 }
