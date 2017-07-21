@@ -16,18 +16,6 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.Deque;
-import java.util.Queue;
-
-enum CompensationState implements SagaState {
-  INSTANCE;
-
-  @Override
-  public void invoke(Deque<SagaTask> executedTasks, Queue<SagaTask> pendingTasks) {
-    SagaTask task = executedTasks.peek();
-    task.abort();
-
-    executedTasks.pop();
-  }
+class OperationTimeoutException extends RuntimeException {
 
 }

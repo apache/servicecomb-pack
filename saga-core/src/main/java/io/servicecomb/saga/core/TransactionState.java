@@ -22,22 +22,18 @@ import java.util.Queue;
 enum TransactionState implements SagaState {
   INSTANCE;
 
-  private long taskId;
-
   @Override
   public void invoke(Deque<SagaTask> executedTasks, Queue<SagaTask> pendingTasks) {
     SagaTask task = pendingTasks.peek();
     executedTasks.push(task);
 
-    task.commit();
+    try {
+      task.commit();
+    } catch (OperationTimeoutException e) {
+      task.commit();
+    }
 
-    taskId = task.id();
     pendingTasks.poll();
-  }
-
-  @Override
-  public long taskId() {
-    return taskId;
   }
 
 }

@@ -19,6 +19,7 @@ package io.servicecomb.saga.core;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class Saga {
 
@@ -29,7 +30,8 @@ public class Saga {
   private final RecoveryPolicy recoveryPolicy;
 
   private volatile SagaState currentState;
-  private final Deque<SagaTask> executedTasks = new LinkedList<>();
+
+  private final Deque<SagaTask> executedTasks = new ConcurrentLinkedDeque<>();
   private final Queue<SagaTask> pendingTasks;
 
   public Saga(IdGenerator<Long> idGenerator, EventStore eventStore, SagaRequest... requests) {
@@ -61,7 +63,7 @@ public class Saga {
 
   public void abort() {
     currentState = CompensationState.INSTANCE;
-    new SagaAbortTask(taskIdGenerator.nextId(), eventStore, idGenerator).commit();
+    executedTasks.push(new SagaAbortTask(taskIdGenerator.nextId(), eventStore, idGenerator));
   }
 
   private Queue<SagaTask> populatePendingSagaTasks(SagaRequest[] requests) {

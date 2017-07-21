@@ -32,11 +32,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 public class SagaIntegrationTest {
@@ -121,13 +121,10 @@ public class SagaIntegrationTest {
     ExecutorService executor = Executors.newSingleThreadExecutor();
     CountDownLatch latch = new CountDownLatch(1);
 
-    doAnswer(new Answer<Void>() {
-      @Override
-      public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
-        latch.await();
-        return null;
-      }
-    }).when(transaction2).run();
+    doAnswer(withAnswer(() -> {
+      latch.await();
+      return null;
+    })).when(transaction2).run();
 
     executor.execute(saga::run);
 
@@ -142,8 +139,8 @@ public class SagaIntegrationTest {
           eventWith(2L, transaction1, TransactionStartedEvent.class),
           eventWith(3L, transaction1, TransactionEndedEvent.class),
           eventWith(4L, transaction2, TransactionStartedEvent.class),
-          eventWith(5L, NO_OP, SagaAbortedEvent.class),
-          eventWith(6L, transaction2, TransactionEndedEvent.class),
+          eventWith(5L, transaction2, TransactionEndedEvent.class),
+          eventWith(6L, NO_OP, SagaAbortedEvent.class),
           eventWith(7L, compensation2, CompensationStartedEvent.class),
           eventWith(8L, compensation2, CompensationEndedEvent.class),
           eventWith(9L, compensation1, CompensationStartedEvent.class),
@@ -154,6 +151,51 @@ public class SagaIntegrationTest {
 
     verify(transaction1).run();
     verify(transaction2).run();
+    verify(transaction3, never()).run();
+
+    verify(compensation1).run();
+    verify(compensation2).run();
+    verify(compensation3, never()).run();
+
+    executor.shutdown();
+  }
+
+  @Test
+  public void retriesFailedTransactionsOnAbort() throws InterruptedException {
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    CountDownLatch latch = new CountDownLatch(1);
+
+    doAnswer(withAnswer(() -> {
+      latch.await();
+      throw new OperationTimeoutException();
+    })).doNothing().when(transaction2).run();
+
+    executor.execute(saga::run);
+
+    waitTillSlowTransactionStarted(transaction2);
+
+    saga.abort();
+    latch.countDown();
+
+    await().atMost(1, SECONDS).until(() -> {
+      assertThat(eventStore, contains(
+          eventWith(1L, NO_OP, SagaStartedEvent.class),
+          eventWith(2L, transaction1, TransactionStartedEvent.class),
+          eventWith(3L, transaction1, TransactionEndedEvent.class),
+          eventWith(4L, transaction2, TransactionStartedEvent.class),
+          eventWith(5L, transaction2, TransactionStartedEvent.class),
+          eventWith(6L, transaction2, TransactionEndedEvent.class),
+          eventWith(7L, NO_OP, SagaAbortedEvent.class),
+          eventWith(8L, compensation2, CompensationStartedEvent.class),
+          eventWith(9L, compensation2, CompensationEndedEvent.class),
+          eventWith(10L, compensation1, CompensationStartedEvent.class),
+          eventWith(11L, compensation1, CompensationEndedEvent.class),
+          eventWith(12L, NO_OP, SagaEndedEvent.class)));
+      return true;
+    });
+
+    verify(transaction1).run();
+    verify(transaction2, times(2)).run();
     verify(transaction3, never()).run();
 
     verify(compensation1).run();
@@ -293,5 +335,9 @@ public class SagaIntegrationTest {
       verify(transaction).run();
       return true;
     });
+  }
+
+  private Answer<Void> withAnswer(Callable<Void> callable) {
+    return invocationOnMock -> callable.call();
   }
 }

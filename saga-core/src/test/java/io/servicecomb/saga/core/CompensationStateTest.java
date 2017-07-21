@@ -72,7 +72,6 @@ public class CompensationStateTest {
     compensationState.invoke(executedTasks, pendingTasks);
     compensationState.invoke(executedTasks, pendingTasks);
 
-    assertThat(compensationState.taskId(), is(2L));
     assertThat(executedTasks, contains(sagaTask1));
 
     verify(sagaTask2).abort();

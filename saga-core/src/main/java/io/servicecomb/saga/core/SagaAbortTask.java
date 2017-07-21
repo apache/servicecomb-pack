@@ -40,6 +40,6 @@ class SagaAbortTask implements SagaTask {
 
   @Override
   public void abort() {
-
+    eventStore.offer(new SagaAbortedEvent(idGenerator.nextId()));
   }
 }

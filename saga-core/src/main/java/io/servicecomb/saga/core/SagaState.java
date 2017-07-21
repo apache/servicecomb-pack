@@ -23,6 +23,4 @@ interface SagaState {
 
   void invoke(Deque<SagaTask> executedTasks, Queue<SagaTask> pendingTasks);
 
-  long taskId();
-
 }

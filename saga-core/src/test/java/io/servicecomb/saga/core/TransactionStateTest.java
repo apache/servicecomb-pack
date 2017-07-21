@@ -71,7 +71,6 @@ public class TransactionStateTest {
     transactionState.invoke(executedTasks, pendingTasks);
     transactionState.invoke(executedTasks, pendingTasks);
 
-    assertThat(transactionState.taskId(), is(2L));
     assertThat(pendingTasks.isEmpty(), is(true));
     assertThat(executedTasks, contains(sagaTask2, sagaTask1));
 
