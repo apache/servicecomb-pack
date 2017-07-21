@@ -167,7 +167,7 @@ public class SagaIntegrationTest {
 
     doAnswer(withAnswer(() -> {
       latch.await();
-      throw new OperationTimeoutException();
+      throw new OperationTimeoutException("oops");
     })).doNothing().when(transaction2).run();
 
     executor.execute(saga::run);

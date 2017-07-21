@@ -16,7 +16,9 @@
 
 package io.servicecomb.saga.core;
 
-interface RecoveryPolicy extends Descriptive {
+interface Descriptive {
 
-  SagaState apply(SagaState sagaState);
+  default String description() {
+    return getClass().getSimpleName();
+  }
 }

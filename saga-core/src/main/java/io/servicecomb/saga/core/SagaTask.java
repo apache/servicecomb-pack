@@ -16,7 +16,7 @@
 
 package io.servicecomb.saga.core;
 
-interface SagaTask {
+interface SagaTask extends Descriptive {
 
   long id();
 

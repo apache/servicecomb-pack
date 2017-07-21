@@ -16,17 +16,23 @@
 
 package io.servicecomb.saga.core;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Deque;
 import java.util.Queue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 enum CompensationState implements SagaState {
   INSTANCE;
+  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
   public void invoke(Deque<SagaTask> executedTasks, Queue<SagaTask> pendingTasks) {
     SagaTask task = executedTasks.peek();
+    log.info("Starting task {} id={}", task.description(), task.id());
     task.abort();
 
+    log.info("Completed task {} id={}", task.description(), task.id());
     executedTasks.pop();
   }
 

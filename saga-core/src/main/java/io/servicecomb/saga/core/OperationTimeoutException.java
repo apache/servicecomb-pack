@@ -18,4 +18,7 @@ package io.servicecomb.saga.core;
 
 class OperationTimeoutException extends RuntimeException {
 
+  OperationTimeoutException(String cause) {
+    super(cause);
+  }
 }

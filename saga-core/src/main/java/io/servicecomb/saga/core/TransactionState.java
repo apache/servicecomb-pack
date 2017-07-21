@@ -16,22 +16,29 @@
 
 package io.servicecomb.saga.core;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Deque;
 import java.util.Queue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 enum TransactionState implements SagaState {
   INSTANCE;
+  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
   public void invoke(Deque<SagaTask> executedTasks, Queue<SagaTask> pendingTasks) {
     SagaTask task = pendingTasks.peek();
     executedTasks.push(task);
 
+    log.info("Starting task {} id={}", task.description(), task.id());
     try {
       task.commit();
     } catch (OperationTimeoutException e) {
+      log.error("Retrying timed out Transaction", e);
       task.commit();
     }
+    log.info("Completed task {} id={}", task.description(), task.id());
 
     pendingTasks.poll();
   }

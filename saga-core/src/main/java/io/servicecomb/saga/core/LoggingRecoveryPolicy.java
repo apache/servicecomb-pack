@@ -17,29 +17,20 @@
 package io.servicecomb.saga.core;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Iterator;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class EmbeddedEventStore implements EventStore {
+class LoggingRecoveryPolicy implements RecoveryPolicy {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private final Queue<SagaEvent> events = new LinkedBlockingQueue<>();
+  private final RecoveryPolicy recoveryPolicy;
 
-  @Override
-  public void offer(SagaEvent sagaEvent) {
-    events.offer(sagaEvent);
-    log.info("Added event id={}, type={}", sagaEvent.id(), sagaEvent.getClass().getSimpleName());
+  LoggingRecoveryPolicy(RecoveryPolicy recoveryPolicy) {
+    this.recoveryPolicy = recoveryPolicy;
   }
 
   @Override
-  public int size() {
-    return events.size();
-  }
-
-  @Override
-  public Iterator<SagaEvent> iterator() {
-    return events.iterator();
+  public SagaState apply(SagaState sagaState) {
+    log.info("Applying {} policy", recoveryPolicy.description());
+    return recoveryPolicy.apply(sagaState);
   }
 }

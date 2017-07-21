@@ -16,12 +16,17 @@
 
 package io.servicecomb.saga.core;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Saga {
+
+  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final IdGenerator<Long> idGenerator;
   private final IdGenerator<Long> taskIdGenerator;
@@ -44,7 +49,7 @@ public class Saga {
     this.idGenerator = idGenerator;
     this.eventStore = eventStore;
     this.requests = requests;
-    this.recoveryPolicy = recoveryPolicy;
+    this.recoveryPolicy = new LoggingRecoveryPolicy(recoveryPolicy);
     this.taskIdGenerator = new LongIdGenerator();
     this.pendingTasks = populatePendingSagaTasks(requests);
 
@@ -52,13 +57,16 @@ public class Saga {
   }
 
   public void run() {
+    log.info("Starting Saga");
     do {
       try {
         currentState.invoke(executedTasks, pendingTasks);
       } catch (Exception e) {
+        log.error("Failed to run operation", e);
         currentState = recoveryPolicy.apply(currentState);
       }
     } while (!pendingTasks.isEmpty() && !executedTasks.isEmpty());
+    log.info("Completed Saga");
   }
 
   public void abort() {
@@ -80,8 +88,12 @@ public class Saga {
   }
 
   public void play(Iterable<SagaEvent> events) {
+    log.info("Start playing events");
     for (SagaEvent event : events) {
+      log.info("Start playing event {} id={}", event.description(), event.id());
       currentState = event.play(currentState, pendingTasks, executedTasks, idGenerator);
+      log.info("Completed playing event {} id={}", event.description(), event.id());
     }
+    log.info("Completed playing events");
   }
 }

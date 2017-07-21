@@ -19,7 +19,7 @@ package io.servicecomb.saga.core;
 import java.util.Deque;
 import java.util.Queue;
 
-public abstract class SagaEvent {
+public abstract class SagaEvent implements Descriptive {
 
   private final Operation payload;
   private final long id;
