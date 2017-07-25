@@ -30,7 +30,7 @@ class EmbeddedEventStore implements EventStore {
   @Override
   public void offer(SagaEvent sagaEvent) {
     events.offer(sagaEvent);
-    log.info("Added event id={}, type={}", sagaEvent.id(), sagaEvent.getClass().getSimpleName());
+    log.info("Added event id={}, type={}", sagaEvent.id(), sagaEvent.description());
   }
 
   @Override
