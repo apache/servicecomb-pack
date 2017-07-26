@@ -27,8 +27,6 @@ import java.util.Set;
 
 public class Traveller<T> {
 
-
-  private final DirectedAcyclicGraph<T> dag;
   private final Collection<Node<T>> nodes;
   private final Collection<Node<T>> nodesBuffer;
 
@@ -37,11 +35,10 @@ public class Traveller<T> {
 
 
   public Traveller(DirectedAcyclicGraph<T> dag) {
-    this.dag = dag;
     this.nodes = new LinkedHashSet<>();
     this.nodesBuffer = new LinkedList<>();
 
-    nodesWithoutParent.offer(this.dag.root());
+    nodesWithoutParent.offer(dag.root());
   }
 
   public void next() {

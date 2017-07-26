@@ -76,30 +76,4 @@ public class NodeTest {
     assertThat(node6.parents(), containsInAnyOrder(node2, node5));
     assertThat(node6.children().isEmpty(), is(true));
   }
-
-
-  @Test
-  public void clearsAllRelatives() {
-    node1.clear();
-
-    assertThat(parent.children(), containsInAnyOrder(node1, node2));
-
-    assertThat(node1.children().isEmpty(), is(true));
-    assertThat(node1.parents(), contains(parent));
-
-    assertThat(node2.children(), contains(node6));
-    assertThat(node2.parents(), contains(parent));
-
-    assertThat(node3.parents().isEmpty(), is(true));
-    assertThat(node3.children().isEmpty(), is(true));
-
-    assertThat(node4.parents().isEmpty(), is(true));
-    assertThat(node4.children().isEmpty(), is(true));
-
-    assertThat(node5.parents().isEmpty(), is(true));
-    assertThat(node5.children().isEmpty(), is(true));
-
-    assertThat(node6.parents(), contains(node2));
-    assertThat(node6.children().isEmpty(), is(true));
-  }
 }

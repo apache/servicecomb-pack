@@ -21,17 +21,25 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class Node<T> {
+class Node<T> {
   private final int id;
   private final Set<Node<T>> children = new HashSet<>();
   private final Set<Node<T>> parents = new HashSet<>();
 
-  public Node(int id) {
+  Node(int id) {
     this.id = id;
   }
 
-  public int id() {
+  int id() {
     return id;
+  }
+
+  Set<Node<T>> parents() {
+    return parents;
+  }
+
+  Set<Node<T>> children() {
+    return children;
   }
 
   void addChild(Node<T> node) {
@@ -39,25 +47,9 @@ public class Node<T> {
     node.parents.add(this);
   }
 
-  public Set<Node<T>> parents() {
-    return parents;
-  }
-
-  public Set<Node<T>> children() {
-    return children;
-  }
-
-  public void addChildren(Collection<Node<T>> nodes) {
+  void addChildren(Collection<Node<T>> nodes) {
     children.addAll(nodes);
     nodes.forEach(node -> node.parents.add(this));
-  }
-
-  public void clear() {
-    children.forEach((node) -> {
-      node.parents.remove(this);
-      node.clear();
-    });
-    children.clear();
   }
 
   @Override
