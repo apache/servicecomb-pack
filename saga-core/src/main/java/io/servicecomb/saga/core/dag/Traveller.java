@@ -32,13 +32,15 @@ public class Traveller<T> {
 
   private final Queue<Node<T>> nodesWithoutParent = new LinkedList<>();
   private final Map<Integer, Set<Node<T>>> nodeParents = new HashMap<>();
+  private final TraversalDirection<T> traversalDirection;
 
 
-  public Traveller(DirectedAcyclicGraph<T> dag) {
+  public Traveller(SingleLeafDirectedAcyclicGraph<T> dag, TraversalDirection<T> traversalDirection) {
     this.nodes = new LinkedHashSet<>();
     this.nodesBuffer = new LinkedList<>();
+    this.traversalDirection = traversalDirection;
 
-    nodesWithoutParent.offer(dag.root());
+    nodesWithoutParent.offer(traversalDirection.root(dag));
   }
 
   public void next() {
@@ -50,8 +52,8 @@ public class Traveller<T> {
       Node<T> node = nodesWithoutParent.poll();
       nodes.add(node);
 
-      for (Node<T> child : node.children()) {
-        nodeParents.computeIfAbsent(child.id(), id -> new HashSet<>(child.parents()));
+      for (Node<T> child : traversalDirection.children(node)) {
+        nodeParents.computeIfAbsent(child.id(), id -> new HashSet<>(traversalDirection.parents(child)));
         nodeParents.get(child.id()).remove(node);
 
         if (nodeParents.get(child.id()).isEmpty()) {

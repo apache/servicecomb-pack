@@ -32,11 +32,9 @@ public class DirectedAcyclicGraphTraversalTest {
   private final Node<String> node3 = new Node<>(3);
   private final Node<String> node4 = new Node<>(4);
   private final Node<String> node5 = new Node<>(5);
-  private final Node<String> node6 = new Node<>(6);
+  private final Node<String> leaf = new Node<>(6);
 
-  private final DirectedAcyclicGraph<String> dag = new DirectedAcyclicGraph<>(root);
-
-  private Traveller<String> traveller;
+  private final SingleLeafDirectedAcyclicGraph<String> dag = new SingleLeafDirectedAcyclicGraph<>(root, leaf);
 
   //        0
   //       / \
@@ -53,14 +51,14 @@ public class DirectedAcyclicGraphTraversalTest {
     node1.addChildren(asList(node3, node4));
     node3.addChild(node5);
     node4.addChild(node5);
-    node5.addChild(node6);
-    node2.addChild(node6);
-
-    traveller = new Traveller<>(dag);
+    node5.addChild(leaf);
+    node2.addChild(leaf);
   }
 
   @Test
-  public void traverseGraphOneLevelPerStep() {
+  public void traverseGraphOneLevelPerStepFromRoot() {
+    Traveller<String> traveller = new Traveller<>(dag, new FromRootTraversalDirection<>());
+
     Collection<Node<String>> nodes = traveller.nodes();
 
     traveller.next();
@@ -76,6 +74,28 @@ public class DirectedAcyclicGraphTraversalTest {
     assertThat(nodes, contains(root, node1, node2, node3, node4, node5));
 
     traveller.next();
-    assertThat(nodes, contains(root, node1, node2, node3, node4, node5, node6));
+    assertThat(nodes, contains(root, node1, node2, node3, node4, node5, leaf));
+  }
+
+  @Test
+  public void traverseGraphOneLevelPerStepFromLeaf() {
+    Traveller<String> traveller = new Traveller<>(dag, new FromLeafTraversalDirection());
+
+    Collection<Node<String>> nodes = traveller.nodes();
+
+    traveller.next();
+    assertThat(nodes, contains(leaf));
+
+    traveller.next();
+    assertThat(nodes, contains(leaf, node2, node5));
+
+    traveller.next();
+    assertThat(nodes, contains(leaf, node2, node5, node3, node4));
+
+    traveller.next();
+    assertThat(nodes, contains(leaf, node2, node5, node3, node4, node1));
+
+    traveller.next();
+    assertThat(nodes, contains(leaf, node2, node5, node3, node4, node1, root));
   }
 }
