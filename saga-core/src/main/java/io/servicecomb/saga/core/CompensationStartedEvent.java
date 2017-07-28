@@ -16,18 +16,27 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.Deque;
-import java.util.Queue;
+import io.servicecomb.saga.core.dag.Node;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
 
 class CompensationStartedEvent extends SagaEvent {
 
-  CompensationStartedEvent(long id, Compensation compensation) {
+  CompensationStartedEvent(long id, SagaTask compensation) {
     super(id, compensation);
   }
 
   @Override
-  public SagaState play(SagaState currentState, Queue<SagaTask> pendingTasks, Deque<SagaTask> executedTasks,
-      IdGenerator<Long> eventIdGenerator) {
-    return CompensationState.INSTANCE;
+  public void gatherTo(Map<Operation, Collection<SagaEvent>> completedOperations, Set<SagaTask> orphanOperations) {
+    completedOperations.put(payload().compensation(), new LinkedList<>());
+    completedOperations.get(payload().compensation()).add(this);
+    orphanOperations.add(payload());
+  }
+
+  @Override
+  public void play(IdGenerator<Long> idGenerator, Iterator<Node<SagaTask>> iterator) {
   }
 }

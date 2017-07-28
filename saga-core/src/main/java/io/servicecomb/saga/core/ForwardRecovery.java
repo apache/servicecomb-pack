@@ -16,10 +16,23 @@
 
 package io.servicecomb.saga.core;
 
+import java.lang.invoke.MethodHandles;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 class ForwardRecovery implements RecoveryPolicy {
+  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
-  public SagaState apply(SagaState sagaState) {
-    return sagaState;
+  public void apply(SagaTask task) {
+    boolean success = false;
+    do {
+      try {
+        task.commit();
+        success = true;
+      } catch (Exception ignored) {
+        log.info("Applying {} policy", description());
+      }
+    } while (!success);
   }
 }

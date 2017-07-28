@@ -21,17 +21,23 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-class Node<T> {
-  private final int id;
+public class Node<T> {
+  private final long id;
+  private final T value;
   private final Set<Node<T>> children = new HashSet<>();
   private final Set<Node<T>> parents = new HashSet<>();
 
-  Node(int id) {
+  public Node(long id, T value) {
     this.id = id;
+    this.value = value;
   }
 
-  int id() {
+  long id() {
     return id;
+  }
+
+  public T value() {
+    return value;
   }
 
   Set<Node<T>> parents() {
@@ -42,12 +48,12 @@ class Node<T> {
     return children;
   }
 
-  void addChild(Node<T> node) {
+  public void addChild(Node<T> node) {
     children.add(node);
     node.parents.add(this);
   }
 
-  void addChildren(Collection<Node<T>> nodes) {
+  public void addChildren(Collection<Node<T>> nodes) {
     children.addAll(nodes);
     nodes.forEach(node -> node.parents.add(this));
   }

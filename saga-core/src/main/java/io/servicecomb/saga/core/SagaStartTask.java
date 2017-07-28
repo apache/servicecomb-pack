@@ -35,12 +35,27 @@ class SagaStartTask implements SagaTask {
   }
 
   @Override
+  public Operation transaction() {
+    return Operation.NO_OP;
+  }
+
+  @Override
   public void commit() {
-    eventStore.offer(new SagaStartedEvent(idGenerator.nextId()));
+    eventStore.offer(new SagaStartedEvent(idGenerator.nextId(), this));
+  }
+
+  @Override
+  public void compensate() {
+    eventStore.offer(new SagaEndedEvent(idGenerator.nextId(), this));
   }
 
   @Override
   public void abort() {
-    eventStore.offer(new SagaEndedEvent(idGenerator.nextId()));
+
+  }
+
+  @Override
+  public Operation compensation() {
+    return Operation.END_OP;
   }
 }

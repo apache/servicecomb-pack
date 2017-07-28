@@ -16,15 +16,38 @@
 
 package io.servicecomb.saga.core;
 
+import io.servicecomb.saga.core.dag.Node;
+import io.servicecomb.saga.core.dag.Traveller;
 import java.lang.invoke.MethodHandles;
+import java.util.Collection;
 import java.util.Deque;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-enum TransactionState implements SagaState {
-  INSTANCE;
+class TransactionState extends AbstractSagaState {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private final IdGenerator<Long> idGenerator;
+  private final CompletionService<Operation> executorService;
+  private final RecoveryPolicy recoveryPolicy;
+
+  TransactionState(
+      IdGenerator<Long> idGenerator,
+      CompletionService<Operation> executorService,
+      RecoveryPolicy recoveryPolicy, Traveller<SagaTask> traveller) {
+
+    super(traveller);
+
+    this.idGenerator = idGenerator;
+    this.executorService = executorService;
+    this.recoveryPolicy = recoveryPolicy;
+  }
 
   @Override
   public void invoke(Deque<SagaTask> executedTasks, Queue<SagaTask> pendingTasks) {
@@ -43,4 +66,50 @@ enum TransactionState implements SagaState {
     pendingTasks.poll();
   }
 
+  @Override
+  void invoke(Collection<Node<SagaTask>> nodes) {
+    Map<Future<Operation>, SagaTask> futures = new HashMap<>(nodes.size());
+    for (Node<SagaTask> node : nodes) {
+      SagaTask task = node.value();
+      futures.put(futureOf(task), task);
+    }
+
+    for (int i = 0; i < futures.size(); i++) {
+      try {
+        Future<Operation> future = executorService.take();
+        try {
+          future.get();
+        } catch (ExecutionException e) {
+          throw new TransactionFailedException(e.getCause());
+        }
+      } catch (InterruptedException e) {
+        throw new TransactionFailedException(e);
+      }
+    }
+  }
+
+  @Override
+  boolean replay(Collection<Node<SagaTask>> nodes,
+      Map<Operation, Collection<SagaEvent>> completedOperations) {
+
+    for (Iterator<Node<SagaTask>> iterator = nodes.iterator(); iterator.hasNext(); ) {
+      SagaTask task = iterator.next().value();
+      if (completedOperations.containsKey(task.transaction())) {
+        for (SagaEvent event : completedOperations.get(task.transaction())) {
+          log.info("Start playing event {} id={}", event.description(), event.id());
+          event.play(idGenerator, iterator);
+          log.info("Completed playing event {} id={}", event.description(), event.id());
+        }
+      }
+      completedOperations.remove(task.transaction());
+    }
+    return !nodes.isEmpty();
+  }
+
+  private Future<Operation> futureOf(SagaTask task) {
+    return executorService.submit(() -> {
+      recoveryPolicy.apply(task);
+      return task.transaction();
+    });
+  }
 }

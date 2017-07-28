@@ -34,12 +34,26 @@ class SagaEndTask implements SagaTask {
   }
 
   @Override
+  public Operation transaction() {
+    return Operation.END_OP;
+  }
+
+  @Override
   public void commit() {
-    eventStore.offer(new SagaEndedEvent(idGenerator.nextId()));
+    eventStore.offer(new SagaEndedEvent(idGenerator.nextId(), this));
+  }
+
+  @Override
+  public void compensate() {
   }
 
   @Override
   public void abort() {
 
+  }
+
+  @Override
+  public Operation compensation() {
+    return Operation.END_OP;
   }
 }

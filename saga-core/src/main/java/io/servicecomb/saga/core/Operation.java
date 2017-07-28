@@ -20,5 +20,8 @@ interface Operation {
   Operation NO_OP = () -> {
   };
 
+  Operation END_OP = () -> {
+  };
+
   void run();
 }

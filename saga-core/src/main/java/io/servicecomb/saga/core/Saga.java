@@ -16,11 +16,20 @@
 
 package io.servicecomb.saga.core;
 
+import io.servicecomb.saga.core.dag.ByLevelTraveller;
+import io.servicecomb.saga.core.dag.FromLeafTraversalDirection;
+import io.servicecomb.saga.core.dag.FromRootTraversalDirection;
+import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
+import io.servicecomb.saga.core.dag.TraversalDirection;
 import java.lang.invoke.MethodHandles;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,72 +37,85 @@ public class Saga {
 
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private final IdGenerator<Long> idGenerator;
-  private final IdGenerator<Long> taskIdGenerator;
   private final EventStore eventStore;
-  private final SagaRequest[] requests;
-  private final RecoveryPolicy recoveryPolicy;
 
+  private final CompletionService<Operation> executorService = new ExecutorCompletionService<>(
+      Executors.newFixedThreadPool(5));
+
+  private final Map<Operation, Collection<SagaEvent>> completedOperations;
+  private final Set<SagaTask> orphanOperations;
+
+  private final TransactionState transactionState;
+  private final CompensationState compensationState;
   private volatile SagaState currentState;
 
-  private final Deque<SagaTask> executedTasks = new ConcurrentLinkedDeque<>();
-  private final Queue<SagaTask> pendingTasks;
 
-  public Saga(IdGenerator<Long> idGenerator, EventStore eventStore, SagaRequest... requests) {
-    this(idGenerator, eventStore, new BackwardRecovery(), requests);
+  public Saga(IdGenerator<Long> idGenerator, EventStore eventStore,
+      SingleLeafDirectedAcyclicGraph<SagaTask> sagaTaskGraph) {
+    this(idGenerator, eventStore, new BackwardRecovery(), sagaTaskGraph);
   }
 
   public Saga(IdGenerator<Long> idGenerator, EventStore eventStore, RecoveryPolicy recoveryPolicy,
-      SagaRequest... requests) {
+      SingleLeafDirectedAcyclicGraph<SagaTask> sagaTaskGraph) {
 
-    this.idGenerator = idGenerator;
     this.eventStore = eventStore;
-    this.requests = requests;
-    this.recoveryPolicy = new LoggingRecoveryPolicy(recoveryPolicy);
-    this.taskIdGenerator = new LongIdGenerator();
-    this.pendingTasks = populatePendingSagaTasks(requests);
+    this.completedOperations = new HashMap<>();
+    this.orphanOperations = new HashSet<>();
 
-    currentState = TransactionState.INSTANCE;
+    this.transactionState = new TransactionState(idGenerator, executorService, new LoggingRecoveryPolicy(recoveryPolicy),
+        traveller(sagaTaskGraph, new FromRootTraversalDirection<>()));
+    this.compensationState = new CompensationState(idGenerator, completedOperations,
+        traveller(sagaTaskGraph, new FromLeafTraversalDirection<>()));
+
+    currentState = transactionState;
   }
 
   public void run() {
     log.info("Starting Saga");
     do {
       try {
-        currentState.invoke(executedTasks, pendingTasks);
-      } catch (Exception e) {
+        currentState.run();
+      } catch (TransactionFailedException e) {
         log.error("Failed to run operation", e);
-        currentState = recoveryPolicy.apply(currentState);
+        currentState = compensationState;
+
+        gatherEvents(eventStore);
+
+        orphanOperations.forEach(sagaTask -> {
+          sagaTask.commit();
+          sagaTask.compensation();
+        });
       }
-    } while (!pendingTasks.isEmpty() && !executedTasks.isEmpty());
+    } while (currentState.hasNext());
     log.info("Completed Saga");
-  }
-
-  public void abort() {
-    currentState = CompensationState.INSTANCE;
-    executedTasks.push(new SagaAbortTask(taskIdGenerator.nextId(), eventStore, idGenerator));
-  }
-
-  private Queue<SagaTask> populatePendingSagaTasks(SagaRequest[] requests) {
-    Queue<SagaTask> pendingTasks = new LinkedList<>();
-
-    pendingTasks.add(new SagaStartTask(taskIdGenerator.nextId(), eventStore, idGenerator));
-
-    for (SagaRequest request : requests) {
-      pendingTasks.add(new RequestProcessTask(taskIdGenerator.nextId(), request, eventStore, idGenerator));
-    }
-
-    pendingTasks.add(new SagaEndTask(taskIdGenerator.nextId(), eventStore, idGenerator));
-    return pendingTasks;
   }
 
   public void play(Iterable<SagaEvent> events) {
     log.info("Start playing events");
-    for (SagaEvent event : events) {
-      log.info("Start playing event {} id={}", event.description(), event.id());
-      currentState = event.play(currentState, pendingTasks, executedTasks, idGenerator);
-      log.info("Completed playing event {} id={}", event.description(), event.id());
+    gatherEvents(events);
+
+    Map<Operation, Collection<SagaEvent>> completedOperationsCopy = new HashMap<>(completedOperations);
+    transactionState.replay(completedOperationsCopy);
+
+    // only compensation events left
+    if (!completedOperationsCopy.isEmpty()) {
+      currentState = compensationState;
+      compensationState.replay(completedOperations);
     }
+
     log.info("Completed playing events");
+  }
+
+  private void gatherEvents(Iterable<SagaEvent> events) {
+    for (SagaEvent event : events) {
+      event.gatherTo(completedOperations, orphanOperations);
+    }
+  }
+
+  private ByLevelTraveller<SagaTask> traveller(
+      SingleLeafDirectedAcyclicGraph<SagaTask> sagaTaskGraph,
+      TraversalDirection<SagaTask> traversalDirection) {
+
+    return new ByLevelTraveller<>(sagaTaskGraph, traversalDirection);
   }
 }

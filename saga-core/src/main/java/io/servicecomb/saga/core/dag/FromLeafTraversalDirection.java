@@ -14,32 +14,24 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core;
+package io.servicecomb.saga.core.dag;
 
-class SagaAbortTask implements SagaTask {
+import java.util.Set;
 
-  private final long id;
-  private final EventStore eventStore;
-  private final IdGenerator<Long> idGenerator;
+public class FromLeafTraversalDirection<T> implements TraversalDirection<T> {
 
-  SagaAbortTask(long id, EventStore eventStore, IdGenerator<Long> idGenerator) {
-    this.id = id;
-    this.eventStore = eventStore;
-    this.idGenerator = idGenerator;
+  @Override
+  public Node<T> root(SingleLeafDirectedAcyclicGraph<T> dag) {
+    return dag.leaf();
   }
 
   @Override
-  public long id() {
-    return id;
+  public Set<Node<T>> parents(Node<T> node) {
+    return node.children();
   }
 
   @Override
-  public void commit() {
-    eventStore.offer(new SagaAbortedEvent(idGenerator.nextId()));
-  }
-
-  @Override
-  public void abort() {
-    eventStore.offer(new SagaAbortedEvent(idGenerator.nextId()));
+  public Set<Node<T>> children(Node<T> node) {
+    return node.parents();
   }
 }

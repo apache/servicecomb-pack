@@ -16,10 +16,21 @@
 
 package io.servicecomb.saga.core;
 
+import java.lang.invoke.MethodHandles;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 class BackwardRecovery implements RecoveryPolicy {
+  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
-  public SagaState apply(SagaState sagaState) {
-    return CompensationState.INSTANCE;
+  public void apply(SagaTask task) {
+    try {
+      task.commit();
+    } catch (Exception e) {
+      log.info("Applying {} policy", description());
+      task.abort();
+      throw e;
+    }
   }
 }

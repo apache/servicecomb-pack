@@ -20,7 +20,13 @@ interface SagaTask extends Descriptive {
 
   long id();
 
+  Operation transaction();
+
   void commit();
 
+  void compensate();
+
   void abort();
+
+  Operation compensation();
 }

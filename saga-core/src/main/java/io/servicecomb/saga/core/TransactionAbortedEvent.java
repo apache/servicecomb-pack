@@ -14,24 +14,29 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core.dag;
+package io.servicecomb.saga.core;
 
+import io.servicecomb.saga.core.dag.Node;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
-class FromLeafTraversalDirection implements TraversalDirection<String> {
+class TransactionAbortedEvent extends SagaEvent {
 
-  @Override
-  public Node<String> root(SingleLeafDirectedAcyclicGraph<String> dag) {
-    return dag.leaf();
+  TransactionAbortedEvent(long id, SagaTask payload) {
+    super(id, payload);
   }
 
   @Override
-  public Set<Node<String>> parents(Node<String> node) {
-    return node.children();
+  public void gatherTo(Map<Operation, Collection<SagaEvent>> completedOperations, Set<SagaTask> orphanOperations) {
+    completedOperations.remove(payload().transaction());
+    orphanOperations.remove(payload());
   }
 
   @Override
-  public Set<Node<String>> children(Node<String> node) {
-    return node.parents();
+  public void play(IdGenerator<Long> idGenerator, Iterator<Node<SagaTask>> iterator) {
+    idGenerator.nextId();
+    iterator.remove();
   }
 }

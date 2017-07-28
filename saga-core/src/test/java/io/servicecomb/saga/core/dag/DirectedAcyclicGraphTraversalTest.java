@@ -26,13 +26,13 @@ import org.junit.Test;
 
 public class DirectedAcyclicGraphTraversalTest {
 
-  private final Node<String> root = new Node<>(0);
-  private final Node<String> node1 = new Node<>(1);
-  private final Node<String> node2 = new Node<>(2);
-  private final Node<String> node3 = new Node<>(3);
-  private final Node<String> node4 = new Node<>(4);
-  private final Node<String> node5 = new Node<>(5);
-  private final Node<String> leaf = new Node<>(6);
+  private final Node<String> root = new Node<>(0, "i don't care");
+  private final Node<String> node1 = new Node<>(1, "i don't care");
+  private final Node<String> node2 = new Node<>(2, "i don't care");
+  private final Node<String> node3 = new Node<>(3, "i don't care");
+  private final Node<String> node4 = new Node<>(4, "i don't care");
+  private final Node<String> node5 = new Node<>(5, "i don't care");
+  private final Node<String> leaf = new Node<>(6, "i don't care");
 
   private final SingleLeafDirectedAcyclicGraph<String> dag = new SingleLeafDirectedAcyclicGraph<>(root, leaf);
 
@@ -57,7 +57,7 @@ public class DirectedAcyclicGraphTraversalTest {
 
   @Test
   public void traverseGraphOneLevelPerStepFromRoot() {
-    Traveller<String> traveller = new Traveller<>(dag, new FromRootTraversalDirection<>());
+    Traveller<String> traveller = new ByLevelTraveller<>(dag, new FromRootTraversalDirection<>());
 
     Collection<Node<String>> nodes = traveller.nodes();
 
@@ -79,7 +79,7 @@ public class DirectedAcyclicGraphTraversalTest {
 
   @Test
   public void traverseGraphOneLevelPerStepFromLeaf() {
-    Traveller<String> traveller = new Traveller<>(dag, new FromLeafTraversalDirection());
+    Traveller<String> traveller = new ByLevelTraveller<>(dag, new FromLeafTraversalDirection<>());
 
     Collection<Node<String>> nodes = traveller.nodes();
 

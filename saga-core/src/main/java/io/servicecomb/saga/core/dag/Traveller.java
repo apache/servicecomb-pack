@@ -17,55 +17,12 @@
 package io.servicecomb.saga.core.dag;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
 
-public class Traveller<T> {
+public interface Traveller<T> {
 
-  private final Collection<Node<T>> nodes;
-  private final Collection<Node<T>> nodesBuffer;
+  void next();
 
-  private final Queue<Node<T>> nodesWithoutParent = new LinkedList<>();
-  private final Map<Integer, Set<Node<T>>> nodeParents = new HashMap<>();
-  private final TraversalDirection<T> traversalDirection;
+  boolean hasNext();
 
-
-  public Traveller(SingleLeafDirectedAcyclicGraph<T> dag, TraversalDirection<T> traversalDirection) {
-    this.nodes = new LinkedHashSet<>();
-    this.nodesBuffer = new LinkedList<>();
-    this.traversalDirection = traversalDirection;
-
-    nodesWithoutParent.offer(traversalDirection.root(dag));
-  }
-
-  public void next() {
-    nodes.addAll(nodesBuffer);
-    nodesBuffer.clear();
-    boolean buffered = false;
-
-    while (!nodesWithoutParent.isEmpty() && !buffered) {
-      Node<T> node = nodesWithoutParent.poll();
-      nodes.add(node);
-
-      for (Node<T> child : traversalDirection.children(node)) {
-        nodeParents.computeIfAbsent(child.id(), id -> new HashSet<>(traversalDirection.parents(child)));
-        nodeParents.get(child.id()).remove(node);
-
-        if (nodeParents.get(child.id()).isEmpty()) {
-          nodesWithoutParent.offer(child);
-          nodesBuffer.add(child);
-          buffered = true;
-        }
-      }
-    }
-  }
-
-  public Collection<Node<T>> nodes() {
-    return nodes;
-  }
+  Collection<Node<T>> nodes();
 }

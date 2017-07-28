@@ -39,17 +39,23 @@ class SagaEventMatcher extends TypeSafeMatcher<SagaEvent> {
   @Override
   protected void describeMismatchSafely(SagaEvent item, Description description) {
     description
-        .appendText("SagaEvent {id=" + item.id() + ", operation=" + item.payload() + ", class=" + item.getClass());
+        .appendText("SagaEvent {id=" + item.id() + ", operation=" + operation(item) + ", class=" + item.getClass());
   }
 
   @Override
   protected boolean matchesSafely(SagaEvent sagaEvent) {
-    return sagaEvent.id() == id && sagaEvent.payload().equals(operation) && sagaEvent.getClass().equals(aClass);
+    return sagaEvent.id() == id
+        && operation(sagaEvent).equals(operation)
+        && sagaEvent.getClass().equals(aClass);
   }
 
   @Override
   public void describeTo(Description description) {
     description
         .appendText("SagaEvent {id=" + id + ", operation=" + operation + ", class=" + aClass.getCanonicalName());
+  }
+
+  private Operation operation(SagaEvent sagaEvent) {
+    return operation instanceof Compensation ? sagaEvent.payload().compensation() : sagaEvent.payload().transaction();
   }
 }

@@ -37,16 +37,31 @@ class RequestProcessTask implements SagaTask {
   }
 
   @Override
+  public Operation transaction() {
+    return request.transaction();
+  }
+
+  @Override
   public void commit() {
-    eventStore.offer(new TransactionStartedEvent(idGenerator.nextId(), request.transaction()));
+    eventStore.offer(new TransactionStartedEvent(idGenerator.nextId(), this));
     request.commit();
-    eventStore.offer(new TransactionEndedEvent(idGenerator.nextId(), request.transaction()));
+    eventStore.offer(new TransactionEndedEvent(idGenerator.nextId(), this));
+  }
+
+  @Override
+  public void compensate() {
+    eventStore.offer(new CompensationStartedEvent(idGenerator.nextId(), this));
+    request.abort();
+    eventStore.offer(new CompensationEndedEvent(idGenerator.nextId(), this));
   }
 
   @Override
   public void abort() {
-    eventStore.offer(new CompensationStartedEvent(idGenerator.nextId(), request.compensation()));
-    request.abort();
-    eventStore.offer(new CompensationEndedEvent(idGenerator.nextId(), request.compensation()));
+    eventStore.offer(new TransactionAbortedEvent(idGenerator.nextId(), this));
+  }
+
+  @Override
+  public Operation compensation() {
+    return request.compensation();
   }
 }

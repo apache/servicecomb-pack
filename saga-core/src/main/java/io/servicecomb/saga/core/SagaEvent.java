@@ -16,15 +16,18 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.Deque;
-import java.util.Queue;
+import io.servicecomb.saga.core.dag.Node;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 public abstract class SagaEvent implements Descriptive {
 
-  private final Operation payload;
+  private final SagaTask payload;
   private final long id;
 
-  public SagaEvent(long id, Operation payload) {
+  public SagaEvent(long id, SagaTask payload) {
     this.id = id;
     this.payload = payload;
   }
@@ -33,10 +36,11 @@ public abstract class SagaEvent implements Descriptive {
     return id;
   }
 
-  Operation payload() {
+  SagaTask payload() {
     return payload;
   }
 
-  public abstract SagaState play(SagaState currentState, Queue<SagaTask> pendingTasks, Deque<SagaTask> executedTasks,
-      IdGenerator<Long> eventIdGenerator);
+  public abstract void gatherTo(Map<Operation, Collection<SagaEvent>> completedOperations, Set<SagaTask> orphanOperations);
+
+  public abstract void play(IdGenerator<Long> idGenerator, Iterator<Node<SagaTask>> iterator);
 }

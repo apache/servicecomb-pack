@@ -16,13 +16,13 @@
 
 package io.servicecomb.saga.core;
 
+import static io.servicecomb.saga.core.Operation.END_OP;
 import static io.servicecomb.saga.core.Operation.NO_OP;
 import static io.servicecomb.saga.core.SagaEventMatcher.eventWith;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
@@ -32,10 +32,14 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import io.servicecomb.saga.core.dag.Node;
+import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
 
@@ -47,23 +51,50 @@ public class SagaIntegrationTest {
   private final Transaction transaction1 = mock(Transaction.class, "transaction1");
   private final Transaction transaction2 = mock(Transaction.class, "transaction2");
   private final Transaction transaction3 = mock(Transaction.class, "transaction3");
+  private final Transaction transaction4 = mock(Transaction.class, "transaction4");
 
   private final Transaction[] transactions = {transaction1, transaction2, transaction3};
 
   private final Compensation compensation1 = mock(Compensation.class, "compensation1");
   private final Compensation compensation2 = mock(Compensation.class, "compensation2");
   private final Compensation compensation3 = mock(Compensation.class, "compensation3");
+  private final Compensation compensation4 = mock(Compensation.class, "compensation4");
 
   private final Compensation[] compensations = {compensation1, compensation2, compensation3};
 
   private final SagaRequest request1 = new SagaRequest(transaction1, compensation1);
   private final SagaRequest request2 = new SagaRequest(transaction2, compensation2);
   private final SagaRequest request3 = new SagaRequest(transaction3, compensation3);
+  private final SagaRequest request4 = new SagaRequest(transaction4, compensation4);
 
-  private final SagaRequest[] requests = {request1, request2, request3};
+  private final SagaTask sagaStartTask = new SagaStartTask(0L, eventStore, idGenerator);
+  private final SagaTask task1 = new RequestProcessTask(1L, request1, eventStore, idGenerator);
+  private final SagaTask task2 = new RequestProcessTask(2L, request2, eventStore, idGenerator);
+  private final SagaTask task3 = new RequestProcessTask(3L, request3, eventStore, idGenerator);
+  private final SagaTask task4 = new RequestProcessTask(4L, request4, eventStore, idGenerator);
+  private final SagaTask sagaEndTask = new SagaEndTask(5L, eventStore, idGenerator);
 
   private final RuntimeException exception = new RuntimeException("oops");
-  private final Saga saga = new Saga(idGenerator, eventStore, requests);
+
+  private final Node<SagaTask> node1 = new Node<>(task1.id(), task1);
+  private final Node<SagaTask> node2 = new Node<>(task2.id(), task2);
+  private final Node<SagaTask> node3 = new Node<>(task3.id(), task3);
+  private final Node<SagaTask> root = new Node<>(sagaStartTask.id(), sagaStartTask);
+  private final Node<SagaTask> leaf = new Node<>(sagaEndTask.id(), sagaEndTask);
+  private final SingleLeafDirectedAcyclicGraph<SagaTask> sagaTaskGraph = new SingleLeafDirectedAcyclicGraph<>(root, leaf);
+
+  private Saga saga;
+
+  // root - node1 - node2 - node3 - leaf
+  @Before
+  public void setUp() throws Exception {
+    root.addChild(node1);
+    node1.addChild(node2);
+    node2.addChild(node3);
+    node3.addChild(leaf);
+
+    saga = new Saga(idGenerator, eventStore, sagaTaskGraph);
+  }
 
   @Test
   public void transactionsAreRunSuccessfully() {
@@ -77,7 +108,7 @@ public class SagaIntegrationTest {
         eventWith(5L, transaction2, TransactionEndedEvent.class),
         eventWith(6L, transaction3, TransactionStartedEvent.class),
         eventWith(7L, transaction3, TransactionEndedEvent.class),
-        eventWith(8L, NO_OP, SagaEndedEvent.class)
+        eventWith(8L, END_OP, SagaEndedEvent.class)
     ));
 
     for (Transaction transaction : transactions) {
@@ -100,97 +131,57 @@ public class SagaIntegrationTest {
         eventWith(2L, transaction1, TransactionStartedEvent.class),
         eventWith(3L, transaction1, TransactionEndedEvent.class),
         eventWith(4L, transaction2, TransactionStartedEvent.class),
-        eventWith(5L, compensation2, CompensationStartedEvent.class),
-        eventWith(6L, compensation2, CompensationEndedEvent.class),
-        eventWith(7L, compensation1, CompensationStartedEvent.class),
-        eventWith(8L, compensation1, CompensationEndedEvent.class),
-        eventWith(9L, NO_OP, SagaEndedEvent.class)));
+        eventWith(5L, transaction2, TransactionAbortedEvent.class),
+        eventWith(6L, compensation1, CompensationStartedEvent.class),
+        eventWith(7L, compensation1, CompensationEndedEvent.class),
+        eventWith(8L, NO_OP, SagaEndedEvent.class)));
 
     verify(transaction1).run();
     verify(transaction2).run();
     verify(transaction3, never()).run();
 
     verify(compensation1).run();
-    verify(compensation2).run();
     verify(compensation3, never()).run();
   }
 
+  // root - node1 - node2 - node3 - leaf
+  //             \_ node4 _/
+  @Ignore // this may fail from time to time, because event ordering is not consistent due to tasks running in parallel
   @Test
-  public void compensateCommittedTransactionsOnAbort() throws InterruptedException {
-    Saga saga = new Saga(idGenerator, eventStore, new ForwardRecovery(), requests);
+  public void redoHangingTransactionsOnFailure() throws InterruptedException {
+    Node<SagaTask> node4 = new Node<>(task4.id(), task4);
+    node1.addChild(node4);
+    node4.addChild(node3);
+
+    doThrow(exception).when(transaction4).run();
+
     ExecutorService executor = Executors.newSingleThreadExecutor();
     CountDownLatch latch = new CountDownLatch(1);
 
     doAnswer(withAnswer(() -> {
       latch.await();
       return null;
-    })).when(transaction2).run();
-
-    executor.execute(saga::run);
-
-    waitTillSlowTransactionStarted(transaction2);
-
-    saga.abort();
-    latch.countDown();
-
-    await().atMost(1, SECONDS).until(() -> {
-      assertThat(eventStore, contains(
-          eventWith(1L, NO_OP, SagaStartedEvent.class),
-          eventWith(2L, transaction1, TransactionStartedEvent.class),
-          eventWith(3L, transaction1, TransactionEndedEvent.class),
-          eventWith(4L, transaction2, TransactionStartedEvent.class),
-          eventWith(5L, transaction2, TransactionEndedEvent.class),
-          eventWith(6L, NO_OP, SagaAbortedEvent.class),
-          eventWith(7L, compensation2, CompensationStartedEvent.class),
-          eventWith(8L, compensation2, CompensationEndedEvent.class),
-          eventWith(9L, compensation1, CompensationStartedEvent.class),
-          eventWith(10L, compensation1, CompensationEndedEvent.class),
-          eventWith(11L, NO_OP, SagaEndedEvent.class)));
-      return true;
-    });
-
-    verify(transaction1).run();
-    verify(transaction2).run();
-    verify(transaction3, never()).run();
-
-    verify(compensation1).run();
-    verify(compensation2).run();
-    verify(compensation3, never()).run();
-
-    executor.shutdown();
-  }
-
-  @Test
-  public void retriesFailedTransactionsOnAbort() throws InterruptedException {
-    ExecutorService executor = Executors.newSingleThreadExecutor();
-    CountDownLatch latch = new CountDownLatch(1);
-
-    doAnswer(withAnswer(() -> {
-      latch.await();
-      throw new OperationTimeoutException("oops");
     })).doNothing().when(transaction2).run();
 
     executor.execute(saga::run);
 
     waitTillSlowTransactionStarted(transaction2);
 
-    saga.abort();
-    latch.countDown();
-
     await().atMost(1, SECONDS).until(() -> {
       assertThat(eventStore, contains(
           eventWith(1L, NO_OP, SagaStartedEvent.class),
           eventWith(2L, transaction1, TransactionStartedEvent.class),
           eventWith(3L, transaction1, TransactionEndedEvent.class),
           eventWith(4L, transaction2, TransactionStartedEvent.class),
-          eventWith(5L, transaction2, TransactionStartedEvent.class),
-          eventWith(6L, transaction2, TransactionEndedEvent.class),
-          eventWith(7L, NO_OP, SagaAbortedEvent.class),
-          eventWith(8L, compensation2, CompensationStartedEvent.class),
-          eventWith(9L, compensation2, CompensationEndedEvent.class),
-          eventWith(10L, compensation1, CompensationStartedEvent.class),
-          eventWith(11L, compensation1, CompensationEndedEvent.class),
-          eventWith(12L, NO_OP, SagaEndedEvent.class)));
+          eventWith(5L, transaction4, TransactionStartedEvent.class),
+          eventWith(6L, transaction4, TransactionAbortedEvent.class),
+          eventWith(7L, transaction2, TransactionStartedEvent.class),
+          eventWith(8L, transaction2, TransactionEndedEvent.class),
+          eventWith(9L, compensation2, CompensationStartedEvent.class),
+          eventWith(10L, compensation2, CompensationEndedEvent.class),
+          eventWith(11L, compensation1, CompensationStartedEvent.class),
+          eventWith(12L, compensation1, CompensationEndedEvent.class),
+          eventWith(13L, NO_OP, SagaEndedEvent.class)));
       return true;
     });
 
@@ -202,12 +193,14 @@ public class SagaIntegrationTest {
     verify(compensation2).run();
     verify(compensation3, never()).run();
 
+    latch.countDown();
+
     executor.shutdown();
   }
 
   @Test
   public void retriesFailedTransactionTillSuccess() {
-    Saga saga = new Saga(idGenerator, eventStore, new ForwardRecovery(), requests);
+    Saga saga = new Saga(idGenerator, eventStore, new ForwardRecovery(), sagaTaskGraph);
 
     doThrow(exception).doThrow(exception).doNothing().when(transaction2).run();
 
@@ -223,7 +216,7 @@ public class SagaIntegrationTest {
         eventWith(7L, transaction2, TransactionEndedEvent.class),
         eventWith(8L, transaction3, TransactionStartedEvent.class),
         eventWith(9L, transaction3, TransactionEndedEvent.class),
-        eventWith(10L, NO_OP, SagaEndedEvent.class)
+        eventWith(10L, END_OP, SagaEndedEvent.class)
     ));
 
     for (Transaction transaction : transactions) {
@@ -239,13 +232,11 @@ public class SagaIntegrationTest {
 
   @Test
   public void restoresSagaToTransactionStateByPlayingAllEvents() {
-    Saga saga = new Saga(idGenerator, eventStore, requests);
-
     Iterable<SagaEvent> events = asList(
-        new SagaStartedEvent(1L),
-        new TransactionStartedEvent(2L, transaction1),
-        new TransactionEndedEvent(3L, transaction1),
-        new TransactionStartedEvent(4L, transaction2)
+        new SagaStartedEvent(1L, sagaStartTask),
+        new TransactionStartedEvent(2L, task1),
+        new TransactionEndedEvent(3L, task1),
+        new TransactionStartedEvent(4L, task2)
     );
 
     saga.play(events);
@@ -256,7 +247,7 @@ public class SagaIntegrationTest {
         eventWith(5L, transaction2, TransactionEndedEvent.class),
         eventWith(6L, transaction3, TransactionStartedEvent.class),
         eventWith(7L, transaction3, TransactionEndedEvent.class),
-        eventWith(8L, NO_OP, SagaEndedEvent.class)
+        eventWith(8L, END_OP, SagaEndedEvent.class)
     ));
 
     verify(transaction1, never()).run();
@@ -270,17 +261,15 @@ public class SagaIntegrationTest {
 
   @Test
   public void restoresSagaToCompensationStateByPlayingAllEvents() {
-    Saga saga = new Saga(idGenerator, eventStore, requests);
-
     Iterable<SagaEvent> events = asList(
-        new SagaStartedEvent(1L),
-        new TransactionStartedEvent(2L, transaction1),
-        new TransactionEndedEvent(3L, transaction1),
-        new TransactionStartedEvent(4L, transaction2),
-        new TransactionEndedEvent(5L, transaction2),
-        new CompensationStartedEvent(6L, compensation2),
-        new CompensationEndedEvent(7L, compensation2),
-        new CompensationStartedEvent(8L, compensation1)
+        new SagaStartedEvent(1L, sagaStartTask),
+        new TransactionStartedEvent(2L, task1),
+        new TransactionEndedEvent(3L, task1),
+        new TransactionStartedEvent(4L, task2),
+        new TransactionEndedEvent(5L, task2),
+        new CompensationStartedEvent(6L, task2),
+        new CompensationEndedEvent(7L, task2),
+        new CompensationStartedEvent(8L, task1)
     );
 
     saga.play(events);
@@ -303,23 +292,22 @@ public class SagaIntegrationTest {
 
   @Test
   public void restoresSagaToEndStateByPlayingAllEvents() {
-    Saga saga = new Saga(idGenerator, eventStore, requests);
-
     Iterable<SagaEvent> events = asList(
-        new SagaStartedEvent(1L),
-        new TransactionStartedEvent(2L, transaction1),
-        new TransactionEndedEvent(3L, transaction1),
-        new TransactionStartedEvent(4L, transaction2),
-        new TransactionEndedEvent(5L, transaction2),
-        new TransactionStartedEvent(6L, transaction3),
-        new TransactionEndedEvent(7L, transaction3),
-        new SagaEndedEvent(8L)
+        new SagaStartedEvent(1L, sagaStartTask),
+        new TransactionStartedEvent(2L, task1),
+        new TransactionEndedEvent(3L, task1),
+        new TransactionStartedEvent(4L, task2),
+        new TransactionEndedEvent(5L, task2),
+        new TransactionStartedEvent(6L, task3),
+        new TransactionEndedEvent(7L, task3)
     );
 
     saga.play(events);
 
     saga.run();
-    assertThat(eventStore.size(), is(0));
+    assertThat(eventStore, contains(
+        eventWith(8L, END_OP, SagaEndedEvent.class)
+    ));
 
     for (Transaction transaction : transactions) {
       verify(transaction, never()).run();
@@ -331,8 +319,8 @@ public class SagaIntegrationTest {
   }
 
   private void waitTillSlowTransactionStarted(Transaction transaction) {
-    await().atMost(1, SECONDS).until(() -> {
-      verify(transaction).run();
+    await().atMost(2, SECONDS).until(() -> {
+      verify(transaction, atLeastOnce()).run();
       return true;
     });
   }

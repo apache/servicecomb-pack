@@ -41,7 +41,7 @@ public class CompensationStateTest {
 
   private final Deque<SagaTask> executedTasks = new LinkedList<>();
   private final Queue<SagaTask> pendingTasks = new LinkedList<>();
-  private final CompensationState compensationState = CompensationState.INSTANCE;
+  private final CompensationState compensationState = new CompensationState(null, null, null);
 
   @Before
   public void setUp() throws Exception {
@@ -59,8 +59,8 @@ public class CompensationStateTest {
     assertThat(pendingTasks.isEmpty(), is(true));
     assertThat(executedTasks, contains(sagaTask1));
 
-    verify(sagaTask2).abort();
-    verify(sagaTask1, never()).abort();
+    verify(sagaTask2).compensate();
+    verify(sagaTask1, never()).compensate();
   }
 
   @Ignore
@@ -74,13 +74,13 @@ public class CompensationStateTest {
 
     assertThat(executedTasks, contains(sagaTask1));
 
-    verify(sagaTask2).abort();
-    verify(sagaTask1, never()).abort();
+    verify(sagaTask2).compensate();
+    verify(sagaTask1, never()).compensate();
   }
 
   @Test
   public void doNotConsumeHeadFromExecutedTasksOnFailure() {
-    doThrow(new RuntimeException("oops")).when(sagaTask2).abort();
+    doThrow(new RuntimeException("oops")).when(sagaTask2).compensate();
 
     try {
       compensationState.invoke(executedTasks, pendingTasks);

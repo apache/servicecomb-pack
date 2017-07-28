@@ -28,13 +28,13 @@ import org.junit.Test;
 public class NodeTest {
 
 
-  private final Node<String> parent = new Node<>(0);
-  private final Node<String> node1 = new Node<>(1);
-  private final Node<String> node2 = new Node<>(2);
-  private final Node<String> node3 = new Node<>(3);
-  private final Node<String> node4 = new Node<>(4);
-  private final Node<String> node5 = new Node<>(5);
-  private final Node<String> node6 = new Node<>(6);
+  private final Node<String> parent = new Node<>(0, "i don't care");
+  private final Node<String> node1 = new Node<>(1, "i don't care");
+  private final Node<String> node2 = new Node<>(2, "i don't care");
+  private final Node<String> node3 = new Node<>(3, "i don't care");
+  private final Node<String> node4 = new Node<>(4, "i don't care");
+  private final Node<String> node5 = new Node<>(5, "i don't care");
+  private final Node<String> node6 = new Node<>(6, "i don't care");
 
   //        0
   //       / \

@@ -16,11 +16,18 @@
 
 package io.servicecomb.saga.core;
 
+import java.util.Collection;
 import java.util.Deque;
+import java.util.Map;
 import java.util.Queue;
 
 interface SagaState {
 
   void invoke(Deque<SagaTask> executedTasks, Queue<SagaTask> pendingTasks);
 
+  boolean hasNext();
+
+  void run();
+
+  void replay(Map<Operation, Collection<SagaEvent>> completedOperationsCopy);
 }
