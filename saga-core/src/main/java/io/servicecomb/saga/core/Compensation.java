@@ -18,4 +18,6 @@ package io.servicecomb.saga.core;
 
 interface Compensation extends Operation {
 
+  Compensation NO_OP_COMPENSATION = () -> {
+  };
 }

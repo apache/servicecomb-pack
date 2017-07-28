@@ -16,11 +16,12 @@
 
 package io.servicecomb.saga.core;
 
-import static io.servicecomb.saga.core.Operation.NO_OP;
+import static io.servicecomb.saga.core.Transaction.NO_OP_TRANSACTION;
 import static io.servicecomb.saga.core.SagaEventMatcher.eventWith;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.*;
 
+import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 import org.junit.Test;
 
 public class SagaStartTaskTest {
@@ -33,6 +34,6 @@ public class SagaStartTaskTest {
   public void transitToNextStateAfterEmittingEvent() {
     state.commit();
 
-    assertThat(eventStore, contains(eventWith(1L, NO_OP, SagaStartedEvent.class)));
+    assertThat(eventStore, contains(eventWith(1L, NO_OP_TRANSACTION, SagaStartedEvent.class)));
   }
 }

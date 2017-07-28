@@ -89,8 +89,7 @@ class TransactionState extends AbstractSagaState {
   }
 
   @Override
-  boolean replay(Collection<Node<SagaTask>> nodes,
-      Map<Operation, Collection<SagaEvent>> completedOperations) {
+  boolean replay(Collection<Node<SagaTask>> nodes, Map<Operation, Collection<SagaEvent>> completedOperations) {
 
     for (Iterator<Node<SagaTask>> iterator = nodes.iterator(); iterator.hasNext(); ) {
       SagaTask task = iterator.next().value();

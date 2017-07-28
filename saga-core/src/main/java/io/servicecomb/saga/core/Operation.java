@@ -17,11 +17,6 @@
 package io.servicecomb.saga.core;
 
 interface Operation {
-  Operation NO_OP = () -> {
-  };
-
-  Operation END_OP = () -> {
-  };
 
   void run();
 }

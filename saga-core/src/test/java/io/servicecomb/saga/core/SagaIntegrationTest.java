@@ -16,12 +16,13 @@
 
 package io.servicecomb.saga.core;
 
-import static io.servicecomb.saga.core.Operation.END_OP;
-import static io.servicecomb.saga.core.Operation.NO_OP;
+import static io.servicecomb.saga.core.Compensation.NO_OP_COMPENSATION;
 import static io.servicecomb.saga.core.SagaEventMatcher.eventWith;
+import static io.servicecomb.saga.core.Transaction.NO_OP_TRANSACTION;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
+import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.atLeastOnce;
@@ -34,6 +35,7 @@ import static org.mockito.Mockito.verify;
 
 import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
+import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -101,14 +103,14 @@ public class SagaIntegrationTest {
     saga.run();
 
     assertThat(eventStore, contains(
-        eventWith(1L, NO_OP, SagaStartedEvent.class),
+        eventWith(1L, NO_OP_TRANSACTION, SagaStartedEvent.class),
         eventWith(2L, transaction1, TransactionStartedEvent.class),
         eventWith(3L, transaction1, TransactionEndedEvent.class),
         eventWith(4L, transaction2, TransactionStartedEvent.class),
         eventWith(5L, transaction2, TransactionEndedEvent.class),
         eventWith(6L, transaction3, TransactionStartedEvent.class),
         eventWith(7L, transaction3, TransactionEndedEvent.class),
-        eventWith(8L, END_OP, SagaEndedEvent.class)
+        eventWith(8L, NO_OP_COMPENSATION, SagaEndedEvent.class)
     ));
 
     for (Transaction transaction : transactions) {
@@ -127,14 +129,14 @@ public class SagaIntegrationTest {
     saga.run();
 
     assertThat(eventStore, contains(
-        eventWith(1L, NO_OP, SagaStartedEvent.class),
+        eventWith(1L, NO_OP_TRANSACTION, SagaStartedEvent.class),
         eventWith(2L, transaction1, TransactionStartedEvent.class),
         eventWith(3L, transaction1, TransactionEndedEvent.class),
         eventWith(4L, transaction2, TransactionStartedEvent.class),
         eventWith(5L, transaction2, TransactionAbortedEvent.class),
         eventWith(6L, compensation1, CompensationStartedEvent.class),
         eventWith(7L, compensation1, CompensationEndedEvent.class),
-        eventWith(8L, NO_OP, SagaEndedEvent.class)));
+        eventWith(8L, NO_OP_COMPENSATION, SagaEndedEvent.class)));
 
     verify(transaction1).run();
     verify(transaction2).run();
@@ -165,23 +167,31 @@ public class SagaIntegrationTest {
 
     executor.execute(saga::run);
 
-    waitTillSlowTransactionStarted(transaction2);
+    waitTillSlowTransactionStarted(transaction2, transaction4);
 
-    await().atMost(1, SECONDS).until(() -> {
+    // the ordering of events may not be consistence due to concurrent processing of requests
+    await().atMost(5, SECONDS).until(() -> {
       assertThat(eventStore, contains(
-          eventWith(1L, NO_OP, SagaStartedEvent.class),
+          eventWith(1L, NO_OP_TRANSACTION, SagaStartedEvent.class),
           eventWith(2L, transaction1, TransactionStartedEvent.class),
           eventWith(3L, transaction1, TransactionEndedEvent.class),
-          eventWith(4L, transaction2, TransactionStartedEvent.class),
-          eventWith(5L, transaction4, TransactionStartedEvent.class),
-          eventWith(6L, transaction4, TransactionAbortedEvent.class),
+          anyOf(
+              eventWith(4L, transaction2, TransactionStartedEvent.class),
+              eventWith(4L, transaction4, TransactionStartedEvent.class)),
+          anyOf(
+              eventWith(5L, transaction4, TransactionStartedEvent.class),
+              eventWith(5L, transaction2, TransactionStartedEvent.class),
+              eventWith(5L, transaction4, TransactionAbortedEvent.class)),
+          anyOf(
+              eventWith(6L, transaction4, TransactionAbortedEvent.class),
+              eventWith(6L, transaction4, TransactionStartedEvent.class)),
           eventWith(7L, transaction2, TransactionStartedEvent.class),
           eventWith(8L, transaction2, TransactionEndedEvent.class),
           eventWith(9L, compensation2, CompensationStartedEvent.class),
           eventWith(10L, compensation2, CompensationEndedEvent.class),
           eventWith(11L, compensation1, CompensationStartedEvent.class),
           eventWith(12L, compensation1, CompensationEndedEvent.class),
-          eventWith(13L, NO_OP, SagaEndedEvent.class)));
+          eventWith(13L, NO_OP_COMPENSATION, SagaEndedEvent.class)));
       return true;
     });
 
@@ -207,7 +217,7 @@ public class SagaIntegrationTest {
     saga.run();
 
     assertThat(eventStore, contains(
-        eventWith(1L, NO_OP, SagaStartedEvent.class),
+        eventWith(1L, NO_OP_TRANSACTION, SagaStartedEvent.class),
         eventWith(2L, transaction1, TransactionStartedEvent.class),
         eventWith(3L, transaction1, TransactionEndedEvent.class),
         eventWith(4L, transaction2, TransactionStartedEvent.class),
@@ -216,7 +226,7 @@ public class SagaIntegrationTest {
         eventWith(7L, transaction2, TransactionEndedEvent.class),
         eventWith(8L, transaction3, TransactionStartedEvent.class),
         eventWith(9L, transaction3, TransactionEndedEvent.class),
-        eventWith(10L, END_OP, SagaEndedEvent.class)
+        eventWith(10L, NO_OP_COMPENSATION, SagaEndedEvent.class)
     ));
 
     for (Transaction transaction : transactions) {
@@ -247,7 +257,7 @@ public class SagaIntegrationTest {
         eventWith(5L, transaction2, TransactionEndedEvent.class),
         eventWith(6L, transaction3, TransactionStartedEvent.class),
         eventWith(7L, transaction3, TransactionEndedEvent.class),
-        eventWith(8L, END_OP, SagaEndedEvent.class)
+        eventWith(8L, NO_OP_COMPENSATION, SagaEndedEvent.class)
     ));
 
     verify(transaction1, never()).run();
@@ -278,7 +288,7 @@ public class SagaIntegrationTest {
     assertThat(eventStore, contains(
         eventWith(8L, compensation1, CompensationStartedEvent.class),
         eventWith(9L, compensation1, CompensationEndedEvent.class),
-        eventWith(10L, NO_OP, SagaEndedEvent.class)
+        eventWith(10L, NO_OP_COMPENSATION, SagaEndedEvent.class)
     ));
 
     verify(transaction1, never()).run();
@@ -306,7 +316,7 @@ public class SagaIntegrationTest {
 
     saga.run();
     assertThat(eventStore, contains(
-        eventWith(8L, END_OP, SagaEndedEvent.class)
+        eventWith(8L, NO_OP_COMPENSATION, SagaEndedEvent.class)
     ));
 
     for (Transaction transaction : transactions) {
@@ -318,9 +328,11 @@ public class SagaIntegrationTest {
     }
   }
 
-  private void waitTillSlowTransactionStarted(Transaction transaction) {
-    await().atMost(2, SECONDS).until(() -> {
-      verify(transaction, atLeastOnce()).run();
+  private void waitTillSlowTransactionStarted(Transaction... transactions) {
+    await().atMost(5, SECONDS).until(() -> {
+      for (Transaction transaction : transactions) {
+        verify(transaction, atLeastOnce()).run();
+      }
       return true;
     });
   }

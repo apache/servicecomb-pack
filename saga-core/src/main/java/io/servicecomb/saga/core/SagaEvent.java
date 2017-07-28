@@ -32,7 +32,7 @@ public abstract class SagaEvent implements Descriptive {
     this.payload = payload;
   }
 
-  long id() {
+  public long id() {
     return id;
   }
 

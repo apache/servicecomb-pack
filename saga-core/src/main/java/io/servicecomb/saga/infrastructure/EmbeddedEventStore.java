@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core;
+package io.servicecomb.saga.infrastructure;
 
+import io.servicecomb.saga.core.EventStore;
+import io.servicecomb.saga.core.SagaEvent;
 import java.lang.invoke.MethodHandles;
 import java.util.Iterator;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class EmbeddedEventStore implements EventStore {
+public class EmbeddedEventStore implements EventStore {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private final Queue<SagaEvent> events = new LinkedBlockingQueue<>();
+  private final Set<SagaEvent> events = new ConcurrentSkipListSet<>((o1, o2) -> (int) (o1.id() - o2.id()));
 
   @Override
   public void offer(SagaEvent sagaEvent) {
-    events.offer(sagaEvent);
+    events.add(sagaEvent);
     log.info("Added event id={}, type={}", sagaEvent.id(), sagaEvent.description());
   }
 
