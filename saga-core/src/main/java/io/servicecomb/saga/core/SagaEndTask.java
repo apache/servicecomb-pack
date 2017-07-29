@@ -16,8 +16,8 @@
 
 package io.servicecomb.saga.core;
 
-import static io.servicecomb.saga.core.Compensation.NO_OP_COMPENSATION;
-import static io.servicecomb.saga.core.Transaction.NO_OP_TRANSACTION;
+import static io.servicecomb.saga.core.Compensation.SAGA_END_COMPENSATION;
+import static io.servicecomb.saga.core.Transaction.SAGA_END_TRANSACTION;
 
 class SagaEndTask implements SagaTask {
 
@@ -36,7 +36,7 @@ class SagaEndTask implements SagaTask {
 
   @Override
   public Operation transaction() {
-    return NO_OP_TRANSACTION;
+    return SAGA_END_TRANSACTION;
   }
 
   @Override
@@ -55,6 +55,6 @@ class SagaEndTask implements SagaTask {
 
   @Override
   public Operation compensation() {
-    return NO_OP_COMPENSATION;
+    return SAGA_END_COMPENSATION;
   }
 }

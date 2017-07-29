@@ -57,7 +57,8 @@ class CompensationTaskRunner implements TaskConsumer {
           event.play(iterator);
           log.info("Completed playing event {}", event);
         }
-      } else {
+      } else if (!completedOperations.containsKey(task.transaction())) {
+        // this transaction never started
         iterator.remove();
       }
     }

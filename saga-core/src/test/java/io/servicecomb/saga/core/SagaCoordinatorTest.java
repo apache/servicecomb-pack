@@ -16,9 +16,9 @@
 
 package io.servicecomb.saga.core;
 
-import static io.servicecomb.saga.core.Compensation.NO_OP_COMPENSATION;
-import static io.servicecomb.saga.core.Transaction.NO_OP_TRANSACTION;
 import static io.servicecomb.saga.core.SagaEventMatcher.eventWith;
+import static io.servicecomb.saga.core.Transaction.SAGA_END_TRANSACTION;
+import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -78,7 +78,7 @@ public class SagaCoordinatorTest {
     coordinator.run();
 
     assertThat(eventStore, contains(
-        eventWith(1L, NO_OP_TRANSACTION, SagaStartedEvent.class),
+        eventWith(1L, SAGA_START_TRANSACTION, SagaStartedEvent.class),
         eventWith(2L, transaction1, TransactionStartedEvent.class),
         eventWith(3L, transaction1, TransactionEndedEvent.class),
         eventWith(4L, transaction2, TransactionStartedEvent.class),
@@ -86,7 +86,7 @@ public class SagaCoordinatorTest {
         eventWith(6L, transaction2, TransactionEndedEvent.class),
         eventWith(7L, transaction3, TransactionStartedEvent.class),
         eventWith(8L, transaction3, TransactionEndedEvent.class),
-        eventWith(9L, NO_OP_COMPENSATION, SagaEndedEvent.class)
+        eventWith(9L, SAGA_END_TRANSACTION, SagaEndedEvent.class)
     ));
   }
 }

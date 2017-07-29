@@ -16,7 +16,7 @@
 
 package io.servicecomb.saga.core;
 
-import static io.servicecomb.saga.core.Transaction.NO_OP_TRANSACTION;
+import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
 import static io.servicecomb.saga.core.SagaEventMatcher.eventWith;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.*;
@@ -33,6 +33,6 @@ public class SagaStartTaskTest {
   public void transitToNextStateAfterEmittingEvent() {
     state.commit();
 
-    assertThat(eventStore, contains(eventWith(1L, NO_OP_TRANSACTION, SagaStartedEvent.class)));
+    assertThat(eventStore, contains(eventWith(1L, SAGA_START_TRANSACTION, SagaStartedEvent.class)));
   }
 }
