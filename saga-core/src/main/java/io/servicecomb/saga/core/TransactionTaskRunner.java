@@ -18,9 +18,10 @@ package io.servicecomb.saga.core;
 
 import io.servicecomb.saga.core.dag.Node;
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -41,21 +42,19 @@ class TransactionTaskRunner implements TaskConsumer {
 
   @Override
   public void invoke(Collection<Node<SagaTask>> nodes) {
-    Map<Future<Operation>, SagaTask> futures = new HashMap<>(nodes.size());
+    List<Future<Operation>> futures = new ArrayList<>(nodes.size());
     for (Node<SagaTask> node : nodes) {
       SagaTask task = node.value();
-      futures.put(futureOf(task), task);
+      futures.add(futureOf(task));
     }
 
     for (int i = 0; i < futures.size(); i++) {
       try {
-        Future<Operation> future = executorService.take();
-        try {
-          future.get();
-        } catch (ExecutionException e) {
-          throw new TransactionFailedException(e.getCause());
-        }
+        executorService.take().get();
+      } catch (ExecutionException e) {
+        throw new TransactionFailedException(e.getCause());
       } catch (InterruptedException e) {
+        // TODO: 7/29/2017 what shall we do when system is shutting down?
         throw new TransactionFailedException(e);
       }
     }
