@@ -21,12 +21,14 @@ import io.servicecomb.saga.core.dag.Traveller;
 import java.util.Collection;
 import java.util.Map;
 
-abstract class AbstractSagaState implements SagaState {
+class TaskRunner implements SagaState {
 
   private final Traveller<SagaTask> traveller;
+  private final TaskConsumer taskConsumer;
 
-  AbstractSagaState(Traveller<SagaTask> traveller) {
+  TaskRunner(Traveller<SagaTask> traveller, TaskConsumer taskConsumer) {
     this.traveller = traveller;
+    this.taskConsumer = taskConsumer;
   }
 
   @Override
@@ -39,17 +41,15 @@ abstract class AbstractSagaState implements SagaState {
     Collection<Node<SagaTask>> nodes = traveller.nodes();
 
     // finish pending tasks from saga log at startup
-    invoke(nodes);
+    taskConsumer.invoke(nodes);
     nodes.clear();
 
     while (traveller.hasNext()) {
       traveller.next();
-      invoke(nodes);
+      taskConsumer.invoke(nodes);
       nodes.clear();
     }
   }
-
-  abstract void invoke(Collection<Node<SagaTask>> nodes);
 
   @Override
   public void replay(Map<Operation, Collection<SagaEvent>> completedOperations) {
@@ -57,11 +57,7 @@ abstract class AbstractSagaState implements SagaState {
     Collection<Node<SagaTask>> nodes = traveller.nodes();
     while (traveller.hasNext() && !played) {
       traveller.next();
-      played = replay(nodes, completedOperations);
+      played = taskConsumer.replay(nodes, completedOperations);
     }
   }
-
-  abstract boolean replay(Collection<Node<SagaTask>> nodes,
-      Map<Operation, Collection<SagaEvent>> completedOperationsCopy);
-
 }

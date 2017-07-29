@@ -17,7 +17,6 @@
 package io.servicecomb.saga.core;
 
 import io.servicecomb.saga.core.dag.Node;
-import io.servicecomb.saga.core.dag.Traveller;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,24 +28,19 @@ import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class TransactionState extends AbstractSagaState {
+class TransactionTaskRunner implements TaskConsumer {
+
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final CompletionService<Operation> executorService;
   private final RecoveryPolicy recoveryPolicy;
 
-  TransactionState(
-      CompletionService<Operation> executorService,
-      RecoveryPolicy recoveryPolicy,
-      Traveller<SagaTask> traveller) {
-
-    super(traveller);
-
+  TransactionTaskRunner(CompletionService<Operation> executorService, RecoveryPolicy recoveryPolicy) {
     this.executorService = executorService;
     this.recoveryPolicy = recoveryPolicy;
   }
 
   @Override
-  void invoke(Collection<Node<SagaTask>> nodes) {
+  public void invoke(Collection<Node<SagaTask>> nodes) {
     Map<Future<Operation>, SagaTask> futures = new HashMap<>(nodes.size());
     for (Node<SagaTask> node : nodes) {
       SagaTask task = node.value();
@@ -68,7 +62,7 @@ class TransactionState extends AbstractSagaState {
   }
 
   @Override
-  boolean replay(Collection<Node<SagaTask>> nodes, Map<Operation, Collection<SagaEvent>> completedOperations) {
+  public boolean replay(Collection<Node<SagaTask>> nodes, Map<Operation, Collection<SagaEvent>> completedOperations) {
 
     for (Iterator<Node<SagaTask>> iterator = nodes.iterator(); iterator.hasNext(); ) {
       SagaTask task = iterator.next().value();

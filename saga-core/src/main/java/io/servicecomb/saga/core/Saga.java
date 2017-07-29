@@ -45,9 +45,9 @@ public class Saga {
   private final Map<Operation, Collection<SagaEvent>> completedOperations;
   private final Set<SagaTask> hangingOperations;
 
-  private final TransactionState transactionState;
-  private final CompensationState compensationState;
-  private volatile SagaState currentState;
+  private final TaskRunner transactionTaskRunner;
+  private final TaskRunner compensationTaskRunner;
+  private volatile SagaState currentTaskRunner;
 
 
   public Saga(EventStore eventStore, SingleLeafDirectedAcyclicGraph<SagaTask> sagaTaskGraph) {
@@ -61,22 +61,25 @@ public class Saga {
     this.completedOperations = new HashMap<>();
     this.hangingOperations = new HashSet<>();
 
-    this.transactionState = new TransactionState(executorService, new LoggingRecoveryPolicy(recoveryPolicy),
-        traveller(sagaTaskGraph, new FromRootTraversalDirection<>()));
-    this.compensationState = new CompensationState(completedOperations,
-        traveller(sagaTaskGraph, new FromLeafTraversalDirection<>()));
+    this.transactionTaskRunner = new TaskRunner(
+        traveller(sagaTaskGraph, new FromRootTraversalDirection<>()),
+        new TransactionTaskRunner(executorService, new LoggingRecoveryPolicy(recoveryPolicy)));
 
-    currentState = transactionState;
+    this.compensationTaskRunner = new TaskRunner(
+        traveller(sagaTaskGraph, new FromLeafTraversalDirection<>()),
+        new CompensationTaskRunner(completedOperations));
+
+    currentTaskRunner = transactionTaskRunner;
   }
 
   public void run() {
     log.info("Starting Saga");
     do {
       try {
-        currentState.run();
+        currentTaskRunner.run();
       } catch (TransactionFailedException e) {
         log.error("Failed to run operation", e);
-        currentState = compensationState;
+        currentTaskRunner = compensationTaskRunner;
 
         gatherEvents(eventStore);
 
@@ -85,7 +88,7 @@ public class Saga {
           sagaTask.compensation();
         });
       }
-    } while (currentState.hasNext());
+    } while (currentTaskRunner.hasNext());
     log.info("Completed Saga");
   }
 
@@ -94,12 +97,12 @@ public class Saga {
     gatherEvents(eventStore);
 
     Map<Operation, Collection<SagaEvent>> completedOperationsCopy = new HashMap<>(completedOperations);
-    transactionState.replay(completedOperationsCopy);
+    transactionTaskRunner.replay(completedOperationsCopy);
 
     // only compensation events left
     if (!completedOperationsCopy.isEmpty()) {
-      currentState = compensationState;
-      compensationState.replay(completedOperations);
+      currentTaskRunner = compensationTaskRunner;
+      compensationTaskRunner.replay(completedOperations);
     }
 
     log.info("Completed playing events");

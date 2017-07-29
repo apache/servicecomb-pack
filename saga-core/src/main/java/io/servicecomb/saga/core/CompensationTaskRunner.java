@@ -17,7 +17,6 @@
 package io.servicecomb.saga.core;
 
 import io.servicecomb.saga.core.dag.Node;
-import io.servicecomb.saga.core.dag.Traveller;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Iterator;
@@ -25,17 +24,17 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class CompensationState extends AbstractSagaState {
+class CompensationTaskRunner implements TaskConsumer {
+
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final Map<Operation, Collection<SagaEvent>> completedOperations;
 
-  CompensationState(Map<Operation, Collection<SagaEvent>> completedOperations, Traveller<SagaTask> traveller) {
-    super(traveller);
+  CompensationTaskRunner(Map<Operation, Collection<SagaEvent>> completedOperations) {
     this.completedOperations = completedOperations;
   }
 
   @Override
-  void invoke(Collection<Node<SagaTask>> nodes) {
+  public void invoke(Collection<Node<SagaTask>> nodes) {
     for (Node<SagaTask> node : nodes) {
       SagaTask task = node.value();
 
@@ -47,8 +46,8 @@ class CompensationState extends AbstractSagaState {
     }
   }
 
-  boolean replay(Collection<Node<SagaTask>> nodes,
-      Map<Operation, Collection<SagaEvent>> completedOperations) {
+  @Override
+  public boolean replay(Collection<Node<SagaTask>> nodes, Map<Operation, Collection<SagaEvent>> completedOperations) {
 
     for (Iterator<Node<SagaTask>> iterator = nodes.iterator(); iterator.hasNext(); ) {
       SagaTask task = iterator.next().value();
