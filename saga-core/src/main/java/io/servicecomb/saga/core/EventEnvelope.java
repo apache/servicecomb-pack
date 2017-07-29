@@ -28,4 +28,12 @@ public class EventEnvelope {
     this.timestamp = System.currentTimeMillis();
   }
 
+  @Override
+  public String toString() {
+    return "EventEnvelope{" +
+        "id=" + id +
+        ", timestamp=" + timestamp +
+        ", event={" + event +
+        "}}";
+  }
 }

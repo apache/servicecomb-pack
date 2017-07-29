@@ -74,9 +74,9 @@ class TransactionState extends AbstractSagaState {
       SagaTask task = iterator.next().value();
       if (completedOperations.containsKey(task.transaction())) {
         for (SagaEvent event : completedOperations.get(task.transaction())) {
-          log.info("Start playing event {}", event.description());
+          log.info("Start playing event {}", event);
           event.play(iterator);
-          log.info("Completed playing event {}", event.description());
+          log.info("Completed playing event {}", event);
         }
       }
       completedOperations.remove(task.transaction());

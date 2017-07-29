@@ -38,10 +38,10 @@ import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
 
@@ -148,19 +148,24 @@ public class SagaIntegrationTest {
 
   // root - node1 - node2 - node3 - leaf
   //             \_ node4 _/
-  @Ignore // this may fail from time to time, because event ordering is not consistent due to tasks running in parallel
   @Test
   public void redoHangingTransactionsOnFailure() throws InterruptedException {
     Node<SagaTask> node4 = new Node<>(task4.id(), task4);
     node1.addChild(node4);
     node4.addChild(node3);
 
-    doThrow(exception).when(transaction4).run();
+    // barrier to make sure the two transactions starts at the same time
+    CyclicBarrier barrier = new CyclicBarrier(2);
+    doAnswer(withAnswer(() -> {
+      barrier.await();
+      throw exception;
+    })).when(transaction4).run();
 
     ExecutorService executor = Executors.newSingleThreadExecutor();
     CountDownLatch latch = new CountDownLatch(1);
 
     doAnswer(withAnswer(() -> {
+      barrier.await();
       latch.await();
       return null;
     })).doNothing().when(transaction2).run();
@@ -171,27 +176,28 @@ public class SagaIntegrationTest {
 
     // the ordering of events may not be consistence due to concurrent processing of requests
     await().atMost(5, SECONDS).until(() -> {
-      assertThat(eventStore, contains(
-          eventWith(1L, NO_OP_TRANSACTION, SagaStartedEvent.class),
-          eventWith(2L, transaction1, TransactionStartedEvent.class),
-          eventWith(3L, transaction1, TransactionEndedEvent.class),
-          anyOf(
-              eventWith(4L, transaction2, TransactionStartedEvent.class),
-              eventWith(4L, transaction4, TransactionStartedEvent.class)),
-          anyOf(
-              eventWith(5L, transaction4, TransactionStartedEvent.class),
-              eventWith(5L, transaction2, TransactionStartedEvent.class),
-              eventWith(5L, transaction4, TransactionAbortedEvent.class)),
-          anyOf(
-              eventWith(6L, transaction4, TransactionAbortedEvent.class),
-              eventWith(6L, transaction4, TransactionStartedEvent.class)),
-          eventWith(7L, transaction2, TransactionStartedEvent.class),
-          eventWith(8L, transaction2, TransactionEndedEvent.class),
-          eventWith(9L, compensation2, CompensationStartedEvent.class),
-          eventWith(10L, compensation2, CompensationEndedEvent.class),
-          eventWith(11L, compensation1, CompensationStartedEvent.class),
-          eventWith(12L, compensation1, CompensationEndedEvent.class),
-          eventWith(13L, NO_OP_COMPENSATION, SagaEndedEvent.class)));
+      try {
+        assertThat(eventStore, contains(
+            eventWith(1L, NO_OP_TRANSACTION, SagaStartedEvent.class),
+            eventWith(2L, transaction1, TransactionStartedEvent.class),
+            eventWith(3L, transaction1, TransactionEndedEvent.class),
+            anyOf(
+                eventWith(4L, transaction2, TransactionStartedEvent.class),
+                eventWith(4L, transaction4, TransactionStartedEvent.class)),
+            anyOf(
+                eventWith(5L, transaction4, TransactionStartedEvent.class),
+                eventWith(5L, transaction2, TransactionStartedEvent.class)),
+            eventWith(6L, transaction4, TransactionAbortedEvent.class),
+            eventWith(7L, transaction2, TransactionStartedEvent.class),
+            eventWith(8L, transaction2, TransactionEndedEvent.class),
+            eventWith(9L, compensation2, CompensationStartedEvent.class),
+            eventWith(10L, compensation2, CompensationEndedEvent.class),
+            eventWith(11L, compensation1, CompensationStartedEvent.class),
+            eventWith(12L, compensation1, CompensationEndedEvent.class),
+            eventWith(13L, NO_OP_COMPENSATION, SagaEndedEvent.class)));
+      } catch (Throwable e) {
+        return false;
+      }
       return true;
     });
 
@@ -352,8 +358,12 @@ public class SagaIntegrationTest {
 
   private void waitTillSlowTransactionStarted(Transaction... transactions) {
     await().atMost(5, SECONDS).until(() -> {
-      for (Transaction transaction : transactions) {
-        verify(transaction, atLeastOnce()).run();
+      try {
+        for (Transaction transaction : transactions) {
+          verify(transaction, atLeastOnce()).run();
+        }
+      } catch (Throwable e) {
+        return false;
       }
       return true;
     });

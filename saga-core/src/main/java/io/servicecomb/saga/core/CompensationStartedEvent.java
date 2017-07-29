@@ -39,4 +39,13 @@ class CompensationStartedEvent extends SagaEvent {
   @Override
   public void play(Iterator<Node<SagaTask>> iterator) {
   }
+
+  @Override
+  public String toString() {
+    return "CompensationStartedEvent{id="
+        + payload().id()
+        + ", operation="
+        + payload().compensation()
+        + "}";
+  }
 }

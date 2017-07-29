@@ -54,9 +54,9 @@ class CompensationState extends AbstractSagaState {
       SagaTask task = iterator.next().value();
       if (completedOperations.containsKey(task.compensation())) {
         for (SagaEvent event : completedOperations.get(task.compensation())) {
-          log.info("Start playing event {}", event.description());
+          log.info("Start playing event {}", event);
           event.play(iterator);
-          log.info("Completed playing event {}", event.description());
+          log.info("Completed playing event {}", event);
         }
       } else {
         iterator.remove();

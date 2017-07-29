@@ -38,4 +38,13 @@ class TransactionAbortedEvent extends SagaEvent {
   public void play(Iterator<Node<SagaTask>> iterator) {
     iterator.remove();
   }
+
+  @Override
+  public String toString() {
+    return "TransactionAbortedEvent{id="
+        + payload().id()
+        + ", operation="
+        + payload().compensation()
+        + "}";
+  }
 }

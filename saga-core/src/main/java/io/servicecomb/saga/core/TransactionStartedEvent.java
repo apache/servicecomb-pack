@@ -39,4 +39,13 @@ class TransactionStartedEvent extends SagaEvent {
   @Override
   public void play(Iterator<Node<SagaTask>> iterator) {
   }
+
+  @Override
+  public String toString() {
+    return "TransactionStartedEvent{id="
+        + payload().id()
+        + ", operation="
+        + payload().transaction()
+        + "}";
+  }
 }

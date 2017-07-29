@@ -39,4 +39,11 @@ class SagaStartedEvent extends SagaEvent {
   public void play(Iterator<Node<SagaTask>> iterator) {
     iterator.remove();
   }
+
+  @Override
+  public String toString() {
+    return "SagaStartedEvent{id="
+        + payload().id()
+        + "}";
+  }
 }

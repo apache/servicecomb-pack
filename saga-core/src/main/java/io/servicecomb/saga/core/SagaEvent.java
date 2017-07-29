@@ -30,7 +30,7 @@ public abstract class SagaEvent implements Descriptive {
     this.payload = payload;
   }
 
-  SagaTask payload() {
+  public SagaTask payload() {
     return payload;
   }
 

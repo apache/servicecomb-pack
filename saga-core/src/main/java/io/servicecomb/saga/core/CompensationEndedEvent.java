@@ -38,4 +38,13 @@ class CompensationEndedEvent extends SagaEvent {
   public void play(Iterator<Node<SagaTask>> iterator) {
     iterator.remove();
   }
+
+  @Override
+  public String toString() {
+    return "CompensationEndedEvent{id="
+        + payload().id()
+        + ", operation="
+        + payload().compensation()
+        + "}";
+  }
 }

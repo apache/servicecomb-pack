@@ -39,7 +39,7 @@ public class EmbeddedEventStore implements EventStore {
       envelope = new EventEnvelope(atomicLong.incrementAndGet(), sagaEvent);
       events.offer(envelope);
     }
-    log.info("Added event id={}, type={}", envelope.id, sagaEvent.description());
+    log.info("Added event {}", envelope);
   }
 
   @Override
@@ -47,7 +47,7 @@ public class EmbeddedEventStore implements EventStore {
     for (EventEnvelope event : events) {
       this.events.offer(event);
       atomicLong.set(event.id);
-      log.info("Populated event id={}, timestamp={}, type={}", event.id, event.timestamp, event.event.description());
+      log.info("Populated event {}", event);
     }
   }
 
