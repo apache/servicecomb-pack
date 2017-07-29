@@ -20,13 +20,13 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-class SagaEventMatcher extends TypeSafeMatcher<SagaEvent> {
+class SagaEventMatcher extends TypeSafeMatcher<EventEnvelope> {
 
   private final long id;
   private final Operation operation;
   private final Class<?> aClass;
 
-  static Matcher<SagaEvent> eventWith(long id, Operation operation, Class<?> aClass) {
+  static Matcher<EventEnvelope> eventWith(long id, Operation operation, Class<?> aClass) {
     return new SagaEventMatcher(id, operation, aClass);
   }
 
@@ -37,25 +37,25 @@ class SagaEventMatcher extends TypeSafeMatcher<SagaEvent> {
   }
 
   @Override
-  protected void describeMismatchSafely(SagaEvent item, Description description) {
+  protected void describeMismatchSafely(EventEnvelope item, Description description) {
     description
-        .appendText("SagaEvent {id=" + item.id() + ", operation=" + operation(item) + ", class=" + item.getClass());
+        .appendText("EventEnvelope {id=" + item.id + ", operation=" + operation(item) + ", class=" + item.event.getClass());
   }
 
   @Override
-  protected boolean matchesSafely(SagaEvent sagaEvent) {
-    return sagaEvent.id() == id
-        && operation(sagaEvent).equals(operation)
-        && sagaEvent.getClass().equals(aClass);
+  protected boolean matchesSafely(EventEnvelope envelope) {
+    return envelope.id == id
+        && operation(envelope).equals(operation)
+        && envelope.event.getClass().equals(aClass);
   }
 
   @Override
   public void describeTo(Description description) {
     description
-        .appendText("SagaEvent {id=" + id + ", operation=" + operation + ", class=" + aClass.getCanonicalName());
+        .appendText("EventEnvelope {id=" + id + ", operation=" + operation + ", class=" + aClass.getCanonicalName());
   }
 
-  private Operation operation(SagaEvent sagaEvent) {
-    return operation instanceof Compensation ? sagaEvent.payload().compensation() : sagaEvent.payload().transaction();
+  private Operation operation(EventEnvelope envelope) {
+    return operation instanceof Compensation ? envelope.event.payload().compensation() : envelope.event.payload().transaction();
   }
 }

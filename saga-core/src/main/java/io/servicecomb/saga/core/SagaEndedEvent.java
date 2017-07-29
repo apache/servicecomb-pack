@@ -24,8 +24,8 @@ import java.util.Set;
 
 class SagaEndedEvent extends SagaEvent {
 
-  SagaEndedEvent(long id, SagaTask sagaTask) {
-    super(id, sagaTask);
+  SagaEndedEvent(SagaTask sagaTask) {
+    super(sagaTask);
   }
 
   @Override
@@ -34,8 +34,7 @@ class SagaEndedEvent extends SagaEvent {
   }
 
   @Override
-  public void play(IdGenerator<Long> idGenerator, Iterator<Node<SagaTask>> iterator) {
-    idGenerator.nextId();
+  public void play(Iterator<Node<SagaTask>> iterator) {
     iterator.remove();
   }
 }

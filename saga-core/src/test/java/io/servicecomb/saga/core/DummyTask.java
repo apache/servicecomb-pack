@@ -16,49 +16,38 @@
 
 package io.servicecomb.saga.core;
 
-class RequestProcessTask implements SagaTask {
+import static io.servicecomb.saga.core.Compensation.NO_OP_COMPENSATION;
+import static io.servicecomb.saga.core.Transaction.NO_OP_TRANSACTION;
 
-  private final EventStore eventStore;
-  private final long id;
-  private final SagaRequest request;
-
-  RequestProcessTask(long id, SagaRequest request, EventStore eventStore) {
-    this.id = id;
-    this.request = request;
-    this.eventStore = eventStore;
-  }
+public class DummyTask implements SagaTask {
 
   @Override
   public long id() {
-    return id;
+    return 0;
   }
 
   @Override
   public Operation transaction() {
-    return request.transaction();
+    return NO_OP_TRANSACTION;
   }
 
   @Override
   public void commit() {
-    eventStore.offer(new TransactionStartedEvent(this));
-    request.commit();
-    eventStore.offer(new TransactionEndedEvent(this));
+
   }
 
   @Override
   public void compensate() {
-    eventStore.offer(new CompensationStartedEvent(this));
-    request.abort();
-    eventStore.offer(new CompensationEndedEvent(this));
+
   }
 
   @Override
   public void abort() {
-    eventStore.offer(new TransactionAbortedEvent(this));
+
   }
 
   @Override
   public Operation compensation() {
-    return request.compensation();
+    return NO_OP_COMPENSATION;
   }
 }

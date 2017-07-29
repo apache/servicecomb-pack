@@ -50,21 +50,20 @@ public class Saga {
   private volatile SagaState currentState;
 
 
-  public Saga(IdGenerator<Long> idGenerator, EventStore eventStore,
-      SingleLeafDirectedAcyclicGraph<SagaTask> sagaTaskGraph) {
-    this(idGenerator, eventStore, new BackwardRecovery(), sagaTaskGraph);
+  public Saga(EventStore eventStore, SingleLeafDirectedAcyclicGraph<SagaTask> sagaTaskGraph) {
+    this(eventStore, new BackwardRecovery(), sagaTaskGraph);
   }
 
-  public Saga(IdGenerator<Long> idGenerator, EventStore eventStore, RecoveryPolicy recoveryPolicy,
+  public Saga(EventStore eventStore, RecoveryPolicy recoveryPolicy,
       SingleLeafDirectedAcyclicGraph<SagaTask> sagaTaskGraph) {
 
     this.eventStore = eventStore;
     this.completedOperations = new HashMap<>();
     this.orphanOperations = new HashSet<>();
 
-    this.transactionState = new TransactionState(idGenerator, executorService, new LoggingRecoveryPolicy(recoveryPolicy),
+    this.transactionState = new TransactionState(executorService, new LoggingRecoveryPolicy(recoveryPolicy),
         traveller(sagaTaskGraph, new FromRootTraversalDirection<>()));
-    this.compensationState = new CompensationState(idGenerator, completedOperations,
+    this.compensationState = new CompensationState(completedOperations,
         traveller(sagaTaskGraph, new FromLeafTraversalDirection<>()));
 
     currentState = transactionState;
@@ -90,9 +89,9 @@ public class Saga {
     log.info("Completed Saga");
   }
 
-  public void play(Iterable<SagaEvent> events) {
+  public void play() {
     log.info("Start playing events");
-    gatherEvents(events);
+    gatherEvents(eventStore);
 
     Map<Operation, Collection<SagaEvent>> completedOperationsCopy = new HashMap<>(completedOperations);
     transactionState.replay(completedOperationsCopy);
@@ -106,9 +105,9 @@ public class Saga {
     log.info("Completed playing events");
   }
 
-  private void gatherEvents(Iterable<SagaEvent> events) {
-    for (SagaEvent event : events) {
-      event.gatherTo(completedOperations, orphanOperations);
+  private void gatherEvents(Iterable<EventEnvelope> events) {
+    for (EventEnvelope event : events) {
+      event.event.gatherTo(completedOperations, orphanOperations);
     }
   }
 

@@ -26,9 +26,8 @@ import org.junit.Test;
 
 public class SagaStartTaskTest {
 
-  private final IdGenerator<Long> idGenerator = new LongIdGenerator();
   private final EventStore eventStore = new EmbeddedEventStore();
-  private final SagaStartTask state = new SagaStartTask(0L, eventStore, idGenerator);
+  private final SagaStartTask state = new SagaStartTask(0L, eventStore);
 
   @Test
   public void transitToNextStateAfterEmittingEvent() {

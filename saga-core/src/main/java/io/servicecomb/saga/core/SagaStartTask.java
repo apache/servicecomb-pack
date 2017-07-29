@@ -22,13 +22,11 @@ import static io.servicecomb.saga.core.Transaction.NO_OP_TRANSACTION;
 class SagaStartTask implements SagaTask {
 
   private final long id;
-  private final IdGenerator<Long> idGenerator;
   private final EventStore eventStore;
 
-  SagaStartTask(long id, EventStore eventStore, IdGenerator<Long> idGenerator) {
+  SagaStartTask(long id, EventStore eventStore) {
     this.id = id;
 
-    this.idGenerator = idGenerator;
     this.eventStore = eventStore;
   }
 
@@ -44,12 +42,12 @@ class SagaStartTask implements SagaTask {
 
   @Override
   public void commit() {
-    eventStore.offer(new SagaStartedEvent(idGenerator.nextId(), this));
+    eventStore.offer(new SagaStartedEvent(this));
   }
 
   @Override
   public void compensate() {
-    eventStore.offer(new SagaEndedEvent(idGenerator.nextId(), this));
+    eventStore.offer(new SagaEndedEvent(this));
   }
 
   @Override

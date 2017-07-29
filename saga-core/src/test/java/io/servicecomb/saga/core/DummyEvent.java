@@ -19,24 +19,22 @@ package io.servicecomb.saga.core;
 import io.servicecomb.saga.core.dag.Node;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-class SagaStartedEvent extends SagaEvent {
+public class DummyEvent extends SagaEvent {
 
-  SagaStartedEvent(SagaTask sagaTask) {
-    super(sagaTask);
+  public DummyEvent(SagaTask payload) {
+    super(payload);
   }
 
   @Override
   public void gatherTo(Map<Operation, Collection<SagaEvent>> completedOperations, Set<SagaTask> orphanOperations) {
-    completedOperations.put(payload().transaction(), new LinkedList<>());
-    completedOperations.get(payload().transaction()).add(this);
+
   }
 
   @Override
   public void play(Iterator<Node<SagaTask>> iterator) {
-    iterator.remove();
+
   }
 }

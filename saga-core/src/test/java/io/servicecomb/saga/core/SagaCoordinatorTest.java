@@ -44,13 +44,12 @@ public class SagaCoordinatorTest {
   private final SagaRequest request3 = new SagaRequest(transaction3, compensation3);
 
   private final EventStore eventStore = new EmbeddedEventStore();
-  private final IdGenerator<Long> idGenerator = new LongIdGenerator();
 
-  private final SagaTask sagaStartTask = new SagaStartTask(0L, eventStore, idGenerator);
-  private final SagaTask task1 = new RequestProcessTask(1L, request1, eventStore, idGenerator);
-  private final SagaTask task2 = new RequestProcessTask(2L, request2, eventStore, idGenerator);
-  private final SagaTask task3 = new RequestProcessTask(3L, request3, eventStore, idGenerator);
-  private final SagaTask sagaEndTask = new SagaEndTask(5L, eventStore, idGenerator);
+  private final SagaTask sagaStartTask = new SagaStartTask(0L, eventStore);
+  private final SagaTask task1 = new RequestProcessTask(1L, request1, eventStore);
+  private final SagaTask task2 = new RequestProcessTask(2L, request2, eventStore);
+  private final SagaTask task3 = new RequestProcessTask(3L, request3, eventStore);
+  private final SagaTask sagaEndTask = new SagaEndTask(5L, eventStore);
 
   private final Node<SagaTask> node1 = new Node<>(task1.id(), task1);
   private final Node<SagaTask> node2 = new Node<>(task2.id(), task2);
@@ -59,7 +58,7 @@ public class SagaCoordinatorTest {
   private final Node<SagaTask> leaf = new Node<>(sagaEndTask.id(), sagaEndTask);
 
   private final SagaCoordinator coordinator = new SagaCoordinator(eventStore,
-      idGenerator, new SingleLeafDirectedAcyclicGraph<>(root, leaf));
+      new SingleLeafDirectedAcyclicGraph<>(root, leaf));
 
   @Before
   public void setUp() throws Exception {
@@ -71,10 +70,10 @@ public class SagaCoordinatorTest {
 
   @Test
   public void recoverSagaWithEventsFromEventStore() {
-    eventStore.offer(new SagaStartedEvent(1L, sagaStartTask));
-    eventStore.offer(new TransactionStartedEvent(2L, task1));
-    eventStore.offer(new TransactionEndedEvent(3L, task1));
-    eventStore.offer(new TransactionStartedEvent(4L, task2));
+    eventStore.offer(new SagaStartedEvent(sagaStartTask));
+    eventStore.offer(new TransactionStartedEvent(task1));
+    eventStore.offer(new TransactionEndedEvent(task1));
+    eventStore.offer(new TransactionStartedEvent(task2));
 
     coordinator.run();
 
@@ -83,10 +82,11 @@ public class SagaCoordinatorTest {
         eventWith(2L, transaction1, TransactionStartedEvent.class),
         eventWith(3L, transaction1, TransactionEndedEvent.class),
         eventWith(4L, transaction2, TransactionStartedEvent.class),
-        eventWith(5L, transaction2, TransactionEndedEvent.class),
-        eventWith(6L, transaction3, TransactionStartedEvent.class),
-        eventWith(7L, transaction3, TransactionEndedEvent.class),
-        eventWith(8L, NO_OP_COMPENSATION, SagaEndedEvent.class)
+        eventWith(5L, transaction2, TransactionStartedEvent.class),
+        eventWith(6L, transaction2, TransactionEndedEvent.class),
+        eventWith(7L, transaction3, TransactionStartedEvent.class),
+        eventWith(8L, transaction3, TransactionEndedEvent.class),
+        eventWith(9L, NO_OP_COMPENSATION, SagaEndedEvent.class)
     ));
   }
 }

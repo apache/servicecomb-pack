@@ -69,12 +69,12 @@ public class SagaIntegrationTest {
   private final SagaRequest request3 = new SagaRequest(transaction3, compensation3);
   private final SagaRequest request4 = new SagaRequest(transaction4, compensation4);
 
-  private final SagaTask sagaStartTask = new SagaStartTask(0L, eventStore, idGenerator);
-  private final SagaTask task1 = new RequestProcessTask(1L, request1, eventStore, idGenerator);
-  private final SagaTask task2 = new RequestProcessTask(2L, request2, eventStore, idGenerator);
-  private final SagaTask task3 = new RequestProcessTask(3L, request3, eventStore, idGenerator);
-  private final SagaTask task4 = new RequestProcessTask(4L, request4, eventStore, idGenerator);
-  private final SagaTask sagaEndTask = new SagaEndTask(5L, eventStore, idGenerator);
+  private final SagaTask sagaStartTask = new SagaStartTask(0L, eventStore);
+  private final SagaTask task1 = new RequestProcessTask(1L, request1, eventStore);
+  private final SagaTask task2 = new RequestProcessTask(2L, request2, eventStore);
+  private final SagaTask task3 = new RequestProcessTask(3L, request3, eventStore);
+  private final SagaTask task4 = new RequestProcessTask(4L, request4, eventStore);
+  private final SagaTask sagaEndTask = new SagaEndTask(5L, eventStore);
 
   private final RuntimeException exception = new RuntimeException("oops");
 
@@ -95,7 +95,7 @@ public class SagaIntegrationTest {
     node2.addChild(node3);
     node3.addChild(leaf);
 
-    saga = new Saga(idGenerator, eventStore, sagaTaskGraph);
+    saga = new Saga(eventStore, sagaTaskGraph);
   }
 
   @Test
@@ -210,7 +210,7 @@ public class SagaIntegrationTest {
 
   @Test
   public void retriesFailedTransactionTillSuccess() {
-    Saga saga = new Saga(idGenerator, eventStore, new ForwardRecovery(), sagaTaskGraph);
+    Saga saga = new Saga(eventStore, new ForwardRecovery(), sagaTaskGraph);
 
     doThrow(exception).doThrow(exception).doNothing().when(transaction2).run();
 
@@ -242,22 +242,27 @@ public class SagaIntegrationTest {
 
   @Test
   public void restoresSagaToTransactionStateByPlayingAllEvents() {
-    Iterable<SagaEvent> events = asList(
-        new SagaStartedEvent(1L, sagaStartTask),
-        new TransactionStartedEvent(2L, task1),
-        new TransactionEndedEvent(3L, task1),
-        new TransactionStartedEvent(4L, task2)
+    Iterable<EventEnvelope> events = asList(
+        envelope(new SagaStartedEvent(sagaStartTask)),
+        envelope(new TransactionStartedEvent(task1)),
+        envelope(new TransactionEndedEvent(task1)),
+        envelope(new TransactionStartedEvent(task2))
     );
 
-    saga.play(events);
+    eventStore.populate(events);
+    saga.play();
 
     saga.run();
     assertThat(eventStore, contains(
+        eventWith(1L, NO_OP_TRANSACTION, SagaStartedEvent.class),
+        eventWith(2L, transaction1, TransactionStartedEvent.class),
+        eventWith(3L, transaction1, TransactionEndedEvent.class),
         eventWith(4L, transaction2, TransactionStartedEvent.class),
-        eventWith(5L, transaction2, TransactionEndedEvent.class),
-        eventWith(6L, transaction3, TransactionStartedEvent.class),
-        eventWith(7L, transaction3, TransactionEndedEvent.class),
-        eventWith(8L, NO_OP_COMPENSATION, SagaEndedEvent.class)
+        eventWith(5L, transaction2, TransactionStartedEvent.class),
+        eventWith(6L, transaction2, TransactionEndedEvent.class),
+        eventWith(7L, transaction3, TransactionStartedEvent.class),
+        eventWith(8L, transaction3, TransactionEndedEvent.class),
+        eventWith(9L, NO_OP_COMPENSATION, SagaEndedEvent.class)
     ));
 
     verify(transaction1, never()).run();
@@ -271,24 +276,33 @@ public class SagaIntegrationTest {
 
   @Test
   public void restoresSagaToCompensationStateByPlayingAllEvents() {
-    Iterable<SagaEvent> events = asList(
-        new SagaStartedEvent(1L, sagaStartTask),
-        new TransactionStartedEvent(2L, task1),
-        new TransactionEndedEvent(3L, task1),
-        new TransactionStartedEvent(4L, task2),
-        new TransactionEndedEvent(5L, task2),
-        new CompensationStartedEvent(6L, task2),
-        new CompensationEndedEvent(7L, task2),
-        new CompensationStartedEvent(8L, task1)
+    Iterable<EventEnvelope> events = asList(
+        envelope(new SagaStartedEvent(sagaStartTask)),
+        envelope(new TransactionStartedEvent(task1)),
+        envelope(new TransactionEndedEvent(task1)),
+        envelope(new TransactionStartedEvent(task2)),
+        envelope(new TransactionEndedEvent(task2)),
+        envelope(new CompensationStartedEvent(task2)),
+        envelope(new CompensationEndedEvent(task2)),
+        envelope(new CompensationStartedEvent(task1))
     );
 
-    saga.play(events);
+    eventStore.populate(events);
+    saga.play();
 
     saga.run();
     assertThat(eventStore, contains(
+        eventWith(1L, NO_OP_TRANSACTION, SagaStartedEvent.class),
+        eventWith(2L, transaction1, TransactionStartedEvent.class),
+        eventWith(3L, transaction1, TransactionEndedEvent.class),
+        eventWith(4L, transaction2, TransactionStartedEvent.class),
+        eventWith(5L, transaction2, TransactionEndedEvent.class),
+        eventWith(6L, compensation2, CompensationStartedEvent.class),
+        eventWith(7L, compensation2, CompensationEndedEvent.class),
         eventWith(8L, compensation1, CompensationStartedEvent.class),
-        eventWith(9L, compensation1, CompensationEndedEvent.class),
-        eventWith(10L, NO_OP_COMPENSATION, SagaEndedEvent.class)
+        eventWith(9L, compensation1, CompensationStartedEvent.class),
+        eventWith(10L, compensation1, CompensationEndedEvent.class),
+        eventWith(11L, NO_OP_COMPENSATION, SagaEndedEvent.class)
     ));
 
     verify(transaction1, never()).run();
@@ -302,20 +316,28 @@ public class SagaIntegrationTest {
 
   @Test
   public void restoresSagaToEndStateByPlayingAllEvents() {
-    Iterable<SagaEvent> events = asList(
-        new SagaStartedEvent(1L, sagaStartTask),
-        new TransactionStartedEvent(2L, task1),
-        new TransactionEndedEvent(3L, task1),
-        new TransactionStartedEvent(4L, task2),
-        new TransactionEndedEvent(5L, task2),
-        new TransactionStartedEvent(6L, task3),
-        new TransactionEndedEvent(7L, task3)
+    Iterable<EventEnvelope> events = asList(
+        envelope(new SagaStartedEvent(sagaStartTask)),
+        envelope(new TransactionStartedEvent(task1)),
+        envelope(new TransactionEndedEvent(task1)),
+        envelope(new TransactionStartedEvent(task2)),
+        envelope(new TransactionEndedEvent(task2)),
+        envelope(new TransactionStartedEvent(task3)),
+        envelope(new TransactionEndedEvent(task3))
     );
 
-    saga.play(events);
+    eventStore.populate(events);
+    saga.play();
 
     saga.run();
     assertThat(eventStore, contains(
+        eventWith(1L, NO_OP_TRANSACTION, SagaStartedEvent.class),
+        eventWith(2L, transaction1, TransactionStartedEvent.class),
+        eventWith(3L, transaction1, TransactionEndedEvent.class),
+        eventWith(4L, transaction2, TransactionStartedEvent.class),
+        eventWith(5L, transaction2, TransactionEndedEvent.class),
+        eventWith(6L, transaction3, TransactionStartedEvent.class),
+        eventWith(7L, transaction3, TransactionEndedEvent.class),
         eventWith(8L, NO_OP_COMPENSATION, SagaEndedEvent.class)
     ));
 
@@ -339,5 +361,9 @@ public class SagaIntegrationTest {
 
   private Answer<Void> withAnswer(Callable<Void> callable) {
     return invocationOnMock -> callable.call();
+  }
+
+  private EventEnvelope envelope(SagaEvent event) {
+    return new EventEnvelope(idGenerator.nextId(), event);
   }
 }

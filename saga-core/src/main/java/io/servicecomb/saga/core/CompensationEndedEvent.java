@@ -24,8 +24,8 @@ import java.util.Set;
 
 class CompensationEndedEvent extends SagaEvent {
 
-  CompensationEndedEvent(long id, SagaTask compensation) {
-    super(id, compensation);
+  CompensationEndedEvent(SagaTask compensation) {
+    super(compensation);
   }
 
   @Override
@@ -35,9 +35,7 @@ class CompensationEndedEvent extends SagaEvent {
   }
 
   @Override
-  public void play(IdGenerator<Long> idGenerator, Iterator<Node<SagaTask>> iterator) {
-    idGenerator.nextId();
-    idGenerator.nextId();
+  public void play(Iterator<Node<SagaTask>> iterator) {
     iterator.remove();
   }
 }

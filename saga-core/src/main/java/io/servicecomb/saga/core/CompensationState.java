@@ -29,13 +29,10 @@ import org.slf4j.LoggerFactory;
 
 class CompensationState extends AbstractSagaState {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private final IdGenerator<Long> idGenerator;
   private final Map<Operation, Collection<SagaEvent>> completedOperations;
 
-  CompensationState(IdGenerator<Long> idGenerator,
-      Map<Operation, Collection<SagaEvent>> completedOperations, Traveller<SagaTask> traveller) {
+  CompensationState(Map<Operation, Collection<SagaEvent>> completedOperations, Traveller<SagaTask> traveller) {
     super(traveller);
-    this.idGenerator = idGenerator;
     this.completedOperations = completedOperations;
   }
 
@@ -69,9 +66,9 @@ class CompensationState extends AbstractSagaState {
       SagaTask task = iterator.next().value();
       if (completedOperations.containsKey(task.compensation())) {
         for (SagaEvent event : completedOperations.get(task.compensation())) {
-          log.info("Start playing event {} id={}", event.description(), event.id());
-          event.play(idGenerator, iterator);
-          log.info("Completed playing event {} id={}", event.description(), event.id());
+          log.info("Start playing event {}", event.description());
+          event.play(iterator);
+          log.info("Completed playing event {}", event.description());
         }
       } else {
         iterator.remove();

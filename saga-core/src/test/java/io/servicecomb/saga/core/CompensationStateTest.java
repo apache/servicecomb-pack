@@ -41,7 +41,7 @@ public class CompensationStateTest {
 
   private final Deque<SagaTask> executedTasks = new LinkedList<>();
   private final Queue<SagaTask> pendingTasks = new LinkedList<>();
-  private final CompensationState compensationState = new CompensationState(null, null, null);
+  private final CompensationState compensationState = new CompensationState(null, null);
 
   @Before
   public void setUp() throws Exception {

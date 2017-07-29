@@ -39,7 +39,7 @@ public class TransactionStateTest {
 
   private final Deque<SagaTask> executedTasks = new LinkedList<>();
   private final Queue<SagaTask> pendingTasks = new LinkedList<>();
-  private final TransactionState transactionState = new TransactionState(null, null, null, null);
+  private final TransactionState transactionState = new TransactionState(null, null, null);
 
   @Before
   public void setUp() throws Exception {

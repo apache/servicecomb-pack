@@ -23,12 +23,10 @@ class SagaEndTask implements SagaTask {
 
   private final long id;
   private final EventStore eventStore;
-  private final IdGenerator<Long> idGenerator;
 
-  SagaEndTask(long id, EventStore eventStore, IdGenerator<Long> idGenerator) {
+  SagaEndTask(long id, EventStore eventStore) {
     this.id = id;
     this.eventStore = eventStore;
-    this.idGenerator = idGenerator;
   }
 
   @Override
@@ -43,7 +41,7 @@ class SagaEndTask implements SagaTask {
 
   @Override
   public void commit() {
-    eventStore.offer(new SagaEndedEvent(idGenerator.nextId(), this));
+    eventStore.offer(new SagaEndedEvent(this));
   }
 
   @Override

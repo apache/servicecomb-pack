@@ -33,18 +33,16 @@ import org.slf4j.LoggerFactory;
 
 class TransactionState extends AbstractSagaState {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private final IdGenerator<Long> idGenerator;
   private final CompletionService<Operation> executorService;
   private final RecoveryPolicy recoveryPolicy;
 
   TransactionState(
-      IdGenerator<Long> idGenerator,
       CompletionService<Operation> executorService,
-      RecoveryPolicy recoveryPolicy, Traveller<SagaTask> traveller) {
+      RecoveryPolicy recoveryPolicy,
+      Traveller<SagaTask> traveller) {
 
     super(traveller);
 
-    this.idGenerator = idGenerator;
     this.executorService = executorService;
     this.recoveryPolicy = recoveryPolicy;
   }
@@ -95,9 +93,9 @@ class TransactionState extends AbstractSagaState {
       SagaTask task = iterator.next().value();
       if (completedOperations.containsKey(task.transaction())) {
         for (SagaEvent event : completedOperations.get(task.transaction())) {
-          log.info("Start playing event {} id={}", event.description(), event.id());
-          event.play(idGenerator, iterator);
-          log.info("Completed playing event {} id={}", event.description(), event.id());
+          log.info("Start playing event {}", event.description());
+          event.play(iterator);
+          log.info("Completed playing event {}", event.description());
         }
       }
       completedOperations.remove(task.transaction());

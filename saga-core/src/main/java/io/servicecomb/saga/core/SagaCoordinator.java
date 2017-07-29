@@ -22,19 +22,16 @@ public class SagaCoordinator {
 
   private final EventStore eventStore;
   private final SingleLeafDirectedAcyclicGraph<SagaTask> sagaTaskGraph;
-  private final IdGenerator<Long> idGenerator;
 
-  public SagaCoordinator(EventStore eventStore, IdGenerator<Long> idGenerator,
-      SingleLeafDirectedAcyclicGraph<SagaTask> sagaTaskGraph) {
+  public SagaCoordinator(EventStore eventStore, SingleLeafDirectedAcyclicGraph<SagaTask> sagaTaskGraph) {
     this.eventStore = eventStore;
     this.sagaTaskGraph = sagaTaskGraph;
-    this.idGenerator = idGenerator;
   }
 
   public void run() {
-    Saga saga = new Saga(idGenerator, eventStore, sagaTaskGraph);
+    Saga saga = new Saga(eventStore, sagaTaskGraph);
 
-    saga.play(eventStore);
+    saga.play();
     saga.run();
   }
 }

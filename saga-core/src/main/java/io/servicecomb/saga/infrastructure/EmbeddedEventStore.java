@@ -16,23 +16,39 @@
 
 package io.servicecomb.saga.infrastructure;
 
+import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.EventStore;
 import io.servicecomb.saga.core.SagaEvent;
 import java.lang.invoke.MethodHandles;
 import java.util.Iterator;
-import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EmbeddedEventStore implements EventStore {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private final Set<SagaEvent> events = new ConcurrentSkipListSet<>((o1, o2) -> (int) (o1.id() - o2.id()));
+  private final Queue<EventEnvelope> events = new LinkedBlockingQueue<>();
+  private final AtomicLong atomicLong = new AtomicLong();
 
   @Override
   public void offer(SagaEvent sagaEvent) {
-    events.add(sagaEvent);
-    log.info("Added event id={}, type={}", sagaEvent.id(), sagaEvent.description());
+    EventEnvelope envelope;
+    synchronized (this) {
+      envelope = new EventEnvelope(atomicLong.incrementAndGet(), sagaEvent);
+      events.offer(envelope);
+    }
+    log.info("Added event id={}, type={}", envelope.id, sagaEvent.description());
+  }
+
+  @Override
+  public void populate(Iterable<EventEnvelope> events) {
+    for (EventEnvelope event : events) {
+      this.events.offer(event);
+      atomicLong.set(event.id);
+      log.info("Populated event id={}, timestamp={}, type={}", event.id, event.timestamp, event.event.description());
+    }
   }
 
   @Override
@@ -41,7 +57,7 @@ public class EmbeddedEventStore implements EventStore {
   }
 
   @Override
-  public Iterator<SagaEvent> iterator() {
+  public Iterator<EventEnvelope> iterator() {
     return events.iterator();
   }
 }

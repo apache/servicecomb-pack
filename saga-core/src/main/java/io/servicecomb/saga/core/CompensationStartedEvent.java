@@ -25,8 +25,8 @@ import java.util.Set;
 
 class CompensationStartedEvent extends SagaEvent {
 
-  CompensationStartedEvent(long id, SagaTask compensation) {
-    super(id, compensation);
+  CompensationStartedEvent(SagaTask compensation) {
+    super(compensation);
   }
 
   @Override
@@ -37,6 +37,6 @@ class CompensationStartedEvent extends SagaEvent {
   }
 
   @Override
-  public void play(IdGenerator<Long> idGenerator, Iterator<Node<SagaTask>> iterator) {
+  public void play(Iterator<Node<SagaTask>> iterator) {
   }
 }

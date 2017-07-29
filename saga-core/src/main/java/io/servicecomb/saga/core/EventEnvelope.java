@@ -16,27 +16,16 @@
 
 package io.servicecomb.saga.core;
 
-import io.servicecomb.saga.core.dag.Node;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
+public class EventEnvelope {
 
-class SagaStartedEvent extends SagaEvent {
+  public final long id;
+  public final long timestamp;
+  public final SagaEvent event;
 
-  SagaStartedEvent(SagaTask sagaTask) {
-    super(sagaTask);
+  public EventEnvelope(long id, SagaEvent event) {
+    this.id = id;
+    this.event = event;
+    this.timestamp = System.currentTimeMillis();
   }
 
-  @Override
-  public void gatherTo(Map<Operation, Collection<SagaEvent>> completedOperations, Set<SagaTask> orphanOperations) {
-    completedOperations.put(payload().transaction(), new LinkedList<>());
-    completedOperations.get(payload().transaction()).add(this);
-  }
-
-  @Override
-  public void play(Iterator<Node<SagaTask>> iterator) {
-    iterator.remove();
-  }
 }

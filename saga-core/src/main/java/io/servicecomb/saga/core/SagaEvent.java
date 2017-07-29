@@ -25,15 +25,9 @@ import java.util.Set;
 public abstract class SagaEvent implements Descriptive {
 
   private final SagaTask payload;
-  private final long id;
 
-  public SagaEvent(long id, SagaTask payload) {
-    this.id = id;
+  public SagaEvent(SagaTask payload) {
     this.payload = payload;
-  }
-
-  public long id() {
-    return id;
   }
 
   SagaTask payload() {
@@ -42,5 +36,5 @@ public abstract class SagaEvent implements Descriptive {
 
   public abstract void gatherTo(Map<Operation, Collection<SagaEvent>> completedOperations, Set<SagaTask> orphanOperations);
 
-  public abstract void play(IdGenerator<Long> idGenerator, Iterator<Node<SagaTask>> iterator);
+  public abstract void play(Iterator<Node<SagaTask>> iterator);
 }
