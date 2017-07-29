@@ -54,7 +54,6 @@ public class EmbeddedEventStoreTest {
         () -> {
           long i = 1;
           for (EventEnvelope event : eventStore) {
-            System.err.println(event.id + ":" + i);
             assertThat(event.id, is(i));
             i++;
           }
