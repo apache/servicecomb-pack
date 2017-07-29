@@ -20,8 +20,6 @@ import static io.servicecomb.saga.core.Compensation.NO_OP_COMPENSATION;
 import static io.servicecomb.saga.core.SagaEventMatcher.eventWith;
 import static io.servicecomb.saga.core.Transaction.NO_OP_TRANSACTION;
 import static java.util.Arrays.asList;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
@@ -39,8 +37,6 @@ import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
@@ -122,9 +118,24 @@ public class SagaIntegrationTest {
     }
   }
 
+  // root - node1 - node2 - node3 - leaf
+  //             \_ node4 _/
   @Test
   public void compensateCommittedTransactionsOnFailure() {
-    doThrow(exception).when(transaction2).run();
+    addExtraChildToNode1();
+
+    // barrier to make sure the two transactions starts at the same time
+    CyclicBarrier barrier = new CyclicBarrier(2);
+    doAnswer(withAnswer(() -> {
+      barrier.await();
+      Thread.sleep(100);
+      throw exception;
+    })).when(transaction2).run();
+
+    doAnswer(withAnswer(() -> {
+      barrier.await();
+      return null;
+    })).when(transaction4).run();
 
     saga.run();
 
@@ -132,11 +143,15 @@ public class SagaIntegrationTest {
         eventWith(1L, NO_OP_TRANSACTION, SagaStartedEvent.class),
         eventWith(2L, transaction1, TransactionStartedEvent.class),
         eventWith(3L, transaction1, TransactionEndedEvent.class),
-        eventWith(4L, transaction2, TransactionStartedEvent.class),
-        eventWith(5L, transaction2, TransactionAbortedEvent.class),
-        eventWith(6L, compensation1, CompensationStartedEvent.class),
-        eventWith(7L, compensation1, CompensationEndedEvent.class),
-        eventWith(8L, NO_OP_COMPENSATION, SagaEndedEvent.class)));
+        anyOf(eventWith(4L, transaction2, TransactionStartedEvent.class), eventWith(4L, transaction4, TransactionStartedEvent.class)),
+        anyOf(eventWith(5L, transaction2, TransactionStartedEvent.class), eventWith(5L, transaction4, TransactionStartedEvent.class)),
+        eventWith(6L, transaction4, TransactionEndedEvent.class),
+        eventWith(7L, transaction2, TransactionAbortedEvent.class),
+        eventWith(8L, compensation4, CompensationStartedEvent.class),
+        eventWith(9L, compensation4, CompensationEndedEvent.class),
+        eventWith(10L, compensation1, CompensationStartedEvent.class),
+        eventWith(11L, compensation1, CompensationEndedEvent.class),
+        eventWith(12L, NO_OP_COMPENSATION, SagaEndedEvent.class)));
 
     verify(transaction1).run();
     verify(transaction2).run();
@@ -150,9 +165,7 @@ public class SagaIntegrationTest {
   //             \_ node4 _/
   @Test
   public void redoHangingTransactionsOnFailure() throws InterruptedException {
-    Node<SagaTask> node4 = new Node<>(task4.id(), task4);
-    node1.addChild(node4);
-    node4.addChild(node3);
+    addExtraChildToNode1();
 
     // barrier to make sure the two transactions starts at the same time
     CyclicBarrier barrier = new CyclicBarrier(2);
@@ -161,7 +174,6 @@ public class SagaIntegrationTest {
       throw exception;
     })).when(transaction4).run();
 
-    ExecutorService executor = Executors.newSingleThreadExecutor();
     CountDownLatch latch = new CountDownLatch(1);
 
     doAnswer(withAnswer(() -> {
@@ -170,36 +182,27 @@ public class SagaIntegrationTest {
       return null;
     })).doNothing().when(transaction2).run();
 
-    executor.execute(saga::run);
-
-    waitTillSlowTransactionStarted(transaction2, transaction4);
+    saga.run();
 
     // the ordering of events may not be consistence due to concurrent processing of requests
-    await().atMost(5, SECONDS).until(() -> {
-      try {
-        assertThat(eventStore, contains(
-            eventWith(1L, NO_OP_TRANSACTION, SagaStartedEvent.class),
-            eventWith(2L, transaction1, TransactionStartedEvent.class),
-            eventWith(3L, transaction1, TransactionEndedEvent.class),
-            anyOf(
-                eventWith(4L, transaction2, TransactionStartedEvent.class),
-                eventWith(4L, transaction4, TransactionStartedEvent.class)),
-            anyOf(
-                eventWith(5L, transaction4, TransactionStartedEvent.class),
-                eventWith(5L, transaction2, TransactionStartedEvent.class)),
-            eventWith(6L, transaction4, TransactionAbortedEvent.class),
-            eventWith(7L, transaction2, TransactionStartedEvent.class),
-            eventWith(8L, transaction2, TransactionEndedEvent.class),
-            eventWith(9L, compensation2, CompensationStartedEvent.class),
-            eventWith(10L, compensation2, CompensationEndedEvent.class),
-            eventWith(11L, compensation1, CompensationStartedEvent.class),
-            eventWith(12L, compensation1, CompensationEndedEvent.class),
-            eventWith(13L, NO_OP_COMPENSATION, SagaEndedEvent.class)));
-      } catch (Throwable e) {
-        return false;
-      }
-      return true;
-    });
+    assertThat(eventStore, contains(
+        eventWith(1L, NO_OP_TRANSACTION, SagaStartedEvent.class),
+        eventWith(2L, transaction1, TransactionStartedEvent.class),
+        eventWith(3L, transaction1, TransactionEndedEvent.class),
+        anyOf(
+            eventWith(4L, transaction2, TransactionStartedEvent.class),
+            eventWith(4L, transaction4, TransactionStartedEvent.class)),
+        anyOf(
+            eventWith(5L, transaction4, TransactionStartedEvent.class),
+            eventWith(5L, transaction2, TransactionStartedEvent.class)),
+        eventWith(6L, transaction4, TransactionAbortedEvent.class),
+        eventWith(7L, transaction2, TransactionStartedEvent.class),
+        eventWith(8L, transaction2, TransactionEndedEvent.class),
+        eventWith(9L, compensation2, CompensationStartedEvent.class),
+        eventWith(10L, compensation2, CompensationEndedEvent.class),
+        eventWith(11L, compensation1, CompensationStartedEvent.class),
+        eventWith(12L, compensation1, CompensationEndedEvent.class),
+        eventWith(13L, NO_OP_COMPENSATION, SagaEndedEvent.class)));
 
     verify(transaction1).run();
     verify(transaction2, times(2)).run();
@@ -210,8 +213,6 @@ public class SagaIntegrationTest {
     verify(compensation3, never()).run();
 
     latch.countDown();
-
-    executor.shutdown();
   }
 
   @Test
@@ -356,24 +357,17 @@ public class SagaIntegrationTest {
     }
   }
 
-  private void waitTillSlowTransactionStarted(Transaction... transactions) {
-    await().atMost(5, SECONDS).until(() -> {
-      try {
-        for (Transaction transaction : transactions) {
-          verify(transaction, atLeastOnce()).run();
-        }
-      } catch (Throwable e) {
-        return false;
-      }
-      return true;
-    });
-  }
-
   private Answer<Void> withAnswer(Callable<Void> callable) {
     return invocationOnMock -> callable.call();
   }
 
   private EventEnvelope envelope(SagaEvent event) {
     return new EventEnvelope(idGenerator.nextId(), event);
+  }
+
+  private void addExtraChildToNode1() {
+    Node<SagaTask> node4 = new Node<>(task4.id(), task4);
+    node1.addChild(node4);
+    node4.addChild(node3);
   }
 }
