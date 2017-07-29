@@ -34,7 +34,7 @@ public abstract class SagaEvent implements Descriptive {
     return payload;
   }
 
-  public abstract void gatherTo(Map<Operation, Collection<SagaEvent>> completedOperations, Set<SagaTask> orphanOperations);
+  public abstract void gatherTo(Map<Operation, Collection<SagaEvent>> completedOperations, Set<SagaTask> hangingOperations);
 
   public abstract void play(Iterator<Node<SagaTask>> iterator);
 }

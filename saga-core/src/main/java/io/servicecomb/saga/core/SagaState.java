@@ -25,5 +25,5 @@ interface SagaState {
 
   void run();
 
-  void replay(Map<Operation, Collection<SagaEvent>> completedOperationsCopy);
+  void replay(Map<Operation, Collection<SagaEvent>> completedOperations);
 }

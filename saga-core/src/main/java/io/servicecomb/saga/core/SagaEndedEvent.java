@@ -29,7 +29,7 @@ class SagaEndedEvent extends SagaEvent {
   }
 
   @Override
-  public void gatherTo(Map<Operation, Collection<SagaEvent>> completedOperations, Set<SagaTask> orphanOperations) {
+  public void gatherTo(Map<Operation, Collection<SagaEvent>> completedOperations, Set<SagaTask> hangingOperations) {
     completedOperations.get(payload().transaction()).add(this);
   }
 

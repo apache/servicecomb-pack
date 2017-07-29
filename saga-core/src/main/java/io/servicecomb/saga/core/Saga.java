@@ -43,7 +43,7 @@ public class Saga {
       Executors.newFixedThreadPool(5));
 
   private final Map<Operation, Collection<SagaEvent>> completedOperations;
-  private final Set<SagaTask> orphanOperations;
+  private final Set<SagaTask> hangingOperations;
 
   private final TransactionState transactionState;
   private final CompensationState compensationState;
@@ -59,7 +59,7 @@ public class Saga {
 
     this.eventStore = eventStore;
     this.completedOperations = new HashMap<>();
-    this.orphanOperations = new HashSet<>();
+    this.hangingOperations = new HashSet<>();
 
     this.transactionState = new TransactionState(executorService, new LoggingRecoveryPolicy(recoveryPolicy),
         traveller(sagaTaskGraph, new FromRootTraversalDirection<>()));
@@ -80,7 +80,7 @@ public class Saga {
 
         gatherEvents(eventStore);
 
-        orphanOperations.forEach(sagaTask -> {
+        hangingOperations.forEach(sagaTask -> {
           sagaTask.commit();
           sagaTask.compensation();
         });
@@ -107,7 +107,7 @@ public class Saga {
 
   private void gatherEvents(Iterable<EventEnvelope> events) {
     for (EventEnvelope event : events) {
-      event.event.gatherTo(completedOperations, orphanOperations);
+      event.event.gatherTo(completedOperations, hangingOperations);
     }
   }
 

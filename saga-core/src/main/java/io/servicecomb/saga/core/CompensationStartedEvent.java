@@ -30,10 +30,10 @@ class CompensationStartedEvent extends SagaEvent {
   }
 
   @Override
-  public void gatherTo(Map<Operation, Collection<SagaEvent>> completedOperations, Set<SagaTask> orphanOperations) {
+  public void gatherTo(Map<Operation, Collection<SagaEvent>> completedOperations, Set<SagaTask> hangingOperations) {
     completedOperations.put(payload().compensation(), new LinkedList<>());
     completedOperations.get(payload().compensation()).add(this);
-    orphanOperations.add(payload());
+    hangingOperations.add(payload());
   }
 
   @Override

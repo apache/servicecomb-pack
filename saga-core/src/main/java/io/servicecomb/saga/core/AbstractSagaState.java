@@ -52,12 +52,12 @@ abstract class AbstractSagaState implements SagaState {
   abstract void invoke(Collection<Node<SagaTask>> nodes);
 
   @Override
-  public void replay(Map<Operation, Collection<SagaEvent>> completedOperationsCopy) {
+  public void replay(Map<Operation, Collection<SagaEvent>> completedOperations) {
     boolean played = false;
     Collection<Node<SagaTask>> nodes = traveller.nodes();
     while (traveller.hasNext() && !played) {
       traveller.next();
-      played = replay(nodes, completedOperationsCopy);
+      played = replay(nodes, completedOperations);
     }
   }
 

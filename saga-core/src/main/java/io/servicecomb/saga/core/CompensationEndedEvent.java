@@ -29,9 +29,9 @@ class CompensationEndedEvent extends SagaEvent {
   }
 
   @Override
-  public void gatherTo(Map<Operation, Collection<SagaEvent>> completedOperations, Set<SagaTask> orphanOperations) {
+  public void gatherTo(Map<Operation, Collection<SagaEvent>> completedOperations, Set<SagaTask> hangingOperations) {
     completedOperations.get(payload().compensation()).add(this);
-    orphanOperations.remove(payload());
+    hangingOperations.remove(payload());
   }
 
   @Override

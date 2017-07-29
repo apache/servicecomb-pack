@@ -29,9 +29,9 @@ class TransactionAbortedEvent extends SagaEvent {
   }
 
   @Override
-  public void gatherTo(Map<Operation, Collection<SagaEvent>> completedOperations, Set<SagaTask> orphanOperations) {
+  public void gatherTo(Map<Operation, Collection<SagaEvent>> completedOperations, Set<SagaTask> hangingOperations) {
     completedOperations.remove(payload().transaction());
-    orphanOperations.remove(payload());
+    hangingOperations.remove(payload());
   }
 
   @Override
