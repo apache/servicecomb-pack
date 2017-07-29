@@ -20,10 +20,8 @@ import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.Traveller;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
-import java.util.Deque;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Queue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,16 +32,6 @@ class CompensationState extends AbstractSagaState {
   CompensationState(Map<Operation, Collection<SagaEvent>> completedOperations, Traveller<SagaTask> traveller) {
     super(traveller);
     this.completedOperations = completedOperations;
-  }
-
-  @Override
-  public void invoke(Deque<SagaTask> executedTasks, Queue<SagaTask> pendingTasks) {
-    SagaTask task = executedTasks.peek();
-    log.info("Starting task {} id={}", task.description(), task.id());
-    task.compensate();
-
-    log.info("Completed task {} id={}", task.description(), task.id());
-    executedTasks.pop();
   }
 
   @Override

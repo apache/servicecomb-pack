@@ -20,11 +20,9 @@ import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.Traveller;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -45,23 +43,6 @@ class TransactionState extends AbstractSagaState {
 
     this.executorService = executorService;
     this.recoveryPolicy = recoveryPolicy;
-  }
-
-  @Override
-  public void invoke(Deque<SagaTask> executedTasks, Queue<SagaTask> pendingTasks) {
-    SagaTask task = pendingTasks.peek();
-    executedTasks.push(task);
-
-    log.info("Starting task {} id={}", task.description(), task.id());
-    try {
-      task.commit();
-    } catch (OperationTimeoutException e) {
-      log.error("Retrying timed out Transaction", e);
-      task.commit();
-    }
-    log.info("Completed task {} id={}", task.description(), task.id());
-
-    pendingTasks.poll();
   }
 
   @Override
