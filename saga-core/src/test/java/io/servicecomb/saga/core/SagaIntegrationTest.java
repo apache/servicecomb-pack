@@ -49,28 +49,24 @@ public class SagaIntegrationTest {
   private final Transaction transaction1 = mock(Transaction.class, "transaction1");
   private final Transaction transaction2 = mock(Transaction.class, "transaction2");
   private final Transaction transaction3 = mock(Transaction.class, "transaction3");
-  private final Transaction transaction4 = mock(Transaction.class, "transaction4");
 
-  private final Transaction[] transactions = {transaction1, transaction2, transaction3};
+  private final Transaction[] transactions = {transaction1, transaction2};
 
   private final Compensation compensation1 = mock(Compensation.class, "compensation1");
   private final Compensation compensation2 = mock(Compensation.class, "compensation2");
   private final Compensation compensation3 = mock(Compensation.class, "compensation3");
-  private final Compensation compensation4 = mock(Compensation.class, "compensation4");
 
-  private final Compensation[] compensations = {compensation1, compensation2, compensation3};
+  private final Compensation[] compensations = {compensation1, compensation2};
 
   private final SagaRequest request1 = new SagaRequest(transaction1, compensation1);
   private final SagaRequest request2 = new SagaRequest(transaction2, compensation2);
   private final SagaRequest request3 = new SagaRequest(transaction3, compensation3);
-  private final SagaRequest request4 = new SagaRequest(transaction4, compensation4);
 
   private final SagaTask sagaStartTask = new SagaStartTask(0L, eventStore);
   private final SagaTask task1 = new RequestProcessTask(1L, request1, eventStore);
   private final SagaTask task2 = new RequestProcessTask(2L, request2, eventStore);
   private final SagaTask task3 = new RequestProcessTask(3L, request3, eventStore);
-  private final SagaTask task4 = new RequestProcessTask(4L, request4, eventStore);
-  private final SagaTask sagaEndTask = new SagaEndTask(5L, eventStore);
+  private final SagaTask sagaEndTask = new SagaEndTask(4L, eventStore);
 
   private final RuntimeException exception = new RuntimeException("oops");
 
@@ -83,13 +79,12 @@ public class SagaIntegrationTest {
 
   private Saga saga;
 
-  // root - node1 - node2 - node3 - leaf
+  // root - node1 - node2 - leaf
   @Before
   public void setUp() throws Exception {
     root.addChild(node1);
     node1.addChild(node2);
-    node2.addChild(node3);
-    node3.addChild(leaf);
+    node2.addChild(leaf);
 
     saga = new Saga(eventStore, sagaTaskGraph);
   }
@@ -104,9 +99,7 @@ public class SagaIntegrationTest {
         eventWith(3L, transaction1, TransactionEndedEvent.class),
         eventWith(4L, transaction2, TransactionStartedEvent.class),
         eventWith(5L, transaction2, TransactionEndedEvent.class),
-        eventWith(6L, transaction3, TransactionStartedEvent.class),
-        eventWith(7L, transaction3, TransactionEndedEvent.class),
-        eventWith(8L, NO_OP_COMPENSATION, SagaEndedEvent.class)
+        eventWith(6L, NO_OP_COMPENSATION, SagaEndedEvent.class)
     ));
 
     for (Transaction transaction : transactions) {
@@ -118,8 +111,8 @@ public class SagaIntegrationTest {
     }
   }
 
-  // root - node1 - node2 - node3 - leaf
-  //             \_ node4 _/
+  // root - node1 - node2 - leaf
+  //             \_ node3 _/
   @Test
   public void compensateCommittedTransactionsOnFailure() {
     addExtraChildToNode1();
@@ -135,7 +128,7 @@ public class SagaIntegrationTest {
     doAnswer(withAnswer(() -> {
       barrier.await();
       return null;
-    })).when(transaction4).run();
+    })).when(transaction3).run();
 
     saga.run();
 
@@ -143,25 +136,26 @@ public class SagaIntegrationTest {
         eventWith(1L, NO_OP_TRANSACTION, SagaStartedEvent.class),
         eventWith(2L, transaction1, TransactionStartedEvent.class),
         eventWith(3L, transaction1, TransactionEndedEvent.class),
-        anyOf(eventWith(4L, transaction2, TransactionStartedEvent.class), eventWith(4L, transaction4, TransactionStartedEvent.class)),
-        anyOf(eventWith(5L, transaction2, TransactionStartedEvent.class), eventWith(5L, transaction4, TransactionStartedEvent.class)),
-        eventWith(6L, transaction4, TransactionEndedEvent.class),
+        anyOf(eventWith(4L, transaction2, TransactionStartedEvent.class), eventWith(4L, transaction3, TransactionStartedEvent.class)),
+        anyOf(eventWith(5L, transaction2, TransactionStartedEvent.class), eventWith(5L, transaction3, TransactionStartedEvent.class)),
+        eventWith(6L, transaction3, TransactionEndedEvent.class),
         eventWith(7L, transaction2, TransactionAbortedEvent.class),
-        eventWith(8L, compensation4, CompensationStartedEvent.class),
-        eventWith(9L, compensation4, CompensationEndedEvent.class),
+        eventWith(8L, compensation3, CompensationStartedEvent.class),
+        eventWith(9L, compensation3, CompensationEndedEvent.class),
         eventWith(10L, compensation1, CompensationStartedEvent.class),
         eventWith(11L, compensation1, CompensationEndedEvent.class),
         eventWith(12L, NO_OP_COMPENSATION, SagaEndedEvent.class)));
 
     verify(transaction1).run();
     verify(transaction2).run();
-    verify(transaction3, never()).run();
+    verify(transaction3).run();
 
     verify(compensation1).run();
-    verify(compensation3, never()).run();
+    verify(compensation2, never()).run();
+    verify(compensation3).run();
   }
 
-  // root - node1 - node2 - node3 - leaf
+  // root - node1 - node2 - leaf
   //             \_ node4 _/
   @Test
   public void redoHangingTransactionsOnFailure() throws InterruptedException {
@@ -172,7 +166,7 @@ public class SagaIntegrationTest {
     doAnswer(withAnswer(() -> {
       barrier.await();
       throw exception;
-    })).when(transaction4).run();
+    })).when(transaction3).run();
 
     CountDownLatch latch = new CountDownLatch(1);
 
@@ -191,11 +185,11 @@ public class SagaIntegrationTest {
         eventWith(3L, transaction1, TransactionEndedEvent.class),
         anyOf(
             eventWith(4L, transaction2, TransactionStartedEvent.class),
-            eventWith(4L, transaction4, TransactionStartedEvent.class)),
+            eventWith(4L, transaction3, TransactionStartedEvent.class)),
         anyOf(
-            eventWith(5L, transaction4, TransactionStartedEvent.class),
+            eventWith(5L, transaction3, TransactionStartedEvent.class),
             eventWith(5L, transaction2, TransactionStartedEvent.class)),
-        eventWith(6L, transaction4, TransactionAbortedEvent.class),
+        eventWith(6L, transaction3, TransactionAbortedEvent.class),
         eventWith(7L, transaction2, TransactionStartedEvent.class),
         eventWith(8L, transaction2, TransactionEndedEvent.class),
         eventWith(9L, compensation2, CompensationStartedEvent.class),
@@ -206,7 +200,7 @@ public class SagaIntegrationTest {
 
     verify(transaction1).run();
     verify(transaction2, times(2)).run();
-    verify(transaction3, never()).run();
+    verify(transaction3).run();
 
     verify(compensation1).run();
     verify(compensation2).run();
@@ -231,9 +225,7 @@ public class SagaIntegrationTest {
         eventWith(5L, transaction2, TransactionStartedEvent.class),
         eventWith(6L, transaction2, TransactionStartedEvent.class),
         eventWith(7L, transaction2, TransactionEndedEvent.class),
-        eventWith(8L, transaction3, TransactionStartedEvent.class),
-        eventWith(9L, transaction3, TransactionEndedEvent.class),
-        eventWith(10L, NO_OP_COMPENSATION, SagaEndedEvent.class)
+        eventWith(8L, NO_OP_COMPENSATION, SagaEndedEvent.class)
     ));
 
     for (Transaction transaction : transactions) {
@@ -267,14 +259,11 @@ public class SagaIntegrationTest {
         eventWith(4L, transaction2, TransactionStartedEvent.class),
         eventWith(5L, transaction2, TransactionStartedEvent.class),
         eventWith(6L, transaction2, TransactionEndedEvent.class),
-        eventWith(7L, transaction3, TransactionStartedEvent.class),
-        eventWith(8L, transaction3, TransactionEndedEvent.class),
-        eventWith(9L, NO_OP_COMPENSATION, SagaEndedEvent.class)
+        eventWith(7L, NO_OP_COMPENSATION, SagaEndedEvent.class)
     ));
 
     verify(transaction1, never()).run();
     verify(transaction2).run();
-    verify(transaction3).run();
 
     for (Compensation compensation : compensations) {
       verify(compensation, never()).run();
@@ -328,9 +317,7 @@ public class SagaIntegrationTest {
         envelope(new TransactionStartedEvent(task1)),
         envelope(new TransactionEndedEvent(task1)),
         envelope(new TransactionStartedEvent(task2)),
-        envelope(new TransactionEndedEvent(task2)),
-        envelope(new TransactionStartedEvent(task3)),
-        envelope(new TransactionEndedEvent(task3))
+        envelope(new TransactionEndedEvent(task2))
     );
 
     eventStore.populate(events);
@@ -343,9 +330,7 @@ public class SagaIntegrationTest {
         eventWith(3L, transaction1, TransactionEndedEvent.class),
         eventWith(4L, transaction2, TransactionStartedEvent.class),
         eventWith(5L, transaction2, TransactionEndedEvent.class),
-        eventWith(6L, transaction3, TransactionStartedEvent.class),
-        eventWith(7L, transaction3, TransactionEndedEvent.class),
-        eventWith(8L, NO_OP_COMPENSATION, SagaEndedEvent.class)
+        eventWith(6L, NO_OP_COMPENSATION, SagaEndedEvent.class)
     ));
 
     for (Transaction transaction : transactions) {
@@ -366,8 +351,7 @@ public class SagaIntegrationTest {
   }
 
   private void addExtraChildToNode1() {
-    Node<SagaTask> node4 = new Node<>(task4.id(), task4);
-    node1.addChild(node4);
-    node4.addChild(node3);
+    node1.addChild(node3);
+    node3.addChild(leaf);
   }
 }
