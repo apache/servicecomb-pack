@@ -41,12 +41,12 @@ class TaskRunner implements SagaState {
     Collection<Node<SagaTask>> nodes = traveller.nodes();
 
     // finish pending tasks from saga log at startup
-    taskConsumer.invoke(nodes);
+    taskConsumer.consume(nodes);
     nodes.clear();
 
     while (traveller.hasNext()) {
       traveller.next();
-      taskConsumer.invoke(nodes);
+      taskConsumer.consume(nodes);
       nodes.clear();
     }
   }

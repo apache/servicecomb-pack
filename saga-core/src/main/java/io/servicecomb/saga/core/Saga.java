@@ -63,11 +63,11 @@ public class Saga {
 
     this.transactionTaskRunner = new TaskRunner(
         traveller(sagaTaskGraph, new FromRootTraversalDirection<>()),
-        new TransactionTaskRunner(executorService, new LoggingRecoveryPolicy(recoveryPolicy)));
+        new TransactionTaskConsumer(executorService, new LoggingRecoveryPolicy(recoveryPolicy)));
 
     this.compensationTaskRunner = new TaskRunner(
         traveller(sagaTaskGraph, new FromLeafTraversalDirection<>()),
-        new CompensationTaskRunner(completedOperations));
+        new CompensationTaskConsumer(completedOperations));
 
     currentTaskRunner = transactionTaskRunner;
   }

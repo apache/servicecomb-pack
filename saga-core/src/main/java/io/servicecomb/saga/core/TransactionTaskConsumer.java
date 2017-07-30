@@ -29,19 +29,19 @@ import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class TransactionTaskRunner implements TaskConsumer {
+class TransactionTaskConsumer implements TaskConsumer {
 
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final CompletionService<Operation> executorService;
   private final RecoveryPolicy recoveryPolicy;
 
-  TransactionTaskRunner(CompletionService<Operation> executorService, RecoveryPolicy recoveryPolicy) {
+  TransactionTaskConsumer(CompletionService<Operation> executorService, RecoveryPolicy recoveryPolicy) {
     this.executorService = executorService;
     this.recoveryPolicy = recoveryPolicy;
   }
 
   @Override
-  public void invoke(Collection<Node<SagaTask>> nodes) {
+  public void consume(Collection<Node<SagaTask>> nodes) {
     List<Future<Operation>> futures = new ArrayList<>(nodes.size());
     for (Node<SagaTask> node : nodes) {
       SagaTask task = node.value();

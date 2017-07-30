@@ -24,17 +24,17 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class CompensationTaskRunner implements TaskConsumer {
+class CompensationTaskConsumer implements TaskConsumer {
 
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final Map<Operation, Collection<SagaEvent>> completedOperations;
 
-  CompensationTaskRunner(Map<Operation, Collection<SagaEvent>> completedOperations) {
+  CompensationTaskConsumer(Map<Operation, Collection<SagaEvent>> completedOperations) {
     this.completedOperations = completedOperations;
   }
 
   @Override
-  public void invoke(Collection<Node<SagaTask>> nodes) {
+  public void consume(Collection<Node<SagaTask>> nodes) {
     for (Node<SagaTask> node : nodes) {
       SagaTask task = node.value();
 
