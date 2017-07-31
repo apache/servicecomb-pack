@@ -53,8 +53,8 @@ class RequestProcessTask implements SagaTask {
   }
 
   @Override
-  public void abort() {
-    eventStore.offer(new TransactionAbortedEvent(this));
+  public void abort(Exception e) {
+    eventStore.offer(new TransactionAbortedEvent(this, e));
   }
 
   @Override

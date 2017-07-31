@@ -26,7 +26,7 @@ interface SagaTask extends Descriptive {
 
   void compensate();
 
-  void abort();
+  void abort(Exception e);
 
   Operation compensation();
 }

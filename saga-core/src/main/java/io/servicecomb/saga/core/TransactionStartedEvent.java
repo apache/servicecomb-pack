@@ -30,10 +30,15 @@ class TransactionStartedEvent extends SagaEvent {
   }
 
   @Override
-  public void gatherTo(Map<Operation, Collection<SagaEvent>> completedOperations, Set<SagaTask> hangingOperations) {
-    completedOperations.put(payload().transaction(), new LinkedList<>());
-    completedOperations.get(payload().transaction()).add(this);
-    hangingOperations.add(payload());
+  public void gatherTo(
+      Set<SagaTask> hangingTransactions,
+      Set<SagaTask> abortedTransactions,
+      Map<Operation, Collection<SagaEvent>> completedTransactions,
+      Map<Operation, Collection<SagaEvent>> completedCompensations) {
+
+    completedTransactions.put(payload().transaction(), new LinkedList<>());
+    completedTransactions.get(payload().transaction()).add(this);
+    hangingTransactions.add(payload());
   }
 
   @Override

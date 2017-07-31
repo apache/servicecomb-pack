@@ -315,6 +315,49 @@ public class SagaIntegrationTest {
   }
 
   @Test
+  public void restoresToCompensationFromAbortedTransactionByPlayingAllEvents() {
+    addExtraChildToNode1();
+
+    Iterable<EventEnvelope> events = asList(
+        envelope(new SagaStartedEvent(sagaStartTask)),
+        envelope(new TransactionStartedEvent(task1)),
+        envelope(new TransactionEndedEvent(task1)),
+        envelope(new TransactionStartedEvent(task2)),
+        envelope(new TransactionEndedEvent(task2)),
+        envelope(new TransactionStartedEvent(task3)),
+        envelope(new TransactionAbortedEvent(task3, exception))
+    );
+
+    eventStore.populate(events);
+    saga.play();
+
+    saga.run();
+    assertThat(eventStore, contains(
+        eventWith(1L, SAGA_START_TRANSACTION, SagaStartedEvent.class),
+        eventWith(2L, transaction1, TransactionStartedEvent.class),
+        eventWith(3L, transaction1, TransactionEndedEvent.class),
+        eventWith(4L, transaction2, TransactionStartedEvent.class),
+        eventWith(5L, transaction2, TransactionEndedEvent.class),
+        eventWith(6L, transaction3, TransactionStartedEvent.class),
+        eventWith(7L, transaction3, TransactionAbortedEvent.class),
+        eventWith(8L, compensation2, CompensationStartedEvent.class),
+        eventWith(9L, compensation2, CompensationEndedEvent.class),
+        eventWith(10L, compensation1, CompensationStartedEvent.class),
+        eventWith(11L, compensation1, CompensationEndedEvent.class),
+        eventWith(12L, SAGA_START_COMPENSATION, SagaEndedEvent.class)
+    ));
+
+    verify(transaction1, never()).run();
+    verify(transaction2, never()).run();
+    verify(transaction3, never()).run();
+
+    for (Compensation compensation : compensations) {
+      verify(compensation).run();
+    }
+    verify(compensation3, never()).run();
+  }
+
+  @Test
   public void restoresSagaToCompensationStateByPlayingAllEvents() {
     addExtraChildToNode1();
 

@@ -42,7 +42,9 @@ public class Saga {
   private final CompletionService<Operation> executorService = new ExecutorCompletionService<>(
       Executors.newFixedThreadPool(5));
 
-  private final Map<Operation, Collection<SagaEvent>> completedOperations;
+  private final Map<Operation, Collection<SagaEvent>> completedTransactions;
+  private final Map<Operation, Collection<SagaEvent>> completedCompensations;
+  private final Set<SagaTask> abortedTransactions;
   private final Set<SagaTask> hangingOperations;
 
   private final TaskRunner transactionTaskRunner;
@@ -58,7 +60,9 @@ public class Saga {
       SingleLeafDirectedAcyclicGraph<SagaTask> sagaTaskGraph) {
 
     this.eventStore = eventStore;
-    this.completedOperations = new HashMap<>();
+    this.completedTransactions = new HashMap<>();
+    this.completedCompensations = new HashMap<>();
+    this.abortedTransactions = new HashSet<>();
     this.hangingOperations = new HashSet<>();
 
     this.transactionTaskRunner = new TaskRunner(
@@ -67,7 +71,7 @@ public class Saga {
 
     this.compensationTaskRunner = new TaskRunner(
         traveller(sagaTaskGraph, new FromLeafTraversalDirection<>()),
-        new CompensationTaskConsumer(completedOperations));
+        new CompensationTaskConsumer(completedTransactions));
 
     currentTaskRunner = transactionTaskRunner;
   }
@@ -96,13 +100,11 @@ public class Saga {
     log.info("Start playing events");
     gatherEvents(eventStore);
 
-    Map<Operation, Collection<SagaEvent>> completedOperationsCopy = new HashMap<>(completedOperations);
-    transactionTaskRunner.replay(completedOperationsCopy);
+    transactionTaskRunner.replay(completedTransactions);
 
-    // only compensation events left
-    if (!completedOperationsCopy.isEmpty()) {
+    if (!abortedTransactions.isEmpty() || !completedCompensations.isEmpty()) {
       currentTaskRunner = compensationTaskRunner;
-      compensationTaskRunner.replay(completedOperations);
+      compensationTaskRunner.replay(completedCompensations);
     }
 
     log.info("Completed playing events");
@@ -110,7 +112,7 @@ public class Saga {
 
   private void gatherEvents(Iterable<EventEnvelope> events) {
     for (EventEnvelope event : events) {
-      event.event.gatherTo(completedOperations, hangingOperations);
+      event.event.gatherTo(hangingOperations, abortedTransactions, completedTransactions, completedCompensations);
     }
   }
 

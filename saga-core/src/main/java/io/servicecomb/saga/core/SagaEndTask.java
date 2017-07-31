@@ -49,7 +49,7 @@ class SagaEndTask implements SagaTask {
   }
 
   @Override
-  public void abort() {
+  public void abort(Exception e) {
 
   }
 

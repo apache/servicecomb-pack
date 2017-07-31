@@ -72,7 +72,6 @@ class TransactionTaskConsumer implements TaskConsumer {
           log.info("Completed playing event {}", event);
         }
       }
-      completedOperations.remove(task.transaction());
     }
     return !nodes.isEmpty();
   }

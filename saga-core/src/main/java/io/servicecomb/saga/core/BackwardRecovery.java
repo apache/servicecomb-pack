@@ -29,7 +29,7 @@ class BackwardRecovery implements RecoveryPolicy {
       task.commit();
     } catch (Exception e) {
       log.info("Applying {} policy", description());
-      task.abort();
+      task.abort(e);
       throw e;
     }
   }

@@ -29,7 +29,11 @@ public class DummyEvent extends SagaEvent {
   }
 
   @Override
-  public void gatherTo(Map<Operation, Collection<SagaEvent>> completedOperations, Set<SagaTask> hangingOperations) {
+  public void gatherTo(
+      Set<SagaTask> hangingTransactions,
+      Set<SagaTask> abortedTransactions,
+      Map<Operation, Collection<SagaEvent>> completedTransactions,
+      Map<Operation, Collection<SagaEvent>> completedCompensations) {
 
   }
 

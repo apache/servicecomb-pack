@@ -24,19 +24,28 @@ import java.util.Set;
 
 class TransactionAbortedEvent extends SagaEvent {
 
-  TransactionAbortedEvent(SagaTask payload) {
+  private final Exception exception;
+
+  TransactionAbortedEvent(SagaTask payload, Exception exception) {
     super(payload);
+    this.exception = exception;
   }
 
   @Override
-  public void gatherTo(Map<Operation, Collection<SagaEvent>> completedOperations, Set<SagaTask> hangingOperations) {
-    completedOperations.remove(payload().transaction());
-    hangingOperations.remove(payload());
+  public void gatherTo(
+      Set<SagaTask> hangingTransactions,
+      Set<SagaTask> abortedTransactions,
+      Map<Operation, Collection<SagaEvent>> completedTransactions,
+      Map<Operation, Collection<SagaEvent>> completedCompensations) {
+
+    // remove from completed operations in order not to compensate it
+    completedTransactions.remove(payload().transaction());
+    abortedTransactions.add(payload());
+    hangingTransactions.remove(payload());
   }
 
   @Override
   public void play(Iterator<Node<SagaTask>> iterator) {
-    iterator.remove();
   }
 
   @Override

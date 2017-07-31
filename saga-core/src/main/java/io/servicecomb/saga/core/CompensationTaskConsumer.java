@@ -27,10 +27,10 @@ import org.slf4j.LoggerFactory;
 class CompensationTaskConsumer implements TaskConsumer {
 
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private final Map<Operation, Collection<SagaEvent>> completedOperations;
+  private final Map<Operation, Collection<SagaEvent>> completedTransactions;
 
-  CompensationTaskConsumer(Map<Operation, Collection<SagaEvent>> completedOperations) {
-    this.completedOperations = completedOperations;
+  CompensationTaskConsumer(Map<Operation, Collection<SagaEvent>> completedTransactions) {
+    this.completedTransactions = completedTransactions;
   }
 
   @Override
@@ -38,7 +38,7 @@ class CompensationTaskConsumer implements TaskConsumer {
     for (Node<SagaTask> node : nodes) {
       SagaTask task = node.value();
 
-      if (completedOperations.containsKey(task.transaction())) {
+      if (completedTransactions.containsKey(task.transaction())) {
         log.info("Starting task {} id={}", task.description(), task.id());
         task.compensate();
         log.info("Completed task {} id={}", task.description(), task.id());
@@ -57,7 +57,7 @@ class CompensationTaskConsumer implements TaskConsumer {
           event.play(iterator);
           log.info("Completed playing event {}", event);
         }
-      } else if (!completedOperations.containsKey(task.transaction())) {
+      } else if (!completedTransactions.containsKey(task.transaction())) {
         // this transaction never started
         iterator.remove();
       }
