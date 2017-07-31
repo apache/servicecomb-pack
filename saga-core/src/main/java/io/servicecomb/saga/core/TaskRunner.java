@@ -19,7 +19,7 @@ package io.servicecomb.saga.core;
 import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.Traveller;
 import java.util.Collection;
-import java.util.Map;
+import java.util.Set;
 
 class TaskRunner implements SagaState {
 
@@ -41,8 +41,10 @@ class TaskRunner implements SagaState {
     Collection<Node<SagaTask>> nodes = traveller.nodes();
 
     // finish pending tasks from saga log at startup
-    taskConsumer.consume(nodes);
-    nodes.clear();
+    if (!nodes.isEmpty()) {
+      taskConsumer.consume(nodes);
+      nodes.clear();
+    }
 
     while (traveller.hasNext()) {
       traveller.next();
@@ -52,7 +54,7 @@ class TaskRunner implements SagaState {
   }
 
   @Override
-  public void replay(Map<Operation, Collection<SagaEvent>> completedOperations) {
+  public void replay(Set<Operation> completedOperations) {
     boolean played = false;
     Collection<Node<SagaTask>> nodes = traveller.nodes();
     while (traveller.hasNext() && !played) {

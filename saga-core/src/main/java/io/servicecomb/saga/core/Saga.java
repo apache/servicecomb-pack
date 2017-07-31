@@ -22,10 +22,7 @@ import io.servicecomb.saga.core.dag.FromRootTraversalDirection;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
 import io.servicecomb.saga.core.dag.TraversalDirection;
 import java.lang.invoke.MethodHandles;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
@@ -42,8 +39,8 @@ public class Saga {
   private final CompletionService<Operation> executorService = new ExecutorCompletionService<>(
       Executors.newFixedThreadPool(5));
 
-  private final Map<Operation, Collection<SagaEvent>> completedTransactions;
-  private final Map<Operation, Collection<SagaEvent>> completedCompensations;
+  private final Set<Operation> completedTransactions;
+  private final Set<Operation> completedCompensations;
   private final Set<SagaTask> abortedTransactions;
   private final Set<SagaTask> hangingOperations;
 
@@ -60,8 +57,8 @@ public class Saga {
       SingleLeafDirectedAcyclicGraph<SagaTask> sagaTaskGraph) {
 
     this.eventStore = eventStore;
-    this.completedTransactions = new HashMap<>();
-    this.completedCompensations = new HashMap<>();
+    this.completedTransactions = new HashSet<>();
+    this.completedCompensations = new HashSet<>();
     this.abortedTransactions = new HashSet<>();
     this.hangingOperations = new HashSet<>();
 
@@ -85,11 +82,13 @@ public class Saga {
         log.error("Failed to run operation", e);
         currentTaskRunner = compensationTaskRunner;
 
+        // is it possible that other parallel transactions haven't write start event to saga log by now?
+        // if so, not all events are gathered here and some transactions will be missed
         gatherEvents(eventStore);
 
         hangingOperations.forEach(sagaTask -> {
           sagaTask.commit();
-          sagaTask.compensation();
+          sagaTask.compensate();
         });
       }
     } while (currentTaskRunner.hasNext());

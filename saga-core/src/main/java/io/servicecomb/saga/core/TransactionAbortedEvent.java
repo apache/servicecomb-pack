@@ -17,9 +17,7 @@
 package io.servicecomb.saga.core;
 
 import io.servicecomb.saga.core.dag.Node;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 class TransactionAbortedEvent extends SagaEvent {
@@ -35,8 +33,8 @@ class TransactionAbortedEvent extends SagaEvent {
   public void gatherTo(
       Set<SagaTask> hangingTransactions,
       Set<SagaTask> abortedTransactions,
-      Map<Operation, Collection<SagaEvent>> completedTransactions,
-      Map<Operation, Collection<SagaEvent>> completedCompensations) {
+      Set<Operation> completedTransactions,
+      Set<Operation> completedCompensations) {
 
     // remove from completed operations in order not to compensate it
     completedTransactions.remove(payload().transaction());

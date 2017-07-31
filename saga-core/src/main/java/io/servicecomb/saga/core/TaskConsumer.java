@@ -18,11 +18,11 @@ package io.servicecomb.saga.core;
 
 import io.servicecomb.saga.core.dag.Node;
 import java.util.Collection;
-import java.util.Map;
+import java.util.Set;
 
 interface TaskConsumer {
 
   void consume(Collection<Node<SagaTask>> nodes);
 
-  boolean replay(Collection<Node<SagaTask>> nodes, Map<Operation, Collection<SagaEvent>> completedOperations);
+  boolean replay(Collection<Node<SagaTask>> nodes, Set<Operation> completedOperations);
 }

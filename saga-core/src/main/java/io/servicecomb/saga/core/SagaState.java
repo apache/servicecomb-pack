@@ -16,8 +16,7 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.Set;
 
 interface SagaState {
 
@@ -25,5 +24,5 @@ interface SagaState {
 
   void run();
 
-  void replay(Map<Operation, Collection<SagaEvent>> completedOperations);
+  void replay(Set<Operation> completedOperations);
 }

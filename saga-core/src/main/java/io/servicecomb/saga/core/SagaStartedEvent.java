@@ -17,10 +17,8 @@
 package io.servicecomb.saga.core;
 
 import io.servicecomb.saga.core.dag.Node;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Set;
 
 class SagaStartedEvent extends SagaEvent {
@@ -33,11 +31,10 @@ class SagaStartedEvent extends SagaEvent {
   public void gatherTo(
       Set<SagaTask> hangingTransactions,
       Set<SagaTask> abortedTransactions,
-      Map<Operation, Collection<SagaEvent>> completedTransactions,
-      Map<Operation, Collection<SagaEvent>> completedCompensations) {
+      Set<Operation> completedTransactions,
+      Set<Operation> completedCompensations) {
 
-    completedTransactions.put(payload().transaction(), new LinkedList<>());
-    completedTransactions.get(payload().transaction()).add(this);
+    completedTransactions.add(payload().transaction());
   }
 
   @Override

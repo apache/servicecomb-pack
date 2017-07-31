@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -61,16 +61,13 @@ class TransactionTaskConsumer implements TaskConsumer {
   }
 
   @Override
-  public boolean replay(Collection<Node<SagaTask>> nodes, Map<Operation, Collection<SagaEvent>> completedOperations) {
+  public boolean replay(Collection<Node<SagaTask>> nodes, Set<Operation> completedOperations) {
 
     for (Iterator<Node<SagaTask>> iterator = nodes.iterator(); iterator.hasNext(); ) {
       SagaTask task = iterator.next().value();
-      if (completedOperations.containsKey(task.transaction())) {
-        for (SagaEvent event : completedOperations.get(task.transaction())) {
-          log.info("Start playing event {}", event);
-          event.play(iterator);
-          log.info("Completed playing event {}", event);
-        }
+      if (completedOperations.contains(task.transaction())) {
+        log.info("Skipped completed transaction id={} operation={} while replay", task.id(), task.transaction());
+        iterator.remove();
       }
     }
     return !nodes.isEmpty();

@@ -17,9 +17,7 @@
 package io.servicecomb.saga.core;
 
 import io.servicecomb.saga.core.dag.Node;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 public abstract class SagaEvent implements Descriptive {
@@ -37,8 +35,8 @@ public abstract class SagaEvent implements Descriptive {
   public abstract void gatherTo(
       Set<SagaTask> hangingTransactions,
       Set<SagaTask> abortedTransactions,
-      Map<Operation, Collection<SagaEvent>> completedTransactions,
-      Map<Operation, Collection<SagaEvent>> completedCompensations);
+      Set<Operation> completedTransactions,
+      Set<Operation> completedCompensations);
 
   public abstract void play(Iterator<Node<SagaTask>> iterator);
 }

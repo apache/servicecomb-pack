@@ -20,16 +20,16 @@ import io.servicecomb.saga.core.dag.Node;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class CompensationTaskConsumer implements TaskConsumer {
 
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private final Map<Operation, Collection<SagaEvent>> completedTransactions;
+  private final Set<Operation> completedTransactions;
 
-  CompensationTaskConsumer(Map<Operation, Collection<SagaEvent>> completedTransactions) {
+  CompensationTaskConsumer(Set<Operation> completedTransactions) {
     this.completedTransactions = completedTransactions;
   }
 
@@ -38,7 +38,7 @@ class CompensationTaskConsumer implements TaskConsumer {
     for (Node<SagaTask> node : nodes) {
       SagaTask task = node.value();
 
-      if (completedTransactions.containsKey(task.transaction())) {
+      if (completedTransactions.contains(task.transaction())) {
         log.info("Starting task {} id={}", task.description(), task.id());
         task.compensate();
         log.info("Completed task {} id={}", task.description(), task.id());
@@ -47,18 +47,16 @@ class CompensationTaskConsumer implements TaskConsumer {
   }
 
   @Override
-  public boolean replay(Collection<Node<SagaTask>> nodes, Map<Operation, Collection<SagaEvent>> completedOperations) {
+  public boolean replay(Collection<Node<SagaTask>> nodes, Set<Operation> completedOperations) {
 
     for (Iterator<Node<SagaTask>> iterator = nodes.iterator(); iterator.hasNext(); ) {
       SagaTask task = iterator.next().value();
-      if (completedOperations.containsKey(task.compensation())) {
-        for (SagaEvent event : completedOperations.get(task.compensation())) {
-          log.info("Start playing event {}", event);
-          event.play(iterator);
-          log.info("Completed playing event {}", event);
-        }
-      } else if (!completedTransactions.containsKey(task.transaction())) {
+      if (completedOperations.contains(task.compensation())) {
+        log.info("Skipped completed compensation id={} operation={} while replay", task.id(), task.transaction());
+        iterator.remove();
+      } else if (!completedTransactions.contains(task.transaction())) {
         // this transaction never started
+        log.info("Skipped pending transaction id={} operation={} while replay", task.id(), task.transaction());
         iterator.remove();
       }
     }
