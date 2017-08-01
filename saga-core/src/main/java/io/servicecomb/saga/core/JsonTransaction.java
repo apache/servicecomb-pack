@@ -16,22 +16,35 @@
 
 package io.servicecomb.saga.core;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.PROPERTY,
-    property = "type")
-@JsonSubTypes({
-    @Type(value = CompensationImpl.class, name = "rest")
-})
-public interface Compensation extends Operation {
+public class JsonTransaction implements Transaction {
 
-  Compensation SAGA_START_COMPENSATION = () -> {
-  };
+  private final String path;
+  private final String method;
 
-  Compensation SAGA_END_COMPENSATION = () -> {
-  };
+  @JsonCreator
+  public JsonTransaction(
+      @JsonProperty("path") String path,
+      @JsonProperty("method") String method) {
+
+    this.path = path;
+    this.method = method;
+  }
+
+  @Override
+  public void run() {
+
+  }
+
+  @Override
+  public String path() {
+    return path;
+  }
+
+  @Override
+  public String method() {
+    return method;
+  }
 }

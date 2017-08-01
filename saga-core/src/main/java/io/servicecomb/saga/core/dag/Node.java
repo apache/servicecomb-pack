@@ -44,7 +44,7 @@ public class Node<T> {
     return parents;
   }
 
-  Set<Node<T>> children() {
+  public Set<Node<T>> children() {
     return children;
   }
 

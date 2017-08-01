@@ -26,7 +26,7 @@ public class SagaRequestTest {
   private final Transaction transaction = mock(Transaction.class);
   private final Compensation compensation = mock(Compensation.class);
 
-  private final SagaRequest request = new SagaRequest(transaction, compensation);
+  private final JsonSagaRequest request = new JsonSagaRequest(transaction, compensation);
 
   @Test
   public void runTransactionOnCommit() {
@@ -37,7 +37,7 @@ public class SagaRequestTest {
 
   @Test
   public void runCompensationOnAbort() {
-    request.abort();
+    request.compensate();
 
     verify(compensation).run();
   }

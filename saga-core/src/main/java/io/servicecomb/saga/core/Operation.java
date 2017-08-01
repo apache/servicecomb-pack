@@ -16,7 +16,15 @@
 
 package io.servicecomb.saga.core;
 
-interface Operation {
+public interface Operation {
 
   void run();
+
+  default String path() {
+    return "/";
+  }
+
+  default String method() {
+    return "nop";
+  }
 }

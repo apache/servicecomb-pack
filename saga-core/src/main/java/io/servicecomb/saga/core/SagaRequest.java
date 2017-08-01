@@ -16,30 +16,19 @@
 
 package io.servicecomb.saga.core;
 
-class SagaRequest {
+public interface SagaRequest {
 
-  private final Transaction transaction;
-  private final Compensation compensation;
+  void commit();
 
-  SagaRequest(Transaction transaction, Compensation compensation) {
+  void compensate();
 
-    this.transaction = transaction;
-    this.compensation = compensation;
-  }
+  void abort(Exception e);
 
-  void commit() {
-    transaction.run();
-  }
+  Transaction transaction();
 
-  void abort() {
-    compensation.run();
-  }
+  Compensation compensation();
 
-  Transaction transaction() {
-    return transaction;
-  }
+  String serviceName();
 
-  Compensation compensation() {
-    return compensation;
-  }
+  String id();
 }

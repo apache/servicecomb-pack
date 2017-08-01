@@ -39,9 +39,9 @@ public class SagaCoordinatorTest {
   private final Compensation compensation2 = mock(Compensation.class, "compensation2");
   private final Compensation compensation3 = mock(Compensation.class, "compensation3");
 
-  private final SagaRequest request1 = new SagaRequest(transaction1, compensation1);
-  private final SagaRequest request2 = new SagaRequest(transaction2, compensation2);
-  private final SagaRequest request3 = new SagaRequest(transaction3, compensation3);
+  private final SagaRequest request1 = new JsonSagaRequest(transaction1, compensation1);
+  private final SagaRequest request2 = new JsonSagaRequest(transaction2, compensation2);
+  private final SagaRequest request3 = new JsonSagaRequest(transaction3, compensation3);
 
   private final EventStore eventStore = new EmbeddedEventStore();
 

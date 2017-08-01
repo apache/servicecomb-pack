@@ -59,9 +59,9 @@ public class SagaIntegrationTest {
 
   private final Compensation[] compensations = {compensation1, compensation2};
 
-  private final SagaRequest request1 = new SagaRequest(transaction1, compensation1);
-  private final SagaRequest request2 = new SagaRequest(transaction2, compensation2);
-  private final SagaRequest request3 = new SagaRequest(transaction3, compensation3);
+  private final SagaRequest request1 = new JsonSagaRequest(transaction1, compensation1);
+  private final SagaRequest request2 = new JsonSagaRequest(transaction2, compensation2);
+  private final SagaRequest request3 = new JsonSagaRequest(transaction3, compensation3);
 
   private final SagaTask sagaStartTask = new SagaStartTask(0L, eventStore);
   private final SagaTask task1 = new RequestProcessTask(1L, request1, eventStore);

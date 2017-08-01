@@ -48,7 +48,7 @@ class RequestProcessTask implements SagaTask {
   @Override
   public void compensate() {
     eventStore.offer(new CompensationStartedEvent(this));
-    request.abort();
+    request.compensate();
     eventStore.offer(new CompensationEndedEvent(this));
   }
 
