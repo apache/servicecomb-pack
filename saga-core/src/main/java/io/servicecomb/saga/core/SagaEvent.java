@@ -16,27 +16,24 @@
 
 package io.servicecomb.saga.core;
 
-import io.servicecomb.saga.core.dag.Node;
-import java.util.Iterator;
 import java.util.Set;
 
 public abstract class SagaEvent implements Descriptive {
 
-  private final SagaTask payload;
+  private final SagaRequest payload;
 
-  public SagaEvent(SagaTask payload) {
+  public SagaEvent(SagaRequest payload) {
     this.payload = payload;
   }
 
-  public SagaTask payload() {
+  public SagaRequest payload() {
     return payload;
   }
 
   public abstract void gatherTo(
-      Set<SagaTask> hangingTransactions,
-      Set<SagaTask> abortedTransactions,
+      Set<SagaRequest> hangingTransactions,
+      Set<SagaRequest> abortedTransactions,
       Set<Operation> completedTransactions,
       Set<Operation> completedCompensations);
 
-  public abstract void play(Iterator<Node<SagaTask>> iterator);
 }

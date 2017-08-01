@@ -16,45 +16,25 @@
 
 package io.servicecomb.saga.core;
 
-import static io.servicecomb.saga.core.Compensation.SAGA_END_COMPENSATION;
-import static io.servicecomb.saga.core.Transaction.SAGA_END_TRANSACTION;
-
 class SagaEndTask implements SagaTask {
 
-  private final long id;
   private final EventStore eventStore;
 
-  SagaEndTask(long id, EventStore eventStore) {
-    this.id = id;
+  SagaEndTask(EventStore eventStore) {
     this.eventStore = eventStore;
   }
 
   @Override
-  public long id() {
-    return id;
+  public void commit(SagaRequest request) {
+    eventStore.offer(new SagaEndedEvent(request));
   }
 
   @Override
-  public Operation transaction() {
-    return SAGA_END_TRANSACTION;
+  public void compensate(SagaRequest request) {
   }
 
   @Override
-  public void commit() {
-    eventStore.offer(new SagaEndedEvent(this));
-  }
+  public void abort(SagaRequest sagaRequest, Exception e) {
 
-  @Override
-  public void compensate() {
-  }
-
-  @Override
-  public void abort(Exception e) {
-
-  }
-
-  @Override
-  public Operation compensation() {
-    return SAGA_END_COMPENSATION;
   }
 }

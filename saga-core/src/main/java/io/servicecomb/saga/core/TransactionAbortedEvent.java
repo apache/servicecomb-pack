@@ -16,23 +16,21 @@
 
 package io.servicecomb.saga.core;
 
-import io.servicecomb.saga.core.dag.Node;
-import java.util.Iterator;
 import java.util.Set;
 
 class TransactionAbortedEvent extends SagaEvent {
 
   private final Exception exception;
 
-  TransactionAbortedEvent(SagaTask payload, Exception exception) {
+  TransactionAbortedEvent(SagaRequest payload, Exception exception) {
     super(payload);
     this.exception = exception;
   }
 
   @Override
   public void gatherTo(
-      Set<SagaTask> hangingTransactions,
-      Set<SagaTask> abortedTransactions,
+      Set<SagaRequest> hangingTransactions,
+      Set<SagaRequest> abortedTransactions,
       Set<Operation> completedTransactions,
       Set<Operation> completedCompensations) {
 
@@ -40,10 +38,6 @@ class TransactionAbortedEvent extends SagaEvent {
     completedTransactions.remove(payload().transaction());
     abortedTransactions.add(payload());
     hangingTransactions.remove(payload());
-  }
-
-  @Override
-  public void play(Iterator<Node<SagaTask>> iterator) {
   }
 
   @Override

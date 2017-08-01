@@ -16,29 +16,22 @@
 
 package io.servicecomb.saga.core;
 
-import io.servicecomb.saga.core.dag.Node;
-import java.util.Iterator;
 import java.util.Set;
 
 class SagaEndedEvent extends SagaEvent {
 
-  SagaEndedEvent(SagaTask sagaTask) {
+  SagaEndedEvent(SagaRequest sagaTask) {
     super(sagaTask);
   }
 
   @Override
   public void gatherTo(
-      Set<SagaTask> hangingTransactions,
-      Set<SagaTask> abortedTransactions,
+      Set<SagaRequest> hangingTransactions,
+      Set<SagaRequest> abortedTransactions,
       Set<Operation> completedTransactions,
       Set<Operation> completedCompensations) {
 
     completedTransactions.add(payload().transaction());
-  }
-
-  @Override
-  public void play(Iterator<Node<SagaTask>> iterator) {
-    iterator.remove();
   }
 
   @Override

@@ -41,10 +41,10 @@ class TransactionTaskConsumer implements TaskConsumer {
   }
 
   @Override
-  public void consume(Collection<Node<SagaTask>> nodes) {
+  public void consume(Collection<Node<SagaRequest>> nodes) {
     List<Future<Operation>> futures = new ArrayList<>(nodes.size());
-    for (Node<SagaTask> node : nodes) {
-      SagaTask task = node.value();
+    for (Node<SagaRequest> node : nodes) {
+      SagaRequest task = node.value();
       futures.add(futureOf(task));
     }
 
@@ -61,10 +61,10 @@ class TransactionTaskConsumer implements TaskConsumer {
   }
 
   @Override
-  public boolean replay(Collection<Node<SagaTask>> nodes, Set<Operation> completedOperations) {
+  public boolean replay(Collection<Node<SagaRequest>> nodes, Set<Operation> completedOperations) {
 
-    for (Iterator<Node<SagaTask>> iterator = nodes.iterator(); iterator.hasNext(); ) {
-      SagaTask task = iterator.next().value();
+    for (Iterator<Node<SagaRequest>> iterator = nodes.iterator(); iterator.hasNext(); ) {
+      SagaRequest task = iterator.next().value();
       if (completedOperations.contains(task.transaction())) {
         log.info("Skipped completed transaction id={} operation={} while replay", task.id(), task.transaction());
         iterator.remove();
@@ -73,7 +73,7 @@ class TransactionTaskConsumer implements TaskConsumer {
     return !nodes.isEmpty();
   }
 
-  private Future<Operation> futureOf(SagaTask task) {
+  private Future<Operation> futureOf(SagaRequest task) {
     return executorService.submit(() -> {
       recoveryPolicy.apply(task);
       return task.transaction();

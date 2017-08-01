@@ -16,6 +16,7 @@
 
 package io.servicecomb.saga.core;
 
+import static io.servicecomb.saga.core.Compensation.SAGA_END_COMPENSATION;
 import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
 import static io.servicecomb.saga.core.SagaEventMatcher.eventWith;
 import static io.servicecomb.saga.core.Transaction.SAGA_END_TRANSACTION;
@@ -59,24 +60,20 @@ public class SagaIntegrationTest {
 
   private final Compensation[] compensations = {compensation1, compensation2};
 
-  private final SagaRequest request1 = new JsonSagaRequest(transaction1, compensation1);
-  private final SagaRequest request2 = new JsonSagaRequest(transaction2, compensation2);
-  private final SagaRequest request3 = new JsonSagaRequest(transaction3, compensation3);
-
-  private final SagaTask sagaStartTask = new SagaStartTask(0L, eventStore);
-  private final SagaTask task1 = new RequestProcessTask(1L, request1, eventStore);
-  private final SagaTask task2 = new RequestProcessTask(2L, request2, eventStore);
-  private final SagaTask task3 = new RequestProcessTask(3L, request3, eventStore);
-  private final SagaTask sagaEndTask = new SagaEndTask(4L, eventStore);
+  private final SagaRequest sagaStartRequest = new SagaRequestImpl("saga-start", SAGA_START_TRANSACTION, SAGA_START_COMPENSATION, new SagaStartTask(eventStore));
+  private final SagaRequest request1 = new SagaRequestImpl("request1", transaction1, compensation1, new RequestProcessTask(eventStore));
+  private final SagaRequest request2 = new SagaRequestImpl("request2", transaction2, compensation2, new RequestProcessTask(eventStore));
+  private final SagaRequest request3 = new SagaRequestImpl("request3", transaction3, compensation3, new RequestProcessTask(eventStore));
+  private final SagaRequest sagaEndRequest = new SagaRequestImpl("saga-end", SAGA_END_TRANSACTION, SAGA_END_COMPENSATION, new SagaEndTask(eventStore));
 
   private final RuntimeException exception = new RuntimeException("oops");
 
-  private final Node<SagaTask> node1 = new Node<>(task1.id(), task1);
-  private final Node<SagaTask> node2 = new Node<>(task2.id(), task2);
-  private final Node<SagaTask> node3 = new Node<>(task3.id(), task3);
-  private final Node<SagaTask> root = new Node<>(sagaStartTask.id(), sagaStartTask);
-  private final Node<SagaTask> leaf = new Node<>(sagaEndTask.id(), sagaEndTask);
-  private final SingleLeafDirectedAcyclicGraph<SagaTask> sagaTaskGraph = new SingleLeafDirectedAcyclicGraph<>(root, leaf);
+  private final Node<SagaRequest> node1 = new Node<>(1, request1);
+  private final Node<SagaRequest> node2 = new Node<>(2, request2);
+  private final Node<SagaRequest> node3 = new Node<>(3, request3);
+  private final Node<SagaRequest> root = new Node<>(0, sagaStartRequest);
+  private final Node<SagaRequest> leaf = new Node<>(4, sagaEndRequest);
+  private final SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph = new SingleLeafDirectedAcyclicGraph<>(root, leaf);
 
   private Saga saga;
 
@@ -245,11 +242,11 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaStartTask)),
-        envelope(new TransactionStartedEvent(task1)),
-        envelope(new TransactionEndedEvent(task1)),
-        envelope(new TransactionStartedEvent(task2)),
-        envelope(new TransactionEndedEvent(task2))
+        envelope(new SagaStartedEvent(sagaStartRequest)),
+        envelope(new TransactionStartedEvent(request1)),
+        envelope(new TransactionEndedEvent(request1)),
+        envelope(new TransactionStartedEvent(request2)),
+        envelope(new TransactionEndedEvent(request2))
     );
 
     eventStore.populate(events);
@@ -281,12 +278,12 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaStartTask)),
-        envelope(new TransactionStartedEvent(task1)),
-        envelope(new TransactionEndedEvent(task1)),
-        envelope(new TransactionStartedEvent(task2)),
-        envelope(new TransactionEndedEvent(task2)),
-        envelope(new TransactionStartedEvent(task3))
+        envelope(new SagaStartedEvent(sagaStartRequest)),
+        envelope(new TransactionStartedEvent(request1)),
+        envelope(new TransactionEndedEvent(request1)),
+        envelope(new TransactionStartedEvent(request2)),
+        envelope(new TransactionEndedEvent(request2)),
+        envelope(new TransactionStartedEvent(request3))
     );
 
     eventStore.populate(events);
@@ -319,13 +316,13 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaStartTask)),
-        envelope(new TransactionStartedEvent(task1)),
-        envelope(new TransactionEndedEvent(task1)),
-        envelope(new TransactionStartedEvent(task2)),
-        envelope(new TransactionEndedEvent(task2)),
-        envelope(new TransactionStartedEvent(task3)),
-        envelope(new TransactionAbortedEvent(task3, exception))
+        envelope(new SagaStartedEvent(sagaStartRequest)),
+        envelope(new TransactionStartedEvent(request1)),
+        envelope(new TransactionEndedEvent(request1)),
+        envelope(new TransactionStartedEvent(request2)),
+        envelope(new TransactionEndedEvent(request2)),
+        envelope(new TransactionStartedEvent(request3)),
+        envelope(new TransactionAbortedEvent(request3, exception))
     );
 
     eventStore.populate(events);
@@ -362,15 +359,15 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaStartTask)),
-        envelope(new TransactionStartedEvent(task1)),
-        envelope(new TransactionEndedEvent(task1)),
-        envelope(new TransactionStartedEvent(task2)),
-        envelope(new TransactionEndedEvent(task2)),
-        envelope(new TransactionStartedEvent(task3)),
-        envelope(new TransactionEndedEvent(task3)),
-        envelope(new CompensationStartedEvent(task2)),
-        envelope(new CompensationEndedEvent(task2))
+        envelope(new SagaStartedEvent(sagaStartRequest)),
+        envelope(new TransactionStartedEvent(request1)),
+        envelope(new TransactionEndedEvent(request1)),
+        envelope(new TransactionStartedEvent(request2)),
+        envelope(new TransactionEndedEvent(request2)),
+        envelope(new TransactionStartedEvent(request3)),
+        envelope(new TransactionEndedEvent(request3)),
+        envelope(new CompensationStartedEvent(request2)),
+        envelope(new CompensationEndedEvent(request2))
     );
 
     eventStore.populate(events);
@@ -408,16 +405,16 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaStartTask)),
-        envelope(new TransactionStartedEvent(task1)),
-        envelope(new TransactionEndedEvent(task1)),
-        envelope(new TransactionStartedEvent(task2)),
-        envelope(new TransactionEndedEvent(task2)),
-        envelope(new TransactionStartedEvent(task3)),
-        envelope(new TransactionEndedEvent(task3)),
-        envelope(new CompensationStartedEvent(task2)),
-        envelope(new CompensationEndedEvent(task2)),
-        envelope(new CompensationStartedEvent(task3))
+        envelope(new SagaStartedEvent(sagaStartRequest)),
+        envelope(new TransactionStartedEvent(request1)),
+        envelope(new TransactionEndedEvent(request1)),
+        envelope(new TransactionStartedEvent(request2)),
+        envelope(new TransactionEndedEvent(request2)),
+        envelope(new TransactionStartedEvent(request3)),
+        envelope(new TransactionEndedEvent(request3)),
+        envelope(new CompensationStartedEvent(request2)),
+        envelope(new CompensationEndedEvent(request2)),
+        envelope(new CompensationStartedEvent(request3))
     );
 
     eventStore.populate(events);
@@ -454,11 +451,11 @@ public class SagaIntegrationTest {
   @Test
   public void restoresSagaToEndStateByPlayingAllEvents() {
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaStartTask)),
-        envelope(new TransactionStartedEvent(task1)),
-        envelope(new TransactionEndedEvent(task1)),
-        envelope(new TransactionStartedEvent(task2)),
-        envelope(new TransactionEndedEvent(task2))
+        envelope(new SagaStartedEvent(sagaStartRequest)),
+        envelope(new TransactionStartedEvent(request1)),
+        envelope(new TransactionEndedEvent(request1)),
+        envelope(new TransactionStartedEvent(request2)),
+        envelope(new TransactionEndedEvent(request2))
     );
 
     eventStore.populate(events);

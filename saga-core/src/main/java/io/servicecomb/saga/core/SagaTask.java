@@ -16,17 +16,11 @@
 
 package io.servicecomb.saga.core;
 
-interface SagaTask extends Descriptive {
+public interface SagaTask {
 
-  long id();
+  void commit(SagaRequest request);
 
-  Operation transaction();
+  void compensate(SagaRequest request);
 
-  void commit();
-
-  void compensate();
-
-  void abort(Exception e);
-
-  Operation compensation();
+  void abort(SagaRequest request, Exception e);
 }

@@ -29,9 +29,9 @@ class LoggingRecoveryPolicy implements RecoveryPolicy {
   }
 
   @Override
-  public void apply(SagaTask task) {
-    log.info("Starting task {} id={}", task.description(), task.id());
+  public void apply(SagaRequest task) {
+    log.info("Starting task {} id={}", task.serviceName(), task.id());
     recoveryPolicy.apply(task);
-    log.info("Completed task {} id={}", task.description(), task.id());
+    log.info("Completed task {} id={}", task.serviceName(), task.id());
   }
 }

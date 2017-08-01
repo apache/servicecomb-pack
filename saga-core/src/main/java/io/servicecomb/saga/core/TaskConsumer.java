@@ -22,7 +22,7 @@ import java.util.Set;
 
 interface TaskConsumer {
 
-  void consume(Collection<Node<SagaTask>> nodes);
+  void consume(Collection<Node<SagaRequest>> nodes);
 
-  boolean replay(Collection<Node<SagaTask>> nodes, Set<Operation> completedOperations);
+  boolean replay(Collection<Node<SagaRequest>> nodes, Set<Operation> completedOperations);
 }

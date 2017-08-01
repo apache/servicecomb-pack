@@ -16,6 +16,8 @@
 
 package io.servicecomb.saga.core;
 
+import static io.servicecomb.saga.core.Compensation.SAGA_END_COMPENSATION;
+import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
 import static io.servicecomb.saga.core.SagaEventMatcher.eventWith;
 import static io.servicecomb.saga.core.Transaction.SAGA_END_TRANSACTION;
 import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
@@ -39,23 +41,20 @@ public class SagaCoordinatorTest {
   private final Compensation compensation2 = mock(Compensation.class, "compensation2");
   private final Compensation compensation3 = mock(Compensation.class, "compensation3");
 
-  private final SagaRequest request1 = new JsonSagaRequest(transaction1, compensation1);
-  private final SagaRequest request2 = new JsonSagaRequest(transaction2, compensation2);
-  private final SagaRequest request3 = new JsonSagaRequest(transaction3, compensation3);
-
   private final EventStore eventStore = new EmbeddedEventStore();
 
-  private final SagaTask sagaStartTask = new SagaStartTask(0L, eventStore);
-  private final SagaTask task1 = new RequestProcessTask(1L, request1, eventStore);
-  private final SagaTask task2 = new RequestProcessTask(2L, request2, eventStore);
-  private final SagaTask task3 = new RequestProcessTask(3L, request3, eventStore);
-  private final SagaTask sagaEndTask = new SagaEndTask(5L, eventStore);
+  private final RequestProcessTask processCommand = new RequestProcessTask(eventStore);
 
-  private final Node<SagaTask> node1 = new Node<>(task1.id(), task1);
-  private final Node<SagaTask> node2 = new Node<>(task2.id(), task2);
-  private final Node<SagaTask> node3 = new Node<>(task3.id(), task3);
-  private final Node<SagaTask> root = new Node<>(sagaStartTask.id(), sagaStartTask);
-  private final Node<SagaTask> leaf = new Node<>(sagaEndTask.id(), sagaEndTask);
+  private final SagaRequestImpl sagaStartRequest = sagaStartRequest();
+  private final SagaRequest request1 = new SagaRequestImpl("request1", transaction1, compensation1, processCommand);
+  private final SagaRequest request2 = new SagaRequestImpl("request2", transaction2, compensation2, processCommand);
+  private final SagaRequest request3 = new SagaRequestImpl("request3", transaction3, compensation3, processCommand);
+
+  private final Node<SagaRequest> node1 = new Node<>(1, request1);
+  private final Node<SagaRequest> node2 = new Node<>(2, request2);
+  private final Node<SagaRequest> node3 = new Node<>(3, request3);
+  private final Node<SagaRequest> root = new Node<>(0, sagaStartRequest);
+  private final Node<SagaRequest> leaf = new Node<>(4, sagaEndRequest());
 
   private final SagaCoordinator coordinator = new SagaCoordinator(eventStore,
       new SingleLeafDirectedAcyclicGraph<>(root, leaf));
@@ -70,10 +69,10 @@ public class SagaCoordinatorTest {
 
   @Test
   public void recoverSagaWithEventsFromEventStore() {
-    eventStore.offer(new SagaStartedEvent(sagaStartTask));
-    eventStore.offer(new TransactionStartedEvent(task1));
-    eventStore.offer(new TransactionEndedEvent(task1));
-    eventStore.offer(new TransactionStartedEvent(task2));
+    eventStore.offer(new SagaStartedEvent(sagaStartRequest));
+    eventStore.offer(new TransactionStartedEvent(request1));
+    eventStore.offer(new TransactionEndedEvent(request1));
+    eventStore.offer(new TransactionStartedEvent(request2));
 
     coordinator.run();
 
@@ -88,5 +87,13 @@ public class SagaCoordinatorTest {
         eventWith(8L, transaction3, TransactionEndedEvent.class),
         eventWith(9L, SAGA_END_TRANSACTION, SagaEndedEvent.class)
     ));
+  }
+
+  private SagaRequestImpl sagaStartRequest() {
+    return new SagaRequestImpl("saga-start", SAGA_START_TRANSACTION, SAGA_START_COMPENSATION, new SagaStartTask(eventStore));
+  }
+
+  private SagaRequestImpl sagaEndRequest() {
+    return new SagaRequestImpl("saga-end", SAGA_END_TRANSACTION, SAGA_END_COMPENSATION, new SagaEndTask(eventStore));
   }
 }

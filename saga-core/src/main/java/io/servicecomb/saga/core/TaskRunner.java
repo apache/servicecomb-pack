@@ -23,10 +23,10 @@ import java.util.Set;
 
 class TaskRunner implements SagaState {
 
-  private final Traveller<SagaTask> traveller;
+  private final Traveller<SagaRequest> traveller;
   private final TaskConsumer taskConsumer;
 
-  TaskRunner(Traveller<SagaTask> traveller, TaskConsumer taskConsumer) {
+  TaskRunner(Traveller<SagaRequest> traveller, TaskConsumer taskConsumer) {
     this.traveller = traveller;
     this.taskConsumer = taskConsumer;
   }
@@ -38,7 +38,7 @@ class TaskRunner implements SagaState {
 
   @Override
   public void run() {
-    Collection<Node<SagaTask>> nodes = traveller.nodes();
+    Collection<Node<SagaRequest>> nodes = traveller.nodes();
 
     // finish pending tasks from saga log at startup
     if (!nodes.isEmpty()) {
@@ -56,7 +56,7 @@ class TaskRunner implements SagaState {
   @Override
   public void replay(Set<Operation> completedOperations) {
     boolean played = false;
-    Collection<Node<SagaTask>> nodes = traveller.nodes();
+    Collection<Node<SagaRequest>> nodes = traveller.nodes();
     while (traveller.hasNext() && !played) {
       traveller.next();
       played = taskConsumer.replay(nodes, completedOperations);

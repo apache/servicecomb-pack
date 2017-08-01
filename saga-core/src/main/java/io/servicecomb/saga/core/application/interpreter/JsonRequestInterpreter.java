@@ -23,8 +23,10 @@ import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.servicecomb.saga.core.JsonSagaRequest;
+import io.servicecomb.saga.core.SagaTask;
 import io.servicecomb.saga.core.SagaException;
 import io.servicecomb.saga.core.SagaRequest;
+import io.servicecomb.saga.core.SagaRequestImpl;
 import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
 import java.io.IOException;
@@ -34,6 +36,19 @@ import java.util.Map;
 public class JsonRequestInterpreter {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
+  private final SagaTask sagaStartTask;
+  private final SagaTask sagaRequestTask;
+  private final SagaTask sagaEndTask;
+
+  public JsonRequestInterpreter(
+      SagaTask sagaStartTask,
+      SagaTask sagaRequestTask,
+      SagaTask sagaEndTask) {
+
+    this.sagaStartTask = sagaStartTask;
+    this.sagaRequestTask = sagaRequestTask;
+    this.sagaEndTask = sagaEndTask;
+  }
 
   public SingleLeafDirectedAcyclicGraph<SagaRequest> interpret(String requests) {
     try {
@@ -74,13 +89,13 @@ public class JsonRequestInterpreter {
   private Node<SagaRequest> rootNode(int id) {
     return new Node<>(
         id,
-        new JsonSagaRequest(SAGA_START_TRANSACTION, SAGA_START_COMPENSATION));
+        new SagaRequestImpl("saga-start", SAGA_START_TRANSACTION, SAGA_START_COMPENSATION, sagaStartTask));
   }
 
   private Node<SagaRequest> leafNode(int id) {
     return new Node<>(
         id,
-        new JsonSagaRequest(SAGA_END_TRANSACTION, SAGA_END_COMPENSATION));
+        new SagaRequestImpl("saga-end", SAGA_END_TRANSACTION, SAGA_END_COMPENSATION, sagaEndTask));
   }
 
   private boolean isOrphan(JsonSagaRequest sagaRequest) {
@@ -94,7 +109,7 @@ public class JsonRequestInterpreter {
       if (requestMap.containsKey(sagaRequest.id())) {
         throw new SagaException("Failed to interpret requests with duplicate request id: " + sagaRequest.id());
       }
-      requestMap.put(sagaRequest.id(), new Node<>(index++, sagaRequest));
+      requestMap.put(sagaRequest.id(), new Node<>(index++, new SagaRequestImpl(sagaRequest, sagaRequestTask)));
     }
     return requestMap;
   }

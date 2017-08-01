@@ -18,9 +18,9 @@ package io.servicecomb.saga.core.application.interpreter;
 
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
+import io.servicecomb.saga.core.SagaTask;
 import io.servicecomb.saga.core.SagaException;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.dag.ByLevelTraveller;
@@ -33,6 +33,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class JsonRequestInterpreterTest {
 
@@ -113,7 +114,11 @@ public class JsonRequestInterpreterTest {
       + "  }\n"
       + "]\n";
 
-  private final JsonRequestInterpreter interpreter = new JsonRequestInterpreter();
+  private final SagaTask sagaStartCommand = Mockito.mock(SagaTask.class, "sagaStartCommand");
+  private final SagaTask taskCommand = Mockito.mock(SagaTask.class, "taskCommand");
+  private final SagaTask sagaEndCommand = Mockito.mock(SagaTask.class, "sagaEndCommand");
+
+  private final JsonRequestInterpreter interpreter = new JsonRequestInterpreter(sagaStartCommand, taskCommand, sagaEndCommand);
 
   @Test
   public void interpretsParallelRequests() {

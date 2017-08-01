@@ -21,9 +21,9 @@ import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
 public class SagaCoordinator {
 
   private final EventStore eventStore;
-  private final SingleLeafDirectedAcyclicGraph<SagaTask> sagaTaskGraph;
+  private final SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph;
 
-  public SagaCoordinator(EventStore eventStore, SingleLeafDirectedAcyclicGraph<SagaTask> sagaTaskGraph) {
+  public SagaCoordinator(EventStore eventStore, SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {
     this.eventStore = eventStore;
     this.sagaTaskGraph = sagaTaskGraph;
   }

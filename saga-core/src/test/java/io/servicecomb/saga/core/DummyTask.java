@@ -19,15 +19,15 @@ package io.servicecomb.saga.core;
 import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
 import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
 
-public class DummyTask implements SagaTask {
+public class DummyTask implements SagaRequest {
 
   @Override
-  public long id() {
-    return 0;
+  public String id() {
+    return "dummy";
   }
 
   @Override
-  public Operation transaction() {
+  public Transaction transaction() {
     return SAGA_START_TRANSACTION;
   }
 
@@ -47,7 +47,12 @@ public class DummyTask implements SagaTask {
   }
 
   @Override
-  public Operation compensation() {
+  public Compensation compensation() {
     return SAGA_START_COMPENSATION;
+  }
+
+  @Override
+  public String serviceName() {
+    return "dummy";
   }
 }

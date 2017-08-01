@@ -41,20 +41,20 @@ public class Saga {
 
   private final Set<Operation> completedTransactions;
   private final Set<Operation> completedCompensations;
-  private final Set<SagaTask> abortedTransactions;
-  private final Set<SagaTask> hangingOperations;
+  private final Set<SagaRequest> abortedTransactions;
+  private final Set<SagaRequest> hangingOperations;
 
   private final TaskRunner transactionTaskRunner;
   private final TaskRunner compensationTaskRunner;
   private volatile SagaState currentTaskRunner;
 
 
-  public Saga(EventStore eventStore, SingleLeafDirectedAcyclicGraph<SagaTask> sagaTaskGraph) {
+  public Saga(EventStore eventStore, SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {
     this(eventStore, new BackwardRecovery(), sagaTaskGraph);
   }
 
   public Saga(EventStore eventStore, RecoveryPolicy recoveryPolicy,
-      SingleLeafDirectedAcyclicGraph<SagaTask> sagaTaskGraph) {
+      SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {
 
     this.eventStore = eventStore;
     this.completedTransactions = new HashSet<>();
@@ -115,9 +115,9 @@ public class Saga {
     }
   }
 
-  private ByLevelTraveller<SagaTask> traveller(
-      SingleLeafDirectedAcyclicGraph<SagaTask> sagaTaskGraph,
-      TraversalDirection<SagaTask> traversalDirection) {
+  private ByLevelTraveller<SagaRequest> traveller(
+      SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph,
+      TraversalDirection<SagaRequest> traversalDirection) {
 
     return new ByLevelTraveller<>(sagaTaskGraph, traversalDirection);
   }

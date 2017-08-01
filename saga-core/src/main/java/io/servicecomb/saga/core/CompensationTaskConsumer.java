@@ -34,23 +34,23 @@ class CompensationTaskConsumer implements TaskConsumer {
   }
 
   @Override
-  public void consume(Collection<Node<SagaTask>> nodes) {
-    for (Node<SagaTask> node : nodes) {
-      SagaTask task = node.value();
+  public void consume(Collection<Node<SagaRequest>> nodes) {
+    for (Node<SagaRequest> node : nodes) {
+      SagaRequest task = node.value();
 
       if (completedTransactions.contains(task.transaction())) {
-        log.info("Starting task {} id={}", task.description(), task.id());
+        log.info("Starting task {} id={}", task.serviceName(), task.id());
         task.compensate();
-        log.info("Completed task {} id={}", task.description(), task.id());
+        log.info("Completed task {} id={}", task.serviceName(), task.id());
       }
     }
   }
 
   @Override
-  public boolean replay(Collection<Node<SagaTask>> nodes, Set<Operation> completedOperations) {
+  public boolean replay(Collection<Node<SagaRequest>> nodes, Set<Operation> completedOperations) {
 
-    for (Iterator<Node<SagaTask>> iterator = nodes.iterator(); iterator.hasNext(); ) {
-      SagaTask task = iterator.next().value();
+    for (Iterator<Node<SagaRequest>> iterator = nodes.iterator(); iterator.hasNext(); ) {
+      SagaRequest task = iterator.next().value();
       if (completedOperations.contains(task.compensation())) {
         log.info("Skipped completed compensation id={} operation={} while replay", task.id(), task.transaction());
         iterator.remove();
