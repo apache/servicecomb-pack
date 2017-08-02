@@ -21,6 +21,7 @@ import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 
+import io.servicecomb.saga.core.application.SagaCoordinator;
 import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 import org.hamcrest.Description;

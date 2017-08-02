@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core;
+package io.servicecomb.saga.core.application;
 
+import io.servicecomb.saga.core.EventStore;
+import io.servicecomb.saga.core.Saga;
 import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
 
 public class SagaCoordinator {
