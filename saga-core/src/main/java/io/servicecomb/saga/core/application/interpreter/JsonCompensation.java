@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core;
+package io.servicecomb.saga.core.application.interpreter;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.servicecomb.saga.core.Compensation;
 
-public class CompensationImpl implements Compensation {
+class JsonCompensation implements Compensation {
 
   private final String path;
   private final String method;
 
   @JsonCreator
-  public CompensationImpl(@JsonProperty("path") String path, @JsonProperty("method") String method) {
+  public JsonCompensation(@JsonProperty("path") String path, @JsonProperty("method") String method) {
     this.path = path;
     this.method = method;
   }

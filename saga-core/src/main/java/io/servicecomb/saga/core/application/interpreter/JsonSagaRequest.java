@@ -14,51 +14,47 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core;
+package io.servicecomb.saga.core.application.interpreter;
 
-public class SagaRequestImpl implements SagaRequest {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.servicecomb.saga.core.Compensation;
+import io.servicecomb.saga.core.SagaRequest;
+import io.servicecomb.saga.core.Transaction;
+
+class JsonSagaRequest implements SagaRequest {
 
   private final String id;
   private final String serviceName;
-  private final Transaction transaction;
-  private final Compensation compensation;
-  private final SagaTask sagaTask;
+  private final JsonTransaction transaction;
+  private final JsonCompensation compensation;
+  private final String[] parents;
 
-
-  public SagaRequestImpl(String id, Transaction transaction, Compensation compensation, SagaTask sagaTask) {
-    this(id, "Saga", transaction, compensation, sagaTask);
-  }
-
-  public SagaRequestImpl(String id,
-      String serviceName,
-      Transaction transaction,
-      Compensation compensation,
-      SagaTask sagaTask) {
+  @JsonCreator
+  public JsonSagaRequest(
+      @JsonProperty("id") String id,
+      @JsonProperty("serviceName") String serviceName,
+      @JsonProperty("transaction") JsonTransaction transaction,
+      @JsonProperty("compensation") JsonCompensation compensation,
+      @JsonProperty("parents") String[] parents) {
 
     this.id = id;
     this.serviceName = serviceName;
     this.transaction = transaction;
     this.compensation = compensation;
-    this.sagaTask = sagaTask;
-  }
-
-  public SagaRequestImpl(SagaRequest request, SagaTask sagaTask) {
-    this(request.id(), request.serviceName(), request.transaction(), request.compensation(), sagaTask);
+    this.parents = parents == null? new String[0] : parents;
   }
 
   @Override
   public void commit() {
-    sagaTask.commit(this);
   }
 
   @Override
   public void compensate() {
-    sagaTask.compensate(this);
   }
 
   @Override
   public void abort(Exception e) {
-    sagaTask.abort(this, e);
   }
 
   @Override
@@ -79,5 +75,9 @@ public class SagaRequestImpl implements SagaRequest {
   @Override
   public String id() {
     return id;
+  }
+
+  String[] parents() {
+    return parents;
   }
 }

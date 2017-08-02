@@ -45,10 +45,10 @@ public class SagaCoordinatorTest {
 
   private final RequestProcessTask processCommand = new RequestProcessTask(eventStore);
 
-  private final SagaRequestImpl sagaStartRequest = sagaStartRequest();
-  private final SagaRequest request1 = new SagaRequestImpl("request1", transaction1, compensation1, processCommand);
-  private final SagaRequest request2 = new SagaRequestImpl("request2", transaction2, compensation2, processCommand);
-  private final SagaRequest request3 = new SagaRequestImpl("request3", transaction3, compensation3, processCommand);
+  private final TaskAwareSagaRequest sagaStartRequest = sagaStartRequest();
+  private final SagaRequest request1 = new TaskAwareSagaRequest("request1", transaction1, compensation1, processCommand);
+  private final SagaRequest request2 = new TaskAwareSagaRequest("request2", transaction2, compensation2, processCommand);
+  private final SagaRequest request3 = new TaskAwareSagaRequest("request3", transaction3, compensation3, processCommand);
 
   private final Node<SagaRequest> node1 = new Node<>(1, request1);
   private final Node<SagaRequest> node2 = new Node<>(2, request2);
@@ -89,11 +89,11 @@ public class SagaCoordinatorTest {
     ));
   }
 
-  private SagaRequestImpl sagaStartRequest() {
-    return new SagaRequestImpl("saga-start", SAGA_START_TRANSACTION, SAGA_START_COMPENSATION, new SagaStartTask(eventStore));
+  private TaskAwareSagaRequest sagaStartRequest() {
+    return new TaskAwareSagaRequest("saga-start", SAGA_START_TRANSACTION, SAGA_START_COMPENSATION, new SagaStartTask(eventStore));
   }
 
-  private SagaRequestImpl sagaEndRequest() {
-    return new SagaRequestImpl("saga-end", SAGA_END_TRANSACTION, SAGA_END_COMPENSATION, new SagaEndTask(eventStore));
+  private TaskAwareSagaRequest sagaEndRequest() {
+    return new TaskAwareSagaRequest("saga-end", SAGA_END_TRANSACTION, SAGA_END_COMPENSATION, new SagaEndTask(eventStore));
   }
 }

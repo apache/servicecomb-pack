@@ -16,49 +16,49 @@
 
 package io.servicecomb.saga.core;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-public class JsonSagaRequest implements SagaRequest {
+public class TaskAwareSagaRequest implements SagaRequest {
 
   private final String id;
   private final String serviceName;
   private final Transaction transaction;
   private final Compensation compensation;
-  private final String[] parents;
+  private final SagaTask sagaTask;
 
-  @JsonCreator
-  public JsonSagaRequest(
-      @JsonProperty("id") String id,
-      @JsonProperty("serviceName") String serviceName,
-      @JsonProperty("transaction") Transaction transaction,
-      @JsonProperty("compensation") Compensation compensation,
-      @JsonProperty("parents") String[] parents) {
+
+  public TaskAwareSagaRequest(String id, Transaction transaction, Compensation compensation, SagaTask sagaTask) {
+    this(id, "Saga", transaction, compensation, sagaTask);
+  }
+
+  private TaskAwareSagaRequest(String id,
+      String serviceName,
+      Transaction transaction,
+      Compensation compensation,
+      SagaTask sagaTask) {
 
     this.id = id;
     this.serviceName = serviceName;
     this.transaction = transaction;
     this.compensation = compensation;
-    this.parents = parents == null? new String[0] : parents;
+    this.sagaTask = sagaTask;
   }
 
-  public JsonSagaRequest(Transaction transaction, Compensation compensation) {
-    this("saga", "Saga", transaction, compensation, new String[0]);
+  public TaskAwareSagaRequest(SagaRequest request, SagaTask sagaTask) {
+    this(request.id(), request.serviceName(), request.transaction(), request.compensation(), sagaTask);
   }
 
   @Override
   public void commit() {
-    transaction.run();
+    sagaTask.commit(this);
   }
 
   @Override
   public void compensate() {
-    compensation.run();
+    sagaTask.compensate(this);
   }
 
   @Override
   public void abort(Exception e) {
-    compensation.run();
+    sagaTask.abort(this, e);
   }
 
   @Override
@@ -79,9 +79,5 @@ public class JsonSagaRequest implements SagaRequest {
   @Override
   public String id() {
     return id;
-  }
-
-  public String[] parents() {
-    return parents;
   }
 }

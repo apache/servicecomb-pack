@@ -60,11 +60,12 @@ public class SagaIntegrationTest {
 
   private final Compensation[] compensations = {compensation1, compensation2};
 
-  private final SagaRequest sagaStartRequest = new SagaRequestImpl("saga-start", SAGA_START_TRANSACTION, SAGA_START_COMPENSATION, new SagaStartTask(eventStore));
-  private final SagaRequest request1 = new SagaRequestImpl("request1", transaction1, compensation1, new RequestProcessTask(eventStore));
-  private final SagaRequest request2 = new SagaRequestImpl("request2", transaction2, compensation2, new RequestProcessTask(eventStore));
-  private final SagaRequest request3 = new SagaRequestImpl("request3", transaction3, compensation3, new RequestProcessTask(eventStore));
-  private final SagaRequest sagaEndRequest = new SagaRequestImpl("saga-end", SAGA_END_TRANSACTION, SAGA_END_COMPENSATION, new SagaEndTask(eventStore));
+  private final RequestProcessTask requestProcessTask = new RequestProcessTask(eventStore);
+  private final SagaRequest sagaStartRequest = sagaRequest("saga-start", SAGA_START_TRANSACTION, SAGA_START_COMPENSATION, new SagaStartTask(eventStore));
+  private final SagaRequest request1 = sagaRequest("request1", transaction1, compensation1, requestProcessTask);
+  private final SagaRequest request2 = sagaRequest("request2", transaction2, compensation2, requestProcessTask);
+  private final SagaRequest request3 = sagaRequest("request3", transaction3, compensation3, requestProcessTask);
+  private final SagaRequest sagaEndRequest = sagaRequest("saga-end", SAGA_END_TRANSACTION, SAGA_END_COMPENSATION, new SagaEndTask(eventStore));
 
   private final RuntimeException exception = new RuntimeException("oops");
 
@@ -491,5 +492,13 @@ public class SagaIntegrationTest {
   private void addExtraChildToNode1() {
     node1.addChild(node3);
     node3.addChild(leaf);
+  }
+
+  private TaskAwareSagaRequest sagaRequest(String request,
+      Transaction transaction,
+      Compensation compensation,
+      SagaTask sagaTask) {
+
+    return new TaskAwareSagaRequest(request, transaction, compensation, sagaTask);
   }
 }

@@ -24,12 +24,12 @@ class BackwardRecovery implements RecoveryPolicy {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
-  public void apply(SagaRequest task) {
+  public void apply(SagaRequest request) {
     try {
-      task.commit();
+      request.commit();
     } catch (Exception e) {
       log.info("Applying {} policy", description());
-      task.abort(e);
+      request.abort(e);
       throw e;
     }
   }

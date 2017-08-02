@@ -24,11 +24,11 @@ class ForwardRecovery implements RecoveryPolicy {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
-  public void apply(SagaRequest task) {
+  public void apply(SagaRequest request) {
     boolean success = false;
     do {
       try {
-        task.commit();
+        request.commit();
         success = true;
       } catch (Exception ignored) {
         log.info("Applying {} policy", description());

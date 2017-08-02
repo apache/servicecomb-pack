@@ -22,11 +22,10 @@ import static io.servicecomb.saga.core.Transaction.SAGA_END_TRANSACTION;
 import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.servicecomb.saga.core.JsonSagaRequest;
 import io.servicecomb.saga.core.SagaTask;
 import io.servicecomb.saga.core.SagaException;
 import io.servicecomb.saga.core.SagaRequest;
-import io.servicecomb.saga.core.SagaRequestImpl;
+import io.servicecomb.saga.core.TaskAwareSagaRequest;
 import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
 import java.io.IOException;
@@ -89,13 +88,13 @@ public class JsonRequestInterpreter {
   private Node<SagaRequest> rootNode(int id) {
     return new Node<>(
         id,
-        new SagaRequestImpl("saga-start", SAGA_START_TRANSACTION, SAGA_START_COMPENSATION, sagaStartTask));
+        new TaskAwareSagaRequest("saga-start", SAGA_START_TRANSACTION, SAGA_START_COMPENSATION, sagaStartTask));
   }
 
   private Node<SagaRequest> leafNode(int id) {
     return new Node<>(
         id,
-        new SagaRequestImpl("saga-end", SAGA_END_TRANSACTION, SAGA_END_COMPENSATION, sagaEndTask));
+        new TaskAwareSagaRequest("saga-end", SAGA_END_TRANSACTION, SAGA_END_COMPENSATION, sagaEndTask));
   }
 
   private boolean isOrphan(JsonSagaRequest sagaRequest) {
@@ -109,7 +108,7 @@ public class JsonRequestInterpreter {
       if (requestMap.containsKey(sagaRequest.id())) {
         throw new SagaException("Failed to interpret requests with duplicate request id: " + sagaRequest.id());
       }
-      requestMap.put(sagaRequest.id(), new Node<>(index++, new SagaRequestImpl(sagaRequest, sagaRequestTask)));
+      requestMap.put(sagaRequest.id(), new Node<>(index++, new TaskAwareSagaRequest(sagaRequest, sagaRequestTask)));
     }
     return requestMap;
   }

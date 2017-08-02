@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core;
+package io.servicecomb.saga.core.application.interpreter;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.servicecomb.saga.core.Transaction;
 
-public class JsonTransaction implements Transaction {
+class JsonTransaction implements Transaction {
 
   private final String path;
   private final String method;
