@@ -16,20 +16,20 @@
 
 package io.servicecomb.saga.core;
 
-import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
+import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
 
 public class SagaCoordinator {
 
   private final EventStore eventStore;
-  private final SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph;
+  private final JsonRequestInterpreter requestInterpreter;
 
-  public SagaCoordinator(EventStore eventStore, SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {
+  public SagaCoordinator(EventStore eventStore, JsonRequestInterpreter requestInterpreter) {
     this.eventStore = eventStore;
-    this.sagaTaskGraph = sagaTaskGraph;
+    this.requestInterpreter = requestInterpreter;
   }
 
-  public void run() {
-    Saga saga = new Saga(eventStore, sagaTaskGraph);
+  public void run(String requestJson) {
+    Saga saga = new Saga(eventStore, requestInterpreter.interpret(requestJson));
 
     saga.play();
     saga.run();
