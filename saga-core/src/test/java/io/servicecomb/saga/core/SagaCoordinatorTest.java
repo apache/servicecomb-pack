@@ -23,6 +23,7 @@ import static org.junit.Assert.assertThat;
 
 import io.servicecomb.saga.core.application.SagaCoordinator;
 import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
+import io.servicecomb.saga.core.application.interpreter.SagaTaskFactory;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -52,8 +53,8 @@ public class SagaCoordinatorTest {
 
   private final SagaCoordinator coordinator = new SagaCoordinator(
       eventStore,
-      new JsonRequestInterpreter(new SagaStartTask(eventStore), new RequestProcessTask(eventStore),
-          new SagaEndTask(eventStore))
+      new JsonRequestInterpreter(new SagaTaskFactory(new SagaStartTask(eventStore), new RequestProcessTask(eventStore),
+          new SagaEndTask(eventStore)))
   );
 
   @Test

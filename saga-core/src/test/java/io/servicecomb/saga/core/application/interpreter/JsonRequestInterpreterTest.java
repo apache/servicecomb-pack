@@ -108,7 +108,8 @@ public class JsonRequestInterpreterTest {
   private final SagaTask taskCommand = Mockito.mock(SagaTask.class, "taskCommand");
   private final SagaTask sagaEndCommand = Mockito.mock(SagaTask.class, "sagaEndCommand");
 
-  private final JsonRequestInterpreter interpreter = new JsonRequestInterpreter(sagaStartCommand, taskCommand, sagaEndCommand);
+  private final JsonRequestInterpreter interpreter = new JsonRequestInterpreter(
+      new SagaTaskFactory(sagaStartCommand, taskCommand, sagaEndCommand));
 
   @Test
   public void interpretsParallelRequests() {
