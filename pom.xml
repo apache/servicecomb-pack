@@ -12,6 +12,7 @@
   <modules>
     <module>saga-core</module>
     <module>integration-tests</module>
+    <module>transports</module>
   </modules>
 
   <properties>
@@ -25,6 +26,11 @@
       <dependency>
         <groupId>io.servicecomb.saga</groupId>
         <artifactId>saga-core</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>io.servicecomb.saga.transports</groupId>
+        <artifactId>transport-httpclient</artifactId>
         <version>0.0.1-SNAPSHOT</version>
       </dependency>
       <dependency>
@@ -93,6 +99,12 @@
         <groupId>com.github.seanyinx</groupId>
         <artifactId>unit-scaffolding</artifactId>
         <version>1.0.0</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.github.tomakehurst</groupId>
+        <artifactId>wiremock-standalone</artifactId>
+        <version>2.6.0</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
