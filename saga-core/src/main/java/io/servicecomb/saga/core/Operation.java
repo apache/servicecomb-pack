@@ -16,6 +16,11 @@
 
 package io.servicecomb.saga.core;
 
+import static java.util.Collections.emptyList;
+
+import java.util.List;
+import java.util.Map;
+
 public interface Operation {
 
   void run();
@@ -26,5 +31,9 @@ public interface Operation {
 
   default String method() {
     return "nop";
+  }
+
+  default List<Map<String, String>> params() {
+    return emptyList();
   }
 }

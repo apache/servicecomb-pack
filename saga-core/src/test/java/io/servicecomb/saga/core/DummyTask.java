@@ -27,6 +27,11 @@ public class DummyTask implements SagaRequest {
   }
 
   @Override
+  public String type() {
+    return "nop";
+  }
+
+  @Override
   public Transaction transaction() {
     return SAGA_START_TRANSACTION;
   }

@@ -16,6 +16,9 @@
 
 package io.servicecomb.saga.core.application.interpreter;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -29,6 +32,9 @@ import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
 import io.servicecomb.saga.core.dag.Traveller;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -40,22 +46,46 @@ public class JsonRequestInterpreterTest {
   private static final String requests = "[\n"
       + "  {\n"
       + "    \"id\": \"request-aaa\",\n"
+      + "    \"type\": \"rest\",\n"
       + "    \"serviceName\": \"aaa\",\n"
       + "    \"transaction\": {\n"
       + "      \"method\": \"post\",\n"
-      + "      \"path\": \"/rest/as\"\n"
+      + "      \"path\": \"/rest/as\",\n"
+      + "      \"params\": [\n"
+      + "        {\n"
+      + "          \"type\": \"form\",\n"
+      + "          \"foo\": \"as\"\n"
+      + "        }\n"
+      + "      ]\n"
       + "    },\n"
       + "    \"compensation\": {\n"
       + "      \"method\": \"delete\",\n"
-      + "      \"path\": \"/rest/as\"\n"
+      + "      \"path\": \"/rest/as\",\n"
+      + "      \"params\": [\n"
+      + "        {\n"
+      + "          \"type\": \"query\",\n"
+      + "          \"bar\": \"as\"\n"
+      + "        }\n"
+      + "      ]\n"
       + "    }\n"
       + "  },\n"
       + "  {\n"
       + "    \"id\": \"request-bbb\",\n"
+      + "    \"type\": \"rest\",\n"
       + "    \"serviceName\": \"bbb\",\n"
       + "    \"transaction\": {\n"
       + "      \"method\": \"post\",\n"
-      + "      \"path\": \"/rest/bs\"\n"
+      + "      \"path\": \"/rest/bs\",\n"
+      + "      \"params\": [\n"
+      + "        {\n"
+      + "          \"type\": \"query\",\n"
+      + "          \"foo\": \"bs\"\n"
+      + "        },\n"
+      + "        {\n"
+      + "          \"type\": \"json\",\n"
+      + "          \"body\": \"{ \\\"bar\\\": \\\"bs\\\" }\"\n"
+      + "        }\n"
+      + "      ]\n"
       + "    },\n"
       + "    \"compensation\": {\n"
       + "      \"method\": \"delete\",\n"
@@ -64,11 +94,25 @@ public class JsonRequestInterpreterTest {
       + "  },\n"
       + "  {\n"
       + "    \"id\": \"request-ccc\",\n"
+      + "    \"type\": \"rest\",\n"
       + "    \"serviceName\": \"ccc\",\n"
-      + "    \"parents\": [\"request-aaa\", \"request-bbb\"], \n"
+      + "    \"parents\": [\n"
+      + "      \"request-aaa\",\n"
+      + "      \"request-bbb\"\n"
+      + "    ],\n"
       + "    \"transaction\": {\n"
       + "      \"method\": \"post\",\n"
-      + "      \"path\": \"/rest/cs\"\n"
+      + "      \"path\": \"/rest/cs\",\n"
+      + "      \"params\": [\n"
+      + "        {\n"
+      + "          \"type\": \"query\",\n"
+      + "          \"foo\": \"cs\"\n"
+      + "        },\n"
+      + "        {\n"
+      + "          \"type\": \"form\",\n"
+      + "          \"bar\": \"cs\"\n"
+      + "        }\n"
+      + "      ]\n"
       + "    },\n"
       + "    \"compensation\": {\n"
       + "      \"method\": \"delete\",\n"
@@ -124,19 +168,31 @@ public class JsonRequestInterpreterTest {
 
     traveller.next();
     assertThat(nodes, contains(
-        taskWith("aaa", "post", "/rest/as", "delete", "/rest/as"),
-        taskWith("bbb", "post", "/rest/bs", "delete", "/rest/bs")
+        taskWith("aaa", "rest", "post", "/rest/as", "delete", "/rest/as",
+            singletonList(mapOf("type", "form", "foo", "as")),
+            singletonList(mapOf("type", "query", "bar", "as"))),
+        taskWith("bbb", "rest", "post", "/rest/bs", "delete", "/rest/bs",
+            asList(mapOf("type", "query", "foo", "bs"), mapOf("type", "json", "body", "{ \"bar\": \"bs\" }")))
     ));
     nodes.clear();
 
     traveller.next();
     assertThat(nodes, contains(
-        taskWith("ccc", "post", "/rest/cs", "delete", "/rest/cs")
+        taskWith("ccc", "rest", "post", "/rest/cs", "delete", "/rest/cs",
+            asList(mapOf("type", "query", "foo", "cs"), mapOf("type", "form", "bar", "cs")))
     ));
     nodes.clear();
 
     traveller.next();
     assertThat(nodes, contains(taskWith("Saga", "nop", "/", "nop", "/")));
+  }
+
+  private Map<String, String> mapOf(String... pairs) {
+    return new HashMap<String, String>() {{
+      for (int i = 0; i < pairs.length; i += 2) {
+        put(pairs[i], pairs[i + 1]);
+      }
+    }};
   }
 
   @Test
@@ -166,16 +222,49 @@ public class JsonRequestInterpreterTest {
       String transactionPath,
       String compensationMethod,
       String compensationPath) {
+    return taskWith(name, "nop", transactionMethod, transactionPath, compensationMethod, compensationPath, emptyList());
+  }
+
+  private Matcher<? super Node<SagaRequest>> taskWith(
+      String name,
+      String type,
+      String transactionMethod,
+      String transactionPath,
+      String compensationMethod,
+      String compensationPath,
+      List<Map<String, String>> transactionParams) {
+    return taskWith(name,
+        type,
+        transactionMethod,
+        transactionPath,
+        compensationMethod,
+        compensationPath,
+        transactionParams,
+        emptyList());
+  }
+
+  private Matcher<? super Node<SagaRequest>> taskWith(
+      String name,
+      String type,
+      String transactionMethod,
+      String transactionPath,
+      String compensationMethod,
+      String compensationPath,
+      List<Map<String, String>> transactionParams,
+      List<Map<String, String>> compensationParams) {
 
     return new TypeSafeMatcher<Node<SagaRequest>>() {
       @Override
       protected boolean matchesSafely(Node<SagaRequest> node) {
         SagaRequest request = node.value();
         return request.serviceName().equals(name)
+            && request.type().equals(type)
             && request.transaction().path().equals(transactionPath)
             && request.transaction().method().equals(transactionMethod)
             && request.compensation().path().equals(compensationPath)
-            && request.compensation().method().equals(compensationMethod);
+            && request.compensation().method().equals(compensationMethod)
+            && request.transaction().params().equals(transactionParams)
+            && request.compensation().params().equals(compensationParams);
       }
 
       @Override
@@ -183,16 +272,22 @@ public class JsonRequestInterpreterTest {
         SagaRequest request = item.value();
         mismatchDescription.appendText(
             "SagaRequest {name=" + request.serviceName()
+                + ", type=" + request.type()
                 + ", transaction=" + request.transaction().method() + ":" + request.transaction().path()
-                + ", compensation=" + request.compensation().method() + ":" + request.compensation().path());
+                + ", transaction params=" + request.transaction().params()
+                + ", compensation=" + request.compensation().method() + ":" + request.compensation().path()
+                + ", compensation params=" + request.compensation().params());
       }
 
       @Override
       public void describeTo(Description description) {
         description.appendText(
             "SagaRequest {name=" + name
+                + ", type=" + type
                 + ", transaction=" + transactionMethod + ":" + transactionPath
-                + ", compensation=" + compensationMethod + ":" + compensationPath);
+                + ", transaction params=" + transactionParams
+                + ", compensation=" + compensationMethod + ":" + compensationPath
+                + ", compensation params=" + compensationParams);
       }
     };
   }

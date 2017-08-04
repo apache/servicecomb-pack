@@ -16,19 +16,28 @@
 
 package io.servicecomb.saga.core.application.interpreter;
 
+import static java.util.Collections.emptyList;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.servicecomb.saga.core.Compensation;
+import java.util.List;
+import java.util.Map;
 
 class JsonCompensation implements Compensation {
 
   private final String path;
   private final String method;
+  private final List<Map<String, String>> params;
 
   @JsonCreator
-  public JsonCompensation(@JsonProperty("path") String path, @JsonProperty("method") String method) {
+  public JsonCompensation(
+      @JsonProperty("path") String path,
+      @JsonProperty("method") String method,
+      @JsonProperty("params") List<Map<String, String>> params) {
     this.path = path;
     this.method = method;
+    this.params = params == null? emptyList() : params;
   }
 
   @Override
@@ -44,5 +53,10 @@ class JsonCompensation implements Compensation {
   @Override
   public String method() {
     return method;
+  }
+
+  @Override
+  public List<Map<String, String>> params() {
+    return params;
   }
 }

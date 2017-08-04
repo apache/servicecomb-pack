@@ -31,4 +31,6 @@ public interface SagaRequest {
   String serviceName();
 
   String id();
+
+  String type();
 }

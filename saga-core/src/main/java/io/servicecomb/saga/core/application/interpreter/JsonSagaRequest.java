@@ -26,6 +26,7 @@ class JsonSagaRequest implements SagaRequest {
 
   private final String id;
   private final String serviceName;
+  private final String type;
   private final JsonTransaction transaction;
   private final JsonCompensation compensation;
   private final String[] parents;
@@ -34,12 +35,14 @@ class JsonSagaRequest implements SagaRequest {
   public JsonSagaRequest(
       @JsonProperty("id") String id,
       @JsonProperty("serviceName") String serviceName,
+      @JsonProperty("type") String type,
       @JsonProperty("transaction") JsonTransaction transaction,
       @JsonProperty("compensation") JsonCompensation compensation,
       @JsonProperty("parents") String[] parents) {
 
     this.id = id;
     this.serviceName = serviceName;
+    this.type = type;
     this.transaction = transaction;
     this.compensation = compensation;
     this.parents = parents == null? new String[0] : parents;
@@ -75,6 +78,11 @@ class JsonSagaRequest implements SagaRequest {
   @Override
   public String id() {
     return id;
+  }
+
+  @Override
+  public String type() {
+    return type;
   }
 
   String[] parents() {
