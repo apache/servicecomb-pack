@@ -22,22 +22,56 @@ import io.servicecomb.saga.core.SuccessfulSagaResponse;
 import io.servicecomb.saga.core.Transport;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.core.util.IOUtils;
 
 public class HttpClientTransport implements Transport {
 
-  // TODO: 8/3/2017 transport.with(name, path, method).on()
   @Override
-  public SagaResponse with(String serviceName, String path, String method) {
-    Request request;
-    if ("GET".equals(method)) {
-      request = Request.Get("http://" + serviceName + path);
-    } else {
-      request = Request.Post("http://" + serviceName + path);
+  public SagaResponse with(String serviceName, String path, String method, Map<String, Map<String, String>> params) {
+    URIBuilder builder = new URIBuilder().setScheme("http").setHost(serviceName).setPath(path);
+
+    if (params.containsKey("query")) {
+      for (Entry<String, String> entry : params.get("query").entrySet()) {
+        builder.addParameter(entry.getKey(), entry.getValue());
+      }
     }
-    return this.on(request);
+
+    try {
+      Request request;
+      if ("GET".equals(method)) {
+        request = Request.Get(builder.build());
+      } else if ("POST".equals(method)) {
+        request = Request.Post(builder.build());
+      } else if ("PUT".equals(method)) {
+        request = Request.Put(builder.build());
+      } else {
+        request = Request.Delete(builder.build());
+      }
+
+      if (params.containsKey("json")) {
+        request.bodyString(params.get("json").get("body"), ContentType.APPLICATION_JSON);
+      }
+
+      if (params.containsKey("form")) {
+        Form form = Form.form();
+        for (Entry<String, String> entry : params.get("form").entrySet()) {
+          form.add(entry.getKey(), entry.getValue()).build();
+        }
+        request.bodyForm(form.build());
+      }
+
+      return this.on(request);
+    } catch (URISyntaxException e) {
+      return new FailedSagaResponse("Wrong request URI", e);
+    }
   }
 
   private SagaResponse on(Request request) {

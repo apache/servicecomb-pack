@@ -16,29 +16,30 @@
 
 package io.servicecomb.saga.core.application.interpreter;
 
-import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.servicecomb.saga.core.Transaction;
-import java.util.List;
 import java.util.Map;
 
 class JsonTransaction implements Transaction {
 
   private final String path;
   private final String method;
-  private final List<Map<String, String>> params;
+  private final Map<String, Map<String, String>> params;
 
   @JsonCreator
   public JsonTransaction(
       @JsonProperty("path") String path,
       @JsonProperty("method") String method,
-      @JsonProperty("params") List<Map<String, String>> params) {
+      @JsonProperty("params") Map<String, Map<String, String>> params) {
+
+    RestRequestChecker.checkParameters(method, params);
 
     this.path = path;
     this.method = method;
-    this.params = params == null? emptyList() : params;
+    this.params = params == null? emptyMap() : params;
   }
 
   @Override
@@ -57,7 +58,7 @@ class JsonTransaction implements Transaction {
   }
 
   @Override
-  public List<Map<String, String>> params() {
+  public Map<String, Map<String, String>> params() {
     return params;
   }
 }

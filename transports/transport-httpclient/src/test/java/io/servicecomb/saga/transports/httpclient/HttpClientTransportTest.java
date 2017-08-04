@@ -17,21 +17,29 @@
 package io.servicecomb.saga.transports.httpclient;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
 import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.Transport;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -46,6 +54,7 @@ public class HttpClientTransportTest {
   private static final String faultyResource = "/rest/faultyResource";
   private static final String usableResponse = "hello world";
   private static final String faultyResponse = "no such resource";
+  private static final String json = "{\"hello\", \"world\"}";
 
   private String serviceName;
 
@@ -53,17 +62,29 @@ public class HttpClientTransportTest {
 
   @BeforeClass
   public static void setUpClass() throws Exception {
-    stubFor(get(urlEqualTo(usableResource))
+    stubFor(get(urlPathEqualTo(usableResource))
+        .withQueryParam("foo", equalTo("bar"))
+        .withQueryParam("hello", equalTo("world"))
         .willReturn(
             aResponse()
                 .withStatus(SC_OK)
                 .withBody(usableResponse)));
 
-    stubFor(post(urlEqualTo(faultyResource))
+    stubFor(post(urlPathEqualTo(faultyResource))
+        .withQueryParam("foo", equalTo("bar"))
+        .withRequestBody(containing("hello=world&jesus=christ"))
         .willReturn(
             aResponse()
                 .withStatus(SC_INTERNAL_SERVER_ERROR)
                 .withBody(faultyResponse)));
+
+    stubFor(put(urlPathEqualTo(usableResource))
+        .withQueryParam("foo", equalTo("bar"))
+        .withRequestBody(equalTo(json))
+        .willReturn(
+            aResponse()
+                .withStatus(SC_OK)
+                .withBody(usableResponse)));
   }
 
   @Before
@@ -72,8 +93,24 @@ public class HttpClientTransportTest {
   }
 
   @Test
-  public void sendsRequestToRemote() {
-    SagaResponse response = transport.with(serviceName, usableResource, "GET");
+  public void getsRequestFromRemote() {
+    Map<String, Map<String, String>> requests = singletonMap("query", map("foo", "bar", "hello", "world"));
+
+    SagaResponse response = transport.with(serviceName, usableResource, "GET", requests);
+
+    assertThat(response.succeeded(), is(true));
+    assertThat(response.body(), allOf(
+        containsString(usableResponse),
+        containsString(String.valueOf(SC_OK))));
+  }
+
+  @Test
+  public void putsRequestToRemote() {
+    Map<String, Map<String, String>> requests = new HashMap<>();
+    requests.put("query", singletonMap("foo", "bar"));
+    requests.put("json", singletonMap("body", json));
+
+    SagaResponse response = transport.with(serviceName, usableResource, "PUT", requests);
 
     assertThat(response.succeeded(), is(true));
     assertThat(response.body(), allOf(
@@ -83,7 +120,11 @@ public class HttpClientTransportTest {
 
   @Test
   public void blowsUpWhenRemoteResponseIsNot2XX() {
-    SagaResponse response = transport.with(serviceName, faultyResource, "POST");
+    Map<String, Map<String, String>> requests = new HashMap<>();
+    requests.put("query", singletonMap("foo", "bar"));
+    requests.put("form", map("hello", "world", "jesus", "christ"));
+
+    SagaResponse response = transport.with(serviceName, faultyResource, "POST", requests);
 
     assertThat(response.succeeded(), is(false));
     assertThat(response.body(), allOf(
@@ -94,12 +135,20 @@ public class HttpClientTransportTest {
 
   @Test
   public void blowsUpWhenRemoteIsNotReachable() {
-    SagaResponse response = transport.with("http://somewhere:9090", faultyResource, "PUT");
+    SagaResponse response = transport.with("http://somewhere:9090", faultyResource, "DELETE", emptyMap());
 
     assertThat(response.succeeded(), is(false));
     assertThat(response.body(), allOf(
         containsString("java.net.UnknownHostException: http"),
         containsString("0"),
         containsString("Network Error")));
+  }
+
+  private Map<String, String> map(String... pairs) {
+    return new LinkedHashMap<String, String>(){{
+      for (int i = 0; i < pairs.length; i+=2) {
+        put(pairs[i], pairs[i + 1]);
+      }
+    }};
   }
 }

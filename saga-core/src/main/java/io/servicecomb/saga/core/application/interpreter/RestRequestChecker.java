@@ -14,25 +14,26 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core;
-
-import static java.util.Collections.emptyMap;
+package io.servicecomb.saga.core.application.interpreter;
 
 import java.util.Map;
 
-public interface Operation {
+class RestRequestChecker {
 
-  void run();
-
-  default String path() {
-    return "/";
+  private RestRequestChecker() {
   }
 
-  default String method() {
-    return "nop";
+  static void checkParameters(String method, Map<String, Map<String, String>> params) {
+    if (isDeleteOrGet(method) && hasBody(params)) {
+      throw new IllegalArgumentException("GET & DELETE request cannot enclose a body");
+    }
   }
 
-  default Map<String, Map<String, String>> params() {
-    return emptyMap();
+  private static boolean isDeleteOrGet(String method) {
+    return "GET".equalsIgnoreCase(method) || "DELETE".equalsIgnoreCase(method);
+  }
+
+  private static boolean hasBody(Map<String, Map<String, String>> params) {
+    return params.containsKey("form") || params.containsKey("json");
   }
 }
