@@ -34,6 +34,6 @@ class RestRequestChecker {
   }
 
   private static boolean hasBody(Map<String, Map<String, String>> params) {
-    return params.containsKey("form") || params.containsKey("json");
+    return params != null && (params.containsKey("form") || params.containsKey("json"));
   }
 }
