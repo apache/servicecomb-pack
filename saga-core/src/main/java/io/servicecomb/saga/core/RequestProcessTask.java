@@ -19,22 +19,26 @@ package io.servicecomb.saga.core;
 class RequestProcessTask implements SagaTask {
 
   private final EventStore eventStore;
+  private final Transport transport;
 
-  RequestProcessTask(EventStore eventStore) {
+  RequestProcessTask(EventStore eventStore, Transport transport) {
     this.eventStore = eventStore;
+    this.transport = transport;
   }
 
   @Override
   public void commit(SagaRequest request) {
     eventStore.offer(new TransactionStartedEvent(request));
-    request.transaction().run();
+    Transaction transaction = request.transaction();
+    transport.with(request.serviceName(), transaction.path(), transaction.method(), transaction.params());
     eventStore.offer(new TransactionEndedEvent(request));
   }
 
   @Override
   public void compensate(SagaRequest request) {
     eventStore.offer(new CompensationStartedEvent(request));
-    request.compensation().run();
+    Compensation compensation = request.compensation();
+    transport.with(request.serviceName(), compensation.path(), compensation.method(), compensation.params());
     eventStore.offer(new CompensationEndedEvent(request));
   }
 

@@ -30,7 +30,7 @@ public class TaskAwareSagaRequest implements SagaRequest {
     this(id, "Saga", "nop", transaction, compensation, sagaTask);
   }
 
-  private TaskAwareSagaRequest(String id,
+  TaskAwareSagaRequest(String id,
       String serviceName,
       String type,
       Transaction transaction,
