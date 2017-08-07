@@ -29,17 +29,26 @@ class RequestProcessTask implements SagaTask {
   @Override
   public void commit(SagaRequest request) {
     eventStore.offer(new TransactionStartedEvent(request));
+
     Transaction transaction = request.transaction();
-    transport.with(request.serviceName(), transaction.path(), transaction.method(), transaction.params());
-    eventStore.offer(new TransactionEndedEvent(request));
+    SagaResponse response = transport.with(
+        request.serviceName(),
+        transaction.path(),
+        transaction.method(),
+        transaction.params());
+
+    eventStore.offer(new TransactionEndedEvent(request, response));
   }
 
   @Override
   public void compensate(SagaRequest request) {
     eventStore.offer(new CompensationStartedEvent(request));
+
     Compensation compensation = request.compensation();
-    transport.with(request.serviceName(), compensation.path(), compensation.method(), compensation.params());
-    eventStore.offer(new CompensationEndedEvent(request));
+    SagaResponse response = transport
+        .with(request.serviceName(), compensation.path(), compensation.method(), compensation.params());
+
+    eventStore.offer(new CompensationEndedEvent(request, response));
   }
 
   @Override

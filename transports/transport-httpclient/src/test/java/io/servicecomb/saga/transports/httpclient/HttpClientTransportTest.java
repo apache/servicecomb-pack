@@ -25,6 +25,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
@@ -36,6 +37,7 @@ import static org.junit.Assert.assertThat;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.servicecomb.saga.core.SagaResponse;
+import io.servicecomb.saga.core.TransactionFailedException;
 import io.servicecomb.saga.core.Transport;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -124,24 +126,42 @@ public class HttpClientTransportTest {
     requests.put("query", singletonMap("foo", "bar"));
     requests.put("form", map("hello", "world", "jesus", "christ"));
 
-    SagaResponse response = transport.with(serviceName, faultyResource, "POST", requests);
-
-    assertThat(response.succeeded(), is(false));
-    assertThat(response.body(), allOf(
-        containsString(faultyResponse),
-        containsString(String.valueOf(SC_INTERNAL_SERVER_ERROR)),
-        containsString("Server Error")));
+    try {
+      transport.with(serviceName, faultyResource, "POST", requests);
+      expectFailing(TransactionFailedException.class);
+    } catch (TransactionFailedException e) {
+      assertThat(e.getMessage(), containsString("The remote service returned with status code 500"));
+    }
   }
 
   @Test
   public void blowsUpWhenRemoteIsNotReachable() {
-    SagaResponse response = transport.with("http://somewhere:9090", faultyResource, "DELETE", emptyMap());
+    try {
+      transport.with("http://somewhere:9090", faultyResource, "DELETE", emptyMap());
+      expectFailing(TransactionFailedException.class);
+    } catch (TransactionFailedException e) {
+      assertThat(e.getMessage(), is("Network Error"));
+    }
+  }
 
-    assertThat(response.succeeded(), is(false));
-    assertThat(response.body(), allOf(
-        containsString("java.net.UnknownHostException: http"),
-        containsString("0"),
-        containsString("Network Error")));
+  @Test
+  public void blowsUpWhenMethodIsUnknown() {
+    try {
+      transport.with(serviceName, usableResource, "Blah", emptyMap());
+      expectFailing(TransactionFailedException.class);
+    } catch (TransactionFailedException e) {
+      assertThat(e.getMessage(), is("No such method Blah"));
+    }
+  }
+
+  @Test
+  public void blowsUpWhenUriIsMalformed() {
+    try {
+      transport.with("\\", usableResource, "GET", emptyMap());
+      expectFailing(TransactionFailedException.class);
+    } catch (TransactionFailedException e) {
+      assertThat(e.getMessage(), is("Wrong request URI"));
+    }
   }
 
   private Map<String, String> map(String... pairs) {

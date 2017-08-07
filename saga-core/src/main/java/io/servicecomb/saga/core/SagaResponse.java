@@ -18,6 +18,18 @@ package io.servicecomb.saga.core;
 
 public interface SagaResponse {
 
+  SagaResponse EMPTY_RESPONSE = new SagaResponse() {
+    @Override
+    public boolean succeeded() {
+      return false;
+    }
+
+    @Override
+    public String body() {
+      return "";
+    }
+  };
+
   boolean succeeded();
 
   String body();

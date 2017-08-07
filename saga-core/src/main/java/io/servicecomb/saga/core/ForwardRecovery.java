@@ -30,8 +30,15 @@ class ForwardRecovery implements RecoveryPolicy {
       try {
         request.commit();
         success = true;
-      } catch (Exception ignored) {
-        log.info("Applying {} policy", description());
+      } catch (Exception e) {
+        log.error("Applying {} policy due to failure in transaction of service {}, path {}, method {}, params {}",
+            description(),
+            request.serviceName(),
+            request.transaction().path(),
+            request.transaction().method(),
+            request.transaction().params(),
+            e
+        );
       }
     } while (!success);
   }

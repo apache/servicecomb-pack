@@ -21,4 +21,12 @@ public class TransactionFailedException extends RuntimeException {
   public TransactionFailedException(Throwable throwable) {
     super(throwable);
   }
+
+  public TransactionFailedException(String cause) {
+    super(cause);
+  }
+
+  public TransactionFailedException(String cause, Throwable e) {
+    super(cause, e);
+  }
 }

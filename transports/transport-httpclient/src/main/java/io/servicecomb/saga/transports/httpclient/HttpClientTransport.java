@@ -16,15 +16,18 @@
 
 package io.servicecomb.saga.transports.httpclient;
 
-import io.servicecomb.saga.core.FailedSagaResponse;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SuccessfulSagaResponse;
+import io.servicecomb.saga.core.TransactionFailedException;
 import io.servicecomb.saga.core.Transport;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Function;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
@@ -33,6 +36,14 @@ import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.core.util.IOUtils;
 
 public class HttpClientTransport implements Transport {
+
+
+  private final Map<String, Function<URI, Request>> requestFactories = new HashMap<String, Function<URI, Request>>() {{
+    put("GET", Request::Get);
+    put("POST", Request::Post);
+    put("PUT", Request::Put);
+    put("DELETE", Request::Delete);
+  }};
 
   @Override
   public SagaResponse with(String serviceName, String path, String method, Map<String, Map<String, String>> params) {
@@ -45,16 +56,10 @@ public class HttpClientTransport implements Transport {
     }
 
     try {
-      Request request;
-      if ("GET".equals(method)) {
-        request = Request.Get(builder.build());
-      } else if ("POST".equals(method)) {
-        request = Request.Post(builder.build());
-      } else if ("PUT".equals(method)) {
-        request = Request.Put(builder.build());
-      } else {
-        request = Request.Delete(builder.build());
-      }
+      URI uri = builder.build();
+      Request request = requestFactories.getOrDefault(
+          method.toUpperCase(),
+          exceptionThrowingFunction(method)).apply(uri);
 
       if (params.containsKey("json")) {
         request.bodyString(params.get("json").get("body"), ContentType.APPLICATION_JSON);
@@ -70,8 +75,14 @@ public class HttpClientTransport implements Transport {
 
       return this.on(request);
     } catch (URISyntaxException e) {
-      return new FailedSagaResponse("Wrong request URI", e);
+      throw new TransactionFailedException("Wrong request URI", e);
     }
+  }
+
+  private Function<URI, Request> exceptionThrowingFunction(String method) {
+    return u -> {
+      throw new TransactionFailedException("No such method " + method);
+    };
   }
 
   private SagaResponse on(Request request) {
@@ -82,9 +93,11 @@ public class HttpClientTransport implements Transport {
       if (statusCode >= 200 && statusCode < 300) {
         return new SuccessfulSagaResponse(statusCode, content);
       }
-      return new FailedSagaResponse(statusCode, httpResponse.getStatusLine().getReasonPhrase(), content);
+      throw new TransactionFailedException("The remote service returned with status code " + statusCode
+          + ", reason " + httpResponse.getStatusLine().getReasonPhrase()
+          + ", and content " + content);
     } catch (IOException e) {
-      return new FailedSagaResponse("Network Error", e);
+      throw new TransactionFailedException("Network Error", e);
     }
   }
 }

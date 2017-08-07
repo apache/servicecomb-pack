@@ -20,8 +20,15 @@ import java.util.Set;
 
 class TransactionEndedEvent extends SagaEvent {
 
-  TransactionEndedEvent(SagaRequest transaction) {
-    super(transaction);
+  private final SagaResponse response;
+
+  TransactionEndedEvent(SagaRequest request) {
+    this(request, SagaResponse.EMPTY_RESPONSE);
+  }
+
+  TransactionEndedEvent(SagaRequest request, SagaResponse response) {
+    super(request);
+    this.response = response;
   }
 
   @Override

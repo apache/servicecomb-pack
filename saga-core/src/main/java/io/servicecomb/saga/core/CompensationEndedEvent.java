@@ -20,8 +20,15 @@ import java.util.Set;
 
 class CompensationEndedEvent extends SagaEvent {
 
-  CompensationEndedEvent(SagaRequest compensation) {
-    super(compensation);
+  private final SagaResponse response;
+
+  CompensationEndedEvent(SagaRequest request) {
+    this(request, SagaResponse.EMPTY_RESPONSE);
+  }
+
+  CompensationEndedEvent(SagaRequest request, SagaResponse response) {
+    super(request);
+    this.response = response;
   }
 
   @Override
