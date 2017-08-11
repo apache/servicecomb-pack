@@ -22,13 +22,13 @@ import io.servicecomb.saga.core.Compensation;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.Transaction;
 
-class JsonSagaRequest implements SagaRequest {
+public class JsonSagaRequest implements SagaRequest {
 
   private final String id;
   private final String serviceName;
   private final String type;
-  private final JsonTransaction transaction;
-  private final JsonCompensation compensation;
+  private final Transaction transaction;
+  private final Compensation compensation;
   private final String[] parents;
   private final String json;
 
@@ -47,6 +47,22 @@ class JsonSagaRequest implements SagaRequest {
     this.transaction = transaction;
     this.compensation = compensation;
     this.parents = parents == null ? new String[0] : parents;
+    this.json = "{}";
+  }
+
+  public JsonSagaRequest(
+      String id,
+      String serviceName,
+      String type,
+      Transaction transaction,
+      Compensation compensation) {
+
+    this.id = id;
+    this.serviceName = serviceName;
+    this.type = type;
+    this.transaction = transaction;
+    this.compensation = compensation;
+    this.parents = new String[0];
     this.json = "{}";
   }
 

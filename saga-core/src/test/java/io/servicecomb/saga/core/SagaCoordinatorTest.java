@@ -58,7 +58,7 @@ public class SagaCoordinatorTest {
   private final EventStore eventStore = new EmbeddedEventStore();
   private final PersistentStore persistentStore = mock(PersistentStore.class);
 
-  private final TaskAwareSagaRequest sagaStartRequest = sagaStartRequest();
+  private final SagaRequest sagaStartRequest = sagaStartRequest();
 
   private final SagaCoordinator coordinator = new SagaCoordinator(
       eventStore,
@@ -100,12 +100,10 @@ public class SagaCoordinatorTest {
     verify(transport).with("aaa", "/rest/as", "post", emptyMap());
   }
 
-  private TaskAwareSagaRequest sagaStartRequest() {
-    return new TaskAwareSagaRequest(
-        "saga-start",
-        SAGA_START_TRANSACTION,
-        SAGA_START_COMPENSATION,
-        requestJson);
+  private SagaRequest sagaStartRequest() {
+    return new SagaStartTask(
+        requestJson,
+        eventStore);
   }
 
   private Matcher<EventEnvelope> eventWith(

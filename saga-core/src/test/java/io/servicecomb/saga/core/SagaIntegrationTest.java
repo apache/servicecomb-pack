@@ -30,6 +30,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.servicecomb.saga.core.application.interpreter.JsonSagaRequest;
 import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
@@ -525,7 +526,7 @@ public class SagaIntegrationTest {
       Compensation compensation) {
 
     return new RequestProcessTask(
-        new TaskAwareSagaRequest(requestId, serviceName, "rest", transaction, compensation, requestJson),
+        new JsonSagaRequest(requestId, serviceName, "rest", transaction, compensation),
         eventStore,
         transport);
   }
