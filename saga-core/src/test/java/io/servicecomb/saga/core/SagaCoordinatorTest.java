@@ -64,10 +64,7 @@ public class SagaCoordinatorTest {
       eventStore,
       persistentStore,
       new JsonRequestInterpreter(
-          new SagaTaskFactory(
-              new SagaStartTask(eventStore),
-              new RequestProcessTask(eventStore, transport),
-              new SagaEndTask(eventStore))
+          new SagaTaskFactory(eventStore, transport)
       )
   );
 
@@ -108,7 +105,7 @@ public class SagaCoordinatorTest {
         "saga-start",
         SAGA_START_TRANSACTION,
         SAGA_START_COMPENSATION,
-        new SagaStartTask(eventStore), requestJson);
+        requestJson);
   }
 
   private Matcher<EventEnvelope> eventWith(

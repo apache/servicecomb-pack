@@ -16,36 +16,33 @@
 
 package io.servicecomb.saga.core.application.interpreter;
 
-import static io.servicecomb.saga.core.Compensation.SAGA_END_COMPENSATION;
-import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
-import static io.servicecomb.saga.core.Transaction.SAGA_END_TRANSACTION;
-import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
-
+import io.servicecomb.saga.core.EventStore;
+import io.servicecomb.saga.core.RequestProcessTask;
+import io.servicecomb.saga.core.SagaEndTask;
 import io.servicecomb.saga.core.SagaRequest;
+import io.servicecomb.saga.core.SagaStartTask;
 import io.servicecomb.saga.core.SagaTask;
-import io.servicecomb.saga.core.TaskAwareSagaRequest;
+import io.servicecomb.saga.core.Transport;
 
 public class SagaTaskFactory {
 
-  private final SagaTask sagaStartTask;
-  private final SagaTask sagaRequestTask;
-  private final SagaTask sagaEndTask;
+  private final EventStore eventStore;
+  private final Transport transport;
 
-  public SagaTaskFactory(SagaTask sagaStartTask, SagaTask sagaRequestTask, SagaTask sagaEndTask) {
-    this.sagaStartTask = sagaStartTask;
-    this.sagaRequestTask = sagaRequestTask;
-    this.sagaEndTask = sagaEndTask;
+  public SagaTaskFactory(EventStore eventStore, Transport transport) {
+    this.eventStore = eventStore;
+    this.transport = transport;
   }
 
-  TaskAwareSagaRequest newStartTask(String requestJson) {
-    return new TaskAwareSagaRequest("saga-start", SAGA_START_TRANSACTION, SAGA_START_COMPENSATION, sagaStartTask, requestJson);
+  SagaTask newStartTask(String requestJson) {
+    return new SagaStartTask(requestJson, eventStore);
   }
 
-  TaskAwareSagaRequest newEndTask(String requestJson) {
-    return new TaskAwareSagaRequest("saga-end", SAGA_END_TRANSACTION, SAGA_END_COMPENSATION, sagaEndTask, requestJson);
+  SagaTask newEndTask() {
+    return new SagaEndTask(eventStore);
   }
 
-  TaskAwareSagaRequest newRequestTask(SagaRequest sagaRequest, String requests) {
-    return new TaskAwareSagaRequest(sagaRequest, sagaRequestTask, requests);
+  SagaTask newRequestTask(SagaRequest sagaRequest) {
+    return new RequestProcessTask(sagaRequest, eventStore, transport);
   }
 }

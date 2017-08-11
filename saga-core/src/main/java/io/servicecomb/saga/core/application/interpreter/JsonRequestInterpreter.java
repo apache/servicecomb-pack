@@ -38,7 +38,7 @@ public class JsonRequestInterpreter {
     try {
       JsonSagaRequest[] sagaRequests = objectMapper.readValue(requests, JsonSagaRequest[].class);
 
-      Map<String, Node<SagaRequest>> requestNodes = requestsToNodes(sagaRequests, requests);
+      Map<String, Node<SagaRequest>> requestNodes = requestsToNodes(sagaRequests);
 
       return linkNodesToGraph(sagaRequests, requestNodes, requests);
     } catch (IOException e) {
@@ -52,7 +52,7 @@ public class JsonRequestInterpreter {
       String requestJson) {
 
     Node<SagaRequest> root = rootNode(0, requestJson);
-    Node<SagaRequest> leaf = leafNode(sagaRequests.length + 1, requestJson);
+    Node<SagaRequest> leaf = leafNode(sagaRequests.length + 1);
 
     for (JsonSagaRequest sagaRequest : sagaRequests) {
       if (isOrphan(sagaRequest)) {
@@ -77,24 +77,24 @@ public class JsonRequestInterpreter {
         sagaTaskFactory.newStartTask(requestJson));
   }
 
-  private Node<SagaRequest> leafNode(int id, String requestJson) {
+  private Node<SagaRequest> leafNode(int id) {
     return new Node<>(
         id,
-        sagaTaskFactory.newEndTask(requestJson));
+        sagaTaskFactory.newEndTask());
   }
 
   private boolean isOrphan(JsonSagaRequest sagaRequest) {
     return sagaRequest.parents().length == 0;
   }
 
-  private Map<String, Node<SagaRequest>> requestsToNodes(SagaRequest[] sagaRequests, String requests) {
+  private Map<String, Node<SagaRequest>> requestsToNodes(SagaRequest[] sagaRequests) {
     long index = 1;
     Map<String, Node<SagaRequest>> requestMap = new HashMap<>();
     for (SagaRequest sagaRequest : sagaRequests) {
       if (requestMap.containsKey(sagaRequest.id())) {
         throw new SagaException("Failed to interpret requests with duplicate request id: " + sagaRequest.id());
       }
-      requestMap.put(sagaRequest.id(), new Node<>(index++, sagaTaskFactory.newRequestTask(sagaRequest, requests)));
+      requestMap.put(sagaRequest.id(), new Node<>(index++, sagaTaskFactory.newRequestTask(sagaRequest)));
     }
     return requestMap;
   }

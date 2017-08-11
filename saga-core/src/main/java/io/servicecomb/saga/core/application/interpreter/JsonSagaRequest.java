@@ -30,6 +30,7 @@ class JsonSagaRequest implements SagaRequest {
   private final JsonTransaction transaction;
   private final JsonCompensation compensation;
   private final String[] parents;
+  private final String json;
 
   @JsonCreator
   public JsonSagaRequest(
@@ -45,7 +46,8 @@ class JsonSagaRequest implements SagaRequest {
     this.type = type;
     this.transaction = transaction;
     this.compensation = compensation;
-    this.parents = parents == null? new String[0] : parents;
+    this.parents = parents == null ? new String[0] : parents;
+    this.json = "{}";
   }
 
   // TODO: 8/11/2017 saga task should be a sub type of saga request
@@ -84,6 +86,11 @@ class JsonSagaRequest implements SagaRequest {
   @Override
   public String type() {
     return type;
+  }
+
+  @Override
+  public String json() {
+    return json;
   }
 
   String[] parents() {

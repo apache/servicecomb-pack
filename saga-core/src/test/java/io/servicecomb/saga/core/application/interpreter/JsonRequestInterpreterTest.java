@@ -25,7 +25,6 @@ import static org.junit.Assert.fail;
 
 import io.servicecomb.saga.core.SagaException;
 import io.servicecomb.saga.core.SagaRequest;
-import io.servicecomb.saga.core.SagaTask;
 import io.servicecomb.saga.core.dag.ByLevelTraveller;
 import io.servicecomb.saga.core.dag.FromRootTraversalDirection;
 import io.servicecomb.saga.core.dag.Node;
@@ -38,7 +37,6 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 public class JsonRequestInterpreterTest {
 
@@ -141,12 +139,8 @@ public class JsonRequestInterpreterTest {
       + "  }\n"
       + "]\n";
 
-  private final SagaTask sagaStartCommand = Mockito.mock(SagaTask.class, "sagaStartCommand");
-  private final SagaTask taskCommand = Mockito.mock(SagaTask.class, "taskCommand");
-  private final SagaTask sagaEndCommand = Mockito.mock(SagaTask.class, "sagaEndCommand");
-
   private final JsonRequestInterpreter interpreter = new JsonRequestInterpreter(
-      new SagaTaskFactory(sagaStartCommand, taskCommand, sagaEndCommand));
+      new SagaTaskFactory(null, null));
 
   @Test
   public void interpretsParallelRequests() {

@@ -23,12 +23,11 @@ public class TaskAwareSagaRequest implements SagaRequest {
   private final String type;
   private final Transaction transaction;
   private final Compensation compensation;
-  private final SagaTask sagaTask;
   private final String requestJson;
 
 
-  public TaskAwareSagaRequest(String id, Transaction transaction, Compensation compensation, SagaTask sagaTask, String requestJson) {
-    this(id, "Saga", "nop", transaction, compensation, sagaTask, requestJson);
+  public TaskAwareSagaRequest(String id, Transaction transaction, Compensation compensation, String requestJson) {
+    this(id, "Saga", "nop", transaction, compensation, requestJson);
   }
 
   TaskAwareSagaRequest(String id,
@@ -36,7 +35,6 @@ public class TaskAwareSagaRequest implements SagaRequest {
       String type,
       Transaction transaction,
       Compensation compensation,
-      SagaTask sagaTask,
       String requestJson) {
 
     this.id = id;
@@ -44,27 +42,19 @@ public class TaskAwareSagaRequest implements SagaRequest {
     this.type = type;
     this.transaction = transaction;
     this.compensation = compensation;
-    this.sagaTask = sagaTask;
     this.requestJson = requestJson;
-  }
-
-  public TaskAwareSagaRequest(SagaRequest request, SagaTask sagaTask, String requestJson) {
-    this(request.id(), request.serviceName(), request.type(), request.transaction(), request.compensation(), sagaTask, requestJson);
   }
 
   @Override
   public void commit() {
-    sagaTask.commit(this);
   }
 
   @Override
   public void compensate() {
-    sagaTask.compensate(this);
   }
 
   @Override
   public void abort(Exception e) {
-    sagaTask.abort(this, e);
   }
 
   @Override

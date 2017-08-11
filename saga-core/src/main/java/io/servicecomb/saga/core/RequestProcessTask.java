@@ -16,19 +16,21 @@
 
 package io.servicecomb.saga.core;
 
-class RequestProcessTask implements SagaTask {
+public class RequestProcessTask implements SagaTask, SagaRequest {
 
   private final EventStore eventStore;
   private final Transport transport;
+  private final SagaRequest request;
 
-  RequestProcessTask(EventStore eventStore, Transport transport) {
+  public RequestProcessTask(SagaRequest request, EventStore eventStore, Transport transport) {
+    this.request = request;
     this.eventStore = eventStore;
     this.transport = transport;
   }
 
   @Override
-  public void commit(SagaRequest request) {
-    eventStore.offer(new TransactionStartedEvent(request));
+  public void commit() {
+    eventStore.offer(new TransactionStartedEvent(this));
 
     Transaction transaction = request.transaction();
     SagaResponse response = transport.with(
@@ -37,22 +39,52 @@ class RequestProcessTask implements SagaTask {
         transaction.method(),
         transaction.params());
 
-    eventStore.offer(new TransactionEndedEvent(request, response));
+    eventStore.offer(new TransactionEndedEvent(this, response));
   }
 
   @Override
-  public void compensate(SagaRequest request) {
-    eventStore.offer(new CompensationStartedEvent(request));
+  public void compensate() {
+    eventStore.offer(new CompensationStartedEvent(this));
 
     Compensation compensation = request.compensation();
     SagaResponse response = transport
         .with(request.serviceName(), compensation.path(), compensation.method(), compensation.params());
 
-    eventStore.offer(new CompensationEndedEvent(request, response));
+    eventStore.offer(new CompensationEndedEvent(this, response));
   }
 
   @Override
-  public void abort(SagaRequest request, Exception e) {
-    eventStore.offer(new TransactionAbortedEvent(request, e));
+  public void abort(Exception e) {
+    eventStore.offer(new TransactionAbortedEvent(this, e));
+  }
+
+  @Override
+  public Transaction transaction() {
+    return request.transaction();
+  }
+
+  @Override
+  public Compensation compensation() {
+    return request.compensation();
+  }
+
+  @Override
+  public String serviceName() {
+    return request.serviceName();
+  }
+
+  @Override
+  public String id() {
+    return request.id();
+  }
+
+  @Override
+  public String type() {
+    return request.type();
+  }
+
+  @Override
+  public String json() {
+    return request.json();
   }
 }

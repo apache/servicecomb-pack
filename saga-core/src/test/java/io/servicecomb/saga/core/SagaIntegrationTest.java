@@ -16,7 +16,6 @@
 
 package io.servicecomb.saga.core;
 
-import static io.servicecomb.saga.core.Compensation.SAGA_END_COMPENSATION;
 import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
 import static io.servicecomb.saga.core.SagaEventMatcher.eventWith;
 import static io.servicecomb.saga.core.Transaction.SAGA_END_TRANSACTION;
@@ -54,13 +53,13 @@ public class SagaIntegrationTest {
   private final Compensation compensation2 = mock(Compensation.class, "compensation2");
   private final Compensation compensation3 = mock(Compensation.class, "compensation3");
 
+  private final String requestJson = "{}";
   private final Transport transport = mock(Transport.class);
-  private final RequestProcessTask requestProcessTask = new RequestProcessTask(eventStore, transport);
-  private final SagaRequest sagaStartRequest = sagaRequest("saga-start", SAGA_START_TRANSACTION, SAGA_START_COMPENSATION, new SagaStartTask(eventStore));
-  private final SagaRequest request1 = sagaRequest("request1", "service1", transaction1, compensation1, requestProcessTask);
-  private final SagaRequest request2 = sagaRequest("request2", "service2", transaction2, compensation2, requestProcessTask);
-  private final SagaRequest request3 = sagaRequest("request3", "service3", transaction3, compensation3, requestProcessTask);
-  private final SagaRequest sagaEndRequest = sagaRequest("saga-end", SAGA_END_TRANSACTION, SAGA_END_COMPENSATION, new SagaEndTask(eventStore));
+  private final SagaRequest sagaStartRequest = new SagaStartTask(requestJson, eventStore);
+  private final SagaRequest request1 = sagaTask("request1", "service1", transaction1, compensation1);
+  private final SagaRequest request2 = sagaTask("request2", "service2", transaction2, compensation2);
+  private final SagaRequest request3 = sagaTask("request3", "service3", transaction3, compensation3);
+  private final SagaRequest sagaEndRequest = new SagaEndTask(eventStore);
 
   private final RuntimeException exception = new RuntimeException("oops");
 
@@ -520,20 +519,14 @@ public class SagaIntegrationTest {
     node3.addChild(leaf);
   }
 
-  private TaskAwareSagaRequest sagaRequest(String request,
-      Transaction transaction,
-      Compensation compensation,
-      SagaTask sagaTask) {
-
-    return new TaskAwareSagaRequest(request, transaction, compensation, sagaTask, "{}");
-  }
-
-  private TaskAwareSagaRequest sagaRequest(String requestId,
+  private SagaTask sagaTask(String requestId,
       String serviceName,
       Transaction transaction,
-      Compensation compensation,
-      SagaTask sagaTask) {
+      Compensation compensation) {
 
-    return new TaskAwareSagaRequest(requestId, serviceName, "rest", transaction, compensation, sagaTask, "{}");
+    return new RequestProcessTask(
+        new TaskAwareSagaRequest(requestId, serviceName, "rest", transaction, compensation, requestJson),
+        eventStore,
+        transport);
   }
 }
