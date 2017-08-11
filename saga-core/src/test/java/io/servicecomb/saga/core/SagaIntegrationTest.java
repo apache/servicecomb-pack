@@ -525,7 +525,7 @@ public class SagaIntegrationTest {
       Compensation compensation,
       SagaTask sagaTask) {
 
-    return new TaskAwareSagaRequest(request, transaction, compensation, sagaTask);
+    return new TaskAwareSagaRequest(request, transaction, compensation, sagaTask, "{}");
   }
 
   private TaskAwareSagaRequest sagaRequest(String requestId,
@@ -534,6 +534,6 @@ public class SagaIntegrationTest {
       Compensation compensation,
       SagaTask sagaTask) {
 
-    return new TaskAwareSagaRequest(requestId, serviceName, "rest", transaction, compensation, sagaTask);
+    return new TaskAwareSagaRequest(requestId, serviceName, "rest", transaction, compensation, sagaTask, "{}");
   }
 }

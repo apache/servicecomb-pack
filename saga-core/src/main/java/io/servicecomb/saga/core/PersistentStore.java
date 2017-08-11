@@ -16,14 +16,9 @@
 
 package io.servicecomb.saga.core;
 
-public interface EventStore extends Iterable<EventEnvelope> {
+import java.util.Map;
 
-  void offer(SagaEvent sagaEvent);
+public interface PersistentStore extends EventStore {
 
-  void populate(Iterable<EventEnvelope> events);
-
-  int size();
-
-  SagaEvent peek();
-
+  Map<Long,Iterable<EventEnvelope>> findPendingSagaEvents();
 }

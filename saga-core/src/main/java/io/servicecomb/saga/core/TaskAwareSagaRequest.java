@@ -24,10 +24,11 @@ public class TaskAwareSagaRequest implements SagaRequest {
   private final Transaction transaction;
   private final Compensation compensation;
   private final SagaTask sagaTask;
+  private final String requestJson;
 
 
-  public TaskAwareSagaRequest(String id, Transaction transaction, Compensation compensation, SagaTask sagaTask) {
-    this(id, "Saga", "nop", transaction, compensation, sagaTask);
+  public TaskAwareSagaRequest(String id, Transaction transaction, Compensation compensation, SagaTask sagaTask, String requestJson) {
+    this(id, "Saga", "nop", transaction, compensation, sagaTask, requestJson);
   }
 
   TaskAwareSagaRequest(String id,
@@ -35,7 +36,8 @@ public class TaskAwareSagaRequest implements SagaRequest {
       String type,
       Transaction transaction,
       Compensation compensation,
-      SagaTask sagaTask) {
+      SagaTask sagaTask,
+      String requestJson) {
 
     this.id = id;
     this.serviceName = serviceName;
@@ -43,10 +45,11 @@ public class TaskAwareSagaRequest implements SagaRequest {
     this.transaction = transaction;
     this.compensation = compensation;
     this.sagaTask = sagaTask;
+    this.requestJson = requestJson;
   }
 
-  public TaskAwareSagaRequest(SagaRequest request, SagaTask sagaTask) {
-    this(request.id(), request.serviceName(), request.type(), request.transaction(), request.compensation(), sagaTask);
+  public TaskAwareSagaRequest(SagaRequest request, SagaTask sagaTask, String requestJson) {
+    this(request.id(), request.serviceName(), request.type(), request.transaction(), request.compensation(), sagaTask, requestJson);
   }
 
   @Override
@@ -87,5 +90,10 @@ public class TaskAwareSagaRequest implements SagaRequest {
   @Override
   public String type() {
     return type;
+  }
+
+  @Override
+  public String json() {
+    return requestJson;
   }
 }

@@ -16,24 +16,44 @@
 
 package io.servicecomb.saga.core.application;
 
+import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.EventStore;
+import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.Saga;
+import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class SagaCoordinator {
 
   private final EventStore eventStore;
+  private final PersistentStore persistentStore;
   private final JsonRequestInterpreter requestInterpreter;
 
-  public SagaCoordinator(EventStore eventStore, JsonRequestInterpreter requestInterpreter) {
+  public SagaCoordinator(EventStore eventStore, PersistentStore persistentStore, JsonRequestInterpreter requestInterpreter) {
     this.eventStore = eventStore;
+    this.persistentStore = persistentStore;
     this.requestInterpreter = requestInterpreter;
   }
 
   public void run(String requestJson) {
+    // TODO: 8/11/2017 pass persistent store to saga too
     Saga saga = new Saga(eventStore, requestInterpreter.interpret(requestJson));
 
-    saga.play();
     saga.run();
+  }
+
+  public void reanimate() {
+    Map<Long, Iterable<EventEnvelope>> pendingSagaEvents = persistentStore.findPendingSagaEvents();
+    for (Entry<Long, Iterable<EventEnvelope>> entry : pendingSagaEvents.entrySet()) {
+      eventStore.populate(entry.getValue());
+      SagaEvent event = eventStore.peek();
+
+      Saga saga = new Saga(eventStore, requestInterpreter.interpret(event.payload().json()));
+
+      saga.play();
+      saga.run();
+    }
   }
 }

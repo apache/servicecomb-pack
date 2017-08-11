@@ -37,15 +37,15 @@ public class SagaTaskFactory {
     this.sagaEndTask = sagaEndTask;
   }
 
-  TaskAwareSagaRequest newStartTask() {
-    return new TaskAwareSagaRequest("saga-start", SAGA_START_TRANSACTION, SAGA_START_COMPENSATION, sagaStartTask);
+  TaskAwareSagaRequest newStartTask(String requestJson) {
+    return new TaskAwareSagaRequest("saga-start", SAGA_START_TRANSACTION, SAGA_START_COMPENSATION, sagaStartTask, requestJson);
   }
 
-  TaskAwareSagaRequest newEndTask() {
-    return new TaskAwareSagaRequest("saga-end", SAGA_END_TRANSACTION, SAGA_END_COMPENSATION, sagaEndTask);
+  TaskAwareSagaRequest newEndTask(String requestJson) {
+    return new TaskAwareSagaRequest("saga-end", SAGA_END_TRANSACTION, SAGA_END_COMPENSATION, sagaEndTask, requestJson);
   }
 
-  TaskAwareSagaRequest newRequestTask(SagaRequest sagaRequest) {
-    return new TaskAwareSagaRequest(sagaRequest, sagaRequestTask);
+  TaskAwareSagaRequest newRequestTask(SagaRequest sagaRequest, String requests) {
+    return new TaskAwareSagaRequest(sagaRequest, sagaRequestTask, requests);
   }
 }

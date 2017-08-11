@@ -33,4 +33,8 @@ public interface SagaRequest {
   String id();
 
   String type();
+
+  default String json() {
+    return "{}";
+  }
 }

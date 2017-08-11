@@ -19,9 +19,13 @@ package io.servicecomb.saga.core;
 import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
 import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonMap;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import io.servicecomb.saga.core.application.SagaCoordinator;
 import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
@@ -31,11 +35,10 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 public class SagaCoordinatorTest {
 
-  private final Transport transport = Mockito.mock(Transport.class);
+  private final Transport transport = mock(Transport.class);
 
   private static final String requestJson = "[\n"
       + "  {\n"
@@ -53,11 +56,13 @@ public class SagaCoordinatorTest {
       + "]\n";
 
   private final EventStore eventStore = new EmbeddedEventStore();
+  private final PersistentStore persistentStore = mock(PersistentStore.class);
 
   private final TaskAwareSagaRequest sagaStartRequest = sagaStartRequest();
 
   private final SagaCoordinator coordinator = new SagaCoordinator(
       eventStore,
+      persistentStore,
       new JsonRequestInterpreter(
           new SagaTaskFactory(
               new SagaStartTask(eventStore),
@@ -68,8 +73,24 @@ public class SagaCoordinatorTest {
 
   @Test
   public void recoverSagaWithEventsFromEventStore() {
-    eventStore.offer(new SagaStartedEvent(sagaStartRequest));
+    when(persistentStore.findPendingSagaEvents()).thenReturn(
+        singletonMap(1L, singleton(
+            new EventEnvelope(1L, new SagaStartedEvent(sagaStartRequest)))));
 
+    coordinator.reanimate();
+
+    assertThat(eventStore, contains(
+        eventWith(1L, "saga-start", "Saga", "nop", "/", "nop", "/", SagaStartedEvent.class),
+        eventWith(2L, "request-1", "aaa", "post", "/rest/as", "delete", "/rest/as", TransactionStartedEvent.class),
+        eventWith(3L, "request-1", "aaa", "post", "/rest/as", "delete", "/rest/as", TransactionEndedEvent.class),
+        eventWith(4L, "saga-end", "Saga", "nop", "/", "nop", "/", SagaEndedEvent.class)
+    ));
+
+    verify(transport).with("aaa", "/rest/as", "post", emptyMap());
+  }
+
+  @Test
+  public void runSagaWithEventStore() {
     coordinator.run(requestJson);
 
     assertThat(eventStore, contains(
@@ -87,7 +108,7 @@ public class SagaCoordinatorTest {
         "saga-start",
         SAGA_START_TRANSACTION,
         SAGA_START_COMPENSATION,
-        new SagaStartTask(eventStore));
+        new SagaStartTask(eventStore), requestJson);
   }
 
   private Matcher<EventEnvelope> eventWith(

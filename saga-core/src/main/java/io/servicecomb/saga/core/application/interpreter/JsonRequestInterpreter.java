@@ -38,9 +38,9 @@ public class JsonRequestInterpreter {
     try {
       JsonSagaRequest[] sagaRequests = objectMapper.readValue(requests, JsonSagaRequest[].class);
 
-      Map<String, Node<SagaRequest>> requestNodes = requestsToNodes(sagaRequests);
+      Map<String, Node<SagaRequest>> requestNodes = requestsToNodes(sagaRequests, requests);
 
-      return linkNodesToGraph(sagaRequests, requestNodes);
+      return linkNodesToGraph(sagaRequests, requestNodes, requests);
     } catch (IOException e) {
       throw new SagaException("Failed to interpret JSON " + requests, e);
     }
@@ -48,10 +48,11 @@ public class JsonRequestInterpreter {
 
   private SingleLeafDirectedAcyclicGraph<SagaRequest> linkNodesToGraph(
       JsonSagaRequest[] sagaRequests,
-      Map<String, Node<SagaRequest>> requestNodes) {
+      Map<String, Node<SagaRequest>> requestNodes,
+      String requestJson) {
 
-    Node<SagaRequest> root = rootNode(0);
-    Node<SagaRequest> leaf = leafNode(sagaRequests.length + 1);
+    Node<SagaRequest> root = rootNode(0, requestJson);
+    Node<SagaRequest> leaf = leafNode(sagaRequests.length + 1, requestJson);
 
     for (JsonSagaRequest sagaRequest : sagaRequests) {
       if (isOrphan(sagaRequest)) {
@@ -70,30 +71,30 @@ public class JsonRequestInterpreter {
     return new SingleLeafDirectedAcyclicGraph<>(root, leaf);
   }
 
-  private Node<SagaRequest> rootNode(int id) {
+  private Node<SagaRequest> rootNode(int id, String requestJson) {
     return new Node<>(
         id,
-        sagaTaskFactory.newStartTask());
+        sagaTaskFactory.newStartTask(requestJson));
   }
 
-  private Node<SagaRequest> leafNode(int id) {
+  private Node<SagaRequest> leafNode(int id, String requestJson) {
     return new Node<>(
         id,
-        sagaTaskFactory.newEndTask());
+        sagaTaskFactory.newEndTask(requestJson));
   }
 
   private boolean isOrphan(JsonSagaRequest sagaRequest) {
     return sagaRequest.parents().length == 0;
   }
 
-  private Map<String, Node<SagaRequest>> requestsToNodes(SagaRequest[] sagaRequests) {
+  private Map<String, Node<SagaRequest>> requestsToNodes(SagaRequest[] sagaRequests, String requests) {
     long index = 1;
     Map<String, Node<SagaRequest>> requestMap = new HashMap<>();
     for (SagaRequest sagaRequest : sagaRequests) {
       if (requestMap.containsKey(sagaRequest.id())) {
         throw new SagaException("Failed to interpret requests with duplicate request id: " + sagaRequest.id());
       }
-      requestMap.put(sagaRequest.id(), new Node<>(index++, sagaTaskFactory.newRequestTask(sagaRequest)));
+      requestMap.put(sagaRequest.id(), new Node<>(index++, sagaTaskFactory.newRequestTask(sagaRequest, requests)));
     }
     return requestMap;
   }
