@@ -65,4 +65,24 @@ public class JsonTransactionTest {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
     }
   }
+
+  @Test
+  public void blowsUpWhenMethodIsNotSupported() {
+    try {
+      new JsonTransaction("blah", "foo", emptyMap());
+      expectFailing(IllegalArgumentException.class);
+    } catch (IllegalArgumentException e) {
+      assertThat(e.getMessage(), is("Unsupported method foo"));
+    }
+  }
+
+  @Test
+  public void blowsUpWhenMethodIsNull() {
+    try {
+      new JsonTransaction("blah", null, emptyMap());
+      expectFailing(IllegalArgumentException.class);
+    } catch (IllegalArgumentException e) {
+      assertThat(e.getMessage(), is("Unsupported method null"));
+    }
+  }
 }

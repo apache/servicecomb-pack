@@ -42,7 +42,6 @@ import org.mockito.Mockito;
 
 public class JsonRequestInterpreterTest {
 
-  // TODO: 8/7/2017 make sure rest request with valid methods in deserialization
   private static final String requests = "[\n"
       + "  {\n"
       + "    \"id\": \"request-aaa\",\n"

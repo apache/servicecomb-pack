@@ -16,14 +16,29 @@
 
 package io.servicecomb.saga.core.application.interpreter;
 
+import static java.util.Arrays.asList;
+
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 class RestRequestChecker {
+
+  private static final Set<String> validMethods = new HashSet<>(asList(
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+  ));
 
   private RestRequestChecker() {
   }
 
   static void checkParameters(String method, Map<String, Map<String, String>> params) {
+    if (method == null || !validMethods.contains(method.toUpperCase())) {
+      throw new IllegalArgumentException("Unsupported method " + method);
+    }
+
     if (isDeleteOrGet(method) && hasBody(params)) {
       throw new IllegalArgumentException("GET & DELETE request cannot enclose a body");
     }
