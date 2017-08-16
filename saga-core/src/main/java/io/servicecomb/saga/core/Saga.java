@@ -109,9 +109,9 @@ public class Saga {
     log.info("Completed playing events");
   }
 
-  private void gatherEvents(Iterable<EventEnvelope> events) {
-    for (EventEnvelope event : events) {
-      event.event.gatherTo(hangingOperations, abortedTransactions, completedTransactions, completedCompensations);
+  private void gatherEvents(Iterable<SagaEvent> events) {
+    for (SagaEvent event : events) {
+      event.gatherTo(hangingOperations, abortedTransactions, completedTransactions, completedCompensations);
     }
   }
 

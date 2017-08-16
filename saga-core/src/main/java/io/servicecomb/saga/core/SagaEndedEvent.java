@@ -20,8 +20,8 @@ import java.util.Set;
 
 class SagaEndedEvent extends SagaEvent {
 
-  SagaEndedEvent(SagaRequest sagaTask) {
-    super(sagaTask);
+  SagaEndedEvent(long sagaId, SagaRequest sagaTask) {
+    super(sagaId, sagaTask);
   }
 
   @Override

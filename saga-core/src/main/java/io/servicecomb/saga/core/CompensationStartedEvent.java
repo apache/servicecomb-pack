@@ -20,8 +20,8 @@ import java.util.Set;
 
 class CompensationStartedEvent extends SagaEvent {
 
-  CompensationStartedEvent(SagaRequest compensation) {
-    super(compensation);
+  CompensationStartedEvent(long sagaId, SagaRequest compensation) {
+    super(sagaId, compensation);
   }
 
   @Override

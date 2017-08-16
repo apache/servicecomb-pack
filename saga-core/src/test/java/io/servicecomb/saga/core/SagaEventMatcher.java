@@ -20,42 +20,46 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-class SagaEventMatcher extends TypeSafeMatcher<EventEnvelope> {
+class SagaEventMatcher extends TypeSafeMatcher<SagaEvent> {
 
-  private final long id;
+  private final long sagaId;
   private final Operation operation;
   private final Class<?> aClass;
 
-  static Matcher<EventEnvelope> eventWith(long id, Operation operation, Class<?> aClass) {
-    return new SagaEventMatcher(id, operation, aClass);
+  static Matcher<SagaEvent> eventWith(long sagaId, Operation operation, Class<?> aClass) {
+    return new SagaEventMatcher(sagaId, operation, aClass);
   }
 
-  private SagaEventMatcher(long id, Operation operation, Class<?> aClass) {
-    this.id = id;
+  static Matcher<SagaEvent> eventWith(Operation operation, Class<?> aClass) {
+    return eventWith(0L, operation, aClass);
+  }
+
+  private SagaEventMatcher(long sagaId, Operation operation, Class<?> aClass) {
+    this.sagaId = sagaId;
     this.operation = operation;
     this.aClass = aClass;
   }
 
   @Override
-  protected void describeMismatchSafely(EventEnvelope item, Description description) {
+  protected void describeMismatchSafely(SagaEvent item, Description description) {
     description
-        .appendText("EventEnvelope {id=" + item.id + ", operation=" + operation(item) + ", class=" + item.event.getClass());
+        .appendText("SagaEvent {sagaId=" + item.sagaId + ", operation=" + operation(item) + ", class=" + item.getClass());
   }
 
   @Override
-  protected boolean matchesSafely(EventEnvelope envelope) {
-    return envelope.id == id
+  protected boolean matchesSafely(SagaEvent envelope) {
+    return envelope.sagaId == sagaId
         && operation(envelope).equals(operation)
-        && envelope.event.getClass().equals(aClass);
+        && envelope.getClass().equals(aClass);
   }
 
   @Override
   public void describeTo(Description description) {
     description
-        .appendText("EventEnvelope {id=" + id + ", operation=" + operation + ", class=" + aClass.getCanonicalName());
+        .appendText("SagaEvent {sagaId=" + sagaId + ", operation=" + operation + ", class=" + aClass.getCanonicalName());
   }
 
-  private Operation operation(EventEnvelope envelope) {
-    return operation instanceof Compensation ? envelope.event.payload().compensation() : envelope.event.payload().transaction();
+  private Operation operation(SagaEvent envelope) {
+    return operation instanceof Compensation ? envelope.payload().compensation() : envelope.payload().transaction();
   }
 }

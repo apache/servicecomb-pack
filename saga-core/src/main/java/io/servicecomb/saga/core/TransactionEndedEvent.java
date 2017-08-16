@@ -22,12 +22,12 @@ class TransactionEndedEvent extends SagaEvent {
 
   private final SagaResponse response;
 
-  TransactionEndedEvent(SagaRequest request) {
-    this(request, SagaResponse.EMPTY_RESPONSE);
+  TransactionEndedEvent(long sagaId, SagaRequest request) {
+    this(sagaId, request, SagaResponse.EMPTY_RESPONSE);
   }
 
-  TransactionEndedEvent(SagaRequest request, SagaResponse response) {
-    super(request);
+  TransactionEndedEvent(long sagaId, SagaRequest request, SagaResponse response) {
+    super(sagaId, request);
     this.response = response;
   }
 

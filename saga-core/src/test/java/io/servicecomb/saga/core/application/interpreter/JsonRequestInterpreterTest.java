@@ -23,6 +23,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+import com.seanyinx.github.unit.scaffolding.Randomness;
 import io.servicecomb.saga.core.SagaException;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.dag.ByLevelTraveller;
@@ -139,45 +140,46 @@ public class JsonRequestInterpreterTest {
       + "  }\n"
       + "]\n";
 
+  private final long sagaId = Randomness.nextLong();
   private final JsonRequestInterpreter interpreter = new JsonRequestInterpreter(
       new SagaTaskFactory(null, null));
 
   @Test
   public void interpretsParallelRequests() {
-    SingleLeafDirectedAcyclicGraph<SagaRequest> tasks = interpreter.interpret(requests);
+    SingleLeafDirectedAcyclicGraph<SagaRequest> tasks = interpreter.interpret(sagaId, requests);
 
     Traveller<SagaRequest> traveller = new ByLevelTraveller<>(tasks, new FromRootTraversalDirection<>());
     Collection<Node<SagaRequest>> nodes = traveller.nodes();
 
     traveller.next();
-    assertThat(nodes, contains(taskWith("Saga", "nop", "/", "nop", "/")));
+    assertThat(nodes, contains(taskWith(sagaId, "Saga", "nop", "/", "nop", "/")));
     nodes.clear();
 
     traveller.next();
     assertThat(nodes, contains(
-        taskWith("aaa", "rest", "post", "/rest/as", "delete", "/rest/as",
+        taskWith(sagaId, "aaa", "rest", "post", "/rest/as", "delete", "/rest/as",
             mapOf("form", mapOf("foo", "as")),
             mapOf("query", mapOf("bar", "as"))),
-        taskWith("bbb", "rest", "post", "/rest/bs", "delete", "/rest/bs",
+        taskWith(sagaId, "bbb", "rest", "post", "/rest/bs", "delete", "/rest/bs",
             mapOf("query", mapOf("foo", "bs"), "json", mapOf("body", "{ \"bar\": \"bs\" }")))
     ));
     nodes.clear();
 
     traveller.next();
     assertThat(nodes, contains(
-        taskWith("ccc", "rest", "post", "/rest/cs", "delete", "/rest/cs",
+        taskWith(sagaId, "ccc", "rest", "post", "/rest/cs", "delete", "/rest/cs",
             mapOf("query", mapOf("foo", "cs"), "form", mapOf("bar", "cs")))
     ));
     nodes.clear();
 
     traveller.next();
-    assertThat(nodes, contains(taskWith("Saga", "nop", "/", "nop", "/")));
+    assertThat(nodes, contains(taskWith(sagaId, "Saga", "nop", "/", "nop", "/")));
   }
 
   @Test
   public void blowsUpWhenJsonIsInvalid() {
     try {
-      interpreter.interpret("invalid-json");
+      interpreter.interpret(sagaId, "invalid-json");
       fail(SagaException.class.getSimpleName() + " is expected, but none thrown");
     } catch (SagaException e) {
       assertThat(e.getMessage(), is("Failed to interpret JSON invalid-json"));
@@ -187,7 +189,7 @@ public class JsonRequestInterpreterTest {
   @Test
   public void blowsUpWhenJsonContainsDuplicateRequestId() {
     try {
-      interpreter.interpret(requestsWithDuplicateId);
+      interpreter.interpret(sagaId, requestsWithDuplicateId);
       fail(SagaException.class.getSimpleName() + " is expected, but none thrown");
     } catch (SagaException e) {
       assertThat(e.getMessage(),
@@ -218,15 +220,17 @@ public class JsonRequestInterpreterTest {
   }
 
   private Matcher<? super Node<SagaRequest>> taskWith(
+      long sagaId,
       String name,
       String transactionMethod,
       String transactionPath,
       String compensationMethod,
       String compensationPath) {
-    return taskWith(name, "nop", transactionMethod, transactionPath, compensationMethod, compensationPath, emptyMap());
+    return taskWith(sagaId, name, "nop", transactionMethod, transactionPath, compensationMethod, compensationPath, emptyMap());
   }
 
   private Matcher<? super Node<SagaRequest>> taskWith(
+      long sagaId,
       String name,
       String type,
       String transactionMethod,
@@ -234,7 +238,9 @@ public class JsonRequestInterpreterTest {
       String compensationMethod,
       String compensationPath,
       Map<String, Map<String, String>> transactionParams) {
-    return taskWith(name,
+    return taskWith(
+        sagaId,
+        name,
         type,
         transactionMethod,
         transactionPath,
@@ -245,6 +251,7 @@ public class JsonRequestInterpreterTest {
   }
 
   private Matcher<? super Node<SagaRequest>> taskWith(
+      long sagaId,
       String name,
       String type,
       String transactionMethod,

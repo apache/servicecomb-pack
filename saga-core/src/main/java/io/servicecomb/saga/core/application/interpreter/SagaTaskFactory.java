@@ -34,15 +34,15 @@ public class SagaTaskFactory {
     this.transport = transport;
   }
 
-  SagaTask newStartTask(String requestJson) {
-    return new SagaStartTask(requestJson, eventStore);
+  SagaTask newStartTask(long sagaId, String requestJson) {
+    return new SagaStartTask(sagaId, requestJson, eventStore);
   }
 
-  SagaTask newEndTask() {
-    return new SagaEndTask(eventStore);
+  SagaTask newEndTask(long sagaId) {
+    return new SagaEndTask(sagaId, eventStore);
   }
 
-  SagaTask newRequestTask(SagaRequest sagaRequest) {
-    return new RequestProcessTask(sagaRequest, eventStore, transport);
+  SagaTask newRequestTask(long sagaId, SagaRequest sagaRequest) {
+    return new RequestProcessTask(sagaId, sagaRequest, eventStore, transport);
   }
 }

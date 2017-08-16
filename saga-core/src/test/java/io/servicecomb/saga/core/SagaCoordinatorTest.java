@@ -16,8 +16,6 @@
 
 package io.servicecomb.saga.core;
 
-import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
-import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonMap;
@@ -67,20 +65,21 @@ public class SagaCoordinatorTest {
           new SagaTaskFactory(eventStore, transport)
       )
   );
+  private final long sagaId = 1L;
 
   @Test
   public void recoverSagaWithEventsFromEventStore() {
     when(persistentStore.findPendingSagaEvents()).thenReturn(
         singletonMap(1L, singleton(
-            new EventEnvelope(1L, new SagaStartedEvent(sagaStartRequest)))));
+            new EventEnvelope(1L, new SagaStartedEvent(sagaId, sagaStartRequest)))));
 
     coordinator.reanimate();
 
     assertThat(eventStore, contains(
-        eventWith(1L, "saga-start", "Saga", "nop", "/", "nop", "/", SagaStartedEvent.class),
-        eventWith(2L, "request-1", "aaa", "post", "/rest/as", "delete", "/rest/as", TransactionStartedEvent.class),
-        eventWith(3L, "request-1", "aaa", "post", "/rest/as", "delete", "/rest/as", TransactionEndedEvent.class),
-        eventWith(4L, "saga-end", "Saga", "nop", "/", "nop", "/", SagaEndedEvent.class)
+        eventWith("saga-start", "Saga", "nop", "/", "nop", "/", SagaStartedEvent.class),
+        eventWith("request-1", "aaa", "post", "/rest/as", "delete", "/rest/as", TransactionStartedEvent.class),
+        eventWith("request-1", "aaa", "post", "/rest/as", "delete", "/rest/as", TransactionEndedEvent.class),
+        eventWith("saga-end", "Saga", "nop", "/", "nop", "/", SagaEndedEvent.class)
     ));
 
     verify(transport).with("aaa", "/rest/as", "post", emptyMap());
@@ -91,10 +90,10 @@ public class SagaCoordinatorTest {
     coordinator.run(requestJson);
 
     assertThat(eventStore, contains(
-        eventWith(1L, "saga-start", "Saga", "nop", "/", "nop", "/", SagaStartedEvent.class),
-        eventWith(2L, "request-1", "aaa", "post", "/rest/as", "delete", "/rest/as", TransactionStartedEvent.class),
-        eventWith(3L, "request-1", "aaa", "post", "/rest/as", "delete", "/rest/as", TransactionEndedEvent.class),
-        eventWith(4L, "saga-end", "Saga", "nop", "/", "nop", "/", SagaEndedEvent.class)
+        eventWith("saga-start", "Saga", "nop", "/", "nop", "/", SagaStartedEvent.class),
+        eventWith("request-1", "aaa", "post", "/rest/as", "delete", "/rest/as", TransactionStartedEvent.class),
+        eventWith("request-1", "aaa", "post", "/rest/as", "delete", "/rest/as", TransactionEndedEvent.class),
+        eventWith("saga-end", "Saga", "nop", "/", "nop", "/", SagaEndedEvent.class)
     ));
 
     verify(transport).with("aaa", "/rest/as", "post", emptyMap());
@@ -102,12 +101,12 @@ public class SagaCoordinatorTest {
 
   private SagaRequest sagaStartRequest() {
     return new SagaStartTask(
+        sagaId,
         requestJson,
         eventStore);
   }
 
-  private Matcher<EventEnvelope> eventWith(
-      long eventId,
+  private Matcher<SagaEvent> eventWith(
       String requestId,
       String serviceName,
       String transactionMethod,
@@ -116,13 +115,12 @@ public class SagaCoordinatorTest {
       String compensationPath,
       Class<?> type) {
 
-    return new TypeSafeMatcher<EventEnvelope>() {
+    return new TypeSafeMatcher<SagaEvent>() {
       @Override
-      protected boolean matchesSafely(EventEnvelope envelope) {
-        SagaRequest request = envelope.event.payload();
-        return envelope.id == eventId
-            && requestId.equals(request.id())
-            && envelope.event.getClass().equals(type)
+      protected boolean matchesSafely(SagaEvent event) {
+        SagaRequest request = event.payload();
+        return requestId.equals(request.id())
+            && event.getClass().equals(type)
             && request.serviceName().equals(serviceName)
             && request.transaction().path().equals(transactionPath)
             && request.transaction().method().equals(transactionMethod)
@@ -131,10 +129,10 @@ public class SagaCoordinatorTest {
       }
 
       @Override
-      protected void describeMismatchSafely(EventEnvelope item, Description mismatchDescription) {
-        SagaRequest request = item.event.payload();
+      protected void describeMismatchSafely(SagaEvent item, Description mismatchDescription) {
+        SagaRequest request = item.payload();
         mismatchDescription.appendText(
-            "EventEnvelope {id=" + item.id
+            "SagaEvent {sagaId=" + item.sagaId
                 + "SagaRequest {id=" + request.id()
                 + "serviceName=" + request.serviceName()
                 + ", transaction=" + request.transaction().method() + ":" + request.transaction().path()
@@ -144,7 +142,7 @@ public class SagaCoordinatorTest {
       @Override
       public void describeTo(Description description) {
         description.appendText(
-            "EventEnvelope {id=" + eventId
+            "SagaEvent {sagaId=" + sagaId
                 + "SagaRequest {id=" + requestId
                 + "serviceName=" + serviceName
                 + ", transaction=" + transactionMethod + ":" + transactionPath

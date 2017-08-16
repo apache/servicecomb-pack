@@ -30,6 +30,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.seanyinx.github.unit.scaffolding.Randomness;
 import io.servicecomb.saga.core.application.interpreter.JsonSagaRequest;
 import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
@@ -42,6 +43,7 @@ import org.junit.Test;
 import org.mockito.stubbing.Answer;
 
 public class SagaIntegrationTest {
+  private static final long sagaId = Randomness.nextLong();
 
   private final IdGenerator<Long> idGenerator = new LongIdGenerator();
   private final EventStore eventStore = new EmbeddedEventStore();
@@ -56,11 +58,11 @@ public class SagaIntegrationTest {
 
   private final String requestJson = "{}";
   private final Transport transport = mock(Transport.class);
-  private final SagaRequest sagaStartRequest = new SagaStartTask(requestJson, eventStore);
+  private final SagaRequest sagaStartRequest = new SagaStartTask(sagaId, requestJson, eventStore);
   private final SagaRequest request1 = sagaTask("request1", "service1", transaction1, compensation1);
   private final SagaRequest request2 = sagaTask("request2", "service2", transaction2, compensation2);
   private final SagaRequest request3 = sagaTask("request3", "service3", transaction3, compensation3);
-  private final SagaRequest sagaEndRequest = new SagaEndTask(eventStore);
+  private final SagaRequest sagaEndRequest = new SagaEndTask(sagaId, eventStore);
 
   private final RuntimeException exception = new RuntimeException("oops");
 
@@ -110,12 +112,12 @@ public class SagaIntegrationTest {
     saga.run();
 
     assertThat(eventStore, contains(
-        eventWith(1L, SAGA_START_TRANSACTION, SagaStartedEvent.class),
-        eventWith(2L, transaction1, TransactionStartedEvent.class),
-        eventWith(3L, transaction1, TransactionEndedEvent.class),
-        eventWith(4L, transaction2, TransactionStartedEvent.class),
-        eventWith(5L, transaction2, TransactionEndedEvent.class),
-        eventWith(6L, SAGA_END_TRANSACTION, SagaEndedEvent.class)
+        eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionEndedEvent.class),
+        eventWith(sagaId, transaction2, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction2, TransactionEndedEvent.class),
+        eventWith(sagaId, SAGA_END_TRANSACTION, SagaEndedEvent.class)
     ));
 
     verify(transport).with(request1.serviceName(), transaction1.path(), transaction1.method(), transaction1.params());
@@ -153,18 +155,18 @@ public class SagaIntegrationTest {
     saga.run();
 
     assertThat(eventStore, contains(
-        eventWith(1L, SAGA_START_TRANSACTION, SagaStartedEvent.class),
-        eventWith(2L, transaction1, TransactionStartedEvent.class),
-        eventWith(3L, transaction1, TransactionEndedEvent.class),
-        anyOf(eventWith(4L, transaction2, TransactionStartedEvent.class), eventWith(4L, transaction3, TransactionStartedEvent.class)),
-        anyOf(eventWith(5L, transaction2, TransactionStartedEvent.class), eventWith(5L, transaction3, TransactionStartedEvent.class)),
-        eventWith(6L, transaction3, TransactionEndedEvent.class),
-        eventWith(7L, transaction2, TransactionAbortedEvent.class),
-        eventWith(8L, compensation3, CompensationStartedEvent.class),
-        eventWith(9L, compensation3, CompensationEndedEvent.class),
-        eventWith(10L, compensation1, CompensationStartedEvent.class),
-        eventWith(11L, compensation1, CompensationEndedEvent.class),
-        eventWith(12L, SAGA_START_COMPENSATION, SagaEndedEvent.class)));
+        eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionEndedEvent.class),
+        anyOf(eventWith(sagaId, transaction2, TransactionStartedEvent.class), eventWith(sagaId, transaction3, TransactionStartedEvent.class)),
+        anyOf(eventWith(sagaId, transaction2, TransactionStartedEvent.class), eventWith(sagaId, transaction3, TransactionStartedEvent.class)),
+        eventWith(sagaId, transaction3, TransactionEndedEvent.class),
+        eventWith(sagaId, transaction2, TransactionAbortedEvent.class),
+        eventWith(sagaId, compensation3, CompensationStartedEvent.class),
+        eventWith(sagaId, compensation3, CompensationEndedEvent.class),
+        eventWith(sagaId, compensation1, CompensationStartedEvent.class),
+        eventWith(sagaId, compensation1, CompensationEndedEvent.class),
+        eventWith(sagaId, SAGA_START_COMPENSATION, SagaEndedEvent.class)));
 
     verify(transport).with(request1.serviceName(), transaction1.path(), transaction1.method(), transaction1.params());
     verify(transport).with(request2.serviceName(), transaction2.path(), transaction2.method(), transaction2.params());
@@ -205,23 +207,23 @@ public class SagaIntegrationTest {
 
     // the ordering of events may not be consistence due to concurrent processing of requests
     assertThat(eventStore, contains(
-        eventWith(1L, SAGA_START_TRANSACTION, SagaStartedEvent.class),
-        eventWith(2L, transaction1, TransactionStartedEvent.class),
-        eventWith(3L, transaction1, TransactionEndedEvent.class),
+        eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionEndedEvent.class),
         anyOf(
-            eventWith(4L, transaction2, TransactionStartedEvent.class),
-            eventWith(4L, transaction3, TransactionStartedEvent.class)),
+            eventWith(sagaId, transaction2, TransactionStartedEvent.class),
+            eventWith(sagaId, transaction3, TransactionStartedEvent.class)),
         anyOf(
-            eventWith(5L, transaction3, TransactionStartedEvent.class),
-            eventWith(5L, transaction2, TransactionStartedEvent.class)),
-        eventWith(6L, transaction3, TransactionAbortedEvent.class),
-        eventWith(7L, transaction2, TransactionStartedEvent.class),
-        eventWith(8L, transaction2, TransactionEndedEvent.class),
-        eventWith(9L, compensation2, CompensationStartedEvent.class),
-        eventWith(10L, compensation2, CompensationEndedEvent.class),
-        eventWith(11L, compensation1, CompensationStartedEvent.class),
-        eventWith(12L, compensation1, CompensationEndedEvent.class),
-        eventWith(13L, SAGA_START_COMPENSATION, SagaEndedEvent.class)));
+            eventWith(sagaId, transaction3, TransactionStartedEvent.class),
+            eventWith(sagaId, transaction2, TransactionStartedEvent.class)),
+        eventWith(sagaId, transaction3, TransactionAbortedEvent.class),
+        eventWith(sagaId, transaction2, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction2, TransactionEndedEvent.class),
+        eventWith(sagaId, compensation2, CompensationStartedEvent.class),
+        eventWith(sagaId, compensation2, CompensationEndedEvent.class),
+        eventWith(sagaId, compensation1, CompensationStartedEvent.class),
+        eventWith(sagaId, compensation1, CompensationEndedEvent.class),
+        eventWith(sagaId, SAGA_START_COMPENSATION, SagaEndedEvent.class)));
 
     verify(transport).with(request1.serviceName(), transaction1.path(), transaction1.method(), transaction1.params());
     verify(transport, times(2))
@@ -248,14 +250,14 @@ public class SagaIntegrationTest {
     saga.run();
 
     assertThat(eventStore, contains(
-        eventWith(1L, SAGA_START_TRANSACTION, SagaStartedEvent.class),
-        eventWith(2L, transaction1, TransactionStartedEvent.class),
-        eventWith(3L, transaction1, TransactionEndedEvent.class),
-        eventWith(4L, transaction2, TransactionStartedEvent.class),
-        eventWith(5L, transaction2, TransactionStartedEvent.class),
-        eventWith(6L, transaction2, TransactionStartedEvent.class),
-        eventWith(7L, transaction2, TransactionEndedEvent.class),
-        eventWith(8L, SAGA_END_TRANSACTION, SagaEndedEvent.class)
+        eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionEndedEvent.class),
+        eventWith(sagaId, transaction2, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction2, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction2, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction2, TransactionEndedEvent.class),
+        eventWith(sagaId, SAGA_END_TRANSACTION, SagaEndedEvent.class)
     ));
 
     verify(transport).with(request1.serviceName(), transaction1.path(), transaction1.method(), transaction1.params());
@@ -272,11 +274,11 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaStartRequest)),
-        envelope(new TransactionStartedEvent(request1)),
-        envelope(new TransactionEndedEvent(request1)),
-        envelope(new TransactionStartedEvent(request2)),
-        envelope(new TransactionEndedEvent(request2))
+        envelope(new SagaStartedEvent(sagaId, sagaStartRequest)),
+        envelope(new TransactionStartedEvent(sagaId, request1)),
+        envelope(new TransactionEndedEvent(sagaId, request1)),
+        envelope(new TransactionStartedEvent(sagaId, request2)),
+        envelope(new TransactionEndedEvent(sagaId, request2))
     );
 
     eventStore.populate(events);
@@ -284,14 +286,14 @@ public class SagaIntegrationTest {
 
     saga.run();
     assertThat(eventStore, contains(
-        eventWith(1L, SAGA_START_TRANSACTION, SagaStartedEvent.class),
-        eventWith(2L, transaction1, TransactionStartedEvent.class),
-        eventWith(3L, transaction1, TransactionEndedEvent.class),
-        eventWith(4L, transaction2, TransactionStartedEvent.class),
-        eventWith(5L, transaction2, TransactionEndedEvent.class),
-        eventWith(6L, transaction3, TransactionStartedEvent.class),
-        eventWith(7L, transaction3, TransactionEndedEvent.class),
-        eventWith(8L, SAGA_END_TRANSACTION, SagaEndedEvent.class)
+        eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionEndedEvent.class),
+        eventWith(sagaId, transaction2, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction2, TransactionEndedEvent.class),
+        eventWith(sagaId, transaction3, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction3, TransactionEndedEvent.class),
+        eventWith(sagaId, SAGA_END_TRANSACTION, SagaEndedEvent.class)
     ));
 
     verify(transport, never()).with(request1.serviceName(), transaction1.path(), transaction1.method(), transaction1.params());
@@ -308,12 +310,12 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaStartRequest)),
-        envelope(new TransactionStartedEvent(request1)),
-        envelope(new TransactionEndedEvent(request1)),
-        envelope(new TransactionStartedEvent(request2)),
-        envelope(new TransactionEndedEvent(request2)),
-        envelope(new TransactionStartedEvent(request3))
+        envelope(new SagaStartedEvent(sagaId, sagaStartRequest)),
+        envelope(new TransactionStartedEvent(sagaId, request1)),
+        envelope(new TransactionEndedEvent(sagaId, request1)),
+        envelope(new TransactionStartedEvent(sagaId, request2)),
+        envelope(new TransactionEndedEvent(sagaId, request2)),
+        envelope(new TransactionStartedEvent(sagaId, request3))
     );
 
     eventStore.populate(events);
@@ -321,15 +323,15 @@ public class SagaIntegrationTest {
 
     saga.run();
     assertThat(eventStore, contains(
-        eventWith(1L, SAGA_START_TRANSACTION, SagaStartedEvent.class),
-        eventWith(2L, transaction1, TransactionStartedEvent.class),
-        eventWith(3L, transaction1, TransactionEndedEvent.class),
-        eventWith(4L, transaction2, TransactionStartedEvent.class),
-        eventWith(5L, transaction2, TransactionEndedEvent.class),
-        eventWith(6L, transaction3, TransactionStartedEvent.class),
-        eventWith(7L, transaction3, TransactionStartedEvent.class),
-        eventWith(8L, transaction3, TransactionEndedEvent.class),
-        eventWith(9L, SAGA_END_TRANSACTION, SagaEndedEvent.class)
+        eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionEndedEvent.class),
+        eventWith(sagaId, transaction2, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction2, TransactionEndedEvent.class),
+        eventWith(sagaId, transaction3, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction3, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction3, TransactionEndedEvent.class),
+        eventWith(sagaId, SAGA_END_TRANSACTION, SagaEndedEvent.class)
     ));
 
     verify(transport, never()).with(request1.serviceName(), transaction1.path(), transaction1.method(), transaction1.params());
@@ -346,13 +348,13 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaStartRequest)),
-        envelope(new TransactionStartedEvent(request1)),
-        envelope(new TransactionEndedEvent(request1)),
-        envelope(new TransactionStartedEvent(request2)),
-        envelope(new TransactionEndedEvent(request2)),
-        envelope(new TransactionStartedEvent(request3)),
-        envelope(new TransactionAbortedEvent(request3, exception))
+        envelope(new SagaStartedEvent(sagaId, sagaStartRequest)),
+        envelope(new TransactionStartedEvent(sagaId, request1)),
+        envelope(new TransactionEndedEvent(sagaId, request1)),
+        envelope(new TransactionStartedEvent(sagaId, request2)),
+        envelope(new TransactionEndedEvent(sagaId, request2)),
+        envelope(new TransactionStartedEvent(sagaId, request3)),
+        envelope(new TransactionAbortedEvent(sagaId, request3, exception))
     );
 
     eventStore.populate(events);
@@ -360,18 +362,18 @@ public class SagaIntegrationTest {
 
     saga.run();
     assertThat(eventStore, contains(
-        eventWith(1L, SAGA_START_TRANSACTION, SagaStartedEvent.class),
-        eventWith(2L, transaction1, TransactionStartedEvent.class),
-        eventWith(3L, transaction1, TransactionEndedEvent.class),
-        eventWith(4L, transaction2, TransactionStartedEvent.class),
-        eventWith(5L, transaction2, TransactionEndedEvent.class),
-        eventWith(6L, transaction3, TransactionStartedEvent.class),
-        eventWith(7L, transaction3, TransactionAbortedEvent.class),
-        eventWith(8L, compensation2, CompensationStartedEvent.class),
-        eventWith(9L, compensation2, CompensationEndedEvent.class),
-        eventWith(10L, compensation1, CompensationStartedEvent.class),
-        eventWith(11L, compensation1, CompensationEndedEvent.class),
-        eventWith(12L, SAGA_START_COMPENSATION, SagaEndedEvent.class)
+        eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionEndedEvent.class),
+        eventWith(sagaId, transaction2, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction2, TransactionEndedEvent.class),
+        eventWith(sagaId, transaction3, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction3, TransactionAbortedEvent.class),
+        eventWith(sagaId, compensation2, CompensationStartedEvent.class),
+        eventWith(sagaId, compensation2, CompensationEndedEvent.class),
+        eventWith(sagaId, compensation1, CompensationStartedEvent.class),
+        eventWith(sagaId, compensation1, CompensationEndedEvent.class),
+        eventWith(sagaId, SAGA_START_COMPENSATION, SagaEndedEvent.class)
     ));
 
     verify(transport, never()).with(request1.serviceName(), transaction1.path(), transaction1.method(), transaction1.params());
@@ -388,15 +390,15 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaStartRequest)),
-        envelope(new TransactionStartedEvent(request1)),
-        envelope(new TransactionEndedEvent(request1)),
-        envelope(new TransactionStartedEvent(request2)),
-        envelope(new TransactionEndedEvent(request2)),
-        envelope(new TransactionStartedEvent(request3)),
-        envelope(new TransactionEndedEvent(request3)),
-        envelope(new CompensationStartedEvent(request2)),
-        envelope(new CompensationEndedEvent(request2))
+        envelope(new SagaStartedEvent(sagaId, sagaStartRequest)),
+        envelope(new TransactionStartedEvent(sagaId, request1)),
+        envelope(new TransactionEndedEvent(sagaId, request1)),
+        envelope(new TransactionStartedEvent(sagaId, request2)),
+        envelope(new TransactionEndedEvent(sagaId, request2)),
+        envelope(new TransactionStartedEvent(sagaId, request3)),
+        envelope(new TransactionEndedEvent(sagaId, request3)),
+        envelope(new CompensationStartedEvent(sagaId, request2)),
+        envelope(new CompensationEndedEvent(sagaId, request2))
     );
 
     eventStore.populate(events);
@@ -404,20 +406,20 @@ public class SagaIntegrationTest {
 
     saga.run();
     assertThat(eventStore, contains(
-        eventWith(1L, SAGA_START_TRANSACTION, SagaStartedEvent.class),
-        eventWith(2L, transaction1, TransactionStartedEvent.class),
-        eventWith(3L, transaction1, TransactionEndedEvent.class),
-        eventWith(4L, transaction2, TransactionStartedEvent.class),
-        eventWith(5L, transaction2, TransactionEndedEvent.class),
-        eventWith(6L, transaction3, TransactionStartedEvent.class),
-        eventWith(7L, transaction3, TransactionEndedEvent.class),
-        eventWith(8L, compensation2, CompensationStartedEvent.class),
-        eventWith(9L, compensation2, CompensationEndedEvent.class),
-        eventWith(10L, compensation3, CompensationStartedEvent.class),
-        eventWith(11L, compensation3, CompensationEndedEvent.class),
-        eventWith(12L, compensation1, CompensationStartedEvent.class),
-        eventWith(13L, compensation1, CompensationEndedEvent.class),
-        eventWith(14L, SAGA_START_COMPENSATION, SagaEndedEvent.class)
+        eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionEndedEvent.class),
+        eventWith(sagaId, transaction2, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction2, TransactionEndedEvent.class),
+        eventWith(sagaId, transaction3, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction3, TransactionEndedEvent.class),
+        eventWith(sagaId, compensation2, CompensationStartedEvent.class),
+        eventWith(sagaId, compensation2, CompensationEndedEvent.class),
+        eventWith(sagaId, compensation3, CompensationStartedEvent.class),
+        eventWith(sagaId, compensation3, CompensationEndedEvent.class),
+        eventWith(sagaId, compensation1, CompensationStartedEvent.class),
+        eventWith(sagaId, compensation1, CompensationEndedEvent.class),
+        eventWith(sagaId, SAGA_START_COMPENSATION, SagaEndedEvent.class)
     ));
 
     verify(transport, never()).with(request1.serviceName(), transaction1.path(), transaction1.method(), transaction1.params());
@@ -434,16 +436,16 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaStartRequest)),
-        envelope(new TransactionStartedEvent(request1)),
-        envelope(new TransactionEndedEvent(request1)),
-        envelope(new TransactionStartedEvent(request2)),
-        envelope(new TransactionEndedEvent(request2)),
-        envelope(new TransactionStartedEvent(request3)),
-        envelope(new TransactionEndedEvent(request3)),
-        envelope(new CompensationStartedEvent(request2)),
-        envelope(new CompensationEndedEvent(request2)),
-        envelope(new CompensationStartedEvent(request3))
+        envelope(new SagaStartedEvent(sagaId, sagaStartRequest)),
+        envelope(new TransactionStartedEvent(sagaId, request1)),
+        envelope(new TransactionEndedEvent(sagaId, request1)),
+        envelope(new TransactionStartedEvent(sagaId, request2)),
+        envelope(new TransactionEndedEvent(sagaId, request2)),
+        envelope(new TransactionStartedEvent(sagaId, request3)),
+        envelope(new TransactionEndedEvent(sagaId, request3)),
+        envelope(new CompensationStartedEvent(sagaId, request2)),
+        envelope(new CompensationEndedEvent(sagaId, request2)),
+        envelope(new CompensationStartedEvent(sagaId, request3))
     );
 
     eventStore.populate(events);
@@ -451,21 +453,21 @@ public class SagaIntegrationTest {
 
     saga.run();
     assertThat(eventStore, contains(
-        eventWith(1L, SAGA_START_TRANSACTION, SagaStartedEvent.class),
-        eventWith(2L, transaction1, TransactionStartedEvent.class),
-        eventWith(3L, transaction1, TransactionEndedEvent.class),
-        eventWith(4L, transaction2, TransactionStartedEvent.class),
-        eventWith(5L, transaction2, TransactionEndedEvent.class),
-        eventWith(6L, transaction3, TransactionStartedEvent.class),
-        eventWith(7L, transaction3, TransactionEndedEvent.class),
-        eventWith(8L, compensation2, CompensationStartedEvent.class),
-        eventWith(9L, compensation2, CompensationEndedEvent.class),
-        eventWith(10L, compensation3, CompensationStartedEvent.class),
-        eventWith(11L, compensation3, CompensationStartedEvent.class),
-        eventWith(12L, compensation3, CompensationEndedEvent.class),
-        eventWith(13L, compensation1, CompensationStartedEvent.class),
-        eventWith(14L, compensation1, CompensationEndedEvent.class),
-        eventWith(15L, SAGA_START_COMPENSATION, SagaEndedEvent.class)
+        eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionEndedEvent.class),
+        eventWith(sagaId, transaction2, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction2, TransactionEndedEvent.class),
+        eventWith(sagaId, transaction3, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction3, TransactionEndedEvent.class),
+        eventWith(sagaId, compensation2, CompensationStartedEvent.class),
+        eventWith(sagaId, compensation2, CompensationEndedEvent.class),
+        eventWith(sagaId, compensation3, CompensationStartedEvent.class),
+        eventWith(sagaId, compensation3, CompensationStartedEvent.class),
+        eventWith(sagaId, compensation3, CompensationEndedEvent.class),
+        eventWith(sagaId, compensation1, CompensationStartedEvent.class),
+        eventWith(sagaId, compensation1, CompensationEndedEvent.class),
+        eventWith(sagaId, SAGA_START_COMPENSATION, SagaEndedEvent.class)
     ));
 
     verify(transport, never()).with(request1.serviceName(), transaction1.path(), transaction1.method(), transaction1.params());
@@ -480,11 +482,11 @@ public class SagaIntegrationTest {
   @Test
   public void restoresSagaToEndStateByPlayingAllEvents() {
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaStartRequest)),
-        envelope(new TransactionStartedEvent(request1)),
-        envelope(new TransactionEndedEvent(request1)),
-        envelope(new TransactionStartedEvent(request2)),
-        envelope(new TransactionEndedEvent(request2))
+        envelope(new SagaStartedEvent(sagaId, sagaStartRequest)),
+        envelope(new TransactionStartedEvent(sagaId, request1)),
+        envelope(new TransactionEndedEvent(sagaId, request1)),
+        envelope(new TransactionStartedEvent(sagaId, request2)),
+        envelope(new TransactionEndedEvent(sagaId, request2))
     );
 
     eventStore.populate(events);
@@ -492,12 +494,12 @@ public class SagaIntegrationTest {
 
     saga.run();
     assertThat(eventStore, contains(
-        eventWith(1L, SAGA_START_TRANSACTION, SagaStartedEvent.class),
-        eventWith(2L, transaction1, TransactionStartedEvent.class),
-        eventWith(3L, transaction1, TransactionEndedEvent.class),
-        eventWith(4L, transaction2, TransactionStartedEvent.class),
-        eventWith(5L, transaction2, TransactionEndedEvent.class),
-        eventWith(6L, SAGA_END_TRANSACTION, SagaEndedEvent.class)
+        eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionEndedEvent.class),
+        eventWith(sagaId, transaction2, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction2, TransactionEndedEvent.class),
+        eventWith(sagaId, SAGA_END_TRANSACTION, SagaEndedEvent.class)
     ));
 
     verify(transport, never()).with(request1.serviceName(), transaction1.path(), transaction1.method(), transaction1.params());
@@ -526,6 +528,7 @@ public class SagaIntegrationTest {
       Compensation compensation) {
 
     return new RequestProcessTask(
+        sagaId,
         new JsonSagaRequest(requestId, serviceName, "rest", transaction, compensation),
         eventStore,
         transport);

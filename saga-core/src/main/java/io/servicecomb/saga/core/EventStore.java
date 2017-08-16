@@ -16,7 +16,7 @@
 
 package io.servicecomb.saga.core;
 
-public interface EventStore extends Iterable<EventEnvelope> {
+public interface EventStore extends Iterable<SagaEvent> {
 
   void offer(SagaEvent sagaEvent);
 

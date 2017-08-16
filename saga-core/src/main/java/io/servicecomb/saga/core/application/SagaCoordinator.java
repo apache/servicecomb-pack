@@ -24,12 +24,14 @@ import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class SagaCoordinator {
 
   private final EventStore eventStore;
   private final PersistentStore persistentStore;
   private final JsonRequestInterpreter requestInterpreter;
+  private final AtomicLong sagaIdGenerator = new AtomicLong();
 
   public SagaCoordinator(EventStore eventStore, PersistentStore persistentStore, JsonRequestInterpreter requestInterpreter) {
     this.eventStore = eventStore;
@@ -39,7 +41,7 @@ public class SagaCoordinator {
 
   public void run(String requestJson) {
     // TODO: 8/11/2017 pass persistent store to saga too
-    Saga saga = new Saga(eventStore, requestInterpreter.interpret(requestJson));
+    Saga saga = new Saga(eventStore, requestInterpreter.interpret(sagaIdGenerator.incrementAndGet(), requestJson));
 
     saga.run();
   }
@@ -50,7 +52,7 @@ public class SagaCoordinator {
       eventStore.populate(entry.getValue());
       SagaEvent event = eventStore.peek();
 
-      Saga saga = new Saga(eventStore, requestInterpreter.interpret(event.payload().json()));
+      Saga saga = new Saga(eventStore, requestInterpreter.interpret(event.sagaId, event.payload().json()));
 
       saga.play();
       saga.run();

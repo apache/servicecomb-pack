@@ -21,15 +21,22 @@ import static io.servicecomb.saga.core.Transaction.SAGA_END_TRANSACTION;
 
 public class SagaEndTask implements SagaTask {
 
+  private final long sagaId;
   private final EventStore eventStore;
 
-  public SagaEndTask(EventStore eventStore) {
+  public SagaEndTask(long sagaId, EventStore eventStore) {
+    this.sagaId = sagaId;
     this.eventStore = eventStore;
   }
 
   @Override
+  public long sagaId() {
+    return sagaId;
+  }
+
+  @Override
   public void commit() {
-    eventStore.offer(new SagaEndedEvent(this));
+    eventStore.offer(new SagaEndedEvent(sagaId, this));
   }
 
   @Override

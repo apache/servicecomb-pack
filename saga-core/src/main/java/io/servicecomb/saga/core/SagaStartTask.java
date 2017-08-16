@@ -21,22 +21,29 @@ import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
 
 public class SagaStartTask implements SagaTask {
 
+  private final long sagaId;
   private final String requestJson;
   private final EventStore eventStore;
 
-  public SagaStartTask(String requestJson, EventStore eventStore) {
+  public SagaStartTask(long sagaId, String requestJson, EventStore eventStore) {
+    this.sagaId = sagaId;
     this.requestJson = requestJson;
     this.eventStore = eventStore;
   }
 
   @Override
+  public long sagaId() {
+    return sagaId;
+  }
+
+  @Override
   public void commit() {
-    eventStore.offer(new SagaStartedEvent(this));
+    eventStore.offer(new SagaStartedEvent(sagaId, this));
   }
 
   @Override
   public void compensate() {
-    eventStore.offer(new SagaEndedEvent(this));
+    eventStore.offer(new SagaEndedEvent(sagaId, this));
   }
 
   @Override

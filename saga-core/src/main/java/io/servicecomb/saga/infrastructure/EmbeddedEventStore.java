@@ -23,30 +23,23 @@ import java.lang.invoke.MethodHandles;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EmbeddedEventStore implements EventStore {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private final Queue<EventEnvelope> events = new LinkedBlockingQueue<>();
-  private final AtomicLong atomicLong = new AtomicLong();
+  private final Queue<SagaEvent> events = new LinkedBlockingQueue<>();
 
   @Override
   public void offer(SagaEvent sagaEvent) {
-    EventEnvelope envelope;
-    synchronized (this) {
-      envelope = new EventEnvelope(atomicLong.incrementAndGet(), sagaEvent);
-      events.offer(envelope);
-    }
-    log.info("Added event {}", envelope);
+    events.offer(sagaEvent);
+    log.info("Added event {}", sagaEvent);
   }
 
   @Override
   public void populate(Iterable<EventEnvelope> events) {
     for (EventEnvelope event : events) {
-      this.events.offer(event);
-      atomicLong.set(event.id);
+      this.events.offer(event.event);
       log.info("Populated event {}", event);
     }
   }
@@ -58,11 +51,11 @@ public class EmbeddedEventStore implements EventStore {
 
   @Override
   public SagaEvent peek() {
-    return events.peek().event;
+    return events.peek();
   }
 
   @Override
-  public Iterator<EventEnvelope> iterator() {
+  public Iterator<SagaEvent> iterator() {
     return events.iterator();
   }
 }

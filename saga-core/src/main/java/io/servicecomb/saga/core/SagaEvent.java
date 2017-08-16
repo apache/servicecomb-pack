@@ -20,9 +20,11 @@ import java.util.Set;
 
 public abstract class SagaEvent implements Descriptive {
 
+  public final long sagaId;
   private final SagaRequest payload;
 
-  public SagaEvent(SagaRequest payload) {
+  public SagaEvent(long sagaId, SagaRequest payload) {
+    this.sagaId = sagaId;
     this.payload = payload;
   }
 

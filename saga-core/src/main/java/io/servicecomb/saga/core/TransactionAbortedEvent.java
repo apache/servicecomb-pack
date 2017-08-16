@@ -22,8 +22,8 @@ class TransactionAbortedEvent extends SagaEvent {
 
   private final Exception exception;
 
-  TransactionAbortedEvent(SagaRequest payload, Exception exception) {
-    super(payload);
+  TransactionAbortedEvent(long sagaId, SagaRequest payload, Exception exception) {
+    super(sagaId, payload);
     this.exception = exception;
   }
 

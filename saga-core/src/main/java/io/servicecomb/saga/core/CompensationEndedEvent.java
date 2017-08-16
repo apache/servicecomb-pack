@@ -22,12 +22,12 @@ class CompensationEndedEvent extends SagaEvent {
 
   private final SagaResponse response;
 
-  CompensationEndedEvent(SagaRequest request) {
-    this(request, SagaResponse.EMPTY_RESPONSE);
+  CompensationEndedEvent(long sagaId, SagaRequest request) {
+    this(sagaId, request, SagaResponse.EMPTY_RESPONSE);
   }
 
-  CompensationEndedEvent(SagaRequest request, SagaResponse response) {
-    super(request);
+  CompensationEndedEvent(long sagaId, SagaRequest request, SagaResponse response) {
+    super(sagaId, request);
     this.response = response;
   }
 

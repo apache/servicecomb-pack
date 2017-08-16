@@ -21,7 +21,7 @@ import java.util.Set;
 public class DummyEvent extends SagaEvent {
 
   public DummyEvent(SagaRequest payload) {
-    super(payload);
+    super(0L, payload);
   }
 
   @Override

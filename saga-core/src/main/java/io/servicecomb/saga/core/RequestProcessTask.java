@@ -18,19 +18,26 @@ package io.servicecomb.saga.core;
 
 public class RequestProcessTask implements SagaTask, SagaRequest {
 
+  private final long sagaId;
   private final EventStore eventStore;
   private final Transport transport;
   private final SagaRequest request;
 
-  public RequestProcessTask(SagaRequest request, EventStore eventStore, Transport transport) {
+  public RequestProcessTask(long sagaId, SagaRequest request, EventStore eventStore, Transport transport) {
+    this.sagaId = sagaId;
     this.request = request;
     this.eventStore = eventStore;
     this.transport = transport;
   }
 
   @Override
+  public long sagaId() {
+    return sagaId;
+  }
+
+  @Override
   public void commit() {
-    eventStore.offer(new TransactionStartedEvent(this));
+    eventStore.offer(new TransactionStartedEvent(sagaId, this));
 
     Transaction transaction = request.transaction();
     SagaResponse response = transport.with(
@@ -39,23 +46,23 @@ public class RequestProcessTask implements SagaTask, SagaRequest {
         transaction.method(),
         transaction.params());
 
-    eventStore.offer(new TransactionEndedEvent(this, response));
+    eventStore.offer(new TransactionEndedEvent(sagaId, this, response));
   }
 
   @Override
   public void compensate() {
-    eventStore.offer(new CompensationStartedEvent(this));
+    eventStore.offer(new CompensationStartedEvent(sagaId, this));
 
     Compensation compensation = request.compensation();
     SagaResponse response = transport
         .with(request.serviceName(), compensation.path(), compensation.method(), compensation.params());
 
-    eventStore.offer(new CompensationEndedEvent(this, response));
+    eventStore.offer(new CompensationEndedEvent(sagaId, this, response));
   }
 
   @Override
   public void abort(Exception e) {
-    eventStore.offer(new TransactionAbortedEvent(this, e));
+    eventStore.offer(new TransactionAbortedEvent(sagaId, this, e));
   }
 
   @Override
