@@ -14,11 +14,29 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core;
+package io.servicecomb.saga.core.application;
 
-import java.util.Map;
+import io.servicecomb.saga.core.SagaEvent;
+import io.servicecomb.saga.core.SagaLog;
 
-public interface PersistentStore extends SagaLog {
+public class CompositeEventStore implements SagaLog {
 
-  Map<Long, Iterable<EventEnvelope>> findPendingSagaEvents();
+  private final SagaLog embedded;
+  private final SagaLog persistent;
+
+  public CompositeEventStore(SagaLog embedded, SagaLog persistent) {
+    this.embedded = embedded;
+    this.persistent = persistent;
+  }
+
+  @Override
+  public void offer(SagaEvent sagaEvent) {
+    persistent.offer(sagaEvent);
+    embedded.offer(sagaEvent);
+  }
+
+  @Override
+  public int size() {
+    return embedded.size();
+  }
 }

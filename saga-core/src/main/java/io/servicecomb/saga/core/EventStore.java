@@ -16,14 +16,8 @@
 
 package io.servicecomb.saga.core;
 
-public interface EventStore extends Iterable<SagaEvent> {
-
-  void offer(SagaEvent sagaEvent);
+public interface EventStore extends SagaLog, Iterable<SagaEvent> {
 
   void populate(Iterable<EventEnvelope> events);
-
-  int size();
-
-  SagaEvent peek();
 
 }

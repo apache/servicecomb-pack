@@ -22,11 +22,11 @@ import static io.servicecomb.saga.core.Transaction.SAGA_END_TRANSACTION;
 public class SagaEndTask implements SagaTask {
 
   private final long sagaId;
-  private final EventStore eventStore;
+  private final SagaLog sagaLog;
 
-  public SagaEndTask(long sagaId, EventStore eventStore) {
+  public SagaEndTask(long sagaId, SagaLog sagaLog) {
     this.sagaId = sagaId;
-    this.eventStore = eventStore;
+    this.sagaLog = sagaLog;
   }
 
   @Override
@@ -36,7 +36,7 @@ public class SagaEndTask implements SagaTask {
 
   @Override
   public void commit() {
-    eventStore.offer(new SagaEndedEvent(sagaId, this));
+    sagaLog.offer(new SagaEndedEvent(sagaId, this));
   }
 
   @Override

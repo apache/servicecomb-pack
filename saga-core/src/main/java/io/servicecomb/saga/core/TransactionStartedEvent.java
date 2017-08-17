@@ -38,6 +38,7 @@ class TransactionStartedEvent extends SagaEvent {
   public String toString() {
     return "TransactionStartedEvent{id="
         + payload().id()
+        + ", sagaId=" + sagaId
         + ", operation="
         + payload().transaction()
         + "}";

@@ -46,6 +46,7 @@ class CompensationEndedEvent extends SagaEvent {
   public String toString() {
     return "CompensationEndedEvent{id="
         + payload().id()
+        + ", sagaId=" + sagaId
         + ", operation="
         + payload().compensation()
         + "}";

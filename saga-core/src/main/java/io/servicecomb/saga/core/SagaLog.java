@@ -16,9 +16,9 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.Map;
+public interface SagaLog {
 
-public interface PersistentStore extends SagaLog {
+  void offer(SagaEvent sagaEvent);
 
-  Map<Long, Iterable<EventEnvelope>> findPendingSagaEvents();
+  int size();
 }

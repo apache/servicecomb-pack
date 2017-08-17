@@ -21,41 +21,65 @@ import io.servicecomb.saga.core.EventStore;
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.Saga;
 import io.servicecomb.saga.core.SagaEvent;
+import io.servicecomb.saga.core.SagaLog;
+import io.servicecomb.saga.core.Transport;
 import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
+import io.servicecomb.saga.core.application.interpreter.SagaTaskFactory;
+import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class SagaCoordinator {
 
-  private final EventStore eventStore;
   private final PersistentStore persistentStore;
   private final JsonRequestInterpreter requestInterpreter;
   private final AtomicLong sagaIdGenerator = new AtomicLong();
+  private final Transport transport;
 
-  public SagaCoordinator(EventStore eventStore, PersistentStore persistentStore, JsonRequestInterpreter requestInterpreter) {
-    this.eventStore = eventStore;
+  public SagaCoordinator(
+      PersistentStore persistentStore,
+      JsonRequestInterpreter requestInterpreter,
+      Transport transport) {
     this.persistentStore = persistentStore;
     this.requestInterpreter = requestInterpreter;
+    this.transport = transport;
   }
 
   public void run(String requestJson) {
-    // TODO: 8/11/2017 pass persistent store to saga too
-    Saga saga = new Saga(eventStore, requestInterpreter.interpret(sagaIdGenerator.incrementAndGet(), requestJson));
+    long sagaId = sagaIdGenerator.incrementAndGet();
+    EventStore sagaLog = new EmbeddedEventStore();
+
+    Saga saga = new Saga(
+        sagaLog,
+        requestInterpreter.interpret(
+            requestJson,
+            new SagaTaskFactory(sagaId, compositeSagaLog(sagaLog), transport)));
 
     saga.run();
   }
 
   public void reanimate() {
     Map<Long, Iterable<EventEnvelope>> pendingSagaEvents = persistentStore.findPendingSagaEvents();
-    for (Entry<Long, Iterable<EventEnvelope>> entry : pendingSagaEvents.entrySet()) {
-      eventStore.populate(entry.getValue());
-      SagaEvent event = eventStore.peek();
 
-      Saga saga = new Saga(eventStore, requestInterpreter.interpret(event.sagaId, event.payload().json()));
+    for (Entry<Long, Iterable<EventEnvelope>> entry : pendingSagaEvents.entrySet()) {
+      EventStore eventStore = new EmbeddedEventStore();
+      eventStore.populate(entry.getValue());
+      SagaEvent event = entry.getValue().iterator().next().event;
+
+      Saga saga = new Saga(
+          eventStore,
+          requestInterpreter.interpret(
+              event.payload().json(),
+              new SagaTaskFactory(event.sagaId, compositeSagaLog(eventStore), transport)));
 
       saga.play();
       saga.run();
+      sagaIdGenerator.incrementAndGet();
     }
+  }
+
+  private CompositeEventStore compositeSagaLog(SagaLog sagaLog) {
+    return new CompositeEventStore(sagaLog, persistentStore);
   }
 }

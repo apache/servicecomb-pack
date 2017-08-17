@@ -50,11 +50,6 @@ public class EmbeddedEventStore implements EventStore {
   }
 
   @Override
-  public SagaEvent peek() {
-    return events.peek();
-  }
-
-  @Override
   public Iterator<SagaEvent> iterator() {
     return events.iterator();
   }

@@ -23,12 +23,12 @@ public class SagaStartTask implements SagaTask {
 
   private final long sagaId;
   private final String requestJson;
-  private final EventStore eventStore;
+  private final SagaLog sagaLog;
 
-  public SagaStartTask(long sagaId, String requestJson, EventStore eventStore) {
+  public SagaStartTask(long sagaId, String requestJson, SagaLog sagaLog) {
     this.sagaId = sagaId;
     this.requestJson = requestJson;
-    this.eventStore = eventStore;
+    this.sagaLog = sagaLog;
   }
 
   @Override
@@ -38,12 +38,12 @@ public class SagaStartTask implements SagaTask {
 
   @Override
   public void commit() {
-    eventStore.offer(new SagaStartedEvent(sagaId, this));
+    sagaLog.offer(new SagaStartedEvent(sagaId, this));
   }
 
   @Override
   public void compensate() {
-    eventStore.offer(new SagaEndedEvent(sagaId, this));
+    sagaLog.offer(new SagaEndedEvent(sagaId, this));
   }
 
   @Override

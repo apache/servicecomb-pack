@@ -16,9 +16,9 @@
 
 package io.servicecomb.saga.core.application.interpreter;
 
-import io.servicecomb.saga.core.EventStore;
 import io.servicecomb.saga.core.RequestProcessTask;
 import io.servicecomb.saga.core.SagaEndTask;
+import io.servicecomb.saga.core.SagaLog;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaStartTask;
 import io.servicecomb.saga.core.SagaTask;
@@ -26,23 +26,25 @@ import io.servicecomb.saga.core.Transport;
 
 public class SagaTaskFactory {
 
-  private final EventStore eventStore;
+  private final long sagaId;
+  private final SagaLog sagaLog;
   private final Transport transport;
 
-  public SagaTaskFactory(EventStore eventStore, Transport transport) {
-    this.eventStore = eventStore;
+  public SagaTaskFactory(long sagaId, SagaLog sagaLog, Transport transport) {
+    this.sagaId = sagaId;
+    this.sagaLog = sagaLog;
     this.transport = transport;
   }
 
-  SagaTask newStartTask(long sagaId, String requestJson) {
-    return new SagaStartTask(sagaId, requestJson, eventStore);
+  SagaTask newStartTask(String requestJson) {
+    return new SagaStartTask(sagaId, requestJson, sagaLog);
   }
 
-  SagaTask newEndTask(long sagaId) {
-    return new SagaEndTask(sagaId, eventStore);
+  SagaTask newEndTask() {
+    return new SagaEndTask(sagaId, sagaLog);
   }
 
-  SagaTask newRequestTask(long sagaId, SagaRequest sagaRequest) {
-    return new RequestProcessTask(sagaId, sagaRequest, eventStore, transport);
+  SagaTask newRequestTask(SagaRequest sagaRequest) {
+    return new RequestProcessTask(sagaId, sagaRequest, sagaLog, transport);
   }
 }

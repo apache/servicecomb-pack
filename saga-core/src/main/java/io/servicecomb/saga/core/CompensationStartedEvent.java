@@ -38,6 +38,7 @@ class CompensationStartedEvent extends SagaEvent {
   public String toString() {
     return "CompensationStartedEvent{id="
         + payload().id()
+        + ", sagaId=" + sagaId
         + ", operation="
         + payload().compensation()
         + "}";

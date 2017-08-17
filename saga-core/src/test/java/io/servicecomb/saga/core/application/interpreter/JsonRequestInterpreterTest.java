@@ -141,12 +141,12 @@ public class JsonRequestInterpreterTest {
       + "]\n";
 
   private final long sagaId = Randomness.nextLong();
-  private final JsonRequestInterpreter interpreter = new JsonRequestInterpreter(
-      new SagaTaskFactory(null, null));
+  private final SagaTaskFactory sagaTaskFactory = new SagaTaskFactory(sagaId, null, null);
+  private final JsonRequestInterpreter interpreter = new JsonRequestInterpreter();
 
   @Test
   public void interpretsParallelRequests() {
-    SingleLeafDirectedAcyclicGraph<SagaRequest> tasks = interpreter.interpret(sagaId, requests);
+    SingleLeafDirectedAcyclicGraph<SagaRequest> tasks = interpreter.interpret(requests, sagaTaskFactory);
 
     Traveller<SagaRequest> traveller = new ByLevelTraveller<>(tasks, new FromRootTraversalDirection<>());
     Collection<Node<SagaRequest>> nodes = traveller.nodes();
@@ -179,7 +179,7 @@ public class JsonRequestInterpreterTest {
   @Test
   public void blowsUpWhenJsonIsInvalid() {
     try {
-      interpreter.interpret(sagaId, "invalid-json");
+      interpreter.interpret("invalid-json", sagaTaskFactory);
       fail(SagaException.class.getSimpleName() + " is expected, but none thrown");
     } catch (SagaException e) {
       assertThat(e.getMessage(), is("Failed to interpret JSON invalid-json"));
@@ -189,7 +189,7 @@ public class JsonRequestInterpreterTest {
   @Test
   public void blowsUpWhenJsonContainsDuplicateRequestId() {
     try {
-      interpreter.interpret(sagaId, requestsWithDuplicateId);
+      interpreter.interpret(requestsWithDuplicateId, sagaTaskFactory);
       fail(SagaException.class.getSimpleName() + " is expected, but none thrown");
     } catch (SagaException e) {
       assertThat(e.getMessage(),

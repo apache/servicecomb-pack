@@ -46,6 +46,7 @@ class TransactionEndedEvent extends SagaEvent {
   public String toString() {
     return "TransactionEndedEvent{id="
         + payload().id()
+        + ", sagaId=" + sagaId
         + ", operation="
         + payload().transaction()
         + "}";

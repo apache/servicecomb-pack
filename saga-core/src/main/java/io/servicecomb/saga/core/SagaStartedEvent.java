@@ -38,6 +38,7 @@ class SagaStartedEvent extends SagaEvent {
   public String toString() {
     return "SagaStartedEvent{id="
         + payload().id()
+        + ", sagaId=" + sagaId
         + "}";
   }
 }
