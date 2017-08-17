@@ -79,7 +79,7 @@ public class SagaCoordinator {
     }
   }
 
-  private CompositeEventStore compositeSagaLog(SagaLog sagaLog) {
-    return new CompositeEventStore(sagaLog, persistentStore);
+  private CompositeSagaLog compositeSagaLog(SagaLog sagaLog) {
+    return new CompositeSagaLog(sagaLog, persistentStore);
   }
 }

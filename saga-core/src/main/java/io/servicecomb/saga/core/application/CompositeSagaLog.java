@@ -19,12 +19,12 @@ package io.servicecomb.saga.core.application;
 import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.SagaLog;
 
-public class CompositeEventStore implements SagaLog {
+class CompositeSagaLog implements SagaLog {
 
   private final SagaLog embedded;
   private final SagaLog persistent;
 
-  public CompositeEventStore(SagaLog embedded, SagaLog persistent) {
+  CompositeSagaLog(SagaLog embedded, SagaLog persistent) {
     this.embedded = embedded;
     this.persistent = persistent;
   }
