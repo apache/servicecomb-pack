@@ -46,13 +46,13 @@ import wiremock.org.apache.http.HttpStatus;
 public class SagaSpringApplicationTest {
 
   @ClassRule
-  public static final WireMockRule wireMockRule = new WireMockRule(80);
+  public static final WireMockRule wireMockRule = new WireMockRule(8090);
 
   private static final String requests = "[\n"
       + "  {\n"
       + "    \"id\": \"request-aaa\",\n"
       + "    \"type\": \"rest\",\n"
-      + "    \"serviceName\": \"localhost\",\n"
+      + "    \"serviceName\": \"localhost:8090\",\n"
       + "    \"transaction\": {\n"
       + "      \"method\": \"post\",\n"
       + "      \"path\": \"/rest/as\",\n"

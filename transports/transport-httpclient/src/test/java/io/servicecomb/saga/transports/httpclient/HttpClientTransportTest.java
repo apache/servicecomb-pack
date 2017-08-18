@@ -58,7 +58,7 @@ public class HttpClientTransportTest {
   private static final String faultyResponse = "no such resource";
   private static final String json = "{\"hello\", \"world\"}";
 
-  private String serviceName;
+  private String address;
 
   private final Transport transport = new HttpClientTransport();
 
@@ -91,14 +91,14 @@ public class HttpClientTransportTest {
 
   @Before
   public void setUp() throws Exception {
-    serviceName = "localhost" + ":" + wireMockRule.port();
+    address = "localhost" + ":" + wireMockRule.port();
   }
 
   @Test
   public void getsRequestFromRemote() {
     Map<String, Map<String, String>> requests = singletonMap("query", map("foo", "bar", "hello", "world"));
 
-    SagaResponse response = transport.with(serviceName, usableResource, "GET", requests);
+    SagaResponse response = transport.with(address, usableResource, "GET", requests);
 
     assertThat(response.succeeded(), is(true));
     assertThat(response.body(), allOf(
@@ -112,7 +112,7 @@ public class HttpClientTransportTest {
     requests.put("query", singletonMap("foo", "bar"));
     requests.put("json", singletonMap("body", json));
 
-    SagaResponse response = transport.with(serviceName, usableResource, "PUT", requests);
+    SagaResponse response = transport.with(address, usableResource, "PUT", requests);
 
     assertThat(response.succeeded(), is(true));
     assertThat(response.body(), allOf(
@@ -127,7 +127,7 @@ public class HttpClientTransportTest {
     requests.put("form", map("hello", "world", "jesus", "christ"));
 
     try {
-      transport.with(serviceName, faultyResource, "POST", requests);
+      transport.with(address, faultyResource, "POST", requests);
       expectFailing(TransactionFailedException.class);
     } catch (TransactionFailedException e) {
       assertThat(e.getMessage(), containsString("The remote service returned with status code 500"));
@@ -147,7 +147,7 @@ public class HttpClientTransportTest {
   @Test
   public void blowsUpWhenMethodIsUnknown() {
     try {
-      transport.with(serviceName, usableResource, "Blah", emptyMap());
+      transport.with(address, usableResource, "Blah", emptyMap());
       expectFailing(TransactionFailedException.class);
     } catch (TransactionFailedException e) {
       assertThat(e.getMessage(), is("No such method Blah"));

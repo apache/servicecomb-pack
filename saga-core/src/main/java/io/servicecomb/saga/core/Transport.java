@@ -20,6 +20,6 @@ import java.util.Map;
 
 public interface Transport {
 
-  SagaResponse with(String serviceName, String path, String method, Map<String, Map<String, String>> params);
+  SagaResponse with(String address, String path, String method, Map<String, Map<String, String>> params);
 
 }

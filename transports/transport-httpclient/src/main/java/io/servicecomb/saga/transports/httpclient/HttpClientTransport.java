@@ -46,8 +46,8 @@ public class HttpClientTransport implements Transport {
   }};
 
   @Override
-  public SagaResponse with(String serviceName, String path, String method, Map<String, Map<String, String>> params) {
-    URIBuilder builder = new URIBuilder().setScheme("http").setHost(serviceName).setPath(path);
+  public SagaResponse with(String address, String path, String method, Map<String, Map<String, String>> params) {
+    URIBuilder builder = new URIBuilder().setScheme("http").setHost(address).setPath(path);
 
     if (params.containsKey("query")) {
       for (Entry<String, String> entry : params.get("query").entrySet()) {
