@@ -16,6 +16,7 @@
 
 package io.servicecomb.saga.core;
 
+import java.util.Map;
 import java.util.Set;
 
 public abstract class SagaEvent implements Descriptive {
@@ -33,8 +34,8 @@ public abstract class SagaEvent implements Descriptive {
   }
 
   public abstract void gatherTo(
-      Set<SagaRequest> hangingTransactions,
-      Set<SagaRequest> abortedTransactions,
+      Map<String, SagaRequest> hangingTransactions,
+      Map<String, SagaRequest> abortedTransactions,
       Set<Operation> completedTransactions,
       Set<Operation> completedCompensations);
 

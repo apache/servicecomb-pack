@@ -22,7 +22,9 @@ import io.servicecomb.saga.core.dag.FromRootTraversalDirection;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
 import io.servicecomb.saga.core.dag.TraversalDirection;
 import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
@@ -41,8 +43,8 @@ public class Saga {
 
   private final Set<Operation> completedTransactions;
   private final Set<Operation> completedCompensations;
-  private final Set<SagaRequest> abortedTransactions;
-  private final Set<SagaRequest> hangingOperations;
+  private final Map<String, SagaRequest> abortedTransactions;
+  private final Map<String, SagaRequest> hangingOperations;
 
   private final TaskRunner transactionTaskRunner;
   private final TaskRunner compensationTaskRunner;
@@ -59,8 +61,8 @@ public class Saga {
     this.eventStore = eventStore;
     this.completedTransactions = new HashSet<>();
     this.completedCompensations = new HashSet<>();
-    this.abortedTransactions = new HashSet<>();
-    this.hangingOperations = new HashSet<>();
+    this.abortedTransactions = new HashMap<>();
+    this.hangingOperations = new HashMap<>();
 
     this.transactionTaskRunner = new TaskRunner(
         traveller(sagaTaskGraph, new FromRootTraversalDirection<>()),
@@ -86,7 +88,7 @@ public class Saga {
         // if so, not all events are gathered here and some transactions will be missed
         gatherEvents(eventStore);
 
-        hangingOperations.forEach(sagaTask -> {
+        hangingOperations.values().forEach(sagaTask -> {
           sagaTask.commit();
           sagaTask.compensate();
         });

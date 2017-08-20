@@ -88,6 +88,7 @@ public class JsonRequestInterpreter {
     Map<String, Node<SagaRequest>> requestMap = new HashMap<>();
     for (SagaRequest sagaRequest : sagaRequests) {
       if (requestMap.containsKey(sagaRequest.id())) {
+        // TODO: 8/20/2017 add random id if user didn't provide one
         throw new SagaException("Failed to interpret requests with duplicate request id: " + sagaRequest.id());
       }
       requestMap.put(sagaRequest.id(), new Node<>(index++, sagaTaskFactory.newRequestTask(sagaRequest)));
