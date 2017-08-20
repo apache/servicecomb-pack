@@ -20,5 +20,5 @@ import java.util.Map;
 
 public interface PersistentStore extends SagaLog {
 
-  Map<Long, Iterable<EventEnvelope>> findPendingSagaEvents();
+  Map<String, Iterable<EventEnvelope>> findPendingSagaEvents();
 }

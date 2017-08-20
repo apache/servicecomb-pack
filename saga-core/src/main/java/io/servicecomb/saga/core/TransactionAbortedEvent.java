@@ -22,7 +22,7 @@ class TransactionAbortedEvent extends SagaEvent {
 
   private final Exception exception;
 
-  TransactionAbortedEvent(long sagaId, SagaRequest payload, Exception exception) {
+  TransactionAbortedEvent(String sagaId, SagaRequest payload, Exception exception) {
     super(sagaId, payload);
     this.exception = exception;
   }

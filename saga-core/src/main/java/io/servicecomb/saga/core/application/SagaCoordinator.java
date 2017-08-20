@@ -28,13 +28,12 @@ import io.servicecomb.saga.core.application.interpreter.SagaTaskFactory;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.UUID;
 
 public class SagaCoordinator {
 
   private final PersistentStore persistentStore;
   private final JsonRequestInterpreter requestInterpreter;
-  private final AtomicLong sagaIdGenerator = new AtomicLong();
   private final Transport transport;
 
   public SagaCoordinator(
@@ -47,7 +46,7 @@ public class SagaCoordinator {
   }
 
   public void run(String requestJson) {
-    long sagaId = sagaIdGenerator.incrementAndGet();
+    String sagaId = UUID.randomUUID().toString();
     EventStore sagaLog = new EmbeddedEventStore();
 
     Saga saga = new Saga(
@@ -60,9 +59,9 @@ public class SagaCoordinator {
   }
 
   public void reanimate() {
-    Map<Long, Iterable<EventEnvelope>> pendingSagaEvents = persistentStore.findPendingSagaEvents();
+    Map<String, Iterable<EventEnvelope>> pendingSagaEvents = persistentStore.findPendingSagaEvents();
 
-    for (Entry<Long, Iterable<EventEnvelope>> entry : pendingSagaEvents.entrySet()) {
+    for (Entry<String, Iterable<EventEnvelope>> entry : pendingSagaEvents.entrySet()) {
       EventStore eventStore = new EmbeddedEventStore();
       eventStore.populate(entry.getValue());
       SagaEvent event = entry.getValue().iterator().next().event;
@@ -75,7 +74,6 @@ public class SagaCoordinator {
 
       saga.play();
       saga.run();
-      sagaIdGenerator.incrementAndGet();
     }
   }
 

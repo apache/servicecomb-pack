@@ -22,19 +22,19 @@ import org.hamcrest.TypeSafeMatcher;
 
 class SagaEventMatcher extends TypeSafeMatcher<SagaEvent> {
 
-  private final long sagaId;
+  private final String sagaId;
   private final Operation operation;
   private final Class<?> aClass;
 
-  static Matcher<SagaEvent> eventWith(long sagaId, Operation operation, Class<?> aClass) {
+  static Matcher<SagaEvent> eventWith(String sagaId, Operation operation, Class<?> aClass) {
     return new SagaEventMatcher(sagaId, operation, aClass);
   }
 
   static Matcher<SagaEvent> eventWith(Operation operation, Class<?> aClass) {
-    return eventWith(0L, operation, aClass);
+    return eventWith("0", operation, aClass);
   }
 
-  private SagaEventMatcher(long sagaId, Operation operation, Class<?> aClass) {
+  private SagaEventMatcher(String sagaId, Operation operation, Class<?> aClass) {
     this.sagaId = sagaId;
     this.operation = operation;
     this.aClass = aClass;

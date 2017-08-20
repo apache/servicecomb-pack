@@ -21,18 +21,18 @@ import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
 
 public class SagaStartTask implements SagaTask {
 
-  private final long sagaId;
+  private final String sagaId;
   private final String requestJson;
   private final SagaLog sagaLog;
 
-  public SagaStartTask(long sagaId, String requestJson, SagaLog sagaLog) {
+  public SagaStartTask(String sagaId, String requestJson, SagaLog sagaLog) {
     this.sagaId = sagaId;
     this.requestJson = requestJson;
     this.sagaLog = sagaLog;
   }
 
   @Override
-  public long sagaId() {
+  public String sagaId() {
     return sagaId;
   }
 

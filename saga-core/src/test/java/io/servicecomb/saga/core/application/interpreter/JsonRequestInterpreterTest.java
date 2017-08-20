@@ -140,7 +140,7 @@ public class JsonRequestInterpreterTest {
       + "  }\n"
       + "]\n";
 
-  private final long sagaId = Randomness.nextLong();
+  private final String sagaId = Randomness.uniquify("sagaId");
   private final SagaTaskFactory sagaTaskFactory = new SagaTaskFactory(sagaId, null, null);
   private final JsonRequestInterpreter interpreter = new JsonRequestInterpreter();
 
@@ -220,7 +220,7 @@ public class JsonRequestInterpreterTest {
   }
 
   private Matcher<? super Node<SagaRequest>> taskWith(
-      long sagaId,
+      String sagaId,
       String name,
       String transactionMethod,
       String transactionPath,
@@ -230,7 +230,7 @@ public class JsonRequestInterpreterTest {
   }
 
   private Matcher<? super Node<SagaRequest>> taskWith(
-      long sagaId,
+      String sagaId,
       String name,
       String type,
       String transactionMethod,
@@ -251,7 +251,7 @@ public class JsonRequestInterpreterTest {
   }
 
   private Matcher<? super Node<SagaRequest>> taskWith(
-      long sagaId,
+      String sagaId,
       String name,
       String type,
       String transactionMethod,

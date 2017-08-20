@@ -20,7 +20,7 @@ import java.util.Set;
 
 class CompensationStartedEvent extends SagaEvent {
 
-  CompensationStartedEvent(long sagaId, SagaRequest compensation) {
+  CompensationStartedEvent(String sagaId, SagaRequest compensation) {
     super(sagaId, compensation);
   }
 

@@ -18,12 +18,12 @@ package io.servicecomb.saga.core;
 
 public class RequestProcessTask implements SagaTask, SagaRequest {
 
-  private final long sagaId;
+  private final String sagaId;
   private final SagaLog sagaLog;
   private final Transport transport;
   private final SagaRequest request;
 
-  public RequestProcessTask(long sagaId, SagaRequest request, SagaLog sagaLog, Transport transport) {
+  public RequestProcessTask(String sagaId, SagaRequest request, SagaLog sagaLog, Transport transport) {
     this.sagaId = sagaId;
     this.request = request;
     this.sagaLog = sagaLog;
@@ -31,7 +31,7 @@ public class RequestProcessTask implements SagaTask, SagaRequest {
   }
 
   @Override
-  public long sagaId() {
+  public String sagaId() {
     return sagaId;
   }
 

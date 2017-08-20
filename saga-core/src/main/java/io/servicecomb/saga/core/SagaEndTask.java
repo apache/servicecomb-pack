@@ -21,16 +21,16 @@ import static io.servicecomb.saga.core.Transaction.SAGA_END_TRANSACTION;
 
 public class SagaEndTask implements SagaTask {
 
-  private final long sagaId;
+  private final String sagaId;
   private final SagaLog sagaLog;
 
-  public SagaEndTask(long sagaId, SagaLog sagaLog) {
+  public SagaEndTask(String sagaId, SagaLog sagaLog) {
     this.sagaId = sagaId;
     this.sagaLog = sagaLog;
   }
 
   @Override
-  public long sagaId() {
+  public String sagaId() {
     return sagaId;
   }
 

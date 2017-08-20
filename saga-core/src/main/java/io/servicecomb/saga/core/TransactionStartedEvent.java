@@ -20,7 +20,7 @@ import java.util.Set;
 
 class TransactionStartedEvent extends SagaEvent {
 
-  TransactionStartedEvent(long sagaId, SagaRequest transaction) {
+  TransactionStartedEvent(String sagaId, SagaRequest transaction) {
     super(sagaId, transaction);
   }
 

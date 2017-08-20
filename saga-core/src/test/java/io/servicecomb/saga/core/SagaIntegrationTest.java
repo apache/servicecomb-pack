@@ -43,7 +43,7 @@ import org.junit.Test;
 import org.mockito.stubbing.Answer;
 
 public class SagaIntegrationTest {
-  private static final long sagaId = Randomness.nextLong();
+  private static final String sagaId = Randomness.uniquify("sagaId");
 
   private final IdGenerator<Long> idGenerator = new LongIdGenerator();
   private final EventStore eventStore = new EmbeddedEventStore();

@@ -18,7 +18,7 @@ package io.servicecomb.saga.core;
 
 public interface SagaTask extends SagaRequest {
 
-  long sagaId();
+  String sagaId();
 
   void commit();
 

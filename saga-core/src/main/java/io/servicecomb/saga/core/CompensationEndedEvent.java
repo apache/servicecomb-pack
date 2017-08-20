@@ -22,11 +22,11 @@ class CompensationEndedEvent extends SagaEvent {
 
   private final SagaResponse response;
 
-  CompensationEndedEvent(long sagaId, SagaRequest request) {
+  CompensationEndedEvent(String sagaId, SagaRequest request) {
     this(sagaId, request, SagaResponse.EMPTY_RESPONSE);
   }
 
-  CompensationEndedEvent(long sagaId, SagaRequest request, SagaResponse response) {
+  CompensationEndedEvent(String sagaId, SagaRequest request, SagaResponse response) {
     super(sagaId, request);
     this.response = response;
   }

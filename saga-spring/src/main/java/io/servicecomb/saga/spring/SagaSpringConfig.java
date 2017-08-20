@@ -42,7 +42,7 @@ class SagaSpringConfig {
   private static class EmbeddedPersistentStore extends EmbeddedEventStore implements PersistentStore {
 
     @Override
-    public Map<Long, Iterable<EventEnvelope>> findPendingSagaEvents() {
+    public Map<String, Iterable<EventEnvelope>> findPendingSagaEvents() {
       return Collections.emptyMap();
     }
   }

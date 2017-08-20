@@ -26,11 +26,11 @@ import io.servicecomb.saga.core.Transport;
 
 public class SagaTaskFactory {
 
-  private final long sagaId;
+  private final String sagaId;
   private final SagaLog sagaLog;
   private final Transport transport;
 
-  public SagaTaskFactory(long sagaId, SagaLog sagaLog, Transport transport) {
+  public SagaTaskFactory(String sagaId, SagaLog sagaLog, Transport transport) {
     this.sagaId = sagaId;
     this.sagaLog = sagaLog;
     this.transport = transport;
