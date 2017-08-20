@@ -45,6 +45,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import wiremock.org.apache.http.HttpStatus;
 
+@SuppressWarnings("unchecked")
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SagaSpringApplication.class)
 @AutoConfigureMockMvc

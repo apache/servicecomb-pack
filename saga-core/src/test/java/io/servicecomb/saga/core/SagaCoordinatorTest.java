@@ -37,6 +37,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
 
+@SuppressWarnings("unchecked")
 public class SagaCoordinatorTest {
 
   private final Transport transport = mock(Transport.class);

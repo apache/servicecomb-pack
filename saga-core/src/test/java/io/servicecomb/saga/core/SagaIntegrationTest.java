@@ -42,6 +42,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
 
+@SuppressWarnings("unchecked")
 public class SagaIntegrationTest {
   private static final String sagaId = Randomness.uniquify("sagaId");
 
@@ -64,6 +65,7 @@ public class SagaIntegrationTest {
   private final SagaRequest request3 = sagaTask("request3", "service3", transaction3, compensation3);
   private final SagaRequest sagaEndRequest = new SagaEndTask(sagaId, eventStore);
 
+  @SuppressWarnings("ThrowableInstanceNeverThrown")
   private final RuntimeException exception = new RuntimeException("oops");
 
   private final Node<SagaRequest> node1 = new Node<>(1, request1);
