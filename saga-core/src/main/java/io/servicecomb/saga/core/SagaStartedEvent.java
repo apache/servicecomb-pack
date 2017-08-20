@@ -21,8 +21,11 @@ import java.util.Set;
 
 class SagaStartedEvent extends SagaEvent {
 
-  SagaStartedEvent(String sagaId, SagaRequest request) {
+  private final String requestJson;
+
+  SagaStartedEvent(String sagaId, String requestJson, SagaRequest request) {
     super(sagaId, request);
+    this.requestJson = requestJson;
   }
 
   @Override
@@ -33,6 +36,11 @@ class SagaStartedEvent extends SagaEvent {
       Set<String> completedCompensations) {
 
     completedTransactions.add(payload().id());
+  }
+
+  @Override
+  public String json() {
+    return requestJson;
   }
 
   @Override

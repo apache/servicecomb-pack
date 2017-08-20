@@ -16,13 +16,9 @@
 
 package io.servicecomb.saga.spring;
 
-import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.Transport;
-import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 import io.servicecomb.saga.transports.httpclient.HttpClientTransport;
-import java.util.Collections;
-import java.util.Map;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -35,15 +31,7 @@ class SagaSpringConfig {
   }
 
   @Bean
-  PersistentStore persistentStore() {
-    return new EmbeddedPersistentStore();
-  }
-
-  private static class EmbeddedPersistentStore extends EmbeddedEventStore implements PersistentStore {
-
-    @Override
-    public Map<String, Iterable<EventEnvelope>> findPendingSagaEvents() {
-      return Collections.emptyMap();
-    }
+  PersistentStore persistentStore(SagaEventRepo repo) {
+    return new JpaPersistentStore(repo);
   }
 }

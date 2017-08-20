@@ -23,12 +23,17 @@ import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
+import static org.junit.Assert.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -77,6 +82,9 @@ public class SagaSpringApplicationTest {
   @Autowired
   private MockMvc mockMvc;
 
+  @Autowired
+  private SagaEventRepo sagaEventRepo;
+
   @BeforeClass
   public static void setUp() throws Exception {
     stubFor(WireMock.post(urlPathEqualTo("/rest/as"))
@@ -96,5 +104,39 @@ public class SagaSpringApplicationTest {
         .andExpect(status().isOk());
 
     verify(exactly(1), postRequestedFor(urlPathEqualTo("/rest/as")));
+
+    Iterable<SagaEventEntity> events = sagaEventRepo.findAll();
+
+    assertThat(events, contains(
+        eventWith(1L, "SagaStartedEvent"),
+        eventWith(2L, "TransactionStartedEvent"),
+        eventWith(3L, "TransactionEndedEvent"),
+        eventWith(4L, "SagaEndedEvent")
+    ));
+  }
+
+  private Matcher<SagaEventEntity> eventWith(
+      long eventId,
+      String type) {
+
+    return new TypeSafeMatcher<SagaEventEntity>() {
+      @Override
+      protected boolean matchesSafely(SagaEventEntity event) {
+        return eventId == event.id() && event.type().equals(type);
+      }
+
+      @Override
+      protected void describeMismatchSafely(SagaEventEntity item, Description mismatchDescription) {
+        mismatchDescription.appendText(item.toString());
+      }
+
+      @Override
+      public void describeTo(Description description) {
+        description.appendText(
+            "SagaEventEntity {"
+                + "id=" + eventId
+                + ", type=" + type);
+      }
+    };
   }
 }

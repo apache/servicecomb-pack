@@ -14,24 +14,9 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core;
+package io.servicecomb.saga.spring;
 
-public interface SagaRequest {
+import org.springframework.data.repository.PagingAndSortingRepository;
 
-  void commit();
-
-  void compensate();
-
-  void abort(Exception e);
-
-  Transaction transaction();
-
-  Compensation compensation();
-
-  String serviceName();
-
-  String id();
-
-  String type();
-
+interface SagaEventRepo extends PagingAndSortingRepository<SagaEventEntity, Long> {
 }

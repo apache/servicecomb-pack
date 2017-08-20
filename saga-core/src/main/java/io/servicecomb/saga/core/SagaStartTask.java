@@ -38,7 +38,7 @@ public class SagaStartTask implements SagaTask {
 
   @Override
   public void commit() {
-    sagaLog.offer(new SagaStartedEvent(sagaId, this));
+    sagaLog.offer(new SagaStartedEvent(sagaId, requestJson, this));
   }
 
   @Override
@@ -76,8 +76,4 @@ public class SagaStartTask implements SagaTask {
     return "nop";
   }
 
-  @Override
-  public String json() {
-    return requestJson;
-  }
 }

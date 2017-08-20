@@ -69,7 +69,7 @@ public class SagaCoordinator {
       Saga saga = new Saga(
           eventStore,
           requestInterpreter.interpret(
-              event.payload().json(),
+              event.json(),
               new SagaTaskFactory(event.sagaId, compositeSagaLog(eventStore), transport)));
 
       saga.play();

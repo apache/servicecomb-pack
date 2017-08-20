@@ -274,7 +274,7 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaId, sagaStartRequest)),
+        envelope(new SagaStartedEvent(sagaId, requestJson, sagaStartRequest)),
         envelope(new TransactionStartedEvent(sagaId, request1)),
         envelope(new TransactionEndedEvent(sagaId, request1)),
         envelope(new TransactionStartedEvent(sagaId, request2)),
@@ -310,7 +310,7 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaId, sagaStartRequest)),
+        envelope(new SagaStartedEvent(sagaId, requestJson, sagaStartRequest)),
         envelope(new TransactionStartedEvent(sagaId, request1)),
         envelope(new TransactionEndedEvent(sagaId, request1)),
         envelope(new TransactionStartedEvent(sagaId, request2)),
@@ -348,7 +348,7 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaId, sagaStartRequest)),
+        envelope(new SagaStartedEvent(sagaId, requestJson, sagaStartRequest)),
         envelope(new TransactionStartedEvent(sagaId, request1)),
         envelope(new TransactionEndedEvent(sagaId, request1)),
         envelope(new TransactionStartedEvent(sagaId, request2)),
@@ -390,7 +390,7 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaId, sagaStartRequest)),
+        envelope(new SagaStartedEvent(sagaId, requestJson, sagaStartRequest)),
         envelope(new TransactionStartedEvent(sagaId, request1)),
         envelope(new TransactionEndedEvent(sagaId, request1)),
         envelope(new TransactionStartedEvent(sagaId, request2)),
@@ -436,7 +436,7 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaId, sagaStartRequest)),
+        envelope(new SagaStartedEvent(sagaId, requestJson, sagaStartRequest)),
         envelope(new TransactionStartedEvent(sagaId, request1)),
         envelope(new TransactionEndedEvent(sagaId, request1)),
         envelope(new TransactionStartedEvent(sagaId, request2)),
@@ -482,7 +482,7 @@ public class SagaIntegrationTest {
   @Test
   public void restoresSagaToEndStateByPlayingAllEvents() {
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaId, sagaStartRequest)),
+        envelope(new SagaStartedEvent(sagaId, requestJson, sagaStartRequest)),
         envelope(new TransactionStartedEvent(sagaId, request1)),
         envelope(new TransactionEndedEvent(sagaId, request1)),
         envelope(new TransactionStartedEvent(sagaId, request2)),

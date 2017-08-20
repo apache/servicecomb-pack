@@ -14,29 +14,34 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core.application;
+package io.servicecomb.saga.spring;
 
+import io.servicecomb.saga.core.EventEnvelope;
+import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.SagaEvent;
-import io.servicecomb.saga.core.SagaLog;
+import java.util.Collections;
+import java.util.Map;
 
-class CompositeSagaLog implements SagaLog {
+class JpaPersistentStore implements PersistentStore {
 
-  private final SagaLog embedded;
-  private final SagaLog persistent;
+  private final SagaEventRepo repo;
 
-  CompositeSagaLog(SagaLog embedded, SagaLog persistent) {
-    this.embedded = embedded;
-    this.persistent = persistent;
+  JpaPersistentStore(SagaEventRepo repo) {
+    this.repo = repo;
   }
 
   @Override
-  public void offer(SagaEvent sagaEvent) {
-    persistent.offer(sagaEvent);
-    embedded.offer(sagaEvent);
+  public Map<String, Iterable<EventEnvelope>> findPendingSagaEvents() {
+    return Collections.emptyMap();
+  }
+
+  @Override
+  public void offer(SagaEvent event) {
+    repo.save(new SagaEventEntity(event.sagaId, event.getClass().getSimpleName(), event.json()));
   }
 
   @Override
   public long size() {
-    return embedded.size();
+    return repo.count();
   }
 }

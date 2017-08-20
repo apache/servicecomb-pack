@@ -45,7 +45,7 @@ public class EmbeddedEventStore implements EventStore {
   }
 
   @Override
-  public int size() {
+  public long size() {
     return events.size();
   }
 

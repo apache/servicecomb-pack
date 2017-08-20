@@ -83,7 +83,7 @@ public class SagaCoordinatorTest {
 
   @Test
   public void recoverSagaWithEventsFromEventStore() {
-    eventStore.offer(new SagaStartedEvent(sagaId, sagaStartRequest));
+    eventStore.offer(new SagaStartedEvent(sagaId, requestJson, sagaStartRequest));
     coordinator.reanimate();
 
     assertThat(eventStore, contains(
@@ -134,7 +134,7 @@ public class SagaCoordinatorTest {
 
   @Test
   public void runSagaAfterRecovery() {
-    eventStore.offer(new SagaStartedEvent(sagaId, sagaStartRequest));
+    eventStore.offer(new SagaStartedEvent(sagaId, requestJson, sagaStartRequest));
     coordinator.reanimate();
 
     coordinator.run(anotherRequestJson);
@@ -211,7 +211,7 @@ public class SagaCoordinatorTest {
     @Override
     public Map<String, Iterable<EventEnvelope>> findPendingSagaEvents() {
       return singletonMap(sagaId, singleton(
-          new EventEnvelope(1L, new SagaStartedEvent(sagaId, sagaStartRequest))));
+          new EventEnvelope(1L, new SagaStartedEvent(sagaId, requestJson, sagaStartRequest))));
     }
   }
 }

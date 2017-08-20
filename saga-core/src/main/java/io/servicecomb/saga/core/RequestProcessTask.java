@@ -90,8 +90,4 @@ public class RequestProcessTask implements SagaTask, SagaRequest {
     return request.type();
   }
 
-  @Override
-  public String json() {
-    return request.json();
-  }
 }

@@ -20,5 +20,5 @@ public interface SagaLog {
 
   void offer(SagaEvent sagaEvent);
 
-  int size();
+  long size();
 }
