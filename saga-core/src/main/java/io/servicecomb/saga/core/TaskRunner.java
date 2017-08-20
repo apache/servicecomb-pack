@@ -54,7 +54,7 @@ class TaskRunner implements SagaState {
   }
 
   @Override
-  public void replay(Set<Operation> completedOperations) {
+  public void replay(Set<String> completedOperations) {
     boolean played = false;
     Collection<Node<SagaRequest>> nodes = traveller.nodes();
     while (traveller.hasNext() && !played) {

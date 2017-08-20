@@ -61,11 +61,11 @@ class TransactionTaskConsumer implements TaskConsumer {
   }
 
   @Override
-  public boolean replay(Collection<Node<SagaRequest>> nodes, Set<Operation> completedOperations) {
+  public boolean replay(Collection<Node<SagaRequest>> nodes, Set<String> completedOperations) {
 
     for (Iterator<Node<SagaRequest>> iterator = nodes.iterator(); iterator.hasNext(); ) {
       SagaRequest task = iterator.next().value();
-      if (completedOperations.contains(task.transaction())) {
+      if (completedOperations.contains(task.id())) {
         log.info("Skipped completed transaction id={} operation={} while replay", task.id(), task.transaction());
         iterator.remove();
       }

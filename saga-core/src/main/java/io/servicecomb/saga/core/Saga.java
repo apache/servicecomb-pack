@@ -41,8 +41,8 @@ public class Saga {
   private final CompletionService<Operation> executorService = new ExecutorCompletionService<>(
       Executors.newFixedThreadPool(5));
 
-  private final Set<Operation> completedTransactions;
-  private final Set<Operation> completedCompensations;
+  private final Set<String> completedTransactions;
+  private final Set<String> completedCompensations;
   private final Map<String, SagaRequest> abortedTransactions;
   private final Map<String, SagaRequest> hangingOperations;
 

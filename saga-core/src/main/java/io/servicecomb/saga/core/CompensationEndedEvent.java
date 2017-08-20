@@ -36,10 +36,10 @@ class CompensationEndedEvent extends SagaEvent {
   public void gatherTo(
       Map<String, SagaRequest> hangingTransactions,
       Map<String, SagaRequest> abortedTransactions,
-      Set<Operation> completedTransactions,
-      Set<Operation> completedCompensations) {
+      Set<String> completedTransactions,
+      Set<String> completedCompensations) {
 
-    completedCompensations.add(payload().compensation());
+    completedCompensations.add(payload().id());
     hangingTransactions.remove(payload().id());
   }
 

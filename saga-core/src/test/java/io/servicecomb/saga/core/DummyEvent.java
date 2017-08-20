@@ -29,8 +29,8 @@ public class DummyEvent extends SagaEvent {
   public void gatherTo(
       Map<String, SagaRequest> hangingTransactions,
       Map<String, SagaRequest> abortedTransactions,
-      Set<Operation> completedTransactions,
-      Set<Operation> completedCompensations) {
+      Set<String> completedTransactions,
+      Set<String> completedCompensations) {
 
   }
 

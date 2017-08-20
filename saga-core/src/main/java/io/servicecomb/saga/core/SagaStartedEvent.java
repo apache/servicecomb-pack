@@ -29,10 +29,10 @@ class SagaStartedEvent extends SagaEvent {
   public void gatherTo(
       Map<String, SagaRequest> hangingTransactions,
       Map<String, SagaRequest> abortedTransactions,
-      Set<Operation> completedTransactions,
-      Set<Operation> completedCompensations) {
+      Set<String> completedTransactions,
+      Set<String> completedCompensations) {
 
-    completedTransactions.add(payload().transaction());
+    completedTransactions.add(payload().id());
   }
 
   @Override

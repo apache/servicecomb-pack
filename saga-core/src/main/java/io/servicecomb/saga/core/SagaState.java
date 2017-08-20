@@ -24,5 +24,5 @@ interface SagaState {
 
   void run();
 
-  void replay(Set<Operation> completedOperations);
+  void replay(Set<String> completedOperations);
 }

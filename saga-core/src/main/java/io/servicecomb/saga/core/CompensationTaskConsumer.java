@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
 class CompensationTaskConsumer implements TaskConsumer {
 
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private final Set<Operation> completedTransactions;
+  private final Set<String> completedTransactions;
 
-  CompensationTaskConsumer(Set<Operation> completedTransactions) {
+  CompensationTaskConsumer(Set<String> completedTransactions) {
     this.completedTransactions = completedTransactions;
   }
 
@@ -38,7 +38,7 @@ class CompensationTaskConsumer implements TaskConsumer {
     for (Node<SagaRequest> node : nodes) {
       SagaRequest task = node.value();
 
-      if (completedTransactions.contains(task.transaction())) {
+      if (completedTransactions.contains(task.id())) {
         log.info("Starting task {} id={}", task.serviceName(), task.id());
         task.compensate();
         log.info("Completed task {} id={}", task.serviceName(), task.id());
@@ -47,14 +47,14 @@ class CompensationTaskConsumer implements TaskConsumer {
   }
 
   @Override
-  public boolean replay(Collection<Node<SagaRequest>> nodes, Set<Operation> completedOperations) {
+  public boolean replay(Collection<Node<SagaRequest>> nodes, Set<String> completedOperations) {
 
     for (Iterator<Node<SagaRequest>> iterator = nodes.iterator(); iterator.hasNext(); ) {
       SagaRequest task = iterator.next().value();
-      if (completedOperations.contains(task.compensation())) {
+      if (completedOperations.contains(task.id())) {
         log.info("Skipped completed compensation id={} operation={} while replay", task.id(), task.transaction());
         iterator.remove();
-      } else if (!completedTransactions.contains(task.transaction())) {
+      } else if (!completedTransactions.contains(task.id())) {
         // this transaction never started
         log.info("Skipped pending transaction id={} operation={} while replay", task.id(), task.transaction());
         iterator.remove();

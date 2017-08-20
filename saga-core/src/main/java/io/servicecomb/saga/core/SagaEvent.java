@@ -36,7 +36,7 @@ public abstract class SagaEvent implements Descriptive {
   public abstract void gatherTo(
       Map<String, SagaRequest> hangingTransactions,
       Map<String, SagaRequest> abortedTransactions,
-      Set<Operation> completedTransactions,
-      Set<Operation> completedCompensations);
+      Set<String> completedTransactions,
+      Set<String> completedCompensations);
 
 }
