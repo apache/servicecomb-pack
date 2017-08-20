@@ -28,7 +28,7 @@ class SagaEndedEvent extends SagaEvent {
   @Override
   public void gatherTo(
       Map<String, SagaRequest> hangingTransactions,
-      Map<String, SagaRequest> abortedTransactions,
+      Set<String> abortedTransactions,
       Set<String> completedTransactions,
       Set<String> completedCompensations) {
 

@@ -43,7 +43,7 @@ public class Saga {
 
   private final Set<String> completedTransactions;
   private final Set<String> completedCompensations;
-  private final Map<String, SagaRequest> abortedTransactions;
+  private final Set<String> abortedTransactions;
   private final Map<String, SagaRequest> hangingOperations;
 
   private final TaskRunner transactionTaskRunner;
@@ -61,7 +61,7 @@ public class Saga {
     this.eventStore = eventStore;
     this.completedTransactions = new HashSet<>();
     this.completedCompensations = new HashSet<>();
-    this.abortedTransactions = new HashMap<>();
+    this.abortedTransactions = new HashSet<>();
     this.hangingOperations = new HashMap<>();
 
     this.transactionTaskRunner = new TaskRunner(

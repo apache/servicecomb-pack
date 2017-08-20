@@ -31,13 +31,13 @@ class TransactionAbortedEvent extends SagaEvent {
   @Override
   public void gatherTo(
       Map<String, SagaRequest> hangingTransactions,
-      Map<String, SagaRequest> abortedTransactions,
+      Set<String> abortedTransactions,
       Set<String> completedTransactions,
       Set<String> completedCompensations) {
 
     // remove from completed operations in order not to compensate it
     completedTransactions.remove(payload().id());
-    abortedTransactions.put(payload().id(), payload());
+    abortedTransactions.add(payload().id());
     hangingTransactions.remove(payload().id());
   }
 
