@@ -7,5 +7,6 @@ CREATE TABLE `saga_event_entity` (
   `type` varchar(50) NOT NULL,
   `content_json` varchar(1000) NOT NULL DEFAULT '{}',
   PRIMARY KEY (`id`)
---  INDEX (`saga_id`, `type`)
 ) DEFAULT CHARSET=utf8;
+
+ CREATE INDEX running_sagas_index ON saga_event_entity(saga_id, type);
