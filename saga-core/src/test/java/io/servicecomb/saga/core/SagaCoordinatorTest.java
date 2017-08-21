@@ -17,7 +17,7 @@
 package io.servicecomb.saga.core;
 
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.waitAtMost;
@@ -30,6 +30,7 @@ import static org.mockito.Mockito.verify;
 import io.servicecomb.saga.core.application.SagaCoordinator;
 import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.hamcrest.Description;
@@ -210,8 +211,8 @@ public class SagaCoordinatorTest {
   private class EmbeddedPersistentStore extends EmbeddedEventStore implements PersistentStore {
 
     @Override
-    public Map<String, Iterable<EventEnvelope>> findPendingSagaEvents() {
-      return singletonMap(sagaId, singleton(
+    public Map<String, List<EventEnvelope>> findPendingSagaEvents() {
+      return singletonMap(sagaId, singletonList(
           new EventEnvelope(1L, new SagaStartedEvent(sagaId, requestJson, sagaStartRequest))));
     }
   }

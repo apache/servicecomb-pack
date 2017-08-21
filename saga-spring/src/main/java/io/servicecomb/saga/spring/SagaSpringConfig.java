@@ -18,6 +18,8 @@ package io.servicecomb.saga.spring;
 
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.Transport;
+import io.servicecomb.saga.core.application.SagaCoordinator;
+import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
 import io.servicecomb.saga.transports.httpclient.HttpClientTransport;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,5 +35,12 @@ class SagaSpringConfig {
   @Bean
   PersistentStore persistentStore(SagaEventRepo repo) {
     return new JpaPersistentStore(repo);
+  }
+
+  @Bean
+  SagaCoordinator sagaCoordinator(PersistentStore persistentStore, Transport transport) {
+    SagaCoordinator coordinator = new SagaCoordinator(persistentStore, new JsonRequestInterpreter(), transport);
+    coordinator.reanimate();
+    return coordinator;
   }
 }

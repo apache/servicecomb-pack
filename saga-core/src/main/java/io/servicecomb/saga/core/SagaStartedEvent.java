@@ -19,11 +19,11 @@ package io.servicecomb.saga.core;
 import java.util.Map;
 import java.util.Set;
 
-class SagaStartedEvent extends SagaEvent {
+public class SagaStartedEvent extends SagaEvent {
 
   private final String requestJson;
 
-  SagaStartedEvent(String sagaId, String requestJson, SagaRequest request) {
+  public SagaStartedEvent(String sagaId, String requestJson, SagaRequest request) {
     super(sagaId, request);
     this.requestJson = requestJson;
   }

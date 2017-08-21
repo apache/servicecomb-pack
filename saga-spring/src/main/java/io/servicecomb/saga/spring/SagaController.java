@@ -20,10 +20,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
-import io.servicecomb.saga.core.PersistentStore;
-import io.servicecomb.saga.core.Transport;
 import io.servicecomb.saga.core.application.SagaCoordinator;
-import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
@@ -39,8 +36,8 @@ public class SagaController {
   private final SagaCoordinator sagaCoordinator;
 
   @Autowired
-  public SagaController(PersistentStore persistentStore, Transport transport) {
-    sagaCoordinator = new SagaCoordinator(persistentStore, new JsonRequestInterpreter(), transport);
+  public SagaController(SagaCoordinator sagaCoordinator) {
+    this.sagaCoordinator = sagaCoordinator;
   }
 
   @RequestMapping(value = "/", method = POST, consumes = APPLICATION_JSON_VALUE)

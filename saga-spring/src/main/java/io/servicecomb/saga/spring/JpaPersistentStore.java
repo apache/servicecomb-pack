@@ -19,20 +19,33 @@ package io.servicecomb.saga.spring;
 import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.SagaEvent;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 class JpaPersistentStore implements PersistentStore {
 
   private final SagaEventRepo repo;
+  private final SagaEventFormat sagaEventFormat;
 
   JpaPersistentStore(SagaEventRepo repo) {
     this.repo = repo;
+    this.sagaEventFormat = new SagaEventFormat();
   }
 
   @Override
-  public Map<String, Iterable<EventEnvelope>> findPendingSagaEvents() {
-    return Collections.emptyMap();
+  public Map<String, List<EventEnvelope>> findPendingSagaEvents() {
+    List<SagaEventEntity> events = repo.findIncompleteSagaEventsGroupBySagaId();
+
+    Map<String, List<EventEnvelope>> pendingEvents = new HashMap<>();
+    for (SagaEventEntity event : events) {
+      pendingEvents.computeIfAbsent(event.sagaId(), id -> new LinkedList<>());
+      pendingEvents.get(event.sagaId()).add(
+          new EventEnvelope(event.id(), event.creationTime(), sagaEventFormat.toSagaEvent(event)));
+    }
+
+    return pendingEvents;
   }
 
   @Override

@@ -28,6 +28,13 @@ public class EventEnvelope {
     this.timestamp = System.currentTimeMillis();
   }
 
+  // TODO: 8/21/2017 this class seems to be useless to saga
+  public EventEnvelope(long id, long timestamp, SagaEvent event) {
+    this.id = id;
+    this.timestamp = timestamp;
+    this.event = event;
+  }
+
   @Override
   public String toString() {
     return "EventEnvelope{" +

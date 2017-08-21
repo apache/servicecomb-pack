@@ -26,6 +26,7 @@ import io.servicecomb.saga.core.Transport;
 import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
 import io.servicecomb.saga.core.application.interpreter.SagaTaskFactory;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
@@ -59,9 +60,9 @@ public class SagaCoordinator {
   }
 
   public void reanimate() {
-    Map<String, Iterable<EventEnvelope>> pendingSagaEvents = persistentStore.findPendingSagaEvents();
+    Map<String, List<EventEnvelope>> pendingSagaEvents = persistentStore.findPendingSagaEvents();
 
-    for (Entry<String, Iterable<EventEnvelope>> entry : pendingSagaEvents.entrySet()) {
+    for (Entry<String, List<EventEnvelope>> entry : pendingSagaEvents.entrySet()) {
       EventStore eventStore = new EmbeddedEventStore();
       eventStore.populate(entry.getValue());
       SagaEvent event = entry.getValue().iterator().next().event;

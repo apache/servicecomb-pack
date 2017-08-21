@@ -16,6 +16,7 @@
 
 package io.servicecomb.saga.spring;
 
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -27,7 +28,7 @@ public class SagaEventEntity {
   @GeneratedValue
   private long id;
   private String sagaId;
-  private long timestamp;
+  private Date creationTime;
   private String type;
 
   @Column(length = 1000)
@@ -40,15 +41,27 @@ public class SagaEventEntity {
     this.sagaId = sagaId;
     this.type = type;
     this.contentJson = contentJson;
-    this.timestamp = System.currentTimeMillis();
+    this.creationTime = new Date();
   }
 
   public long id() {
     return id;
   }
 
+  public String sagaId() {
+    return sagaId;
+  }
+
+  public long creationTime() {
+    return creationTime.getTime();
+  }
+
   public String type() {
     return type;
+  }
+
+  public String contentJson() {
+    return contentJson;
   }
 
   @Override
@@ -56,7 +69,7 @@ public class SagaEventEntity {
     return "SagaEventEntity{" +
         "id=" + id +
         ", sagaId='" + sagaId + '\'' +
-        ", timestamp=" + timestamp +
+        ", creationTime=" + creationTime +
         ", type='" + type + '\'' +
         ", contentJson='" + contentJson + '\'' +
         '}';

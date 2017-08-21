@@ -16,7 +16,17 @@
 
 package io.servicecomb.saga.spring;
 
+import java.util.List;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 interface SagaEventRepo extends PagingAndSortingRepository<SagaEventEntity, Long> {
+
+  // TODO: 8/21/2017 replace with hql?
+  @Query(value = "SELECT * FROM saga_event_entity "
+      + "WHERE saga_id NOT IN ("
+      + "  SELECT DISTINCT saga_id FROM saga_event_entity"
+      + "  WHERE type = 'SagaEndedEvent'"
+      + ")", nativeQuery = true)
+  List<SagaEventEntity> findIncompleteSagaEventsGroupBySagaId();
 }

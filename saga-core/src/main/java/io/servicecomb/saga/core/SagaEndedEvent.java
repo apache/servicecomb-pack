@@ -19,9 +19,9 @@ package io.servicecomb.saga.core;
 import java.util.Map;
 import java.util.Set;
 
-class SagaEndedEvent extends SagaEvent {
+public class SagaEndedEvent extends SagaEvent {
 
-  SagaEndedEvent(String sagaId, SagaRequest sagaTask) {
+  public SagaEndedEvent(String sagaId, SagaRequest sagaTask) {
     super(sagaId, sagaTask);
   }
 

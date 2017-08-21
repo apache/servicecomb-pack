@@ -16,9 +16,10 @@
 
 package io.servicecomb.saga.core;
 
+import java.util.List;
 import java.util.Map;
 
 public interface PersistentStore extends SagaLog {
 
-  Map<String, Iterable<EventEnvelope>> findPendingSagaEvents();
+  Map<String, List<EventEnvelope>> findPendingSagaEvents();
 }

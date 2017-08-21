@@ -19,7 +19,7 @@ package io.servicecomb.saga.core;
 import java.util.Map;
 import java.util.Set;
 
-class TransactionEndedEvent extends SagaEvent {
+public class TransactionEndedEvent extends SagaEvent {
 
   private final SagaResponse response;
 
@@ -27,7 +27,7 @@ class TransactionEndedEvent extends SagaEvent {
     this(sagaId, request, SagaResponse.EMPTY_RESPONSE);
   }
 
-  TransactionEndedEvent(String sagaId, SagaRequest request, SagaResponse response) {
+  public TransactionEndedEvent(String sagaId, SagaRequest request, SagaResponse response) {
     super(sagaId, request);
     this.response = response;
   }
