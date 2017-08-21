@@ -16,6 +16,9 @@
 
 package io.servicecomb.saga.spring;
 
+import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
+import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
+
 import io.servicecomb.saga.core.SagaEndedEvent;
 import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.SagaStartedEvent;
@@ -30,7 +33,7 @@ class SagaEventFormat {
     put("SagaStartedEvent", (sagaId, json) -> sagaStartedEvent(sagaId, json));
     put("TransactionStartedEvent", (sagaId, json) -> transactionStartedEvent(sagaId, json));
     put("TransactionEndedEvent", (sagaId, json) -> transactionEndedEvent(sagaId, json));
-    put("SagaEndedEvent", (sagaId, json) -> sagaEndedEvent(sagaId, json));
+    put("SagaEndedEvent", (sagaId, json) -> sagaEndedEvent(sagaId));
   }};
 
   SagaEventFormat() {
@@ -41,7 +44,10 @@ class SagaEventFormat {
   }
 
   private SagaEvent sagaStartedEvent(String sagaId, String json) {
-    return new SagaStartedEvent(sagaId, json, null);
+    return new SagaStartedEvent(
+        sagaId,
+        json,
+        SAGA_START_REQUEST);
   }
 
   private SagaEvent transactionStartedEvent(String sagaId, String json) {
@@ -52,7 +58,9 @@ class SagaEventFormat {
     return new TransactionEndedEvent(sagaId, null, null);
   }
 
-  private SagaEvent sagaEndedEvent(String sagaId, String json) {
-    return new SagaEndedEvent(sagaId, null);
+  private SagaEvent sagaEndedEvent(String sagaId) {
+    return new SagaEndedEvent(
+        sagaId,
+        SAGA_END_REQUEST);
   }
 }

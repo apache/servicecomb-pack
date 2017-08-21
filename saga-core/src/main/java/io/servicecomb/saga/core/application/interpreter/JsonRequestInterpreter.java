@@ -16,15 +16,10 @@
 
 package io.servicecomb.saga.core.application.interpreter;
 
-import static io.servicecomb.saga.core.Compensation.SAGA_END_COMPENSATION;
-import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
-import static io.servicecomb.saga.core.SagaTask.SAGA_END_TASK;
-import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
-import static io.servicecomb.saga.core.Transaction.SAGA_END_TRANSACTION;
-import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
+import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
+import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.servicecomb.saga.core.NoOpSagaRequest;
 import io.servicecomb.saga.core.SagaException;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.dag.Node;
@@ -76,13 +71,13 @@ public class JsonRequestInterpreter {
   private Node<SagaRequest> rootNode(int id) {
     return new Node<>(
         id,
-        new NoOpSagaRequest("saga-start", SAGA_START_TRANSACTION, SAGA_START_COMPENSATION, SAGA_START_TASK));
+        SAGA_START_REQUEST);
   }
 
   private Node<SagaRequest> leafNode(int id) {
     return new Node<>(
         id,
-        new NoOpSagaRequest("saga-end", SAGA_END_TRANSACTION, SAGA_END_COMPENSATION, SAGA_END_TASK));
+        SAGA_END_REQUEST);
   }
 
   private boolean isOrphan(JsonSagaRequest sagaRequest) {

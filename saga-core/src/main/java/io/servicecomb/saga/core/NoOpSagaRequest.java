@@ -16,7 +16,26 @@
 
 package io.servicecomb.saga.core;
 
+import static io.servicecomb.saga.core.Compensation.SAGA_END_COMPENSATION;
+import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
+import static io.servicecomb.saga.core.SagaTask.SAGA_END_TASK;
+import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
+import static io.servicecomb.saga.core.Transaction.SAGA_END_TRANSACTION;
+import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
+
 public class NoOpSagaRequest implements SagaRequest {
+
+  public static final SagaRequest SAGA_START_REQUEST = new NoOpSagaRequest(
+      "saga-start",
+      SAGA_START_TRANSACTION,
+      SAGA_START_COMPENSATION,
+      SAGA_START_TASK);
+
+  public static final SagaRequest SAGA_END_REQUEST = new NoOpSagaRequest(
+      "saga-end",
+      SAGA_END_TRANSACTION,
+      SAGA_END_COMPENSATION,
+      SAGA_END_TASK);
 
   private final String id;
   private final Transaction transaction;
