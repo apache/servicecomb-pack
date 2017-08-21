@@ -16,6 +16,8 @@
 
 package io.servicecomb.saga.core.application.interpreter;
 
+import static io.servicecomb.saga.core.SagaTask.SAGA_REQUEST_TASK;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.servicecomb.saga.core.Compensation;
@@ -63,19 +65,6 @@ public class JsonSagaRequest implements SagaRequest {
     this.parents = new String[0];
   }
 
-  // TODO: 8/11/2017 saga task should be a sub type of saga request
-  @Override
-  public void commit() {
-  }
-
-  @Override
-  public void compensate() {
-  }
-
-  @Override
-  public void abort(Exception e) {
-  }
-
   @Override
   public Transaction transaction() {
     return transaction;
@@ -99,6 +88,11 @@ public class JsonSagaRequest implements SagaRequest {
   @Override
   public String type() {
     return type;
+  }
+
+  @Override
+  public String task() {
+    return SAGA_REQUEST_TASK;
   }
 
   String[] parents() {

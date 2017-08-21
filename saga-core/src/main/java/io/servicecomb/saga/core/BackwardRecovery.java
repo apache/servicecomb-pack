@@ -24,9 +24,9 @@ class BackwardRecovery implements RecoveryPolicy {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
-  public void apply(SagaRequest request) {
+  public void apply(SagaTask task, SagaRequest request) {
     try {
-      request.commit();
+      task.commit(request);
     } catch (Exception e) {
       log.error("Applying {} policy due to failure in transaction of service {}, path {}, method {}, params {}",
           description(),
@@ -37,7 +37,7 @@ class BackwardRecovery implements RecoveryPolicy {
           e
       );
 
-      request.abort(e);
+      task.abort(request, e);
       throw e;
     }
   }

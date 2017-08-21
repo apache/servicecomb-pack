@@ -18,5 +18,5 @@ package io.servicecomb.saga.core;
 
 interface RecoveryPolicy extends Descriptive {
 
-  void apply(SagaRequest request);
+  void apply(SagaTask task, SagaRequest request);
 }

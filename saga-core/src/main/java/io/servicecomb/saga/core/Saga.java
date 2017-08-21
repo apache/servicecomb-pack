@@ -37,6 +37,7 @@ public class Saga {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final EventStore eventStore;
+  private final Map<String, SagaTask> tasks;
 
   private final CompletionService<Operation> executorService = new ExecutorCompletionService<>(
       Executors.newFixedThreadPool(5));
@@ -51,14 +52,20 @@ public class Saga {
   private volatile SagaState currentTaskRunner;
 
 
-  public Saga(EventStore eventStore, SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {
-    this(eventStore, new BackwardRecovery(), sagaTaskGraph);
+  public Saga(
+      EventStore eventStore,
+      Map<String, SagaTask> tasks,
+      SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {
+    this(eventStore, new BackwardRecovery(), tasks, sagaTaskGraph);
   }
 
-  public Saga(EventStore eventStore, RecoveryPolicy recoveryPolicy,
+  public Saga(EventStore eventStore,
+      RecoveryPolicy recoveryPolicy,
+      Map<String, SagaTask> tasks,
       SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {
 
     this.eventStore = eventStore;
+    this.tasks = tasks;
     this.completedTransactions = new HashSet<>();
     this.completedCompensations = new HashSet<>();
     this.abortedTransactions = new HashSet<>();
@@ -66,11 +73,11 @@ public class Saga {
 
     this.transactionTaskRunner = new TaskRunner(
         traveller(sagaTaskGraph, new FromRootTraversalDirection<>()),
-        new TransactionTaskConsumer(executorService, new LoggingRecoveryPolicy(recoveryPolicy)));
+        new TransactionTaskConsumer(tasks, executorService, new LoggingRecoveryPolicy(recoveryPolicy)));
 
     this.compensationTaskRunner = new TaskRunner(
         traveller(sagaTaskGraph, new FromLeafTraversalDirection<>()),
-        new CompensationTaskConsumer(completedTransactions));
+        new CompensationTaskConsumer(tasks, completedTransactions));
 
     currentTaskRunner = transactionTaskRunner;
   }
@@ -89,8 +96,8 @@ public class Saga {
         gatherEvents(eventStore);
 
         hangingOperations.values().forEach(sagaTask -> {
-          sagaTask.commit();
-          sagaTask.compensate();
+          tasks.get(sagaTask.task()).commit(sagaTask);
+          tasks.get(sagaTask.task()).compensate(sagaTask);
         });
       }
     } while (currentTaskRunner.hasNext());

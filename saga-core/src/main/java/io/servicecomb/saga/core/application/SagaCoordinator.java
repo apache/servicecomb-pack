@@ -16,16 +16,24 @@
 
 package io.servicecomb.saga.core.application;
 
+import static io.servicecomb.saga.core.SagaTask.SAGA_END_TASK;
+import static io.servicecomb.saga.core.SagaTask.SAGA_REQUEST_TASK;
+import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
+
 import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.EventStore;
 import io.servicecomb.saga.core.PersistentStore;
+import io.servicecomb.saga.core.RequestProcessTask;
 import io.servicecomb.saga.core.Saga;
+import io.servicecomb.saga.core.SagaEndTask;
 import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.SagaLog;
+import io.servicecomb.saga.core.SagaStartTask;
+import io.servicecomb.saga.core.SagaTask;
 import io.servicecomb.saga.core.Transport;
 import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
-import io.servicecomb.saga.core.application.interpreter.SagaTaskFactory;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -52,9 +60,8 @@ public class SagaCoordinator {
 
     Saga saga = new Saga(
         sagaLog,
-        requestInterpreter.interpret(
-            requestJson,
-            new SagaTaskFactory(sagaId, compositeSagaLog(sagaLog), transport)));
+        sagaTasks(sagaId, requestJson, sagaLog),
+        requestInterpreter.interpret(requestJson));
 
     saga.run();
   }
@@ -69,9 +76,8 @@ public class SagaCoordinator {
 
       Saga saga = new Saga(
           eventStore,
-          requestInterpreter.interpret(
-              event.json(),
-              new SagaTaskFactory(event.sagaId, compositeSagaLog(eventStore), transport)));
+          sagaTasks(event.sagaId, event.json(), eventStore),
+          requestInterpreter.interpret(event.json()));
 
       saga.play();
       saga.run();
@@ -80,5 +86,15 @@ public class SagaCoordinator {
 
   private CompositeSagaLog compositeSagaLog(SagaLog sagaLog) {
     return new CompositeSagaLog(sagaLog, persistentStore);
+  }
+
+  private Map<String, SagaTask> sagaTasks(String sagaId, String requestJson, EventStore sagaLog) {
+    SagaLog compositeSagaLog = compositeSagaLog(sagaLog);
+
+    return new HashMap<String, SagaTask>() {{
+      put(SAGA_START_TASK, new SagaStartTask(sagaId, requestJson, compositeSagaLog));
+      put(SAGA_REQUEST_TASK, new RequestProcessTask(sagaId, compositeSagaLog, transport));
+      put(SAGA_END_TASK, new SagaEndTask(sagaId, compositeSagaLog));
+    }};
   }
 }

@@ -16,13 +16,15 @@
 
 package io.servicecomb.saga.core;
 
-public interface SagaTask extends SagaRequest {
+public interface SagaTask {
 
-  String sagaId();
+  String SAGA_START_TASK = "SagaStart";
+  String SAGA_REQUEST_TASK = "SagaRequest";
+  String SAGA_END_TASK = "SagaEnd";
 
-  void commit();
+  void commit(SagaRequest request);
 
-  void compensate();
+  void compensate(SagaRequest request);
 
-  void abort(Exception e);
+  void abort(SagaRequest request, Exception e);
 }

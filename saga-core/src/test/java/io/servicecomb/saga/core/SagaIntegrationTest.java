@@ -16,8 +16,12 @@
 
 package io.servicecomb.saga.core;
 
+import static io.servicecomb.saga.core.Compensation.SAGA_END_COMPENSATION;
 import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
 import static io.servicecomb.saga.core.SagaEventMatcher.eventWith;
+import static io.servicecomb.saga.core.SagaTask.SAGA_END_TASK;
+import static io.servicecomb.saga.core.SagaTask.SAGA_REQUEST_TASK;
+import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
 import static io.servicecomb.saga.core.Transaction.SAGA_END_TRANSACTION;
 import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
 import static java.util.Arrays.asList;
@@ -35,6 +39,8 @@ import io.servicecomb.saga.core.application.interpreter.JsonSagaRequest;
 import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
@@ -59,11 +65,11 @@ public class SagaIntegrationTest {
 
   private final String requestJson = "{}";
   private final Transport transport = mock(Transport.class);
-  private final SagaRequest sagaStartRequest = new SagaStartTask(sagaId, requestJson, eventStore);
+  private final SagaRequest sagaStartRequest = new NoOpSagaRequest("saga-start", SAGA_START_TRANSACTION, SAGA_START_COMPENSATION, SAGA_START_TASK);
   private final SagaRequest request1 = sagaTask("request1", "service1", transaction1, compensation1);
   private final SagaRequest request2 = sagaTask("request2", "service2", transaction2, compensation2);
   private final SagaRequest request3 = sagaTask("request3", "service3", transaction3, compensation3);
-  private final SagaRequest sagaEndRequest = new SagaEndTask(sagaId, eventStore);
+  private final SagaRequest sagaEndRequest = new NoOpSagaRequest("saga-end", SAGA_END_TRANSACTION, SAGA_END_COMPENSATION, SAGA_END_TASK);
 
   @SuppressWarnings("ThrowableInstanceNeverThrown")
   private final RuntimeException exception = new RuntimeException("oops");
@@ -77,6 +83,7 @@ public class SagaIntegrationTest {
   private final SuccessfulSagaResponse response = new SuccessfulSagaResponse(200, "blah");
 
   private Saga saga;
+  private final Map<String, SagaTask> tasks = new HashMap<>();
 
   // root - node1 - node2 - leaf
   @Before
@@ -106,7 +113,15 @@ public class SagaIntegrationTest {
     when(compensation3.path()).thenReturn("/rest/compensation3");
     when(compensation3.path()).thenReturn("/rest/compensation3");
 
-    saga = new Saga(eventStore, sagaTaskGraph);
+    SagaStartTask sagaStartTask = new SagaStartTask(sagaId, requestJson, eventStore);
+    SagaEndTask sagaEndTask = new SagaEndTask(sagaId, eventStore);
+    RequestProcessTask processTask = new RequestProcessTask(sagaId, eventStore, transport);
+
+    tasks.put(SAGA_START_TASK, sagaStartTask);
+    tasks.put(SAGA_REQUEST_TASK, processTask);
+    tasks.put(SAGA_END_TASK, sagaEndTask);
+
+    saga = new Saga(eventStore, tasks, sagaTaskGraph);
   }
 
   @Test
@@ -244,7 +259,7 @@ public class SagaIntegrationTest {
 
   @Test
   public void retriesFailedTransactionTillSuccess() {
-    Saga saga = new Saga(eventStore, new ForwardRecovery(), sagaTaskGraph);
+    Saga saga = new Saga(eventStore, new ForwardRecovery(), tasks, sagaTaskGraph);
 
     when(transport.with(request2.serviceName(), transaction2.path(), transaction2.method(), transaction2.params()))
         .thenThrow(exception).thenThrow(exception).thenReturn(response);
@@ -524,15 +539,11 @@ public class SagaIntegrationTest {
     node3.addChild(leaf);
   }
 
-  private SagaTask sagaTask(String requestId,
+  private SagaRequest sagaTask(String requestId,
       String serviceName,
       Transaction transaction,
       Compensation compensation) {
 
-    return new RequestProcessTask(
-        sagaId,
-        new JsonSagaRequest(requestId, serviceName, "rest", transaction, compensation),
-        eventStore,
-        transport);
+    return new JsonSagaRequest(requestId, serviceName, "rest", transaction, compensation);
   }
 }

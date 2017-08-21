@@ -18,12 +18,6 @@ package io.servicecomb.saga.core;
 
 public interface SagaRequest {
 
-  void commit();
-
-  void compensate();
-
-  void abort(Exception e);
-
   Transaction transaction();
 
   Compensation compensation();
@@ -34,4 +28,5 @@ public interface SagaRequest {
 
   String type();
 
+  String task();
 }

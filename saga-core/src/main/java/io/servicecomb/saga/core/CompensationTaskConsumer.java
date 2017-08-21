@@ -20,6 +20,7 @@ import io.servicecomb.saga.core.dag.Node;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,9 +28,11 @@ import org.slf4j.LoggerFactory;
 class CompensationTaskConsumer implements TaskConsumer {
 
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private final Map<String, SagaTask> tasks;
   private final Set<String> completedTransactions;
 
-  CompensationTaskConsumer(Set<String> completedTransactions) {
+  CompensationTaskConsumer(Map<String, SagaTask> tasks, Set<String> completedTransactions) {
+    this.tasks = tasks;
     this.completedTransactions = completedTransactions;
   }
 
@@ -40,7 +43,7 @@ class CompensationTaskConsumer implements TaskConsumer {
 
       if (completedTransactions.contains(task.id())) {
         log.info("Starting task {} id={}", task.serviceName(), task.id());
-        task.compensate();
+        tasks.get(task.task()).compensate(task);
         log.info("Completed task {} id={}", task.serviceName(), task.id());
       }
     }

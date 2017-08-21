@@ -39,6 +39,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
 
+@SuppressWarnings("unchecked")
 public class JsonRequestInterpreterTest {
 
   private static final String requests = "[\n"
@@ -141,12 +142,11 @@ public class JsonRequestInterpreterTest {
       + "]\n";
 
   private final String sagaId = Randomness.uniquify("sagaId");
-  private final SagaTaskFactory sagaTaskFactory = new SagaTaskFactory(sagaId, null, null);
   private final JsonRequestInterpreter interpreter = new JsonRequestInterpreter();
 
   @Test
   public void interpretsParallelRequests() {
-    SingleLeafDirectedAcyclicGraph<SagaRequest> tasks = interpreter.interpret(requests, sagaTaskFactory);
+    SingleLeafDirectedAcyclicGraph<SagaRequest> tasks = interpreter.interpret(requests);
 
     Traveller<SagaRequest> traveller = new ByLevelTraveller<>(tasks, new FromRootTraversalDirection<>());
     Collection<Node<SagaRequest>> nodes = traveller.nodes();
@@ -179,7 +179,7 @@ public class JsonRequestInterpreterTest {
   @Test
   public void blowsUpWhenJsonIsInvalid() {
     try {
-      interpreter.interpret("invalid-json", sagaTaskFactory);
+      interpreter.interpret("invalid-json");
       fail(SagaException.class.getSimpleName() + " is expected, but none thrown");
     } catch (SagaException e) {
       assertThat(e.getMessage(), is("Failed to interpret JSON invalid-json"));
@@ -189,7 +189,7 @@ public class JsonRequestInterpreterTest {
   @Test
   public void blowsUpWhenJsonContainsDuplicateRequestId() {
     try {
-      interpreter.interpret(requestsWithDuplicateId, sagaTaskFactory);
+      interpreter.interpret(requestsWithDuplicateId);
       fail(SagaException.class.getSimpleName() + " is expected, but none thrown");
     } catch (SagaException e) {
       assertThat(e.getMessage(),

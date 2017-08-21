@@ -16,7 +16,15 @@
 
 package io.servicecomb.saga.core.application.interpreter;
 
+import static io.servicecomb.saga.core.Compensation.SAGA_END_COMPENSATION;
+import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
+import static io.servicecomb.saga.core.SagaTask.SAGA_END_TASK;
+import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
+import static io.servicecomb.saga.core.Transaction.SAGA_END_TRANSACTION;
+import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.servicecomb.saga.core.NoOpSagaRequest;
 import io.servicecomb.saga.core.SagaException;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.dag.Node;
@@ -29,13 +37,13 @@ public class JsonRequestInterpreter {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
-  public SingleLeafDirectedAcyclicGraph<SagaRequest> interpret(String requests, SagaTaskFactory sagaTaskFactory) {
+  public SingleLeafDirectedAcyclicGraph<SagaRequest> interpret(String requests) {
     try {
       JsonSagaRequest[] sagaRequests = objectMapper.readValue(requests, JsonSagaRequest[].class);
 
-      Map<String, Node<SagaRequest>> requestNodes = requestsToNodes(sagaRequests, sagaTaskFactory);
+      Map<String, Node<SagaRequest>> requestNodes = requestsToNodes(sagaRequests);
 
-      return linkNodesToGraph(sagaRequests, sagaTaskFactory, requestNodes, requests);
+      return linkNodesToGraph(sagaRequests, requestNodes);
     } catch (IOException e) {
       throw new SagaException("Failed to interpret JSON " + requests, e);
     }
@@ -43,12 +51,10 @@ public class JsonRequestInterpreter {
 
   private SingleLeafDirectedAcyclicGraph<SagaRequest> linkNodesToGraph(
       JsonSagaRequest[] sagaRequests,
-      SagaTaskFactory sagaTaskFactory,
-      Map<String, Node<SagaRequest>> requestNodes,
-      String requestJson) {
+      Map<String, Node<SagaRequest>> requestNodes) {
 
-    Node<SagaRequest> root = rootNode(0, requestJson, sagaTaskFactory);
-    Node<SagaRequest> leaf = leafNode(sagaRequests.length + 1, sagaTaskFactory);
+    Node<SagaRequest> root = rootNode(0);
+    Node<SagaRequest> leaf = leafNode(sagaRequests.length + 1);
 
     for (JsonSagaRequest sagaRequest : sagaRequests) {
       if (isOrphan(sagaRequest)) {
@@ -67,23 +73,23 @@ public class JsonRequestInterpreter {
     return new SingleLeafDirectedAcyclicGraph<>(root, leaf);
   }
 
-  private Node<SagaRequest> rootNode(int id, String requestJson, SagaTaskFactory sagaTaskFactory) {
+  private Node<SagaRequest> rootNode(int id) {
     return new Node<>(
         id,
-        sagaTaskFactory.newStartTask(requestJson));
+        new NoOpSagaRequest("saga-start", SAGA_START_TRANSACTION, SAGA_START_COMPENSATION, SAGA_START_TASK));
   }
 
-  private Node<SagaRequest> leafNode(int id, SagaTaskFactory sagaTaskFactory) {
+  private Node<SagaRequest> leafNode(int id) {
     return new Node<>(
         id,
-        sagaTaskFactory.newEndTask());
+        new NoOpSagaRequest("saga-end", SAGA_END_TRANSACTION, SAGA_END_COMPENSATION, SAGA_END_TASK));
   }
 
   private boolean isOrphan(JsonSagaRequest sagaRequest) {
     return sagaRequest.parents().length == 0;
   }
 
-  private Map<String, Node<SagaRequest>> requestsToNodes(SagaRequest[] sagaRequests, SagaTaskFactory sagaTaskFactory) {
+  private Map<String, Node<SagaRequest>> requestsToNodes(SagaRequest[] sagaRequests) {
     long index = 1;
     Map<String, Node<SagaRequest>> requestMap = new HashMap<>();
     for (SagaRequest sagaRequest : sagaRequests) {
@@ -91,7 +97,7 @@ public class JsonRequestInterpreter {
         // TODO: 8/20/2017 add random id if user didn't provide one
         throw new SagaException("Failed to interpret requests with duplicate request id: " + sagaRequest.id());
       }
-      requestMap.put(sagaRequest.id(), new Node<>(index++, sagaTaskFactory.newRequestTask(sagaRequest)));
+      requestMap.put(sagaRequest.id(), new Node<>(index++, sagaRequest));
     }
     return requestMap;
   }

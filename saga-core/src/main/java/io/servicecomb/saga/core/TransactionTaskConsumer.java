@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -32,10 +33,16 @@ import org.slf4j.LoggerFactory;
 class TransactionTaskConsumer implements TaskConsumer {
 
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private final Map<String, SagaTask> tasks;
   private final CompletionService<Operation> executorService;
   private final RecoveryPolicy recoveryPolicy;
 
-  TransactionTaskConsumer(CompletionService<Operation> executorService, RecoveryPolicy recoveryPolicy) {
+  TransactionTaskConsumer(
+      Map<String, SagaTask> tasks,
+      CompletionService<Operation> executorService,
+      RecoveryPolicy recoveryPolicy) {
+
+    this.tasks = tasks;
     this.executorService = executorService;
     this.recoveryPolicy = recoveryPolicy;
   }
@@ -75,7 +82,7 @@ class TransactionTaskConsumer implements TaskConsumer {
 
   private Future<Operation> futureOf(SagaRequest task) {
     return executorService.submit(() -> {
-      recoveryPolicy.apply(task);
+      recoveryPolicy.apply(tasks.get(task.task()), task);
       return task.transaction();
     });
   }

@@ -16,6 +16,9 @@
 
 package io.servicecomb.saga.core;
 
+import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
+import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
+import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
@@ -157,10 +160,7 @@ public class SagaCoordinatorTest {
   }
 
   private SagaRequest sagaStartRequest() {
-    return new SagaStartTask(
-        sagaId,
-        requestJson,
-        eventStore);
+    return new NoOpSagaRequest("saga-start", SAGA_START_TRANSACTION, SAGA_START_COMPENSATION, SAGA_START_TASK);
   }
 
   private Matcher<SagaEvent> eventWith(

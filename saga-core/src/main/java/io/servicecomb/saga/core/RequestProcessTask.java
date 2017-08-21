@@ -16,28 +16,21 @@
 
 package io.servicecomb.saga.core;
 
-public class RequestProcessTask implements SagaTask, SagaRequest {
+public class RequestProcessTask implements SagaTask {
 
   private final String sagaId;
   private final SagaLog sagaLog;
   private final Transport transport;
-  private final SagaRequest request;
 
-  public RequestProcessTask(String sagaId, SagaRequest request, SagaLog sagaLog, Transport transport) {
+  public RequestProcessTask(String sagaId, SagaLog sagaLog, Transport transport) {
     this.sagaId = sagaId;
-    this.request = request;
     this.sagaLog = sagaLog;
     this.transport = transport;
   }
 
   @Override
-  public String sagaId() {
-    return sagaId;
-  }
-
-  @Override
-  public void commit() {
-    sagaLog.offer(new TransactionStartedEvent(sagaId, this));
+  public void commit(SagaRequest request) {
+    sagaLog.offer(new TransactionStartedEvent(sagaId, request));
 
     Transaction transaction = request.transaction();
     SagaResponse response = transport.with(
@@ -46,48 +39,22 @@ public class RequestProcessTask implements SagaTask, SagaRequest {
         transaction.method(),
         transaction.params());
 
-    sagaLog.offer(new TransactionEndedEvent(sagaId, this, response));
+    sagaLog.offer(new TransactionEndedEvent(sagaId, request, response));
   }
 
   @Override
-  public void compensate() {
-    sagaLog.offer(new CompensationStartedEvent(sagaId, this));
+  public void compensate(SagaRequest request) {
+    sagaLog.offer(new CompensationStartedEvent(sagaId, request));
 
     Compensation compensation = request.compensation();
     SagaResponse response = transport
         .with(request.serviceName(), compensation.path(), compensation.method(), compensation.params());
 
-    sagaLog.offer(new CompensationEndedEvent(sagaId, this, response));
+    sagaLog.offer(new CompensationEndedEvent(sagaId, request, response));
   }
 
   @Override
-  public void abort(Exception e) {
-    sagaLog.offer(new TransactionAbortedEvent(sagaId, this, e));
+  public void abort(SagaRequest request, Exception e) {
+    sagaLog.offer(new TransactionAbortedEvent(sagaId, request, e));
   }
-
-  @Override
-  public Transaction transaction() {
-    return request.transaction();
-  }
-
-  @Override
-  public Compensation compensation() {
-    return request.compensation();
-  }
-
-  @Override
-  public String serviceName() {
-    return request.serviceName();
-  }
-
-  @Override
-  public String id() {
-    return request.id();
-  }
-
-  @Override
-  public String type() {
-    return request.type();
-  }
-
 }

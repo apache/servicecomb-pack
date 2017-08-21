@@ -16,9 +16,6 @@
 
 package io.servicecomb.saga.core;
 
-import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
-import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
-
 public class SagaStartTask implements SagaTask {
 
   private final String sagaId;
@@ -32,48 +29,17 @@ public class SagaStartTask implements SagaTask {
   }
 
   @Override
-  public String sagaId() {
-    return sagaId;
+  public void commit(SagaRequest request) {
+    sagaLog.offer(new SagaStartedEvent(sagaId, requestJson, request));
   }
 
   @Override
-  public void commit() {
-    sagaLog.offer(new SagaStartedEvent(sagaId, requestJson, this));
+  public void compensate(SagaRequest request) {
+    sagaLog.offer(new SagaEndedEvent(sagaId, request));
   }
 
   @Override
-  public void compensate() {
-    sagaLog.offer(new SagaEndedEvent(sagaId, this));
-  }
-
-  @Override
-  public void abort(Exception e) {
+  public void abort(SagaRequest request, Exception e) {
 
   }
-
-  @Override
-  public Transaction transaction() {
-    return SAGA_START_TRANSACTION;
-  }
-
-  @Override
-  public Compensation compensation() {
-    return SAGA_START_COMPENSATION;
-  }
-
-  @Override
-  public String serviceName() {
-    return "Saga";
-  }
-
-  @Override
-  public String id() {
-    return "saga-start";
-  }
-
-  @Override
-  public String type() {
-    return "nop";
-  }
-
 }

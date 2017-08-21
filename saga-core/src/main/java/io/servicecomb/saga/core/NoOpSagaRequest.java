@@ -16,14 +16,38 @@
 
 package io.servicecomb.saga.core;
 
-import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
-import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
+public class NoOpSagaRequest implements SagaRequest {
 
-public class DummyTask implements SagaRequest {
+  private final String id;
+  private final Transaction transaction;
+  private final Compensation compensation;
+  private final String task;
+
+  public NoOpSagaRequest(String id, Transaction transaction, Compensation compensation, String task) {
+    this.id = id;
+    this.transaction = transaction;
+    this.compensation = compensation;
+    this.task = task;
+  }
+
+  @Override
+  public Transaction transaction() {
+    return transaction;
+  }
+
+  @Override
+  public Compensation compensation() {
+    return compensation;
+  }
+
+  @Override
+  public String serviceName() {
+    return "Saga";
+  }
 
   @Override
   public String id() {
-    return "dummy";
+    return id;
   }
 
   @Override
@@ -32,32 +56,7 @@ public class DummyTask implements SagaRequest {
   }
 
   @Override
-  public Transaction transaction() {
-    return SAGA_START_TRANSACTION;
-  }
-
-  @Override
-  public void commit() {
-
-  }
-
-  @Override
-  public void compensate() {
-
-  }
-
-  @Override
-  public void abort(Exception e) {
-
-  }
-
-  @Override
-  public Compensation compensation() {
-    return SAGA_START_COMPENSATION;
-  }
-
-  @Override
-  public String serviceName() {
-    return "dummy";
+  public String task() {
+    return task;
   }
 }
