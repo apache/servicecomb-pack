@@ -39,12 +39,12 @@ class CompensationTaskConsumer implements TaskConsumer {
   @Override
   public void consume(Collection<Node<SagaRequest>> nodes) {
     for (Node<SagaRequest> node : nodes) {
-      SagaRequest task = node.value();
+      SagaRequest request = node.value();
 
-      if (completedTransactions.contains(task.id())) {
-        log.info("Starting task {} id={}", task.serviceName(), task.id());
-        tasks.get(task.task()).compensate(task);
-        log.info("Completed task {} id={}", task.serviceName(), task.id());
+      if (completedTransactions.contains(request.id())) {
+        log.info("Starting request {} id={}", request.serviceName(), request.id());
+        tasks.get(request.task()).compensate(request);
+        log.info("Completed request {} id={}", request.serviceName(), request.id());
       }
     }
   }
@@ -53,13 +53,13 @@ class CompensationTaskConsumer implements TaskConsumer {
   public boolean replay(Collection<Node<SagaRequest>> nodes, Set<String> completedOperations) {
 
     for (Iterator<Node<SagaRequest>> iterator = nodes.iterator(); iterator.hasNext(); ) {
-      SagaRequest task = iterator.next().value();
-      if (completedOperations.contains(task.id())) {
-        log.info("Skipped completed compensation id={} operation={} while replay", task.id(), task.transaction());
+      SagaRequest request = iterator.next().value();
+      if (completedOperations.contains(request.id())) {
+        log.info("Skipped completed compensation id={} operation={} while replay", request.id(), request.transaction());
         iterator.remove();
-      } else if (!completedTransactions.contains(task.id())) {
+      } else if (!completedTransactions.contains(request.id())) {
         // this transaction never started
-        log.info("Skipped pending transaction id={} operation={} while replay", task.id(), task.transaction());
+        log.info("Skipped pending transaction id={} operation={} while replay", request.id(), request.transaction());
         iterator.remove();
       }
     }

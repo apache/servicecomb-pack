@@ -95,9 +95,9 @@ public class Saga {
         // if so, not all events are gathered here and some transactions will be missed
         gatherEvents(eventStore);
 
-        hangingOperations.values().forEach(sagaTask -> {
-          tasks.get(sagaTask.task()).commit(sagaTask);
-          tasks.get(sagaTask.task()).compensate(sagaTask);
+        hangingOperations.values().forEach(request -> {
+          tasks.get(request.task()).commit(request);
+          tasks.get(request.task()).compensate(request);
         });
       }
     } while (currentTaskRunner.hasNext());

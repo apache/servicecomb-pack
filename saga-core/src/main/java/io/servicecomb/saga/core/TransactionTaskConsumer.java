@@ -51,8 +51,8 @@ class TransactionTaskConsumer implements TaskConsumer {
   public void consume(Collection<Node<SagaRequest>> nodes) {
     List<Future<Operation>> futures = new ArrayList<>(nodes.size());
     for (Node<SagaRequest> node : nodes) {
-      SagaRequest task = node.value();
-      futures.add(futureOf(task));
+      SagaRequest request = node.value();
+      futures.add(futureOf(request));
     }
 
     for (int i = 0; i < futures.size(); i++) {
@@ -71,19 +71,19 @@ class TransactionTaskConsumer implements TaskConsumer {
   public boolean replay(Collection<Node<SagaRequest>> nodes, Set<String> completedOperations) {
 
     for (Iterator<Node<SagaRequest>> iterator = nodes.iterator(); iterator.hasNext(); ) {
-      SagaRequest task = iterator.next().value();
-      if (completedOperations.contains(task.id())) {
-        log.info("Skipped completed transaction id={} operation={} while replay", task.id(), task.transaction());
+      SagaRequest request = iterator.next().value();
+      if (completedOperations.contains(request.id())) {
+        log.info("Skipped completed transaction id={} operation={} while replay", request.id(), request.transaction());
         iterator.remove();
       }
     }
     return !nodes.isEmpty();
   }
 
-  private Future<Operation> futureOf(SagaRequest task) {
+  private Future<Operation> futureOf(SagaRequest request) {
     return executorService.submit(() -> {
-      recoveryPolicy.apply(tasks.get(task.task()), task);
-      return task.transaction();
+      recoveryPolicy.apply(tasks.get(request.task()), request);
+      return request.transaction();
     });
   }
 }
