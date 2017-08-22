@@ -31,7 +31,6 @@
     <module>transports</module>
     <module>saga-spring</module>
     <module>docker-build-config</module>
-    <module>saga-demo</module>
   </modules>
 
   <properties>
@@ -225,6 +224,12 @@
   </build>
 
   <profiles>
+    <profile>
+      <id>demo</id>
+      <modules>
+        <module>saga-demo</module>
+      </modules>
+    </profile>
     <profile>
       <id>docker-machine</id>
       <build>
