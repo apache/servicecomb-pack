@@ -31,6 +31,7 @@
     <module>transports</module>
     <module>saga-spring</module>
     <module>docker-build-config</module>
+    <module>saga-demo</module>
   </modules>
 
   <properties>
@@ -121,6 +122,12 @@
         <version>2.6.0</version>
         <scope>test</scope>
       </dependency>
+      <dependency>
+        <groupId>org.codehaus.groovy</groupId>
+        <artifactId>groovy-all</artifactId>
+        <version>2.4.9</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -136,6 +143,9 @@
           <groupId>org.codehaus.gmaven</groupId>
           <artifactId>gmaven-plugin</artifactId>
           <version>1.5</version>
+          <configuration>
+            <providerSelection>1.8</providerSelection>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>io.fabric8</groupId>

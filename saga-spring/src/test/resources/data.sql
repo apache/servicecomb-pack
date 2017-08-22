@@ -5,7 +5,7 @@ CREATE TABLE `saga_event_entity` (
   `saga_id` varchar(36) NOT NULL,
   `creation_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `type` varchar(50) NOT NULL,
-  `content_json` varchar(1000) NOT NULL DEFAULT '{}',
+  `content_json` clob NOT NULL DEFAULT '{}',
   PRIMARY KEY (`id`)
 ) DEFAULT CHARSET=utf8;
 

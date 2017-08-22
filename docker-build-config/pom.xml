@@ -50,7 +50,7 @@
                     </descriptor>
                   </assembly>
                   <entryPoint>
-                    <shell>java $JAVA_OPTS -jar /maven/saga/$ARTIFACT_ID-${project.version}-exec.jar</shell>
+                    <shell>java $JAVA_OPTS -jar /maven/saga/${project.artifactId}-${project.version}-exec.jar</shell>
                   </entryPoint>
                 </build>
               </image>

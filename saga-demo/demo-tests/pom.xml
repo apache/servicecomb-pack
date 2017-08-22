@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2017 Huawei Technologies Co., Ltd
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>saga-demo</artifactId>
+    <groupId>io.servicecomb.saga.demo</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>demo-tests</artifactId>
+
+  <dependencies>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.2</version>
+    </dependency>
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>rest-assured</artifactId>
+      <version>3.0.3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.groovy</groupId>
+      <artifactId>groovy-all</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <configuration>
+          <images>
+<!--
+            <image>
+              <name>mysql</name>
+              <alias>mysql</alias>
+              <run>
+                <env>
+                  <MYSQL_ROOT_PASSWORD>password</MYSQL_ROOT_PASSWORD>
+                  <MYSQL_DATABASE>saga</MYSQL_DATABASE>
+                  <MYSQL_USER>saga</MYSQL_USER>
+                  <MYSQL_PASSWORD>password</MYSQL_PASSWORD>
+                </env>
+                <wait>
+                  <log>port: 3306  MySQL Community Server</log>
+                  <time>60000</time>
+                </wait>
+                <ports>
+                  <port>mysql.port:3306</port>
+                </ports>
+              </run>
+            </image>
+-->
+            <image>
+              <name>car-rental-service:${project.version}</name>
+              <alias>car</alias>
+              <run>
+                <env>
+                  <JAVA_OPTS/>
+                </env>
+                <wait>
+                  <log>Tomcat started on port</log>
+                  <tcp>
+                    <ports>
+                      <port>8080</port>
+                    </ports>
+                  </tcp>
+                  <time>120000</time>
+                </wait>
+                <ports>
+                  <port>car.port:8080</port>
+                </ports>
+              </run>
+            </image>
+            <image>
+              <name>flight-booking-service:${project.version}</name>
+              <alias>flight</alias>
+              <run>
+                <env>
+                  <JAVA_OPTS/>
+                </env>
+                <wait>
+                  <log>Tomcat started on port</log>
+                  <tcp>
+                    <ports>
+                      <port>8080</port>
+                    </ports>
+                  </tcp>
+                  <time>120000</time>
+                </wait>
+                <ports>
+                  <port>flight.port:8080</port>
+                </ports>
+              </run>
+            </image>
+            <image>
+              <name>hotel-reservation-service:${project.version}</name>
+              <alias>hotel</alias>
+              <run>
+                <env>
+                  <JAVA_OPTS/>
+                </env>
+                <wait>
+                  <log>Tomcat started on port</log>
+                  <tcp>
+                    <ports>
+                      <port>8080</port>
+                    </ports>
+                  </tcp>
+                  <time>120000</time>
+                </wait>
+                <ports>
+                  <port>hotel.port:8080</port>
+                </ports>
+              </run>
+            </image>
+            <image>
+              <name>saga-spring:${project.version}</name>
+              <alias>saga</alias>
+              <run>
+                <links>
+                  <!--<link>mysql:mysql.servicecomb.io</link>-->
+                  <link>car:car.servicecomb.io</link>
+                  <link>flight:flight.servicecomb.io</link>
+                  <link>hotel:hotel.servicecomb.io</link>
+                </links>
+                <wait>
+                  <log>Tomcat started on port</log>
+                  <tcp>
+                    <ports>
+                      <port>8080</port>
+                    </ports>
+                  </tcp>
+                  <time>120000</time>
+                </wait>
+                <ports>
+                  <port>saga.port:8080</port>
+                </ports>
+              </run>
+            </image>
+          </images>
+        </configuration>
+        <executions>
+          <execution>
+            <id>start</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>start</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>stop</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <profiles>
+    <profile>
+      <id>docker</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.gmaven</groupId>
+            <artifactId>gmaven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>add-default-properties</id>
+                <phase>initialize</phase>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <configuration>
+                  <source>
+                    project.properties.setProperty('docker.hostname', 'localhost')
+                    log.info("Docker hostname is " + project.properties['docker.hostname'])
+                  </source>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <version>2.19.1</version>
+            <configuration>
+              <systemPropertyVariables>
+                <saga.address>
+                  http://${docker.hostname}:${saga.port}
+                </saga.address>
+              </systemPropertyVariables>
+              <argLine>${jacoco.failsafe.argLine}</argLine>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>integration-test</goal>
+                  <goal>verify</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>docker-machine</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.gmaven</groupId>
+            <artifactId>gmaven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>add-dynamic-properties</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <configuration>
+                  <source>
+                    def process = "docker-machine ip default".execute()
+                    process.waitFor()
+                    project.properties.setProperty('docker.hostname', process.in.text.trim())
+
+                    log.info("Docker hostname is " + project.properties['docker.hostname'])
+                  </source>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+</project>
