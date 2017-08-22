@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2017 Huawei Technologies Co., Ltd
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>saga</artifactId>
+    <groupId>io.servicecomb.saga</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>docker-build-config</artifactId>
+  <packaging>pom</packaging>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>io.fabric8</groupId>
+          <artifactId>docker-maven-plugin</artifactId>
+          <configuration>
+            <images>
+              <image>
+                <name>${project.artifactId}:${project.version}</name>
+                <alias>${project.artifactId}</alias>
+                <build>
+                  <from>openjdk:8-jre-alpine</from>
+                  <ports>
+                    <port>8080</port>
+                  </ports>
+                  <assembly>
+                    <mode>tar</mode>
+                    <descriptor>${root.basedir}/docker-build-config/assembly/assembly.xml
+                    </descriptor>
+                  </assembly>
+                  <entryPoint>
+                    <shell>java $JAVA_OPTS -jar /maven/saga/$ARTIFACT_ID-${project.version}-exec.jar</shell>
+                  </entryPoint>
+                </build>
+              </image>
+            </images>
+          </configuration>
+          <executions>
+            <execution>
+              <id>build</id>
+              <phase>package</phase>
+              <goals>
+                <goal>build</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.commonjava.maven.plugins</groupId>
+          <artifactId>directory-maven-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>directories</id>
+              <goals>
+                <goal>highest-basedir</goal>
+              </goals>
+              <phase>initialize</phase>
+              <configuration>
+                <property>root.basedir</property>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <executions>
+            <execution>
+              <goals>
+                <goal>repackage</goal>
+              </goals>
+              <configuration>
+                <outputDirectory>${project.build.directory}/saga</outputDirectory>
+                <classifier>exec</classifier>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+</project>
