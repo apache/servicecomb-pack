@@ -63,9 +63,8 @@
         <artifactId>docker-maven-plugin</artifactId>
         <configuration>
           <images>
-<!--
             <image>
-              <name>mysql</name>
+              <name>mysql/mysql-server:5.7</name>
               <alias>mysql</alias>
               <run>
                 <env>
@@ -75,7 +74,12 @@
                   <MYSQL_PASSWORD>password</MYSQL_PASSWORD>
                 </env>
                 <wait>
-                  <log>port: 3306  MySQL Community Server</log>
+                  <log>Starting MySQL 5.7</log>
+                  <tcp>
+                    <ports>
+                      <port>3306</port>
+                    </ports>
+                  </tcp>
                   <time>60000</time>
                 </wait>
                 <ports>
@@ -83,7 +87,6 @@
                 </ports>
               </run>
             </image>
--->
             <image>
               <name>car-rental-service:${project.version}</name>
               <alias>car</alias>
@@ -151,8 +154,11 @@
               <name>saga-spring:${project.version}</name>
               <alias>saga</alias>
               <run>
+                <env>
+                  <JAVA_OPTS>-Dspring.profiles.active=prd</JAVA_OPTS>
+                </env>
                 <links>
-                  <!--<link>mysql:mysql.servicecomb.io</link>-->
+                  <link>mysql:mysql.servicecomb.io</link>
                   <link>car:car.servicecomb.io</link>
                   <link>flight:flight.servicecomb.io</link>
                   <link>hotel:hotel.servicecomb.io</link>
@@ -169,6 +175,9 @@
                 <ports>
                   <port>saga.port:8080</port>
                 </ports>
+                <dependsOn>
+                  <dependsOn>mysql</dependsOn>
+                </dependsOn>
               </run>
             </image>
           </images>
