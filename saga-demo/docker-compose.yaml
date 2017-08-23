@@ -1,0 +1,52 @@
+version: '2.1'
+
+services:
+  mysql:
+    image: "mysql/mysql-server:5.7"
+    hostname: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=saga
+      - MYSQL_USER=saga
+      - MYSQL_PASSWORD=password
+    ports:
+      - "3306:3306"
+    healthcheck:
+        test: ["CMD-SHELL", "nc -z localhost 3306 &> /dev/null; echo $$?"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+
+  car-rental-service:
+    image: "car-rental-service:0.0.1-SNAPSHOT"
+    hostname: car
+    ports:
+      - "8080:8080"
+
+  flight-booking-service:
+    image: "flight-booking-service:0.0.1-SNAPSHOT"
+    hostname: flight
+    ports:
+      - "8081:8080"
+
+  hotel-reservation-service:
+    image: "hotel-reservation-service:0.0.1-SNAPSHOT"
+    hostname: hotel
+    ports:
+      - "8082:8080"
+
+  saga:
+    image: "saga-spring:0.0.1-SNAPSHOT"
+    hostname: saga
+    links:
+      - "mysql:mysql.servicecomb.io"
+      - "car-rental-service:car.servicecomb.io"
+      - "flight-booking-service:flight.servicecomb.io"
+      - "hotel-reservation-service:hotel.servicecomb.io"
+    environment:
+      - JAVA_OPTS=-Dspring.profiles.active=prd
+    ports:
+      - "8083:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy

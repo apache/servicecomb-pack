@@ -44,6 +44,14 @@ public class SagaEventEntity {
     this.creationTime = new Date();
   }
 
+  public SagaEventEntity(long id, String sagaId, long timestamp, String type, String contentJson) {
+    this.id = id;
+    this.sagaId = sagaId;
+    this.creationTime = new Date(timestamp);
+    this.type = type;
+    this.contentJson = contentJson;
+  }
+
   public long id() {
     return id;
   }
