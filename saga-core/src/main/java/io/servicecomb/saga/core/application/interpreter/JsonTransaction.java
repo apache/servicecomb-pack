@@ -61,4 +61,13 @@ class JsonTransaction implements Transaction {
   public Map<String, Map<String, String>> params() {
     return params;
   }
+
+  @Override
+  public String toString() {
+    return "Transaction{" +
+        "path='" + path + '\'' +
+        ", method='" + method + '\'' +
+        ", params=" + params +
+        '}';
+  }
 }

@@ -61,4 +61,13 @@ class JsonCompensation implements Compensation {
   public Map<String, Map<String, String>> params() {
     return params;
   }
+
+  @Override
+  public String toString() {
+    return "Compensation{" +
+        "path='" + path + '\'' +
+        ", method='" + method + '\'' +
+        ", params=" + params +
+        '}';
+  }
 }
