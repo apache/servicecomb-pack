@@ -7,3 +7,6 @@ jdk:
 
 script:
   - mvn clean install -Pjacoco coveralls:report
+
+after_success:
+  - mvn clean test -f saga-demo -Pdemo
