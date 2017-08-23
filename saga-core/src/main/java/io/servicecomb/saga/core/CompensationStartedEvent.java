@@ -19,9 +19,9 @@ package io.servicecomb.saga.core;
 import java.util.Map;
 import java.util.Set;
 
-class CompensationStartedEvent extends SagaEvent {
+public class CompensationStartedEvent extends SagaEvent {
 
-  CompensationStartedEvent(String sagaId, SagaRequest compensation) {
+  public CompensationStartedEvent(String sagaId, SagaRequest compensation) {
     super(sagaId, compensation);
   }
 
