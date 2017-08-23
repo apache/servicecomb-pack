@@ -19,11 +19,11 @@ package io.servicecomb.saga.core;
 import java.util.Map;
 import java.util.Set;
 
-class TransactionAbortedEvent extends SagaEvent {
+public class TransactionAbortedEvent extends SagaEvent {
 
   private final Exception exception;
 
-  TransactionAbortedEvent(String sagaId, SagaRequest payload, Exception exception) {
+public  TransactionAbortedEvent(String sagaId, SagaRequest payload, Exception exception) {
     super(sagaId, payload);
     this.exception = exception;
   }

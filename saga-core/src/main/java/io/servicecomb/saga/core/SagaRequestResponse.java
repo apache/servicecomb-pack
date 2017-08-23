@@ -16,30 +16,30 @@
 
 package io.servicecomb.saga.core;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-public class SuccessfulSagaResponse implements SagaResponse {
-  @JsonSerialize
-  private final int statusCode;
-  @JsonSerialize
-  private final String body;
+import io.servicecomb.saga.core.application.interpreter.JsonSagaRequest;
 
-  public SuccessfulSagaResponse(@JsonProperty("statusCode") int statusCode, @JsonProperty("body") String content) {
-    this.statusCode = statusCode;
-    this.body = content;
+public class SagaRequestResponse {
+  @JsonSerialize
+  private SagaRequest sagaRequest;
+  @JsonSerialize
+  private SagaResponse sagaResponse;
+
+  @JsonCreator
+  public SagaRequestResponse(@JsonProperty("sagaRequest") JsonSagaRequest sagaRequest,
+      @JsonProperty("sagaResponse") SuccessfulSagaResponse sagaResponse) {
+    this.sagaRequest = sagaRequest;
+    this.sagaResponse = sagaResponse;
   }
 
-  @Override
-  public boolean succeeded() {
-    return true;
+  public SagaRequest sagaRequest() {
+    return sagaRequest;
   }
 
-  @Override
-  public String body() {
-    return String.format("{\n"
-        + "  \"statusCode\": %d,\n"
-        + "  \"content\": \"%s\"\n"
-        + "}", statusCode, body);
+  public SagaResponse sagaResponse() {
+    return sagaResponse;
   }
 }

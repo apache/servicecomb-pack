@@ -41,7 +41,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.junit4.SpringRunner;
 import wiremock.org.apache.http.HttpStatus;
 
-@Ignore
+//@Ignore
 @SuppressWarnings("unchecked")
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {SagaSpringApplication.class, EventPopulatingConfig.class})
@@ -50,7 +50,7 @@ public class SagaRecoveryTest {
   @ClassRule
   public static final WireMockRule wireMockRule = new WireMockRule(8090);
 
-  private static final String requestX = "[\n"
+  private static final String singleRequestX = "[\n"
       + "  {\n"
       + "    \"id\": \"request-xxx\",\n"
       + "    \"type\": \"rest\",\n"
@@ -75,9 +75,11 @@ public class SagaRecoveryTest {
       + "    }\n"
       + "  }\n"
       + "]\n";
+  
+  private static final String requestX = "[\n" +singleRequestX+ "]\n";
 
-  private static final String requestY = "[\n"
-      + "  {\n"
+  private static final String singleRequestY =
+       "  {\n"
       + "    \"id\": \"request-yyy\",\n"
       + "    \"type\": \"rest\",\n"
       + "    \"serviceName\": \"localhost:8090\",\n"
@@ -100,7 +102,61 @@ public class SagaRecoveryTest {
       + "      }\n"
       + "    }\n"
       + "  }\n"
-      + "]\n";
+      ;
+  private static final String singleRequestY1 =
+      "  {\n"
+          + "    \"id\": \"request-yyy-1\",\n"
+          + "    \"type\": \"rest\",\n"
+          + "    \"serviceName\": \"localhost:8090\",\n"
+          + "    \"transaction\": {\n"
+          + "      \"method\": \"post\",\n"
+          + "      \"path\": \"/rest/yyy\",\n"
+          + "      \"params\": {\n"
+          + "        \"form\": {\n"
+          + "          \"foo\": \"yyy\"\n"
+          + "        }\n"
+          + "      }\n"
+          + "    },\n"
+          + "    \"compensation\": {\n"
+          + "      \"method\": \"delete\",\n"
+          + "      \"path\": \"/rest/yyy\",\n"
+          + "      \"params\": {\n"
+          + "        \"query\": {\n"
+          + "          \"bar\": \"yyy\"\n"
+          + "        }\n"
+          + "      }\n"
+          + "    }\n"
+          + "  }\n"
+          ;
+  private static final String requestY = "[\n"+singleRequestY +","+singleRequestY1+ "]\n";
+  
+  private static final String requestYAndResponse =
+      
+      "  { \"sagaRequest\":"
+      +          singleRequestY+","+"\n"  
+      + "   \"sagaResponse\": {\n"
+      + "        \"statusCode\": \"200\",\n"
+      + "        \"body\": \"test\"\n"
+      + "    }\n"
+      +"}";
+ 
+  private static final String requestY1AndException =
+      
+      "  { \"sagaRequest\":"
+          +          singleRequestY+","+"\n"  
+          + "   \"exception\": {\n"
+          + "        \"exception info."+"\n"
+          + "    }\n"
+          +"}";
+  private static final String requestY1AndResponse =
+     
+     "  { \"sagaRequest\":"
+         +          singleRequestY+","+"\n"  
+         + "   \"sagaResponse\": {\n"
+         + "        \"statusCode\": \"200\",\n"
+         + "        \"body\": \"test\"\n"
+         + "    }\n"
+         +"}";
 
   @Autowired
   private SagaEventRepo sagaEventRepo;
@@ -133,7 +189,12 @@ public class SagaRecoveryTest {
       repo.save(new SagaEventEntity("xxx", "SagaEndedEvent", "{}"));
 
       repo.save(new SagaEventEntity("yyy", "SagaStartedEvent", requestY));
-
+      repo.save(new SagaEventEntity("yyy", "TransactionStartedEvent", singleRequestY));
+      repo.save(new SagaEventEntity("yyy", "TransactionEndedEvent",requestYAndResponse));
+      repo.save(new SagaEventEntity("yyy", "TransactionStartedEvent", singleRequestY1));
+      repo.save(new SagaEventEntity("yyy", "TransactionAbortedEvent", requestY1AndException));
+//      repo.save(new SagaEventEntity("yyy", "CompensationStartedEvent",requestY1AndException));
+//      repo.save(new SagaEventEntity("yyy", "CompensationEndedEvent",requestY1AndResponse));
       return new JpaPersistentStore(repo);
     }
   }
