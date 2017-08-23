@@ -18,8 +18,8 @@ package io.servicecomb.saga.demo.hotel.reservation;
 
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -53,7 +53,7 @@ public class HotelReservationControllerTest {
   @Test
   public void cancelsHotelReservation() throws Exception {
     mockMvc.perform(
-        delete("/reservations/")
+        put("/reservations/")
             .contentType(APPLICATION_JSON_VALUE)
             .content("{\n"
                 + "  \"customerId\": \"mike\"\n"

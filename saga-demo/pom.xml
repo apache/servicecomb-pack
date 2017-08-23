@@ -32,6 +32,7 @@
     <module>car-rental-service</module>
     <module>flight-booking-service</module>
     <module>hotel-reservation-service</module>
+    <module>payment-service</module>
     <module>demo-tests</module>
   </modules>
 

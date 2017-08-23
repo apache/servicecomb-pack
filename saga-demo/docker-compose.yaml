@@ -35,6 +35,12 @@ services:
     ports:
       - "8082:8080"
 
+  payment-service:
+    image: "payment-service:0.0.1-SNAPSHOT"
+    hostname: payment
+    ports:
+      - "8080"
+
   saga:
     image: "saga-spring:0.0.1-SNAPSHOT"
     hostname: saga
@@ -43,6 +49,7 @@ services:
       - "car-rental-service:car.servicecomb.io"
       - "flight-booking-service:flight.servicecomb.io"
       - "hotel-reservation-service:hotel.servicecomb.io"
+      - "payment-service:payment.servicecomb.io"
     environment:
       - JAVA_OPTS=-Dspring.profiles.active=prd
     ports:

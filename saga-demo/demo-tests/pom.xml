@@ -151,6 +151,27 @@
               </run>
             </image>
             <image>
+              <name>payment-service:${project.version}</name>
+              <alias>payment</alias>
+              <run>
+                <env>
+                  <JAVA_OPTS/>
+                </env>
+                <wait>
+                  <log>Tomcat started on port</log>
+                  <tcp>
+                    <ports>
+                      <port>8080</port>
+                    </ports>
+                  </tcp>
+                  <time>120000</time>
+                </wait>
+                <ports>
+                  <port>payment.port:8080</port>
+                </ports>
+              </run>
+            </image>
+            <image>
               <name>saga-spring:${project.version}</name>
               <alias>saga</alias>
               <run>
@@ -162,6 +183,7 @@
                   <link>car:car.servicecomb.io</link>
                   <link>flight:flight.servicecomb.io</link>
                   <link>hotel:hotel.servicecomb.io</link>
+                  <link>payment:payment.servicecomb.io</link>
                 </links>
                 <wait>
                   <log>Tomcat started on port</log>

@@ -26,7 +26,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import io.servicecomb.saga.core.application.SagaCoordinator;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +64,7 @@ public class SagaController {
   public ResponseEntity<Map<String, List<SagaEventVo>>> allEvents() {
     Iterable<SagaEventEntity> entities = repo.findAll();
 
-    Map<String, List<SagaEventVo>> events = new HashMap<>();
+    Map<String, List<SagaEventVo>> events = new LinkedHashMap<>();
     entities.forEach(e -> {
       events.computeIfAbsent(e.sagaId(), id -> new LinkedList<>());
       events.get(e.sagaId()).add(new SagaEventVo(e.id(), e.sagaId(), e.creationTime(), e.type(), e.contentJson()));

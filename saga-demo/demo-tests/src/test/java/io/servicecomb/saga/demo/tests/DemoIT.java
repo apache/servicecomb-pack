@@ -94,6 +94,34 @@ public class DemoIT {
       + "        }\n"
       + "      }\n"
       + "    }\n"
+      + "  },\n"
+      + "  {\n"
+      + "    \"id\": \"request-payment\",\n"
+      + "    \"type\": \"rest\",\n"
+      + "    \"serviceName\": \"payment.servicecomb.io:8080\",\n"
+      + "    \"parents\": [\n"
+      + "      \"request-car\",\n"
+      + "      \"request-flight\",\n"
+      + "      \"request-hotel\"\n"
+      + "    ],\n"
+      + "    \"transaction\": {\n"
+      + "      \"method\": \"post\",\n"
+      + "      \"path\": \"/payments\",\n"
+      + "      \"params\": {\n"
+      + "        \"json\": {\n"
+      + "          \"body\": \"{ \\\"customerId\\\": \\\"mike\\\" }\"\n"
+      + "        }\n"
+      + "      }\n"
+      + "    },\n"
+      + "    \"compensation\": {\n"
+      + "      \"method\": \"put\",\n"
+      + "      \"path\": \"/payments\",\n"
+      + "      \"params\": {\n"
+      + "        \"json\": {\n"
+      + "          \"body\": \"{ \\\"customerId\\\": \\\"mike\\\" }\"\n"
+      + "        }\n"
+      + "      }\n"
+      + "    }\n"
       + "  }\n"
       + "]\n";
 
@@ -110,7 +138,7 @@ public class DemoIT {
         .contentType(JSON)
         .body(requests)
         .when()
-        .post(sagaAddress + "/requests/")
+        .post(sagaAddress + "/requests")
         .then()
         .body(is("success"));
   }
