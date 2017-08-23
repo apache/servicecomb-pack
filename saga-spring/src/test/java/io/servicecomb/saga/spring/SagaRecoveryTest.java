@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.exactly;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
@@ -144,9 +145,7 @@ public class SagaRecoveryTest {
       
       "  { \"sagaRequest\":"
           +          singleRequestY+","+"\n"  
-          + "   \"exception\": {\n"
-          + "        \"exception info."+"\n"
-          + "    }\n"
+          + "   \"exception\":  \"exception info.\"\n"
           +"}";
   private static final String requestY1AndResponse =
      
@@ -169,12 +168,19 @@ public class SagaRecoveryTest {
             aResponse()
                 .withStatus(HttpStatus.SC_OK)
                 .withBody("success")));
+    stubFor(WireMock.delete(urlPathEqualTo("/rest/yyy"))
+    		.withQueryParam("bar",containing("yyy"))
+    		.willReturn(
+    				aResponse()
+    				.withStatus(HttpStatus.SC_OK)
+    				.withBody("success")));
   }
 
   @Test
   public void recoverIncompleteSagasFromSagaLog() throws Exception {
     verify(exactly(0), postRequestedFor(urlPathEqualTo("/rest/xxx")));
-    verify(exactly(1), postRequestedFor(urlPathEqualTo("/rest/yyy")));
+//    verify(exactly(1), postRequestedFor(urlPathEqualTo("/rest/yyy")));
+    verify(exactly(1), deleteRequestedFor(urlPathEqualTo("/rest/yyy")));
   }
 
   @Configuration
