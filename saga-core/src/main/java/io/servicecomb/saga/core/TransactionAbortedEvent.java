@@ -48,16 +48,16 @@ public  TransactionAbortedEvent(String sagaId, SagaRequest payload, Exception ex
     hangingTransactions.remove(payload().id());
   }
   
-	@Override
-	public String json() {
-		try {
-			//maybe need change exception type to string.
-			return objectMapper.writeValueAsString(new SagaRequestException((JsonSagaRequest) payload(), exception));
-		} catch (JsonProcessingException e) {
-			throw new SagaException("Failed to serialize transaction: sage Id: " + payload().id() + " service name: "
-					+ payload().serviceName(), e);
-		}
-	}
+  @Override
+  public String json() {
+    try {
+      return objectMapper.writeValueAsString(new SagaRequestException((JsonSagaRequest) payload(), exception));
+    } catch (JsonProcessingException e) {
+      throw new SagaException(
+          "Failed to serialize transaction: sage Id: " + payload().id() + " service name: " + payload().serviceName(),
+          e);
+    }
+  }
 
   @Override
   public String toString() {
