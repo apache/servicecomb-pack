@@ -20,13 +20,17 @@ import static java.util.Collections.emptyMap;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import io.servicecomb.saga.core.Transaction;
 import java.util.Map;
 
 class JsonTransaction implements Transaction {
-
+  @JsonSerialize
   private final String path;
+  @JsonSerialize
   private final String method;
+  @JsonSerialize
   private final Map<String, Map<String, String>> params;
 
   @JsonCreator

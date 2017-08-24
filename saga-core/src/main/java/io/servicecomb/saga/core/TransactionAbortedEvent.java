@@ -19,11 +19,18 @@ package io.servicecomb.saga.core;
 import java.util.Map;
 import java.util.Set;
 
-class TransactionAbortedEvent extends SagaEvent {
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.servicecomb.saga.core.application.interpreter.JsonSagaRequest;
+
+public class TransactionAbortedEvent extends SagaEvent {
 
   private final Exception exception;
+  
+  private ObjectMapper objectMapper=new ObjectMapper();
 
-  TransactionAbortedEvent(String sagaId, SagaRequest payload, Exception exception) {
+public  TransactionAbortedEvent(String sagaId, SagaRequest payload, Exception exception) {
     super(sagaId, payload);
     this.exception = exception;
   }
@@ -39,6 +46,17 @@ class TransactionAbortedEvent extends SagaEvent {
     completedTransactions.remove(payload().id());
     abortedTransactions.add(payload().id());
     hangingTransactions.remove(payload().id());
+  }
+  
+  @Override
+  public String json() {
+    try {
+      return objectMapper.writeValueAsString(new SagaRequestException((JsonSagaRequest) payload(), exception));
+    } catch (JsonProcessingException e) {
+      throw new SagaException(
+          "Failed to serialize transaction: sage Id: " + payload().id() + " service name: " + payload().serviceName(),
+          e);
+    }
   }
 
   @Override

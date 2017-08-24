@@ -19,27 +19,24 @@ package io.servicecomb.saga.core;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-public class SuccessfulSagaResponse implements SagaResponse {
-  @JsonSerialize
-  private final int statusCode;
-  @JsonSerialize
-  private final String body;
+import io.servicecomb.saga.core.application.interpreter.JsonSagaRequest;
 
-  public SuccessfulSagaResponse(@JsonProperty("statusCode") int statusCode, @JsonProperty("body") String content) {
-    this.statusCode = statusCode;
-    this.body = content;
+public class SagaRequestException {
+  @JsonSerialize
+  private SagaRequest sagaRequest;
+  @JsonSerialize
+  private Exception exception;
+
+  public SagaRequestException(@JsonProperty("sagaRequest") JsonSagaRequest sagaRequest,@JsonProperty("exception") Exception exception) {
+    this.sagaRequest = sagaRequest;
+    this.exception = exception;
   }
 
-  @Override
-  public boolean succeeded() {
-    return true;
+  public SagaRequest sagaRequest() {
+    return sagaRequest;
   }
 
-  @Override
-  public String body() {
-    return String.format("{\n"
-        + "  \"statusCode\": %d,\n"
-        + "  \"content\": \"%s\"\n"
-        + "}", statusCode, body);
+  public Exception exception() {
+    return exception;
   }
 }
