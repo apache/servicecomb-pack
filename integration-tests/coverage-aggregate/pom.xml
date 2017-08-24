@@ -32,6 +32,18 @@
       <groupId>io.servicecomb.saga</groupId>
       <artifactId>saga-core</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.servicecomb.saga</groupId>
+      <artifactId>saga-format</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.servicecomb.saga</groupId>
+      <artifactId>saga-spring</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.servicecomb.saga.transports</groupId>
+      <artifactId>transport-httpclient</artifactId>
+    </dependency>
   </dependencies>
 
 </project>

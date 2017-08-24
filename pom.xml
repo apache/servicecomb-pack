@@ -55,6 +55,11 @@
         <version>0.0.1-SNAPSHOT</version>
       </dependency>
       <dependency>
+        <groupId>io.servicecomb.saga</groupId>
+        <artifactId>saga-spring</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
         <groupId>io.servicecomb.saga.transports</groupId>
         <artifactId>transport-httpclient</artifactId>
         <version>0.0.1-SNAPSHOT</version>
