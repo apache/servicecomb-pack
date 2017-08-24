@@ -19,13 +19,8 @@ package io.servicecomb.saga.core;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 public class TransactionStartedEvent extends SagaEvent {
 
-  private ObjectMapper objectMapper=new ObjectMapper();
-  
   public TransactionStartedEvent(String sagaId, SagaRequest transaction) {
     super(sagaId, transaction);
   }
@@ -51,13 +46,7 @@ public class TransactionStartedEvent extends SagaEvent {
   }
   
   @Override
-  public String json() {
-    try {
-      return objectMapper.writeValueAsString(payload());
-    } catch (JsonProcessingException e) {
-      throw new SagaException(
-          "Failed to serialize transaction: sage Id: " + payload().id() + " service name: " + payload().serviceName(),
-          e);
-    }
+  public String json(ToJsonFormat toJsonFormat) {
+    return toJsonFormat.toJson(payload());
   }
 }

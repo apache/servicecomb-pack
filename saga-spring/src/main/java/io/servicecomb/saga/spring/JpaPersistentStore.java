@@ -19,6 +19,7 @@ package io.servicecomb.saga.spring;
 import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.SagaEvent;
+import io.servicecomb.saga.core.ToJsonFormat;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,10 +29,12 @@ class JpaPersistentStore implements PersistentStore {
 
   private final SagaEventRepo repo;
   private final SagaEventFormat sagaEventFormat;
+  private final ToJsonFormat toJsonFormat;
 
-  JpaPersistentStore(SagaEventRepo repo) {
+  JpaPersistentStore(SagaEventRepo repo, ToJsonFormat toJsonFormat) {
     this.repo = repo;
     this.sagaEventFormat = new SagaEventFormat();
+    this.toJsonFormat = toJsonFormat;
   }
 
   @Override
@@ -50,7 +53,7 @@ class JpaPersistentStore implements PersistentStore {
 
   @Override
   public void offer(SagaEvent event) {
-    repo.save(new SagaEventEntity(event.sagaId, event.getClass().getSimpleName(), event.json()));
+    repo.save(new SagaEventEntity(event.sagaId, event.getClass().getSimpleName(), event.json(toJsonFormat)));
   }
 
   @Override

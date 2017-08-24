@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.servicecomb.saga.core.Transaction;
 import java.util.Map;
 
-class JsonTransaction implements Transaction {
+public class JsonTransaction implements Transaction {
   @JsonSerialize
   private final String path;
   @JsonSerialize

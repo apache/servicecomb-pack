@@ -19,20 +19,18 @@ package io.servicecomb.saga.core;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.servicecomb.saga.core.application.interpreter.JsonSagaRequest;
-
 public class TransactionAbortedEvent extends SagaEvent {
 
-  private final Exception exception;
-  
-  private ObjectMapper objectMapper=new ObjectMapper();
+  private final SagaResponse response;
 
-public  TransactionAbortedEvent(String sagaId, SagaRequest payload, Exception exception) {
+  public TransactionAbortedEvent(String sagaId, SagaRequest payload, Exception exception) {
     super(sagaId, payload);
-    this.exception = exception;
+    this.response = new FailedSagaResponse(exception);
+  }
+
+  public TransactionAbortedEvent(String sagaId, SagaRequest payload, SagaResponse response) {
+    super(sagaId, payload);
+    this.response = response;
   }
 
   @Override
@@ -47,16 +45,10 @@ public  TransactionAbortedEvent(String sagaId, SagaRequest payload, Exception ex
     abortedTransactions.add(payload().id());
     hangingTransactions.remove(payload().id());
   }
-  
+
   @Override
-  public String json() {
-    try {
-      return objectMapper.writeValueAsString(new SagaRequestException((JsonSagaRequest) payload(), exception));
-    } catch (JsonProcessingException e) {
-      throw new SagaException(
-          "Failed to serialize transaction: sage Id: " + payload().id() + " service name: " + payload().serviceName(),
-          e);
-    }
+  public String json(ToJsonFormat toJsonFormat) {
+    return toJsonFormat.toJson(payload(), response);
   }
 
   @Override
@@ -66,5 +58,9 @@ public  TransactionAbortedEvent(String sagaId, SagaRequest payload, Exception ex
         + ", operation="
         + payload().compensation()
         + "}";
+  }
+
+  public SagaResponse response() {
+    return response;
   }
 }

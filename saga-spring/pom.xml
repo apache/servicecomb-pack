@@ -51,6 +51,16 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>io.servicecomb.saga</groupId>
+      <artifactId>saga-format</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>io.servicecomb.saga.transports</groupId>
       <artifactId>transport-httpclient</artifactId>
     </dependency>
@@ -97,6 +107,10 @@
     <dependency>
       <groupId>com.github.tomakehurst</groupId>
       <artifactId>wiremock-standalone</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.seanyinx</groupId>
+      <artifactId>unit-scaffolding</artifactId>
     </dependency>
   </dependencies>
 

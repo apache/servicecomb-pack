@@ -42,7 +42,7 @@ public class NoOpSagaRequest implements SagaRequest {
   private final Compensation compensation;
   private final String task;
 
-  public NoOpSagaRequest(String id, Transaction transaction, Compensation compensation, String task) {
+  NoOpSagaRequest(String id, Transaction transaction, Compensation compensation, String task) {
     this.id = id;
     this.transaction = transaction;
     this.compensation = compensation;

@@ -16,32 +16,37 @@
 
 package io.servicecomb.saga.core;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.servicecomb.saga.core.application.interpreter.JsonSagaRequest;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
-public class SagaRequestResponse {
-  private final SagaRequest request;
-  private final SagaResponse response;
+public class FailedSagaResponse implements SagaResponse {
 
-  @JsonCreator
-  public SagaRequestResponse(
-      @JsonProperty("request") JsonSagaRequest request,
-      @JsonProperty("response") SuccessfulSagaResponse response) {
-    this.request = request;
-    this.response = response;
+  private final String cause;
+
+  public FailedSagaResponse(@JsonProperty("cause") String cause) {
+    this.cause = cause;
   }
 
-  public SagaRequestResponse(SagaRequest request, SagaResponse response) {
-    this.request = request;
-    this.response = response;
+  public FailedSagaResponse(Throwable e) {
+    this.cause = stackTrace(e);
   }
 
-  public SagaRequest request() {
-    return request;
+  @Override
+  public boolean succeeded() {
+    return false;
   }
 
-  public SagaResponse response() {
-    return response;
+  @Override
+  public String body() {
+    return String.format("{\n"
+        + "  \"cause\": \"%s\"\n"
+        + "}", cause);
+  }
+
+  private String stackTrace(Throwable e) {
+    StringWriter writer = new StringWriter();
+    e.printStackTrace(new PrintWriter(writer));
+    return writer.toString();
   }
 }

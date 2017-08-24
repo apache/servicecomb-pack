@@ -39,7 +39,7 @@ public abstract class SagaEvent implements Descriptive {
       Set<String> completedTransactions,
       Set<String> completedCompensations);
 
-  public String json() {
+  public String json(ToJsonFormat toJsonFormat) {
     return "{}";
   }
 }

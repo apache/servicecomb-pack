@@ -18,32 +18,45 @@ package io.servicecomb.saga.spring;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
+import static com.github.tomakehurst.wiremock.client.WireMock.delete;
 import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.exactly;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
+import static java.util.Collections.singletonMap;
 
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import io.servicecomb.saga.core.CompensationEndedEvent;
+import io.servicecomb.saga.core.CompensationStartedEvent;
+import io.servicecomb.saga.core.PersistentStore;
+import io.servicecomb.saga.core.SagaEndedEvent;
+import io.servicecomb.saga.core.SagaRequest;
+import io.servicecomb.saga.core.SagaResponse;
+import io.servicecomb.saga.core.SagaStartedEvent;
+import io.servicecomb.saga.core.SuccessfulSagaResponse;
+import io.servicecomb.saga.core.ToJsonFormat;
+import io.servicecomb.saga.core.TransactionAbortedEvent;
+import io.servicecomb.saga.core.TransactionEndedEvent;
+import io.servicecomb.saga.core.TransactionFailedException;
+import io.servicecomb.saga.core.TransactionStartedEvent;
+import io.servicecomb.saga.core.application.interpreter.JsonCompensation;
+import io.servicecomb.saga.core.application.interpreter.JsonSagaRequest;
+import io.servicecomb.saga.core.application.interpreter.JsonTransaction;
+import io.servicecomb.saga.spring.SagaRecoveryTest.EventPopulatingConfig;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-
-import io.servicecomb.saga.core.PersistentStore;
-import io.servicecomb.saga.spring.SagaRecoveryTest.EventPopulatingConfig;
 import wiremock.org.apache.http.HttpStatus;
 
-//@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {SagaSpringApplication.class, EventPopulatingConfig.class})
 public class SagaRecoveryTest {
@@ -51,116 +64,46 @@ public class SagaRecoveryTest {
   @ClassRule
   public static final WireMockRule wireMockRule = new WireMockRule(8090);
 
-  private static final String singleRequestX = "[\n"
-      + "  {\n"
-      + "    \"id\": \"request-xxx\",\n"
-      + "    \"type\": \"rest\",\n"
-      + "    \"serviceName\": \"localhost:8090\",\n"
-      + "    \"transaction\": {\n"
-      + "      \"method\": \"post\",\n"
-      + "      \"path\": \"/rest/xxx\",\n"
-      + "      \"params\": {\n"
-      + "        \"form\": {\n"
-      + "          \"foo\": \"xxx\"\n"
-      + "        }\n"
-      + "      }\n"
-      + "    },\n"
-      + "    \"compensation\": {\n"
-      + "      \"method\": \"delete\",\n"
-      + "      \"path\": \"/rest/xxx\",\n"
-      + "      \"params\": {\n"
-      + "        \"query\": {\n"
-      + "          \"bar\": \"xxx\"\n"
-      + "        }\n"
-      + "      }\n"
-      + "    }\n"
-      + "  }\n"
+  private static String request(final String name) {
+    return "  {\n"
+        + "    \"id\": \"request-" + name + "\",\n"
+        + "    \"type\": \"rest\",\n"
+        + "    \"serviceName\": \"localhost:8090\",\n"
+        + "    \"transaction\": {\n"
+        + "      \"method\": \"post\",\n"
+        + "      \"path\": \"/rest/" + name + "\",\n"
+        + "      \"params\": {\n"
+        + "        \"form\": {\n"
+        + "          \"foo\": \"" + name + "\"\n"
+        + "        }\n"
+        + "      }\n"
+        + "    },\n"
+        + "    \"compensation\": {\n"
+        + "      \"method\": \"delete\",\n"
+        + "      \"path\": \"/rest/" + name + "\",\n"
+        + "      \"params\": {\n"
+        + "        \"query\": {\n"
+        + "          \"bar\": \"" + name + "\"\n"
+        + "        }\n"
+        + "      }\n"
+        + "    }\n"
+        + "  }\n";
+  }
+
+  private static final String requestY = "[\n"
+      + request("yyy1")
+      + ","
+      + request("yyy2")
+      + ","
+      + request("yyy3")
       + "]\n";
-  
-  private static final String requestX = "[\n" +singleRequestX+ "]\n";
-
-  private static final String singleRequestY =
-       "  {\n"
-      + "    \"id\": \"request-yyy\",\n"
-      + "    \"type\": \"rest\",\n"
-      + "    \"serviceName\": \"localhost:8090\",\n"
-      + "    \"transaction\": {\n"
-      + "      \"method\": \"post\",\n"
-      + "      \"path\": \"/rest/yyy\",\n"
-      + "      \"params\": {\n"
-      + "        \"form\": {\n"
-      + "          \"foo\": \"yyy\"\n"
-      + "        }\n"
-      + "      }\n"
-      + "    },\n"
-      + "    \"compensation\": {\n"
-      + "      \"method\": \"delete\",\n"
-      + "      \"path\": \"/rest/yyy\",\n"
-      + "      \"params\": {\n"
-      + "        \"query\": {\n"
-      + "          \"bar\": \"yyy\"\n"
-      + "        }\n"
-      + "      }\n"
-      + "    }\n"
-      + "  }\n"
-      ;
-  private static final String singleRequestY1 =
-      "  {\n"
-          + "    \"id\": \"request-yyy-1\",\n"
-          + "    \"type\": \"rest\",\n"
-          + "    \"serviceName\": \"localhost:8090\",\n"
-          + "    \"transaction\": {\n"
-          + "      \"method\": \"post\",\n"
-          + "      \"path\": \"/rest/yyy1\",\n"
-          + "      \"params\": {\n"
-          + "        \"form\": {\n"
-          + "          \"foo\": \"yyy\"\n"
-          + "        }\n"
-          + "      }\n"
-          + "    },\n"
-          + "    \"compensation\": {\n"
-          + "      \"method\": \"delete\",\n"
-          + "      \"path\": \"/rest/yyy1\",\n"
-          + "      \"params\": {\n"
-          + "        \"query\": {\n"
-          + "          \"bar\": \"yyy\"\n"
-          + "        }\n"
-          + "      }\n"
-          + "    }\n"
-          + "  }\n"
-          ;
-  private static final String requestY = "[\n"+singleRequestY +","+singleRequestY1+ "]\n";
-  
-  private static final String requestYAndResponse =
-      
-      "  { \"sagaRequest\":"
-      +          singleRequestY+","+"\n"  
-      + "   \"sagaResponse\": {\n"
-      + "        \"statusCode\": \"200\",\n"
-      + "        \"body\": \"test\"\n"
-      + "    }\n"
-      +"}";
- 
-  private static final String requestY1AndException =
-      
-      "  { \"sagaRequest\":"
-          +          singleRequestY1+","+"\n"  
-          + "   \"exception\":  \"exception info.\"\n"
-          +"}";
-
 
   @BeforeClass
   public static void setUp() throws Exception {
-    stubFor(WireMock.post(urlPathEqualTo("/rest/yyy"))
-        .withRequestBody(containing("foo=yyy"))
+    stubFor(delete(urlPathEqualTo("/rest/yyy1"))
+        .withQueryParam("bar", containing("yyy1"))
         .willReturn(
             aResponse()
-                .withStatus(HttpStatus.SC_OK)
-                .withBody("success")));
-    stubFor(WireMock.delete(urlPathEqualTo("/rest/yyy"))
-    		.withQueryParam("bar",containing("yyy"))
-    		.willReturn(
-    				aResponse()
     				.withStatus(HttpStatus.SC_OK)
     				.withBody("success")));
   }
@@ -168,30 +111,61 @@ public class SagaRecoveryTest {
   @Test
   public void recoverIncompleteSagasFromSagaLog() throws Exception {
     verify(exactly(0), postRequestedFor(urlPathEqualTo("/rest/xxx")));
-    verify(exactly(1), deleteRequestedFor(urlPathEqualTo("/rest/yyy")));
-    verify(exactly(0), deleteRequestedFor(urlPathEqualTo("/rest/yyy1")));
+
+    verify(exactly(0), postRequestedFor(urlPathEqualTo("/rest/yyy1")));
+    verify(exactly(1), deleteRequestedFor(urlPathEqualTo("/rest/yyy1")));
+
+    verify(exactly(0), postRequestedFor(urlPathEqualTo("/rest/yyy2")));
+    verify(exactly(0), deleteRequestedFor(urlPathEqualTo("/rest/yyy2")));
+
+    verify(exactly(0), postRequestedFor(urlPathEqualTo("/rest/yyy3")));
+    verify(exactly(0), deleteRequestedFor(urlPathEqualTo("/rest/yyy3")));
   }
 
   @Configuration
   static class EventPopulatingConfig {
+    private static final String DONT_CARE = "{}";
+
+    private final SagaRequest request1 = sagaRequest("yyy1");
+    private final SagaRequest request2 = sagaRequest("yyy2");
+    private final SagaRequest request3 = sagaRequest("yyy3");
+
+    private final SagaResponse response1 = new SuccessfulSagaResponse(200, "succeeded, yyy1");
+    private final SagaResponse response2 = new SuccessfulSagaResponse(200, "succeeded, yyy2");
 
     @Primary
     @Bean
-    PersistentStore persistentStore(SagaEventRepo repo) {
-      repo.save(new SagaEventEntity("xxx", "SagaStartedEvent", requestX));
-      repo.save(new SagaEventEntity("xxx", "TransactionStartedEvent", "{}"));
-      repo.save(new SagaEventEntity("xxx", "TransactionEndedEvent", "{}"));
-      repo.save(new SagaEventEntity("xxx", "SagaEndedEvent", "{}"));
+    PersistentStore persistentStore(SagaEventRepo repo, ToJsonFormat toJsonFormat) {
+      repo.save(new SagaEventEntity("xxx", SagaStartedEvent.class.getSimpleName(), DONT_CARE));
+      repo.save(new SagaEventEntity("xxx", TransactionStartedEvent.class.getSimpleName(), DONT_CARE));
+      repo.save(new SagaEventEntity("xxx", TransactionEndedEvent.class.getSimpleName(), DONT_CARE));
+      repo.save(new SagaEventEntity("xxx", SagaEndedEvent.class.getSimpleName(), DONT_CARE));
 
-      repo.save(new SagaEventEntity("yyy", "SagaStartedEvent", requestY));
-      repo.save(new SagaEventEntity("yyy", "TransactionStartedEvent", singleRequestY));
-      repo.save(new SagaEventEntity("yyy", "TransactionEndedEvent",requestYAndResponse));
-      repo.save(new SagaEventEntity("yyy", "TransactionStartedEvent", singleRequestY1));
-      repo.save(new SagaEventEntity("yyy", "TransactionAbortedEvent", requestY1AndException));
-      repo.save(new SagaEventEntity("yyy", "CompensationStartedEvent",singleRequestY));
-      repo.save(new SagaEventEntity("yyy", "CompensationEndedEvent",requestYAndResponse));
-    //repo.save(new SagaEventEntity("yyy", "SagaEndedEvent", "{}"));
-      return new JpaPersistentStore(repo);
+      PersistentStore store = new JpaPersistentStore(repo, toJsonFormat);
+
+      store.offer(new SagaStartedEvent("yyy", requestY, SAGA_START_REQUEST));
+      store.offer(new TransactionStartedEvent("yyy", request1));
+      store.offer(new TransactionEndedEvent("yyy", request1, response1));
+
+      store.offer(new TransactionStartedEvent("yyy", request2));
+      store.offer(new TransactionEndedEvent("yyy", request2, response2));
+
+      store.offer(new TransactionStartedEvent("yyy", request3));
+      store.offer(new TransactionAbortedEvent("yyy", request3, new TransactionFailedException("oops")));
+
+      store.offer(new CompensationStartedEvent("yyy", request2));
+      store.offer(new CompensationEndedEvent("yyy", request2, response2));
+
+      return new JpaPersistentStore(repo, toJsonFormat);
+    }
+
+    private JsonSagaRequest sagaRequest(final String name) {
+      return new JsonSagaRequest(
+          "request-" + name,
+          "localhost:8080",
+          "rest",
+          new JsonTransaction("/rest/" + name, "post", singletonMap("query", singletonMap("foo", name))),
+          new JsonCompensation("rest/" + name, "delete", singletonMap("query", singletonMap("bar", name))));
     }
   }
 }
