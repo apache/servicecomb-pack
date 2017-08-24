@@ -31,6 +31,7 @@
     <module>transports</module>
     <module>saga-spring</module>
     <module>docker-build-config</module>
+    <module>saga-format</module>
   </modules>
 
   <properties>
@@ -38,6 +39,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>1.8</java.version>
     <saga.version>0.0.1-SNAPSHOT</saga.version>
+    <jackson.version>2.9.0</jackson.version>
   </properties>
 
   <dependencyManagement>
@@ -45,6 +47,11 @@
       <dependency>
         <groupId>io.servicecomb.saga</groupId>
         <artifactId>saga-core</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>io.servicecomb.saga</groupId>
+        <artifactId>saga-format</artifactId>
         <version>0.0.1-SNAPSHOT</version>
       </dependency>
       <dependency>

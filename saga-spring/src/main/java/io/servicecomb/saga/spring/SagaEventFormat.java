@@ -19,13 +19,8 @@ package io.servicecomb.saga.spring;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.BiFunction;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import io.servicecomb.saga.core.CompensationEndedEvent;
 import io.servicecomb.saga.core.CompensationStartedEvent;
 import io.servicecomb.saga.core.SagaEndedEvent;
 import io.servicecomb.saga.core.SagaEvent;
@@ -37,22 +32,23 @@ import io.servicecomb.saga.core.TransactionAbortedEvent;
 import io.servicecomb.saga.core.TransactionEndedEvent;
 import io.servicecomb.saga.core.TransactionStartedEvent;
 import io.servicecomb.saga.core.application.interpreter.JsonSagaRequest;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiFunction;
 
 class SagaEventFormat {
   private final Map<String, BiFunction<String, String, SagaEvent>> eventFactories = new HashMap<String, BiFunction<String, String, SagaEvent>>() {{
-    put("SagaStartedEvent", (sagaId, json) -> sagaStartedEvent(sagaId, json));
-    put("TransactionStartedEvent", (sagaId, json) -> transactionStartedEvent(sagaId, json));
-    put("TransactionEndedEvent", (sagaId, json) -> transactionEndedEvent(sagaId, json));
-    put("TransactionAbortedEvent", (sagaId, json) -> transactionAbortedEvent(sagaId, json));
-    put("CompensationStartedEvent", (sagaId, json) -> compensationStartedEvent(sagaId, json));
-    put("CompensationEndedEvent", (sagaId, json) -> compensationEndedEvent(sagaId, json));
-    put("SagaEndedEvent", (sagaId, json) -> sagaEndedEvent(sagaId));
+    put(SagaStartedEvent.class.getSimpleName(), (sagaId, json) -> sagaStartedEvent(sagaId, json));
+    put(TransactionStartedEvent.class.getSimpleName(), (sagaId, json) -> transactionStartedEvent(sagaId, json));
+    put(TransactionEndedEvent.class.getSimpleName(), (sagaId, json) -> transactionEndedEvent(sagaId, json));
+    put(TransactionAbortedEvent.class.getSimpleName(), (sagaId, json) -> transactionAbortedEvent(sagaId, json));
+    put(CompensationStartedEvent.class.getSimpleName(), (sagaId, json) -> compensationStartedEvent(sagaId, json));
+    put(CompensationEndedEvent.class.getSimpleName(), (sagaId, json) -> compensationEndedEvent(sagaId, json));
+    put(SagaEndedEvent.class.getSimpleName(), (sagaId, json) -> sagaEndedEvent(sagaId));
   }};
-  
-  private ObjectMapper objectMapper=new ObjectMapper();
 
-  SagaEventFormat() {
-  }
+  private final ObjectMapper objectMapper = new ObjectMapper();
 
   SagaEvent toSagaEvent(SagaEventEntity event) {
     return eventFactories.get(event.type()).apply(event.sagaId(), event.contentJson());
@@ -76,7 +72,7 @@ class SagaEventFormat {
   private SagaEvent transactionEndedEvent(String sagaId, String json) {
     try {
       SagaRequestResponse sagaRequestResponse = objectMapper.readValue(json, SagaRequestResponse.class);
-      return new TransactionEndedEvent(sagaId, sagaRequestResponse.sagaRequest(), sagaRequestResponse.sagaResponse());
+      return new TransactionEndedEvent(sagaId, sagaRequestResponse.request(), sagaRequestResponse.response());
     } catch (IOException e) {
       throw new SagaException("Failed to deserialize transaction: sage Id: " + sagaId + " json: " + json, e);
     }
@@ -85,12 +81,12 @@ class SagaEventFormat {
   private SagaEvent transactionAbortedEvent(String sagaId, String json) {
     try {
       SagaRequestException sagaRequestException = objectMapper.readValue(json, SagaRequestException.class);
-      return new TransactionAbortedEvent(sagaId, sagaRequestException.sagaRequest(), sagaRequestException.exception());
+      return new TransactionAbortedEvent(sagaId, sagaRequestException.request(), sagaRequestException.response());
     } catch (IOException e) {
       throw new SagaException("Failed to deserialize transaction: sage Id: " + sagaId + " json: " + json, e);
     }
   }
-  
+
   private SagaEvent compensationStartedEvent(String sagaId, String json) {
     try {
       return new CompensationStartedEvent(sagaId, objectMapper.readValue(json, JsonSagaRequest.class));
@@ -98,11 +94,11 @@ class SagaEventFormat {
       throw new SagaException("Failed to deserialize transaction: sage Id: " + sagaId + " json: " + json, e);
     }
   }
-  
+
   private SagaEvent compensationEndedEvent(String sagaId, String json) {
     try {
-      SagaRequestResponse sagaRequestResponse = objectMapper.readValue(json, SagaRequestResponse.class);
-      return new TransactionEndedEvent(sagaId, sagaRequestResponse.sagaRequest(), sagaRequestResponse.sagaResponse());
+      SagaRequestResponse requestResponse = objectMapper.readValue(json, SagaRequestResponse.class);
+      return new CompensationEndedEvent(sagaId, requestResponse.request(), requestResponse.response());
     } catch (IOException e) {
       throw new SagaException("Failed to deserialize transaction: sage Id: " + sagaId + " json: " + json, e);
     }

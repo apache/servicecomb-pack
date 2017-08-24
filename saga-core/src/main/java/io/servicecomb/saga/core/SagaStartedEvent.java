@@ -39,7 +39,7 @@ public class SagaStartedEvent extends SagaEvent {
   }
 
   @Override
-  public String json() {
+  public String json(ToJsonFormat toJsonFormat) {
     return requestJson;
   }
 

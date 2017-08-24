@@ -20,24 +20,17 @@ import static io.servicecomb.saga.core.SagaTask.SAGA_REQUEST_TASK;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import io.servicecomb.saga.core.Compensation;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.Transaction;
+import java.util.Arrays;
 
 public class JsonSagaRequest implements SagaRequest {
-  @JsonSerialize
   private final String id;
-  @JsonSerialize
   private final String serviceName;
-  @JsonSerialize
   private final String type;
-  @JsonSerialize
   private final Transaction transaction;
-  @JsonSerialize
   private final Compensation compensation;
-  @JsonSerialize
   private final String[] parents;
 
 
@@ -105,5 +98,17 @@ public class JsonSagaRequest implements SagaRequest {
 
   String[] parents() {
     return parents;
+  }
+
+  @Override
+  public String toString() {
+    return "JsonSagaRequest{" +
+        "id='" + id + '\'' +
+        ", serviceName='" + serviceName + '\'' +
+        ", type='" + type + '\'' +
+        ", transaction=" + transaction +
+        ", compensation=" + compensation +
+        ", parents=" + Arrays.toString(parents) +
+        '}';
   }
 }

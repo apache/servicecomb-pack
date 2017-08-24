@@ -16,27 +16,10 @@
 
 package io.servicecomb.saga.core;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+public interface ToJsonFormat {
 
-public class SuccessfulSagaResponse implements SagaResponse {
-  private final int statusCode;
-  private final String body;
+  String toJson(SagaRequest request);
 
-  public SuccessfulSagaResponse(@JsonProperty("statusCode") int statusCode, @JsonProperty("body") String content) {
-    this.statusCode = statusCode;
-    this.body = content;
-  }
+  String toJson(SagaRequest request, SagaResponse response);
 
-  @Override
-  public boolean succeeded() {
-    return true;
-  }
-
-  @Override
-  public String body() {
-    return String.format("{\n"
-        + "  \"statusCode\": %d,\n"
-        + "  \"content\": \"%s\"\n"
-        + "}", statusCode, body);
-  }
 }

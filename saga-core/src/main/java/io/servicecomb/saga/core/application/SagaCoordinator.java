@@ -30,6 +30,7 @@ import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.SagaLog;
 import io.servicecomb.saga.core.SagaStartTask;
 import io.servicecomb.saga.core.SagaTask;
+import io.servicecomb.saga.core.ToJsonFormat;
 import io.servicecomb.saga.core.Transport;
 import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
@@ -44,14 +45,17 @@ public class SagaCoordinator {
   private final PersistentStore persistentStore;
   private final JsonRequestInterpreter requestInterpreter;
   private final Transport transport;
+  private final ToJsonFormat toJsonFormat;
 
   public SagaCoordinator(
       PersistentStore persistentStore,
       JsonRequestInterpreter requestInterpreter,
+      ToJsonFormat toJsonFormat,
       Transport transport) {
     this.persistentStore = persistentStore;
     this.requestInterpreter = requestInterpreter;
     this.transport = transport;
+    this.toJsonFormat = toJsonFormat;
   }
 
   public void run(String requestJson) {
@@ -74,10 +78,11 @@ public class SagaCoordinator {
       eventStore.populate(entry.getValue());
       SagaEvent event = entry.getValue().iterator().next().event;
 
+      String requestJson = event.json(toJsonFormat);
       Saga saga = new Saga(
           eventStore,
-          sagaTasks(event.sagaId, event.json(), eventStore),
-          requestInterpreter.interpret(event.json()));
+          sagaTasks(event.sagaId, requestJson, eventStore),
+          requestInterpreter.interpret(requestJson));
 
       saga.play();
       saga.run();

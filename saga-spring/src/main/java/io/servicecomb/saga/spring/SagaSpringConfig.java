@@ -16,7 +16,9 @@
 
 package io.servicecomb.saga.spring;
 
+import io.servicecomb.saga.core.JacksonToJsonFormat;
 import io.servicecomb.saga.core.PersistentStore;
+import io.servicecomb.saga.core.ToJsonFormat;
 import io.servicecomb.saga.core.Transport;
 import io.servicecomb.saga.core.application.SagaCoordinator;
 import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
@@ -28,18 +30,23 @@ import org.springframework.context.annotation.Configuration;
 class SagaSpringConfig {
 
   @Bean
+  ToJsonFormat toJsonFormat() {
+    return new JacksonToJsonFormat();
+  }
+
+  @Bean
   Transport transport() {
     return new HttpClientTransport();
   }
 
   @Bean
-  PersistentStore persistentStore(SagaEventRepo repo) {
-    return new JpaPersistentStore(repo);
+  PersistentStore persistentStore(SagaEventRepo repo, ToJsonFormat toJsonFormat) {
+    return new JpaPersistentStore(repo, toJsonFormat);
   }
 
   @Bean
-  SagaCoordinator sagaCoordinator(PersistentStore persistentStore, Transport transport) {
-    SagaCoordinator coordinator = new SagaCoordinator(persistentStore, new JsonRequestInterpreter(), transport);
+  SagaCoordinator sagaCoordinator(PersistentStore persistentStore, Transport transport, ToJsonFormat format) {
+    SagaCoordinator coordinator = new SagaCoordinator(persistentStore, new JsonRequestInterpreter(), format, transport);
     coordinator.reanimate();
     return coordinator;
   }

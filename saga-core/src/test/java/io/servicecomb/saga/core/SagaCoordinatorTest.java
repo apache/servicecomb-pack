@@ -83,6 +83,7 @@ public class SagaCoordinatorTest {
   private final SagaCoordinator coordinator = new SagaCoordinator(
       eventStore,
       new JsonRequestInterpreter(),
+      null,
       transport);
   private final String sagaId = "1";
 

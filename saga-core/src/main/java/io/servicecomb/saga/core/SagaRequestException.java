@@ -17,26 +17,29 @@
 package io.servicecomb.saga.core;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import io.servicecomb.saga.core.application.interpreter.JsonSagaRequest;
 
 public class SagaRequestException {
-  @JsonSerialize
-  private SagaRequest sagaRequest;
-  @JsonSerialize
-  private Exception exception;
+  private final SagaRequest request;
+  private final SagaResponse response;
 
-  public SagaRequestException(@JsonProperty("sagaRequest") JsonSagaRequest sagaRequest,@JsonProperty("exception") Exception exception) {
-    this.sagaRequest = sagaRequest;
-    this.exception = exception;
+  public SagaRequestException(
+      @JsonProperty("request") JsonSagaRequest request,
+      @JsonProperty("response") FailedSagaResponse response) {
+    this.request = request;
+    this.response = response;
   }
 
-  public SagaRequest sagaRequest() {
-    return sagaRequest;
+  public SagaRequestException(SagaRequest request, SagaResponse response) {
+    this.request = request;
+    this.response = response;
   }
 
-  public Exception exception() {
-    return exception;
+  public SagaRequest request() {
+    return request;
+  }
+
+  public SagaResponse response() {
+    return response;
   }
 }
