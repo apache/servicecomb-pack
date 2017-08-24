@@ -19,9 +19,16 @@ package io.servicecomb.saga.core;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.servicecomb.saga.core.application.interpreter.JsonSagaRequest;
+
 class CompensationEndedEvent extends SagaEvent {
 
   private final SagaResponse response;
+  
+  private ObjectMapper objectMapper=new ObjectMapper();
 
   CompensationEndedEvent(String sagaId, SagaRequest request) {
     this(sagaId, request, SagaResponse.EMPTY_RESPONSE);
@@ -42,7 +49,18 @@ class CompensationEndedEvent extends SagaEvent {
     completedCompensations.add(payload().id());
     hangingTransactions.remove(payload().id());
   }
-
+  
+  @Override
+  public String json() {
+    try {
+      return objectMapper.writeValueAsString(new SagaRequestResponse((JsonSagaRequest)payload(),(SuccessfulSagaResponse)response));
+    } catch (JsonProcessingException e) {
+      throw new SagaException(
+          "Failed to serialize transaction: sage Id: " + payload().id() + " service name: " + payload().serviceName(),
+          e);
+    }
+  }
+  
   @Override
   public String toString() {
     return "CompensationEndedEvent{id="

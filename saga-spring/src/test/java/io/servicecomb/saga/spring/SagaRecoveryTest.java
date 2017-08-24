@@ -18,20 +18,15 @@ package io.servicecomb.saga.spring;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
+import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.exactly;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import io.servicecomb.saga.core.PersistentStore;
-import io.servicecomb.saga.spring.SagaRecoveryTest.EventPopulatingConfig;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +35,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+
+import io.servicecomb.saga.core.PersistentStore;
+import io.servicecomb.saga.spring.SagaRecoveryTest.EventPopulatingConfig;
 import wiremock.org.apache.http.HttpStatus;
 
 //@Ignore
-@SuppressWarnings("unchecked")
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {SagaSpringApplication.class, EventPopulatingConfig.class})
 public class SagaRecoveryTest {
@@ -111,7 +111,7 @@ public class SagaRecoveryTest {
           + "    \"serviceName\": \"localhost:8090\",\n"
           + "    \"transaction\": {\n"
           + "      \"method\": \"post\",\n"
-          + "      \"path\": \"/rest/yyy\",\n"
+          + "      \"path\": \"/rest/yyy1\",\n"
           + "      \"params\": {\n"
           + "        \"form\": {\n"
           + "          \"foo\": \"yyy\"\n"
@@ -120,7 +120,7 @@ public class SagaRecoveryTest {
           + "    },\n"
           + "    \"compensation\": {\n"
           + "      \"method\": \"delete\",\n"
-          + "      \"path\": \"/rest/yyy\",\n"
+          + "      \"path\": \"/rest/yyy1\",\n"
           + "      \"params\": {\n"
           + "        \"query\": {\n"
           + "          \"bar\": \"yyy\"\n"
@@ -144,21 +144,10 @@ public class SagaRecoveryTest {
   private static final String requestY1AndException =
       
       "  { \"sagaRequest\":"
-          +          singleRequestY+","+"\n"  
+          +          singleRequestY1+","+"\n"  
           + "   \"exception\":  \"exception info.\"\n"
           +"}";
-  private static final String requestY1AndResponse =
-     
-     "  { \"sagaRequest\":"
-         +          singleRequestY+","+"\n"  
-         + "   \"sagaResponse\": {\n"
-         + "        \"statusCode\": \"200\",\n"
-         + "        \"body\": \"test\"\n"
-         + "    }\n"
-         +"}";
 
-  @Autowired
-  private SagaEventRepo sagaEventRepo;
 
   @BeforeClass
   public static void setUp() throws Exception {
@@ -179,8 +168,8 @@ public class SagaRecoveryTest {
   @Test
   public void recoverIncompleteSagasFromSagaLog() throws Exception {
     verify(exactly(0), postRequestedFor(urlPathEqualTo("/rest/xxx")));
-//    verify(exactly(1), postRequestedFor(urlPathEqualTo("/rest/yyy")));
     verify(exactly(1), deleteRequestedFor(urlPathEqualTo("/rest/yyy")));
+    verify(exactly(0), deleteRequestedFor(urlPathEqualTo("/rest/yyy1")));
   }
 
   @Configuration
@@ -199,8 +188,9 @@ public class SagaRecoveryTest {
       repo.save(new SagaEventEntity("yyy", "TransactionEndedEvent",requestYAndResponse));
       repo.save(new SagaEventEntity("yyy", "TransactionStartedEvent", singleRequestY1));
       repo.save(new SagaEventEntity("yyy", "TransactionAbortedEvent", requestY1AndException));
-//      repo.save(new SagaEventEntity("yyy", "CompensationStartedEvent",requestY1AndException));
-//      repo.save(new SagaEventEntity("yyy", "CompensationEndedEvent",requestY1AndResponse));
+      repo.save(new SagaEventEntity("yyy", "CompensationStartedEvent",singleRequestY));
+      repo.save(new SagaEventEntity("yyy", "CompensationEndedEvent",requestYAndResponse));
+    //repo.save(new SagaEventEntity("yyy", "SagaEndedEvent", "{}"));
       return new JpaPersistentStore(repo);
     }
   }
