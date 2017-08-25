@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.spring;
+package io.servicecomb.saga.format;
 
-import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.seanyinx.github.unit.scaffolding.Randomness;
 import io.servicecomb.saga.core.CompensationEndedEvent;
 import io.servicecomb.saga.core.CompensationStartedEvent;
 import io.servicecomb.saga.core.FailedSagaResponse;
@@ -47,16 +47,16 @@ import org.junit.Test;
 
 public class SagaEventFormatTest {
 
-  private final String sagaId = uniquify("sagaId");
+  private final String sagaId = Randomness.uniquify("sagaId");
   private final SagaRequest request = new JsonSagaRequest(
       sagaId,
-      uniquify("serviceName"),
+      Randomness.uniquify("serviceName"),
       "rest",
       new JsonTransaction("/rest/xxx", "POST", singletonMap("query", singletonMap("foo", "xxx"))),
       new JsonCompensation("/rest/xxx", "DELETE", singletonMap("query", singletonMap("bar", "xxx")))
   );
 
-  private final SagaEventFormat toEventFormat = new SagaEventFormat();
+  private final SagaEventFormat toEventFormat = new JacksonSagaEventFormat();
   private final ToJsonFormat toJsonFormat = new JacksonToJsonFormat();
   private final SuccessfulSagaResponse response = new SuccessfulSagaResponse(200, "a wonderful day");
 
@@ -66,7 +66,7 @@ public class SagaEventFormatTest {
     String json = event.json(toJsonFormat);
 
     SagaEvent sagaEvent = toEventFormat
-        .toSagaEvent(new SagaEventEntity(sagaId, TransactionStartedEvent.class.getSimpleName(), json));
+        .toSagaEvent(sagaId, event.getClass().getSimpleName(), json);
 
     assertThat(sagaEvent, instanceOf(TransactionStartedEvent.class));
     assertThat(sagaEvent.sagaId, is(sagaId));
@@ -79,7 +79,7 @@ public class SagaEventFormatTest {
     String json = event.json(toJsonFormat);
 
     SagaEvent sagaEvent = toEventFormat
-        .toSagaEvent(new SagaEventEntity(sagaId, TransactionEndedEvent.class.getSimpleName(), json));
+        .toSagaEvent(sagaId, event.getClass().getSimpleName(), json);
 
     assertThat(sagaEvent, instanceOf(TransactionEndedEvent.class));
     assertThat(sagaEvent.sagaId, is(sagaId));
@@ -94,7 +94,7 @@ public class SagaEventFormatTest {
     String json = event.json(toJsonFormat);
 
     SagaEvent sagaEvent = toEventFormat
-        .toSagaEvent(new SagaEventEntity(sagaId, TransactionAbortedEvent.class.getSimpleName(), json));
+        .toSagaEvent(sagaId, event.getClass().getSimpleName(), json);
 
     assertThat(sagaEvent, instanceOf(TransactionAbortedEvent.class));
     assertThat(sagaEvent.sagaId, is(sagaId));
@@ -108,7 +108,7 @@ public class SagaEventFormatTest {
     String json = event.json(toJsonFormat);
 
     SagaEvent sagaEvent = toEventFormat
-        .toSagaEvent(new SagaEventEntity(sagaId, CompensationStartedEvent.class.getSimpleName(), json));
+        .toSagaEvent(sagaId, event.getClass().getSimpleName(), json);
 
     assertThat(sagaEvent, instanceOf(CompensationStartedEvent.class));
     assertThat(sagaEvent.sagaId, is(sagaId));
@@ -121,7 +121,7 @@ public class SagaEventFormatTest {
     String json = event.json(toJsonFormat);
 
     SagaEvent sagaEvent = toEventFormat
-        .toSagaEvent(new SagaEventEntity(sagaId, CompensationEndedEvent.class.getSimpleName(), json));
+        .toSagaEvent(sagaId, event.getClass().getSimpleName(), json);
 
     assertThat(sagaEvent, instanceOf(CompensationEndedEvent.class));
     assertThat(sagaEvent.sagaId, is(sagaId));

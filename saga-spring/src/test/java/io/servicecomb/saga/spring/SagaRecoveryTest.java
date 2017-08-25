@@ -45,6 +45,7 @@ import io.servicecomb.saga.core.TransactionStartedEvent;
 import io.servicecomb.saga.core.application.interpreter.JsonCompensation;
 import io.servicecomb.saga.core.application.interpreter.JsonSagaRequest;
 import io.servicecomb.saga.core.application.interpreter.JsonTransaction;
+import io.servicecomb.saga.format.SagaEventFormat;
 import io.servicecomb.saga.spring.SagaRecoveryTest.EventPopulatingConfig;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -135,13 +136,13 @@ public class SagaRecoveryTest {
 
     @Primary
     @Bean
-    PersistentStore persistentStore(SagaEventRepo repo, ToJsonFormat toJsonFormat) {
+    PersistentStore persistentStore(SagaEventRepo repo, ToJsonFormat toJsonFormat, SagaEventFormat sagaEventFormat) {
       repo.save(new SagaEventEntity("xxx", SagaStartedEvent.class.getSimpleName(), DONT_CARE));
       repo.save(new SagaEventEntity("xxx", TransactionStartedEvent.class.getSimpleName(), DONT_CARE));
       repo.save(new SagaEventEntity("xxx", TransactionEndedEvent.class.getSimpleName(), DONT_CARE));
       repo.save(new SagaEventEntity("xxx", SagaEndedEvent.class.getSimpleName(), DONT_CARE));
 
-      PersistentStore store = new JpaPersistentStore(repo, toJsonFormat);
+      PersistentStore store = new JpaPersistentStore(repo, toJsonFormat, sagaEventFormat);
 
       store.offer(new SagaStartedEvent("yyy", requestY, SAGA_START_REQUEST));
       store.offer(new TransactionStartedEvent("yyy", request1));
@@ -156,7 +157,7 @@ public class SagaRecoveryTest {
       store.offer(new CompensationStartedEvent("yyy", request2));
       store.offer(new CompensationEndedEvent("yyy", request2, response2));
 
-      return new JpaPersistentStore(repo, toJsonFormat);
+      return store;
     }
 
     private JsonSagaRequest sagaRequest(final String name) {

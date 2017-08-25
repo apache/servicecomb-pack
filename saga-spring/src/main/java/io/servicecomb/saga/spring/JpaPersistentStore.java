@@ -20,6 +20,7 @@ import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.ToJsonFormat;
+import io.servicecomb.saga.format.SagaEventFormat;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,9 +32,9 @@ class JpaPersistentStore implements PersistentStore {
   private final SagaEventFormat sagaEventFormat;
   private final ToJsonFormat toJsonFormat;
 
-  JpaPersistentStore(SagaEventRepo repo, ToJsonFormat toJsonFormat) {
+  JpaPersistentStore(SagaEventRepo repo, ToJsonFormat toJsonFormat, SagaEventFormat sagaEventFormat) {
     this.repo = repo;
-    this.sagaEventFormat = new SagaEventFormat();
+    this.sagaEventFormat = sagaEventFormat;
     this.toJsonFormat = toJsonFormat;
   }
 
@@ -45,7 +46,10 @@ class JpaPersistentStore implements PersistentStore {
     for (SagaEventEntity event : events) {
       pendingEvents.computeIfAbsent(event.sagaId(), id -> new LinkedList<>());
       pendingEvents.get(event.sagaId()).add(
-          new EventEnvelope(event.id(), event.creationTime(), sagaEventFormat.toSagaEvent(event)));
+          new EventEnvelope(
+              event.id(),
+              event.creationTime(),
+              sagaEventFormat.toSagaEvent(event.sagaId(), event.type(), event.contentJson())));
     }
 
     return pendingEvents;

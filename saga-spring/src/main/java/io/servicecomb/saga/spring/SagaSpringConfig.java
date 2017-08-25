@@ -22,6 +22,8 @@ import io.servicecomb.saga.core.ToJsonFormat;
 import io.servicecomb.saga.core.Transport;
 import io.servicecomb.saga.core.application.SagaCoordinator;
 import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
+import io.servicecomb.saga.format.JacksonSagaEventFormat;
+import io.servicecomb.saga.format.SagaEventFormat;
 import io.servicecomb.saga.transports.httpclient.HttpClientTransport;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,13 +37,18 @@ class SagaSpringConfig {
   }
 
   @Bean
+  SagaEventFormat sagaEventFormat() {
+    return new JacksonSagaEventFormat();
+  }
+
+  @Bean
   Transport transport() {
     return new HttpClientTransport();
   }
 
   @Bean
-  PersistentStore persistentStore(SagaEventRepo repo, ToJsonFormat toJsonFormat) {
-    return new JpaPersistentStore(repo, toJsonFormat);
+  PersistentStore persistentStore(SagaEventRepo repo, ToJsonFormat toJsonFormat, SagaEventFormat eventFormat) {
+    return new JpaPersistentStore(repo, toJsonFormat, eventFormat);
   }
 
   @Bean
