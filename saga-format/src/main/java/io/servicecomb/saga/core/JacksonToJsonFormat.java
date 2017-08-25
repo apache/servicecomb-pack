@@ -50,7 +50,7 @@ public class JacksonToJsonFormat implements ToJsonFormat {
   @Override
   public String toJson(SagaRequest request, SagaResponse response) {
     try {
-      return objectMapper.writeValueAsString(new SagaRequestResponse(request, response));
+      return objectMapper.writeValueAsString(new SagaRequestContext(request, response));
     } catch (JsonProcessingException e) {
       throw new SagaException("Failed to serialize request & response to JSON: " + request + ", " + response, e);
     }

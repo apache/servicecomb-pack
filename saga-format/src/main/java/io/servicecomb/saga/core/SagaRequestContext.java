@@ -16,21 +16,12 @@
 
 package io.servicecomb.saga.core;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.servicecomb.saga.core.application.interpreter.JsonSagaRequest;
+public class SagaRequestContext {
 
-public class SagaRequestException {
   private final SagaRequest request;
   private final SagaResponse response;
 
-  public SagaRequestException(
-      @JsonProperty("request") JsonSagaRequest request,
-      @JsonProperty("response") FailedSagaResponse response) {
-    this.request = request;
-    this.response = response;
-  }
-
-  public SagaRequestException(SagaRequest request, SagaResponse response) {
+  SagaRequestContext(SagaRequest request, SagaResponse response) {
     this.request = request;
     this.response = response;
   }

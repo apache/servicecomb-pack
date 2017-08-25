@@ -25,8 +25,9 @@ import io.servicecomb.saga.core.CompensationStartedEvent;
 import io.servicecomb.saga.core.SagaEndedEvent;
 import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.SagaException;
-import io.servicecomb.saga.core.SagaRequestException;
-import io.servicecomb.saga.core.SagaRequestResponse;
+import io.servicecomb.saga.core.SagaRequestContext;
+import io.servicecomb.saga.core.FailedSagaRequestContext;
+import io.servicecomb.saga.core.SuccessfulSagaRequestContext;
 import io.servicecomb.saga.core.SagaStartedEvent;
 import io.servicecomb.saga.core.TransactionAbortedEvent;
 import io.servicecomb.saga.core.TransactionEndedEvent;
@@ -71,8 +72,8 @@ class SagaEventFormat {
 
   private SagaEvent transactionEndedEvent(String sagaId, String json) {
     try {
-      SagaRequestResponse sagaRequestResponse = objectMapper.readValue(json, SagaRequestResponse.class);
-      return new TransactionEndedEvent(sagaId, sagaRequestResponse.request(), sagaRequestResponse.response());
+      SagaRequestContext context = objectMapper.readValue(json, SuccessfulSagaRequestContext.class);
+      return new TransactionEndedEvent(sagaId, context.request(), context.response());
     } catch (IOException e) {
       throw new SagaException("Failed to deserialize transaction: sage Id: " + sagaId + " json: " + json, e);
     }
@@ -80,8 +81,8 @@ class SagaEventFormat {
 
   private SagaEvent transactionAbortedEvent(String sagaId, String json) {
     try {
-      SagaRequestException sagaRequestException = objectMapper.readValue(json, SagaRequestException.class);
-      return new TransactionAbortedEvent(sagaId, sagaRequestException.request(), sagaRequestException.response());
+      SagaRequestContext context = objectMapper.readValue(json, FailedSagaRequestContext.class);
+      return new TransactionAbortedEvent(sagaId, context.request(), context.response());
     } catch (IOException e) {
       throw new SagaException("Failed to deserialize transaction: sage Id: " + sagaId + " json: " + json, e);
     }
@@ -97,8 +98,8 @@ class SagaEventFormat {
 
   private SagaEvent compensationEndedEvent(String sagaId, String json) {
     try {
-      SagaRequestResponse requestResponse = objectMapper.readValue(json, SagaRequestResponse.class);
-      return new CompensationEndedEvent(sagaId, requestResponse.request(), requestResponse.response());
+      SagaRequestContext context = objectMapper.readValue(json, SuccessfulSagaRequestContext.class);
+      return new CompensationEndedEvent(sagaId, context.request(), context.response());
     } catch (IOException e) {
       throw new SagaException("Failed to deserialize transaction: sage Id: " + sagaId + " json: " + json, e);
     }

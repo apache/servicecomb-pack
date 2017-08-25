@@ -20,28 +20,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.servicecomb.saga.core.application.interpreter.JsonSagaRequest;
 
-public class SagaRequestResponse {
-  private final SagaRequest request;
-  private final SagaResponse response;
+public class SuccessfulSagaRequestContext extends SagaRequestContext {
 
   @JsonCreator
-  public SagaRequestResponse(
+  public SuccessfulSagaRequestContext(
       @JsonProperty("request") JsonSagaRequest request,
       @JsonProperty("response") SuccessfulSagaResponse response) {
-    this.request = request;
-    this.response = response;
-  }
-
-  public SagaRequestResponse(SagaRequest request, SagaResponse response) {
-    this.request = request;
-    this.response = response;
-  }
-
-  public SagaRequest request() {
-    return request;
-  }
-
-  public SagaResponse response() {
-    return response;
+    super(request, response);
   }
 }
