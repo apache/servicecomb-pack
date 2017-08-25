@@ -16,11 +16,13 @@
 
 package io.servicecomb.saga.demo.car.rental;
 
+import static java.util.Collections.singleton;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -30,26 +32,31 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/")
 public class CarRentalController {
+  private final Set<String> customers = singleton("mike");
 
   @RequestMapping(value = "rentals", method = POST, consumes = APPLICATION_JSON_VALUE)
-  ResponseEntity<String> rent(@RequestBody String customerId) {
-    if ("anonymous".equals(customerId)) {
-      return new ResponseEntity<>("No such customer with id " + customerId, FORBIDDEN);
+  ResponseEntity<String> rent(@RequestBody Customer customer) {
+    if (!customers.contains(customer.customerId)) {
+      return new ResponseEntity<>("No such customer with id " + customer.customerId, FORBIDDEN);
     }
 
     return ResponseEntity.ok(String.format("Car rented with id %s for customer %s",
         UUID.randomUUID().toString(),
-        customerId));
+        customer.customerId));
   }
 
   @RequestMapping(value = "rentals", method = PUT, consumes = APPLICATION_JSON_VALUE)
-  ResponseEntity<String> cancel(@RequestBody String customerId) {
-    if ("anonymous".equals(customerId)) {
-      return new ResponseEntity<>("No such customer with id " + customerId, FORBIDDEN);
+  ResponseEntity<String> cancel(@RequestBody Customer customer) {
+    if (!customers.contains(customer.customerId)) {
+      return new ResponseEntity<>("No such customer with id " + customer.customerId, FORBIDDEN);
     }
 
     return ResponseEntity.ok(String.format("Car rental cancelled with id %s for customer %s",
         UUID.randomUUID().toString(),
-        customerId));
+        customer.customerId));
+  }
+
+  private static class Customer {
+    public String customerId;
   }
 }
