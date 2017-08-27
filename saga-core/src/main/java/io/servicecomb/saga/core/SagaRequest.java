@@ -29,4 +29,6 @@ public interface SagaRequest {
   String type();
 
   String task();
+
+  String[] parents();
 }

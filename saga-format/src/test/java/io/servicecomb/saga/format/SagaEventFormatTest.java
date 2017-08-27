@@ -30,6 +30,7 @@ import io.servicecomb.saga.core.FailedSagaResponse;
 import io.servicecomb.saga.core.JacksonToJsonFormat;
 import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.SagaRequest;
+import io.servicecomb.saga.core.SagaRequestImpl;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SuccessfulSagaResponse;
 import io.servicecomb.saga.core.ToJsonFormat;
@@ -37,9 +38,6 @@ import io.servicecomb.saga.core.TransactionAbortedEvent;
 import io.servicecomb.saga.core.TransactionEndedEvent;
 import io.servicecomb.saga.core.TransactionFailedException;
 import io.servicecomb.saga.core.TransactionStartedEvent;
-import io.servicecomb.saga.core.application.interpreter.JsonCompensation;
-import io.servicecomb.saga.core.application.interpreter.JsonSagaRequest;
-import io.servicecomb.saga.core.application.interpreter.JsonTransaction;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -48,7 +46,7 @@ import org.junit.Test;
 public class SagaEventFormatTest {
 
   private final String sagaId = Randomness.uniquify("sagaId");
-  private final SagaRequest request = new JsonSagaRequest(
+  private final SagaRequest request = new SagaRequestImpl(
       sagaId,
       Randomness.uniquify("serviceName"),
       "rest",

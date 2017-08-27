@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core.application.interpreter;
+package io.servicecomb.saga.core;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static java.util.Collections.emptyMap;
@@ -24,12 +24,12 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-public class JsonTransactionTest {
+public class TransactionImplTest {
 
   @Test
   public void blowsUpWhenGetMethodWithForm() {
     try {
-      new JsonTransaction("blah", "GET", singletonMap("form", emptyMap()));
+      new TransactionImpl("blah", "GET", singletonMap("form", emptyMap()));
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
@@ -39,7 +39,7 @@ public class JsonTransactionTest {
   @Test
   public void blowsUpWhenGetMethodWithJson() {
     try {
-      new JsonTransaction("blah", "GET", singletonMap("json", emptyMap()));
+      new TransactionImpl("blah", "GET", singletonMap("json", emptyMap()));
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
@@ -49,7 +49,7 @@ public class JsonTransactionTest {
   @Test
   public void blowsUpWhenDeleteMethodWithForm() {
     try {
-      new JsonTransaction("blah", "DELETE", singletonMap("form", emptyMap()));
+      new TransactionImpl("blah", "DELETE", singletonMap("form", emptyMap()));
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
@@ -59,7 +59,7 @@ public class JsonTransactionTest {
   @Test
   public void blowsUpWhenDeleteMethodWithJson() {
     try {
-      new JsonTransaction("blah", "DELETE", singletonMap("json", emptyMap()));
+      new TransactionImpl("blah", "DELETE", singletonMap("json", emptyMap()));
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
@@ -69,7 +69,7 @@ public class JsonTransactionTest {
   @Test
   public void blowsUpWhenMethodIsNotSupported() {
     try {
-      new JsonTransaction("blah", "foo", emptyMap());
+      new TransactionImpl("blah", "foo", emptyMap());
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("Unsupported method foo"));
@@ -79,7 +79,7 @@ public class JsonTransactionTest {
   @Test
   public void blowsUpWhenMethodIsNull() {
     try {
-      new JsonTransaction("blah", null, emptyMap());
+      new TransactionImpl("blah", null, emptyMap());
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("Unsupported method null"));

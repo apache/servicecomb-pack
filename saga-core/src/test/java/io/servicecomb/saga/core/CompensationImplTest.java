@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core.application.interpreter;
+package io.servicecomb.saga.core;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static java.util.Collections.emptyMap;
@@ -24,12 +24,12 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-public class JsonCompensationTest {
+public class CompensationImplTest {
 
   @Test
   public void blowsUpWhenGetMethodWithForm() {
     try {
-      new JsonCompensation("blah", "GET", singletonMap("form", emptyMap()));
+      new CompensationImpl("blah", "GET", singletonMap("form", emptyMap()));
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
@@ -39,7 +39,7 @@ public class JsonCompensationTest {
   @Test
   public void blowsUpWhenGetMethodWithJson() {
     try {
-      new JsonCompensation("blah", "GET", singletonMap("json", emptyMap()));
+      new CompensationImpl("blah", "GET", singletonMap("json", emptyMap()));
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
@@ -49,7 +49,7 @@ public class JsonCompensationTest {
   @Test
   public void blowsUpWhenDeleteMethodWithForm() {
     try {
-      new JsonCompensation("blah", "DELETE", singletonMap("form", emptyMap()));
+      new CompensationImpl("blah", "DELETE", singletonMap("form", emptyMap()));
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
@@ -59,7 +59,7 @@ public class JsonCompensationTest {
   @Test
   public void blowsUpWhenDeleteMethodWithJson() {
     try {
-      new JsonCompensation("blah", "DELETE", singletonMap("json", emptyMap()));
+      new CompensationImpl("blah", "DELETE", singletonMap("json", emptyMap()));
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
@@ -69,7 +69,7 @@ public class JsonCompensationTest {
   @Test
   public void blowsUpWhenMethodIsNotSupported() {
     try {
-      new JsonCompensation("blah", "foo", emptyMap());
+      new CompensationImpl("blah", "foo", emptyMap());
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("Unsupported method foo"));
@@ -79,7 +79,7 @@ public class JsonCompensationTest {
   @Test
   public void blowsUpWhenMethodIsNull() {
     try {
-      new JsonCompensation("blah", null, emptyMap());
+      new CompensationImpl("blah", null, emptyMap());
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("Unsupported method null"));

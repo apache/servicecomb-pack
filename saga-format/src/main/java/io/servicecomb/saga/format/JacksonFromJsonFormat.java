@@ -14,27 +14,19 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core;
+package io.servicecomb.saga.format;
 
-public class SuccessfulSagaResponse implements SagaResponse {
-  private final int statusCode;
-  private final String body;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.servicecomb.saga.core.SagaRequest;
+import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
+import java.io.IOException;
 
-  public SuccessfulSagaResponse(int statusCode, String content) {
-    this.statusCode = statusCode;
-    this.body = content;
-  }
+public class JacksonFromJsonFormat implements FromJsonFormat {
 
-  @Override
-  public boolean succeeded() {
-    return true;
-  }
+  private final ObjectMapper objectMapper = new ObjectMapper();
 
   @Override
-  public String body() {
-    return String.format("{\n"
-        + "  \"statusCode\": %d,\n"
-        + "  \"content\": \"%s\"\n"
-        + "}", statusCode, body);
+  public SagaRequest[] fromJson(String requestJson) throws IOException {
+    return objectMapper.readValue(requestJson, JsonSagaRequest[].class);
   }
 }

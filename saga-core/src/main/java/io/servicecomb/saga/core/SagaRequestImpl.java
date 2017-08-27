@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core.application.interpreter;
+package io.servicecomb.saga.core;
 
 import static io.servicecomb.saga.core.SagaTask.SAGA_REQUEST_TASK;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.servicecomb.saga.core.Compensation;
-import io.servicecomb.saga.core.SagaRequest;
-import io.servicecomb.saga.core.Transaction;
 import java.util.Arrays;
 
-public class JsonSagaRequest implements SagaRequest {
+public class SagaRequestImpl implements SagaRequest {
+
   private final String id;
   private final String serviceName;
   private final String type;
@@ -33,25 +29,23 @@ public class JsonSagaRequest implements SagaRequest {
   private final Compensation compensation;
   private final String[] parents;
 
-
-  @JsonCreator
-  public JsonSagaRequest(
-      @JsonProperty("id") String id,
-      @JsonProperty("serviceName") String serviceName,
-      @JsonProperty("type") String type,
-      @JsonProperty("transaction") JsonTransaction transaction,
-      @JsonProperty("compensation") JsonCompensation compensation,
-      @JsonProperty("parents") String[] parents) {
+  public SagaRequestImpl(
+      String id,
+      String serviceName,
+      String type,
+      Transaction transaction,
+      Compensation compensation,
+      String[] parents) {
 
     this.id = id;
     this.serviceName = serviceName;
     this.type = type;
     this.transaction = transaction;
     this.compensation = compensation;
-    this.parents = parents == null ? new String[0] : parents;
+    this.parents = parents == null? new String[0] : parents;
   }
 
-  public JsonSagaRequest(
+  public SagaRequestImpl(
       String id,
       String serviceName,
       String type,
@@ -96,13 +90,14 @@ public class JsonSagaRequest implements SagaRequest {
     return SAGA_REQUEST_TASK;
   }
 
-  String[] parents() {
+  @Override
+  public String[] parents() {
     return parents;
   }
 
   @Override
   public String toString() {
-    return "JsonSagaRequest{" +
+    return "SagaRequest{" +
         "id='" + id + '\'' +
         ", serviceName='" + serviceName + '\'' +
         ", type='" + type + '\'' +

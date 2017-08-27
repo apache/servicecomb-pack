@@ -16,62 +16,19 @@
 
 package io.servicecomb.saga.core.application.interpreter;
 
-import static java.util.Collections.emptyMap;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import io.servicecomb.saga.core.Transaction;
+import io.servicecomb.saga.core.TransactionImpl;
 import java.util.Map;
 
-public class JsonTransaction implements Transaction {
-  @JsonSerialize
-  private final String path;
-  @JsonSerialize
-  private final String method;
-  @JsonSerialize
-  private final Map<String, Map<String, String>> params;
+class JsonTransaction extends TransactionImpl {
 
   @JsonCreator
   public JsonTransaction(
       @JsonProperty("path") String path,
       @JsonProperty("method") String method,
       @JsonProperty("params") Map<String, Map<String, String>> params) {
-
-    RestRequestChecker.checkParameters(method, params);
-
-    this.path = path;
-    this.method = method;
-    this.params = params == null? emptyMap() : params;
+    super(path, method, params);
   }
 
-  @Override
-  public void run() {
-
-  }
-
-  @Override
-  public String path() {
-    return path;
-  }
-
-  @Override
-  public String method() {
-    return method;
-  }
-
-  @Override
-  public Map<String, Map<String, String>> params() {
-    return params;
-  }
-
-  @Override
-  public String toString() {
-    return "Transaction{" +
-        "path='" + path + '\'' +
-        ", method='" + method + '\'' +
-        ", params=" + params +
-        '}';
-  }
 }

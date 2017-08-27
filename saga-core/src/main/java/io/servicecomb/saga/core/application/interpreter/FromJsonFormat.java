@@ -14,27 +14,12 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core;
+package io.servicecomb.saga.core.application.interpreter;
 
-public class SuccessfulSagaResponse implements SagaResponse {
-  private final int statusCode;
-  private final String body;
+import io.servicecomb.saga.core.SagaRequest;
+import java.io.IOException;
 
-  public SuccessfulSagaResponse(int statusCode, String content) {
-    this.statusCode = statusCode;
-    this.body = content;
-  }
+public interface FromJsonFormat {
 
-  @Override
-  public boolean succeeded() {
-    return true;
-  }
-
-  @Override
-  public String body() {
-    return String.format("{\n"
-        + "  \"statusCode\": %d,\n"
-        + "  \"content\": \"%s\"\n"
-        + "}", statusCode, body);
-  }
+  SagaRequest[] fromJson(String requestJson) throws IOException;
 }

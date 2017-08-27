@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-class RestRequestChecker {
+public class RestRequestChecker {
 
   private static final Set<String> validMethods = new HashSet<>(asList(
       "GET",
@@ -34,7 +34,7 @@ class RestRequestChecker {
   private RestRequestChecker() {
   }
 
-  static void checkParameters(String method, Map<String, Map<String, String>> params) {
+  public static void checkParameters(String method, Map<String, Map<String, String>> params) {
     if (method == null || !validMethods.contains(method.toUpperCase())) {
       throw new IllegalArgumentException("Unsupported method " + method);
     }

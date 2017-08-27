@@ -35,7 +35,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.seanyinx.github.unit.scaffolding.Randomness;
-import io.servicecomb.saga.core.application.interpreter.JsonSagaRequest;
 import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
@@ -544,6 +543,6 @@ public class SagaIntegrationTest {
       Transaction transaction,
       Compensation compensation) {
 
-    return new JsonSagaRequest(requestId, serviceName, "rest", transaction, compensation);
+    return new SagaRequestImpl(requestId, serviceName, "rest", transaction, compensation);
   }
 }

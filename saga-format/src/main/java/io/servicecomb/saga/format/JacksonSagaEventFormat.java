@@ -32,7 +32,6 @@ import io.servicecomb.saga.core.SuccessfulSagaRequestContext;
 import io.servicecomb.saga.core.TransactionAbortedEvent;
 import io.servicecomb.saga.core.TransactionEndedEvent;
 import io.servicecomb.saga.core.TransactionStartedEvent;
-import io.servicecomb.saga.core.application.interpreter.JsonSagaRequest;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;

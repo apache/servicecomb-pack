@@ -142,7 +142,7 @@ public class JsonRequestInterpreterTest {
       + "]\n";
 
   private final String sagaId = Randomness.uniquify("sagaId");
-  private final JsonRequestInterpreter interpreter = new JsonRequestInterpreter();
+  private final JsonRequestInterpreter interpreter = new JsonRequestInterpreter(new JacksonFromJsonFormat());
 
   @Test
   public void interpretsParallelRequests() {

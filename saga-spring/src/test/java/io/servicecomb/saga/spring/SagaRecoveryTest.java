@@ -34,6 +34,7 @@ import io.servicecomb.saga.core.CompensationStartedEvent;
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.SagaEndedEvent;
 import io.servicecomb.saga.core.SagaRequest;
+import io.servicecomb.saga.core.SagaRequestImpl;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SagaStartedEvent;
 import io.servicecomb.saga.core.SuccessfulSagaResponse;
@@ -42,9 +43,8 @@ import io.servicecomb.saga.core.TransactionAbortedEvent;
 import io.servicecomb.saga.core.TransactionEndedEvent;
 import io.servicecomb.saga.core.TransactionFailedException;
 import io.servicecomb.saga.core.TransactionStartedEvent;
-import io.servicecomb.saga.core.application.interpreter.JsonCompensation;
-import io.servicecomb.saga.core.application.interpreter.JsonSagaRequest;
-import io.servicecomb.saga.core.application.interpreter.JsonTransaction;
+import io.servicecomb.saga.format.JsonCompensation;
+import io.servicecomb.saga.format.JsonTransaction;
 import io.servicecomb.saga.format.SagaEventFormat;
 import io.servicecomb.saga.spring.SagaRecoveryTest.EventPopulatingConfig;
 import org.junit.BeforeClass;
@@ -160,8 +160,8 @@ public class SagaRecoveryTest {
       return store;
     }
 
-    private JsonSagaRequest sagaRequest(final String name) {
-      return new JsonSagaRequest(
+    private SagaRequestImpl sagaRequest(final String name) {
+      return new SagaRequestImpl(
           "request-" + name,
           "localhost:8080",
           "rest",

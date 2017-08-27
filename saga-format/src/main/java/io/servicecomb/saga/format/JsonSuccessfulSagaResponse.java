@@ -14,27 +14,15 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core;
+package io.servicecomb.saga.format;
 
-public class SuccessfulSagaResponse implements SagaResponse {
-  private final int statusCode;
-  private final String body;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.servicecomb.saga.core.SuccessfulSagaResponse;
 
-  public SuccessfulSagaResponse(int statusCode, String content) {
-    this.statusCode = statusCode;
-    this.body = content;
+public class JsonSuccessfulSagaResponse extends SuccessfulSagaResponse {
+
+  public JsonSuccessfulSagaResponse(@JsonProperty("statusCode") int statusCode, @JsonProperty("body") String content) {
+    super(statusCode, content);
   }
 
-  @Override
-  public boolean succeeded() {
-    return true;
-  }
-
-  @Override
-  public String body() {
-    return String.format("{\n"
-        + "  \"statusCode\": %d,\n"
-        + "  \"content\": \"%s\"\n"
-        + "}", statusCode, body);
-  }
 }

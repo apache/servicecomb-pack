@@ -14,27 +14,21 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core;
+package io.servicecomb.saga.format;
 
-public class SuccessfulSagaResponse implements SagaResponse {
-  private final int statusCode;
-  private final String body;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.servicecomb.saga.core.TransactionImpl;
+import java.util.Map;
 
-  public SuccessfulSagaResponse(int statusCode, String content) {
-    this.statusCode = statusCode;
-    this.body = content;
+public class JsonTransaction extends TransactionImpl {
+
+  @JsonCreator
+  public JsonTransaction(
+      @JsonProperty("path") String path,
+      @JsonProperty("method") String method,
+      @JsonProperty("params") Map<String, Map<String, String>> params) {
+    super(path, method, params);
   }
 
-  @Override
-  public boolean succeeded() {
-    return true;
-  }
-
-  @Override
-  public String body() {
-    return String.format("{\n"
-        + "  \"statusCode\": %d,\n"
-        + "  \"content\": \"%s\"\n"
-        + "}", statusCode, body);
-  }
 }

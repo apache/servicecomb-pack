@@ -16,57 +16,18 @@
 
 package io.servicecomb.saga.core.application.interpreter;
 
-import static java.util.Collections.emptyMap;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.servicecomb.saga.core.Compensation;
+import io.servicecomb.saga.core.CompensationImpl;
 import java.util.Map;
 
-public class JsonCompensation implements Compensation {
-  private final String path;
-  private final String method;
-  private final Map<String, Map<String, String>> params;
+class JsonCompensation extends CompensationImpl {
 
   @JsonCreator
   public JsonCompensation(
       @JsonProperty("path") String path,
       @JsonProperty("method") String method,
       @JsonProperty("params") Map<String, Map<String, String>> params) {
-
-    RestRequestChecker.checkParameters(method, params);
-
-    this.path = path;
-    this.method = method;
-    this.params = params == null? emptyMap() : params;
-  }
-
-  @Override
-  public void run() {
-
-  }
-
-  @Override
-  public String path() {
-    return path;
-  }
-
-  @Override
-  public String method() {
-    return method;
-  }
-
-  @Override
-  public Map<String, Map<String, String>> params() {
-    return params;
-  }
-
-  @Override
-  public String toString() {
-    return "Compensation{" +
-        "path='" + path + '\'' +
-        ", method='" + method + '\'' +
-        ", params=" + params +
-        '}';
+    super(path, method, params);
   }
 }

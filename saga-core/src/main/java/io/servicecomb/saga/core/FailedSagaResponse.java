@@ -16,7 +16,6 @@
 
 package io.servicecomb.saga.core;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -24,7 +23,7 @@ public class FailedSagaResponse implements SagaResponse {
 
   private final String cause;
 
-  public FailedSagaResponse(@JsonProperty("cause") String cause) {
+  public FailedSagaResponse(String cause) {
     this.cause = cause;
   }
 

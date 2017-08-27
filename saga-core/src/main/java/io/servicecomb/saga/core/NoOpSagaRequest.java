@@ -41,6 +41,7 @@ public class NoOpSagaRequest implements SagaRequest {
   private final Transaction transaction;
   private final Compensation compensation;
   private final String task;
+  private final String[] parents = {};
 
   NoOpSagaRequest(String id, Transaction transaction, Compensation compensation, String task) {
     this.id = id;
@@ -77,5 +78,10 @@ public class NoOpSagaRequest implements SagaRequest {
   @Override
   public String task() {
     return task;
+  }
+
+  @Override
+  public String[] parents() {
+    return parents;
   }
 }

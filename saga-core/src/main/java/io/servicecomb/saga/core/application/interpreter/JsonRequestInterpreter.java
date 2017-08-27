@@ -19,7 +19,6 @@ package io.servicecomb.saga.core.application.interpreter;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.servicecomb.saga.core.SagaException;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.dag.Node;
@@ -30,11 +29,15 @@ import java.util.Map;
 
 public class JsonRequestInterpreter {
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private final FromJsonFormat fromJsonFormat;
+
+  public JsonRequestInterpreter(FromJsonFormat fromJsonFormat) {
+    this.fromJsonFormat = fromJsonFormat;
+  }
 
   public SingleLeafDirectedAcyclicGraph<SagaRequest> interpret(String requests) {
     try {
-      JsonSagaRequest[] sagaRequests = objectMapper.readValue(requests, JsonSagaRequest[].class);
+      SagaRequest[] sagaRequests = fromJsonFormat.fromJson(requests);
 
       Map<String, Node<SagaRequest>> requestNodes = requestsToNodes(sagaRequests);
 
@@ -45,13 +48,13 @@ public class JsonRequestInterpreter {
   }
 
   private SingleLeafDirectedAcyclicGraph<SagaRequest> linkNodesToGraph(
-      JsonSagaRequest[] sagaRequests,
+      SagaRequest[] sagaRequests,
       Map<String, Node<SagaRequest>> requestNodes) {
 
     Node<SagaRequest> root = rootNode(0);
     Node<SagaRequest> leaf = leafNode(sagaRequests.length + 1);
 
-    for (JsonSagaRequest sagaRequest : sagaRequests) {
+    for (SagaRequest sagaRequest : sagaRequests) {
       if (isOrphan(sagaRequest)) {
         root.addChild(requestNodes.get(sagaRequest.id()));
       } else {
@@ -80,7 +83,7 @@ public class JsonRequestInterpreter {
         SAGA_END_REQUEST);
   }
 
-  private boolean isOrphan(JsonSagaRequest sagaRequest) {
+  private boolean isOrphan(SagaRequest sagaRequest) {
     return sagaRequest.parents().length == 0;
   }
 

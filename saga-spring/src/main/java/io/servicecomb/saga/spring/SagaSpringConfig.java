@@ -21,6 +21,8 @@ import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.ToJsonFormat;
 import io.servicecomb.saga.core.Transport;
 import io.servicecomb.saga.core.application.SagaCoordinator;
+import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
+import io.servicecomb.saga.format.JacksonFromJsonFormat;
 import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
 import io.servicecomb.saga.format.JacksonSagaEventFormat;
 import io.servicecomb.saga.format.SagaEventFormat;
@@ -30,6 +32,11 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 class SagaSpringConfig {
+
+  @Bean
+  FromJsonFormat fromJsonFormat() {
+    return new JacksonFromJsonFormat();
+  }
 
   @Bean
   ToJsonFormat toJsonFormat() {
@@ -52,7 +59,12 @@ class SagaSpringConfig {
   }
 
   @Bean
-  SagaCoordinator sagaCoordinator(PersistentStore persistentStore, Transport transport, ToJsonFormat format) {
-    return new SagaCoordinator(persistentStore, new JsonRequestInterpreter(), format, transport);
+  SagaCoordinator sagaCoordinator(
+      PersistentStore persistentStore,
+      Transport transport,
+      ToJsonFormat format,
+      FromJsonFormat fromJsonFormat) {
+
+    return new SagaCoordinator(persistentStore, new JsonRequestInterpreter(fromJsonFormat), format, transport);
   }
 }
