@@ -20,7 +20,6 @@ import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 
 @Entity
 public class SagaEventEntity {
@@ -30,8 +29,6 @@ public class SagaEventEntity {
   private String sagaId;
   private Date creationTime;
   private String type;
-
-  @Lob
   private String contentJson;
 
   public SagaEventEntity() {

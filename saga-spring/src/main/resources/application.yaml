@@ -5,9 +5,11 @@ spring:
     password: password
     driver-class-name: com.mysql.jdbc.Driver
     url: jdbc:mysql://mysql.servicecomb.io:3306/saga
+    platform: mysql
+    continue-on-error: true
   jpa:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL5Dialect
     hibernate:
-      ddl-auto: create
+      ddl-auto: none

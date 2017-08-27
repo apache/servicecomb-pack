@@ -51,7 +51,7 @@ services:
       - "hotel-reservation-service:hotel.servicecomb.io"
       - "payment-service:payment.servicecomb.io"
     environment:
-      - JAVA_OPTS=-Dspring.profiles.active=prd
+      - JAVA_OPTS=-Dspring.profiles.active=prd -Dendpoints.shutdown.enabled=true
     ports:
       - "8083:8080"
     depends_on:

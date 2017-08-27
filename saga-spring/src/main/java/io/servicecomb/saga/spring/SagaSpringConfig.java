@@ -53,8 +53,6 @@ class SagaSpringConfig {
 
   @Bean
   SagaCoordinator sagaCoordinator(PersistentStore persistentStore, Transport transport, ToJsonFormat format) {
-    SagaCoordinator coordinator = new SagaCoordinator(persistentStore, new JsonRequestInterpreter(), format, transport);
-    coordinator.reanimate();
-    return coordinator;
+    return new SagaCoordinator(persistentStore, new JsonRequestInterpreter(), format, transport);
   }
 }
