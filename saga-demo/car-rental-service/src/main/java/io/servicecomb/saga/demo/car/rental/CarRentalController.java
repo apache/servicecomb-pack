@@ -54,8 +54,9 @@ public class CarRentalController {
     if ("snail".equals(customer.customerId)) {
       try {
         log.info("Encountered extremely slow customer {}", customer.customerId);
-        TimeUnit.SECONDS.sleep(delay);
+        int timeout = delay;
         delay = 0;
+        TimeUnit.SECONDS.sleep(timeout);
         log.info("Finally served the extremely slow customer {}", customer.customerId);
       } catch (InterruptedException e) {
         return new ResponseEntity<>("Interrupted", INTERNAL_SERVER_ERROR);
