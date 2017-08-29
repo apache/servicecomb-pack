@@ -26,8 +26,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +65,7 @@ public class Saga {
   }
 
   public Saga(EventStore eventStore,
-      ExecutorService executor,
+      Executor executor,
       RecoveryPolicy recoveryPolicy,
       Map<String, SagaTask> tasks,
       SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {

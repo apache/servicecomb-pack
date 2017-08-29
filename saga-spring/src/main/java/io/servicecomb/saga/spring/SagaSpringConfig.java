@@ -28,6 +28,8 @@ import io.servicecomb.saga.format.JacksonSagaEventFormat;
 import io.servicecomb.saga.format.SagaEventFormat;
 import io.servicecomb.saga.transports.httpclient.HttpClientTransport;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -73,6 +75,17 @@ class SagaSpringConfig {
         new JsonRequestInterpreter(fromJsonFormat),
         format,
         transport,
-        Executors.newFixedThreadPool(numberOfThreads));
+        Executors.newFixedThreadPool(numberOfThreads, sagaThreadFactory()));
+  }
+
+  private ThreadFactory sagaThreadFactory() {
+    return new ThreadFactory() {
+      private final AtomicInteger threadCount = new AtomicInteger();
+
+      @Override
+      public Thread newThread(Runnable r) {
+        return new Thread(r, "saga-pool-thread-" + threadCount.incrementAndGet());
+      }
+    };
   }
 }

@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -50,7 +51,7 @@ public class SagaCoordinator {
   private final JsonRequestInterpreter requestInterpreter;
   private final Transport transport;
   private final ToJsonFormat toJsonFormat;
-  private final ExecutorService executorService;
+  private final Executor executorService;
   private final RecoveryPolicy recoveryPolicy = new BackwardRecovery();
 
   public SagaCoordinator(
