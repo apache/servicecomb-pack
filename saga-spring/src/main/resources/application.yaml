@@ -13,3 +13,7 @@ spring:
         dialect: org.hibernate.dialect.MySQL5Dialect
     hibernate:
       ddl-auto: none
+
+saga:
+  thread:
+    count: 32

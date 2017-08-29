@@ -26,8 +26,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,9 +39,6 @@ public class Saga {
   private final EventStore eventStore;
   private final Map<String, SagaTask> tasks;
 
-  private final CompletionService<Operation> executorService = new ExecutorCompletionService<>(
-      Executors.newFixedThreadPool(5));
-
   private final Set<String> completedTransactions;
   private final Set<String> completedCompensations;
   private final Set<String> abortedTransactions;
@@ -52,14 +49,23 @@ public class Saga {
   private volatile SagaState currentTaskRunner;
 
 
-  public Saga(
+  Saga(
       EventStore eventStore,
       Map<String, SagaTask> tasks,
       SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {
     this(eventStore, new BackwardRecovery(), tasks, sagaTaskGraph);
   }
 
+  Saga(EventStore eventStore,
+      RecoveryPolicy recoveryPolicy,
+      Map<String, SagaTask> tasks,
+      SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {
+
+    this(eventStore, Executors.newFixedThreadPool(5), recoveryPolicy, tasks, sagaTaskGraph);
+  }
+
   public Saga(EventStore eventStore,
+      ExecutorService executor,
       RecoveryPolicy recoveryPolicy,
       Map<String, SagaTask> tasks,
       SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {
@@ -73,7 +79,7 @@ public class Saga {
 
     this.transactionTaskRunner = new TaskRunner(
         traveller(sagaTaskGraph, new FromRootTraversalDirection<>()),
-        new TransactionTaskConsumer(tasks, executorService, new LoggingRecoveryPolicy(recoveryPolicy)));
+        new TransactionTaskConsumer(tasks, new ExecutorCompletionService<>(executor), new LoggingRecoveryPolicy(recoveryPolicy)));
 
     this.compensationTaskRunner = new TaskRunner(
         traveller(sagaTaskGraph, new FromLeafTraversalDirection<>()),

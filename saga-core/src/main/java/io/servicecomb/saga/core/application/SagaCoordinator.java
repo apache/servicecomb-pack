@@ -20,9 +20,11 @@ import static io.servicecomb.saga.core.SagaTask.SAGA_END_TASK;
 import static io.servicecomb.saga.core.SagaTask.SAGA_REQUEST_TASK;
 import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
 
+import io.servicecomb.saga.core.BackwardRecovery;
 import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.EventStore;
 import io.servicecomb.saga.core.PersistentStore;
+import io.servicecomb.saga.core.RecoveryPolicy;
 import io.servicecomb.saga.core.RequestProcessTask;
 import io.servicecomb.saga.core.Saga;
 import io.servicecomb.saga.core.SagaEndTask;
@@ -39,6 +41,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class SagaCoordinator {
 
@@ -46,16 +50,28 @@ public class SagaCoordinator {
   private final JsonRequestInterpreter requestInterpreter;
   private final Transport transport;
   private final ToJsonFormat toJsonFormat;
+  private final ExecutorService executorService;
+  private final RecoveryPolicy recoveryPolicy = new BackwardRecovery();
 
   public SagaCoordinator(
       PersistentStore persistentStore,
       JsonRequestInterpreter requestInterpreter,
       ToJsonFormat toJsonFormat,
       Transport transport) {
+    this(persistentStore, requestInterpreter, toJsonFormat, transport, Executors.newFixedThreadPool(5));
+  }
+
+  public SagaCoordinator(
+      PersistentStore persistentStore,
+      JsonRequestInterpreter requestInterpreter,
+      ToJsonFormat toJsonFormat,
+      Transport transport,
+      ExecutorService executorService) {
     this.persistentStore = persistentStore;
     this.requestInterpreter = requestInterpreter;
     this.transport = transport;
     this.toJsonFormat = toJsonFormat;
+    this.executorService = executorService;
   }
 
   public void run(String requestJson) {
@@ -64,6 +80,8 @@ public class SagaCoordinator {
 
     Saga saga = new Saga(
         sagaLog,
+        executorService,
+        recoveryPolicy,
         sagaTasks(sagaId, requestJson, sagaLog),
         requestInterpreter.interpret(requestJson));
 
@@ -81,6 +99,8 @@ public class SagaCoordinator {
       String requestJson = event.json(toJsonFormat);
       Saga saga = new Saga(
           eventStore,
+          executorService,
+          recoveryPolicy,
           sagaTasks(event.sagaId, requestJson, eventStore),
           requestInterpreter.interpret(requestJson));
 

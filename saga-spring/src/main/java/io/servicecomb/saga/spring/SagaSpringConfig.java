@@ -27,6 +27,8 @@ import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
 import io.servicecomb.saga.format.JacksonSagaEventFormat;
 import io.servicecomb.saga.format.SagaEventFormat;
 import io.servicecomb.saga.transports.httpclient.HttpClientTransport;
+import java.util.concurrent.Executors;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -60,11 +62,17 @@ class SagaSpringConfig {
 
   @Bean
   SagaCoordinator sagaCoordinator(
+      @Value("${saga.thread.count:5}") int numberOfThreads,
       PersistentStore persistentStore,
       Transport transport,
       ToJsonFormat format,
       FromJsonFormat fromJsonFormat) {
 
-    return new SagaCoordinator(persistentStore, new JsonRequestInterpreter(fromJsonFormat), format, transport);
+    return new SagaCoordinator(
+        persistentStore,
+        new JsonRequestInterpreter(fromJsonFormat),
+        format,
+        transport,
+        Executors.newFixedThreadPool(numberOfThreads));
   }
 }

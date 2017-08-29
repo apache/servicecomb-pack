@@ -20,7 +20,7 @@ import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class BackwardRecovery implements RecoveryPolicy {
+public class BackwardRecovery implements RecoveryPolicy {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
