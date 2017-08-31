@@ -109,6 +109,11 @@
         <artifactId>kamon-log-reporter_2.11</artifactId>
         <version>${kamon.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.lmax</groupId>
+        <artifactId>disruptor</artifactId>
+        <version>3.3.6</version>
+      </dependency>
 
       <!-- test dependencies -->
       <dependency>

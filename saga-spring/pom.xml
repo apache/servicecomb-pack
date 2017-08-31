@@ -110,6 +110,11 @@
       <groupId>io.kamon</groupId>
       <artifactId>kamon-log-reporter_2.11</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.lmax</groupId>
+      <artifactId>disruptor</artifactId>
+    </dependency>
+
 
     <dependency>
       <groupId>com.h2database</groupId>
