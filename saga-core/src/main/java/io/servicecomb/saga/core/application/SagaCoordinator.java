@@ -44,7 +44,10 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Segment;
 
+@EnableKamon
 public class SagaCoordinator {
 
   private final PersistentStore persistentStore;
@@ -75,6 +78,7 @@ public class SagaCoordinator {
     this.executorService = executorService;
   }
 
+  @Segment(name = "runSagaCoordinator", category = "application", library = "kamon")
   public void run(String requestJson) {
     String sagaId = UUID.randomUUID().toString();
     EventStore sagaLog = new EmbeddedEventStore();

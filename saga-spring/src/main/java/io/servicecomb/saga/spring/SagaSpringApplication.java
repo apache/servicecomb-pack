@@ -16,6 +16,8 @@
 
 package io.servicecomb.saga.spring;
 
+import javax.annotation.PreDestroy;
+import kamon.Kamon;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -24,5 +26,10 @@ public class SagaSpringApplication {
 
   public static void main(String[] args) {
     SpringApplication.run(SagaSpringApplication.class, args);
+  }
+
+  @PreDestroy
+  void shutdown() {
+    Kamon.shutdown();
   }
 }

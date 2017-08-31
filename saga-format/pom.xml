@@ -43,6 +43,23 @@
       <version>2.9.0</version>
     </dependency>
     <dependency>
+      <groupId>io.kamon</groupId>
+      <artifactId>kamon-core_2.11</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.kamon</groupId>
+      <artifactId>kamon-annotation_2.11</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.kamon</groupId>
+      <artifactId>kamon-akka_2.11</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.kamon</groupId>
+      <artifactId>kamon-log-reporter_2.11</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>

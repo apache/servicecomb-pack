@@ -31,12 +31,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Trace;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+@EnableKamon
 @Controller
 @RequestMapping("/")
 public class SagaController {
@@ -50,6 +53,7 @@ public class SagaController {
     this.repo = repo;
   }
 
+  @Trace("processRequests")
   @RequestMapping(value = "requests", method = POST, consumes = APPLICATION_JSON_VALUE)
   public ResponseEntity<String> processRequests(HttpServletRequest request) {
     try {

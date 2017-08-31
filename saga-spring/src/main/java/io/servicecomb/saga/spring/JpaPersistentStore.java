@@ -25,7 +25,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Segment;
 
+@EnableKamon
 class JpaPersistentStore implements PersistentStore {
 
   private final SagaEventRepo repo;
@@ -55,6 +58,7 @@ class JpaPersistentStore implements PersistentStore {
     return pendingEvents;
   }
 
+  @Segment(name = "save", category = "database", library = "kamon")
   @Override
   public void offer(SagaEvent event) {
     repo.save(new SagaEventEntity(event.sagaId, event.getClass().getSimpleName(), event.json(toJsonFormat)));

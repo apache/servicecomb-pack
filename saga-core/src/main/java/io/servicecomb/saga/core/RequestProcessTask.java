@@ -16,6 +16,10 @@
 
 package io.servicecomb.saga.core;
 
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Segment;
+
+@EnableKamon
 public class RequestProcessTask implements SagaTask {
 
   private final String sagaId;
@@ -28,6 +32,7 @@ public class RequestProcessTask implements SagaTask {
     this.transport = transport;
   }
 
+  @Segment(name = "commit", category = "application", library = "kamon")
   @Override
   public void commit(SagaRequest request) {
     sagaLog.offer(new TransactionStartedEvent(sagaId, request));
@@ -42,6 +47,7 @@ public class RequestProcessTask implements SagaTask {
     sagaLog.offer(new TransactionEndedEvent(sagaId, request, response));
   }
 
+  @Segment(name = "compensate", category = "application", library = "kamon")
   @Override
   public void compensate(SagaRequest request) {
     sagaLog.offer(new CompensationStartedEvent(sagaId, request));

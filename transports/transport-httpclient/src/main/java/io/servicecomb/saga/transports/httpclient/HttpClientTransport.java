@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Segment;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
@@ -35,6 +37,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.core.util.IOUtils;
 
+@EnableKamon
 public class HttpClientTransport implements Transport {
 
 
@@ -45,6 +48,7 @@ public class HttpClientTransport implements Transport {
     put("DELETE", Request::Delete);
   }};
 
+  @Segment(name = "transport", category = "network", library = "kamon")
   @Override
   public SagaResponse with(String address, String path, String method, Map<String, Map<String, String>> params) {
     URIBuilder builder = new URIBuilder().setScheme("http").setHost(address).setPath(path);

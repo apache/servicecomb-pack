@@ -29,9 +29,12 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Segment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@EnableKamon
 public class Saga {
 
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -88,6 +91,7 @@ public class Saga {
     currentTaskRunner = transactionTaskRunner;
   }
 
+  @Segment(name = "runSaga", category = "application", library = "kamon")
   public void run() {
     log.info("Starting Saga");
     do {

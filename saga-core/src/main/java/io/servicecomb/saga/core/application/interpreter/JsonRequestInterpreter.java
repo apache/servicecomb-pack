@@ -26,7 +26,10 @@ import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Segment;
 
+@EnableKamon
 public class JsonRequestInterpreter {
 
   private final FromJsonFormat fromJsonFormat;
@@ -35,6 +38,7 @@ public class JsonRequestInterpreter {
     this.fromJsonFormat = fromJsonFormat;
   }
 
+  @Segment(name = "interpret", category = "application", library = "kamon")
   public SingleLeafDirectedAcyclicGraph<SagaRequest> interpret(String requests) {
     try {
       SagaRequest[] sagaRequests = fromJsonFormat.fromJson(requests);

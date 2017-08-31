@@ -21,7 +21,10 @@ import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Segment;
 
+@EnableKamon
 public class JacksonToJsonFormat implements ToJsonFormat {
 
 
@@ -38,6 +41,7 @@ public class JacksonToJsonFormat implements ToJsonFormat {
 
   }
 
+  @Segment(name = "toJson", category = "application", library = "kamon")
   @Override
   public String toJson(SagaRequest request) {
     try {
@@ -47,6 +51,7 @@ public class JacksonToJsonFormat implements ToJsonFormat {
     }
   }
 
+  @Segment(name = "toJson", category = "application", library = "kamon")
   @Override
   public String toJson(SagaRequest request, SagaResponse response) {
     try {
