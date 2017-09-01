@@ -27,9 +27,12 @@ import java.util.Set;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Segment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@EnableKamon
 class TransactionTaskConsumer implements TaskConsumer {
 
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -47,6 +50,7 @@ class TransactionTaskConsumer implements TaskConsumer {
     this.recoveryPolicy = recoveryPolicy;
   }
 
+  @Segment(name = "consumeTask", category = "application", library = "kamon")
   @Override
   public void consume(Collection<Node<SagaRequest>> nodes) {
     List<Future<Operation>> futures = new ArrayList<>(nodes.size());

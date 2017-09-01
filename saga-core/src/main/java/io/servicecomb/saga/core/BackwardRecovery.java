@@ -17,12 +17,16 @@
 package io.servicecomb.saga.core;
 
 import java.lang.invoke.MethodHandles;
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Segment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@EnableKamon
 public class BackwardRecovery implements RecoveryPolicy {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+  @Segment(name = "backwardPolicy", category = "application", library = "kamon")
   @Override
   public void apply(SagaTask task, SagaRequest request) {
     try {

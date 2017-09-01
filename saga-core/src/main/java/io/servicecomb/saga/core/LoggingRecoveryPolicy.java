@@ -17,9 +17,12 @@
 package io.servicecomb.saga.core;
 
 import java.lang.invoke.MethodHandles;
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Segment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@EnableKamon
 class LoggingRecoveryPolicy implements RecoveryPolicy {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final RecoveryPolicy recoveryPolicy;
@@ -28,6 +31,7 @@ class LoggingRecoveryPolicy implements RecoveryPolicy {
     this.recoveryPolicy = recoveryPolicy;
   }
 
+  @Segment(name = "loggingPolicy", category = "application", library = "kamon")
   @Override
   public void apply(SagaTask task, SagaRequest request) {
     log.info("Starting request id={} for service {}", request.id(), request.serviceName());
