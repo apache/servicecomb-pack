@@ -20,7 +20,10 @@ import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.Traveller;
 import java.util.Collection;
 import java.util.Set;
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Segment;
 
+@EnableKamon
 class TaskRunner implements SagaState {
 
   private final Traveller<SagaRequest> traveller;
@@ -36,6 +39,7 @@ class TaskRunner implements SagaState {
     return traveller.hasNext();
   }
 
+  @Segment(name = "runTask", category = "application", library = "kamon")
   @Override
   public void run() {
     Collection<Node<SagaRequest>> nodes = traveller.nodes();

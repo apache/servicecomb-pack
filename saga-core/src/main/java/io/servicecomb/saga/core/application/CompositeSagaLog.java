@@ -18,7 +18,10 @@ package io.servicecomb.saga.core.application;
 
 import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.SagaLog;
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Segment;
 
+@EnableKamon
 class CompositeSagaLog implements SagaLog {
 
   private final SagaLog embedded;
@@ -29,6 +32,7 @@ class CompositeSagaLog implements SagaLog {
     this.persistent = persistent;
   }
 
+  @Segment(name = "compositeSagaLog", category = "application", library = "kamon")
   @Override
   public void offer(SagaEvent sagaEvent) {
     persistent.offer(sagaEvent);
