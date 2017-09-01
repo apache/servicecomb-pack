@@ -104,17 +104,20 @@
     </dependency>
     <dependency>
       <groupId>io.kamon</groupId>
-      <artifactId>kamon-akka_2.11</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.kamon</groupId>
       <artifactId>kamon-log-reporter_2.11</artifactId>
     </dependency>
     <dependency>
       <groupId>com.lmax</groupId>
       <artifactId>disruptor</artifactId>
     </dependency>
-
+    <dependency>
+      <groupId>io.kamon</groupId>
+      <artifactId>kamon-autoweave_2.11</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjweaver</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>com.h2database</groupId>
