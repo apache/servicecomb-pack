@@ -38,7 +38,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>1.8</java.version>
-    <kamon.version>0.6.0</kamon.version>
+    <kamon.version>0.6.2</kamon.version>
     <saga.version>0.0.1-SNAPSHOT</saga.version>
   </properties>
 
@@ -108,6 +108,16 @@
         <groupId>io.kamon</groupId>
         <artifactId>kamon-log-reporter_2.11</artifactId>
         <version>${kamon.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.kamon</groupId>
+        <artifactId>kamon-autoweave_2.11</artifactId>
+        <version>${kamon.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.aspectj</groupId>
+        <artifactId>aspectjweaver</artifactId>
+        <version>1.8.10</version>
       </dependency>
       <dependency>
         <groupId>com.lmax</groupId>

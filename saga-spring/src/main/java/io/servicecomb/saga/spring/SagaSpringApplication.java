@@ -25,6 +25,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class SagaSpringApplication {
 
   public static void main(String[] args) {
+    Kamon.start();
     SpringApplication.run(SagaSpringApplication.class, args);
   }
 
