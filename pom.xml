@@ -111,6 +111,11 @@
       </dependency>
       <dependency>
         <groupId>io.kamon</groupId>
+        <artifactId>kamon-statsd_2.11</artifactId>
+        <version>${kamon.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.kamon</groupId>
         <artifactId>kamon-autoweave_2.11</artifactId>
         <version>${kamon.version}</version>
       </dependency>
