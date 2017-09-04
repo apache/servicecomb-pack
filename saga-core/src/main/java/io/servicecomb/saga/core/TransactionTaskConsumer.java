@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -85,9 +86,27 @@ class TransactionTaskConsumer implements TaskConsumer {
   }
 
   private Future<Operation> futureOf(SagaRequest request) {
-    return executorService.submit(() -> {
+    return executorService.submit(new OperationCallable(tasks, recoveryPolicy, request));
+  }
+
+  @EnableKamon
+  private static class OperationCallable implements Callable<Operation> {
+
+    private final SagaRequest request;
+    private final RecoveryPolicy recoveryPolicy;
+    private final Map<String, SagaTask> tasks;
+
+    private OperationCallable(Map<String, SagaTask> tasks, RecoveryPolicy recoveryPolicy, SagaRequest request) {
+      this.request = request;
+      this.recoveryPolicy = recoveryPolicy;
+      this.tasks = tasks;
+    }
+
+    @Segment(name = "recoveryCallable", category = "application", library = "kamon")
+    @Override
+    public Operation call() throws Exception {
       recoveryPolicy.apply(tasks.get(request.task()), request);
       return request.transaction();
-    });
+    }
   }
 }

@@ -24,7 +24,10 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Segment;
 
+@EnableKamon
 public class ByLevelTraveller<T> implements Traveller<T> {
 
   private final Collection<Node<T>> nodes;
@@ -44,6 +47,7 @@ public class ByLevelTraveller<T> implements Traveller<T> {
   }
 
   // TODO: 8/24/2017 what if the graph contains a cycle?
+  @Segment(name = "travelNext", category = "application", library = "kamon")
   @Override
   public void next() {
     nodes.addAll(nodesBuffer);

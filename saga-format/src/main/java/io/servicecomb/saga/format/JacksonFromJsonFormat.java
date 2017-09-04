@@ -20,11 +20,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import java.io.IOException;
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Segment;
 
+@EnableKamon
 public class JacksonFromJsonFormat implements FromJsonFormat {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
+  @Segment(name = "fromJson", category = "application", library = "kamon")
   @Override
   public SagaRequest[] fromJson(String requestJson) throws IOException {
     return objectMapper.readValue(requestJson, JsonSagaRequest[].class);

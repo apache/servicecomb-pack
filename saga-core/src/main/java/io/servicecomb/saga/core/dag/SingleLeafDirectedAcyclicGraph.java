@@ -27,11 +27,11 @@ public class SingleLeafDirectedAcyclicGraph<T> {
     this.leaf = leaf;
   }
 
-  public Node<T> root() {
+  Node<T> root() {
     return root;
   }
 
-  public Node<T> leaf() {
+  Node<T> leaf() {
     return leaf;
   }
 }
