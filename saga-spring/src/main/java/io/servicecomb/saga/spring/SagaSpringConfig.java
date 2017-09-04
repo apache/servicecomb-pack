@@ -23,7 +23,6 @@ import io.servicecomb.saga.core.Transport;
 import io.servicecomb.saga.core.application.SagaCoordinator;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.format.JacksonFromJsonFormat;
-import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
 import io.servicecomb.saga.format.JacksonSagaEventFormat;
 import io.servicecomb.saga.format.SagaEventFormat;
 import io.servicecomb.saga.transports.httpclient.HttpClientTransport;
@@ -72,7 +71,7 @@ class SagaSpringConfig {
 
     return new SagaCoordinator(
         persistentStore,
-        new JsonRequestInterpreter(fromJsonFormat),
+        fromJsonFormat,
         format,
         transport,
         Executors.newFixedThreadPool(numberOfThreads, sagaThreadFactory()));
