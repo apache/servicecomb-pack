@@ -16,6 +16,10 @@
 
 package io.servicecomb.saga.core;
 
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Segment;
+
+@EnableKamon
 public class SagaStartTask implements SagaTask {
 
   private final String sagaId;
@@ -28,6 +32,7 @@ public class SagaStartTask implements SagaTask {
     this.sagaLog = sagaLog;
   }
 
+  @Segment(name = "startTaskCommit", category = "application", library = "kamon")
   @Override
   public void commit(SagaRequest request) {
     sagaLog.offer(new SagaStartedEvent(sagaId, requestJson, request));
