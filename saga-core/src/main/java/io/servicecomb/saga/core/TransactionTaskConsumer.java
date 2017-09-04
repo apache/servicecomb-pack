@@ -85,6 +85,7 @@ class TransactionTaskConsumer implements TaskConsumer {
     return !nodes.isEmpty();
   }
 
+  @Segment(name = "submitCallable", category = "application", library = "kamon")
   private Future<Operation> futureOf(SagaRequest request) {
     return executorService.submit(new OperationCallable(tasks, recoveryPolicy, request));
   }
@@ -102,7 +103,7 @@ class TransactionTaskConsumer implements TaskConsumer {
       this.tasks = tasks;
     }
 
-    @Segment(name = "recoveryCallable", category = "application", library = "kamon")
+    @Segment(name = "runCallable", category = "application", library = "kamon")
     @Override
     public Operation call() throws Exception {
       recoveryPolicy.apply(tasks.get(request.task()), request);
