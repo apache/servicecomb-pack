@@ -34,6 +34,7 @@ import io.servicecomb.saga.core.SagaStartTask;
 import io.servicecomb.saga.core.SagaTask;
 import io.servicecomb.saga.core.ToJsonFormat;
 import io.servicecomb.saga.core.Transport;
+import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 import java.util.HashMap;
@@ -59,20 +60,20 @@ public class SagaCoordinator {
 
   public SagaCoordinator(
       PersistentStore persistentStore,
-      JsonRequestInterpreter requestInterpreter,
+      FromJsonFormat fromJsonFormat,
       ToJsonFormat toJsonFormat,
       Transport transport) {
-    this(persistentStore, requestInterpreter, toJsonFormat, transport, Executors.newFixedThreadPool(5));
+    this(persistentStore, fromJsonFormat, toJsonFormat, transport, Executors.newFixedThreadPool(5));
   }
 
   public SagaCoordinator(
       PersistentStore persistentStore,
-      JsonRequestInterpreter requestInterpreter,
+      FromJsonFormat fromJsonFormat,
       ToJsonFormat toJsonFormat,
       Transport transport,
       ExecutorService executorService) {
     this.persistentStore = persistentStore;
-    this.requestInterpreter = requestInterpreter;
+    this.requestInterpreter = new JsonRequestInterpreter(fromJsonFormat);
     this.transport = transport;
     this.toJsonFormat = toJsonFormat;
     this.executorService = executorService;

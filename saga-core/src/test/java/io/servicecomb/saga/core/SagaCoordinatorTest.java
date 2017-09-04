@@ -32,7 +32,6 @@ import static org.mockito.Mockito.verify;
 
 import io.servicecomb.saga.core.application.SagaCoordinator;
 import io.servicecomb.saga.core.application.interpreter.JacksonFromJsonFormat;
-import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +82,7 @@ public class SagaCoordinatorTest {
 
   private final SagaCoordinator coordinator = new SagaCoordinator(
       eventStore,
-      new JsonRequestInterpreter(new JacksonFromJsonFormat()),
+      new JacksonFromJsonFormat(),
       null,
       transport);
   private final String sagaId = "1";
