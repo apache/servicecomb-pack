@@ -36,14 +36,6 @@
       <groupId>io.kamon</groupId>
       <artifactId>kamon-annotation_2.11</artifactId>
     </dependency>
-    <dependency>
-      <groupId>io.kamon</groupId>
-      <artifactId>kamon-akka_2.11</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.kamon</groupId>
-      <artifactId>kamon-log-reporter_2.11</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
