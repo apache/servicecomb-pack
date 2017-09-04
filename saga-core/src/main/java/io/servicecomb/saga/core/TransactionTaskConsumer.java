@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
+import kamon.annotation.Trace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,7 +104,7 @@ class TransactionTaskConsumer implements TaskConsumer {
       this.tasks = tasks;
     }
 
-    @Segment(name = "runCallable", category = "application", library = "kamon")
+    @Trace("runTransactionCallable")
     @Override
     public Operation call() throws Exception {
       recoveryPolicy.apply(tasks.get(request.task()), request);
