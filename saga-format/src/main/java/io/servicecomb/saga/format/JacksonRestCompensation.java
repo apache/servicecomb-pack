@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core.application.interpreter;
+package io.servicecomb.saga.format;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.servicecomb.saga.core.SagaRequest;
-import java.io.IOException;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.servicecomb.saga.core.Compensation;
+import io.servicecomb.saga.core.OperationImpl;
+import java.util.Map;
 
-public class JacksonFromJsonFormat implements FromJsonFormat {
+public class JacksonRestCompensation extends OperationImpl implements Compensation {
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
-
-  @Override
-  public SagaRequest[] fromJson(String requestJson) throws IOException {
-    return objectMapper.readValue(requestJson, JsonSagaRequest[].class);
+  @JsonCreator
+  public JacksonRestCompensation(
+      @JsonProperty("path") String path,
+      @JsonProperty("method") String method,
+      @JsonProperty("params") Map<String, Map<String, String>> params) {
+    super(path, method, params);
   }
 }

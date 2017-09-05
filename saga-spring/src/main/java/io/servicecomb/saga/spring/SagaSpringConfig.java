@@ -16,6 +16,8 @@
 
 package io.servicecomb.saga.spring;
 
+import static java.util.Collections.singletonMap;
+
 import io.servicecomb.saga.core.Fallback;
 import io.servicecomb.saga.core.JacksonToJsonFormat;
 import io.servicecomb.saga.core.PersistentStore;
@@ -27,6 +29,8 @@ import io.servicecomb.saga.format.JacksonFromJsonFormat;
 import io.servicecomb.saga.format.JacksonSagaEventFormat;
 import io.servicecomb.saga.format.SagaEventFormat;
 import io.servicecomb.saga.transports.httpclient.HttpClientTransport;
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,8 +42,13 @@ import org.springframework.context.annotation.Configuration;
 class SagaSpringConfig {
 
   @Bean
-  FromJsonFormat fromJsonFormat() {
-    return new JacksonFromJsonFormat();
+  Map<String, Transport> transports() {
+    return singletonMap("rest", new HttpClientTransport());
+  }
+
+  @Bean
+  FromJsonFormat fromJsonFormat(Map<String, Transport> transports) {
+    return new JacksonFromJsonFormat(transports);
   }
 
   @Bean

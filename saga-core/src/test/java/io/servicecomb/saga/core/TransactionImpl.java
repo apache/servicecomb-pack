@@ -14,22 +14,13 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.format;
+package io.servicecomb.saga.core;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.servicecomb.saga.core.OperationImpl;
-import io.servicecomb.saga.core.Transaction;
 import java.util.Map;
 
-public class JsonTransaction extends OperationImpl implements Transaction {
+public class TransactionImpl extends OperationImpl implements Transaction {
 
-  @JsonCreator
-  public JsonTransaction(
-      @JsonProperty("path") String path,
-      @JsonProperty("method") String method,
-      @JsonProperty("params") Map<String, Map<String, String>> params) {
+  public TransactionImpl(String path, String method, Map<String, Map<String, String>> params) {
     super(path, method, params);
   }
-
 }

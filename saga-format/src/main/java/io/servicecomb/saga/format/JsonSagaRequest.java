@@ -16,22 +16,21 @@
 
 package io.servicecomb.saga.format;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.servicecomb.saga.core.SagaRequestImpl;
+import static io.servicecomb.saga.core.SagaRequest.TYPE_REST;
 
-public class JsonSagaRequest extends SagaRequestImpl {
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.servicecomb.saga.core.SagaRequest;
 
-  @JsonCreator
-  public JsonSagaRequest(
-      @JsonProperty("id") String id,
-      @JsonProperty("serviceName") String serviceName,
-      @JsonProperty("type") String type,
-      @JsonProperty("transaction") JsonTransaction transaction,
-      @JsonProperty("compensation") JsonCompensation compensation,
-      @JsonProperty("parents") String[] parents) {
-
-    super(id, serviceName, type, transaction, compensation, parents);
-  }
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    visible = true,
+    property = "type")
+@JsonSubTypes({
+    @Type(value = JsonRestSagaRequest.class, name = TYPE_REST)
+})
+public interface JsonSagaRequest extends SagaRequest {
 
 }

@@ -18,6 +18,8 @@ package io.servicecomb.saga.core;
 
 public interface SagaRequest {
 
+  String TYPE_REST = "rest";
+
   Transaction transaction();
 
   Compensation compensation();

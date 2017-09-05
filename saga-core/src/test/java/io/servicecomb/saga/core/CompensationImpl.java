@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core.application.interpreter;
+package io.servicecomb.saga.core;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.servicecomb.saga.core.Compensation;
-import io.servicecomb.saga.core.OperationImpl;
 import java.util.Map;
 
-class JsonCompensation extends OperationImpl implements Compensation {
+public class CompensationImpl extends OperationImpl implements Compensation {
 
-  @JsonCreator
-  public JsonCompensation(
-      @JsonProperty("path") String path,
-      @JsonProperty("method") String method,
-      @JsonProperty("params") Map<String, Map<String, String>> params) {
+  public CompensationImpl(String path, String method, Map<String, Map<String, String>> params) {
     super(path, method, params);
   }
 }
