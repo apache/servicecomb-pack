@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class GraphCycleDetectorImpl<T> implements GraphCycleDetector<T> {
 
   @Override
-  public Set<Node<T>> jointNodes(SingleLeafDirectedAcyclicGraph<T> graph) {
+  public Set<Node<T>> cycleJoints(SingleLeafDirectedAcyclicGraph<T> graph) {
     Queue<Node<T>> orphanNodes = new LinkedList<>();
     Map<Node<T>, Set<Node<T>>> nodeParents = new HashMap<>();
 

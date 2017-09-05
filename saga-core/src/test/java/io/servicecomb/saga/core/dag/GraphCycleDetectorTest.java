@@ -50,7 +50,7 @@ public class GraphCycleDetectorTest {
     node1.addChild(node2);
     node1.addChild(node3);
 
-    Set<Node<String>> nodes = detector.jointNodes(graph);
+    Set<Node<String>> nodes = detector.cycleJoints(graph);
 
     assertThat(nodes.isEmpty(), is(true));
   }
@@ -61,7 +61,7 @@ public class GraphCycleDetectorTest {
     node2.addChild(node3);
     node3.addChild(node1);
 
-    Set<Node<String>> nodes = detector.jointNodes(graph);
+    Set<Node<String>> nodes = detector.cycleJoints(graph);
 
     assertThat(nodes, contains(node1));
   }

@@ -160,7 +160,7 @@ public class JsonRequestInterpreterTest {
 
   @Before
   public void setUp() throws Exception {
-    when(detector.jointNodes(any())).thenReturn(emptySet());
+    when(detector.cycleJoints(any())).thenReturn(emptySet());
   }
 
   @Test
@@ -219,7 +219,7 @@ public class JsonRequestInterpreterTest {
   @Test
   public void blowsUpWhenGraphContainsCycle() {
     reset(detector);
-    when(detector.jointNodes(any())).thenReturn(singleton(new Node<>(0L, null)));
+    when(detector.cycleJoints(any())).thenReturn(singleton(new Node<>(0L, null)));
 
     try {
       interpreter.interpret(requests);
