@@ -42,6 +42,28 @@
     <saga.version>0.0.1-SNAPSHOT</saga.version>
   </properties>
 
+  <scm>
+    <connection>scm:git:https://github.com/ServiceComb/saga.git</connection>
+    <developerConnection>scm:git:https://github.com/ServiceComb/saga.git</developerConnection>
+    <url>https://github.com/servicecomb/saga</url>
+    <tag>${saga.version}</tag>
+  </scm>
+
+  <distributionManagement>
+    <repository>
+      <id>ossrh</id>
+      <name>release</name>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <uniqueVersion>true</uniqueVersion>
+    </repository>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <name>snapshot</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <uniqueVersion>true</uniqueVersion>
+    </snapshotRepository>
+  </distributionManagement>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -180,10 +202,34 @@
   <build>
     <pluginManagement>
       <plugins>
+        <!-- mixin plugin configurations declared in another pom,just like importing dependencies managed in another pom -->
+        <plugin>
+          <groupId>com.github.odavid.maven.plugins</groupId>
+          <artifactId>mixin-maven-plugin</artifactId>
+          <configuration>
+            <mixins>
+              <mixin>
+                <groupId>io.servicecomb.saga</groupId>
+                <artifactId>docker-build-config</artifactId>
+                <version>${saga.version}</version>
+              </mixin>
+            </mixins>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <version>1.4.5.RELEASE</version>
+        </plugin>
         <plugin>
           <groupId>org.commonjava.maven.plugins</groupId>
           <artifactId>directory-maven-plugin</artifactId>
           <version>0.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter</artifactId>
+          <version>1.4.5.RELEASE</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.gmaven</groupId>
