@@ -16,11 +16,7 @@
 
 package io.servicecomb.saga.core;
 
-public interface Compensation extends Operation {
+public interface Fallback {
 
-  Compensation SAGA_START_COMPENSATION = new Compensation() {
-  };
-
-  Compensation SAGA_END_COMPENSATION = new Compensation() {
-  };
+  SagaResponse fallback();
 }

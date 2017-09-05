@@ -24,12 +24,23 @@ public class RequestProcessTask implements SagaTask {
 
   private final String sagaId;
   private final SagaLog sagaLog;
-  private final Transport transport;
+  private final Transport transactionTransport;
+  private final Transport compensationTransport;
 
-  public RequestProcessTask(String sagaId, SagaLog sagaLog, Transport transport) {
+  RequestProcessTask(String sagaId, SagaLog sagaLog, Transport transport) {
+    this(sagaId, sagaLog, transport, transport);
+  }
+
+  public RequestProcessTask(
+      String sagaId,
+      SagaLog sagaLog,
+      Transport transactionTransport,
+      Transport compensationTransport) {
+
     this.sagaId = sagaId;
     this.sagaLog = sagaLog;
-    this.transport = transport;
+    this.transactionTransport = transactionTransport;
+    this.compensationTransport = compensationTransport;
   }
 
   @Segment(name = "commit", category = "application", library = "kamon")
@@ -38,7 +49,7 @@ public class RequestProcessTask implements SagaTask {
     sagaLog.offer(new TransactionStartedEvent(sagaId, request));
 
     Transaction transaction = request.transaction();
-    SagaResponse response = transport.with(
+    SagaResponse response = transactionTransport.with(
         request.serviceName(),
         transaction.path(),
         transaction.method(),
@@ -53,7 +64,7 @@ public class RequestProcessTask implements SagaTask {
     sagaLog.offer(new CompensationStartedEvent(sagaId, request));
 
     Compensation compensation = request.compensation();
-    SagaResponse response = transport
+    SagaResponse response = compensationTransport
         .with(request.serviceName(), compensation.path(), compensation.method(), compensation.params());
 
     sagaLog.offer(new CompensationEndedEvent(sagaId, request, response));

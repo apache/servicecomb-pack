@@ -36,11 +36,6 @@ public class TransactionImpl implements Transaction {
   }
 
   @Override
-  public void run() {
-
-  }
-
-  @Override
   public String path() {
     return path;
   }
