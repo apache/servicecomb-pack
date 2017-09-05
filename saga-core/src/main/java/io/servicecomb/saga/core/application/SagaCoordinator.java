@@ -36,6 +36,7 @@ import io.servicecomb.saga.core.ToJsonFormat;
 import io.servicecomb.saga.core.Transport;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
+import io.servicecomb.saga.core.dag.GraphCycleDetectorImpl;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 import java.util.HashMap;
 import java.util.List;
@@ -73,7 +74,7 @@ public class SagaCoordinator {
       Transport transport,
       ExecutorService executorService) {
     this.persistentStore = persistentStore;
-    this.requestInterpreter = new JsonRequestInterpreter(fromJsonFormat);
+    this.requestInterpreter = new JsonRequestInterpreter(fromJsonFormat, new GraphCycleDetectorImpl<>());
     this.transport = transport;
     this.toJsonFormat = toJsonFormat;
     this.executorService = executorService;
