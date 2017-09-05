@@ -29,17 +29,21 @@ import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import io.servicecomb.saga.core.application.SagaCoordinator;
-import io.servicecomb.saga.core.application.interpreter.JacksonFromJsonFormat;
+import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 @SuppressWarnings("unchecked")
 public class SagaCoordinatorTest {
@@ -76,19 +80,42 @@ public class SagaCoordinatorTest {
       + "  }\n"
       + "]\n";
 
+  private final SagaRequest request1 = new SagaRequestImpl(
+      "request-1",
+      "aaa",
+      "rest",
+      new TransactionImpl("/rest/as", "post", emptyMap()),
+      new CompensationImpl("/rest/as","delete", emptyMap())
+  );
+
+  private final SagaRequest request2 = new SagaRequestImpl(
+      "request-2",
+      "bbb",
+      "rest",
+      new TransactionImpl("/rest/bs", "post", emptyMap()),
+      new CompensationImpl("/rest/bs","delete", emptyMap())
+  );
+
+  private final FromJsonFormat fromJsonFormat = Mockito.mock(FromJsonFormat.class);
   private final EmbeddedPersistentStore eventStore = new EmbeddedPersistentStore();
 
   private final SagaRequest sagaStartRequest = sagaStartRequest();
 
   private final SagaCoordinator coordinator = new SagaCoordinator(
       eventStore,
-      new JacksonFromJsonFormat(),
+      fromJsonFormat,
       null,
       transport);
   private final String sagaId = "1";
 
+  @Before
+  public void setUp() throws Exception {
+    when(fromJsonFormat.fromJson(requestJson)).thenReturn(new SagaRequest[]{request1});
+    when(fromJsonFormat.fromJson(anotherRequestJson)).thenReturn(new SagaRequest[]{request2});
+  }
+
   @Test
-  public void recoverSagaWithEventsFromEventStore() {
+  public void recoverSagaWithEventsFromEventStore() throws IOException {
     eventStore.offer(new SagaStartedEvent(sagaId, requestJson, sagaStartRequest));
     coordinator.reanimate();
 

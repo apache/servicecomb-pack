@@ -43,8 +43,8 @@ import io.servicecomb.saga.core.TransactionAbortedEvent;
 import io.servicecomb.saga.core.TransactionEndedEvent;
 import io.servicecomb.saga.core.TransactionFailedException;
 import io.servicecomb.saga.core.TransactionStartedEvent;
-import io.servicecomb.saga.format.JsonCompensation;
-import io.servicecomb.saga.format.JsonTransaction;
+import io.servicecomb.saga.format.JacksonRestCompensation;
+import io.servicecomb.saga.format.JacksonRestTransaction;
 import io.servicecomb.saga.format.SagaEventFormat;
 import io.servicecomb.saga.spring.SagaRecoveryTest.EventPopulatingConfig;
 import org.junit.BeforeClass;
@@ -165,8 +165,8 @@ public class SagaRecoveryTest {
           "request-" + name,
           "localhost:8080",
           "rest",
-          new JsonTransaction("/rest/" + name, "post", singletonMap("query", singletonMap("foo", name))),
-          new JsonCompensation("rest/" + name, "delete", singletonMap("query", singletonMap("bar", name))));
+          new JacksonRestTransaction("/rest/" + name, "post", singletonMap("query", singletonMap("foo", name))),
+          new JacksonRestCompensation("rest/" + name, "delete", singletonMap("query", singletonMap("bar", name))));
     }
   }
 }

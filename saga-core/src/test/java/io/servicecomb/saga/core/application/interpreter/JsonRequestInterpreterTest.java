@@ -17,6 +17,7 @@
 package io.servicecomb.saga.core.application.interpreter;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
+import static io.servicecomb.saga.core.SagaRequest.TYPE_REST;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
@@ -31,14 +32,18 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 import com.seanyinx.github.unit.scaffolding.Randomness;
+import io.servicecomb.saga.core.CompensationImpl;
 import io.servicecomb.saga.core.SagaException;
 import io.servicecomb.saga.core.SagaRequest;
+import io.servicecomb.saga.core.SagaRequestImpl;
+import io.servicecomb.saga.core.TransactionImpl;
 import io.servicecomb.saga.core.dag.ByLevelTraveller;
 import io.servicecomb.saga.core.dag.FromRootTraversalDirection;
 import io.servicecomb.saga.core.dag.GraphCycleDetector;
 import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
 import io.servicecomb.saga.core.dag.Traveller;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -151,16 +156,52 @@ public class JsonRequestInterpreterTest {
       + "  }\n"
       + "]\n";
 
+  private final SagaRequest request1 = new SagaRequestImpl(
+      "request-aaa",
+      "aaa",
+      TYPE_REST,
+      new TransactionImpl("/rest/as", "post", mapOf("form", mapOf("foo", "as"))),
+      new CompensationImpl("/rest/as","delete", mapOf("query", mapOf("bar", "as")))
+  );
+
+  private final SagaRequest request2 = new SagaRequestImpl(
+      "request-bbb",
+      "bbb",
+      TYPE_REST,
+      new TransactionImpl("/rest/bs", "post", mapOf("query", mapOf("foo", "bs"), "json", mapOf("body", "{ \"bar\": \"bs\" }"))),
+      new CompensationImpl("/rest/bs","delete", emptyMap())
+  );
+
+  private final SagaRequest request3 = new SagaRequestImpl(
+      "request-ccc",
+      "ccc",
+      TYPE_REST,
+      new TransactionImpl("/rest/cs", "post", mapOf("query", mapOf("foo", "cs"), "form", mapOf("bar", "cs"))),
+      new CompensationImpl("/rest/cs","delete", emptyMap()),
+      new String[]{"request-aaa", "request-bbb"}
+  );
+
+  private final SagaRequest duplicateRequest = new SagaRequestImpl(
+      "request-duplicate-id",
+      "xxx",
+      "rest",
+      new TransactionImpl("/rest/xs", "post", emptyMap()),
+      new CompensationImpl("/rest/xs","delete", emptyMap())
+  );
+
+  private final FromJsonFormat fromJsonFormat = Mockito.mock(FromJsonFormat.class);
   private final GraphCycleDetector<SagaRequest> detector = Mockito.mock(GraphCycleDetector.class);
   private final String sagaId = Randomness.uniquify("sagaId");
   private final JsonRequestInterpreter interpreter = new JsonRequestInterpreter(
-      new JacksonFromJsonFormat(),
+      fromJsonFormat,
       detector
   );
 
   @Before
   public void setUp() throws Exception {
     when(detector.cycleJoints(any())).thenReturn(emptySet());
+    when(fromJsonFormat.fromJson(requests)).thenReturn(new SagaRequest[]{request1, request2, request3});
+    when(fromJsonFormat.fromJson(requestsWithDuplicateId)).thenReturn(new SagaRequest[]{duplicateRequest, duplicateRequest});
   }
 
   @Test
@@ -176,17 +217,17 @@ public class JsonRequestInterpreterTest {
 
     traveller.next();
     assertThat(nodes, contains(
-        taskWith(sagaId, "aaa", "rest", "post", "/rest/as", "delete", "/rest/as",
+        taskWith(sagaId, "aaa", TYPE_REST, "post", "/rest/as", "delete", "/rest/as",
             mapOf("form", mapOf("foo", "as")),
             mapOf("query", mapOf("bar", "as"))),
-        taskWith(sagaId, "bbb", "rest", "post", "/rest/bs", "delete", "/rest/bs",
+        taskWith(sagaId, "bbb", TYPE_REST, "post", "/rest/bs", "delete", "/rest/bs",
             mapOf("query", mapOf("foo", "bs"), "json", mapOf("body", "{ \"bar\": \"bs\" }")))
     ));
     nodes.clear();
 
     traveller.next();
     assertThat(nodes, contains(
-        taskWith(sagaId, "ccc", "rest", "post", "/rest/cs", "delete", "/rest/cs",
+        taskWith(sagaId, "ccc", TYPE_REST, "post", "/rest/cs", "delete", "/rest/cs",
             mapOf("query", mapOf("foo", "cs"), "form", mapOf("bar", "cs")))
     ));
     nodes.clear();
@@ -196,9 +237,12 @@ public class JsonRequestInterpreterTest {
   }
 
   @Test
-  public void blowsUpWhenJsonIsInvalid() {
+  public void blowsUpWhenJsonIsInvalid() throws IOException {
+    String invalidRequest = "invalid-json";
+    when(fromJsonFormat.fromJson(invalidRequest)).thenThrow(IOException.class);
+
     try {
-      interpreter.interpret("invalid-json");
+      interpreter.interpret(invalidRequest);
       fail(SagaException.class.getSimpleName() + " is expected, but none thrown");
     } catch (SagaException e) {
       assertThat(e.getMessage(), is("Failed to interpret JSON invalid-json"));

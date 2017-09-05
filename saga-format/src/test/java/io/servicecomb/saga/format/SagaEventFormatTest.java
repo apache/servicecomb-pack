@@ -17,6 +17,7 @@
 
 package io.servicecomb.saga.format;
 
+import static io.servicecomb.saga.core.SagaRequest.TYPE_REST;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
@@ -49,9 +50,9 @@ public class SagaEventFormatTest {
   private final SagaRequest request = new SagaRequestImpl(
       sagaId,
       Randomness.uniquify("serviceName"),
-      "rest",
-      new JsonTransaction("/rest/xxx", "POST", singletonMap("query", singletonMap("foo", "xxx"))),
-      new JsonCompensation("/rest/xxx", "DELETE", singletonMap("query", singletonMap("bar", "xxx")))
+      TYPE_REST,
+      new JacksonRestTransaction("/rest/xxx", "POST", singletonMap("query", singletonMap("foo", "xxx"))),
+      new JacksonRestCompensation("/rest/xxx", "DELETE", singletonMap("query", singletonMap("bar", "xxx")))
   );
 
   private final SagaEventFormat toEventFormat = new JacksonSagaEventFormat();

@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core.application.interpreter;
+package io.servicecomb.saga.format;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.servicecomb.saga.core.SagaRequestImpl;
 
-class JsonSagaRequest extends SagaRequestImpl {
+public class JsonRestSagaRequest extends SagaRequestImpl implements JsonSagaRequest {
 
   @JsonCreator
-  public JsonSagaRequest(
+  public JsonRestSagaRequest(
       @JsonProperty("id") String id,
       @JsonProperty("serviceName") String serviceName,
       @JsonProperty("type") String type,
-      @JsonProperty("transaction") JsonTransaction transaction,
-      @JsonProperty("compensation") JsonCompensation compensation,
+      @JsonProperty("transaction") JacksonRestTransaction transaction,
+      @JsonProperty("compensation") JacksonRestCompensation compensation,
       @JsonProperty("parents") String[] parents) {
 
     super(id, serviceName, type, transaction, compensation, parents);
