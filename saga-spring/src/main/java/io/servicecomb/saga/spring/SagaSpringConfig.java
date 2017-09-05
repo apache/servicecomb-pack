@@ -16,6 +16,7 @@
 
 package io.servicecomb.saga.spring;
 
+import io.servicecomb.saga.core.Fallback;
 import io.servicecomb.saga.core.JacksonToJsonFormat;
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.ToJsonFormat;
@@ -57,6 +58,11 @@ class SagaSpringConfig {
   }
 
   @Bean
+  Fallback fallback() {
+    return new LoggingFallback();
+  }
+
+  @Bean
   PersistentStore persistentStore(SagaEventRepo repo, ToJsonFormat toJsonFormat, SagaEventFormat eventFormat) {
     return new JpaPersistentStore(repo, toJsonFormat, eventFormat);
   }
@@ -64,8 +70,10 @@ class SagaSpringConfig {
   @Bean
   SagaCoordinator sagaCoordinator(
       @Value("${saga.thread.count:5}") int numberOfThreads,
+      @Value("${saga.compensation.retries:3}") int compensationRetries,
       PersistentStore persistentStore,
       Transport transport,
+      Fallback fallback,
       ToJsonFormat format,
       FromJsonFormat fromJsonFormat) {
 
@@ -74,6 +82,8 @@ class SagaSpringConfig {
         fromJsonFormat,
         format,
         transport,
+        fallback,
+        compensationRetries,
         Executors.newFixedThreadPool(numberOfThreads, sagaThreadFactory()));
   }
 

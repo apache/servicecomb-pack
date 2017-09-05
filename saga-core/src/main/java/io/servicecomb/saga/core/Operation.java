@@ -22,8 +22,6 @@ import java.util.Map;
 
 public interface Operation {
 
-  void run();
-
   default String path() {
     return "/";
   }

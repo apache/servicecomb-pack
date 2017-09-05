@@ -36,11 +36,6 @@ public class CompensationImpl implements Compensation {
   }
 
   @Override
-  public void run() {
-
-  }
-
-  @Override
   public String path() {
     return path;
   }
