@@ -54,7 +54,7 @@ public class JsonRequestInterpreter {
   }
 
   private void detectCycle(SingleLeafDirectedAcyclicGraph<SagaRequest> graph) {
-    Set<Node<SagaRequest>> jointNodes = detector.jointNodes(graph);
+    Set<Node<SagaRequest>> jointNodes = detector.cycleJoints(graph);
 
     if (!jointNodes.isEmpty()) {
       throw new SagaException("Cycle detected in the request graph at nodes " + jointNodes);

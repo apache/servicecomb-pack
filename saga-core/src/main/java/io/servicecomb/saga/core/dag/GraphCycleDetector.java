@@ -20,5 +20,5 @@ import java.util.Set;
 
 public interface GraphCycleDetector<T> {
 
-  Set<Node<T>> jointNodes(SingleLeafDirectedAcyclicGraph<T> graph);
+  Set<Node<T>> cycleJoints(SingleLeafDirectedAcyclicGraph<T> graph);
 }
