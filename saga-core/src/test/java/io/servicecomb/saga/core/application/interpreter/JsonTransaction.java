@@ -18,10 +18,11 @@ package io.servicecomb.saga.core.application.interpreter;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.servicecomb.saga.core.TransactionImpl;
+import io.servicecomb.saga.core.OperationImpl;
+import io.servicecomb.saga.core.Transaction;
 import java.util.Map;
 
-class JsonTransaction extends TransactionImpl {
+class JsonTransaction extends OperationImpl implements Transaction {
 
   @JsonCreator
   public JsonTransaction(

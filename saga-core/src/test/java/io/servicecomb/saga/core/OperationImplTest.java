@@ -24,12 +24,12 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-public class CompensationImplTest {
+public class OperationImplTest {
 
   @Test
   public void blowsUpWhenGetMethodWithForm() {
     try {
-      new CompensationImpl("blah", "GET", singletonMap("form", emptyMap()));
+      new OperationImpl("blah", "GET", singletonMap("form", emptyMap()));
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
@@ -39,7 +39,7 @@ public class CompensationImplTest {
   @Test
   public void blowsUpWhenGetMethodWithJson() {
     try {
-      new CompensationImpl("blah", "GET", singletonMap("json", emptyMap()));
+      new OperationImpl("blah", "GET", singletonMap("json", emptyMap()));
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
@@ -49,7 +49,7 @@ public class CompensationImplTest {
   @Test
   public void blowsUpWhenDeleteMethodWithForm() {
     try {
-      new CompensationImpl("blah", "DELETE", singletonMap("form", emptyMap()));
+      new OperationImpl("blah", "DELETE", singletonMap("form", emptyMap()));
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
@@ -59,7 +59,7 @@ public class CompensationImplTest {
   @Test
   public void blowsUpWhenDeleteMethodWithJson() {
     try {
-      new CompensationImpl("blah", "DELETE", singletonMap("json", emptyMap()));
+      new OperationImpl("blah", "DELETE", singletonMap("json", emptyMap()));
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
@@ -69,7 +69,7 @@ public class CompensationImplTest {
   @Test
   public void blowsUpWhenMethodIsNotSupported() {
     try {
-      new CompensationImpl("blah", "foo", emptyMap());
+      new OperationImpl("blah", "foo", emptyMap());
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("Unsupported method foo"));
@@ -79,7 +79,7 @@ public class CompensationImplTest {
   @Test
   public void blowsUpWhenMethodIsNull() {
     try {
-      new CompensationImpl("blah", null, emptyMap());
+      new OperationImpl("blah", null, emptyMap());
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("Unsupported method null"));
