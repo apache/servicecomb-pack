@@ -46,7 +46,6 @@ public class ByLevelTraveller<T> implements Traveller<T> {
     nodesWithoutParent.offer(traversalDirection.root(dag));
   }
 
-  // TODO: 8/24/2017 what if the graph contains a cycle?
   @Segment(name = "travelNext", category = "application", library = "kamon")
   @Override
   public void next() {
