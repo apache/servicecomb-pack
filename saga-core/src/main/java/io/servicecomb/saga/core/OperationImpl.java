@@ -21,13 +21,13 @@ import static java.util.Collections.emptyMap;
 import io.servicecomb.saga.core.application.interpreter.RestRequestChecker;
 import java.util.Map;
 
-public class TransactionImpl implements Transaction {
+public class OperationImpl implements Operation {
 
   private final String path;
   private final String method;
   private final Map<String, Map<String, String>> params;
 
-  public TransactionImpl(String path, String method, Map<String, Map<String, String>> params) {
+  public OperationImpl(String path, String method, Map<String, Map<String, String>> params) {
     RestRequestChecker.checkParameters(method, params);
 
     this.path = path;
@@ -52,7 +52,7 @@ public class TransactionImpl implements Transaction {
 
   @Override
   public String toString() {
-    return "Transaction{" +
+    return "Operation{" +
         "path='" + path + '\'' +
         ", method='" + method + '\'' +
         ", params=" + params +

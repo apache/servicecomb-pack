@@ -18,10 +18,11 @@ package io.servicecomb.saga.format;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.servicecomb.saga.core.CompensationImpl;
+import io.servicecomb.saga.core.Compensation;
+import io.servicecomb.saga.core.OperationImpl;
 import java.util.Map;
 
-public class JsonCompensation extends CompensationImpl {
+public class JsonCompensation extends OperationImpl implements Compensation {
 
   @JsonCreator
   public JsonCompensation(
