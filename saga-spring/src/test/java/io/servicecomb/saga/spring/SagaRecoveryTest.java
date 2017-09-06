@@ -99,14 +99,16 @@ public class SagaRecoveryTest {
       + request("yyy3")
       + "]\n";
 
+  private static final String sagaY = "{\"policy\": \"ForwardRecovery\",\"requests\": " + requestY + "}";
+
   @BeforeClass
   public static void setUp() throws Exception {
     stubFor(delete(urlPathEqualTo("/rest/yyy1"))
         .withQueryParam("bar", containing("yyy1"))
         .willReturn(
             aResponse()
-    				.withStatus(HttpStatus.SC_OK)
-    				.withBody("success")));
+                .withStatus(HttpStatus.SC_OK)
+                .withBody("success")));
   }
 
   @Test
@@ -125,6 +127,7 @@ public class SagaRecoveryTest {
 
   @Configuration
   static class EventPopulatingConfig {
+
     private static final String DONT_CARE = "{}";
 
     private final SagaRequest request1 = sagaRequest("yyy1");
@@ -144,7 +147,7 @@ public class SagaRecoveryTest {
 
       PersistentStore store = new JpaPersistentStore(repo, toJsonFormat, sagaEventFormat);
 
-      store.offer(new SagaStartedEvent("yyy", requestY, SAGA_START_REQUEST));
+      store.offer(new SagaStartedEvent("yyy", sagaY, SAGA_START_REQUEST));
       store.offer(new TransactionStartedEvent("yyy", request1));
       store.offer(new TransactionEndedEvent("yyy", request1, response1));
 
