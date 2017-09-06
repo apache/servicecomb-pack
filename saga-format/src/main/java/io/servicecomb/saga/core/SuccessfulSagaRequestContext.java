@@ -23,10 +23,17 @@ import io.servicecomb.saga.format.JsonSuccessfulSagaResponse;
 
 public class SuccessfulSagaRequestContext extends SagaRequestContext {
 
+  private final JsonSagaRequest request;
+
   @JsonCreator
   public SuccessfulSagaRequestContext(
       @JsonProperty("request") JsonSagaRequest request,
       @JsonProperty("response") JsonSuccessfulSagaResponse response) {
     super(request, response);
+    this.request = request;
+  }
+
+  public JsonSagaRequest request() {
+    return request;
   }
 }

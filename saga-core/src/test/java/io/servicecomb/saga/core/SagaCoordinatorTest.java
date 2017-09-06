@@ -104,8 +104,8 @@ public class SagaCoordinatorTest {
   private final SagaCoordinator coordinator = new SagaCoordinator(
       eventStore,
       fromJsonFormat,
-      null,
-      transport);
+      null
+  );
   private final String sagaId = "1";
 
   @Before
@@ -125,8 +125,6 @@ public class SagaCoordinatorTest {
         eventWith("request-1", "aaa", "post", "/rest/as", "delete", "/rest/as", TransactionEndedEvent.class),
         eventWith("saga-end", "Saga", "nop", "/", "nop", "/", SagaEndedEvent.class)
     ));
-
-    verify(transport).with("aaa", "/rest/as", "post", emptyMap());
   }
 
   @Test
@@ -139,8 +137,6 @@ public class SagaCoordinatorTest {
         eventWith("request-1", "aaa", "post", "/rest/as", "delete", "/rest/as", TransactionEndedEvent.class),
         eventWith("saga-end", "Saga", "nop", "/", "nop", "/", SagaEndedEvent.class)
     ));
-
-    verify(transport).with("aaa", "/rest/as", "post", emptyMap());
   }
 
   @Test
@@ -160,9 +156,6 @@ public class SagaCoordinatorTest {
         eventWith("request-2", "bbb", "post", "/rest/bs", "delete", "/rest/bs", TransactionEndedEvent.class),
         eventWith("saga-end", "Saga", "nop", "/", "nop", "/", SagaEndedEvent.class)
     ));
-
-    verify(transport).with("aaa", "/rest/as", "post", emptyMap());
-    verify(transport).with("bbb", "/rest/bs", "post", emptyMap());
   }
 
   @Test
@@ -182,9 +175,6 @@ public class SagaCoordinatorTest {
         eventWith("request-2", "bbb", "post", "/rest/bs", "delete", "/rest/bs", TransactionEndedEvent.class),
         eventWith("saga-end", "Saga", "nop", "/", "nop", "/", SagaEndedEvent.class)
     ));
-
-    verify(transport).with("aaa", "/rest/as", "post", emptyMap());
-    verify(transport).with("bbb", "/rest/bs", "post", emptyMap());
   }
 
   private SagaRequest sagaStartRequest() {

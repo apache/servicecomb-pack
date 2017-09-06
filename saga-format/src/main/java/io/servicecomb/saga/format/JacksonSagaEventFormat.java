@@ -26,12 +26,12 @@ import io.servicecomb.saga.core.FailedSagaRequestContext;
 import io.servicecomb.saga.core.SagaEndedEvent;
 import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.SagaException;
-import io.servicecomb.saga.core.SagaRequestContext;
 import io.servicecomb.saga.core.SagaStartedEvent;
 import io.servicecomb.saga.core.SuccessfulSagaRequestContext;
 import io.servicecomb.saga.core.TransactionAbortedEvent;
 import io.servicecomb.saga.core.TransactionEndedEvent;
 import io.servicecomb.saga.core.TransactionStartedEvent;
+import io.servicecomb.saga.transports.TransportFactory;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +49,11 @@ public class JacksonSagaEventFormat implements SagaEventFormat {
   }};
 
   private final ObjectMapper objectMapper = new ObjectMapper();
+  private final TransportFactory transportFactory;
+
+  public JacksonSagaEventFormat(TransportFactory transportFactory) {
+    this.transportFactory = transportFactory;
+  }
 
   @Override
   public SagaEvent toSagaEvent(String sagaId, String eventType, String contentJson) {
@@ -64,7 +69,7 @@ public class JacksonSagaEventFormat implements SagaEventFormat {
 
   private SagaEvent transactionStartedEvent(String sagaId, String json) {
     try {
-      return new TransactionStartedEvent(sagaId, objectMapper.readValue(json, JsonSagaRequest.class));
+      return new TransactionStartedEvent(sagaId, objectMapper.readValue(json, JsonSagaRequest.class).with(transportFactory));
     } catch (IOException e) {
       throw new SagaException(cause(sagaId, json), e);
     }
@@ -72,8 +77,8 @@ public class JacksonSagaEventFormat implements SagaEventFormat {
 
   private SagaEvent transactionEndedEvent(String sagaId, String json) {
     try {
-      SagaRequestContext context = objectMapper.readValue(json, SuccessfulSagaRequestContext.class);
-      return new TransactionEndedEvent(sagaId, context.request(), context.response());
+      SuccessfulSagaRequestContext context = objectMapper.readValue(json, SuccessfulSagaRequestContext.class);
+      return new TransactionEndedEvent(sagaId, context.request().with(transportFactory), context.response());
     } catch (IOException e) {
       throw new SagaException(cause(sagaId, json), e);
     }
@@ -81,8 +86,8 @@ public class JacksonSagaEventFormat implements SagaEventFormat {
 
   private SagaEvent transactionAbortedEvent(String sagaId, String json) {
     try {
-      SagaRequestContext context = objectMapper.readValue(json, FailedSagaRequestContext.class);
-      return new TransactionAbortedEvent(sagaId, context.request(), context.response());
+      FailedSagaRequestContext context = objectMapper.readValue(json, FailedSagaRequestContext.class);
+      return new TransactionAbortedEvent(sagaId, context.request().with(transportFactory), context.response());
     } catch (IOException e) {
       throw new SagaException(cause(sagaId, json), e);
     }
@@ -90,7 +95,7 @@ public class JacksonSagaEventFormat implements SagaEventFormat {
 
   private SagaEvent compensationStartedEvent(String sagaId, String json) {
     try {
-      return new CompensationStartedEvent(sagaId, objectMapper.readValue(json, JsonSagaRequest.class));
+      return new CompensationStartedEvent(sagaId, objectMapper.readValue(json, JsonSagaRequest.class).with(transportFactory));
     } catch (IOException e) {
       throw new SagaException(cause(sagaId, json), e);
     }
@@ -98,8 +103,8 @@ public class JacksonSagaEventFormat implements SagaEventFormat {
 
   private SagaEvent compensationEndedEvent(String sagaId, String json) {
     try {
-      SagaRequestContext context = objectMapper.readValue(json, SuccessfulSagaRequestContext.class);
-      return new CompensationEndedEvent(sagaId, context.request(), context.response());
+      SuccessfulSagaRequestContext context = objectMapper.readValue(json, SuccessfulSagaRequestContext.class);
+      return new CompensationEndedEvent(sagaId, context.request().with(transportFactory), context.response());
     } catch (IOException e) {
       throw new SagaException(cause(sagaId, json), e);
     }

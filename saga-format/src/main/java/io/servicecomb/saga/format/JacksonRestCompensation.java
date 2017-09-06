@@ -17,12 +17,18 @@
 package io.servicecomb.saga.format;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.servicecomb.saga.core.Compensation;
 import io.servicecomb.saga.core.OperationImpl;
+import io.servicecomb.saga.core.SagaResponse;
+import io.servicecomb.saga.transports.RestTransport;
 import java.util.Map;
 
 public class JacksonRestCompensation extends OperationImpl implements Compensation {
+
+  @JsonIgnore
+  private RestTransport transport;
 
   @JsonCreator
   public JacksonRestCompensation(
@@ -30,5 +36,15 @@ public class JacksonRestCompensation extends OperationImpl implements Compensati
       @JsonProperty("method") String method,
       @JsonProperty("params") Map<String, Map<String, String>> params) {
     super(path, method, params);
+  }
+
+  JacksonRestCompensation with(RestTransport transport) {
+    this.transport = transport;
+    return this;
+  }
+
+  @Override
+  public SagaResponse send(String address) {
+    return transport.with(address, path(), method(), params());
   }
 }

@@ -17,12 +17,18 @@
 package io.servicecomb.saga.format;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.servicecomb.saga.core.OperationImpl;
+import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.Transaction;
+import io.servicecomb.saga.transports.RestTransport;
 import java.util.Map;
 
 public class JacksonRestTransaction extends OperationImpl implements Transaction {
+
+  @JsonIgnore
+  private RestTransport transport;
 
   @JsonCreator
   public JacksonRestTransaction(
@@ -32,4 +38,13 @@ public class JacksonRestTransaction extends OperationImpl implements Transaction
     super(path, method, params);
   }
 
+  JacksonRestTransaction with(RestTransport transport) {
+    this.transport = transport;
+    return this;
+  }
+
+  @Override
+  public SagaResponse send(String address) {
+    return transport.with(address, path(), method(), params());
+  }
 }

@@ -23,20 +23,16 @@ import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
 import io.servicecomb.saga.core.BackwardRecovery;
 import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.EventStore;
-import io.servicecomb.saga.core.Fallback;
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.RecoveryPolicy;
 import io.servicecomb.saga.core.RequestProcessTask;
-import io.servicecomb.saga.core.RetryableTransport;
 import io.servicecomb.saga.core.Saga;
 import io.servicecomb.saga.core.SagaEndTask;
 import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.SagaLog;
 import io.servicecomb.saga.core.SagaStartTask;
 import io.servicecomb.saga.core.SagaTask;
-import io.servicecomb.saga.core.SuccessfulSagaResponse;
 import io.servicecomb.saga.core.ToJsonFormat;
-import io.servicecomb.saga.core.Transport;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
 import io.servicecomb.saga.core.dag.GraphCycleDetectorImpl;
@@ -57,8 +53,6 @@ public class SagaCoordinator {
 
   private final PersistentStore persistentStore;
   private final JsonRequestInterpreter requestInterpreter;
-  private final Transport transport;
-  private final Transport retryableTransport;
   private final ToJsonFormat toJsonFormat;
   private final Executor executorService;
   private final RecoveryPolicy recoveryPolicy = new BackwardRecovery();
@@ -66,14 +60,10 @@ public class SagaCoordinator {
   public SagaCoordinator(
       PersistentStore persistentStore,
       FromJsonFormat fromJsonFormat,
-      ToJsonFormat toJsonFormat,
-      Transport transport) {
+      ToJsonFormat toJsonFormat) {
     this(persistentStore,
         fromJsonFormat,
         toJsonFormat,
-        transport,
-        () -> new SuccessfulSagaResponse(200, "success"),
-        3,
         Executors.newFixedThreadPool(5));
   }
 
@@ -81,15 +71,10 @@ public class SagaCoordinator {
       PersistentStore persistentStore,
       FromJsonFormat fromJsonFormat,
       ToJsonFormat toJsonFormat,
-      Transport transport,
-      Fallback fallback,
-      int compensationRetries,
       ExecutorService executorService) {
     this.persistentStore = persistentStore;
     this.requestInterpreter = new JsonRequestInterpreter(fromJsonFormat, new GraphCycleDetectorImpl<>());
-    this.transport = transport;
     this.toJsonFormat = toJsonFormat;
-    this.retryableTransport = new RetryableTransport(compensationRetries, transport, fallback);
     this.executorService = executorService;
   }
 
@@ -138,7 +123,7 @@ public class SagaCoordinator {
 
     return new HashMap<String, SagaTask>() {{
       put(SAGA_START_TASK, new SagaStartTask(sagaId, requestJson, compositeSagaLog));
-      put(SAGA_REQUEST_TASK, new RequestProcessTask(sagaId, compositeSagaLog, transport, retryableTransport));
+      put(SAGA_REQUEST_TASK, new RequestProcessTask(sagaId, compositeSagaLog));
       put(SAGA_END_TASK, new SagaEndTask(sagaId, compositeSagaLog));
     }};
   }

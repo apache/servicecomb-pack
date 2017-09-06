@@ -22,6 +22,9 @@ import static java.util.Collections.singletonMap;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.seanyinx.github.unit.scaffolding.Randomness;
@@ -39,10 +42,15 @@ import io.servicecomb.saga.core.TransactionAbortedEvent;
 import io.servicecomb.saga.core.TransactionEndedEvent;
 import io.servicecomb.saga.core.TransactionFailedException;
 import io.servicecomb.saga.core.TransactionStartedEvent;
+import io.servicecomb.saga.transports.RestTransport;
+import io.servicecomb.saga.transports.TransportFactory;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class SagaEventFormatTest {
 
@@ -55,9 +63,21 @@ public class SagaEventFormatTest {
       new JacksonRestCompensation("/rest/xxx", "DELETE", singletonMap("query", singletonMap("bar", "xxx")))
   );
 
-  private final SagaEventFormat toEventFormat = new JacksonSagaEventFormat();
+  private final RestTransport restTransport = Mockito.mock(RestTransport.class);
+  private final TransportFactory transportFactory = Mockito.mock(TransportFactory.class);
+  private final SagaEventFormat toEventFormat = new JacksonSagaEventFormat(transportFactory);
   private final ToJsonFormat toJsonFormat = new JacksonToJsonFormat();
   private final SuccessfulSagaResponse response = new SuccessfulSagaResponse(200, "a wonderful day");
+
+  @Before
+  public void setUp() throws Exception {
+    when(transportFactory.restTransport()).thenReturn(restTransport);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    verify(transportFactory, times(2)).restTransport();
+  }
 
   @Test
   public void transactionStartedEventCanBeSerializedAndDeserialized() throws JsonProcessingException {

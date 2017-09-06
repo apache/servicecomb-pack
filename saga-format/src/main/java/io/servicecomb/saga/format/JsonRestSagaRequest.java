@@ -19,8 +19,12 @@ package io.servicecomb.saga.format;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.servicecomb.saga.core.SagaRequestImpl;
+import io.servicecomb.saga.transports.TransportFactory;
 
 public class JsonRestSagaRequest extends SagaRequestImpl implements JsonSagaRequest {
+
+  private final JacksonRestTransaction transaction;
+  private final JacksonRestCompensation compensation;
 
   @JsonCreator
   public JsonRestSagaRequest(
@@ -32,5 +36,14 @@ public class JsonRestSagaRequest extends SagaRequestImpl implements JsonSagaRequ
       @JsonProperty("parents") String[] parents) {
 
     super(id, serviceName, type, transaction, compensation, parents);
+    this.transaction = transaction;
+    this.compensation = compensation;
+  }
+
+  @Override
+  public JsonSagaRequest with(TransportFactory transportFactory) {
+    transaction.with(transportFactory.restTransport());
+    compensation.with(transportFactory.restTransport());
+    return this;
   }
 }

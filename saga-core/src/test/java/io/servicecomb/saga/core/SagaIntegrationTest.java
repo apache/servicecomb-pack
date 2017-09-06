@@ -63,7 +63,6 @@ public class SagaIntegrationTest {
   private final Compensation compensation3 = mock(Compensation.class, "compensation3");
 
   private final String requestJson = "{}";
-  private final Transport transport = mock(Transport.class);
   private final SagaRequest sagaStartRequest = new NoOpSagaRequest("saga-start", SAGA_START_TRANSACTION, SAGA_START_COMPENSATION, SAGA_START_TASK);
   private final SagaRequest request1 = sagaTask("request1", "service1", transaction1, compensation1);
   private final SagaRequest request2 = sagaTask("request2", "service2", transaction2, compensation2);
@@ -91,30 +90,9 @@ public class SagaIntegrationTest {
     node1.addChild(node2);
     node2.addChild(leaf);
 
-    when(transaction1.path()).thenReturn("/rest/transaction1");
-    when(transaction1.path()).thenReturn("/rest/transaction1");
-    when(transaction1.path()).thenReturn("/rest/transaction1");
-    when(compensation1.path()).thenReturn("/rest/compensation1");
-    when(compensation1.path()).thenReturn("/rest/compensation1");
-    when(compensation1.path()).thenReturn("/rest/compensation1");
-
-    when(transaction2.path()).thenReturn("/rest/transaction2");
-    when(transaction2.path()).thenReturn("/rest/transaction2");
-    when(transaction2.path()).thenReturn("/rest/transaction2");
-    when(compensation2.path()).thenReturn("/rest/compensation2");
-    when(compensation2.path()).thenReturn("/rest/compensation2");
-    when(compensation2.path()).thenReturn("/rest/compensation2");
-
-    when(transaction3.path()).thenReturn("/rest/transaction3");
-    when(transaction3.path()).thenReturn("/rest/transaction3");
-    when(transaction3.path()).thenReturn("/rest/transaction3");
-    when(compensation3.path()).thenReturn("/rest/compensation3");
-    when(compensation3.path()).thenReturn("/rest/compensation3");
-    when(compensation3.path()).thenReturn("/rest/compensation3");
-
     SagaStartTask sagaStartTask = new SagaStartTask(sagaId, requestJson, eventStore);
     SagaEndTask sagaEndTask = new SagaEndTask(sagaId, eventStore);
-    RequestProcessTask processTask = new RequestProcessTask(sagaId, eventStore, transport);
+    RequestProcessTask processTask = new RequestProcessTask(sagaId, eventStore);
 
     tasks.put(SAGA_START_TASK, sagaStartTask);
     tasks.put(SAGA_REQUEST_TASK, processTask);
@@ -136,13 +114,11 @@ public class SagaIntegrationTest {
         eventWith(sagaId, SAGA_END_TRANSACTION, SagaEndedEvent.class)
     ));
 
-    verify(transport).with(request1.serviceName(), transaction1.path(), transaction1.method(), transaction1.params());
-    verify(transport).with(request2.serviceName(), transaction2.path(), transaction2.method(), transaction2.params());
+    verify(transaction1).send(request1.serviceName());
+    verify(transaction2).send(request2.serviceName());
 
-    verify(transport, never())
-        .with(request1.serviceName(), compensation1.path(), compensation1.method(), compensation1.params());
-    verify(transport, never())
-        .with(request2.serviceName(), compensation2.path(), compensation2.method(), compensation2.params());
+    verify(compensation1, never()).send(request1.serviceName());
+    verify(compensation2, never()).send(request2.serviceName());
   }
 
   // root - node1 - node2 - leaf
@@ -153,7 +129,7 @@ public class SagaIntegrationTest {
 
     // barrier to make sure the two transactions starts at the same time
     CyclicBarrier barrier = new CyclicBarrier(2);
-    when(transport.with(request2.serviceName(), transaction2.path(), transaction2.method(), transaction2.params()))
+    when(transaction2.send(request2.serviceName()))
         .thenAnswer(
             withAnswer(() -> {
               barrier.await();
@@ -161,7 +137,7 @@ public class SagaIntegrationTest {
               throw exception;
             }));
 
-    when(transport.with(request3.serviceName(), transaction3.path(), transaction3.method(), transaction3.params()))
+    when(transaction3.send(request3.serviceName()))
         .thenAnswer(
             withAnswer(() -> {
               barrier.await();
@@ -184,16 +160,13 @@ public class SagaIntegrationTest {
         eventWith(sagaId, compensation1, CompensationEndedEvent.class),
         eventWith(sagaId, SAGA_START_COMPENSATION, SagaEndedEvent.class)));
 
-    verify(transport).with(request1.serviceName(), transaction1.path(), transaction1.method(), transaction1.params());
-    verify(transport).with(request2.serviceName(), transaction2.path(), transaction2.method(), transaction2.params());
-    verify(transport).with(request3.serviceName(), transaction3.path(), transaction3.method(), transaction3.params());
+    verify(transaction1).send(request1.serviceName());
+    verify(transaction2).send(request2.serviceName());
+    verify(transaction3).send(request3.serviceName());
 
-    verify(transport)
-        .with(request1.serviceName(), compensation1.path(), compensation1.method(), compensation1.params());
-    verify(transport, never())
-        .with(request2.serviceName(), compensation2.path(), compensation2.method(), compensation2.params());
-    verify(transport)
-        .with(request3.serviceName(), compensation3.path(), compensation3.method(), compensation3.params());
+    verify(compensation1).send(request1.serviceName());
+    verify(compensation2, never()).send(request2.serviceName());
+    verify(compensation3).send(request3.serviceName());
   }
 
   // root - node1 - node2 - leaf
@@ -204,7 +177,7 @@ public class SagaIntegrationTest {
 
     // barrier to make sure the two transactions starts at the same time
     CyclicBarrier barrier = new CyclicBarrier(2);
-    when(transport.with(request3.serviceName(), transaction3.path(), transaction3.method(), transaction3.params()))
+    when(transaction3.send(request3.serviceName()))
         .thenAnswer(withAnswer(() -> {
       barrier.await();
       throw exception;
@@ -212,7 +185,7 @@ public class SagaIntegrationTest {
 
     CountDownLatch latch = new CountDownLatch(1);
 
-    when(transport.with(request2.serviceName(), transaction2.path(), transaction2.method(), transaction2.params()))
+    when(transaction2.send(request2.serviceName()))
         .thenAnswer(withAnswer(() -> {
       barrier.await();
       latch.await();
@@ -241,17 +214,13 @@ public class SagaIntegrationTest {
         eventWith(sagaId, compensation1, CompensationEndedEvent.class),
         eventWith(sagaId, SAGA_START_COMPENSATION, SagaEndedEvent.class)));
 
-    verify(transport).with(request1.serviceName(), transaction1.path(), transaction1.method(), transaction1.params());
-    verify(transport, times(2))
-        .with(request2.serviceName(), transaction2.path(), transaction2.method(), transaction2.params());
-    verify(transport).with(request3.serviceName(), transaction3.path(), transaction3.method(), transaction3.params());
+    verify(transaction1).send(request1.serviceName());
+    verify(transaction2, times(2)).send(request2.serviceName());
+    verify(transaction3).send(request3.serviceName());
 
-    verify(transport)
-        .with(request1.serviceName(), compensation1.path(), compensation1.method(), compensation1.params());
-    verify(transport)
-        .with(request2.serviceName(), compensation2.path(), compensation2.method(), compensation2.params());
-    verify(transport, never())
-        .with(request3.serviceName(), compensation3.path(), compensation3.method(), compensation3.params());
+    verify(compensation1).send(request1.serviceName());
+    verify(compensation2).send(request2.serviceName());
+    verify(compensation3, never()).send(request3.serviceName());
 
     latch.countDown();
   }
@@ -260,7 +229,7 @@ public class SagaIntegrationTest {
   public void retriesFailedTransactionTillSuccess() {
     Saga saga = new Saga(eventStore, new ForwardRecovery(), tasks, sagaTaskGraph);
 
-    when(transport.with(request2.serviceName(), transaction2.path(), transaction2.method(), transaction2.params()))
+    when(transaction2.send(request2.serviceName()))
         .thenThrow(exception).thenThrow(exception).thenReturn(response);
 
     saga.run();
@@ -276,13 +245,11 @@ public class SagaIntegrationTest {
         eventWith(sagaId, SAGA_END_TRANSACTION, SagaEndedEvent.class)
     ));
 
-    verify(transport).with(request1.serviceName(), transaction1.path(), transaction1.method(), transaction1.params());
-    verify(transport, times(3)).with(request2.serviceName(), transaction2.path(), transaction2.method(), transaction2.params());
+    verify(transaction1).send(request1.serviceName());
+    verify(transaction2, times(3)).send(request2.serviceName());
 
-    verify(transport, never())
-        .with(request1.serviceName(), compensation1.path(), compensation1.method(), compensation1.params());
-    verify(transport, never())
-        .with(request2.serviceName(), compensation2.path(), compensation2.method(), compensation2.params());
+    verify(compensation1, never()).send(request1.serviceName());
+    verify(compensation2, never()).send(request2.serviceName());
   }
 
   @Test
@@ -312,13 +279,13 @@ public class SagaIntegrationTest {
         eventWith(sagaId, SAGA_END_TRANSACTION, SagaEndedEvent.class)
     ));
 
-    verify(transport, never()).with(request1.serviceName(), transaction1.path(), transaction1.method(), transaction1.params());
-    verify(transport, never()).with(request2.serviceName(), transaction2.path(), transaction2.method(), transaction2.params());
-    verify(transport).with(request3.serviceName(), transaction3.path(), transaction3.method(), transaction3.params());
+    verify(transaction1, never()).send(request1.serviceName());
+    verify(transaction2, never()).send(request2.serviceName());
+    verify(transaction3).send(request3.serviceName());
 
-    verify(transport, never()).with(request1.serviceName(), compensation1.path(), compensation1.method(), compensation1.params());
-    verify(transport, never()).with(request2.serviceName(), compensation2.path(), compensation2.method(), compensation2.params());
-    verify(transport, never()).with(request3.serviceName(), compensation3.path(), compensation3.method(), compensation3.params());
+    verify(compensation1, never()).send(request1.serviceName());
+    verify(compensation2, never()).send(request2.serviceName());
+    verify(compensation3, never()).send(request3.serviceName());
   }
 
   @Test
@@ -350,13 +317,13 @@ public class SagaIntegrationTest {
         eventWith(sagaId, SAGA_END_TRANSACTION, SagaEndedEvent.class)
     ));
 
-    verify(transport, never()).with(request1.serviceName(), transaction1.path(), transaction1.method(), transaction1.params());
-    verify(transport, never()).with(request2.serviceName(), transaction2.path(), transaction2.method(), transaction2.params());
-    verify(transport).with(request3.serviceName(), transaction3.path(), transaction3.method(), transaction3.params());
+    verify(transaction1, never()).send(request1.serviceName());
+    verify(transaction2, never()).send(request2.serviceName());
+    verify(transaction3).send(request3.serviceName());
 
-    verify(transport, never()).with(request1.serviceName(), compensation1.path(), compensation1.method(), compensation1.params());
-    verify(transport, never()).with(request2.serviceName(), compensation2.path(), compensation2.method(), compensation2.params());
-    verify(transport, never()).with(request3.serviceName(), compensation3.path(), compensation3.method(), compensation3.params());
+    verify(compensation1, never()).send(request1.serviceName());
+    verify(compensation2, never()).send(request2.serviceName());
+    verify(compensation3, never()).send(request3.serviceName());
   }
 
   @Test
@@ -392,13 +359,13 @@ public class SagaIntegrationTest {
         eventWith(sagaId, SAGA_START_COMPENSATION, SagaEndedEvent.class)
     ));
 
-    verify(transport, never()).with(request1.serviceName(), transaction1.path(), transaction1.method(), transaction1.params());
-    verify(transport, never()).with(request2.serviceName(), transaction2.path(), transaction2.method(), transaction2.params());
-    verify(transport, never()).with(request3.serviceName(), transaction3.path(), transaction3.method(), transaction3.params());
+    verify(transaction1, never()).send(request1.serviceName());
+    verify(transaction2, never()).send(request2.serviceName());
+    verify(transaction3, never()).send(request3.serviceName());
 
-    verify(transport).with(request1.serviceName(), compensation1.path(), compensation1.method(), compensation1.params());
-    verify(transport).with(request2.serviceName(), compensation2.path(), compensation2.method(), compensation2.params());
-    verify(transport, never()).with(request3.serviceName(), compensation3.path(), compensation3.method(), compensation3.params());
+    verify(compensation1).send(request1.serviceName());
+    verify(compensation2).send(request2.serviceName());
+    verify(compensation3, never()).send(request3.serviceName());
   }
 
   @Test
@@ -438,13 +405,13 @@ public class SagaIntegrationTest {
         eventWith(sagaId, SAGA_START_COMPENSATION, SagaEndedEvent.class)
     ));
 
-    verify(transport, never()).with(request1.serviceName(), transaction1.path(), transaction1.method(), transaction1.params());
-    verify(transport, never()).with(request2.serviceName(), transaction2.path(), transaction2.method(), transaction2.params());
-    verify(transport, never()).with(request3.serviceName(), transaction3.path(), transaction3.method(), transaction3.params());
+    verify(transaction1, never()).send(request1.serviceName());
+    verify(transaction2, never()).send(request2.serviceName());
+    verify(transaction3, never()).send(request3.serviceName());
 
-    verify(transport).with(request1.serviceName(), compensation1.path(), compensation1.method(), compensation1.params());
-    verify(transport, never()).with(request2.serviceName(), compensation2.path(), compensation2.method(), compensation2.params());
-    verify(transport).with(request3.serviceName(), compensation3.path(), compensation3.method(), compensation3.params());
+    verify(compensation1).send(request1.serviceName());
+    verify(compensation2, never()).send(request2.serviceName());
+    verify(compensation3).send(request3.serviceName());
   }
 
   @Test
@@ -486,13 +453,13 @@ public class SagaIntegrationTest {
         eventWith(sagaId, SAGA_START_COMPENSATION, SagaEndedEvent.class)
     ));
 
-    verify(transport, never()).with(request1.serviceName(), transaction1.path(), transaction1.method(), transaction1.params());
-    verify(transport, never()).with(request2.serviceName(), transaction2.path(), transaction2.method(), transaction2.params());
-    verify(transport, never()).with(request3.serviceName(), transaction3.path(), transaction3.method(), transaction3.params());
+    verify(transaction1, never()).send(request1.serviceName());
+    verify(transaction2, never()).send(request2.serviceName());
+    verify(transaction3, never()).send(request3.serviceName());
 
-    verify(transport).with(request1.serviceName(), compensation1.path(), compensation1.method(), compensation1.params());
-    verify(transport, never()).with(request2.serviceName(), compensation2.path(), compensation2.method(), compensation2.params());
-    verify(transport).with(request3.serviceName(), compensation3.path(), compensation3.method(), compensation3.params());
+    verify(compensation1).send(request1.serviceName());
+    verify(compensation2, never()).send(request2.serviceName());
+    verify(compensation3).send(request3.serviceName());
   }
 
   @Test
@@ -518,11 +485,11 @@ public class SagaIntegrationTest {
         eventWith(sagaId, SAGA_END_TRANSACTION, SagaEndedEvent.class)
     ));
 
-    verify(transport, never()).with(request1.serviceName(), transaction1.path(), transaction1.method(), transaction1.params());
-    verify(transport, never()).with(request2.serviceName(), transaction2.path(), transaction2.method(), transaction2.params());
+    verify(transaction1, never()).send(request1.serviceName());
+    verify(transaction2, never()).send(request2.serviceName());
 
-    verify(transport, never()).with(request1.serviceName(), compensation1.path(), compensation1.method(), compensation1.params());
-    verify(transport, never()).with(request2.serviceName(), compensation2.path(), compensation2.method(), compensation2.params());
+    verify(compensation1, never()).send(request1.serviceName());
+    verify(compensation2, never()).send(request2.serviceName());
   }
 
   private Answer<Void> withAnswer(Callable<Void> callable) {

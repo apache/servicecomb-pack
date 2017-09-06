@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core;
+package io.servicecomb.saga.transports;
 
-public interface Sender {
-  default SagaResponse send(String address) {
-    return new SuccessfulSagaResponse(200, "success");
-  }
+public interface TransportFactory {
+
+  RestTransport restTransport();
 }

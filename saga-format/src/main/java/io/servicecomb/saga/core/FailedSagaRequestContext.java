@@ -22,9 +22,16 @@ import io.servicecomb.saga.format.JsonSagaRequest;
 
 public class FailedSagaRequestContext extends SagaRequestContext {
 
+  private final JsonSagaRequest request;
+
   public FailedSagaRequestContext(
       @JsonProperty("request") JsonSagaRequest request,
       @JsonProperty("response") JsonFailedSagaResponse response) {
     super(request, response);
+    this.request = request;
+  }
+
+  public JsonSagaRequest request() {
+    return request;
   }
 }
