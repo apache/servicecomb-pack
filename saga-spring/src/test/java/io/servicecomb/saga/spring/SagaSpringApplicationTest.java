@@ -80,6 +80,8 @@ public class SagaSpringApplicationTest {
       + "  }\n"
       + "]\n";
 
+  private static final String sagaDefinition = "{\"policy\": \"ForwardRecovery\",\"requests\": " + requests + "}";
+
   @Autowired
   private MockMvc mockMvc;
 
@@ -101,7 +103,7 @@ public class SagaSpringApplicationTest {
     mockMvc.perform(
         post("/requests/")
             .contentType(APPLICATION_JSON)
-            .content(requests))
+            .content(sagaDefinition))
         .andExpect(status().isOk());
 
     verify(exactly(1), postRequestedFor(urlPathEqualTo("/rest/as")));

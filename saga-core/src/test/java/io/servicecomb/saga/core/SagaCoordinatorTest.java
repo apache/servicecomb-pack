@@ -61,6 +61,8 @@ public class SagaCoordinatorTest {
       + "  }\n"
       + "]\n";
 
+  private static final String sagaJson = "{\"policy\": \"ForwardRecovery\",\"requests\": " + requestJson + "}";
+
   private static final String anotherRequestJson = "[\n"
       + "  {\n"
       + "    \"id\": \"request-2\",\n"
@@ -76,12 +78,15 @@ public class SagaCoordinatorTest {
       + "  }\n"
       + "]\n";
 
+  private static final String anotherSagaJson =
+      "{\"policy\": \"ForwardRecovery\",\"requests\": " + anotherRequestJson + "}";
+
   private final SagaRequest request1 = new SagaRequestImpl(
       "request-1",
       "aaa",
       TYPE_REST,
       new TransactionImpl("/rest/as", "post", emptyMap()),
-      new CompensationImpl("/rest/as","delete", emptyMap())
+      new CompensationImpl("/rest/as", "delete", emptyMap())
   );
 
   private final SagaRequest request2 = new SagaRequestImpl(
@@ -89,8 +94,32 @@ public class SagaCoordinatorTest {
       "bbb",
       TYPE_REST,
       new TransactionImpl("/rest/bs", "post", emptyMap()),
-      new CompensationImpl("/rest/bs","delete", emptyMap())
+      new CompensationImpl("/rest/bs", "delete", emptyMap())
   );
+
+  private final SagaDefinition definition1 = new SagaDefinition() {
+    @Override
+    public String getPolicy() {
+      return RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY;
+    }
+
+    @Override
+    public String getRequests() {
+      return requestJson;
+    }
+  };
+
+  private final SagaDefinition definition2 = new SagaDefinition() {
+    @Override
+    public String getPolicy() {
+      return RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY;
+    }
+
+    @Override
+    public String getRequests() {
+      return anotherRequestJson;
+    }
+  };
 
   private final FromJsonFormat fromJsonFormat = Mockito.mock(FromJsonFormat.class);
   private final EmbeddedPersistentStore eventStore = new EmbeddedPersistentStore();
@@ -106,11 +135,15 @@ public class SagaCoordinatorTest {
   public void setUp() throws Exception {
     when(fromJsonFormat.fromJson(requestJson)).thenReturn(new SagaRequest[]{request1});
     when(fromJsonFormat.fromJson(anotherRequestJson)).thenReturn(new SagaRequest[]{request2});
+
+    when(fromJsonFormat.fromSagaDefinitionJson(sagaJson)).thenReturn(definition1);
+    when(fromJsonFormat.fromSagaDefinitionJson(anotherSagaJson)).thenReturn(definition2);
   }
 
   @Test
   public void recoverSagaWithEventsFromEventStore() throws IOException {
     eventStore.offer(new SagaStartedEvent(sagaId, requestJson, SAGA_START_REQUEST));
+    coordinator.getRecoveryPolicy().put(sagaId, new ForwardRecovery());
     coordinator.reanimate();
 
     assertThat(eventStore, contains(
@@ -122,8 +155,8 @@ public class SagaCoordinatorTest {
   }
 
   @Test
-  public void runSagaWithEventStore() {
-    coordinator.run(requestJson);
+  public void runSagaWithEventStore() throws IOException {
+    coordinator.run(sagaJson);
 
     assertThat(eventStore, contains(
         eventWith(SAGA_START_REQUEST, SagaStartedEvent.class),
@@ -135,8 +168,20 @@ public class SagaCoordinatorTest {
 
   @Test
   public void processRequestsInParallel() {
-    CompletableFuture.runAsync(() -> coordinator.run(requestJson));
-    CompletableFuture.runAsync(() -> coordinator.run(anotherRequestJson));
+    CompletableFuture.runAsync(() -> {
+      try {
+        coordinator.run(sagaJson);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    });
+    CompletableFuture.runAsync(() -> {
+      try {
+        coordinator.run(anotherSagaJson);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    });
 
     waitAtMost(2, SECONDS).until(() -> eventStore.size() == 8);
 
@@ -153,11 +198,12 @@ public class SagaCoordinatorTest {
   }
 
   @Test
-  public void runSagaAfterRecovery() {
+  public void runSagaAfterRecovery() throws IOException {
     eventStore.offer(new SagaStartedEvent(sagaId, requestJson, SAGA_START_REQUEST));
+    coordinator.getRecoveryPolicy().put(sagaId, new BackwardRecovery());
     coordinator.reanimate();
 
-    coordinator.run(anotherRequestJson);
+    coordinator.run(anotherSagaJson);
 
     assertThat(eventStore, contains(
         eventWith(SAGA_START_REQUEST, SagaStartedEvent.class),

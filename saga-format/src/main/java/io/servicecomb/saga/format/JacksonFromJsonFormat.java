@@ -17,6 +17,7 @@
 package io.servicecomb.saga.format;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.servicecomb.saga.core.SagaDefinition;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.transports.TransportFactory;
@@ -34,6 +35,12 @@ public class JacksonFromJsonFormat implements FromJsonFormat {
     this.transportFactory = transportFactory;
   }
 
+  @Segment(name = "fromSagaDefinitionJson", category = "application", library = "kamon")
+  @Override
+  public SagaDefinition fromSagaDefinitionJson(String sagaJson) throws IOException {
+    return objectMapper.readValue(sagaJson, JsonSagaDefinition.class);
+  }
+
   @Segment(name = "fromJson", category = "application", library = "kamon")
   @Override
   public SagaRequest[] fromJson(String requestJson) throws IOException {
@@ -45,4 +52,6 @@ public class JacksonFromJsonFormat implements FromJsonFormat {
 
     return requests;
   }
+
+
 }
