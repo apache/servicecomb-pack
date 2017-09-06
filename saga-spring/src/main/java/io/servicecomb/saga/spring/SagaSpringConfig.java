@@ -40,15 +40,8 @@ import org.springframework.context.annotation.Configuration;
 class SagaSpringConfig {
 
   @Bean
-  TransportFactory transportFactory() {
-    return new TransportFactory() {
-      private final RestTransport transport = new HttpClientTransport();
-
-      @Override
-      public RestTransport restTransport() {
-        return transport;
-      }
-    };
+  TransportFactory transportFactory(RestTransport restTransport) {
+    return () -> restTransport;
   }
 
   @Bean
@@ -67,7 +60,7 @@ class SagaSpringConfig {
   }
 
   @Bean
-  Transport transport() {
+  RestTransport transport() {
     return new HttpClientTransport();
   }
 
@@ -86,8 +79,6 @@ class SagaSpringConfig {
       @Value("${saga.thread.count:5}") int numberOfThreads,
       @Value("${saga.compensation.retries:3}") int compensationRetries,
       PersistentStore persistentStore,
-      Transport transport,
-      Fallback fallback,
       ToJsonFormat format,
       FromJsonFormat fromJsonFormat) {
 
