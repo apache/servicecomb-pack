@@ -16,27 +16,44 @@
 
 package io.servicecomb.saga.format;
 
-import com.fasterxml.jackson.annotation.JsonRawValue;
-import com.fasterxml.jackson.databind.JsonNode;
+import static io.servicecomb.saga.core.RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY;
+import static io.servicecomb.saga.core.RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.servicecomb.saga.core.BackwardRecovery;
+import io.servicecomb.saga.core.ForwardRecovery;
+import io.servicecomb.saga.core.RecoveryPolicy;
 import io.servicecomb.saga.core.SagaDefinition;
+import java.util.HashMap;
+import java.util.Map;
 
-public class JsonSagaDefinition implements SagaDefinition {
+class JsonSagaDefinition implements SagaDefinition {
 
-  private String policy;
-  private Object requests;
+  static final RecoveryPolicy backwardRecovery = new BackwardRecovery();
+
+  private static final Map<String, RecoveryPolicy> policies = new HashMap<String, RecoveryPolicy>(){{
+    put(SAGA_BACKWARD_RECOVERY_POLICY, backwardRecovery);
+    put(SAGA_FORWARD_RECOVERY_POLICY, new ForwardRecovery());
+  }};
+
+  private final JsonSagaRequest[] requests;
+  private final RecoveryPolicy policy;
+
+  public JsonSagaDefinition(
+      @JsonProperty("policy") String policy,
+      @JsonProperty("requests") JsonSagaRequest[] requests) {
+
+    this.requests = requests;
+    this.policy = policies.getOrDefault(policy, backwardRecovery);
+  }
 
   @Override
-  public String getPolicy() {
+  public RecoveryPolicy policy() {
     return policy;
   }
 
   @Override
-  @JsonRawValue
-  public String getRequests() {
-    return requests == null ? "[]" : requests.toString();
-  }
-
-  public void setRequests(JsonNode node) {
-    this.requests = node;
+  public JsonSagaRequest[] requests() {
+    return requests;
   }
 }

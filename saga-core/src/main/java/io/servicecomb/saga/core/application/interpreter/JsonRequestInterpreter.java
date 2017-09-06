@@ -21,7 +21,6 @@ import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.dag.GraphCycleDetector;
 import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
-import java.io.IOException;
 import java.util.Set;
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
@@ -29,28 +28,20 @@ import kamon.annotation.Segment;
 @EnableKamon
 public class JsonRequestInterpreter {
 
-  private final FromJsonFormat fromJsonFormat;
   private final GraphCycleDetector<SagaRequest> detector;
   private final GraphBuilder graphBuilder = new GraphBuilder();
 
-  public JsonRequestInterpreter(FromJsonFormat fromJsonFormat, GraphCycleDetector<SagaRequest> detector) {
-    this.fromJsonFormat = fromJsonFormat;
+  public JsonRequestInterpreter(GraphCycleDetector<SagaRequest> detector) {
     this.detector = detector;
   }
 
   @Segment(name = "interpret", category = "application", library = "kamon")
-  public SingleLeafDirectedAcyclicGraph<SagaRequest> interpret(String requests) {
-    try {
-      SagaRequest[] sagaRequests = fromJsonFormat.fromJson(requests);
+  public SingleLeafDirectedAcyclicGraph<SagaRequest> interpret(SagaRequest[] sagaRequests) {
+    SingleLeafDirectedAcyclicGraph<SagaRequest> graph = graphBuilder.build(sagaRequests);
 
-      SingleLeafDirectedAcyclicGraph<SagaRequest> graph = graphBuilder.build(sagaRequests);
+    detectCycle(graph);
 
-      detectCycle(graph);
-
-      return graph;
-    } catch (IOException e) {
-      throw new SagaException("Failed to interpret JSON " + requests, e);
-    }
+    return graph;
   }
 
   private void detectCycle(SingleLeafDirectedAcyclicGraph<SagaRequest> graph) {

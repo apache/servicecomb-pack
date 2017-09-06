@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core.application.interpreter;
+package io.servicecomb.saga.format;
 
-import io.servicecomb.saga.core.SagaDefinition;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.*;
 
-public interface FromJsonFormat {
+import org.junit.Test;
 
-  SagaDefinition fromJson(String requestJson);
+public class JsonSagaDefinitionTest {
 
+  @Test
+  public void backwardRecoveryIfNoPolicyProvided() {
+    JsonSagaDefinition definition = new JsonSagaDefinition(null, new JsonSagaRequest[0]);
+
+    assertThat(definition.policy(), is(JsonSagaDefinition.backwardRecovery));
+  }
 }

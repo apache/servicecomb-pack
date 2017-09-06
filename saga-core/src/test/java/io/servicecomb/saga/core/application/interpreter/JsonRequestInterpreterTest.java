@@ -43,7 +43,6 @@ import io.servicecomb.saga.core.dag.GraphCycleDetector;
 import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
 import io.servicecomb.saga.core.dag.Traveller;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import org.junit.Before;
@@ -52,105 +51,6 @@ import org.mockito.Mockito;
 
 @SuppressWarnings("unchecked")
 public class JsonRequestInterpreterTest {
-
-  private static final String requests = "[\n"
-      + "  {\n"
-      + "    \"id\": \"request-aaa\",\n"
-      + "    \"type\": \"rest\",\n"
-      + "    \"serviceName\": \"aaa\",\n"
-      + "    \"transaction\": {\n"
-      + "      \"method\": \"post\",\n"
-      + "      \"path\": \"/rest/as\",\n"
-      + "      \"params\": {\n"
-      + "        \"form\": {\n"
-      + "          \"foo\": \"as\"\n"
-      + "        }\n"
-      + "      }\n"
-      + "    },\n"
-      + "    \"compensation\": {\n"
-      + "      \"method\": \"delete\",\n"
-      + "      \"path\": \"/rest/as\",\n"
-      + "      \"params\": {\n"
-      + "        \"query\": {\n"
-      + "          \"bar\": \"as\"\n"
-      + "        }\n"
-      + "      }\n"
-      + "    }\n"
-      + "  },\n"
-      + "  {\n"
-      + "    \"id\": \"request-bbb\",\n"
-      + "    \"type\": \"rest\",\n"
-      + "    \"serviceName\": \"bbb\",\n"
-      + "    \"transaction\": {\n"
-      + "      \"method\": \"post\",\n"
-      + "      \"path\": \"/rest/bs\",\n"
-      + "      \"params\": {\n"
-      + "        \"query\": {\n"
-      + "          \"foo\": \"bs\"\n"
-      + "        },\n"
-      + "        \"json\": {\n"
-      + "          \"body\": \"{ \\\"bar\\\": \\\"bs\\\" }\"\n"
-      + "        }\n"
-      + "      }\n"
-      + "    },\n"
-      + "    \"compensation\": {\n"
-      + "      \"method\": \"delete\",\n"
-      + "      \"path\": \"/rest/bs\"\n"
-      + "    }\n"
-      + "  },\n"
-      + "  {\n"
-      + "    \"id\": \"request-ccc\",\n"
-      + "    \"type\": \"rest\",\n"
-      + "    \"serviceName\": \"ccc\",\n"
-      + "    \"parents\": [\n"
-      + "      \"request-aaa\",\n"
-      + "      \"request-bbb\"\n"
-      + "    ],\n"
-      + "    \"transaction\": {\n"
-      + "      \"method\": \"post\",\n"
-      + "      \"path\": \"/rest/cs\",\n"
-      + "      \"params\": {\n"
-      + "        \"query\": {\n"
-      + "          \"foo\": \"cs\"\n"
-      + "        },\n"
-      + "        \"form\": {\n"
-      + "          \"bar\": \"cs\"\n"
-      + "        }\n"
-      + "      }\n"
-      + "    },\n"
-      + "    \"compensation\": {\n"
-      + "      \"method\": \"delete\",\n"
-      + "      \"path\": \"/rest/cs\"\n"
-      + "    }\n"
-      + "  }\n"
-      + "]\n";
-
-  private static final String requestsWithDuplicateId = "[\n"
-      + "  {\n"
-      + "    \"id\": \"request-duplicate-id\",\n"
-      + "    \"serviceName\": \"aaa\",\n"
-      + "    \"transaction\": {\n"
-      + "      \"method\": \"post\",\n"
-      + "      \"path\": \"/rest/as\"\n"
-      + "    },\n"
-      + "    \"compensation\": {\n"
-      + "      \"method\": \"delete\",\n"
-      + "      \"path\": \"/rest/as\"\n"
-      + "    }\n"
-      + "  },\n"
-      + "  {\n"
-      + "    \"id\": \"request-duplicate-id\",\n"
-      + "    \"serviceName\": \"bbb\",\n"
-      + "    \"transaction\": {\n"
-      + "      \"method\": \"post\",\n"
-      + "      \"path\": \"/rest/bs\"\n"
-      + "    },\n"
-      + "    \"compensation\": {\n"
-      + "      \"method\": \"delete\",\n"
-      + "      \"path\": \"/rest/bs\"\n"
-      + "    }\n"
-      + "  }\n"
-      + "]\n";
 
   private final SagaRequest request1 = new SagaRequestImpl(
       "request-aaa",
@@ -176,6 +76,7 @@ public class JsonRequestInterpreterTest {
       new CompensationImpl("/rest/cs","delete", emptyMap()),
       new String[]{"request-aaa", "request-bbb"}
   );
+  private final SagaRequest[] requests = {request1, request2, request3};
 
   private final SagaRequest duplicateRequest = new SagaRequestImpl(
       "request-duplicate-id",
@@ -184,19 +85,14 @@ public class JsonRequestInterpreterTest {
       new TransactionImpl("/rest/xs", "post", emptyMap()),
       new CompensationImpl("/rest/xs","delete", emptyMap())
   );
+  private final SagaRequest[] duplicateRequests = {duplicateRequest, duplicateRequest};
 
-  private final FromJsonFormat fromJsonFormat = Mockito.mock(FromJsonFormat.class);
   private final GraphCycleDetector<SagaRequest> detector = Mockito.mock(GraphCycleDetector.class);
-  private final JsonRequestInterpreter interpreter = new JsonRequestInterpreter(
-      fromJsonFormat,
-      detector
-  );
+  private final JsonRequestInterpreter interpreter = new JsonRequestInterpreter(detector);
 
   @Before
   public void setUp() throws Exception {
     when(detector.cycleJoints(any())).thenReturn(emptySet());
-    when(fromJsonFormat.fromJson(requests)).thenReturn(new SagaRequest[]{request1, request2, request3});
-    when(fromJsonFormat.fromJson(requestsWithDuplicateId)).thenReturn(new SagaRequest[]{duplicateRequest, duplicateRequest});
   }
 
   @Test
@@ -223,22 +119,9 @@ public class JsonRequestInterpreterTest {
   }
 
   @Test
-  public void blowsUpWhenJsonIsInvalid() throws IOException {
-    String invalidRequest = "invalid-json";
-    when(fromJsonFormat.fromJson(invalidRequest)).thenThrow(IOException.class);
-
-    try {
-      interpreter.interpret(invalidRequest);
-      fail(SagaException.class.getSimpleName() + " is expected, but none thrown");
-    } catch (SagaException e) {
-      assertThat(e.getMessage(), is("Failed to interpret JSON invalid-json"));
-    }
-  }
-
-  @Test
   public void blowsUpWhenJsonContainsDuplicateRequestId() {
     try {
-      interpreter.interpret(requestsWithDuplicateId);
+      interpreter.interpret(duplicateRequests);
       fail(SagaException.class.getSimpleName() + " is expected, but none thrown");
     } catch (SagaException e) {
       assertThat(e.getMessage(),

@@ -18,7 +18,7 @@ package io.servicecomb.saga.core;
 
 public interface SagaDefinition {
 
-  String getPolicy();
+  RecoveryPolicy policy();
 
-  String getRequests();
+  SagaRequest[] requests();
 }
