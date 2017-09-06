@@ -21,7 +21,7 @@ import io.servicecomb.saga.core.FailedSagaResponse;
 
 public class JsonFailedSagaResponse extends FailedSagaResponse {
 
-  public JsonFailedSagaResponse(@JsonProperty("cause") String cause) {
-    super(cause);
+  public JsonFailedSagaResponse(@JsonProperty("body") String body) {
+    super(body);
   }
 }
