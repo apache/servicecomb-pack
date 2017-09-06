@@ -21,13 +21,13 @@ import static java.util.Collections.emptyMap;
 import io.servicecomb.saga.core.application.interpreter.RestRequestChecker;
 import java.util.Map;
 
-public class OperationImpl implements Operation {
+public class RestOperation implements Operation {
 
   private final String path;
   private final String method;
   private final Map<String, Map<String, String>> params;
 
-  public OperationImpl(String path, String method, Map<String, Map<String, String>> params) {
+  public RestOperation(String path, String method, Map<String, Map<String, String>> params) {
     RestRequestChecker.checkParameters(method, params);
 
     this.path = path;
@@ -35,17 +35,14 @@ public class OperationImpl implements Operation {
     this.params = params == null? emptyMap() : params;
   }
 
-  @Override
   public String path() {
     return path;
   }
 
-  @Override
   public String method() {
     return method;
   }
 
-  @Override
   public Map<String, Map<String, String>> params() {
     return params;
   }

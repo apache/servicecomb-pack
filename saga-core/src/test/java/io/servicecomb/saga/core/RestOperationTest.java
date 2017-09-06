@@ -24,12 +24,12 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-public class OperationImplTest {
+public class RestOperationTest {
 
   @Test
   public void blowsUpWhenGetMethodWithForm() {
     try {
-      new OperationImpl("blah", "GET", singletonMap("form", emptyMap()));
+      new RestOperation("blah", "GET", singletonMap("form", emptyMap()));
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
@@ -39,7 +39,7 @@ public class OperationImplTest {
   @Test
   public void blowsUpWhenGetMethodWithJson() {
     try {
-      new OperationImpl("blah", "GET", singletonMap("json", emptyMap()));
+      new RestOperation("blah", "GET", singletonMap("json", emptyMap()));
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
@@ -49,7 +49,7 @@ public class OperationImplTest {
   @Test
   public void blowsUpWhenDeleteMethodWithForm() {
     try {
-      new OperationImpl("blah", "DELETE", singletonMap("form", emptyMap()));
+      new RestOperation("blah", "DELETE", singletonMap("form", emptyMap()));
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
@@ -59,7 +59,7 @@ public class OperationImplTest {
   @Test
   public void blowsUpWhenDeleteMethodWithJson() {
     try {
-      new OperationImpl("blah", "DELETE", singletonMap("json", emptyMap()));
+      new RestOperation("blah", "DELETE", singletonMap("json", emptyMap()));
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
@@ -69,7 +69,7 @@ public class OperationImplTest {
   @Test
   public void blowsUpWhenMethodIsNotSupported() {
     try {
-      new OperationImpl("blah", "foo", emptyMap());
+      new RestOperation("blah", "foo", emptyMap());
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("Unsupported method foo"));
@@ -79,7 +79,7 @@ public class OperationImplTest {
   @Test
   public void blowsUpWhenMethodIsNull() {
     try {
-      new OperationImpl("blah", null, emptyMap());
+      new RestOperation("blah", null, emptyMap());
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("Unsupported method null"));

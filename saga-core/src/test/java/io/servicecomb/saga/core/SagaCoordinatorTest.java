@@ -16,9 +16,9 @@
 
 package io.servicecomb.saga.core;
 
-import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
-import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
-import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
+import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
+import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
+import static io.servicecomb.saga.core.SagaRequest.TYPE_REST;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
@@ -27,8 +27,6 @@ import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.servicecomb.saga.core.application.SagaCoordinator;
@@ -47,8 +45,6 @@ import org.mockito.Mockito;
 
 @SuppressWarnings("unchecked")
 public class SagaCoordinatorTest {
-
-  private final Transport transport = mock(Transport.class);
 
   private static final String requestJson = "[\n"
       + "  {\n"
@@ -83,7 +79,7 @@ public class SagaCoordinatorTest {
   private final SagaRequest request1 = new SagaRequestImpl(
       "request-1",
       "aaa",
-      "rest",
+      TYPE_REST,
       new TransactionImpl("/rest/as", "post", emptyMap()),
       new CompensationImpl("/rest/as","delete", emptyMap())
   );
@@ -91,15 +87,13 @@ public class SagaCoordinatorTest {
   private final SagaRequest request2 = new SagaRequestImpl(
       "request-2",
       "bbb",
-      "rest",
+      TYPE_REST,
       new TransactionImpl("/rest/bs", "post", emptyMap()),
       new CompensationImpl("/rest/bs","delete", emptyMap())
   );
 
   private final FromJsonFormat fromJsonFormat = Mockito.mock(FromJsonFormat.class);
   private final EmbeddedPersistentStore eventStore = new EmbeddedPersistentStore();
-
-  private final SagaRequest sagaStartRequest = sagaStartRequest();
 
   private final SagaCoordinator coordinator = new SagaCoordinator(
       eventStore,
@@ -116,14 +110,14 @@ public class SagaCoordinatorTest {
 
   @Test
   public void recoverSagaWithEventsFromEventStore() throws IOException {
-    eventStore.offer(new SagaStartedEvent(sagaId, requestJson, sagaStartRequest));
+    eventStore.offer(new SagaStartedEvent(sagaId, requestJson, SAGA_START_REQUEST));
     coordinator.reanimate();
 
     assertThat(eventStore, contains(
-        eventWith("saga-start", "Saga", "nop", "/", "nop", "/", SagaStartedEvent.class),
-        eventWith("request-1", "aaa", "post", "/rest/as", "delete", "/rest/as", TransactionStartedEvent.class),
-        eventWith("request-1", "aaa", "post", "/rest/as", "delete", "/rest/as", TransactionEndedEvent.class),
-        eventWith("saga-end", "Saga", "nop", "/", "nop", "/", SagaEndedEvent.class)
+        eventWith(SAGA_START_REQUEST, SagaStartedEvent.class),
+        eventWith(request1, TransactionStartedEvent.class),
+        eventWith(request1, TransactionEndedEvent.class),
+        eventWith(SAGA_END_REQUEST, SagaEndedEvent.class)
     ));
   }
 
@@ -132,10 +126,10 @@ public class SagaCoordinatorTest {
     coordinator.run(requestJson);
 
     assertThat(eventStore, contains(
-        eventWith("saga-start", "Saga", "nop", "/", "nop", "/", SagaStartedEvent.class),
-        eventWith("request-1", "aaa", "post", "/rest/as", "delete", "/rest/as", TransactionStartedEvent.class),
-        eventWith("request-1", "aaa", "post", "/rest/as", "delete", "/rest/as", TransactionEndedEvent.class),
-        eventWith("saga-end", "Saga", "nop", "/", "nop", "/", SagaEndedEvent.class)
+        eventWith(SAGA_START_REQUEST, SagaStartedEvent.class),
+        eventWith(request1, TransactionStartedEvent.class),
+        eventWith(request1, TransactionEndedEvent.class),
+        eventWith(SAGA_END_REQUEST, SagaEndedEvent.class)
     ));
   }
 
@@ -147,81 +141,59 @@ public class SagaCoordinatorTest {
     waitAtMost(2, SECONDS).until(() -> eventStore.size() == 8);
 
     assertThat(eventStore, containsInAnyOrder(
-        eventWith("saga-start", "Saga", "nop", "/", "nop", "/", SagaStartedEvent.class),
-        eventWith("request-1", "aaa", "post", "/rest/as", "delete", "/rest/as", TransactionStartedEvent.class),
-        eventWith("request-1", "aaa", "post", "/rest/as", "delete", "/rest/as", TransactionEndedEvent.class),
-        eventWith("saga-end", "Saga", "nop", "/", "nop", "/", SagaEndedEvent.class),
-        eventWith("saga-start", "Saga", "nop", "/", "nop", "/", SagaStartedEvent.class),
-        eventWith("request-2", "bbb", "post", "/rest/bs", "delete", "/rest/bs", TransactionStartedEvent.class),
-        eventWith("request-2", "bbb", "post", "/rest/bs", "delete", "/rest/bs", TransactionEndedEvent.class),
-        eventWith("saga-end", "Saga", "nop", "/", "nop", "/", SagaEndedEvent.class)
+        eventWith(SAGA_START_REQUEST, SagaStartedEvent.class),
+        eventWith(request1, TransactionStartedEvent.class),
+        eventWith(request1, TransactionEndedEvent.class),
+        eventWith(SAGA_END_REQUEST, SagaEndedEvent.class),
+        eventWith(SAGA_START_REQUEST, SagaStartedEvent.class),
+        eventWith(request2, TransactionStartedEvent.class),
+        eventWith(request2, TransactionEndedEvent.class),
+        eventWith(SAGA_END_REQUEST, SagaEndedEvent.class)
     ));
   }
 
   @Test
   public void runSagaAfterRecovery() {
-    eventStore.offer(new SagaStartedEvent(sagaId, requestJson, sagaStartRequest));
+    eventStore.offer(new SagaStartedEvent(sagaId, requestJson, SAGA_START_REQUEST));
     coordinator.reanimate();
 
     coordinator.run(anotherRequestJson);
 
     assertThat(eventStore, contains(
-        eventWith("saga-start", "Saga", "nop", "/", "nop", "/", SagaStartedEvent.class),
-        eventWith("request-1", "aaa", "post", "/rest/as", "delete", "/rest/as", TransactionStartedEvent.class),
-        eventWith("request-1", "aaa", "post", "/rest/as", "delete", "/rest/as", TransactionEndedEvent.class),
-        eventWith("saga-end", "Saga", "nop", "/", "nop", "/", SagaEndedEvent.class),
-        eventWith("saga-start", "Saga", "nop", "/", "nop", "/", SagaStartedEvent.class),
-        eventWith("request-2", "bbb", "post", "/rest/bs", "delete", "/rest/bs", TransactionStartedEvent.class),
-        eventWith("request-2", "bbb", "post", "/rest/bs", "delete", "/rest/bs", TransactionEndedEvent.class),
-        eventWith("saga-end", "Saga", "nop", "/", "nop", "/", SagaEndedEvent.class)
+        eventWith(SAGA_START_REQUEST, SagaStartedEvent.class),
+        eventWith(request1, TransactionStartedEvent.class),
+        eventWith(request1, TransactionEndedEvent.class),
+        eventWith(SAGA_END_REQUEST, SagaEndedEvent.class),
+        eventWith(SAGA_START_REQUEST, SagaStartedEvent.class),
+        eventWith(request2, TransactionStartedEvent.class),
+        eventWith(request2, TransactionEndedEvent.class),
+        eventWith(SAGA_END_REQUEST, SagaEndedEvent.class)
     ));
   }
 
-  private SagaRequest sagaStartRequest() {
-    return new NoOpSagaRequest("saga-start", SAGA_START_TRANSACTION, SAGA_START_COMPENSATION, SAGA_START_TASK);
-  }
-
   private Matcher<SagaEvent> eventWith(
-      String requestId,
-      String serviceName,
-      String transactionMethod,
-      String transactionPath,
-      String compensationMethod,
-      String compensationPath,
+      SagaRequest sagaRequest,
       Class<?> type) {
 
     return new TypeSafeMatcher<SagaEvent>() {
       @Override
       protected boolean matchesSafely(SagaEvent event) {
         SagaRequest request = event.payload();
-        return requestId.equals(request.id())
-            && event.getClass().equals(type)
-            && request.serviceName().equals(serviceName)
-            && request.transaction().path().equals(transactionPath)
-            && request.transaction().method().equals(transactionMethod)
-            && request.compensation().path().equals(compensationPath)
-            && request.compensation().method().equals(compensationMethod);
+        return sagaRequest.equals(request)
+            && event.getClass().equals(type);
       }
 
       @Override
       protected void describeMismatchSafely(SagaEvent item, Description mismatchDescription) {
         SagaRequest request = item.payload();
         mismatchDescription.appendText(
-            "SagaEvent {"
-                + "SagaRequest {id=" + request.id()
-                + ", serviceName=" + request.serviceName()
-                + ", transaction=" + request.transaction().method() + ":" + request.transaction().path()
-                + ", compensation=" + request.compensation().method() + ":" + request.compensation().path());
+            "SagaEvent {" + request + "}");
       }
 
       @Override
       public void describeTo(Description description) {
         description.appendText(
-            "SagaEvent {"
-                + "SagaRequest {id=" + requestId
-                + ", serviceName=" + serviceName
-                + ", transaction=" + transactionMethod + ":" + transactionPath
-                + ", compensation=" + compensationMethod + ":" + compensationPath);
+            "SagaEvent {" + sagaRequest + "}");
       }
     };
   }
@@ -231,7 +203,7 @@ public class SagaCoordinatorTest {
     @Override
     public Map<String, List<EventEnvelope>> findPendingSagaEvents() {
       return singletonMap(sagaId, singletonList(
-          new EventEnvelope(1L, new SagaStartedEvent(sagaId, requestJson, sagaStartRequest))));
+          new EventEnvelope(1L, new SagaStartedEvent(sagaId, requestJson, SAGA_START_REQUEST))));
     }
   }
 }

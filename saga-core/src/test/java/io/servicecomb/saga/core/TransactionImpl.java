@@ -18,7 +18,7 @@ package io.servicecomb.saga.core;
 
 import java.util.Map;
 
-public class TransactionImpl extends OperationImpl implements Transaction {
+public class TransactionImpl extends RestOperation implements Transaction {
 
   public TransactionImpl(String path, String method, Map<String, Map<String, String>> params) {
     super(path, method, params);

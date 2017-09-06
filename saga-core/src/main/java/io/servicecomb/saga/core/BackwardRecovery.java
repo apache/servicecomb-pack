@@ -32,12 +32,10 @@ public class BackwardRecovery implements RecoveryPolicy {
     try {
       task.commit(request);
     } catch (Exception e) {
-      log.error("Applying {} policy due to failure in transaction of service {}, path {}, method {}, params {}",
+      log.error("Applying {} policy due to failure in transaction {} of service {}",
           description(),
           request.serviceName(),
-          request.transaction().path(),
-          request.transaction().method(),
-          request.transaction().params(),
+          request.transaction(),
           e
       );
 

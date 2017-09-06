@@ -19,13 +19,13 @@ package io.servicecomb.saga.format;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.servicecomb.saga.core.OperationImpl;
+import io.servicecomb.saga.core.RestOperation;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.Transaction;
 import io.servicecomb.saga.transports.RestTransport;
 import java.util.Map;
 
-public class JacksonRestTransaction extends OperationImpl implements Transaction {
+public class JacksonRestTransaction extends RestOperation implements Transaction {
 
   @JsonIgnore
   private RestTransport transport;
