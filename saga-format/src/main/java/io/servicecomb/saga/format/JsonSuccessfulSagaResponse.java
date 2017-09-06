@@ -21,8 +21,8 @@ import io.servicecomb.saga.core.SuccessfulSagaResponse;
 
 public class JsonSuccessfulSagaResponse extends SuccessfulSagaResponse {
 
-  public JsonSuccessfulSagaResponse(@JsonProperty("statusCode") int statusCode, @JsonProperty("body") String content) {
-    super(statusCode, content);
+  public JsonSuccessfulSagaResponse(@JsonProperty("body") String body) {
+    super(body);
   }
 
 }

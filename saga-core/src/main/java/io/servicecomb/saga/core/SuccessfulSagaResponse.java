@@ -23,6 +23,10 @@ public class SuccessfulSagaResponse implements SagaResponse {
     this.body = format(statusCode, content);
   }
 
+  public SuccessfulSagaResponse(String body) {
+    this.body = body;
+  }
+
   @Override
   public boolean succeeded() {
     return true;
