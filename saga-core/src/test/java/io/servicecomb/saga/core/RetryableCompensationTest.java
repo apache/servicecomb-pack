@@ -24,25 +24,20 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.seanyinx.github.unit.scaffolding.AssertUtils;
-import java.util.Collections;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class RetryableTransportTest {
+public class RetryableCompensationTest {
 
   private final int numberOfRetries = 3;
   private final String address = uniquify("address");
-  private final String path = uniquify("path");
-  private final String method = uniquify("method");
-  private final Map<String, Map<String, String>> params = Collections.emptyMap();
 
   private final SagaResponse success = Mockito.mock(SagaResponse.class);
   private final SagaResponse failure = Mockito.mock(SagaResponse.class);
   private final Fallback fallback = Mockito.mock(Fallback.class);
-  private final Transport transport = Mockito.mock(Transport.class);
-  private final Transport retryableTransport = new RetryableTransport(numberOfRetries, transport, fallback);
+  private final Compensation transport = Mockito.mock(Compensation.class);
+  private final Compensation retryableTransport = new RetryableCompensation(numberOfRetries, 100, transport, fallback);
 
   @Before
   public void setUp() throws Exception {
@@ -53,34 +48,34 @@ public class RetryableTransportTest {
   public void retriesTransportForSpecifiedTimes() {
     TransactionFailedException exception = new TransactionFailedException("oops");
 
-    when(transport.with(address, path, method, params))
+    when(transport.send(address))
         .thenThrow(exception)
         .thenThrow(exception)
         .thenReturn(success);
 
-    SagaResponse response = retryableTransport.with(address, path, method, params);
+    SagaResponse response = retryableTransport.send(address);
 
     assertThat(response, is(success));
-    verify(transport, times(3)).with(address, path, method, params);
+    verify(transport, times(3)).send(address);
   }
 
   @Test
   public void fallbackIfTransportFailedWithRetry() {
     TransactionFailedException exception = new TransactionFailedException("oops");
 
-    when(transport.with(address, path, method, params)).thenThrow(exception);
+    when(transport.send(address)).thenThrow(exception);
 
-    SagaResponse response = retryableTransport.with(address, path, method, params);
+    SagaResponse response = retryableTransport.send(address);
     assertThat(response, is(failure));
 
-    verify(transport, times(numberOfRetries)).with(address, path, method, params);
+    verify(transport, times(numberOfRetries)).send(address);
     verify(fallback).fallback();
   }
 
   @Test
   public void blowsUpIfNumberOfRetriesIsLessThanOne() {
     try {
-      new RetryableTransport(0, transport, fallback);
+      new RetryableCompensation(0, 100, transport, fallback);
       AssertUtils.expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("The number of retries must be greater than 0"));

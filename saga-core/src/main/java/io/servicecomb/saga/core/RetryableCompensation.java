@@ -17,44 +17,48 @@
 package io.servicecomb.saga.core;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RetryableTransport implements Transport {
-
+public class RetryableCompensation implements Compensation {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private final Transport transport;
-  private final int numberOfRetries;
+  private final int retries;
+  private final int retryDelay;
+  private final Compensation compensation;
   private final Fallback fallback;
 
-  public RetryableTransport(int numberOfRetries, Transport transport, Fallback fallback) {
-    if (numberOfRetries <= 0) {
+  public RetryableCompensation(int retries, int retryDelay, Compensation compensation, Fallback fallback) {
+    if (retries <= 0) {
       throw new IllegalArgumentException("The number of retries must be greater than 0");
     }
 
-    this.numberOfRetries = numberOfRetries;
-    this.transport = transport;
+    this.retries = retries;
+    this.retryDelay = retryDelay;
+    this.compensation = compensation;
     this.fallback = fallback;
   }
 
   @Override
-  public SagaResponse with(String address, String path, String method, Map<String, Map<String, String>> params) {
-    for (int i = 0; i < numberOfRetries; i++) {
+  public SagaResponse send(String address) {
+    for (int i = 0; i < retries && !Thread.currentThread().isInterrupted(); i++) {
       try {
-        return transport.with(address, path, method, params);
+        return compensation.send(address);
       } catch (TransactionFailedException e) {
-        log.error("Failed to send {} request to {}/{} with params {}",
-            method,
-            address,
-            path,
-            params,
-            e);
+        log.error("Failed to send compensation to {}", address, e);
+        sleep(retryDelay);
       }
     }
 
-    log.warn("Falling back after {} failures sending {} request to {}/{}", numberOfRetries, method, address, path);
+    log.warn("Falling back after {} failures sending compensation to {}", retries, address);
     return fallback.fallback();
+  }
+
+  private void sleep(int delay) {
+    try {
+      Thread.sleep(delay);
+    } catch (InterruptedException ignored) {
+      Thread.currentThread().interrupt();
+    }
   }
 }
