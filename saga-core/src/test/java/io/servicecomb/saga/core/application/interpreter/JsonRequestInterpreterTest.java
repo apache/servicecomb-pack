@@ -17,11 +17,12 @@
 package io.servicecomb.saga.core.application.interpreter;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
+import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
+import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
 import static io.servicecomb.saga.core.SagaRequest.TYPE_REST;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
-import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.Is.is;
@@ -31,7 +32,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
-import com.seanyinx.github.unit.scaffolding.Randomness;
 import io.servicecomb.saga.core.CompensationImpl;
 import io.servicecomb.saga.core.SagaException;
 import io.servicecomb.saga.core.SagaRequest;
@@ -45,11 +45,7 @@ import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
 import io.servicecomb.saga.core.dag.Traveller;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -160,15 +156,15 @@ public class JsonRequestInterpreterTest {
       "request-aaa",
       "aaa",
       TYPE_REST,
-      new TransactionImpl("/rest/as", "post", mapOf("form", mapOf("foo", "as"))),
-      new CompensationImpl("/rest/as","delete", mapOf("query", mapOf("bar", "as")))
+      new TransactionImpl("/rest/as", "post", emptyMap()),
+      new CompensationImpl("/rest/as","delete", emptyMap())
   );
 
   private final SagaRequest request2 = new SagaRequestImpl(
       "request-bbb",
       "bbb",
       TYPE_REST,
-      new TransactionImpl("/rest/bs", "post", mapOf("query", mapOf("foo", "bs"), "json", mapOf("body", "{ \"bar\": \"bs\" }"))),
+      new TransactionImpl("/rest/bs", "post", emptyMap()),
       new CompensationImpl("/rest/bs","delete", emptyMap())
   );
 
@@ -176,7 +172,7 @@ public class JsonRequestInterpreterTest {
       "request-ccc",
       "ccc",
       TYPE_REST,
-      new TransactionImpl("/rest/cs", "post", mapOf("query", mapOf("foo", "cs"), "form", mapOf("bar", "cs"))),
+      new TransactionImpl("/rest/cs", "post", emptyMap()),
       new CompensationImpl("/rest/cs","delete", emptyMap()),
       new String[]{"request-aaa", "request-bbb"}
   );
@@ -184,14 +180,13 @@ public class JsonRequestInterpreterTest {
   private final SagaRequest duplicateRequest = new SagaRequestImpl(
       "request-duplicate-id",
       "xxx",
-      "rest",
+      TYPE_REST,
       new TransactionImpl("/rest/xs", "post", emptyMap()),
       new CompensationImpl("/rest/xs","delete", emptyMap())
   );
 
   private final FromJsonFormat fromJsonFormat = Mockito.mock(FromJsonFormat.class);
   private final GraphCycleDetector<SagaRequest> detector = Mockito.mock(GraphCycleDetector.class);
-  private final String sagaId = Randomness.uniquify("sagaId");
   private final JsonRequestInterpreter interpreter = new JsonRequestInterpreter(
       fromJsonFormat,
       detector
@@ -212,28 +207,19 @@ public class JsonRequestInterpreterTest {
     Collection<Node<SagaRequest>> nodes = traveller.nodes();
 
     traveller.next();
-    assertThat(nodes, contains(taskWith(sagaId, "Saga", "nop", "/", "nop", "/")));
+    assertThat(requestsOf(nodes), contains(SAGA_START_REQUEST));
     nodes.clear();
 
     traveller.next();
-    assertThat(nodes, contains(
-        taskWith(sagaId, "aaa", TYPE_REST, "post", "/rest/as", "delete", "/rest/as",
-            mapOf("form", mapOf("foo", "as")),
-            mapOf("query", mapOf("bar", "as"))),
-        taskWith(sagaId, "bbb", TYPE_REST, "post", "/rest/bs", "delete", "/rest/bs",
-            mapOf("query", mapOf("foo", "bs"), "json", mapOf("body", "{ \"bar\": \"bs\" }")))
-    ));
+    assertThat(requestsOf(nodes), contains(request1, request2));
     nodes.clear();
 
     traveller.next();
-    assertThat(nodes, contains(
-        taskWith(sagaId, "ccc", TYPE_REST, "post", "/rest/cs", "delete", "/rest/cs",
-            mapOf("query", mapOf("foo", "cs"), "form", mapOf("bar", "cs")))
-    ));
+    assertThat(requestsOf(nodes), contains(request3));
     nodes.clear();
 
     traveller.next();
-    assertThat(nodes, contains(taskWith(sagaId, "Saga", "nop", "/", "nop", "/")));
+    assertThat(requestsOf(nodes), contains(SAGA_END_REQUEST));
   }
 
   @Test
@@ -273,106 +259,9 @@ public class JsonRequestInterpreterTest {
     }
   }
 
-  private Map<String, String> mapOf(String... pairs) {
-    return new HashMap<String, String>() {{
-      for (int i = 0; i < pairs.length; i += 2) {
-        put(pairs[i], pairs[i + 1]);
-      }
-    }};
-  }
-
-  private Map<String, Map<String, String>> mapOf(
-      String key1, Map<String, String> value1,
-      String key2, Map<String, String> value2) {
-
-    Map<String, Map<String, String>> map = new HashMap<>();
-    map.put(key1, value1);
-    map.put(key2, value2);
-    return map;
-  }
-
-  private Map<String, Map<String, String>> mapOf(String key, Map<String, String> value) {
-    return singletonMap(key, value);
-  }
-
-  private Matcher<? super Node<SagaRequest>> taskWith(
-      String sagaId,
-      String name,
-      String transactionMethod,
-      String transactionPath,
-      String compensationMethod,
-      String compensationPath) {
-    return taskWith(sagaId, name, "nop", transactionMethod, transactionPath, compensationMethod, compensationPath, emptyMap());
-  }
-
-  private Matcher<? super Node<SagaRequest>> taskWith(
-      String sagaId,
-      String name,
-      String type,
-      String transactionMethod,
-      String transactionPath,
-      String compensationMethod,
-      String compensationPath,
-      Map<String, Map<String, String>> transactionParams) {
-    return taskWith(
-        sagaId,
-        name,
-        type,
-        transactionMethod,
-        transactionPath,
-        compensationMethod,
-        compensationPath,
-        transactionParams,
-        emptyMap());
-  }
-
-  private Matcher<? super Node<SagaRequest>> taskWith(
-      String sagaId,
-      String name,
-      String type,
-      String transactionMethod,
-      String transactionPath,
-      String compensationMethod,
-      String compensationPath,
-      Map<String, Map<String, String>> transactionParams,
-      Map<String, Map<String, String>> compensationParams) {
-
-    return new TypeSafeMatcher<Node<SagaRequest>>() {
-      @Override
-      protected boolean matchesSafely(Node<SagaRequest> node) {
-        SagaRequest request = node.value();
-        return request.serviceName().equals(name)
-            && request.type().equals(type)
-            && request.transaction().path().equals(transactionPath)
-            && request.transaction().method().equals(transactionMethod)
-            && request.compensation().path().equals(compensationPath)
-            && request.compensation().method().equals(compensationMethod)
-            && request.transaction().params().equals(transactionParams)
-            && request.compensation().params().equals(compensationParams);
-      }
-
-      @Override
-      protected void describeMismatchSafely(Node<SagaRequest> item, Description mismatchDescription) {
-        SagaRequest request = item.value();
-        mismatchDescription.appendText(
-            "SagaRequest {name=" + request.serviceName()
-                + ", type=" + request.type()
-                + ", transaction=" + request.transaction().method() + ":" + request.transaction().path()
-                + ", transaction params=" + request.transaction().params()
-                + ", compensation=" + request.compensation().method() + ":" + request.compensation().path()
-                + ", compensation params=" + request.compensation().params());
-      }
-
-      @Override
-      public void describeTo(Description description) {
-        description.appendText(
-            "SagaRequest {name=" + name
-                + ", type=" + type
-                + ", transaction=" + transactionMethod + ":" + transactionPath
-                + ", transaction params=" + transactionParams
-                + ", compensation=" + compensationMethod + ":" + compensationPath
-                + ", compensation params=" + compensationParams);
-      }
-    };
+  private Collection<SagaRequest> requestsOf(Collection<Node<SagaRequest>> nodes) {
+    return nodes.stream()
+        .map(Node::value)
+        .collect(Collectors.toList());
   }
 }

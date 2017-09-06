@@ -16,21 +16,9 @@
 
 package io.servicecomb.saga.core;
 
-import static java.util.Collections.emptyMap;
-
-import java.util.Map;
-
 public interface Operation {
 
-  default String path() {
-    return "/";
-  }
-
-  default String method() {
-    return "nop";
-  }
-
-  default Map<String, Map<String, String>> params() {
-    return emptyMap();
+  default SagaResponse send(String address) {
+    return new SuccessfulSagaResponse(200, "success");
   }
 }

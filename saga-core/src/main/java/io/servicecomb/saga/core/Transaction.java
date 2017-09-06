@@ -1,6 +1,6 @@
 package io.servicecomb.saga.core;
 
-public interface Transaction extends Operation, Sender {
+public interface Transaction extends Operation {
 
   Transaction SAGA_START_TRANSACTION = new Transaction() {
   };

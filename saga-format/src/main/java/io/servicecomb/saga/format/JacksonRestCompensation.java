@@ -20,12 +20,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.servicecomb.saga.core.Compensation;
-import io.servicecomb.saga.core.OperationImpl;
+import io.servicecomb.saga.core.RestOperation;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.transports.RestTransport;
 import java.util.Map;
 
-public class JacksonRestCompensation extends OperationImpl implements Compensation {
+public class JacksonRestCompensation extends RestOperation implements Compensation {
 
   @JsonIgnore
   private RestTransport transport;

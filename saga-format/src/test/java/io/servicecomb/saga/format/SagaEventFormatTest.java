@@ -32,6 +32,7 @@ import io.servicecomb.saga.core.CompensationEndedEvent;
 import io.servicecomb.saga.core.CompensationStartedEvent;
 import io.servicecomb.saga.core.FailedSagaResponse;
 import io.servicecomb.saga.core.JacksonToJsonFormat;
+import io.servicecomb.saga.core.RestOperation;
 import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaRequestImpl;
@@ -156,10 +157,10 @@ public class SagaEventFormatTest {
             && request.serviceName().equals(expected.serviceName())
             && request.task().equals(expected.task())
             && request.type().equals(expected.type())
-            && request.transaction().path().equals(expected.transaction().path())
-            && request.transaction().method().equals(expected.transaction().method())
-            && request.compensation().path().equals(expected.compensation().path())
-            && request.compensation().method().equals(expected.compensation().method());
+            && ((RestOperation) request.transaction()).path().equals(((RestOperation) expected.transaction()).path())
+            && ((RestOperation) request.transaction()).method().equals(((RestOperation) expected.transaction()).method())
+            && ((RestOperation) request.compensation()).path().equals(((RestOperation) expected.compensation()).path())
+            && ((RestOperation) request.compensation()).method().equals(((RestOperation) expected.compensation()).method());
       }
 
       @Override

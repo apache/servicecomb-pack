@@ -23,6 +23,8 @@ import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
 import static io.servicecomb.saga.core.Transaction.SAGA_END_TRANSACTION;
 import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
 
+import java.util.Arrays;
+
 public class NoOpSagaRequest implements SagaRequest {
 
   public static final SagaRequest SAGA_START_REQUEST = new NoOpSagaRequest(
@@ -83,5 +85,16 @@ public class NoOpSagaRequest implements SagaRequest {
   @Override
   public String[] parents() {
     return parents;
+  }
+
+  @Override
+  public String toString() {
+    return "NoOpSagaRequest{" +
+        "id='" + id + '\'' +
+        ", transaction=" + transaction +
+        ", compensation=" + compensation +
+        ", task='" + task + '\'' +
+        ", parents=" + Arrays.toString(parents) +
+        '}';
   }
 }

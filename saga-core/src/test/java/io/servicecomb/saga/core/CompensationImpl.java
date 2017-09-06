@@ -18,7 +18,7 @@ package io.servicecomb.saga.core;
 
 import java.util.Map;
 
-public class CompensationImpl extends OperationImpl implements Compensation {
+public class CompensationImpl extends RestOperation implements Compensation {
 
   public CompensationImpl(String path, String method, Map<String, Map<String, String>> params) {
     super(path, method, params);

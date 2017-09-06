@@ -16,7 +16,7 @@
 
 package io.servicecomb.saga.core;
 
-public interface Compensation extends Operation, Sender {
+public interface Compensation extends Operation {
 
   Compensation SAGA_START_COMPENSATION = new Compensation() {
   };
