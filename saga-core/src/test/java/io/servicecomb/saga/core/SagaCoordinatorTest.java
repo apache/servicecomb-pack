@@ -61,7 +61,10 @@ public class SagaCoordinatorTest {
       + "  }\n"
       + "]\n";
 
-  private static final String sagaJson = "{\"policy\": \"ForwardRecovery\",\"requests\": " + requestJson + "}";
+  private static final String sagaJson = "{\n"
+      + "  \"policy\": \"ForwardRecovery\",\n"
+      + "  \"requests\": " + requestJson + "\n"
+      + "}";
 
   private static final String anotherRequestJson = "[\n"
       + "  {\n"
@@ -78,8 +81,10 @@ public class SagaCoordinatorTest {
       + "  }\n"
       + "]\n";
 
-  private static final String anotherSagaJson =
-      "{\"policy\": \"ForwardRecovery\",\"requests\": " + anotherRequestJson + "}";
+  private static final String anotherSagaJson = "{\n"
+      + "  \"policy\": \"ForwardRecovery\",\n"
+      + "  \"requests\": " + anotherRequestJson + "\n"
+      + "}";
 
   private final SagaRequest request1 = new SagaRequestImpl(
       "request-1",
@@ -99,25 +104,25 @@ public class SagaCoordinatorTest {
 
   private final SagaDefinition definition1 = new SagaDefinition() {
     @Override
-    public String getPolicy() {
-      return RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY;
+    public RecoveryPolicy policy() {
+      return new ForwardRecovery();
     }
 
     @Override
-    public String getRequests() {
-      return requestJson;
+    public SagaRequest[] requests() {
+      return new SagaRequest[]{request1};
     }
   };
 
   private final SagaDefinition definition2 = new SagaDefinition() {
     @Override
-    public String getPolicy() {
-      return RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY;
+    public RecoveryPolicy policy() {
+      return new BackwardRecovery();
     }
 
     @Override
-    public String getRequests() {
-      return anotherRequestJson;
+    public SagaRequest[] requests() {
+      return new SagaRequest[]{request2};
     }
   };
 
@@ -133,11 +138,8 @@ public class SagaCoordinatorTest {
 
   @Before
   public void setUp() throws Exception {
-    when(fromJsonFormat.fromJson(requestJson)).thenReturn(new SagaRequest[]{request1});
-    when(fromJsonFormat.fromJson(anotherRequestJson)).thenReturn(new SagaRequest[]{request2});
-
-    when(fromJsonFormat.fromSagaDefinitionJson(sagaJson)).thenReturn(definition1);
-    when(fromJsonFormat.fromSagaDefinitionJson(anotherSagaJson)).thenReturn(definition2);
+    when(fromJsonFormat.fromJson(sagaJson)).thenReturn(definition1);
+    when(fromJsonFormat.fromJson(anotherSagaJson)).thenReturn(definition2);
   }
 
   @Test

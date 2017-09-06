@@ -18,7 +18,7 @@ package io.servicecomb.saga.format;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.servicecomb.saga.core.SagaDefinition;
-import io.servicecomb.saga.core.SagaRequest;
+import io.servicecomb.saga.core.SagaException;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.transports.TransportFactory;
 import java.io.IOException;
@@ -35,23 +35,19 @@ public class JacksonFromJsonFormat implements FromJsonFormat {
     this.transportFactory = transportFactory;
   }
 
-  @Segment(name = "fromSagaDefinitionJson", category = "application", library = "kamon")
-  @Override
-  public SagaDefinition fromSagaDefinitionJson(String sagaJson) throws IOException {
-    return objectMapper.readValue(sagaJson, JsonSagaDefinition.class);
-  }
-
   @Segment(name = "fromJson", category = "application", library = "kamon")
   @Override
-  public SagaRequest[] fromJson(String requestJson) throws IOException {
-    JsonSagaRequest[] requests = objectMapper.readValue(requestJson, JsonSagaRequest[].class);
+  public SagaDefinition fromJson(String requestJson) {
+    try {
+      JsonSagaDefinition definition = objectMapper.readValue(requestJson, JsonSagaDefinition.class);
 
-    for (JsonSagaRequest request : requests) {
-      request.with(transportFactory);
+      for (JsonSagaRequest request : definition.requests()) {
+        request.with(transportFactory);
+      }
+
+      return definition;
+    } catch (IOException e) {
+      throw new SagaException("Failed to interpret JSON " + requestJson, e);
     }
-
-    return requests;
   }
-
-
 }
