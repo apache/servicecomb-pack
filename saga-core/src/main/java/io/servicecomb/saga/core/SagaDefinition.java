@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core.application.interpreter;
+package io.servicecomb.saga.core;
 
-import io.servicecomb.saga.core.SagaDefinition;
-import io.servicecomb.saga.core.SagaRequest;
-import java.io.IOException;
+public interface SagaDefinition {
 
-public interface FromJsonFormat {
+  String getPolicy();
 
-  SagaDefinition fromSagaDefinitionJson(String sagaJson) throws IOException;
-
-  SagaRequest[] fromJson(String requestJson) throws IOException;
+  String getRequests();
 }

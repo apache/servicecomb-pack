@@ -14,15 +14,29 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core.application.interpreter;
+package io.servicecomb.saga.format;
 
+import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.servicecomb.saga.core.SagaDefinition;
-import io.servicecomb.saga.core.SagaRequest;
-import java.io.IOException;
 
-public interface FromJsonFormat {
+public class JsonSagaDefinition implements SagaDefinition {
 
-  SagaDefinition fromSagaDefinitionJson(String sagaJson) throws IOException;
+  private String policy;
+  private Object requests;
 
-  SagaRequest[] fromJson(String requestJson) throws IOException;
+  @Override
+  public String getPolicy() {
+    return policy;
+  }
+
+  @Override
+  @JsonRawValue
+  public String getRequests() {
+    return requests == null ? "[]" : requests.toString();
+  }
+
+  public void setRequests(JsonNode node) {
+    this.requests = node;
+  }
 }
