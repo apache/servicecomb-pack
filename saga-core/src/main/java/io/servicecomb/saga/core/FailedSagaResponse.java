@@ -21,14 +21,14 @@ import java.io.StringWriter;
 
 public class FailedSagaResponse implements SagaResponse {
 
-  private final String cause;
+  private final String body;
 
-  public FailedSagaResponse(String cause) {
-    this.cause = cause;
+  public FailedSagaResponse(String body) {
+    this.body = format(body);
   }
 
   public FailedSagaResponse(Throwable e) {
-    this.cause = stackTrace(e);
+    this.body = format(stackTrace(e));
   }
 
   @Override
@@ -38,9 +38,13 @@ public class FailedSagaResponse implements SagaResponse {
 
   @Override
   public String body() {
+    return body;
+  }
+
+  private String format(String body) {
     return String.format("{\n"
-        + "  \"cause\": \"%s\"\n"
-        + "}", cause);
+        + "  \"body\": \"%s\"\n"
+        + "}", body);
   }
 
   private String stackTrace(Throwable e) {
