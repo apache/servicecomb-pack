@@ -18,10 +18,9 @@ package io.servicecomb.saga.format;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.servicecomb.saga.core.SagaRequest;
-import io.servicecomb.saga.core.Transport;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
+import io.servicecomb.saga.transports.TransportFactory;
 import java.io.IOException;
-import java.util.Map;
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
 
@@ -29,15 +28,21 @@ import kamon.annotation.Segment;
 public class JacksonFromJsonFormat implements FromJsonFormat {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
-  private final Map<String, Transport> transports;
+  private final TransportFactory transportFactory;
 
-  public JacksonFromJsonFormat(Map<String, Transport> transports) {
-    this.transports = transports;
+  public JacksonFromJsonFormat(TransportFactory transportFactory) {
+    this.transportFactory = transportFactory;
   }
 
   @Segment(name = "fromJson", category = "application", library = "kamon")
   @Override
   public SagaRequest[] fromJson(String requestJson) throws IOException {
-    return objectMapper.readValue(requestJson, JsonSagaRequest[].class);
+    JsonSagaRequest[] requests = objectMapper.readValue(requestJson, JsonSagaRequest[].class);
+
+    for (JsonSagaRequest request : requests) {
+      request.with(transportFactory);
+    }
+
+    return requests;
   }
 }

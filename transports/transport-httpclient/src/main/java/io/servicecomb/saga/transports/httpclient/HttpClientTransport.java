@@ -20,6 +20,7 @@ import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SuccessfulSagaResponse;
 import io.servicecomb.saga.core.TransactionFailedException;
 import io.servicecomb.saga.core.Transport;
+import io.servicecomb.saga.transports.RestTransport;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
@@ -38,7 +39,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.core.util.IOUtils;
 
 @EnableKamon
-public class HttpClientTransport implements Transport {
+public class HttpClientTransport implements RestTransport {
 
 
   private final Map<String, Function<URI, Request>> requestFactories = new HashMap<String, Function<URI, Request>>() {{
