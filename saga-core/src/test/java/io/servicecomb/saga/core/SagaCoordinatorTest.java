@@ -142,8 +142,7 @@ public class SagaCoordinatorTest {
 
   @Test
   public void recoverSagaWithEventsFromEventStore() throws IOException {
-    eventStore.offer(new SagaStartedEvent(sagaId, requestJson, SAGA_START_REQUEST));
-    coordinator.getRecoveryPolicy().put(sagaId, new ForwardRecovery());
+    eventStore.offer(new SagaStartedEvent(sagaId, sagaJson, SAGA_START_REQUEST));
     coordinator.reanimate();
 
     assertThat(eventStore, contains(
@@ -168,20 +167,8 @@ public class SagaCoordinatorTest {
 
   @Test
   public void processRequestsInParallel() {
-    CompletableFuture.runAsync(() -> {
-      try {
-        coordinator.run(sagaJson);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    });
-    CompletableFuture.runAsync(() -> {
-      try {
-        coordinator.run(anotherSagaJson);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    });
+    CompletableFuture.runAsync(() -> coordinator.run(sagaJson));
+    CompletableFuture.runAsync(() -> coordinator.run(anotherSagaJson));
 
     waitAtMost(2, SECONDS).until(() -> eventStore.size() == 8);
 
@@ -199,8 +186,7 @@ public class SagaCoordinatorTest {
 
   @Test
   public void runSagaAfterRecovery() throws IOException {
-    eventStore.offer(new SagaStartedEvent(sagaId, requestJson, SAGA_START_REQUEST));
-    coordinator.getRecoveryPolicy().put(sagaId, new BackwardRecovery());
+    eventStore.offer(new SagaStartedEvent(sagaId, sagaJson, SAGA_START_REQUEST));
     coordinator.reanimate();
 
     coordinator.run(anotherSagaJson);
@@ -249,7 +235,7 @@ public class SagaCoordinatorTest {
     @Override
     public Map<String, List<EventEnvelope>> findPendingSagaEvents() {
       return singletonMap(sagaId, singletonList(
-          new EventEnvelope(1L, new SagaStartedEvent(sagaId, requestJson, SAGA_START_REQUEST))));
+          new EventEnvelope(1L, new SagaStartedEvent(sagaId, sagaJson, SAGA_START_REQUEST))));
     }
   }
 }
