@@ -24,7 +24,7 @@ public class FailedSagaResponse implements SagaResponse {
   private final String body;
 
   public FailedSagaResponse(String body) {
-    this.body = format(body);
+    this.body = body;
   }
 
   public FailedSagaResponse(Throwable e) {
