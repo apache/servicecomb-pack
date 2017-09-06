@@ -23,10 +23,12 @@ import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
 import io.servicecomb.saga.core.BackwardRecovery;
 import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.EventStore;
+import io.servicecomb.saga.core.ForwardRecovery;
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.RecoveryPolicy;
 import io.servicecomb.saga.core.RequestProcessTask;
 import io.servicecomb.saga.core.Saga;
+import io.servicecomb.saga.core.SagaDefinition;
 import io.servicecomb.saga.core.SagaEndTask;
 import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.SagaLog;
@@ -37,11 +39,13 @@ import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
 import io.servicecomb.saga.core.dag.GraphCycleDetectorImpl;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -53,9 +57,15 @@ public class SagaCoordinator {
 
   private final PersistentStore persistentStore;
   private final JsonRequestInterpreter requestInterpreter;
+  private final FromJsonFormat fromJsonFormat;
   private final ToJsonFormat toJsonFormat;
   private final Executor executorService;
-  private final RecoveryPolicy recoveryPolicy = new BackwardRecovery();
+
+  private final Map<String, RecoveryPolicy> recoveryPolicy = new ConcurrentHashMap<>();
+
+  public Map<String, RecoveryPolicy> getRecoveryPolicy() {
+    return recoveryPolicy;
+  }
 
   public SagaCoordinator(
       PersistentStore persistentStore,
@@ -74,23 +84,29 @@ public class SagaCoordinator {
       ExecutorService executorService) {
     this.persistentStore = persistentStore;
     this.requestInterpreter = new JsonRequestInterpreter(fromJsonFormat, new GraphCycleDetectorImpl<>());
+    this.fromJsonFormat = fromJsonFormat;
     this.toJsonFormat = toJsonFormat;
     this.executorService = executorService;
   }
 
   @Segment(name = "runSagaCoordinator", category = "application", library = "kamon")
-  public void run(String requestJson) {
+  public void run(String requestJson) throws IOException {
     String sagaId = UUID.randomUUID().toString();
     EventStore sagaLog = new EmbeddedEventStore();
 
+    SagaDefinition definition = fromJsonFormat.fromSagaDefinitionJson(requestJson);
+    RecoveryPolicy policy = RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY.equals(definition.getPolicy()) ?
+        new ForwardRecovery() : new BackwardRecovery();
+    recoveryPolicy.put(sagaId, policy);
     Saga saga = new Saga(
         sagaLog,
         executorService,
-        recoveryPolicy,
-        sagaTasks(sagaId, requestJson, sagaLog),
-        requestInterpreter.interpret(requestJson));
+        policy,
+        sagaTasks(sagaId, definition.getRequests(), sagaLog),
+        requestInterpreter.interpret(definition.getRequests()));
 
     saga.run();
+    recoveryPolicy.remove(sagaId);
   }
 
   public void reanimate() {
@@ -105,12 +121,14 @@ public class SagaCoordinator {
       Saga saga = new Saga(
           eventStore,
           executorService,
-          recoveryPolicy,
+          recoveryPolicy.get(event.sagaId),
           sagaTasks(event.sagaId, requestJson, eventStore),
           requestInterpreter.interpret(requestJson));
 
       saga.play();
       saga.run();
+
+      recoveryPolicy.remove(event.sagaId);
     }
   }
 
