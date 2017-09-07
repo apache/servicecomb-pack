@@ -44,7 +44,7 @@ public class FallbackPolicy {
   }
 
   private boolean isRetryable(int i, Compensation compensation) {
-    return compensation.retries() <= 0 || i < compensation.retries();
+    return compensation.retries() < 0 || i <= compensation.retries();
   }
 
   private boolean isInterrupted() {

@@ -26,7 +26,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.concurrent.CompletableFuture;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -71,22 +70,21 @@ public class FallbackPolicyTest {
     SagaResponse response = fallbackPolicy.apply(address, compensation, fallback);
     assertThat(response, is(failure));
 
-    verify(compensation, times(numberOfRetries)).send(address);
+    verify(compensation, times(numberOfRetries + 1)).send(address);
     verify(fallback).send(address);
   }
 
   @Test
-  public void retryForeverIfNumberOfRetriesIsNotPositive() throws InterruptedException {
+  public void retryUntilSuccessIfNumberOfRetriesIsNegative() throws InterruptedException {
     reset(compensation);
     when(compensation.retries()).thenReturn(-1);
-    when(compensation.send(address)).thenThrow(exception);
+    when(compensation.send(address))
+        .thenThrow(exception, exception, exception, exception, exception)
+        .thenReturn(success);
 
-    CompletableFuture<Void> future = CompletableFuture
-        .runAsync(() -> fallbackPolicy.apply(address, compensation, fallback));
+    SagaResponse response = fallbackPolicy.apply(address, compensation, fallback);
 
-    Thread.sleep(500);
-
+    assertThat(response, is(success));
     verify(fallback, never()).send(anyString());
-    future.cancel(true);
   }
 }

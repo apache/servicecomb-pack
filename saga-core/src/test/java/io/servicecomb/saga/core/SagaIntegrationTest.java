@@ -267,7 +267,7 @@ public class SagaIntegrationTest {
     verify(transaction1).send(request1.serviceName());
     verify(transaction2).send(request2.serviceName());
 
-    verify(compensation1, times(retries)).send(request1.serviceName());
+    verify(compensation1, times(retries + 1)).send(request1.serviceName());
     verify(compensation2, never()).send(request2.serviceName());
 
     verify(fallback1).send(request1.serviceName());
