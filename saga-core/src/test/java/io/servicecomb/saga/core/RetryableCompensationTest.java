@@ -41,7 +41,7 @@ public class RetryableCompensationTest {
 
   @Before
   public void setUp() throws Exception {
-    when(fallback.fallback()).thenReturn(failure);
+    when(fallback.send(address)).thenReturn(failure);
   }
 
   @Test
@@ -69,7 +69,7 @@ public class RetryableCompensationTest {
     assertThat(response, is(failure));
 
     verify(transport, times(numberOfRetries)).send(address);
-    verify(fallback).fallback();
+    verify(fallback).send(address);
   }
 
   @Test

@@ -16,7 +16,9 @@
 
 package io.servicecomb.saga.core;
 
-public interface Fallback {
+public interface Fallback extends Operation {
 
-  SagaResponse fallback();
+  Fallback NOP_FALLBACK = () -> TYPE_NOP;
+
+  String type();
 }

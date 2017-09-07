@@ -17,7 +17,8 @@
 
 package io.servicecomb.saga.format;
 
-import static io.servicecomb.saga.core.SagaRequest.TYPE_REST;
+import static io.servicecomb.saga.core.Operation.TYPE_REST;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
@@ -61,7 +62,8 @@ public class SagaEventFormatTest {
       Randomness.uniquify("serviceName"),
       TYPE_REST,
       new JacksonRestTransaction("/rest/xxx", "POST", singletonMap("query", singletonMap("foo", "xxx"))),
-      new JacksonRestCompensation("/rest/xxx", "DELETE", singletonMap("query", singletonMap("bar", "xxx")))
+      new JacksonRestCompensation("/rest/xxx", "DELETE", singletonMap("query", singletonMap("bar", "xxx"))),
+      new JacksonRestFallback(TYPE_REST, "/rest/xxx", "PUT", emptyMap())
   );
 
   private final RestTransport restTransport = Mockito.mock(RestTransport.class);
@@ -77,7 +79,7 @@ public class SagaEventFormatTest {
 
   @After
   public void tearDown() throws Exception {
-    verify(transportFactory, times(2)).restTransport();
+    verify(transportFactory, times(3)).restTransport();
   }
 
   @Test

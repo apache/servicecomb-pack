@@ -16,6 +16,7 @@
 
 package io.servicecomb.saga.core;
 
+import static io.servicecomb.saga.core.Fallback.NOP_FALLBACK;
 import static io.servicecomb.saga.core.SagaTask.SAGA_REQUEST_TASK;
 
 import java.util.Arrays;
@@ -28,6 +29,7 @@ public class SagaRequestImpl implements SagaRequest {
   private final Transaction transaction;
   private final Compensation compensation;
   private final String[] parents;
+  private final Fallback fallback;
 
   public SagaRequestImpl(
       String id,
@@ -35,6 +37,7 @@ public class SagaRequestImpl implements SagaRequest {
       String type,
       Transaction transaction,
       Compensation compensation,
+      Fallback fallback,
       String[] parents) {
 
     this.id = id;
@@ -42,7 +45,18 @@ public class SagaRequestImpl implements SagaRequest {
     this.type = type;
     this.transaction = transaction;
     this.compensation = compensation;
-    this.parents = parents == null? new String[0] : parents;
+    this.fallback = fallback;
+    this.parents = parents == null ? new String[0] : parents;
+  }
+
+  public SagaRequestImpl(
+      String id,
+      String serviceName,
+      String type,
+      Transaction transaction,
+      Compensation compensation,
+      Fallback fallback) {
+    this(id, serviceName, type, transaction, compensation, fallback, new String[0]);
   }
 
   public SagaRequestImpl(
@@ -52,12 +66,7 @@ public class SagaRequestImpl implements SagaRequest {
       Transaction transaction,
       Compensation compensation) {
 
-    this.id = id;
-    this.serviceName = serviceName;
-    this.type = type;
-    this.transaction = transaction;
-    this.compensation = compensation;
-    this.parents = new String[0];
+    this(id, serviceName, type, transaction, compensation, NOP_FALLBACK, new String[0]);
   }
 
   @Override
@@ -68,6 +77,11 @@ public class SagaRequestImpl implements SagaRequest {
   @Override
   public Compensation compensation() {
     return compensation;
+  }
+
+  @Override
+  public Fallback fallback() {
+    return fallback;
   }
 
   @Override
@@ -103,6 +117,7 @@ public class SagaRequestImpl implements SagaRequest {
         ", type='" + type + '\'' +
         ", transaction=" + transaction +
         ", compensation=" + compensation +
+        ", fallback=" + fallback +
         ", parents=" + Arrays.toString(parents) +
         '}';
   }

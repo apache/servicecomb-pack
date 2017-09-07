@@ -18,16 +18,24 @@ package io.servicecomb.saga.format;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.servicecomb.saga.core.Transaction;
 import java.util.Map;
 
-public class JacksonRestTransaction extends JacksonRestOperation implements Transaction {
+class JacksonRestFallback extends JacksonRestOperation implements JacksonFallback {
+
+  private final String type;
 
   @JsonCreator
-  public JacksonRestTransaction(
+  public JacksonRestFallback(
+      @JsonProperty("type") String type,
       @JsonProperty("path") String path,
       @JsonProperty("method") String method,
       @JsonProperty("params") Map<String, Map<String, String>> params) {
     super(path, method, params);
+    this.type = type;
+  }
+
+  @Override
+  public String type() {
+    return type;
   }
 }

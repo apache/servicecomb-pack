@@ -23,4 +23,10 @@ public interface Compensation extends Operation {
 
   Compensation SAGA_END_COMPENSATION = new Compensation() {
   };
+
+  int DEFAULT_RETRIES = 3;
+
+  default int retries() {
+    return DEFAULT_RETRIES;
+  }
 }

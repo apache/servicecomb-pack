@@ -16,8 +16,9 @@
 
 package io.servicecomb.saga.core;
 
-import static io.servicecomb.saga.core.Compensation.SAGA_END_COMPENSATION;
 import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
+import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
+import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
 import static io.servicecomb.saga.core.SagaEventMatcher.eventWith;
 import static io.servicecomb.saga.core.SagaTask.SAGA_END_TASK;
 import static io.servicecomb.saga.core.SagaTask.SAGA_REQUEST_TASK;
@@ -63,11 +64,9 @@ public class SagaIntegrationTest {
   private final Compensation compensation3 = mock(Compensation.class, "compensation3");
 
   private final String requestJson = "{}";
-  private final SagaRequest sagaStartRequest = new NoOpSagaRequest("saga-start", SAGA_START_TRANSACTION, SAGA_START_COMPENSATION, SAGA_START_TASK);
   private final SagaRequest request1 = sagaTask("request1", "service1", transaction1, compensation1);
   private final SagaRequest request2 = sagaTask("request2", "service2", transaction2, compensation2);
   private final SagaRequest request3 = sagaTask("request3", "service3", transaction3, compensation3);
-  private final SagaRequest sagaEndRequest = new NoOpSagaRequest("saga-end", SAGA_END_TRANSACTION, SAGA_END_COMPENSATION, SAGA_END_TASK);
 
   @SuppressWarnings("ThrowableInstanceNeverThrown")
   private final RuntimeException exception = new RuntimeException("oops");
@@ -75,8 +74,8 @@ public class SagaIntegrationTest {
   private final Node<SagaRequest> node1 = new Node<>(1, request1);
   private final Node<SagaRequest> node2 = new Node<>(2, request2);
   private final Node<SagaRequest> node3 = new Node<>(3, request3);
-  private final Node<SagaRequest> root = new Node<>(0, sagaStartRequest);
-  private final Node<SagaRequest> leaf = new Node<>(4, sagaEndRequest);
+  private final Node<SagaRequest> root = new Node<>(0, SAGA_START_REQUEST);
+  private final Node<SagaRequest> leaf = new Node<>(4, SAGA_END_REQUEST);
   private final SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph = new SingleLeafDirectedAcyclicGraph<>(root, leaf);
   private final SuccessfulSagaResponse response = new SuccessfulSagaResponse(200, "blah");
 
@@ -257,7 +256,7 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaId, requestJson, sagaStartRequest)),
+        envelope(new SagaStartedEvent(sagaId, requestJson, SAGA_START_REQUEST)),
         envelope(new TransactionStartedEvent(sagaId, request1)),
         envelope(new TransactionEndedEvent(sagaId, request1)),
         envelope(new TransactionStartedEvent(sagaId, request2)),
@@ -293,7 +292,7 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaId, requestJson, sagaStartRequest)),
+        envelope(new SagaStartedEvent(sagaId, requestJson, SAGA_START_REQUEST)),
         envelope(new TransactionStartedEvent(sagaId, request1)),
         envelope(new TransactionEndedEvent(sagaId, request1)),
         envelope(new TransactionStartedEvent(sagaId, request2)),
@@ -331,7 +330,7 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaId, requestJson, sagaStartRequest)),
+        envelope(new SagaStartedEvent(sagaId, requestJson, SAGA_START_REQUEST)),
         envelope(new TransactionStartedEvent(sagaId, request1)),
         envelope(new TransactionEndedEvent(sagaId, request1)),
         envelope(new TransactionStartedEvent(sagaId, request2)),
@@ -373,7 +372,7 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaId, requestJson, sagaStartRequest)),
+        envelope(new SagaStartedEvent(sagaId, requestJson, SAGA_START_REQUEST)),
         envelope(new TransactionStartedEvent(sagaId, request1)),
         envelope(new TransactionEndedEvent(sagaId, request1)),
         envelope(new TransactionStartedEvent(sagaId, request2)),
@@ -419,7 +418,7 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaId, requestJson, sagaStartRequest)),
+        envelope(new SagaStartedEvent(sagaId, requestJson, SAGA_START_REQUEST)),
         envelope(new TransactionStartedEvent(sagaId, request1)),
         envelope(new TransactionEndedEvent(sagaId, request1)),
         envelope(new TransactionStartedEvent(sagaId, request2)),
@@ -465,7 +464,7 @@ public class SagaIntegrationTest {
   @Test
   public void restoresSagaToEndStateByPlayingAllEvents() {
     Iterable<EventEnvelope> events = asList(
-        envelope(new SagaStartedEvent(sagaId, requestJson, sagaStartRequest)),
+        envelope(new SagaStartedEvent(sagaId, requestJson, SAGA_START_REQUEST)),
         envelope(new TransactionStartedEvent(sagaId, request1)),
         envelope(new TransactionEndedEvent(sagaId, request1)),
         envelope(new TransactionStartedEvent(sagaId, request2)),

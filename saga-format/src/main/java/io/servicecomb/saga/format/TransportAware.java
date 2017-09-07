@@ -16,18 +16,10 @@
 
 package io.servicecomb.saga.format;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.servicecomb.saga.core.Transaction;
-import java.util.Map;
+import io.servicecomb.saga.core.Operation;
+import io.servicecomb.saga.transports.TransportFactory;
 
-public class JacksonRestTransaction extends JacksonRestOperation implements Transaction {
+interface TransportAware {
 
-  @JsonCreator
-  public JacksonRestTransaction(
-      @JsonProperty("path") String path,
-      @JsonProperty("method") String method,
-      @JsonProperty("params") Map<String, Map<String, String>> params) {
-    super(path, method, params);
-  }
+  Operation with(TransportFactory transport);
 }

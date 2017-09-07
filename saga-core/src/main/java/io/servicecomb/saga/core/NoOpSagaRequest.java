@@ -18,6 +18,7 @@ package io.servicecomb.saga.core;
 
 import static io.servicecomb.saga.core.Compensation.SAGA_END_COMPENSATION;
 import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
+import static io.servicecomb.saga.core.Operation.TYPE_NOP;
 import static io.servicecomb.saga.core.SagaTask.SAGA_END_TASK;
 import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
 import static io.servicecomb.saga.core.Transaction.SAGA_END_TRANSACTION;
@@ -45,7 +46,7 @@ public class NoOpSagaRequest implements SagaRequest {
   private final String task;
   private final String[] parents = {};
 
-  NoOpSagaRequest(String id, Transaction transaction, Compensation compensation, String task) {
+  private NoOpSagaRequest(String id, Transaction transaction, Compensation compensation, String task) {
     this.id = id;
     this.transaction = transaction;
     this.compensation = compensation;
@@ -74,7 +75,7 @@ public class NoOpSagaRequest implements SagaRequest {
 
   @Override
   public String type() {
-    return "nop";
+    return TYPE_NOP;
   }
 
   @Override
