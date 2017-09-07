@@ -17,3 +17,5 @@ spring:
 saga:
   thread:
     count: 32
+  retries:
+    delay: 3000

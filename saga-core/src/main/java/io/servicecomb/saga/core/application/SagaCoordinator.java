@@ -22,6 +22,7 @@ import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
 
 import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.EventStore;
+import io.servicecomb.saga.core.FallbackPolicy;
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.RequestProcessTask;
 import io.servicecomb.saga.core.Saga;
@@ -55,22 +56,27 @@ public class SagaCoordinator {
   private final FromJsonFormat fromJsonFormat;
   private final ToJsonFormat toJsonFormat;
   private final Executor executorService;
+  private final FallbackPolicy fallbackPolicy;
 
   public SagaCoordinator(
       PersistentStore persistentStore,
       FromJsonFormat fromJsonFormat,
       ToJsonFormat toJsonFormat) {
-    this(persistentStore,
+    this(
+        500,
+        persistentStore,
         fromJsonFormat,
         toJsonFormat,
         Executors.newFixedThreadPool(5));
   }
 
   public SagaCoordinator(
+      int retryDelay,
       PersistentStore persistentStore,
       FromJsonFormat fromJsonFormat,
       ToJsonFormat toJsonFormat,
       ExecutorService executorService) {
+    this.fallbackPolicy = new FallbackPolicy(retryDelay);
     this.persistentStore = persistentStore;
     this.requestInterpreter = new JsonRequestInterpreter(new GraphCycleDetectorImpl<>());
     this.fromJsonFormat = fromJsonFormat;
@@ -126,7 +132,7 @@ public class SagaCoordinator {
 
     return new HashMap<String, SagaTask>() {{
       put(SAGA_START_TASK, new SagaStartTask(sagaId, requestJson, compositeSagaLog));
-      put(SAGA_REQUEST_TASK, new RequestProcessTask(sagaId, compositeSagaLog));
+      put(SAGA_REQUEST_TASK, new RequestProcessTask(sagaId, compositeSagaLog, fallbackPolicy));
       put(SAGA_END_TASK, new SagaEndTask(sagaId, compositeSagaLog));
     }};
   }
