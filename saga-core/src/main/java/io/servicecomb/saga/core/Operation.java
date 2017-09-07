@@ -18,6 +18,9 @@ package io.servicecomb.saga.core;
 
 public interface Operation {
 
+  String TYPE_NOP = "NOP";
+  String TYPE_REST = "rest";
+
   default SagaResponse send(String address) {
     return new SuccessfulSagaResponse(200, "success");
   }

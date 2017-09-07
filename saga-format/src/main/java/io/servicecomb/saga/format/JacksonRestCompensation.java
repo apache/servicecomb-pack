@@ -17,34 +17,33 @@
 package io.servicecomb.saga.format;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.servicecomb.saga.core.Compensation;
-import io.servicecomb.saga.core.RestOperation;
-import io.servicecomb.saga.core.SagaResponse;
-import io.servicecomb.saga.transports.RestTransport;
 import java.util.Map;
 
-public class JacksonRestCompensation extends RestOperation implements Compensation {
+public class JacksonRestCompensation extends JacksonRestOperation implements Compensation {
 
-  @JsonIgnore
-  private RestTransport transport;
+  private final int retries;
+
+  public JacksonRestCompensation(
+    String path,
+    String method,
+    Map<String, Map<String, String>> params) {
+    this(DEFAULT_RETRIES, path, method, params);
+  }
 
   @JsonCreator
   public JacksonRestCompensation(
+      @JsonProperty("retries") int retries,
       @JsonProperty("path") String path,
       @JsonProperty("method") String method,
       @JsonProperty("params") Map<String, Map<String, String>> params) {
     super(path, method, params);
-  }
-
-  JacksonRestCompensation with(RestTransport transport) {
-    this.transport = transport;
-    return this;
+    this.retries = retries <= 0? DEFAULT_RETRIES : retries;
   }
 
   @Override
-  public SagaResponse send(String address) {
-    return transport.with(address, path(), method(), params());
+  public int retries() {
+    return retries;
   }
 }

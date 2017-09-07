@@ -51,7 +51,7 @@ public class RetryableCompensation implements Compensation {
     }
 
     log.warn("Falling back after {} failures sending compensation to {}", retries, address);
-    return fallback.fallback();
+    return fallback.send(address);
   }
 
   private void sleep(int delay) {

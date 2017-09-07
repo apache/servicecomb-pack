@@ -43,6 +43,7 @@ import io.servicecomb.saga.core.TransactionAbortedEvent;
 import io.servicecomb.saga.core.TransactionEndedEvent;
 import io.servicecomb.saga.core.TransactionFailedException;
 import io.servicecomb.saga.core.TransactionStartedEvent;
+import io.servicecomb.saga.format.JacksonFallback;
 import io.servicecomb.saga.format.JacksonRestCompensation;
 import io.servicecomb.saga.format.JacksonRestTransaction;
 import io.servicecomb.saga.format.SagaEventFormat;
@@ -169,7 +170,8 @@ public class SagaRecoveryTest {
           "localhost:8080",
           "rest",
           new JacksonRestTransaction("/rest/" + name, "post", singletonMap("query", singletonMap("foo", name))),
-          new JacksonRestCompensation("rest/" + name, "delete", singletonMap("query", singletonMap("bar", name))));
+          new JacksonRestCompensation("rest/" + name, "delete", singletonMap("query", singletonMap("bar", name))),
+          JacksonFallback.NOP_TRANSPORT_AWARE_FALLBACK);
     }
   }
 }

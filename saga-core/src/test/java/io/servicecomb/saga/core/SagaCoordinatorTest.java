@@ -18,7 +18,7 @@ package io.servicecomb.saga.core;
 
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
-import static io.servicecomb.saga.core.SagaRequest.TYPE_REST;
+import static io.servicecomb.saga.core.Operation.TYPE_REST;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;

@@ -19,7 +19,7 @@ package io.servicecomb.saga.core.application.interpreter;
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
-import static io.servicecomb.saga.core.SagaRequest.TYPE_REST;
+import static io.servicecomb.saga.core.Operation.TYPE_REST;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
@@ -74,6 +74,7 @@ public class JsonRequestInterpreterTest {
       TYPE_REST,
       new TransactionImpl("/rest/cs", "post", emptyMap()),
       new CompensationImpl("/rest/cs","delete", emptyMap()),
+      null,
       new String[]{"request-aaa", "request-bbb"}
   );
   private final SagaRequest[] requests = {request1, request2, request3};

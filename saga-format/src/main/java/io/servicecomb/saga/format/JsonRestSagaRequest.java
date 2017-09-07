@@ -16,8 +16,11 @@
 
 package io.servicecomb.saga.format;
 
+import static io.servicecomb.saga.format.JacksonFallback.NOP_TRANSPORT_AWARE_FALLBACK;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.servicecomb.saga.core.Operation;
 import io.servicecomb.saga.core.SagaRequestImpl;
 import io.servicecomb.saga.transports.TransportFactory;
 
@@ -25,6 +28,7 @@ public class JsonRestSagaRequest extends SagaRequestImpl implements JsonSagaRequ
 
   private final JacksonRestTransaction transaction;
   private final JacksonRestCompensation compensation;
+  private final JacksonFallback fallback;
 
   @JsonCreator
   public JsonRestSagaRequest(
@@ -33,17 +37,30 @@ public class JsonRestSagaRequest extends SagaRequestImpl implements JsonSagaRequ
       @JsonProperty("type") String type,
       @JsonProperty("transaction") JacksonRestTransaction transaction,
       @JsonProperty("compensation") JacksonRestCompensation compensation,
+      @JsonProperty("fallback") JacksonFallback fallback,
       @JsonProperty("parents") String[] parents) {
 
-    super(id, serviceName, type, transaction, compensation, parents);
+    super(id, serviceName, type, transaction, compensation, fallback == null? NOP_TRANSPORT_AWARE_FALLBACK : fallback, parents);
+
+    checkNull(transaction, "transaction");
+    checkNull(compensation, "compensation");
+
     this.transaction = transaction;
     this.compensation = compensation;
+    this.fallback = fallback == null? NOP_TRANSPORT_AWARE_FALLBACK : fallback;
   }
 
   @Override
   public JsonSagaRequest with(TransportFactory transportFactory) {
-    transaction.with(transportFactory.restTransport());
-    compensation.with(transportFactory.restTransport());
+    transaction.with(transportFactory);
+    compensation.with(transportFactory);
+    fallback.with(transportFactory);
     return this;
+  }
+
+  private void checkNull(Operation operation, String operationName) {
+    if (operation == null) {
+      throw new IllegalArgumentException("Invalid request with NO " + operationName + " specified");
+    }
   }
 }

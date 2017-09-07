@@ -16,12 +16,17 @@
 
 package io.servicecomb.saga.format;
 
+import static io.servicecomb.saga.core.Operation.TYPE_NOP;
 import static io.servicecomb.saga.core.Operation.TYPE_REST;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import io.servicecomb.saga.core.SagaRequest;
+import io.servicecomb.saga.core.Fallback;
+import io.servicecomb.saga.core.Operation;
+import io.servicecomb.saga.format.JacksonFallback.NopJacksonFallback;
 import io.servicecomb.saga.transports.TransportFactory;
 
 @JsonTypeInfo(
@@ -30,9 +35,30 @@ import io.servicecomb.saga.transports.TransportFactory;
     visible = true,
     property = "type")
 @JsonSubTypes({
-    @Type(value = JsonRestSagaRequest.class, name = TYPE_REST)
+    @Type(value = JacksonRestFallback.class, name = TYPE_REST),
+    @Type(value = NopJacksonFallback.class, name = TYPE_NOP)
 })
-public interface JsonSagaRequest extends SagaRequest {
+public interface JacksonFallback extends Fallback, TransportAware {
 
-  JsonSagaRequest with(TransportFactory transportFactory);
+  JacksonFallback NOP_TRANSPORT_AWARE_FALLBACK = new NopJacksonFallback(TYPE_NOP);
+
+  class NopJacksonFallback implements JacksonFallback {
+
+    private final String type;
+
+    @JsonCreator
+    public NopJacksonFallback(@JsonProperty("type") String type) {
+      this.type = type;
+    }
+
+    @Override
+    public String type() {
+      return type;
+    }
+
+    @Override
+    public Operation with(TransportFactory transport) {
+      return this;
+    }
+  }
 }

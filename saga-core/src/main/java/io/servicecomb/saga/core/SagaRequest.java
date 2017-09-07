@@ -16,13 +16,17 @@
 
 package io.servicecomb.saga.core;
 
-public interface SagaRequest {
+import static io.servicecomb.saga.core.Fallback.NOP_FALLBACK;
 
-  String TYPE_REST = "rest";
+public interface SagaRequest {
 
   Transaction transaction();
 
   Compensation compensation();
+
+  default Fallback fallback() {
+    return NOP_FALLBACK;
+  }
 
   String serviceName();
 

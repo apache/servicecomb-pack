@@ -17,11 +17,11 @@
 package io.servicecomb.saga.format;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
+import static io.servicecomb.saga.core.Operation.TYPE_REST;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
@@ -70,6 +70,11 @@ public class JacksonFromJsonFormatTest {
       + "            \"bar\": \"as\"\n"
       + "          }\n"
       + "        }\n"
+      + "      },\n"
+      + "      \"fallback\": {\n"
+      + "        \"type\": \"rest\",\n"
+      + "        \"method\":\"put\",\n"
+      + "        \"path\": \"/rest/as\"\n"
       + "      }\n"
       + "    },\n"
       + "    {\n"
@@ -89,7 +94,13 @@ public class JacksonFromJsonFormatTest {
       + "        }\n"
       + "      },\n"
       + "      \"compensation\": {\n"
+      + "        \"retries\": 4,\n"
       + "        \"method\": \"delete\",\n"
+      + "        \"path\": \"/rest/bs\"\n"
+      + "      },\n"
+      + "      \"fallback\": {\n"
+      + "        \"type\": \"rest\",\n"
+      + "        \"method\":\"put\",\n"
       + "        \"path\": \"/rest/bs\"\n"
       + "      }\n"
       + "    },\n"
@@ -114,7 +125,13 @@ public class JacksonFromJsonFormatTest {
       + "        }\n"
       + "      },\n"
       + "      \"compensation\": {\n"
+      + "        \"retries\": 5,\n"
       + "        \"method\": \"delete\",\n"
+      + "        \"path\": \"/rest/cs\"\n"
+      + "      },\n"
+      + "      \"fallback\": {\n"
+      + "        \"type\": \"rest\",\n"
+      + "        \"method\":\"put\",\n"
       + "        \"path\": \"/rest/cs\"\n"
       + "      }\n"
       + "    }\n"
@@ -123,10 +140,13 @@ public class JacksonFromJsonFormatTest {
 
   private final SagaResponse response11 = new SuccessfulSagaResponse(200, uniquify("response11"));
   private final SagaResponse response12 = new SuccessfulSagaResponse(200, uniquify("response12"));
+  private final SagaResponse response13 = new SuccessfulSagaResponse(200, uniquify("response13"));
   private final SagaResponse response21 = new SuccessfulSagaResponse(200, uniquify("response21"));
   private final SagaResponse response22 = new SuccessfulSagaResponse(200, uniquify("response22"));
+  private final SagaResponse response23 = new SuccessfulSagaResponse(200, uniquify("response23"));
   private final SagaResponse response31 = new SuccessfulSagaResponse(200, uniquify("response31"));
   private final SagaResponse response32 = new SuccessfulSagaResponse(200, uniquify("response32"));
+  private final SagaResponse response33 = new SuccessfulSagaResponse(200, uniquify("response33"));
 
   private final RestTransport restTransport = Mockito.mock(RestTransport.class);
   private final TransportFactory transportFactory = Mockito.mock(TransportFactory.class);
@@ -140,37 +160,44 @@ public class JacksonFromJsonFormatTest {
         .thenReturn(response11);
     when(restTransport.with("aaa", "/rest/as", "delete", singletonMap("query", singletonMap("bar", "as"))))
         .thenReturn(response12);
+    when(restTransport.with("aaa", "/rest/as", "put", emptyMap()))
+        .thenReturn(response13);
 
     when(restTransport
         .with("bbb", "/rest/bs", "post", mapOf("query", singletonMap("foo", "bs"), "json", singletonMap("body", "{ \"bar\": \"bs\" }"))))
         .thenReturn(response21);
     when(restTransport.with("bbb", "/rest/bs", "delete", emptyMap()))
         .thenReturn(response22);
+    when(restTransport.with("bbb", "/rest/bs", "put", emptyMap()))
+        .thenReturn(response23);
 
     when(restTransport
         .with("ccc", "/rest/cs", "post", mapOf("query", singletonMap("foo", "cs"), "form", singletonMap("bar", "cs"))))
         .thenReturn(response31);
     when(restTransport.with("ccc", "/rest/cs", "delete", emptyMap()))
         .thenReturn(response32);
+    when(restTransport.with("ccc", "/rest/cs", "put", emptyMap()))
+        .thenReturn(response33);
   }
 
   @Test
   public void addTransportToDeserializedRequests() throws IOException {
     SagaRequest[] sagaRequests = format.fromJson(requests).requests();
 
-    for (SagaRequest request : sagaRequests) {
-      assertThat(request, instanceOf(JsonRestSagaRequest.class));
-    }
-
     assertThat(collect(sagaRequests, SagaRequest::id), contains("request-aaa", "request-bbb", "request-ccc"));
     assertThat(collect(sagaRequests, SagaRequest::serviceName), contains("aaa", "bbb", "ccc"));
-    assertThat(collect(sagaRequests, SagaRequest::type), contains("rest", "rest", "rest"));
+    assertThat(collect(sagaRequests, SagaRequest::type), contains(TYPE_REST, TYPE_REST, TYPE_REST));
+    assertThat(collect(sagaRequests, (request) -> request.compensation().retries()), contains(3, 4, 5));
+    assertThat(collect(sagaRequests, (request) -> request.fallback().type()), contains(TYPE_REST, TYPE_REST, TYPE_REST));
 
     SagaResponse response = sagaRequests[0].transaction().send("aaa");
     assertThat(response, is(response11));
 
     response = sagaRequests[0].compensation().send("aaa");
     assertThat(response, is(response12));
+
+    response = sagaRequests[0].fallback().send("aaa");
+    assertThat(response, is(response13));
     assertThat(sagaRequests[0].parents().length, is(0));
 
     response = sagaRequests[1].transaction().send("bbb");
@@ -178,6 +205,9 @@ public class JacksonFromJsonFormatTest {
 
     response = sagaRequests[1].compensation().send("bbb");
     assertThat(response, is(response22));
+
+    response = sagaRequests[1].fallback().send("bbb");
+    assertThat(response, is(response23));
     assertThat(sagaRequests[1].parents().length, is(0));
 
     response = sagaRequests[2].transaction().send("ccc");
@@ -185,6 +215,9 @@ public class JacksonFromJsonFormatTest {
 
     response = sagaRequests[2].compensation().send("ccc");
     assertThat(response, is(response32));
+
+    response = sagaRequests[2].fallback().send("ccc");
+    assertThat(response, is(response33));
     assertArrayEquals(new String[]{"request-aaa", "request-bbb"}, sagaRequests[2].parents());
   }
 

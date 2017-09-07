@@ -17,8 +17,6 @@
 package io.servicecomb.saga.spring;
 
 import io.servicecomb.saga.core.Fallback;
-import io.servicecomb.saga.core.SagaResponse;
-import io.servicecomb.saga.core.SuccessfulSagaResponse;
 import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +25,8 @@ class LoggingFallback implements Fallback {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
-  public SagaResponse fallback() {
-    log.info("Fallen back");
-    return new SuccessfulSagaResponse(200, "success");
+  public String type() {
+    return "log";
   }
+
 }
