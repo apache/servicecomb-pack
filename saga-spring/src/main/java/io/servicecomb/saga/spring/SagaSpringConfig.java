@@ -77,7 +77,7 @@ class SagaSpringConfig {
   @Bean
   SagaCoordinator sagaCoordinator(
       @Value("${saga.thread.count:5}") int numberOfThreads,
-      @Value("${saga.retry.delay:500}") int retryDelay,
+      @Value("${saga.retry.delay:3000}") int retryDelay,
       PersistentStore persistentStore,
       ToJsonFormat format,
       FromJsonFormat fromJsonFormat) {
