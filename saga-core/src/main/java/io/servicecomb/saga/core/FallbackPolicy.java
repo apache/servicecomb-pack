@@ -20,38 +20,35 @@ import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RetryableCompensation implements Compensation {
+public class FallbackPolicy {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private final int retries;
   private final int retryDelay;
-  private final Compensation compensation;
-  private final Fallback fallback;
 
-  public RetryableCompensation(int retries, int retryDelay, Compensation compensation, Fallback fallback) {
-    if (retries <= 0) {
-      throw new IllegalArgumentException("The number of retries must be greater than 0");
-    }
-
-    this.retries = retries;
+  public FallbackPolicy(int retryDelay) {
     this.retryDelay = retryDelay;
-    this.compensation = compensation;
-    this.fallback = fallback;
   }
 
-  @Override
-  public SagaResponse send(String address) {
-    for (int i = 0; i < retries && !Thread.currentThread().isInterrupted(); i++) {
+  public SagaResponse apply(String address, Compensation compensation, Fallback fallback) {
+    for (int i = 0; isRetryable(i, compensation) && !isInterrupted(); i++) {
       try {
         return compensation.send(address);
-      } catch (TransactionFailedException e) {
+      } catch (Exception e) {
         log.error("Failed to send compensation to {}", address, e);
         sleep(retryDelay);
       }
     }
 
-    log.warn("Falling back after {} failures sending compensation to {}", retries, address);
+    log.warn("Falling back after {} failures sending compensation to {}", compensation.retries(), address);
     return fallback.send(address);
+  }
+
+  private boolean isRetryable(int i, Compensation compensation) {
+    return compensation.retries() <= 0 || i < compensation.retries();
+  }
+
+  private boolean isInterrupted() {
+    return Thread.currentThread().isInterrupted();
   }
 
   private void sleep(int delay) {

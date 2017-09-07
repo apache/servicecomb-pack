@@ -24,13 +24,16 @@ public class RequestProcessTask implements SagaTask {
 
   private final String sagaId;
   private final SagaLog sagaLog;
+  private final FallbackPolicy fallbackPolicy;
 
   public RequestProcessTask(
       String sagaId,
-      SagaLog sagaLog) {
+      SagaLog sagaLog,
+      FallbackPolicy fallbackPolicy) {
 
     this.sagaId = sagaId;
     this.sagaLog = sagaLog;
+    this.fallbackPolicy = fallbackPolicy;
   }
 
   @Segment(name = "commit", category = "application", library = "kamon")
@@ -50,7 +53,7 @@ public class RequestProcessTask implements SagaTask {
     sagaLog.offer(new CompensationStartedEvent(sagaId, request));
 
     Compensation compensation = request.compensation();
-    SagaResponse response = compensation.send(request.serviceName());
+    SagaResponse response = fallbackPolicy.apply(request.serviceName(), compensation, request.fallback());
 
     sagaLog.offer(new CompensationEndedEvent(sagaId, request, response));
   }

@@ -19,6 +19,7 @@ package io.servicecomb.saga.core;
 import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
+import static io.servicecomb.saga.core.Operation.TYPE_REST;
 import static io.servicecomb.saga.core.SagaEventMatcher.eventWith;
 import static io.servicecomb.saga.core.SagaTask.SAGA_END_TASK;
 import static io.servicecomb.saga.core.SagaTask.SAGA_REQUEST_TASK;
@@ -63,10 +64,12 @@ public class SagaIntegrationTest {
   private final Compensation compensation2 = mock(Compensation.class, "compensation2");
   private final Compensation compensation3 = mock(Compensation.class, "compensation3");
 
+  private final Fallback fallback1 = mock(Fallback.class, "fallback1");
+
   private final String requestJson = "{}";
-  private final SagaRequest request1 = sagaTask("request1", "service1", transaction1, compensation1);
-  private final SagaRequest request2 = sagaTask("request2", "service2", transaction2, compensation2);
-  private final SagaRequest request3 = sagaTask("request3", "service3", transaction3, compensation3);
+  private final SagaRequest request1 = request("request1", "service1", transaction1, compensation1, fallback1);
+  private final SagaRequest request2 = request("request2", "service2", transaction2, compensation2);
+  private final SagaRequest request3 = request("request3", "service3", transaction3, compensation3);
 
   @SuppressWarnings("ThrowableInstanceNeverThrown")
   private final RuntimeException exception = new RuntimeException("oops");
@@ -91,7 +94,7 @@ public class SagaIntegrationTest {
 
     SagaStartTask sagaStartTask = new SagaStartTask(sagaId, requestJson, eventStore);
     SagaEndTask sagaEndTask = new SagaEndTask(sagaId, eventStore);
-    RequestProcessTask processTask = new RequestProcessTask(sagaId, eventStore);
+    RequestProcessTask processTask = new RequestProcessTask(sagaId, eventStore, new FallbackPolicy(100));
 
     tasks.put(SAGA_START_TASK, sagaStartTask);
     tasks.put(SAGA_REQUEST_TASK, processTask);
@@ -249,6 +252,25 @@ public class SagaIntegrationTest {
 
     verify(compensation1, never()).send(request1.serviceName());
     verify(compensation2, never()).send(request2.serviceName());
+  }
+
+  @Test
+  public void fallbackWhenCompensationFailed() {
+    int retries = 3;
+
+    when(transaction2.send(request2.serviceName())).thenThrow(exception);
+    when(compensation1.send(request1.serviceName())).thenThrow(exception);
+    when(compensation1.retries()).thenReturn(retries);
+
+    saga.run();
+
+    verify(transaction1).send(request1.serviceName());
+    verify(transaction2).send(request2.serviceName());
+
+    verify(compensation1, times(retries)).send(request1.serviceName());
+    verify(compensation2, never()).send(request2.serviceName());
+
+    verify(fallback1).send(request1.serviceName());
   }
 
   @Test
@@ -504,11 +526,20 @@ public class SagaIntegrationTest {
     node3.addChild(leaf);
   }
 
-  private SagaRequest sagaTask(String requestId,
+  private SagaRequest request(String requestId,
       String serviceName,
       Transaction transaction,
       Compensation compensation) {
 
-    return new SagaRequestImpl(requestId, serviceName, "rest", transaction, compensation);
+    return new SagaRequestImpl(requestId, serviceName, TYPE_REST, transaction, compensation);
+  }
+
+  private SagaRequest request(String requestId,
+      String serviceName,
+      Transaction transaction,
+      Compensation compensation,
+      Fallback fallback) {
+
+    return new SagaRequestImpl(requestId, serviceName, TYPE_REST, transaction, compensation, fallback);
   }
 }

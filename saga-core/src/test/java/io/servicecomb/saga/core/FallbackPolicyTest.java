@@ -19,16 +19,19 @@ package io.servicecomb.saga.core;
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.seanyinx.github.unit.scaffolding.AssertUtils;
+import java.util.concurrent.CompletableFuture;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class RetryableCompensationTest {
+public class FallbackPolicyTest {
 
   private final int numberOfRetries = 3;
   private final String address = uniquify("address");
@@ -36,49 +39,54 @@ public class RetryableCompensationTest {
   private final SagaResponse success = Mockito.mock(SagaResponse.class);
   private final SagaResponse failure = Mockito.mock(SagaResponse.class);
   private final Fallback fallback = Mockito.mock(Fallback.class);
-  private final Compensation transport = Mockito.mock(Compensation.class);
-  private final Compensation retryableTransport = new RetryableCompensation(numberOfRetries, 100, transport, fallback);
+  private final Compensation compensation = Mockito.mock(Compensation.class);
+  private final FallbackPolicy fallbackPolicy = new FallbackPolicy(100);
+
+  @SuppressWarnings("ThrowableInstanceNeverThrown")
+  private final RuntimeException exception = new RuntimeException("oops");
 
   @Before
   public void setUp() throws Exception {
+    when(compensation.retries()).thenReturn(numberOfRetries);
     when(fallback.send(address)).thenReturn(failure);
   }
 
   @Test
   public void retriesTransportForSpecifiedTimes() {
-    TransactionFailedException exception = new TransactionFailedException("oops");
-
-    when(transport.send(address))
+    when(compensation.send(address))
         .thenThrow(exception)
         .thenThrow(exception)
         .thenReturn(success);
 
-    SagaResponse response = retryableTransport.send(address);
+    SagaResponse response = fallbackPolicy.apply(address, compensation, fallback);
 
     assertThat(response, is(success));
-    verify(transport, times(3)).send(address);
+    verify(compensation, times(3)).send(address);
   }
 
   @Test
   public void fallbackIfTransportFailedWithRetry() {
-    TransactionFailedException exception = new TransactionFailedException("oops");
+    when(compensation.send(address)).thenThrow(exception);
 
-    when(transport.send(address)).thenThrow(exception);
-
-    SagaResponse response = retryableTransport.send(address);
+    SagaResponse response = fallbackPolicy.apply(address, compensation, fallback);
     assertThat(response, is(failure));
 
-    verify(transport, times(numberOfRetries)).send(address);
+    verify(compensation, times(numberOfRetries)).send(address);
     verify(fallback).send(address);
   }
 
   @Test
-  public void blowsUpIfNumberOfRetriesIsLessThanOne() {
-    try {
-      new RetryableCompensation(0, 100, transport, fallback);
-      AssertUtils.expectFailing(IllegalArgumentException.class);
-    } catch (IllegalArgumentException e) {
-      assertThat(e.getMessage(), is("The number of retries must be greater than 0"));
-    }
+  public void retryForeverIfNumberOfRetriesIsNotPositive() throws InterruptedException {
+    reset(compensation);
+    when(compensation.retries()).thenReturn(-1);
+    when(compensation.send(address)).thenThrow(exception);
+
+    CompletableFuture<Void> future = CompletableFuture
+        .runAsync(() -> fallbackPolicy.apply(address, compensation, fallback));
+
+    Thread.sleep(500);
+
+    verify(fallback, never()).send(anyString());
+    future.cancel(true);
   }
 }
