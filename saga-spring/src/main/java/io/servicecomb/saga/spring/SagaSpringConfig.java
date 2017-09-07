@@ -16,11 +16,9 @@
 
 package io.servicecomb.saga.spring;
 
-import io.servicecomb.saga.core.Fallback;
 import io.servicecomb.saga.core.JacksonToJsonFormat;
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.ToJsonFormat;
-import io.servicecomb.saga.core.Transport;
 import io.servicecomb.saga.core.application.SagaCoordinator;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.format.JacksonFromJsonFormat;
@@ -62,11 +60,6 @@ class SagaSpringConfig {
   @Bean
   RestTransport transport() {
     return new HttpClientTransport();
-  }
-
-  @Bean
-  Fallback fallback() {
-    return new LoggingFallback();
   }
 
   @Bean
