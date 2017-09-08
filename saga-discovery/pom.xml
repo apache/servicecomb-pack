@@ -25,6 +25,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
+  <groupId>io.servicecomb.saga.discovery</groupId>
   <artifactId>saga-discovery</artifactId>
   <packaging>pom</packaging>
   <modules>

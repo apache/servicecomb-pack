@@ -26,7 +26,6 @@ import io.servicecomb.saga.format.JacksonSagaEventFormat;
 import io.servicecomb.saga.format.SagaEventFormat;
 import io.servicecomb.saga.transports.RestTransport;
 import io.servicecomb.saga.transports.TransportFactory;
-import io.servicecomb.saga.transports.httpclient.HttpClientTransport;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -55,11 +54,6 @@ class SagaSpringConfig {
   @Bean
   SagaEventFormat sagaEventFormat(TransportFactory transportFactory) {
     return new JacksonSagaEventFormat(transportFactory);
-  }
-
-  @Bean
-  RestTransport transport() {
-    return new HttpClientTransport();
   }
 
   @Bean
