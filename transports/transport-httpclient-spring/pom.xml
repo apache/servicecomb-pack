@@ -19,19 +19,39 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <artifactId>saga</artifactId>
-    <groupId>io.servicecomb.saga</groupId>
+    <artifactId>transports</artifactId>
+    <groupId>io.servicecomb.saga.transports</groupId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>io.servicecomb.saga.transports</groupId>
-  <artifactId>transports</artifactId>
-  <packaging>pom</packaging>
-  <modules>
-    <module>transport-httpclient</module>
-    <module>transport-httpclient-spring</module>
-  </modules>
+  <artifactId>transport-httpclient-spring</artifactId>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring.boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.servicecomb.saga</groupId>
+      <artifactId>saga-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.servicecomb.saga.transports</groupId>
+      <artifactId>transport-httpclient</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+  </dependencies>
 
 </project>

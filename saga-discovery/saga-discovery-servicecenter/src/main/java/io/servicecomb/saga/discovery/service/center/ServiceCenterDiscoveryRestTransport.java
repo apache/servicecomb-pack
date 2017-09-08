@@ -46,12 +46,12 @@ import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-public class ServiceCenterDiscoveryRestTransport implements RestTransport {
+class ServiceCenterDiscoveryRestTransport implements RestTransport {
 
   private final RestTemplate restTemplate = RestTemplateBuilder.create();
   private final Map<String, BiFunction<String, Map<String, Map<String, String>>, ResponseEntity<String>>> methodMapping = new HashMap<>();
 
-  public ServiceCenterDiscoveryRestTransport() {
+  ServiceCenterDiscoveryRestTransport() {
     this.restTemplate.setErrorHandler(new ResponseErrorHandler() {
       @Override
       public boolean hasError(ClientHttpResponse clientHttpResponse) throws IOException {
