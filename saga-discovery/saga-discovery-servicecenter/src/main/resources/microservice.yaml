@@ -1,11 +1,11 @@
-APPLICATION_ID: discovery-app
+APPLICATION_ID: saga
 service_description:
-  name: dummy-service
-  version: 0.0.2
+  name: saga-service
+  version: 0.0.1
 cse:
   service:
     registry:
-      address: http://127.0.0.1:9980
+      address: http://127.0.0.1:30100
   rest:
     address: 0.0.0.0:8080
   handler:

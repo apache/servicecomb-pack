@@ -42,6 +42,7 @@
     <kamon.version>0.6.2</kamon.version>
     <saga.version>0.0.1-SNAPSHOT</saga.version>
     <log4j.version>2.6.2</log4j.version>
+    <spring.boot.version>1.4.5.RELEASE</spring.boot.version>
   </properties>
 
   <scm>
@@ -86,6 +87,16 @@
       <dependency>
         <groupId>io.servicecomb.saga.transports</groupId>
         <artifactId>transport-httpclient</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>io.servicecomb.saga.transports</groupId>
+        <artifactId>transport-httpclient-spring</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>io.servicecomb.saga.discovery</groupId>
+        <artifactId>saga-discovery-servicecenter</artifactId>
         <version>0.0.1-SNAPSHOT</version>
       </dependency>
       <dependency>

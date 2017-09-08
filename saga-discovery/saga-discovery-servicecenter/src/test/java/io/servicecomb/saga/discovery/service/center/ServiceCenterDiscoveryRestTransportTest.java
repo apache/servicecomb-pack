@@ -50,7 +50,7 @@ public class ServiceCenterDiscoveryRestTransportTest {
   private static final String json = "{\"hello\", \"world\"}";
 
   private final RestTransport transport = new ServiceCenterDiscoveryRestTransport();
-  private final String serviceName = "dummy-service";
+  private final String serviceName = "saga-service";
 
   @BeforeClass
   public static void setUpClass() throws Exception {
