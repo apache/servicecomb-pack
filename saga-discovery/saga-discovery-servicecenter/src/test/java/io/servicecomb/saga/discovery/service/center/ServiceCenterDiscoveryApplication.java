@@ -14,32 +14,17 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core;
+package io.servicecomb.saga.discovery.service.center;
 
-import static io.servicecomb.saga.core.Fallback.NOP_FALLBACK;
+import io.servicecomb.springboot.starter.provider.EnableServiceComb;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-public interface SagaRequest {
+@SpringBootApplication
+@EnableServiceComb
+public class ServiceCenterDiscoveryApplication {
 
-  String PARAM_FORM = "form";
-  String PARAM_JSON = "json";
-  String PARAM_JSON_BODY = "body";
-  String PARAM_QUERY = "query";
-
-  Transaction transaction();
-
-  Compensation compensation();
-
-  default Fallback fallback() {
-    return NOP_FALLBACK;
+  public static void main(String[] args) {
+    SpringApplication.run(ServiceCenterDiscoveryApplication.class, args);
   }
-
-  String serviceName();
-
-  String id();
-
-  String type();
-
-  String task();
-
-  String[] parents();
 }

@@ -16,10 +16,6 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.Map;
-
 public interface Transport {
-
-  SagaResponse with(String address, String path, String method, Map<String, Map<String, String>> params);
 
 }
