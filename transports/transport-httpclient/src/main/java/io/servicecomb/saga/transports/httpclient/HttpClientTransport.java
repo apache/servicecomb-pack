@@ -42,7 +42,7 @@ import org.apache.logging.log4j.core.util.IOUtils;
 public class HttpClientTransport implements RestTransport {
 
 
-  private final Map<String, Function<URI, Request>> requestFactories = new HashMap<String, Function<URI, Request>>() {{
+  private static final Map<String, Function<URI, Request>> requestFactories = new HashMap<String, Function<URI, Request>>() {{
     put("GET", Request::Get);
     put("POST", Request::Post);
     put("PUT", Request::Put);

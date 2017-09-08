@@ -38,7 +38,7 @@ import static org.junit.Assert.assertThat;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.TransactionFailedException;
-import io.servicecomb.saga.core.Transport;
+import io.servicecomb.saga.transports.RestTransport;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -60,7 +60,7 @@ public class HttpClientTransportTest {
 
   private String address;
 
-  private final Transport transport = new HttpClientTransport();
+  private final RestTransport transport = new HttpClientTransport();
 
   @BeforeClass
   public static void setUpClass() throws Exception {

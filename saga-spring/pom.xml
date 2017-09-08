@@ -43,12 +43,6 @@
     <dependency>
       <groupId>io.servicecomb.saga</groupId>
       <artifactId>saga-core</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>io.servicecomb.saga</groupId>
