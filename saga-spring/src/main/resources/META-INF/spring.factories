@@ -1,0 +1,2 @@
+org.springframework.context.ApplicationListener=\
+  io.servicecomb.saga.spring.SagaRecoveryListener
