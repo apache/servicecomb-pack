@@ -48,7 +48,7 @@ public class DummyController {
   }
 
   @RequestMapping(value = "/faultyResource", method = POST, consumes = APPLICATION_FORM_URLENCODED_VALUE)
-  public ResponseEntity<String> postFaultyResource(@RequestParam(name = "foo") String foo, @RequestAttribute("hello") String hello) {
+  public ResponseEntity<String> postFaultyResource(@RequestParam(name = "foo") String foo, @RequestAttribute(name = "hello") String hello) {
     throw new RuntimeException("no such resource");
   }
 }

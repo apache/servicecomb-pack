@@ -27,10 +27,6 @@
 
   <artifactId>saga-discovery-servicecenter</artifactId>
 
-  <properties>
-    <java.chassis.version>0.2.0</java.chassis.version>
-  </properties>
-
   <dependencyManagement>
     <dependencies>
       <dependency>

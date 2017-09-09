@@ -43,6 +43,7 @@
     <saga.version>0.0.1-SNAPSHOT</saga.version>
     <log4j.version>2.6.2</log4j.version>
     <spring.boot.version>1.4.5.RELEASE</spring.boot.version>
+    <java.chassis.version>0.2.0</java.chassis.version>
   </properties>
 
   <scm>
