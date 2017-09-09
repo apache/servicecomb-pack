@@ -18,30 +18,29 @@ package io.servicecomb.saga.spring;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import io.servicecomb.provider.rest.common.RestSchema;
 import io.servicecomb.saga.core.application.SagaCoordinator;
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Trace;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @EnableKamon
 @Controller
 @RequestMapping("/")
+@RestSchema(schemaId = "saga-endpoint")
 public class SagaController {
 
   private final SagaCoordinator sagaCoordinator;
@@ -54,14 +53,10 @@ public class SagaController {
   }
 
   @Trace("processRequests")
-  @RequestMapping(value = "requests", method = POST, consumes = APPLICATION_JSON_VALUE)
-  public ResponseEntity<String> processRequests(HttpServletRequest request) {
-    try {
-      sagaCoordinator.run(IOUtils.toString(request.getInputStream()));
-      return ResponseEntity.ok("success");
-    } catch (IOException e) {
-      return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
-    }
+  @RequestMapping(value = "requests", method = POST, consumes = TEXT_PLAIN_VALUE, produces = TEXT_PLAIN_VALUE)
+  public ResponseEntity<String> processRequests(@RequestBody String request) {
+    sagaCoordinator.run(request);
+    return ResponseEntity.ok("success");
   }
 
   @RequestMapping(value = "events", method = GET)

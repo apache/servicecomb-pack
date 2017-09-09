@@ -16,13 +16,12 @@
 
 package io.servicecomb.saga.spring;
 
+import static io.restassured.RestAssured.given;
+import static io.restassured.http.ContentType.TEXT;
 import static io.servicecomb.serviceregistry.client.LocalServiceRegistryClientImpl.LOCAL_REGISTRY_FILE_KEY;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import io.servicecomb.saga.core.TransactionEndedEvent;
 import java.net.URL;
@@ -33,16 +32,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
 
 @SuppressWarnings("unchecked")
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SagaSpringApplication.class)
-@AutoConfigureMockMvc
 @ActiveProfiles("servicecomb")
 public class SagaServiceDiscoveryTest {
 
@@ -75,9 +71,6 @@ public class SagaServiceDiscoveryTest {
   private static final String sagaDefinition = "{\"policy\": \"ForwardRecovery\",\"requests\": " + requests + "}";
 
   @Autowired
-  private MockMvc mockMvc;
-
-  @Autowired
   private SagaEventRepo sagaEventRepo;
 
 
@@ -94,11 +87,14 @@ public class SagaServiceDiscoveryTest {
 
   @Test
   public void processRequestByServiceDiscovery() throws Exception {
-    mockMvc.perform(
-        post("/requests/")
-            .contentType(APPLICATION_JSON)
-            .content(sagaDefinition))
-        .andExpect(status().isOk());
+    given()
+        .contentType(TEXT)
+        .body(sagaDefinition)
+        .when()
+        .post("http://localhost:8080/requests")
+        .then()
+        .statusCode(200)
+        .body(is("success"));
 
     List<SagaEventEntity> events = new ArrayList<>();
     sagaEventRepo.findAll().forEach(events::add);
