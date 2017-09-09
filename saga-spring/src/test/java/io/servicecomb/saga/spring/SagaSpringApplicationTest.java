@@ -25,7 +25,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.TEXT_PLAIN;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -102,7 +102,7 @@ public class SagaSpringApplicationTest {
   public void processRequestByRest() throws Exception {
     mockMvc.perform(
         post("/requests/")
-            .contentType(APPLICATION_JSON)
+            .contentType(TEXT_PLAIN)
             .content(sagaDefinition))
         .andExpect(status().isOk());
 
