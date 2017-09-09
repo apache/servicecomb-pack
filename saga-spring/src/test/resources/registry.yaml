@@ -1,0 +1,7 @@
+saga-service:
+  - id: "001"
+    version: "0.0.1"
+    appid: saga
+    instances:
+      - endpoints:
+        - rest://127.0.0.1:8080?sslEnabled=false

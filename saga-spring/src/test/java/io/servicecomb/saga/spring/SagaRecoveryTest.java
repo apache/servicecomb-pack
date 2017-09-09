@@ -56,11 +56,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import wiremock.org.apache.http.HttpStatus;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {SagaSpringApplication.class, EventPopulatingConfig.class})
+@ActiveProfiles("recovery-test")
 public class SagaRecoveryTest {
 
   @ClassRule
@@ -126,6 +129,7 @@ public class SagaRecoveryTest {
     verify(exactly(0), deleteRequestedFor(urlPathEqualTo("/rest/yyy3")));
   }
 
+  @Profile("recovery-test")
   @Configuration
   static class EventPopulatingConfig {
 
