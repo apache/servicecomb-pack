@@ -1,6 +1,12 @@
 version: '2.1'
 
 services:
+  service-center:
+    image: "servicecomb/service-center"
+    hostname: service-center
+    ports:
+      - "30100:30100"
+
   mysql:
     image: "mysql/mysql-server:5.7"
     hostname: mysql
@@ -20,24 +26,32 @@ services:
   car-rental-service:
     image: "car-rental-service:0.0.1-SNAPSHOT"
     hostname: car
+    links:
+      - "service-center:sc.servicecomb.io"
     ports:
       - "8080:8080"
 
   flight-booking-service:
     image: "flight-booking-service:0.0.1-SNAPSHOT"
     hostname: flight
+    links:
+      - "service-center:sc.servicecomb.io"
     ports:
       - "8081:8080"
 
   hotel-reservation-service:
     image: "hotel-reservation-service:0.0.1-SNAPSHOT"
     hostname: hotel
+    links:
+      - "service-center:sc.servicecomb.io"
     ports:
       - "8082:8080"
 
   payment-service:
     image: "payment-service:0.0.1-SNAPSHOT"
     hostname: payment
+    links:
+      - "service-center:sc.servicecomb.io"
     ports:
       - "8080"
 
@@ -46,12 +60,13 @@ services:
     hostname: saga
     links:
       - "mysql:mysql.servicecomb.io"
+      - "service-center:sc.servicecomb.io"
       - "car-rental-service:car.servicecomb.io"
       - "flight-booking-service:flight.servicecomb.io"
       - "hotel-reservation-service:hotel.servicecomb.io"
       - "payment-service:payment.servicecomb.io"
     environment:
-      - JAVA_OPTS=-Dspring.profiles.active=prd -Dendpoints.shutdown.enabled=true
+      - JAVA_OPTS=-Dspring.profiles.active=prd,servicecomb -Dcse.service.registry.address=http://sc.servicecomb.io:30100
     ports:
       - "8083:8080"
     depends_on:
