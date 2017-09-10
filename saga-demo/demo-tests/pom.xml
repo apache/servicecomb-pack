@@ -36,7 +36,6 @@
     <dependency>
       <groupId>io.rest-assured</groupId>
       <artifactId>rest-assured</artifactId>
-      <version>3.0.3</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -63,6 +62,19 @@
         <artifactId>docker-maven-plugin</artifactId>
         <configuration>
           <images>
+            <image>
+              <name>servicecomb/service-center</name>
+              <alias>service-center</alias>
+              <run>
+                <wait>
+                  <log>listen on server</log>
+                  <time>60000</time>
+                </wait>
+                <ports>
+                  <port>service.center.port:30100</port>
+                </ports>
+              </run>
+            </image>
             <image>
               <name>mysql/mysql-server:5.7</name>
               <alias>mysql</alias>
@@ -103,6 +115,9 @@
                   </tcp>
                   <time>120000</time>
                 </wait>
+                <links>
+                  <link>service-center:sc.servicecomb.io</link>
+                </links>
                 <ports>
                   <port>car.port:8080</port>
                 </ports>
@@ -124,6 +139,9 @@
                   </tcp>
                   <time>120000</time>
                 </wait>
+                <links>
+                  <link>service-center:sc.servicecomb.io</link>
+                </links>
                 <ports>
                   <port>flight.port:8080</port>
                 </ports>
@@ -145,6 +163,9 @@
                   </tcp>
                   <time>120000</time>
                 </wait>
+                <links>
+                  <link>service-center:sc.servicecomb.io</link>
+                </links>
                 <ports>
                   <port>hotel.port:8080</port>
                 </ports>
@@ -166,6 +187,9 @@
                   </tcp>
                   <time>120000</time>
                 </wait>
+                <links>
+                  <link>service-center:sc.servicecomb.io</link>
+                </links>
                 <ports>
                   <port>payment.port:8080</port>
                 </ports>
@@ -176,9 +200,13 @@
               <alias>saga</alias>
               <run>
                 <env>
-                  <JAVA_OPTS>-Dspring.profiles.active=prd</JAVA_OPTS>
+                  <JAVA_OPTS>
+                    -Dspring.profiles.active=prd,servicecomb
+                    -Dcse.service.registry.address=http://sc.servicecomb.io:30100
+                  </JAVA_OPTS>
                 </env>
                 <links>
+                  <link>service-center:sc.servicecomb.io</link>
                   <link>mysql:mysql.servicecomb.io</link>
                   <link>car:car.servicecomb.io</link>
                   <link>flight:flight.servicecomb.io</link>

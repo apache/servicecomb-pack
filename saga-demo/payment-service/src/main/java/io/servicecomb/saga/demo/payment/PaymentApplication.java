@@ -16,10 +16,12 @@
 
 package io.servicecomb.saga.demo.payment;
 
+import io.servicecomb.springboot.starter.provider.EnableServiceComb;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
+@EnableServiceComb
 public class PaymentApplication {
 
   public static void main(String[] args) {

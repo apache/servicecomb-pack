@@ -18,46 +18,45 @@ package io.servicecomb.saga.demo.hotel.reservation;
 
 import static java.util.Collections.singleton;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
+import io.servicecomb.provider.rest.common.RestSchema;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/")
+@RestSchema(schemaId = "hotel-endpoint")
 public class HotelReservationController {
 
   private final Set<String> customers = singleton("mike");
 
-  @RequestMapping(value = "reservations", method = POST, consumes = APPLICATION_JSON_VALUE)
-  ResponseEntity<String> reserve(@RequestBody Customer customer) {
-    if (!customers.contains(customer.customerId)) {
-      return new ResponseEntity<>("No such customer with id " + customer.customerId, FORBIDDEN);
+  @RequestMapping(value = "reservations", method = POST, consumes = APPLICATION_FORM_URLENCODED_VALUE, produces = TEXT_PLAIN_VALUE)
+  public ResponseEntity<String> reserve(@RequestAttribute String customerId) {
+    if (!customers.contains(customerId)) {
+      return new ResponseEntity<>("No such customer with id " + customerId, FORBIDDEN);
     }
 
     return ResponseEntity.ok(String.format("Hotel reserved with id %s for customer %s",
         UUID.randomUUID().toString(),
-        customer.customerId));
+        customerId));
   }
 
-  @RequestMapping(value = "reservations", method = PUT, consumes = APPLICATION_JSON_VALUE)
-  ResponseEntity<String> cancel(@RequestBody Customer customer) {
-    if (!customers.contains(customer.customerId)) {
-      return new ResponseEntity<>("No such customer with id " + customer.customerId, FORBIDDEN);
+  @RequestMapping(value = "reservations", method = PUT, consumes = APPLICATION_FORM_URLENCODED_VALUE, produces = TEXT_PLAIN_VALUE)
+  public ResponseEntity<String> cancel(@RequestAttribute String customerId) {
+    if (!customers.contains(customerId)) {
+      return new ResponseEntity<>("No such customer with id " + customerId, FORBIDDEN);
     }
 
     return ResponseEntity.ok(String.format("Hotel reservation cancelled with id %s for customer %s",
         UUID.randomUUID().toString(),
-        customer.customerId));
-  }
-
-  private static class Customer {
-    public String customerId;
+        customerId));
   }
 }

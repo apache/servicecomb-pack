@@ -17,22 +17,25 @@
 package io.servicecomb.saga.demo.payment;
 
 import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
+import io.servicecomb.provider.rest.common.RestSchema;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/")
+@RestSchema(schemaId = "payment-endpoint")
 public class PaymentController {
   private int balance = 1000;
 
-  @RequestMapping(value = "payments", method = POST, consumes = APPLICATION_JSON_VALUE)
-  ResponseEntity<String> pay(@RequestBody String customerId) {
+  @RequestMapping(value = "payments", method = POST, consumes = APPLICATION_FORM_URLENCODED_VALUE, produces = TEXT_PLAIN_VALUE)
+  public ResponseEntity<String> pay(@RequestAttribute String customerId) {
     if ("anonymous".equals(customerId)) {
       return new ResponseEntity<>("No such customer with id " + customerId, FORBIDDEN);
     }
@@ -47,8 +50,8 @@ public class PaymentController {
         balance));
   }
 
-  @RequestMapping(value = "payments", method = PUT, consumes = APPLICATION_JSON_VALUE)
-  ResponseEntity<String> refund(@RequestBody String customerId) {
+  @RequestMapping(value = "payments", method = PUT, consumes = APPLICATION_FORM_URLENCODED_VALUE, produces = TEXT_PLAIN_VALUE)
+  public ResponseEntity<String> refund(@RequestAttribute String customerId) {
     if ("anonymous".equals(customerId)) {
       return new ResponseEntity<>("No such customer with id " + customerId, FORBIDDEN);
     }
