@@ -6,10 +6,10 @@ jdk:
   - oraclejdk8
 
 script:
-  - mvn clean install -Pjacoco coveralls:report
+  - mvn clean install -Pjacoco -Pdocker coveralls:report
+  - mvn clean verify -f saga-demo -Pdemo -Pdocker -Ddocker.useColor=false -Ddocker.showLogs
 
 after_success:
-  - mvn clean test -f saga-demo -Pdemo
   - mvn deploy -DskipTests --settings .travis.settings.xml
 
 env:
