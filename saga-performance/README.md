@@ -36,3 +36,12 @@ java -javaagent:/path/to/aspectj-weaver.jar -Dkamon.modules.kamon-annotation.aut
 if you need some help
 
 ![Grafana Metrics](images/grafana.png)
+
+## Recommended Test Setup
+Three test machines to run the following services on each:
+* saga
+* car service in saga-demo
+* MySQL
+
+The car service and saga can share the same machine, since car service consumes very little CPU and memory, and has no disk
+access.
