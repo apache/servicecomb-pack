@@ -37,21 +37,11 @@ if you need some help
 
 ![Grafana Metrics](images/grafana.png)
 
-## Test Report
-Test machine: 16-core 64gb ubuntu 16.04 LTS
-
-Test environment setup on this machine:
+## Recommended Test Setup
+Three test machines to run the following services on each:
 * saga
 * car service in saga-demo
 * MySQL
 
-Test was run for 700 seconds with 200 concurrent users sending requests at delay of 100 milliseconds.
-![Transaction Per Second](images/tps.mysql.png)
-
-![Latency Over Time](images/latency.mysql.png)
-
-## Summary
-Saga is very IO intensive, because it persists to database twice for each transaction. The total number of disk writing 
-is 2 * Transactions + 2 (one for saga started event and the other for saga ended event).
-
-Integration with a faster database will greatly improve saga performance.
+The car service and saga can share the same machine, since car service consumes very little CPU and memory, and has no disk
+access.
