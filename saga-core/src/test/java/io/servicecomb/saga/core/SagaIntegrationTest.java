@@ -156,9 +156,7 @@ public class SagaIntegrationTest {
         anyOf(eventWith(sagaId, transaction2, TransactionStartedEvent.class), eventWith(sagaId, transaction3, TransactionStartedEvent.class)),
         eventWith(sagaId, transaction3, TransactionEndedEvent.class),
         eventWith(sagaId, transaction2, TransactionAbortedEvent.class),
-        eventWith(sagaId, compensation3, CompensationStartedEvent.class),
         eventWith(sagaId, compensation3, CompensationEndedEvent.class),
-        eventWith(sagaId, compensation1, CompensationStartedEvent.class),
         eventWith(sagaId, compensation1, CompensationEndedEvent.class),
         eventWith(sagaId, SAGA_START_COMPENSATION, SagaEndedEvent.class)));
 
@@ -210,9 +208,7 @@ public class SagaIntegrationTest {
         eventWith(sagaId, transaction3, TransactionAbortedEvent.class),
         eventWith(sagaId, transaction2, TransactionStartedEvent.class),
         eventWith(sagaId, transaction2, TransactionEndedEvent.class),
-        eventWith(sagaId, compensation2, CompensationStartedEvent.class),
         eventWith(sagaId, compensation2, CompensationEndedEvent.class),
-        eventWith(sagaId, compensation1, CompensationStartedEvent.class),
         eventWith(sagaId, compensation1, CompensationEndedEvent.class),
         eventWith(sagaId, SAGA_START_COMPENSATION, SagaEndedEvent.class)));
 
@@ -373,9 +369,7 @@ public class SagaIntegrationTest {
         eventWith(sagaId, transaction2, TransactionEndedEvent.class),
         eventWith(sagaId, transaction3, TransactionStartedEvent.class),
         eventWith(sagaId, transaction3, TransactionAbortedEvent.class),
-        eventWith(sagaId, compensation2, CompensationStartedEvent.class),
         eventWith(sagaId, compensation2, CompensationEndedEvent.class),
-        eventWith(sagaId, compensation1, CompensationStartedEvent.class),
         eventWith(sagaId, compensation1, CompensationEndedEvent.class),
         eventWith(sagaId, SAGA_START_COMPENSATION, SagaEndedEvent.class)
     ));
@@ -401,7 +395,6 @@ public class SagaIntegrationTest {
         envelope(new TransactionEndedEvent(sagaId, request2)),
         envelope(new TransactionStartedEvent(sagaId, request3)),
         envelope(new TransactionEndedEvent(sagaId, request3)),
-        envelope(new CompensationStartedEvent(sagaId, request2)),
         envelope(new CompensationEndedEvent(sagaId, request2))
     );
 
@@ -417,11 +410,8 @@ public class SagaIntegrationTest {
         eventWith(sagaId, transaction2, TransactionEndedEvent.class),
         eventWith(sagaId, transaction3, TransactionStartedEvent.class),
         eventWith(sagaId, transaction3, TransactionEndedEvent.class),
-        eventWith(sagaId, compensation2, CompensationStartedEvent.class),
         eventWith(sagaId, compensation2, CompensationEndedEvent.class),
-        eventWith(sagaId, compensation3, CompensationStartedEvent.class),
         eventWith(sagaId, compensation3, CompensationEndedEvent.class),
-        eventWith(sagaId, compensation1, CompensationStartedEvent.class),
         eventWith(sagaId, compensation1, CompensationEndedEvent.class),
         eventWith(sagaId, SAGA_START_COMPENSATION, SagaEndedEvent.class)
     ));
@@ -447,9 +437,7 @@ public class SagaIntegrationTest {
         envelope(new TransactionEndedEvent(sagaId, request2)),
         envelope(new TransactionStartedEvent(sagaId, request3)),
         envelope(new TransactionEndedEvent(sagaId, request3)),
-        envelope(new CompensationStartedEvent(sagaId, request2)),
-        envelope(new CompensationEndedEvent(sagaId, request2)),
-        envelope(new CompensationStartedEvent(sagaId, request3))
+        envelope(new CompensationEndedEvent(sagaId, request2))
     );
 
     eventStore.populate(events);
@@ -464,12 +452,8 @@ public class SagaIntegrationTest {
         eventWith(sagaId, transaction2, TransactionEndedEvent.class),
         eventWith(sagaId, transaction3, TransactionStartedEvent.class),
         eventWith(sagaId, transaction3, TransactionEndedEvent.class),
-        eventWith(sagaId, compensation2, CompensationStartedEvent.class),
         eventWith(sagaId, compensation2, CompensationEndedEvent.class),
-        eventWith(sagaId, compensation3, CompensationStartedEvent.class),
-        eventWith(sagaId, compensation3, CompensationStartedEvent.class),
         eventWith(sagaId, compensation3, CompensationEndedEvent.class),
-        eventWith(sagaId, compensation1, CompensationStartedEvent.class),
         eventWith(sagaId, compensation1, CompensationEndedEvent.class),
         eventWith(sagaId, SAGA_START_COMPENSATION, SagaEndedEvent.class)
     ));

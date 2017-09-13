@@ -21,7 +21,6 @@ import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.servicecomb.saga.core.CompensationEndedEvent;
-import io.servicecomb.saga.core.CompensationStartedEvent;
 import io.servicecomb.saga.core.FailedSagaRequestContext;
 import io.servicecomb.saga.core.SagaEndedEvent;
 import io.servicecomb.saga.core.SagaEvent;
@@ -43,7 +42,6 @@ public class JacksonSagaEventFormat implements SagaEventFormat {
     put(TransactionStartedEvent.class.getSimpleName(), (sagaId, json) -> transactionStartedEvent(sagaId, json));
     put(TransactionEndedEvent.class.getSimpleName(), (sagaId, json) -> transactionEndedEvent(sagaId, json));
     put(TransactionAbortedEvent.class.getSimpleName(), (sagaId, json) -> transactionAbortedEvent(sagaId, json));
-    put(CompensationStartedEvent.class.getSimpleName(), (sagaId, json) -> compensationStartedEvent(sagaId, json));
     put(CompensationEndedEvent.class.getSimpleName(), (sagaId, json) -> compensationEndedEvent(sagaId, json));
     put(SagaEndedEvent.class.getSimpleName(), (sagaId, json) -> sagaEndedEvent(sagaId));
   }};
@@ -88,14 +86,6 @@ public class JacksonSagaEventFormat implements SagaEventFormat {
     try {
       FailedSagaRequestContext context = objectMapper.readValue(json, FailedSagaRequestContext.class);
       return new TransactionAbortedEvent(sagaId, context.request().with(transportFactory), context.response());
-    } catch (IOException e) {
-      throw new SagaException(cause(sagaId, json), e);
-    }
-  }
-
-  private SagaEvent compensationStartedEvent(String sagaId, String json) {
-    try {
-      return new CompensationStartedEvent(sagaId, objectMapper.readValue(json, JsonSagaRequest.class).with(transportFactory));
     } catch (IOException e) {
       throw new SagaException(cause(sagaId, json), e);
     }

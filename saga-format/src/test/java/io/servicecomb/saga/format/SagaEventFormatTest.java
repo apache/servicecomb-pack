@@ -30,7 +30,6 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.seanyinx.github.unit.scaffolding.Randomness;
 import io.servicecomb.saga.core.CompensationEndedEvent;
-import io.servicecomb.saga.core.CompensationStartedEvent;
 import io.servicecomb.saga.core.FailedSagaResponse;
 import io.servicecomb.saga.core.JacksonToJsonFormat;
 import io.servicecomb.saga.core.RestOperation;
@@ -122,19 +121,6 @@ public class SagaEventFormatTest {
     assertThat(sagaEvent.sagaId, is(sagaId));
     assertThat(sagaEvent.payload(), eqToRequest(request));
     assertThat(((TransactionAbortedEvent) sagaEvent).response(), eqToResponse(new FailedSagaResponse(exception)));
-  }
-
-  @Test
-  public void compensationStartedEventCanBeSerializedAndDeserialized() throws JsonProcessingException {
-    CompensationStartedEvent event = new CompensationStartedEvent(sagaId, request);
-    String json = event.json(toJsonFormat);
-
-    SagaEvent sagaEvent = toEventFormat
-        .toSagaEvent(sagaId, event.getClass().getSimpleName(), json);
-
-    assertThat(sagaEvent, instanceOf(CompensationStartedEvent.class));
-    assertThat(sagaEvent.sagaId, is(sagaId));
-    assertThat(sagaEvent.payload(), eqToRequest(request));
   }
 
   @Test
