@@ -28,7 +28,7 @@ import org.springframework.context.annotation.Profile;
 @Profile("servicecomb")
 @Configuration
 @AutoConfigureBefore(HttpClientTransportConfig.class)
-class ServiceCenterDiscoveryConfig {
+public class ServiceCenterDiscoveryConfig {
 
   @Bean
   RestTransport restTransport() {
