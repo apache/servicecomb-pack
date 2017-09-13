@@ -21,7 +21,7 @@
   <groupId>io.servicecomb.saga</groupId>
   <artifactId>saga</artifactId>
   <packaging>pom</packaging>
-  <version>0.0.1</version>
+  <version>0.0.2-SNAPSHOT</version>
 
   <modules>
     <module>saga-core</module>
@@ -49,7 +49,7 @@
     <connection>scm:git:https://github.com/ServiceComb/saga.git</connection>
     <developerConnection>scm:git:https://github.com/ServiceComb/saga.git</developerConnection>
     <url>https://github.com/servicecomb/saga</url>
-    <tag>saga-0.0.1</tag>
+    <tag>${saga.version}</tag>
   </scm>
 
   <distributionManagement>
@@ -72,32 +72,32 @@
       <dependency>
         <groupId>io.servicecomb.saga</groupId>
         <artifactId>saga-core</artifactId>
-        <version>0.0.1</version>
+        <version>0.0.2-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>io.servicecomb.saga</groupId>
         <artifactId>saga-format</artifactId>
-        <version>0.0.1</version>
+        <version>0.0.2-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>io.servicecomb.saga</groupId>
         <artifactId>saga-spring</artifactId>
-        <version>0.0.1</version>
+        <version>0.0.2-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>io.servicecomb.saga.transports</groupId>
         <artifactId>transport-httpclient</artifactId>
-        <version>0.0.1</version>
+        <version>0.0.2-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>io.servicecomb.saga.transports</groupId>
         <artifactId>transport-httpclient-spring</artifactId>
-        <version>0.0.1</version>
+        <version>0.0.2-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>io.servicecomb.saga.discovery</groupId>
         <artifactId>saga-discovery-servicecenter</artifactId>
-        <version>0.0.1</version>
+        <version>0.0.2-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>

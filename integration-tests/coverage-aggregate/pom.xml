@@ -19,7 +19,7 @@
   <parent>
     <groupId>io.servicecomb.saga.tests</groupId>
     <artifactId>integration-tests</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
