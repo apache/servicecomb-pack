@@ -20,7 +20,7 @@ import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.servicecomb.saga.core.CompensationEndedEvent;
+import io.servicecomb.saga.core.TransactionCompensatedEvent;
 import io.servicecomb.saga.core.FailedSagaRequestContext;
 import io.servicecomb.saga.core.SagaEndedEvent;
 import io.servicecomb.saga.core.SagaEvent;
@@ -42,7 +42,7 @@ public class JacksonSagaEventFormat implements SagaEventFormat {
     put(TransactionStartedEvent.class.getSimpleName(), (sagaId, json) -> transactionStartedEvent(sagaId, json));
     put(TransactionEndedEvent.class.getSimpleName(), (sagaId, json) -> transactionEndedEvent(sagaId, json));
     put(TransactionAbortedEvent.class.getSimpleName(), (sagaId, json) -> transactionAbortedEvent(sagaId, json));
-    put(CompensationEndedEvent.class.getSimpleName(), (sagaId, json) -> compensationEndedEvent(sagaId, json));
+    put(TransactionCompensatedEvent.class.getSimpleName(), (sagaId, json) -> compensationEndedEvent(sagaId, json));
     put(SagaEndedEvent.class.getSimpleName(), (sagaId, json) -> sagaEndedEvent(sagaId));
   }};
 
@@ -94,7 +94,7 @@ public class JacksonSagaEventFormat implements SagaEventFormat {
   private SagaEvent compensationEndedEvent(String sagaId, String json) {
     try {
       SuccessfulSagaRequestContext context = objectMapper.readValue(json, SuccessfulSagaRequestContext.class);
-      return new CompensationEndedEvent(sagaId, context.request().with(transportFactory), context.response());
+      return new TransactionCompensatedEvent(sagaId, context.request().with(transportFactory), context.response());
     } catch (IOException e) {
       throw new SagaException(cause(sagaId, json), e);
     }

@@ -29,7 +29,7 @@ import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
 import static java.util.Collections.singletonMap;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import io.servicecomb.saga.core.CompensationEndedEvent;
+import io.servicecomb.saga.core.TransactionCompensatedEvent;
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.SagaEndedEvent;
 import io.servicecomb.saga.core.SagaRequest;
@@ -161,7 +161,7 @@ public class SagaRecoveryTest {
       store.offer(new TransactionStartedEvent("yyy", request3));
       store.offer(new TransactionAbortedEvent("yyy", request3, new TransactionFailedException("oops")));
 
-      store.offer(new CompensationEndedEvent("yyy", request2, response2));
+      store.offer(new TransactionCompensatedEvent("yyy", request2, response2));
 
       return store;
     }

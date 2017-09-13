@@ -19,15 +19,15 @@ package io.servicecomb.saga.core;
 import java.util.Map;
 import java.util.Set;
 
-public class CompensationEndedEvent extends SagaEvent {
+public class TransactionCompensatedEvent extends SagaEvent {
 
   private final SagaResponse response;
 
-  CompensationEndedEvent(String sagaId, SagaRequest request) {
+  TransactionCompensatedEvent(String sagaId, SagaRequest request) {
     this(sagaId, request, SagaResponse.EMPTY_RESPONSE);
   }
 
-  public CompensationEndedEvent(String sagaId, SagaRequest request, SagaResponse response) {
+  public TransactionCompensatedEvent(String sagaId, SagaRequest request, SagaResponse response) {
     super(sagaId, request);
     this.response = response;
   }
@@ -49,7 +49,7 @@ public class CompensationEndedEvent extends SagaEvent {
 
   @Override
   public String toString() {
-    return "CompensationEndedEvent{id="
+    return "TransactionCompensatedEvent{id="
         + payload().id()
         + ", sagaId=" + sagaId
         + ", operation="
