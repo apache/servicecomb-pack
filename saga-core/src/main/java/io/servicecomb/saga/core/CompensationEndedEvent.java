@@ -40,7 +40,6 @@ public class CompensationEndedEvent extends SagaEvent {
       Set<String> completedCompensations) {
 
     completedCompensations.add(payload().id());
-    hangingTransactions.remove(payload().id());
   }
 
   @Override

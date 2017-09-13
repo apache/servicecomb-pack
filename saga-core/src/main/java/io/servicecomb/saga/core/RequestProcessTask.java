@@ -50,8 +50,6 @@ public class RequestProcessTask implements SagaTask {
   @Segment(name = "compensate", category = "application", library = "kamon")
   @Override
   public void compensate(SagaRequest request) {
-    sagaLog.offer(new CompensationStartedEvent(sagaId, request));
-
     Compensation compensation = request.compensation();
     SagaResponse response = fallbackPolicy.apply(request.serviceName(), compensation, request.fallback());
 
