@@ -53,7 +53,7 @@ public class RequestProcessTask implements SagaTask {
     Compensation compensation = request.compensation();
     SagaResponse response = fallbackPolicy.apply(request.serviceName(), compensation, request.fallback());
 
-    sagaLog.offer(new CompensationEndedEvent(sagaId, request, response));
+    sagaLog.offer(new TransactionCompensatedEvent(sagaId, request, response));
   }
 
   @Override
