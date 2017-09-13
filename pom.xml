@@ -321,6 +321,9 @@
   <profiles>
     <profile>
       <id>release</id>
+      <modules>
+        <module>saga-demo</module>
+      </modules>
       <build>
         <plugins>
           <plugin>
