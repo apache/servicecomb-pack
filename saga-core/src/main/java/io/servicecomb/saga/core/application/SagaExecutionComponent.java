@@ -34,7 +34,7 @@ import io.servicecomb.saga.core.SagaStartTask;
 import io.servicecomb.saga.core.SagaTask;
 import io.servicecomb.saga.core.ToJsonFormat;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
-import io.servicecomb.saga.core.application.interpreter.JsonRequestInterpreter;
+import io.servicecomb.saga.core.application.interpreter.GraphBuilder;
 import io.servicecomb.saga.core.dag.GraphCycleDetectorImpl;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 import java.util.HashMap;
@@ -49,16 +49,16 @@ import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
 
 @EnableKamon
-public class SagaCoordinator {
+public class SagaExecutionComponent {
 
   private final PersistentStore persistentStore;
-  private final JsonRequestInterpreter requestInterpreter;
   private final FromJsonFormat fromJsonFormat;
   private final ToJsonFormat toJsonFormat;
   private final Executor executorService;
   private final FallbackPolicy fallbackPolicy;
+  private final GraphBuilder graphBuilder;
 
-  public SagaCoordinator(
+  public SagaExecutionComponent(
       PersistentStore persistentStore,
       FromJsonFormat fromJsonFormat,
       ToJsonFormat toJsonFormat) {
@@ -70,7 +70,7 @@ public class SagaCoordinator {
         Executors.newFixedThreadPool(5));
   }
 
-  public SagaCoordinator(
+  public SagaExecutionComponent(
       int retryDelay,
       PersistentStore persistentStore,
       FromJsonFormat fromJsonFormat,
@@ -78,13 +78,13 @@ public class SagaCoordinator {
       ExecutorService executorService) {
     this.fallbackPolicy = new FallbackPolicy(retryDelay);
     this.persistentStore = persistentStore;
-    this.requestInterpreter = new JsonRequestInterpreter(new GraphCycleDetectorImpl<>());
+    this.graphBuilder = new GraphBuilder(new GraphCycleDetectorImpl<>());
     this.fromJsonFormat = fromJsonFormat;
     this.toJsonFormat = toJsonFormat;
     this.executorService = executorService;
   }
 
-  @Segment(name = "runSagaCoordinator", category = "application", library = "kamon")
+  @Segment(name = "runSagaExecutionComponent", category = "application", library = "kamon")
   public void run(String requestJson) {
     String sagaId = UUID.randomUUID().toString();
     EventStore sagaLog = new EmbeddedEventStore();
@@ -96,7 +96,7 @@ public class SagaCoordinator {
         executorService,
         definition.policy(),
         sagaTasks(sagaId, requestJson, sagaLog),
-        requestInterpreter.interpret(definition.requests()));
+        graphBuilder.build(definition.requests()));
     saga.run();
   }
 
@@ -116,7 +116,7 @@ public class SagaCoordinator {
           executorService,
           definition.policy(),
           sagaTasks(event.sagaId, requestJson, eventStore),
-          requestInterpreter.interpret(definition.requests()));
+          graphBuilder.build(definition.requests()));
 
       saga.play();
       saga.run();

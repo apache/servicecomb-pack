@@ -24,7 +24,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import io.servicecomb.provider.rest.common.RestSchema;
-import io.servicecomb.saga.core.application.SagaCoordinator;
+import io.servicecomb.saga.core.application.SagaExecutionComponent;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,19 +43,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RestSchema(schemaId = "saga-endpoint")
 public class SagaController {
 
-  private final SagaCoordinator sagaCoordinator;
+  private final SagaExecutionComponent sagaExecutionComponent;
   private final SagaEventRepo repo;
 
   @Autowired
-  public SagaController(SagaCoordinator sagaCoordinator, SagaEventRepo repo) {
-    this.sagaCoordinator = sagaCoordinator;
+  public SagaController(SagaExecutionComponent sagaExecutionComponent, SagaEventRepo repo) {
+    this.sagaExecutionComponent = sagaExecutionComponent;
     this.repo = repo;
   }
 
   @Trace("processRequests")
   @RequestMapping(value = "requests", method = POST, consumes = TEXT_PLAIN_VALUE, produces = TEXT_PLAIN_VALUE)
   public ResponseEntity<String> processRequests(@RequestBody String request) {
-    sagaCoordinator.run(request);
+    sagaExecutionComponent.run(request);
     return ResponseEntity.ok("success");
   }
 

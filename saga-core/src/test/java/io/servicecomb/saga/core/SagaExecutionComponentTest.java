@@ -29,7 +29,7 @@ import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
-import io.servicecomb.saga.core.application.SagaCoordinator;
+import io.servicecomb.saga.core.application.SagaExecutionComponent;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 import java.io.IOException;
@@ -44,7 +44,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 @SuppressWarnings("unchecked")
-public class SagaCoordinatorTest {
+public class SagaExecutionComponentTest {
 
   private static final String requestJson = "[\n"
       + "  {\n"
@@ -129,7 +129,7 @@ public class SagaCoordinatorTest {
   private final FromJsonFormat fromJsonFormat = Mockito.mock(FromJsonFormat.class);
   private final EmbeddedPersistentStore eventStore = new EmbeddedPersistentStore();
 
-  private final SagaCoordinator coordinator = new SagaCoordinator(
+  private final SagaExecutionComponent coordinator = new SagaExecutionComponent(
       eventStore,
       fromJsonFormat,
       null

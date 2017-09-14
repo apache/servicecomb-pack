@@ -19,7 +19,7 @@ package io.servicecomb.saga.spring;
 import io.servicecomb.saga.core.JacksonToJsonFormat;
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.ToJsonFormat;
-import io.servicecomb.saga.core.application.SagaCoordinator;
+import io.servicecomb.saga.core.application.SagaExecutionComponent;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.format.JacksonFromJsonFormat;
 import io.servicecomb.saga.format.JacksonSagaEventFormat;
@@ -62,14 +62,14 @@ class SagaSpringConfig {
   }
 
   @Bean
-  SagaCoordinator sagaCoordinator(
+  SagaExecutionComponent sagaExecutionComponent(
       @Value("${saga.thread.count:5}") int numberOfThreads,
       @Value("${saga.retry.delay:3000}") int retryDelay,
       PersistentStore persistentStore,
       ToJsonFormat format,
       FromJsonFormat fromJsonFormat) {
 
-    return new SagaCoordinator(
+    return new SagaExecutionComponent(
         retryDelay,
         persistentStore,
         fromJsonFormat,
