@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core.application.interpreter;
+package io.servicecomb.saga.core.application;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;

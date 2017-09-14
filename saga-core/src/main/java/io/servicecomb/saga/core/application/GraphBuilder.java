@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core.application.interpreter;
+package io.servicecomb.saga.core.application;
 
 import io.servicecomb.saga.core.NoOpSagaRequest;
 import io.servicecomb.saga.core.SagaException;
@@ -29,16 +29,16 @@ import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
 
 @EnableKamon
-public class GraphBuilder {
+class GraphBuilder {
 
   private final GraphCycleDetector<SagaRequest> detector;
 
-  public GraphBuilder(GraphCycleDetector<SagaRequest> detector) {
+  GraphBuilder(GraphCycleDetector<SagaRequest> detector) {
     this.detector = detector;
   }
 
   @Segment(name = "buildGraph", category = "application", library = "kamon")
-  public SingleLeafDirectedAcyclicGraph<SagaRequest> build(SagaRequest[] sagaRequests) {
+  SingleLeafDirectedAcyclicGraph<SagaRequest> build(SagaRequest[] sagaRequests) {
     Map<String, Node<SagaRequest>> requestNodes = requestsToNodes(sagaRequests);
 
     SingleLeafDirectedAcyclicGraph<SagaRequest> graph = linkNodesToGraph(sagaRequests, requestNodes);
