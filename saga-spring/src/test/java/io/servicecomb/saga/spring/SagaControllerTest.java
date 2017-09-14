@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.servicecomb.saga.core.application.SagaCoordinator;
+import io.servicecomb.saga.core.application.SagaExecutionComponent;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +48,7 @@ public class SagaControllerTest {
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   @MockBean
-  private SagaCoordinator sagaCoordinator;
+  private SagaExecutionComponent sagaExecutionComponent;
 
   @MockBean
   private SagaEventRepo repo;

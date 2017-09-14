@@ -16,7 +16,7 @@
 
 package io.servicecomb.saga.spring;
 
-import io.servicecomb.saga.core.application.SagaCoordinator;
+import io.servicecomb.saga.core.application.SagaExecutionComponent;
 import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ class SagaRecoveryListener implements ApplicationListener<ApplicationReadyEvent>
   @Override
   public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
     log.info("Recovering pending sagas from saga log");
-    applicationReadyEvent.getApplicationContext().getBean(SagaCoordinator.class).reanimate();
+    applicationReadyEvent.getApplicationContext().getBean(SagaExecutionComponent.class).reanimate();
     log.info("Recovered pending sagas from saga log successfully");
   }
 }

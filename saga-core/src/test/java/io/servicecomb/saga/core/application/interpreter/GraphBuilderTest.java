@@ -50,7 +50,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 @SuppressWarnings("unchecked")
-public class JsonRequestInterpreterTest {
+public class GraphBuilderTest {
 
   private final SagaRequest request1 = new SagaRequestImpl(
       "request-aaa",
@@ -89,7 +89,7 @@ public class JsonRequestInterpreterTest {
   private final SagaRequest[] duplicateRequests = {duplicateRequest, duplicateRequest};
 
   private final GraphCycleDetector<SagaRequest> detector = Mockito.mock(GraphCycleDetector.class);
-  private final JsonRequestInterpreter interpreter = new JsonRequestInterpreter(detector);
+  private final GraphBuilder graphBuilder = new GraphBuilder(detector);
 
   @Before
   public void setUp() throws Exception {
@@ -97,8 +97,8 @@ public class JsonRequestInterpreterTest {
   }
 
   @Test
-  public void interpretsParallelRequests() {
-    SingleLeafDirectedAcyclicGraph<SagaRequest> tasks = interpreter.interpret(requests);
+  public void buildsGraphOfParallelRequests() {
+    SingleLeafDirectedAcyclicGraph<SagaRequest> tasks = graphBuilder.build(requests);
 
     Traveller<SagaRequest> traveller = new ByLevelTraveller<>(tasks, new FromRootTraversalDirection<>());
     Collection<Node<SagaRequest>> nodes = traveller.nodes();
@@ -122,7 +122,7 @@ public class JsonRequestInterpreterTest {
   @Test
   public void blowsUpWhenJsonContainsDuplicateRequestId() {
     try {
-      interpreter.interpret(duplicateRequests);
+      graphBuilder.build(duplicateRequests);
       fail(SagaException.class.getSimpleName() + " is expected, but none thrown");
     } catch (SagaException e) {
       assertThat(e.getMessage(),
@@ -136,7 +136,7 @@ public class JsonRequestInterpreterTest {
     when(detector.cycleJoints(any())).thenReturn(singleton(new Node<>(0L, null)));
 
     try {
-      interpreter.interpret(requests);
+      graphBuilder.build(requests);
       expectFailing(SagaException.class);
     } catch (SagaException e) {
       assertThat(e.getMessage(), startsWith("Cycle detected in the request graph at nodes "));
