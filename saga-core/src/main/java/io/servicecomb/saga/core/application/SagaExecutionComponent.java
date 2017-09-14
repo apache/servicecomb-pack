@@ -34,7 +34,6 @@ import io.servicecomb.saga.core.SagaStartTask;
 import io.servicecomb.saga.core.SagaTask;
 import io.servicecomb.saga.core.ToJsonFormat;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
-import io.servicecomb.saga.core.application.interpreter.GraphBuilder;
 import io.servicecomb.saga.core.dag.GraphCycleDetectorImpl;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 import java.util.HashMap;
