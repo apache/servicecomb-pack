@@ -24,9 +24,9 @@ User ---> Saga -----> flight booking service
 ```
 
 ## Running Demo
-1. run the following command to create docker images in saga project root folder
+1. when Saga service is ready, run the following command in saga/saga-demo/ directory to create microservice docker images.
 ```
-mvn package -DskipTests -Pdocker -Pdocker-machine
+mvn package -DskipTests -Pdocker
 ```
 
 2. start application up in saga/saga-demo/ with the following command
@@ -41,105 +41,108 @@ former three services return success.
 
 The request JSON to ensure this process order looks like the following:
 ```json
-[
-  {
-    "id": "request-car",
-    "type": "rest",
-    "serviceName": "car.servicecomb.io:8080",
-    "transaction": {
-      "method": "post",
-      "path": "/rentals",
-      "params": {
-        "json": {
-          "body": "{ \"customerId\": \"mike\" }"
+{
+  "policy": "BackwardRecovery",
+  "requests": [
+    {
+      "id": "request-car",
+      "type": "rest",
+      "serviceName": "car-rental-service",
+      "transaction": {
+        "method": "post",
+        "path": "/rentals",
+        "params": {
+          "form": {
+            "customerId": "mike"
+          }
+        }
+      },
+      "compensation": {
+        "method": "put",
+        "path": "/rentals",
+        "params": {
+          "form": {
+            "customerId": "mike"
+          }
         }
       }
     },
-    "compensation": {
-      "method": "put",
-      "path": "/rentals",
-      "params": {
-        "json": {
-          "body": "{ \"customerId\": \"mike\" }"
+    {
+      "id": "request-hotel",
+      "type": "rest",
+      "serviceName": "hotel-reservation-service",
+      "transaction": {
+        "method": "post",
+        "path": "/reservations",
+        "params": {
+          "form": {
+            "customerId": "mike"
+          }
         }
-      }
-    }
-  },
-  {
-    "id": "request-hotel",
-    "type": "rest",
-    "serviceName": "hotel.servicecomb.io:8080",
-    "transaction": {
-      "method": "post",
-      "path": "/reservations",
-      "params": {
-        "json": {
-          "body": "{ \"customerId\": \"mike\" }"
-        }
-      }
-    },
-    "compensation": {
-      "method": "put",
-      "path": "/reservations",
-      "params": {
-        "json": {
-          "body": "{ \"customerId\": \"mike\" }"
-        }
-      }
-    }
-  },
-  {
-    "id": "request-flight",
-    "type": "rest",
-    "serviceName": "flight.servicecomb.io:8080",
-    "transaction": {
-      "method": "post",
-      "path": "/bookings",
-      "params": {
-        "json": {
-          "body": "{ \"customerId\": \"mike\" }"
+      },
+      "compensation": {
+        "method": "put",
+        "path": "/reservations",
+        "params": {
+          "form": {
+            "customerId": "mike"
+          }
         }
       }
     },
-    "compensation": {
-      "method": "put",
-      "path": "/bookings",
-      "params": {
-        "json": {
-          "body": "{ \"customerId\": \"mike\" }"
+    {
+      "id": "request-flight",
+      "type": "rest",
+      "serviceName": "flight-booking-service",
+      "transaction": {
+        "method": "post",
+        "path": "/bookings",
+        "params": {
+          "form": {
+            "customerId": "mike"
+          }
         }
-      }
-    }
-  },
-  {
-    "id": "request-payment",
-    "type": "rest",
-    "serviceName": "payment.servicecomb.io:8080",
-    "parents": [
-      "request-car",
-      "request-flight",
-      "request-hotel"
-    ],
-    "transaction": {
-      "method": "post",
-      "path": "/payments",
-      "params": {
-        "json": {
-          "body": "{ \"customerId\": \"mike\" }"
+      },
+      "compensation": {
+        "method": "put",
+        "path": "/bookings",
+        "params": {
+          "form": {
+            "customerId": "mike"
+          }
         }
       }
     },
-    "compensation": {
-      "method": "put",
-      "path": "/payments",
-      "params": {
-        "json": {
-          "body": "{ \"customerId\": \"mike\" }"
+    {
+      "id": "request-payment",
+      "type": "rest",
+      "serviceName": "payment-service",
+      "parents": [
+        "request-car",
+        "request-flight",
+        "request-hotel"
+      ],
+      "transaction": {
+        "method": "post",
+        "path": "/payments",
+        "params": {
+          "form": {
+            "customerId": "mike"
+          }
+        }
+      },
+      "compensation": {
+        "method": "put",
+        "path": "/payments",
+        "params": {
+          "form": {
+            "customerId": "mike"
+          }
         }
       }
     }
-  }
-]
+  ]
+}
 ```
 
 The key to the request dependency lies in definition of parents field in the payment request. It means the payment request 
