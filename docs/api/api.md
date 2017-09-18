@@ -39,10 +39,10 @@ POST /requests
 JSON parameters:
 - policy - support `BackwardRecovery` or `ForwardRecovery`.
 - requests - transactions array.
-  - id - user-defined service id.
-  - type - support `rest` or `rpc`.
+  - id - request id. It should be unique among this collection of requests.
+  - type - support `rest` for now.
   - serviceName - user-defined service name.
-  - parents - specify user-defined service id. It means this request is only executed after all requests in the parents field are completed.
+  - parents - request ids. It means this request is only executed after all requests in the parents field are completed.
   - transaction - user-defined transaction that executed by the Saga.
     - method - user-defined, HTTP method.
     - path - user-defined, HTTP path.

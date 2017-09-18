@@ -1,7 +1,7 @@
 # Saga [![Build Status](https://travis-ci.org/ServiceComb/saga.svg?branch=master)](https://travis-ci.org/ServiceComb/saga?branch=master) [![Coverage Status](https://coveralls.io/repos/github/ServiceComb/saga/badge.svg?branch=master)](https://coveralls.io/github/ServiceComb/saga?branch=master) [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 ## Purpose
-Saga is implemented based on the compensation transaction driven mechanism, which provides a simple way to help users solve the data consistency problems encountered in micro-service applications.
+Saga is a type of Compensating Transaction pattern, which provides a simple way to help users solve the data consistency problems encountered in micro-service applications.
 
 ## Documentation
 Reference documentation is available on the [ServiceComb website][servicecomb-website].
@@ -9,11 +9,11 @@ Reference documentation is available on the [ServiceComb website][servicecomb-we
 [servicecomb-website]: http://servicecomb.io/
 
 ## Major Architecture of Saga
-* saga-core(transaction and compensation handled)
-* saga-format(events serialized and deserialized)
-* saga-transports(protocol processing as rest and rpc)
-* saga-discovery(discovery service center)
-* saga-spring(running architecture)
+* saga-core(transaction and compensation handling logic)
+* saga-format(data serialization and deserialization)
+* saga-transports(communication protocol implementation such as rest or rpc in the future)
+* saga-discovery(service discovery)
+* saga-spring(restful service framework)
 
 ![Saga](docs/static_files/saga.png) 
 
@@ -23,15 +23,19 @@ You will need:
 2. [Maven 3.x][maven]
 3. [Docker][docker]
 4. [MySQL][mysql]
-5. [Docker compose(optional)][docker_compose]
-6. [Docker machine(optional)][docker_machine]
+5. [Service Center(optional)][service_center]
+6. [Docker compose(optional)][docker_compose]
+7. [Docker machine(optional)][docker_machine]
+
 
 [jdk]: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
 [maven]: https://maven.apache.org/install.html
 [docker]: https://www.docker.com/get-docker
 [mysql]: https://dev.mysql.com/downloads/
+[service_center]: https://github.com/ServiceComb/service-center
 [docker_compose]: https://docs.docker.com/compose/install/
 [docker_machine]: https://docs.docker.com/machine/install-machine/
+
 
 
 ## Building

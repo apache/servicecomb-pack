@@ -24,9 +24,9 @@ User ---> Saga -----> flight booking service
 ```
 
 ## Running Demo
-1. when Saga service is ready, run the following command in saga/saga-demo/ directory to create microservice docker images.
+1. run the following command to create docker images in saga project root folder.
 ```
-mvn package -DskipTests -Pdocker
+mvn package -DskipTests -Pdocker -Pdemo
 ```
 
 2. start application up in saga/saga-demo/ with the following command
