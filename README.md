@@ -1,4 +1,4 @@
-# Saga [![Build Status](https://travis-ci.org/ServiceComb/saga.svg?branch=master)](https://travis-ci.org/ServiceComb/saga?branch=master) [![Coverage Status](https://coveralls.io/repos/github/ServiceComb/saga/badge.svg?branch=master)](https://coveralls.io/github/ServiceComb/saga?branch=master) [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
+# Saga [![Build Status](https://travis-ci.org/ServiceComb/ServiceComb-Saga.svg?branch=master)](https://travis-ci.org/ServiceComb/ServiceComb-Saga?branch=master) [![Coverage Status](https://coveralls.io/repos/github/ServiceComb/ServiceComb-Saga/badge.svg?branch=master)](https://coveralls.io/github/ServiceComb/ServiceComb-Saga?branch=master) [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 ## Purpose
 Saga is a type of Compensating Transaction pattern, which provides a simple way to help users solve the data consistency problems encountered in micro-service applications.
