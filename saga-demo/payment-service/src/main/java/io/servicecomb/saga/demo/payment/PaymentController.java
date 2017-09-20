@@ -16,17 +16,22 @@
 
 package io.servicecomb.saga.demo.payment;
 
-import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
-import io.servicecomb.provider.rest.common.RestSchema;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import io.servicecomb.provider.rest.common.RestSchema;
+import io.servicecomb.swagger.invocation.exception.InvocationException;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 @Controller
 @RequestMapping("/")
@@ -34,14 +39,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class PaymentController {
   private int balance = 1000;
 
+  @ApiResponses({
+      @ApiResponse(code = 200, response = String.class, message = "authenticated user"),
+      @ApiResponse(code = 403, response = String.class, message = "unauthenticated user"),
+      @ApiResponse(code = 400, response = String.class, message = "insufficient account balance")
+  })
   @RequestMapping(value = "payments", method = POST, consumes = APPLICATION_FORM_URLENCODED_VALUE, produces = TEXT_PLAIN_VALUE)
   public ResponseEntity<String> pay(@RequestAttribute String customerId) {
     if ("anonymous".equals(customerId)) {
-      return new ResponseEntity<>("No such customer with id " + customerId, FORBIDDEN);
+      throw new InvocationException(FORBIDDEN, "No such customer with id " + customerId);
     }
 
     if (balance < 800) {
-      return ResponseEntity.badRequest().body("Not enough balance in account of customer " + customerId);
+      throw new InvocationException(BAD_REQUEST, "Not enough balance in account of customer " + customerId);
     }
 
     balance -= 800;
@@ -50,10 +60,14 @@ public class PaymentController {
         balance));
   }
 
+  @ApiResponses({
+      @ApiResponse(code = 200, response = String.class, message = "authenticated user"),
+      @ApiResponse(code = 403, response = String.class, message = "unauthenticated user")
+  })
   @RequestMapping(value = "payments", method = PUT, consumes = APPLICATION_FORM_URLENCODED_VALUE, produces = TEXT_PLAIN_VALUE)
   public ResponseEntity<String> refund(@RequestAttribute String customerId) {
     if ("anonymous".equals(customerId)) {
-      return new ResponseEntity<>("No such customer with id " + customerId, FORBIDDEN);
+      throw new InvocationException(FORBIDDEN, "No such customer with id " + customerId);
     }
 
     balance += 800;
