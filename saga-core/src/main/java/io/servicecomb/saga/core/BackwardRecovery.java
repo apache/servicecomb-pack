@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 @EnableKamon
 public class BackwardRecovery implements RecoveryPolicy {
+
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Segment(name = "backwardPolicy", category = "application", library = "kamon")
@@ -31,11 +32,13 @@ public class BackwardRecovery implements RecoveryPolicy {
   public void apply(SagaTask task, SagaRequest request) {
     try {
       task.commit(request);
+    } catch (SagaStartFailedException e) {
+      throw e;
     } catch (Exception e) {
       log.error("Applying {} policy due to failure in transaction {} of service {}",
           description(),
-          request.serviceName(),
           request.transaction(),
+          request.serviceName(),
           e
       );
 

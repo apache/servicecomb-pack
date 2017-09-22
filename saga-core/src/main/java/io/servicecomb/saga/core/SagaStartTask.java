@@ -35,7 +35,11 @@ public class SagaStartTask implements SagaTask {
   @Segment(name = "startTaskCommit", category = "application", library = "kamon")
   @Override
   public void commit(SagaRequest request) {
-    sagaLog.offer(new SagaStartedEvent(sagaId, requestJson, request));
+    try {
+      sagaLog.offer(new SagaStartedEvent(sagaId, requestJson, request));
+    } catch (Exception e) {
+      throw new SagaStartFailedException("Failed to persist SagaStartedEvent", e);
+    }
   }
 
   @Override

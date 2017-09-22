@@ -19,6 +19,7 @@ package io.servicecomb.saga.core.application;
 import static io.servicecomb.saga.core.SagaTask.SAGA_END_TASK;
 import static io.servicecomb.saga.core.SagaTask.SAGA_REQUEST_TASK;
 import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
+import static java.lang.Thread.sleep;
 
 import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.EventStore;
@@ -56,6 +57,7 @@ public class SagaExecutionComponent {
   private final Executor executorService;
   private final FallbackPolicy fallbackPolicy;
   private final GraphBuilder graphBuilder;
+  private final RetrySagaLog retrySagaLog;
 
   public SagaExecutionComponent(
       PersistentStore persistentStore,
@@ -81,6 +83,7 @@ public class SagaExecutionComponent {
     this.fromJsonFormat = fromJsonFormat;
     this.toJsonFormat = toJsonFormat;
     this.executorService = executorService;
+    this.retrySagaLog = new RetrySagaLog(persistentStore, retryDelay);
   }
 
   @Segment(name = "runSagaExecutionComponent", category = "application", library = "kamon")
@@ -122,17 +125,57 @@ public class SagaExecutionComponent {
     }
   }
 
-  private CompositeSagaLog compositeSagaLog(SagaLog sagaLog) {
+  private CompositeSagaLog compositeSagaLog(SagaLog sagaLog, PersistentStore persistentStore) {
     return new CompositeSagaLog(sagaLog, persistentStore);
   }
 
   private Map<String, SagaTask> sagaTasks(String sagaId, String requestJson, EventStore sagaLog) {
-    SagaLog compositeSagaLog = compositeSagaLog(sagaLog);
+    SagaLog compositeSagaLog = compositeSagaLog(sagaLog, persistentStore);
 
     return new HashMap<String, SagaTask>() {{
       put(SAGA_START_TASK, new SagaStartTask(sagaId, requestJson, compositeSagaLog));
-      put(SAGA_REQUEST_TASK, new RequestProcessTask(sagaId, compositeSagaLog, fallbackPolicy));
-      put(SAGA_END_TASK, new SagaEndTask(sagaId, compositeSagaLog));
+      SagaLog retrySagaLog = compositeSagaLog(sagaLog, SagaExecutionComponent.this.retrySagaLog);
+      put(SAGA_REQUEST_TASK, new RequestProcessTask(sagaId, retrySagaLog, fallbackPolicy));
+      put(SAGA_END_TASK, new SagaEndTask(sagaId, retrySagaLog));
     }};
+  }
+
+  static class RetrySagaLog implements PersistentStore {
+
+    private final PersistentStore retryPersistentStore;
+    private final int retryDelay;
+
+    RetrySagaLog(PersistentStore persistentStore, int retryDelay) {
+      this.retryPersistentStore = persistentStore;
+      this.retryDelay = retryDelay;
+    }
+
+    @Override
+    public void offer(SagaEvent sagaEvent) {
+      boolean success = false;
+      do {
+        try {
+          retryPersistentStore.offer(sagaEvent);
+          success = true;
+        } catch (Exception e) {
+          e.printStackTrace();
+          try {
+            sleep(retryDelay);
+          } catch (InterruptedException e1) {
+            e1.printStackTrace();
+          }
+        }
+      } while (!success);
+    }
+
+    @Override
+    public long size() {
+      return retryPersistentStore.size();
+    }
+
+    @Override
+    public Map<String, List<EventEnvelope>> findPendingSagaEvents() {
+      return retryPersistentStore.findPendingSagaEvents();
+    }
   }
 }
