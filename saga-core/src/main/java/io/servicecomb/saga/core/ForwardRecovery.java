@@ -27,15 +27,18 @@ public class ForwardRecovery implements RecoveryPolicy {
   @Override
   public void apply(SagaTask task, SagaRequest request) {
     boolean success = false;
+
     do {
       try {
         task.commit(request);
         success = true;
+      } catch (SagaStartFailedException e) {
+        throw e;
       } catch (Exception e) {
         log.error("Applying {} policy due to failure in transaction {} of service {}",
             description(),
-            request.serviceName(),
             request.transaction(),
+            request.serviceName(),
             e
         );
       }

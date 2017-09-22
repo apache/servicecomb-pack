@@ -65,6 +65,9 @@ class TransactionTaskConsumer implements TaskConsumer {
       try {
         executorService.take().get();
       } catch (ExecutionException e) {
+        if (e.getCause() instanceof SagaStartFailedException) {
+          throw ((SagaStartFailedException) e.getCause());
+        }
         throw new TransactionFailedException(e.getCause());
       } catch (InterruptedException e) {
         // TODO: 7/29/2017 what shall we do when system is shutting down?
