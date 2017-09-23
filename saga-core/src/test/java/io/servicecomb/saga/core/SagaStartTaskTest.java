@@ -16,7 +16,7 @@ public class SagaStartTaskTest {
   private final SagaStartTask sagaStartTask = new SagaStartTask("0", null, sagaLog);
 
   @Test
-  public void commit() {
+  public void blowsUpWhenEventIsNotPersisted() {
     doThrow(RuntimeException.class).when(sagaLog).offer(any(SagaStartedEvent.class));
 
     try {

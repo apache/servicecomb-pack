@@ -10,12 +10,10 @@ public class BackwardRecoveryTest {
 
   private final SagaTask sagaTask = mock(SagaTask.class);
   private final SagaRequest sagaRequest = mock(SagaRequest.class);
-  private final
-
-  BackwardRecovery backwardRecovery = new BackwardRecovery();
+  private final BackwardRecovery backwardRecovery = new BackwardRecovery();
 
   @Test
-  public void apply() {
+  public void blowsUpWhenTaskIsNotCommitted() {
     doThrow(SagaStartFailedException.class).when(sagaTask).commit(sagaRequest);
 
     try {
@@ -24,5 +22,4 @@ public class BackwardRecoveryTest {
     } catch (SagaStartFailedException ignored) {
     }
   }
-
 }

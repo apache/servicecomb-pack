@@ -142,11 +142,11 @@ public class SagaExecutionComponent {
 
   static class RetrySagaLog implements PersistentStore {
 
-    private final PersistentStore retryPersistentStore;
+    private final PersistentStore persistentStore1;
     private final int retryDelay;
 
     RetrySagaLog(PersistentStore persistentStore, int retryDelay) {
-      this.retryPersistentStore = persistentStore;
+      this.persistentStore1 = persistentStore;
       this.retryDelay = retryDelay;
     }
 
@@ -155,27 +155,36 @@ public class SagaExecutionComponent {
       boolean success = false;
       do {
         try {
-          retryPersistentStore.offer(sagaEvent);
+          persistentStore1.offer(sagaEvent);
           success = true;
         } catch (Exception e) {
           e.printStackTrace();
-          try {
-            sleep(retryDelay);
-          } catch (InterruptedException e1) {
-            e1.printStackTrace();
-          }
+          sleep(retryDelay);
         }
-      } while (!success);
+      } while (!success && !isInterrupted());
     }
 
     @Override
     public long size() {
-      return retryPersistentStore.size();
+      return persistentStore1.size();
     }
 
     @Override
     public Map<String, List<EventEnvelope>> findPendingSagaEvents() {
-      return retryPersistentStore.findPendingSagaEvents();
+      return persistentStore1.findPendingSagaEvents();
     }
+
+    private boolean isInterrupted() {
+      return Thread.currentThread().isInterrupted();
+    }
+
+    private void sleep(int delay){
+      try {
+        Thread.sleep(delay);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+    }
+
   }
 }
