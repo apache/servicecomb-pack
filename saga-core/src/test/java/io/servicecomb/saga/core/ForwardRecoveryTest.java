@@ -14,7 +14,7 @@ public class ForwardRecoveryTest {
   private final ForwardRecovery forwardRecovery = new ForwardRecovery();
 
   @Test
-  public void apply() throws Exception {
+  public void blowsUpWhenTaskIsNotCommitted() throws Exception {
     doThrow(SagaStartFailedException.class).when(sagaTask).commit(sagaRequest);
 
     try {

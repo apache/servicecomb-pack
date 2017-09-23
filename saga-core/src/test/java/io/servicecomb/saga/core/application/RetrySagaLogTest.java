@@ -26,20 +26,21 @@ public class RetrySagaLogTest {
   private List<String> list = new ArrayList<>();
 
   @Test
-  public void offer() throws InterruptedException {
-
+  public void retryUntilSuccessWhenEventIsNotPersisted() throws InterruptedException {
     ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+
     executor.execute(() -> {
       doThrow(RuntimeException.class).when(retryPersistentStore).offer(dummyEvent);
+
       retrySagaLog.offer(dummyEvent);
-      list.add("failure");
+      list.add("expect persistentStore retried all the time,but not");
     });
 
     sleep(5000);
 
     if (list.size() != 0) {
       expectFailing(RuntimeException.class);
-      executor.shutdown();
     }
+    executor.shutdown();
   }
 }
