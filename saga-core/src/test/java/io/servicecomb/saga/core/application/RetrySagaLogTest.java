@@ -1,6 +1,7 @@
 package io.servicecomb.saga.core.application;
 
 
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doThrow;
@@ -11,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -27,7 +29,7 @@ public class RetrySagaLogTest {
   private final SagaEvent dummyEvent = new DummyEvent(sagaRequest);
   private final RetrySagaLog retrySagaLog = new RetrySagaLog(persistentStore, 100);
 
-  private boolean interrupted = false;
+  private volatile boolean interrupted = false;
 
   @Test
   public void retryUntilSuccessWhenEventIsNotPersisted() throws InterruptedException {
@@ -59,7 +61,7 @@ public class RetrySagaLogTest {
 
     assertThat(future.cancel(true), is(true));
 
-    assertThat(interrupted, is(true));
+    await().atMost(2, TimeUnit.SECONDS).until(() -> interrupted);
     executor.shutdown();
   }
 }
