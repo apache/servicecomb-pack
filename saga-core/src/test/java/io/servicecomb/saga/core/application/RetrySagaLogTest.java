@@ -1,46 +1,65 @@
 package io.servicecomb.saga.core.application;
 
 
-import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
-import static java.lang.Thread.sleep;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import org.junit.Test;
 
 import io.servicecomb.saga.core.DummyEvent;
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.application.SagaExecutionComponent.RetrySagaLog;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import org.junit.Test;
 
 public class RetrySagaLogTest {
 
-  private final PersistentStore retryPersistentStore = mock(PersistentStore.class);
+  private final PersistentStore persistentStore = mock(PersistentStore.class);
   private final SagaRequest sagaRequest = mock(SagaRequest.class);
   private final SagaEvent dummyEvent = new DummyEvent(sagaRequest);
-  private final RetrySagaLog retrySagaLog = new RetrySagaLog(retryPersistentStore, 1000);
-  private List<String> list = new ArrayList<>();
+  private final RetrySagaLog retrySagaLog = new RetrySagaLog(persistentStore, 100);
+
+  private boolean interrupted = false;
 
   @Test
   public void retryUntilSuccessWhenEventIsNotPersisted() throws InterruptedException {
-    ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+    doThrow(RuntimeException.class).
+        doThrow(RuntimeException.class).
+        doThrow(RuntimeException.class).
+        doThrow(RuntimeException.class).
+        doThrow(RuntimeException.class).
+        doNothing().
+        when(persistentStore).offer(dummyEvent);
 
-    executor.execute(() -> {
-      doThrow(RuntimeException.class).when(retryPersistentStore).offer(dummyEvent);
+    retrySagaLog.offer(dummyEvent);
+
+    verify(persistentStore, times(6)).offer(dummyEvent);
+  }
+
+  @Test
+  public void exitOnInterruption() throws InterruptedException {
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    Future<?> future = executor.submit(() -> {
+      doThrow(RuntimeException.class).when(persistentStore).offer(dummyEvent);
 
       retrySagaLog.offer(dummyEvent);
-      list.add("expect persistentStore retried all the time,but not");
+      interrupted = true;
     });
 
-    sleep(5000);
+    Thread.sleep(500);
 
-    if (list.size() != 0) {
-      expectFailing(RuntimeException.class);
-    }
+    assertThat(future.cancel(true), is(true));
+
+    assertThat(interrupted, is(true));
     executor.shutdown();
   }
 }

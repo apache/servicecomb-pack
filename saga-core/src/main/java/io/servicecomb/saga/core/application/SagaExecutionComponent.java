@@ -37,6 +37,8 @@ import io.servicecomb.saga.core.ToJsonFormat;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.core.dag.GraphCycleDetectorImpl;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
+
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +47,10 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
 
@@ -141,12 +147,12 @@ public class SagaExecutionComponent {
   }
 
   static class RetrySagaLog implements PersistentStore {
-
-    private final PersistentStore persistentStore1;
+    private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private final PersistentStore persistentStore;
     private final int retryDelay;
 
     RetrySagaLog(PersistentStore persistentStore, int retryDelay) {
-      this.persistentStore1 = persistentStore;
+      this.persistentStore = persistentStore;
       this.retryDelay = retryDelay;
     }
 
@@ -155,10 +161,11 @@ public class SagaExecutionComponent {
       boolean success = false;
       do {
         try {
-          persistentStore1.offer(sagaEvent);
+          persistentStore.offer(sagaEvent);
           success = true;
+          log.info("Persisted saga event {} successfully", sagaEvent);
         } catch (Exception e) {
-          e.printStackTrace();
+          log.error("Failed to persist saga event {}", sagaEvent, e);
           sleep(retryDelay);
         }
       } while (!success && !isInterrupted());
@@ -166,12 +173,12 @@ public class SagaExecutionComponent {
 
     @Override
     public long size() {
-      return persistentStore1.size();
+      return persistentStore.size();
     }
 
     @Override
     public Map<String, List<EventEnvelope>> findPendingSagaEvents() {
-      return persistentStore1.findPendingSagaEvents();
+      return persistentStore.findPendingSagaEvents();
     }
 
     private boolean isInterrupted() {
