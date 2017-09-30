@@ -30,6 +30,7 @@ public class SagaRequestImpl implements SagaRequest {
   private final Compensation compensation;
   private final String[] parents;
   private final Fallback fallback;
+  private final int failRetryDelaySeconds;
 
   public SagaRequestImpl(
       String id,
@@ -38,6 +39,7 @@ public class SagaRequestImpl implements SagaRequest {
       Transaction transaction,
       Compensation compensation,
       Fallback fallback,
+      int failRetryDelaySeconds,
       String[] parents) {
 
     this.id = id;
@@ -46,6 +48,7 @@ public class SagaRequestImpl implements SagaRequest {
     this.transaction = transaction;
     this.compensation = compensation;
     this.fallback = fallback;
+    this.failRetryDelaySeconds = failRetryDelaySeconds;
     this.parents = parents == null ? new String[0] : parents;
   }
 
@@ -55,8 +58,20 @@ public class SagaRequestImpl implements SagaRequest {
       String type,
       Transaction transaction,
       Compensation compensation,
-      Fallback fallback) {
-    this(id, serviceName, type, transaction, compensation, fallback, new String[0]);
+      Fallback fallback,
+      int failRetryDelaySeconds) {
+    this(id, serviceName, type, transaction, compensation, fallback, failRetryDelaySeconds, new String[0]);
+  }
+
+  public SagaRequestImpl(
+      String id,
+      String serviceName,
+      String type,
+      Transaction transaction,
+      Compensation compensation,
+      int failRetryDelaySeconds) {
+
+    this(id, serviceName, type, transaction, compensation, NOP_FALLBACK, failRetryDelaySeconds, new String[0]);
   }
 
   public SagaRequestImpl(
@@ -66,7 +81,7 @@ public class SagaRequestImpl implements SagaRequest {
       Transaction transaction,
       Compensation compensation) {
 
-    this(id, serviceName, type, transaction, compensation, NOP_FALLBACK, new String[0]);
+    this(id, serviceName, type, transaction, compensation, NOP_FALLBACK, 1, new String[0]);
   }
 
   @Override
@@ -107,6 +122,11 @@ public class SagaRequestImpl implements SagaRequest {
   @Override
   public String[] parents() {
     return parents;
+  }
+
+  @Override
+  public int failRetryDelaySeconds() {
+    return failRetryDelaySeconds;
   }
 
   @Override
