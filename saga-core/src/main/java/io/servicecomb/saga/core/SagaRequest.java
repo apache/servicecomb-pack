@@ -42,4 +42,6 @@ public interface SagaRequest {
   String task();
 
   String[] parents();
+
+  int failRetryDelaySeconds();
 }

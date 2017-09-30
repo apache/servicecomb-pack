@@ -38,16 +38,19 @@ public class JsonRestSagaRequest extends SagaRequestImpl implements JsonSagaRequ
       @JsonProperty("transaction") JacksonRestTransaction transaction,
       @JsonProperty("compensation") JacksonRestCompensation compensation,
       @JsonProperty("fallback") JacksonFallback fallback,
+      @JsonProperty("failRetryDelaySeconds") int failRetryDelaySeconds,
       @JsonProperty("parents") String[] parents) {
 
-    super(id, serviceName, type, transaction, compensation, fallback == null? NOP_TRANSPORT_AWARE_FALLBACK : fallback, parents);
+    super(id, serviceName, type, transaction, compensation,
+        fallback == null ? NOP_TRANSPORT_AWARE_FALLBACK : fallback,
+        failRetryDelaySeconds, parents);
 
     checkNull(transaction, "transaction");
     checkNull(compensation, "compensation");
 
     this.transaction = transaction;
     this.compensation = compensation;
-    this.fallback = fallback == null? NOP_TRANSPORT_AWARE_FALLBACK : fallback;
+    this.fallback = fallback == null ? NOP_TRANSPORT_AWARE_FALLBACK : fallback;
   }
 
   @Override
