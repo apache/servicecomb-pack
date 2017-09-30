@@ -30,12 +30,12 @@ import java.util.stream.Collectors;
  *
  * @see <a href="https://en.wikipedia.org/wiki/Topological_sorting">Topological Sorting</a>
  */
-public class GraphCycleDetectorImpl<T> implements GraphCycleDetector<T> {
+public class GraphCycleDetectorImpl<C, T> implements GraphCycleDetector<C, T> {
 
   @Override
-  public Set<Node<T>> cycleJoints(SingleLeafDirectedAcyclicGraph<T> graph) {
-    Queue<Node<T>> orphanNodes = new LinkedList<>();
-    Map<Node<T>, Set<Node<T>>> nodeParents = new HashMap<>();
+  public Set<Node<C, T>> cycleJoints(SingleLeafDirectedAcyclicGraph<C, T> graph) {
+    Queue<Node<C, T>> orphanNodes = new LinkedList<>();
+    Map<Node<C, T>, Set<Node<C, T>>> nodeParents = new HashMap<>();
 
     orphanNodes.add(graph.root());
 
@@ -44,9 +44,9 @@ public class GraphCycleDetectorImpl<T> implements GraphCycleDetector<T> {
     return unvisitedNodes(nodeParents);
   }
 
-  private void traverse(Queue<Node<T>> orphanNodes, Map<Node<T>, Set<Node<T>>> nodeParents) {
+  private void traverse(Queue<Node<C, T>> orphanNodes, Map<Node<C, T>, Set<Node<C, T>>> nodeParents) {
     while (!orphanNodes.isEmpty()) {
-      Node<T> node = orphanNodes.poll();
+      Node<C, T> node = orphanNodes.poll();
 
       node.children().forEach(child -> {
         nodeParents.computeIfAbsent(child, n -> new HashSet<>(child.parents()))
@@ -59,7 +59,7 @@ public class GraphCycleDetectorImpl<T> implements GraphCycleDetector<T> {
     }
   }
 
-  private Set<Node<T>> unvisitedNodes(Map<Node<T>, Set<Node<T>>> nodeParents) {
+  private Set<Node<C, T>> unvisitedNodes(Map<Node<C, T>, Set<Node<C, T>>> nodeParents) {
     return nodeParents.entrySet()
         .parallelStream()
         .filter(parents -> !parents.getValue().isEmpty())

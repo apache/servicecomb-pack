@@ -26,10 +26,10 @@ import kamon.annotation.Segment;
 @EnableKamon
 class TaskRunner implements SagaState {
 
-  private final Traveller<SagaRequest> traveller;
+  private final Traveller<SagaResponse, SagaRequest> traveller;
   private final TaskConsumer taskConsumer;
 
-  TaskRunner(Traveller<SagaRequest> traveller, TaskConsumer taskConsumer) {
+  TaskRunner(Traveller<SagaResponse, SagaRequest> traveller, TaskConsumer taskConsumer) {
     this.traveller = traveller;
     this.taskConsumer = taskConsumer;
   }
@@ -42,7 +42,7 @@ class TaskRunner implements SagaState {
   @Segment(name = "runTask", category = "application", library = "kamon")
   @Override
   public void run() {
-    Collection<Node<SagaRequest>> nodes = traveller.nodes();
+    Collection<Node<SagaResponse, SagaRequest>> nodes = traveller.nodes();
 
     // finish pending tasks from saga log at startup
     if (!nodes.isEmpty()) {
@@ -60,7 +60,7 @@ class TaskRunner implements SagaState {
   @Override
   public void replay(Set<String> completedOperations) {
     boolean played = false;
-    Collection<Node<SagaRequest>> nodes = traveller.nodes();
+    Collection<Node<SagaResponse, SagaRequest>> nodes = traveller.nodes();
     while (traveller.hasNext() && !played) {
       traveller.next();
       played = taskConsumer.replay(nodes, completedOperations);

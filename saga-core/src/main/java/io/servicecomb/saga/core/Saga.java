@@ -55,14 +55,14 @@ public class Saga {
   Saga(
       EventStore eventStore,
       Map<String, SagaTask> tasks,
-      SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {
+      SingleLeafDirectedAcyclicGraph<SagaResponse, SagaRequest> sagaTaskGraph) {
     this(eventStore, new BackwardRecovery(), tasks, sagaTaskGraph);
   }
 
   Saga(EventStore eventStore,
       RecoveryPolicy recoveryPolicy,
       Map<String, SagaTask> tasks,
-      SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {
+      SingleLeafDirectedAcyclicGraph<SagaResponse, SagaRequest> sagaTaskGraph) {
 
     this(eventStore, Executors.newFixedThreadPool(5), recoveryPolicy, tasks, sagaTaskGraph);
   }
@@ -71,7 +71,7 @@ public class Saga {
       Executor executor,
       RecoveryPolicy recoveryPolicy,
       Map<String, SagaTask> tasks,
-      SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {
+      SingleLeafDirectedAcyclicGraph<SagaResponse, SagaRequest> sagaTaskGraph) {
 
     this.eventStore = eventStore;
     this.tasks = tasks;
@@ -138,9 +138,9 @@ public class Saga {
     }
   }
 
-  private ByLevelTraveller<SagaRequest> traveller(
-      SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph,
-      TraversalDirection<SagaRequest> traversalDirection) {
+  private ByLevelTraveller<SagaResponse, SagaRequest> traveller(
+      SingleLeafDirectedAcyclicGraph<SagaResponse, SagaRequest> sagaTaskGraph,
+      TraversalDirection<SagaResponse, SagaRequest> traversalDirection) {
 
     return new ByLevelTraveller<>(sagaTaskGraph, traversalDirection);
   }

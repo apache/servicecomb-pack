@@ -18,20 +18,20 @@ package io.servicecomb.saga.core.dag;
 
 import java.util.Set;
 
-public class FromLeafTraversalDirection<T> implements TraversalDirection<T> {
+public class FromLeafTraversalDirection<C, T> implements TraversalDirection<C, T> {
 
   @Override
-  public Node<T> root(SingleLeafDirectedAcyclicGraph<T> dag) {
+  public Node<C, T> root(SingleLeafDirectedAcyclicGraph<C, T> dag) {
     return dag.leaf();
   }
 
   @Override
-  public Set<Node<T>> parents(Node<T> node) {
+  public Set<Node<C, T>> parents(Node<C, T> node) {
     return node.children();
   }
 
   @Override
-  public Set<Node<T>> children(Node<T> node) {
+  public Set<Node<C, T>> children(Node<C, T> node) {
     return node.parents();
   }
 }

@@ -19,6 +19,7 @@ package io.servicecomb.saga.core.application;
 import io.servicecomb.saga.core.NoOpSagaRequest;
 import io.servicecomb.saga.core.SagaException;
 import io.servicecomb.saga.core.SagaRequest;
+import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.dag.GraphCycleDetector;
 import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
@@ -31,27 +32,27 @@ import kamon.annotation.Segment;
 @EnableKamon
 class GraphBuilder {
 
-  private final GraphCycleDetector<SagaRequest> detector;
+  private final GraphCycleDetector<SagaResponse, SagaRequest> detector;
 
-  GraphBuilder(GraphCycleDetector<SagaRequest> detector) {
+  GraphBuilder(GraphCycleDetector<SagaResponse, SagaRequest> detector) {
     this.detector = detector;
   }
 
   @Segment(name = "buildGraph", category = "application", library = "kamon")
-  SingleLeafDirectedAcyclicGraph<SagaRequest> build(SagaRequest[] sagaRequests) {
-    Map<String, Node<SagaRequest>> requestNodes = requestsToNodes(sagaRequests);
+  SingleLeafDirectedAcyclicGraph<SagaResponse, SagaRequest> build(SagaRequest[] sagaRequests) {
+    Map<String, Node<SagaResponse, SagaRequest>> requestNodes = requestsToNodes(sagaRequests);
 
-    SingleLeafDirectedAcyclicGraph<SagaRequest> graph = linkNodesToGraph(sagaRequests, requestNodes);
+    SingleLeafDirectedAcyclicGraph<SagaResponse, SagaRequest> graph = linkNodesToGraph(sagaRequests, requestNodes);
     detectCycle(graph);
     return graph;
   }
 
-  private SingleLeafDirectedAcyclicGraph<SagaRequest> linkNodesToGraph(
+  private SingleLeafDirectedAcyclicGraph<SagaResponse, SagaRequest> linkNodesToGraph(
       SagaRequest[] sagaRequests,
-      Map<String, Node<SagaRequest>> requestNodes) {
+      Map<String, Node<SagaResponse, SagaRequest>> requestNodes) {
 
-    Node<SagaRequest> root = rootNode(0);
-    Node<SagaRequest> leaf = leafNode(sagaRequests.length + 1);
+    Node<SagaResponse, SagaRequest> root = rootNode(0);
+    Node<SagaResponse, SagaRequest> leaf = leafNode(sagaRequests.length + 1);
 
     for (SagaRequest sagaRequest : sagaRequests) {
       if (isOrphan(sagaRequest)) {
@@ -70,13 +71,13 @@ class GraphBuilder {
     return new SingleLeafDirectedAcyclicGraph<>(root, leaf);
   }
 
-  private Node<SagaRequest> rootNode(int id) {
+  private Node<SagaResponse, SagaRequest> rootNode(int id) {
     return new Node<>(
         id,
         NoOpSagaRequest.SAGA_START_REQUEST);
   }
 
-  private Node<SagaRequest> leafNode(int id) {
+  private Node<SagaResponse, SagaRequest> leafNode(int id) {
     return new Node<>(
         id,
         NoOpSagaRequest.SAGA_END_REQUEST);
@@ -86,9 +87,9 @@ class GraphBuilder {
     return sagaRequest.parents().length == 0;
   }
 
-  private Map<String, Node<SagaRequest>> requestsToNodes(SagaRequest[] sagaRequests) {
+  private Map<String, Node<SagaResponse, SagaRequest>> requestsToNodes(SagaRequest[] sagaRequests) {
     long index = 1;
-    Map<String, Node<SagaRequest>> requestMap = new HashMap<>();
+    Map<String, Node<SagaResponse, SagaRequest>> requestMap = new HashMap<>();
     for (SagaRequest sagaRequest : sagaRequests) {
       if (requestMap.containsKey(sagaRequest.id())) {
         // TODO: 8/20/2017 add random id if user didn't provide one
@@ -99,8 +100,8 @@ class GraphBuilder {
     return requestMap;
   }
 
-  private void detectCycle(SingleLeafDirectedAcyclicGraph<SagaRequest> graph) {
-    Set<Node<SagaRequest>> jointNodes = detector.cycleJoints(graph);
+  private void detectCycle(SingleLeafDirectedAcyclicGraph<SagaResponse, SagaRequest> graph) {
+    Set<Node<SagaResponse, SagaRequest>> jointNodes = detector.cycleJoints(graph);
 
     if (!jointNodes.isEmpty()) {
       throw new SagaException("Cycle detected in the request graph at nodes " + jointNodes);

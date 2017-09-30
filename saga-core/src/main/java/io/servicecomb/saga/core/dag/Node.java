@@ -20,12 +20,16 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-public class Node<T> {
+public class Node<C, T> {
   private final long id;
   private final T value;
-  private final Set<Node<T>> children = new HashSet<>();
-  private final Set<Node<T>> parents = new HashSet<>();
+  private final Set<Node<C, T>> children = new HashSet<>();
+  private final Set<Node<C, T>> parents = new HashSet<>();
+
+  private final Set<Edge<C, T>> childrenEdges = new HashSet<>();
+  private final Set<Edge<C, T>> parentEdges = new HashSet<>();
 
   public Node(long id, T value) {
     this.id = id;
@@ -40,22 +44,37 @@ public class Node<T> {
     return value;
   }
 
-  Set<Node<T>> parents() {
+  Set<Node<C, T>> parents() {
     return parents;
   }
 
-  public Set<Node<T>> children() {
+  public Set<Node<C, T>> children() {
     return children;
   }
 
-  public void addChild(Node<T> node) {
+  public void addChild(Node<C, T> node) {
     children.add(node);
     node.parents.add(this);
   }
 
-  public void addChildren(Collection<Node<T>> nodes) {
+  public void addChildren(Collection<Node<C, T>> nodes) {
     children.addAll(nodes);
     nodes.forEach(node -> node.parents.add(this));
+  }
+
+  public void addChildEdge(Edge<C, T> edge) {
+    childrenEdges.add(edge);
+  }
+
+  public void addParentEdge(Edge<C, T> edge) {
+    parentEdges.add(edge);
+  }
+
+  public Set<Node<C, T>> children(C condition) {
+    return childrenEdges.stream()
+        .filter(edge -> edge.isSatisfied(condition))
+        .map(Edge::target)
+        .collect(Collectors.toSet());
   }
 
   @Override
@@ -66,7 +85,7 @@ public class Node<T> {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Node<?> node = (Node<?>) o;
+    Node<?, ?> node = (Node<?, ?>) o;
     return id == node.id;
   }
 

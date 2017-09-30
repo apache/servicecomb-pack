@@ -16,13 +16,31 @@
 
 package io.servicecomb.saga.core.dag;
 
-import java.util.Set;
+import java.util.function.Predicate;
 
-public interface TraversalDirection<C, T> {
+public class Edge<C, T> {
+  private final Predicate<C> predicate;
+  private final Node<C, T> parent;
+  private final Node<C, T> child;
 
-  Node<C, T> root(SingleLeafDirectedAcyclicGraph<C, T> dag);
+  public Edge(Predicate<C> predicate, Node<C, T> parent, Node<C, T> child) {
+    this.predicate = predicate;
+    this.parent = parent;
+    this.child = child;
 
-  Set<Node<C, T>> parents(Node<C, T> node);
+    parent.addChildEdge(this);
+    child.addParentEdge(this);
+  }
 
-  Set<Node<C, T>> children(Node<C, T> node);
+  Node<C, T> source() {
+    return parent;
+  }
+
+  Node<C, T> target() {
+    return child;
+  }
+
+  boolean isSatisfied(C condition) {
+    return predicate.test(condition);
+  }
 }

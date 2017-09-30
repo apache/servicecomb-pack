@@ -24,4 +24,8 @@ public interface Operation {
   default SagaResponse send(String address) {
     return new SuccessfulSagaResponse(200, "success");
   }
+
+  default SagaResponse send(String address, SagaResponse response) {
+    return new SuccessfulSagaResponse(200, "success");
+  }
 }

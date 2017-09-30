@@ -24,21 +24,22 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
 
 @EnableKamon
-public class ByLevelTraveller<T> implements Traveller<T> {
+public class ByLevelTraveller<C, T> implements Traveller<C, T> {
 
-  private final Collection<Node<T>> nodes;
-  private final Collection<Node<T>> nodesBuffer;
+  private final Collection<Node<C, T>> nodes;
+  private final Collection<Node<C, T>> nodesBuffer;
 
-  private final Queue<Node<T>> nodesWithoutParent = new LinkedList<>();
-  private final Map<Long, Set<Node<T>>> nodeParents = new HashMap<>();
-  private final TraversalDirection<T> traversalDirection;
+  private final Queue<Node<C, T>> nodesWithoutParent = new LinkedList<>();
+  private final Map<Long, Set<Node<C, T>>> nodeParents = new HashMap<>();
+  private final TraversalDirection<C, T> traversalDirection;
 
 
-  public ByLevelTraveller(SingleLeafDirectedAcyclicGraph<T> dag, TraversalDirection<T> traversalDirection) {
+  public ByLevelTraveller(SingleLeafDirectedAcyclicGraph<C, T> dag, TraversalDirection<C, T> traversalDirection) {
     this.nodes = new LinkedHashSet<>();
     this.nodesBuffer = new LinkedList<>();
     this.traversalDirection = traversalDirection;
@@ -54,10 +55,10 @@ public class ByLevelTraveller<T> implements Traveller<T> {
     boolean buffered = false;
 
     while (!nodesWithoutParent.isEmpty() && !buffered) {
-      Node<T> node = nodesWithoutParent.poll();
+      Node<C, T> node = nodesWithoutParent.poll();
       nodes.add(node);
 
-      for (Node<T> child : traversalDirection.children(node)) {
+      for (Node<C, T> child : traversalDirection.children(node)) {
         nodeParents.computeIfAbsent(child.id(), id -> new HashSet<>(traversalDirection.parents(child)));
         nodeParents.get(child.id()).remove(node);
 
@@ -76,7 +77,7 @@ public class ByLevelTraveller<T> implements Traveller<T> {
   }
 
   @Override
-  public Collection<Node<T>> nodes() {
+  public Collection<Node<C, T>> nodes() {
     return nodes;
   }
 }

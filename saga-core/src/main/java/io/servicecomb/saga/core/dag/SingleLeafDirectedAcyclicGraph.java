@@ -16,22 +16,22 @@
 
 package io.servicecomb.saga.core.dag;
 
-public class SingleLeafDirectedAcyclicGraph<T> {
+public class SingleLeafDirectedAcyclicGraph<C, T> {
 
-  private final Node<T> root;
-  private final Node<T> leaf;
+  private final Node<C, T> root;
+  private final Node<C, T> leaf;
 
-  public SingleLeafDirectedAcyclicGraph(Node<T> root, Node<T> leaf) {
+  public SingleLeafDirectedAcyclicGraph(Node<C, T> root, Node<C, T> leaf) {
 
     this.root = root;
     this.leaf = leaf;
   }
 
-  Node<T> root() {
+  Node<C, T> root() {
     return root;
   }
 
-  Node<T> leaf() {
+  Node<C, T> leaf() {
     return leaf;
   }
 }

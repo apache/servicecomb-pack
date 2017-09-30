@@ -18,7 +18,7 @@ package io.servicecomb.saga.core.dag;
 
 import java.util.Set;
 
-public interface GraphCycleDetector<T> {
+public interface GraphCycleDetector<C, T> {
 
-  Set<Node<T>> cycleJoints(SingleLeafDirectedAcyclicGraph<T> graph);
+  Set<Node<C, T>> cycleJoints(SingleLeafDirectedAcyclicGraph<C, T> graph);
 }

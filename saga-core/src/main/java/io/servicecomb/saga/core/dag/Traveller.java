@@ -18,11 +18,11 @@ package io.servicecomb.saga.core.dag;
 
 import java.util.Collection;
 
-public interface Traveller<T> {
+public interface Traveller<C, T> {
 
   void next();
 
   boolean hasNext();
 
-  Collection<Node<T>> nodes();
+  Collection<Node<C, T>> nodes();
 }

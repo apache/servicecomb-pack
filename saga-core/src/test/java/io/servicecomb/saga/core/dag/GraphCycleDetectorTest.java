@@ -21,21 +21,22 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Test;
 
 @SuppressWarnings("unchecked")
 public class GraphCycleDetectorTest {
 
-  private final Node<String> root = node(0);
-  private final Node<String> leaf = node(Long.MAX_VALUE);
+  private final Node<String, String> root = node(0);
+  private final Node<String, String> leaf = node(Long.MAX_VALUE);
 
-  private final Node<String> node1 = node(1);
-  private final Node<String> node2 = node(2);
-  private final Node<String> node3 = node(3);
+  private final Node<String, String> node1 = node(1);
+  private final Node<String, String> node2 = node(2);
+  private final Node<String, String> node3 = node(3);
 
-  private final SingleLeafDirectedAcyclicGraph<String> graph = new SingleLeafDirectedAcyclicGraph<>(root, leaf);
-  private final GraphCycleDetector<String> detector = new GraphCycleDetectorImpl<>();
+  private final SingleLeafDirectedAcyclicGraph<String, String> graph = new SingleLeafDirectedAcyclicGraph<>(root, leaf);
+  private final GraphCycleDetector<String, String> detector = new GraphCycleDetectorImpl<>();
 
   @Before
   public void setUp() throws Exception {
@@ -50,7 +51,7 @@ public class GraphCycleDetectorTest {
     node1.addChild(node2);
     node1.addChild(node3);
 
-    Set<Node<String>> nodes = detector.cycleJoints(graph);
+    Set<Node<String, String>> nodes = detector.cycleJoints(graph);
 
     assertThat(nodes.isEmpty(), is(true));
   }
@@ -61,12 +62,12 @@ public class GraphCycleDetectorTest {
     node2.addChild(node3);
     node3.addChild(node1);
 
-    Set<Node<String>> nodes = detector.cycleJoints(graph);
+    Set<Node<String, String>> nodes = detector.cycleJoints(graph);
 
     assertThat(nodes, contains(node1));
   }
 
-  private Node<String> node(long id) {
+  private Node<String, String> node(long id) {
     return new Node<>(id, "value " + id);
   }
 }

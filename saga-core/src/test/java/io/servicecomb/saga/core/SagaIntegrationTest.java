@@ -74,12 +74,12 @@ public class SagaIntegrationTest {
   @SuppressWarnings("ThrowableInstanceNeverThrown")
   private final RuntimeException exception = new RuntimeException("oops");
 
-  private final Node<SagaRequest> node1 = new Node<>(1, request1);
-  private final Node<SagaRequest> node2 = new Node<>(2, request2);
-  private final Node<SagaRequest> node3 = new Node<>(3, request3);
-  private final Node<SagaRequest> root = new Node<>(0, SAGA_START_REQUEST);
-  private final Node<SagaRequest> leaf = new Node<>(4, SAGA_END_REQUEST);
-  private final SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph = new SingleLeafDirectedAcyclicGraph<>(root, leaf);
+  private final Node<SagaResponse, SagaRequest> node1 = new Node<>(1, request1);
+  private final Node<SagaResponse, SagaRequest> node2 = new Node<>(2, request2);
+  private final Node<SagaResponse, SagaRequest> node3 = new Node<>(3, request3);
+  private final Node<SagaResponse, SagaRequest> root = new Node<>(0, SAGA_START_REQUEST);
+  private final Node<SagaResponse, SagaRequest> leaf = new Node<>(4, SAGA_END_REQUEST);
+  private final SingleLeafDirectedAcyclicGraph<SagaResponse, SagaRequest> sagaTaskGraph = new SingleLeafDirectedAcyclicGraph<>(root, leaf);
   private final SuccessfulSagaResponse response = new SuccessfulSagaResponse(200, "blah");
 
   private Saga saga;

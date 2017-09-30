@@ -37,8 +37,8 @@ class CompensationTaskConsumer implements TaskConsumer {
   }
 
   @Override
-  public void consume(Collection<Node<SagaRequest>> nodes) {
-    for (Node<SagaRequest> node : nodes) {
+  public void consume(Collection<Node<SagaResponse, SagaRequest>> nodes) {
+    for (Node<SagaResponse, SagaRequest> node : nodes) {
       SagaRequest request = node.value();
 
       if (completedTransactions.contains(request.id())) {
@@ -50,9 +50,9 @@ class CompensationTaskConsumer implements TaskConsumer {
   }
 
   @Override
-  public boolean replay(Collection<Node<SagaRequest>> nodes, Set<String> completedOperations) {
+  public boolean replay(Collection<Node<SagaResponse, SagaRequest>> nodes, Set<String> completedOperations) {
 
-    for (Iterator<Node<SagaRequest>> iterator = nodes.iterator(); iterator.hasNext(); ) {
+    for (Iterator<Node<SagaResponse, SagaRequest>> iterator = nodes.iterator(); iterator.hasNext(); ) {
       SagaRequest request = iterator.next().value();
       if (completedOperations.contains(request.id())) {
         log.info("Skipped completed compensation id={} operation={} while replay", request.id(), request.transaction());

@@ -21,20 +21,24 @@ import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 
 import java.util.Collection;
+
 import org.junit.Before;
 import org.junit.Test;
 
+@SuppressWarnings("unchecked")
 public class DirectedAcyclicGraphTraversalTest {
 
-  private final Node<String> root = new Node<>(0, "i don't care");
-  private final Node<String> node1 = new Node<>(1, "i don't care");
-  private final Node<String> node2 = new Node<>(2, "i don't care");
-  private final Node<String> node3 = new Node<>(3, "i don't care");
-  private final Node<String> node4 = new Node<>(4, "i don't care");
-  private final Node<String> node5 = new Node<>(5, "i don't care");
-  private final Node<String> leaf = new Node<>(6, "i don't care");
+  private final String value = "i don't care";
 
-  private final SingleLeafDirectedAcyclicGraph<String> dag = new SingleLeafDirectedAcyclicGraph<>(root, leaf);
+  private final Node<String, String> root = new Node<>(0, value);
+  private final Node<String, String> node1 = new Node<>(1, value);
+  private final Node<String, String> node2 = new Node<>(2, value);
+  private final Node<String, String> node3 = new Node<>(3, value);
+  private final Node<String, String> node4 = new Node<>(4, value);
+  private final Node<String, String> node5 = new Node<>(5, value);
+  private final Node<String, String> leaf = new Node<>(6, value);
+
+  private final SingleLeafDirectedAcyclicGraph<String, String> dag = new SingleLeafDirectedAcyclicGraph<>(root, leaf);
 
   //        0
   //       / \
@@ -57,9 +61,9 @@ public class DirectedAcyclicGraphTraversalTest {
 
   @Test
   public void traverseGraphOneLevelPerStepFromRoot() {
-    Traveller<String> traveller = new ByLevelTraveller<>(dag, new FromRootTraversalDirection<>());
+    Traveller<String, String> traveller = new ByLevelTraveller<>(dag, new FromRootTraversalDirection<>());
 
-    Collection<Node<String>> nodes = traveller.nodes();
+    Collection<Node<String, String>> nodes = traveller.nodes();
 
     traveller.next();
     assertThat(nodes, contains(root));
@@ -79,9 +83,9 @@ public class DirectedAcyclicGraphTraversalTest {
 
   @Test
   public void traverseGraphOneLevelPerStepFromLeaf() {
-    Traveller<String> traveller = new ByLevelTraveller<>(dag, new FromLeafTraversalDirection<>());
+    Traveller<String, String> traveller = new ByLevelTraveller<>(dag, new FromLeafTraversalDirection<>());
 
-    Collection<Node<String>> nodes = traveller.nodes();
+    Collection<Node<String, String>> nodes = traveller.nodes();
 
     traveller.next();
     assertThat(nodes, contains(leaf));

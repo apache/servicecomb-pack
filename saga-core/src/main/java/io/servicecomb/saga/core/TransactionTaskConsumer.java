@@ -54,9 +54,9 @@ class TransactionTaskConsumer implements TaskConsumer {
 
   @Segment(name = "consumeTask", category = "application", library = "kamon")
   @Override
-  public void consume(Collection<Node<SagaRequest>> nodes) {
+  public void consume(Collection<Node<SagaResponse, SagaRequest>> nodes) {
     List<Future<Operation>> futures = new ArrayList<>(nodes.size());
-    for (Node<SagaRequest> node : nodes) {
+    for (Node<SagaResponse, SagaRequest> node : nodes) {
       SagaRequest request = node.value();
       futures.add(futureOf(request));
     }
@@ -77,9 +77,9 @@ class TransactionTaskConsumer implements TaskConsumer {
   }
 
   @Override
-  public boolean replay(Collection<Node<SagaRequest>> nodes, Set<String> completedOperations) {
+  public boolean replay(Collection<Node<SagaResponse, SagaRequest>> nodes, Set<String> completedOperations) {
 
-    for (Iterator<Node<SagaRequest>> iterator = nodes.iterator(); iterator.hasNext(); ) {
+    for (Iterator<Node<SagaResponse, SagaRequest>> iterator = nodes.iterator(); iterator.hasNext(); ) {
       SagaRequest request = iterator.next().value();
       if (completedOperations.contains(request.id())) {
         log.info("Skipped completed transaction id={} operation={} while replay", request.id(), request.transaction());

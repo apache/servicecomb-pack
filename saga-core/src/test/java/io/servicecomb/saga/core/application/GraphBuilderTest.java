@@ -36,6 +36,7 @@ import io.servicecomb.saga.core.CompensationImpl;
 import io.servicecomb.saga.core.SagaException;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaRequestImpl;
+import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.TransactionImpl;
 import io.servicecomb.saga.core.dag.ByLevelTraveller;
 import io.servicecomb.saga.core.dag.FromRootTraversalDirection;
@@ -88,7 +89,7 @@ public class GraphBuilderTest {
   );
   private final SagaRequest[] duplicateRequests = {duplicateRequest, duplicateRequest};
 
-  private final GraphCycleDetector<SagaRequest> detector = Mockito.mock(GraphCycleDetector.class);
+  private final GraphCycleDetector<SagaResponse, SagaRequest> detector = Mockito.mock(GraphCycleDetector.class);
   private final GraphBuilder graphBuilder = new GraphBuilder(detector);
 
   @Before
@@ -98,10 +99,10 @@ public class GraphBuilderTest {
 
   @Test
   public void buildsGraphOfParallelRequests() {
-    SingleLeafDirectedAcyclicGraph<SagaRequest> tasks = graphBuilder.build(requests);
+    SingleLeafDirectedAcyclicGraph<SagaResponse, SagaRequest> tasks = graphBuilder.build(requests);
 
-    Traveller<SagaRequest> traveller = new ByLevelTraveller<>(tasks, new FromRootTraversalDirection<>());
-    Collection<Node<SagaRequest>> nodes = traveller.nodes();
+    Traveller<SagaResponse, SagaRequest> traveller = new ByLevelTraveller<>(tasks, new FromRootTraversalDirection<>());
+    Collection<Node<SagaResponse, SagaRequest>> nodes = traveller.nodes();
 
     traveller.next();
     assertThat(requestsOf(nodes), contains(SAGA_START_REQUEST));
@@ -143,7 +144,7 @@ public class GraphBuilderTest {
     }
   }
 
-  private Collection<SagaRequest> requestsOf(Collection<Node<SagaRequest>> nodes) {
+  private Collection<SagaRequest> requestsOf(Collection<Node<SagaResponse, SagaRequest>> nodes) {
     return nodes.stream()
         .map(Node::value)
         .collect(Collectors.toList());
