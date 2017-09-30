@@ -28,9 +28,9 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import io.servicecomb.provider.rest.common.RestSchema;
 import io.servicecomb.saga.core.SagaException;
 import io.servicecomb.saga.core.application.SagaExecutionComponent;
-import io.servicecomb.swagger.extend.annotations.ResponseHeaders;
 import io.servicecomb.swagger.invocation.exception.InvocationException;
-import io.swagger.annotations.ResponseHeader;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,7 +38,6 @@ import java.util.Map;
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Trace;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -60,6 +59,11 @@ public class SagaController {
   }
 
   @Trace("processRequests")
+  @ApiResponses({
+      @ApiResponse(code = 200, response = String.class, message = "success"),
+      @ApiResponse(code = 400, response = String.class, message = "illegal request content"),
+      @ApiResponse(code = 500, response = String.class, message = "transaction failed")
+  })
   @RequestMapping(value = "requests", method = POST, consumes = TEXT_PLAIN_VALUE, produces = TEXT_PLAIN_VALUE)
   public ResponseEntity<String> processRequests(@RequestBody String request) {
     try {
