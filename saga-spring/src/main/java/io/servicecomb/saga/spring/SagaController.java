@@ -18,6 +18,8 @@ package io.servicecomb.saga.spring;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -26,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import io.servicecomb.provider.rest.common.RestSchema;
 import io.servicecomb.saga.core.SagaException;
 import io.servicecomb.saga.core.application.SagaExecutionComponent;
+import io.servicecomb.swagger.invocation.exception.InvocationException;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,7 +36,6 @@ import java.util.Map;
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Trace;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,10 +64,10 @@ public class SagaController {
       if (runResult == null) {
         return ResponseEntity.ok("success");
       } else {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(runResult);
+        throw new InvocationException(INTERNAL_SERVER_ERROR, runResult);
       }
     } catch (SagaException se) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(se.getMessage());
+      throw new InvocationException(BAD_REQUEST, se.getMessage());
     }
   }
 

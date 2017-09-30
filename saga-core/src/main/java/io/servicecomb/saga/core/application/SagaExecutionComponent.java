@@ -33,7 +33,6 @@ import io.servicecomb.saga.core.SagaLog;
 import io.servicecomb.saga.core.SagaStartTask;
 import io.servicecomb.saga.core.SagaTask;
 import io.servicecomb.saga.core.ToJsonFormat;
-import io.servicecomb.saga.core.TransactionAbortedEvent;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.core.dag.GraphCycleDetectorImpl;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
@@ -100,14 +99,7 @@ public class SagaExecutionComponent {
         definition.policy(),
         sagaTasks(sagaId, requestJson, sagaLog),
         graphBuilder.build(definition.requests()));
-    saga.run();
-
-    for (SagaEvent event : sagaLog) {
-      if (event instanceof TransactionAbortedEvent) {
-        return ((TransactionAbortedEvent) event).response().body();
-      }
-    }
-    return null;
+    return saga.run();
   }
 
   public void reanimate() {
