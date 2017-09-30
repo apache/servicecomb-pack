@@ -65,7 +65,11 @@
               <alias>service-center</alias>
               <run>
                 <wait>
-                  <log>listen on server</log>
+                  <tcp>
+                    <ports>
+                      <port>30100</port>
+                    </ports>
+                  </tcp>
                   <time>60000</time>
                 </wait>
                 <ports>
