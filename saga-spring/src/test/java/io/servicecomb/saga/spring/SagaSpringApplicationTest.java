@@ -28,6 +28,7 @@ import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 import static org.springframework.http.MediaType.TEXT_PLAIN;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -141,9 +142,11 @@ public class SagaSpringApplicationTest {
       mockMvc.perform(
           post("/requests/")
               .contentType(TEXT_PLAIN)
-              .content("xxxx"));
+              .content("xxxx"))
+          .andExpect(status().is(HttpStatus.SC_BAD_REQUEST))
+          .andExpect(content().string(containsString("illegal request content")));
     } catch (org.springframework.web.util.NestedServletException ex) {
-      assertThat(ex.getMessage(), containsString("Failed to interpret JSON"));
+      assertThat(ex.getMessage(), containsString("Failed to interpret JSON xxxx"));
     }
   }
 
@@ -153,7 +156,9 @@ public class SagaSpringApplicationTest {
       mockMvc.perform(
           post("/requests/")
               .contentType(TEXT_PLAIN)
-              .content(sagaFailDefinition));
+              .content(sagaFailDefinition))
+          .andExpect(status().is(HttpStatus.SC_INTERNAL_SERVER_ERROR))
+          .andExpect(content().string(containsString("transaction failed")));
     } catch (org.springframework.web.util.NestedServletException ex) {
       assertThat(ex.getMessage(), containsString(
           "io.servicecomb.saga.core.TransactionFailedException: The remote service returned with status code 500, reason Server Error"));

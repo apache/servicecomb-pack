@@ -74,7 +74,7 @@ public class SagaController {
         throw new InvocationException(INTERNAL_SERVER_ERROR, runResult);
       }
     } catch (SagaException se) {
-      throw new InvocationException(BAD_REQUEST, se.getMessage());
+      throw new InvocationException(BAD_REQUEST, se);
     }
   }
 
