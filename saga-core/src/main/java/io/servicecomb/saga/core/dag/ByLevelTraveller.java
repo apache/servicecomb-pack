@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
@@ -49,25 +50,29 @@ public class ByLevelTraveller<C, T> implements Traveller<C, T> {
 
   @Segment(name = "travelNext", category = "application", library = "kamon")
   @Override
-  public void next() {
-    nodes.addAll(nodesBuffer);
-    nodesBuffer.clear();
-    boolean buffered = false;
+  public void next(C condition) {
+    do {
+      Set<Node<C, T>> orphans = new LinkedHashSet<>();
+      nodesBuffer.forEach(node -> {
+        if (!traversalDirection.parents(node, condition).isEmpty()) {
+          nodes.add(node);
+        } else {
+          nodesWithoutParent.remove(node);
+          collectOrphans(node, orphans::add);
+        }
+      });
+      nodesBuffer.clear();
+      nodesBuffer.addAll(orphans);
+    } while (!nodesBuffer.isEmpty());
 
-    while (!nodesWithoutParent.isEmpty() && !buffered) {
+    while (!nodesWithoutParent.isEmpty() && nodesBuffer.isEmpty()) {
       Node<C, T> node = nodesWithoutParent.poll();
       nodes.add(node);
 
-      for (Node<C, T> child : traversalDirection.children(node)) {
-        nodeParents.computeIfAbsent(child.id(), id -> new HashSet<>(traversalDirection.parents(child)));
-        nodeParents.get(child.id()).remove(node);
-
-        if (nodeParents.get(child.id()).isEmpty()) {
-          nodesWithoutParent.offer(child);
-          nodesBuffer.add(child);
-          buffered = true;
-        }
-      }
+      collectOrphans(node, child -> {
+        nodesWithoutParent.offer(child);
+        nodesBuffer.add(child);
+      });
     }
   }
 
@@ -79,5 +84,21 @@ public class ByLevelTraveller<C, T> implements Traveller<C, T> {
   @Override
   public Collection<Node<C, T>> nodes() {
     return nodes;
+  }
+
+  private void collectOrphans(Node<C, T> node, Consumer<Node<C, T>> orphanConsumer) {
+    for (Node<C, T> child : traversalDirection.children(node)) {
+      removeNodeFromChildParents(node, child);
+
+      if (nodeParents.get(child.id()).isEmpty()) {
+        orphanConsumer.accept(child);
+      }
+    }
+  }
+
+  private void removeNodeFromChildParents(Node<C, T> node, Node<C, T> child) {
+    nodeParents
+        .computeIfAbsent(child.id(), id -> new HashSet<>(traversalDirection.parents(child)))
+        .remove(node);
   }
 }

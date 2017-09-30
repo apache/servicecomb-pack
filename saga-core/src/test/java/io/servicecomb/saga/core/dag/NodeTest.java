@@ -107,24 +107,31 @@ public class NodeTest {
   }
 
   @Test
-  public void childrenContainsSatisfiedOnesOnly() throws Exception {
+  public void relativesContainsSatisfiedOnesOnly() throws Exception {
     satisfied_p_1 = true;
     assertThat(parent.children(condition), contains(node1));
+    assertThat(node1.parents(condition), contains(parent));
+    assertThat(node2.parents(condition).isEmpty(), is(true));
 
     satisfied_1_3 = true;
     satisfied_1_4 = true;
     assertThat(node1.children(condition), contains(node3, node4));
+    assertThat(node3.parents(condition), contains(node1));
+    assertThat(node4.parents(condition), contains(node1));
 
     assertThat(node2.children(condition).isEmpty(), is(true));
 
-    assertThat(node3.children(condition).isEmpty(), is(true));
+    satisfied_3_5 = true;
+    assertThat(node3.children(condition), contains(node5));
 
     satisfied_4_5 = true;
     assertThat(node4.children(condition), contains(node5));
+    assertThat(node5.parents(condition), contains(node3, node4));
 
     satisfied_5_6 = true;
     assertThat(node5.children(condition), contains(node6));
 
     assertThat(node6.children(condition).isEmpty(), is(true));
+    assertThat(node6.parents(condition), contains(node5));
   }
 }

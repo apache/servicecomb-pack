@@ -37,6 +37,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.seanyinx.github.unit.scaffolding.Randomness;
+
+import io.servicecomb.saga.core.dag.Edge;
 import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
@@ -91,6 +93,9 @@ public class SagaIntegrationTest {
     root.addChild(node1);
     node1.addChild(node2);
     node2.addChild(leaf);
+    new Edge<>((any) -> true, root, node1);
+    new Edge<>((any) -> true, node1, node2);
+    new Edge<>((any) -> true, node2, leaf);
 
     SagaStartTask sagaStartTask = new SagaStartTask(sagaId, requestJson, eventStore);
     SagaEndTask sagaEndTask = new SagaEndTask(sagaId, eventStore);
@@ -508,6 +513,8 @@ public class SagaIntegrationTest {
   private void addExtraChildToNode1() {
     node1.addChild(node3);
     node3.addChild(leaf);
+    new Edge<>((any) -> true, node1, node3);
+    new Edge<>((any) -> true, node3, leaf);
   }
 
   private SagaRequest request(String requestId,

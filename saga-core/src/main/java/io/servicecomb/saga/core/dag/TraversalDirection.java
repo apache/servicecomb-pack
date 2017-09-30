@@ -25,4 +25,6 @@ public interface TraversalDirection<C, T> {
   Set<Node<C, T>> parents(Node<C, T> node);
 
   Set<Node<C, T>> children(Node<C, T> node);
+
+  Set<Node<C, T>> parents(Node<C, T> node, C condition);
 }

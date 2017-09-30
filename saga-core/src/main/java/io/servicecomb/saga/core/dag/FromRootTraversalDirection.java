@@ -34,4 +34,9 @@ public class FromRootTraversalDirection<C, T> implements TraversalDirection<C, T
   public Set<Node<C, T>> children(Node<C, T> node) {
     return node.children();
   }
+
+  @Override
+  public Set<Node<C, T>> parents(Node<C, T> node, C condition) {
+    return node.parents(condition);
+  }
 }

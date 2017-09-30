@@ -20,7 +20,7 @@ import java.util.Collection;
 
 public interface Traveller<C, T> {
 
-  void next();
+  void next(C condition);
 
   boolean hasNext();
 

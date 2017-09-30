@@ -16,16 +16,18 @@
 
 package io.servicecomb.saga.core.application;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import io.servicecomb.saga.core.NoOpSagaRequest;
 import io.servicecomb.saga.core.SagaException;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaResponse;
+import io.servicecomb.saga.core.dag.Edge;
 import io.servicecomb.saga.core.dag.GraphCycleDetector;
 import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
 
@@ -56,9 +58,11 @@ class GraphBuilder {
 
     for (SagaRequest sagaRequest : sagaRequests) {
       if (isOrphan(sagaRequest)) {
+        new Edge<>((any) -> true, root, requestNodes.get(sagaRequest.id()));
         root.addChild(requestNodes.get(sagaRequest.id()));
       } else {
         for (String parent : sagaRequest.parents()) {
+          new Edge<>((any) -> true, requestNodes.get(parent), requestNodes.get(sagaRequest.id()));
           requestNodes.get(parent).addChild(requestNodes.get(sagaRequest.id()));
         }
       }
@@ -66,7 +70,10 @@ class GraphBuilder {
 
     requestNodes.values().stream()
         .filter((node) -> node.children().isEmpty())
-        .forEach(node -> node.addChild(leaf));
+        .forEach(node -> {
+          new Edge<>((any) -> true, node, leaf);
+          node.addChild(leaf);
+        });
 
     return new SingleLeafDirectedAcyclicGraph<>(root, leaf);
   }

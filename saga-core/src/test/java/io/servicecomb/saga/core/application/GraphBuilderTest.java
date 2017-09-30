@@ -104,19 +104,19 @@ public class GraphBuilderTest {
     Traveller<SagaResponse, SagaRequest> traveller = new ByLevelTraveller<>(tasks, new FromRootTraversalDirection<>());
     Collection<Node<SagaResponse, SagaRequest>> nodes = traveller.nodes();
 
-    traveller.next();
+    traveller.next(null);
     assertThat(requestsOf(nodes), contains(SAGA_START_REQUEST));
     nodes.clear();
 
-    traveller.next();
+    traveller.next(null);
     assertThat(requestsOf(nodes), contains(request1, request2));
     nodes.clear();
 
-    traveller.next();
+    traveller.next(null);
     assertThat(requestsOf(nodes), contains(request3));
     nodes.clear();
 
-    traveller.next();
+    traveller.next(null);
     assertThat(requestsOf(nodes), contains(SAGA_END_REQUEST));
   }
 

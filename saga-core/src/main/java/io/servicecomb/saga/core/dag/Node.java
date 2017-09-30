@@ -70,6 +70,13 @@ public class Node<C, T> {
     parentEdges.add(edge);
   }
 
+  public Set<Node<C, T>> parents(C condition) {
+    return parentEdges.stream()
+        .filter(edge -> edge.isSatisfied(condition))
+        .map(Edge::source)
+        .collect(Collectors.toSet());
+  }
+
   public Set<Node<C, T>> children(C condition) {
     return childrenEdges.stream()
         .filter(edge -> edge.isSatisfied(condition))

@@ -51,7 +51,7 @@ class TaskRunner implements SagaState {
     }
 
     while (traveller.hasNext()) {
-      traveller.next();
+      traveller.next(null);
       taskConsumer.consume(nodes);
       nodes.clear();
     }
@@ -62,7 +62,7 @@ class TaskRunner implements SagaState {
     boolean played = false;
     Collection<Node<SagaResponse, SagaRequest>> nodes = traveller.nodes();
     while (traveller.hasNext() && !played) {
-      traveller.next();
+      traveller.next(null);
       played = taskConsumer.replay(nodes, completedOperations);
     }
   }
