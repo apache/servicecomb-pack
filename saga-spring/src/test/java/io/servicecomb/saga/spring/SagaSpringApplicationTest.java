@@ -23,10 +23,12 @@ import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 import static org.springframework.http.MediaType.TEXT_PLAIN;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -80,7 +82,35 @@ public class SagaSpringApplicationTest {
       + "  }\n"
       + "]\n";
 
+  private static final String failRequests = "[\n"
+      + "  {\n"
+      + "    \"id\": \"request-aaa\",\n"
+      + "    \"type\": \"rest\",\n"
+      + "    \"serviceName\": \"localhost:8090\",\n"
+      + "    \"transaction\": {\n"
+      + "      \"method\": \"post\",\n"
+      + "      \"path\": \"/rest/bs\",\n"
+      + "      \"params\": {\n"
+      + "        \"form\": {\n"
+      + "          \"foo\": \"bs\"\n"
+      + "        }\n"
+      + "      }\n"
+      + "    },\n"
+      + "    \"compensation\": {\n"
+      + "      \"method\": \"delete\",\n"
+      + "      \"path\": \"/rest/bs\",\n"
+      + "      \"params\": {\n"
+      + "        \"query\": {\n"
+      + "          \"bar\": \"bs\"\n"
+      + "        }\n"
+      + "      }\n"
+      + "    }\n"
+      + "  }\n"
+      + "]\n";
+
   private static final String sagaDefinition = "{\"policy\": \"ForwardRecovery\",\"requests\": " + requests + "}";
+  private static final String sagaFailDefinition =
+      "{\"policy\": \"BackwardRecovery\",\"requests\": " + failRequests + "}";
 
   @Autowired
   private MockMvc mockMvc;
@@ -96,7 +126,37 @@ public class SagaSpringApplicationTest {
             aResponse()
                 .withStatus(HttpStatus.SC_OK)
                 .withBody("success")));
+
+    stubFor(WireMock.post(urlPathEqualTo("/rest/bs"))
+        .withRequestBody(containing("foo=bs"))
+        .willReturn(
+            aResponse()
+                .withStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+                .withBody("process failed")));
+
   }
+
+  @Test
+  public void testBadFormatRequest() throws Exception {
+    mockMvc.perform(
+        post("/requests/")
+            .contentType(TEXT_PLAIN)
+            .content("xxxx"))
+        .andExpect(status().is(HttpStatus.SC_BAD_REQUEST))
+        .andExpect(content().string("Failed to interpret JSON xxxx"));
+  }
+
+  @Test
+  public void testFailedRequest() throws Exception {
+    mockMvc.perform(
+        post("/requests/")
+            .contentType(TEXT_PLAIN)
+            .content(sagaFailDefinition))
+        .andExpect(status().is(HttpStatus.SC_INTERNAL_SERVER_ERROR))
+        .andExpect(content().string(containsString(
+            "io.servicecomb.saga.core.TransactionFailedException: The remote service returned with status code 500, reason Server Error")));
+  }
+
 
   @Test
   public void processRequestByRest() throws Exception {
