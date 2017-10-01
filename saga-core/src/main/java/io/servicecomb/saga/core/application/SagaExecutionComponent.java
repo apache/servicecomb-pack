@@ -19,7 +19,6 @@ package io.servicecomb.saga.core.application;
 import static io.servicecomb.saga.core.SagaTask.SAGA_END_TASK;
 import static io.servicecomb.saga.core.SagaTask.SAGA_REQUEST_TASK;
 import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
-import static java.lang.Thread.sleep;
 
 import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.EventStore;
@@ -37,7 +36,6 @@ import io.servicecomb.saga.core.ToJsonFormat;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.core.dag.GraphCycleDetectorImpl;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
-
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.List;
@@ -47,12 +45,10 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @EnableKamon
 public class SagaExecutionComponent {
@@ -93,19 +89,17 @@ public class SagaExecutionComponent {
   }
 
   @Segment(name = "runSagaExecutionComponent", category = "application", library = "kamon")
-  public void run(String requestJson) {
+  public String run(String requestJson) {
     String sagaId = UUID.randomUUID().toString();
     EventStore sagaLog = new EmbeddedEventStore();
-
     SagaDefinition definition = fromJsonFormat.fromJson(requestJson);
-
     Saga saga = new Saga(
         sagaLog,
         executorService,
         definition.policy(),
         sagaTasks(sagaId, requestJson, sagaLog),
         graphBuilder.build(definition.requests()));
-    saga.run();
+    return saga.run();
   }
 
   public void reanimate() {
@@ -147,6 +141,7 @@ public class SagaExecutionComponent {
   }
 
   static class RetrySagaLog implements PersistentStore {
+
     private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final PersistentStore persistentStore;
     private final int retryDelay;
@@ -185,7 +180,7 @@ public class SagaExecutionComponent {
       return Thread.currentThread().isInterrupted();
     }
 
-    private void sleep(int delay){
+    private void sleep(int delay) {
       try {
         Thread.sleep(delay);
       } catch (InterruptedException e) {

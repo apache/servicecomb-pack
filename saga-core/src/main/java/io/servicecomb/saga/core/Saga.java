@@ -82,7 +82,8 @@ public class Saga {
 
     this.transactionTaskRunner = new TaskRunner(
         traveller(sagaTaskGraph, new FromRootTraversalDirection<>()),
-        new TransactionTaskConsumer(tasks, new ExecutorCompletionService<>(executor), new LoggingRecoveryPolicy(recoveryPolicy)));
+        new TransactionTaskConsumer(tasks, new ExecutorCompletionService<>(executor),
+            new LoggingRecoveryPolicy(recoveryPolicy)));
 
     this.compensationTaskRunner = new TaskRunner(
         traveller(sagaTaskGraph, new FromLeafTraversalDirection<>()),
@@ -92,12 +93,14 @@ public class Saga {
   }
 
   @Segment(name = "runSaga", category = "application", library = "kamon")
-  public void run() {
+  public String run() {
+    String failureInfo = null;
     log.info("Starting Saga");
     do {
       try {
         currentTaskRunner.run();
       } catch (TransactionFailedException e) {
+        failureInfo = e.getMessage();
         log.error("Failed to run operation", e);
         currentTaskRunner = compensationTaskRunner;
 
@@ -112,6 +115,7 @@ public class Saga {
       }
     } while (currentTaskRunner.hasNext());
     log.info("Completed Saga");
+    return failureInfo;
   }
 
   public void play() {

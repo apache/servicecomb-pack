@@ -18,13 +18,19 @@ package io.servicecomb.saga.spring;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import io.servicecomb.provider.rest.common.RestSchema;
+import io.servicecomb.saga.core.SagaException;
 import io.servicecomb.saga.core.application.SagaExecutionComponent;
+import io.servicecomb.swagger.invocation.exception.InvocationException;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -53,10 +59,23 @@ public class SagaController {
   }
 
   @Trace("processRequests")
+  @ApiResponses({
+      @ApiResponse(code = 200, response = String.class, message = "success"),
+      @ApiResponse(code = 400, response = String.class, message = "illegal request content"),
+      @ApiResponse(code = 500, response = String.class, message = "transaction failed")
+  })
   @RequestMapping(value = "requests", method = POST, consumes = TEXT_PLAIN_VALUE, produces = TEXT_PLAIN_VALUE)
   public ResponseEntity<String> processRequests(@RequestBody String request) {
-    sagaExecutionComponent.run(request);
-    return ResponseEntity.ok("success");
+    try {
+      String runResult = sagaExecutionComponent.run(request);
+      if (runResult == null) {
+        return ResponseEntity.ok("success");
+      } else {
+        throw new InvocationException(INTERNAL_SERVER_ERROR, runResult);
+      }
+    } catch (SagaException se) {
+      throw new InvocationException(BAD_REQUEST, se);
+    }
   }
 
   @RequestMapping(value = "events", method = GET)
