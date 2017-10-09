@@ -21,5 +21,5 @@ public interface RecoveryPolicy extends Descriptive {
   String SAGA_FORWARD_RECOVERY_POLICY = "ForwardRecovery";
   String SAGA_BACKWARD_RECOVERY_POLICY = "BackwardRecovery";
 
-  int apply(SagaTask task, SagaRequest request);
+  void apply(SagaTask task, SagaRequest request);
 }

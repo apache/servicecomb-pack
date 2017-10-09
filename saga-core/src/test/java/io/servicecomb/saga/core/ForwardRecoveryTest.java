@@ -3,10 +3,10 @@ package io.servicecomb.saga.core;
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static io.servicecomb.saga.core.Operation.TYPE_REST;
 import static java.util.Collections.emptyMap;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import org.junit.Test;
 
@@ -26,7 +26,7 @@ public class ForwardRecoveryTest {
       new CompensationImpl("/rest/as", "delete", emptyMap()),
       null,
       null,
-      1
+      300
   );
 
   @Test
@@ -44,13 +44,11 @@ public class ForwardRecoveryTest {
   public void blowsUpWhenTaskIsNotCommittedWithFailRetryDelaySeconds() throws Exception {
     doThrow(Exception.class).when(sagaTask).commit(sagaRequest2);
 
-    final int[] retryCount = {0};
-
-    Thread t = new Thread(() -> retryCount[0] = forwardRecovery.apply(sagaTask, sagaRequest2));
+    Thread t = new Thread(() -> forwardRecovery.apply(sagaTask, sagaRequest2));
     t.start();
-    Thread.sleep(2000);
+    Thread.sleep(400);
     t.interrupt();
-    Thread.sleep(200);
-    assertThat(retryCount[0], equalTo(1));
+
+    verify(sagaTask,times(2)).commit(sagaRequest2);
   }
 }
