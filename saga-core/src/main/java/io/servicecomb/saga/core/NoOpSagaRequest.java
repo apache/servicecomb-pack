@@ -89,8 +89,8 @@ public class NoOpSagaRequest implements SagaRequest {
   }
 
   @Override
-  public double failRetryDelaySeconds() {
-    return 0;
+  public int failRetryDelayMilliseconds() {
+    return 50;
   }
 
   @Override

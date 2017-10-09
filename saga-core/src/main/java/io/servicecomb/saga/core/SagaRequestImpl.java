@@ -30,7 +30,7 @@ public class SagaRequestImpl implements SagaRequest {
   private final Compensation compensation;
   private final String[] parents;
   private final Fallback fallback;
-  private final double failRetryDelaySeconds;
+  private final int failRetryDelayMilliseconds;
 
   public SagaRequestImpl(
       String id,
@@ -40,7 +40,7 @@ public class SagaRequestImpl implements SagaRequest {
       Compensation compensation,
       Fallback fallback,
       String[] parents,
-      double failRetryDelaySeconds) {
+      int failRetryDelayMilliseconds) {
 
     this.id = id;
     this.serviceName = serviceName;
@@ -48,7 +48,7 @@ public class SagaRequestImpl implements SagaRequest {
     this.transaction = transaction;
     this.compensation = compensation;
     this.fallback = fallback;
-    this.failRetryDelaySeconds = failRetryDelaySeconds;
+    this.failRetryDelayMilliseconds = failRetryDelayMilliseconds;
     this.parents = parents == null ? new String[0] : parents;
   }
 
@@ -60,7 +60,7 @@ public class SagaRequestImpl implements SagaRequest {
       Compensation compensation,
       Fallback fallback,
       String[] parents) {
-    this(id, serviceName, type, transaction, compensation, fallback, parents, 0);
+    this(id, serviceName, type, transaction, compensation, fallback, parents, 50);
   }
 
   public SagaRequestImpl(
@@ -123,8 +123,8 @@ public class SagaRequestImpl implements SagaRequest {
   }
 
   @Override
-  public double failRetryDelaySeconds() {
-    return failRetryDelaySeconds;
+  public int failRetryDelayMilliseconds() {
+    return failRetryDelayMilliseconds;
   }
 
   @Override
