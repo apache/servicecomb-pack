@@ -43,5 +43,5 @@ public interface SagaRequest {
 
   String[] parents();
 
-  int failRetryDelaySeconds();
+  double failRetryDelaySeconds();
 }

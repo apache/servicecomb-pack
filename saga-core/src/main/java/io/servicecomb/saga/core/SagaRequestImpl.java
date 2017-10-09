@@ -30,7 +30,7 @@ public class SagaRequestImpl implements SagaRequest {
   private final Compensation compensation;
   private final String[] parents;
   private final Fallback fallback;
-  private final int failRetryDelaySeconds;
+  private final double failRetryDelaySeconds;
 
   public SagaRequestImpl(
       String id,
@@ -39,8 +39,8 @@ public class SagaRequestImpl implements SagaRequest {
       Transaction transaction,
       Compensation compensation,
       Fallback fallback,
-      int failRetryDelaySeconds,
-      String[] parents) {
+      String[] parents,
+      double failRetryDelaySeconds) {
 
     this.id = id;
     this.serviceName = serviceName;
@@ -59,8 +59,8 @@ public class SagaRequestImpl implements SagaRequest {
       Transaction transaction,
       Compensation compensation,
       Fallback fallback,
-      int failRetryDelaySeconds) {
-    this(id, serviceName, type, transaction, compensation, fallback, failRetryDelaySeconds, new String[0]);
+      String[] parents) {
+    this(id, serviceName, type, transaction, compensation, fallback, parents, 0);
   }
 
   public SagaRequestImpl(
@@ -69,9 +69,8 @@ public class SagaRequestImpl implements SagaRequest {
       String type,
       Transaction transaction,
       Compensation compensation,
-      int failRetryDelaySeconds) {
-
-    this(id, serviceName, type, transaction, compensation, NOP_FALLBACK, failRetryDelaySeconds, new String[0]);
+      Fallback fallback) {
+    this(id, serviceName, type, transaction, compensation, fallback, new String[0]);
   }
 
   public SagaRequestImpl(
@@ -80,8 +79,7 @@ public class SagaRequestImpl implements SagaRequest {
       String type,
       Transaction transaction,
       Compensation compensation) {
-
-    this(id, serviceName, type, transaction, compensation, NOP_FALLBACK, 1, new String[0]);
+    this(id, serviceName, type, transaction, compensation, NOP_FALLBACK, new String[0]);
   }
 
   @Override
@@ -125,7 +123,7 @@ public class SagaRequestImpl implements SagaRequest {
   }
 
   @Override
-  public int failRetryDelaySeconds() {
+  public double failRetryDelaySeconds() {
     return failRetryDelaySeconds;
   }
 

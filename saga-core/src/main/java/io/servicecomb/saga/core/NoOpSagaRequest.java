@@ -89,6 +89,11 @@ public class NoOpSagaRequest implements SagaRequest {
   }
 
   @Override
+  public double failRetryDelaySeconds() {
+    return 0;
+  }
+
+  @Override
   public String toString() {
     return "NoOpSagaRequest{" +
         "id='" + id + '\'' +
