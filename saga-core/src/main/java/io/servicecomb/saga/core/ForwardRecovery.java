@@ -45,6 +45,10 @@ public class ForwardRecovery implements RecoveryPolicy {
         }
       } while (!success);
     } catch (InterruptedException ignored) {
+      log.warn("ForwardRecovery Applying {} interrupted in transaction {} of service {}",
+          description(),
+          request.transaction(),
+          request.serviceName());
     }
   }
 }
