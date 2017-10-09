@@ -22,6 +22,7 @@ import kamon.annotation.Segment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 @EnableKamon
 public class BackwardRecovery implements RecoveryPolicy {
 
@@ -29,7 +30,7 @@ public class BackwardRecovery implements RecoveryPolicy {
 
   @Segment(name = "backwardPolicy", category = "application", library = "kamon")
   @Override
-  public void apply(SagaTask task, SagaRequest request) {
+  public int apply(SagaTask task, SagaRequest request) {
     try {
       task.commit(request);
     } catch (SagaStartFailedException e) {
@@ -45,5 +46,6 @@ public class BackwardRecovery implements RecoveryPolicy {
       task.abort(request, e);
       throw e;
     }
+    return 0;
   }
 }

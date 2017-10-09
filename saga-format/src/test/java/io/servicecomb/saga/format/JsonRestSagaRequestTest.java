@@ -87,6 +87,7 @@ public class JsonRestSagaRequestTest {
         transaction,
         compensation,
         fallback,
-        null);
+        null,
+        0);
   }
 }

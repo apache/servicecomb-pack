@@ -25,9 +25,9 @@ public class ForwardRecovery implements RecoveryPolicy {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
-  public void apply(SagaTask task, SagaRequest request) {
+  public int apply(SagaTask task, SagaRequest request) {
     boolean success = false;
-
+    int retryCount = 0;
     do {
       try {
         task.commit(request);
@@ -42,11 +42,13 @@ public class ForwardRecovery implements RecoveryPolicy {
             e
         );
         try {
-          Thread.sleep(request.failRetryDelaySeconds() * 1000);
+          Thread.sleep((int) (request.failRetryDelaySeconds() * 1000));
         } catch (InterruptedException ie) {
-          return;
+          break;
         }
+        retryCount++;
       }
     } while (!success);
+    return retryCount;
   }
 }

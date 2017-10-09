@@ -22,9 +22,12 @@ import kamon.annotation.Segment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+
 @EnableKamon
 class LoggingRecoveryPolicy implements RecoveryPolicy {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
   private final RecoveryPolicy recoveryPolicy;
 
   LoggingRecoveryPolicy(RecoveryPolicy recoveryPolicy) {
@@ -33,9 +36,10 @@ class LoggingRecoveryPolicy implements RecoveryPolicy {
 
   @Segment(name = "loggingPolicy", category = "application", library = "kamon")
   @Override
-  public void apply(SagaTask task, SagaRequest request) {
+  public int apply(SagaTask task, SagaRequest request) {
     log.info("Starting request id={} for service {}", request.id(), request.serviceName());
-    recoveryPolicy.apply(task, request);
+    int retryCount = recoveryPolicy.apply(task, request);
     log.info("Completed request id={} for service {}", request.id(), request.serviceName());
+    return retryCount;
   }
 }
