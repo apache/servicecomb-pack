@@ -48,7 +48,7 @@ public class SagaRequestImpl implements SagaRequest {
     this.transaction = transaction;
     this.compensation = compensation;
     this.fallback = fallback;
-    this.failRetryDelayMilliseconds = failRetryDelayMilliseconds == 0 ? 50 : failRetryDelayMilliseconds;
+    this.failRetryDelayMilliseconds = failRetryDelayMilliseconds <= 0 ? 50 : failRetryDelayMilliseconds;
     this.parents = parents == null ? new String[0] : parents;
   }
 
