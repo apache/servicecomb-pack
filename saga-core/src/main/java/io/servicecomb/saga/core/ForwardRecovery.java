@@ -41,6 +41,11 @@ public class ForwardRecovery implements RecoveryPolicy {
             request.serviceName(),
             e
         );
+        try {
+          Thread.sleep(request.failRetryDelaySeconds() * 1000);
+        } catch (InterruptedException ie) {
+          return;
+        }
       }
     } while (!success);
   }
