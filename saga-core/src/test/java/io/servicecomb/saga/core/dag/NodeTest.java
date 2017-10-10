@@ -16,14 +16,17 @@
 
 package io.servicecomb.saga.core.dag;
 
-import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
+
+import java.util.function.Predicate;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 @SuppressWarnings("unchecked")
 public class NodeTest {
@@ -39,31 +42,16 @@ public class NodeTest {
   private final Node<String, String> node5 = new Node<>(5, value);
   private final Node<String, String> node6 = new Node<>(6, value);
 
-  private final String condition = "";
+  private final String condition = "whatever it is";
 
-  private boolean satisfied_p_1;
-  private final Edge<String, String> edge1 = new Edge<>(any -> satisfied_p_1, parent, node1);
-
-  private boolean satisfied_p_2;
-  private final Edge<String, String> edge2 = new Edge<>(any -> satisfied_p_2, parent, node2);
-
-  private boolean satisfied_1_3;
-  private final Edge<String, String> edge3 = new Edge<>(any -> satisfied_1_3, node1, node3);
-
-  private boolean satisfied_1_4;
-  private final Edge<String, String> edge4 = new Edge<>(any -> satisfied_1_4, node1, node4);
-
-  private boolean satisfied_3_5;
-  private final Edge<String, String> edge51 = new Edge<>(any -> satisfied_3_5, node3, node5);
-
-  private boolean satisfied_4_5;
-  private final Edge<String, String> edge52 = new Edge<>(any -> satisfied_4_5, node4, node5);
-
-  private boolean satisfied_2_6;
-  private final Edge<String, String> edge61 = new Edge<>(any -> satisfied_2_6, node2, node6);
-
-  private boolean satisfied_5_6;
-  private final Edge<String, String> edge62 = new Edge<>(any -> satisfied_5_6, node5, node6);
+  private final Predicate<String> predicate_p_1 = Mockito.mock(Predicate.class);
+  private final Predicate<String> predicate_p_2 = Mockito.mock(Predicate.class);
+  private final Predicate<String> predicate_1_3 = Mockito.mock(Predicate.class);
+  private final Predicate<String> predicate_1_4 = Mockito.mock(Predicate.class);
+  private final Predicate<String> predicate_3_5 = Mockito.mock(Predicate.class);
+  private final Predicate<String> predicate_4_5 = Mockito.mock(Predicate.class);
+  private final Predicate<String> predicate_2_6 = Mockito.mock(Predicate.class);
+  private final Predicate<String> predicate_5_6 = Mockito.mock(Predicate.class);
 
   //        0
   //       / \
@@ -76,12 +64,14 @@ public class NodeTest {
   //        6
   @Before
   public void setUp() throws Exception {
-    parent.addChildren(asList(node1, node2));
-    node1.addChildren(asList(node3, node4));
-    node3.addChild(node5);
-    node4.addChild(node5);
-    node5.addChild(node6);
-    node2.addChild(node6);
+    parent.addChild(predicate_p_1, node1);
+    parent.addChild(predicate_p_2, node2);
+    node1.addChild(predicate_1_3, node3);
+    node1.addChild(predicate_1_4, node4);
+    node3.addChild(predicate_3_5, node5);
+    node4.addChild(predicate_4_5, node5);
+    node2.addChild(predicate_2_6, node6);
+    node5.addChild(predicate_5_6, node6);
   }
 
   @Test
@@ -108,27 +98,27 @@ public class NodeTest {
 
   @Test
   public void relativesContainsSatisfiedOnesOnly() throws Exception {
-    satisfied_p_1 = true;
+    when(predicate_p_1.test(condition)).thenReturn(true);
     assertThat(parent.children(condition), contains(node1));
     assertThat(node1.parents(condition), contains(parent));
     assertThat(node2.parents(condition).isEmpty(), is(true));
 
-    satisfied_1_3 = true;
-    satisfied_1_4 = true;
+    when(predicate_1_3.test(condition)).thenReturn(true);
+    when(predicate_1_4.test(condition)).thenReturn(true);
     assertThat(node1.children(condition), contains(node3, node4));
     assertThat(node3.parents(condition), contains(node1));
     assertThat(node4.parents(condition), contains(node1));
 
     assertThat(node2.children(condition).isEmpty(), is(true));
 
-    satisfied_3_5 = true;
+    when(predicate_3_5.test(condition)).thenReturn(true);
     assertThat(node3.children(condition), contains(node5));
 
-    satisfied_4_5 = true;
+    when(predicate_4_5.test(condition)).thenReturn(true);
     assertThat(node4.children(condition), contains(node5));
     assertThat(node5.parents(condition), contains(node3, node4));
 
-    satisfied_5_6 = true;
+    when(predicate_5_6.test(condition)).thenReturn(true);
     assertThat(node5.children(condition), contains(node6));
 
     assertThat(node6.children(condition).isEmpty(), is(true));

@@ -24,7 +24,6 @@ import io.servicecomb.saga.core.NoOpSagaRequest;
 import io.servicecomb.saga.core.SagaException;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaResponse;
-import io.servicecomb.saga.core.dag.Edge;
 import io.servicecomb.saga.core.dag.GraphCycleDetector;
 import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
@@ -53,16 +52,14 @@ class GraphBuilder {
       SagaRequest[] sagaRequests,
       Map<String, Node<SagaResponse, SagaRequest>> requestNodes) {
 
-    Node<SagaResponse, SagaRequest> root = rootNode(0);
+    Node<SagaResponse, SagaRequest> root = rootNode();
     Node<SagaResponse, SagaRequest> leaf = leafNode(sagaRequests.length + 1);
 
     for (SagaRequest sagaRequest : sagaRequests) {
       if (isOrphan(sagaRequest)) {
-        new Edge<>((any) -> true, root, requestNodes.get(sagaRequest.id()));
         root.addChild(requestNodes.get(sagaRequest.id()));
       } else {
         for (String parent : sagaRequest.parents()) {
-          new Edge<>((any) -> true, requestNodes.get(parent), requestNodes.get(sagaRequest.id()));
           requestNodes.get(parent).addChild(requestNodes.get(sagaRequest.id()));
         }
       }
@@ -70,17 +67,14 @@ class GraphBuilder {
 
     requestNodes.values().stream()
         .filter((node) -> node.children().isEmpty())
-        .forEach(node -> {
-          new Edge<>((any) -> true, node, leaf);
-          node.addChild(leaf);
-        });
+        .forEach(node -> node.addChild(leaf));
 
     return new SingleLeafDirectedAcyclicGraph<>(root, leaf);
   }
 
-  private Node<SagaResponse, SagaRequest> rootNode(int id) {
+  private Node<SagaResponse, SagaRequest> rootNode() {
     return new Node<>(
-        id,
+        0,
         NoOpSagaRequest.SAGA_START_REQUEST);
   }
 

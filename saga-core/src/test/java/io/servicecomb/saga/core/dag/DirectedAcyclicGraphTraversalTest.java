@@ -16,7 +16,6 @@
 
 package io.servicecomb.saga.core.dag;
 
-import static java.util.Arrays.asList;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -66,21 +65,14 @@ public class DirectedAcyclicGraphTraversalTest {
   //        6
   @Before
   public void setUp() throws Exception {
-    root.addChildren(asList(node1, node2));
-    node1.addChildren(asList(node3, node4));
-    node3.addChild(node5);
-    node4.addChild(node5);
-    node5.addChild(leaf);
-    node2.addChild(leaf);
-
-    new Edge<>(predicate_p_1, root, node1);
-    new Edge<>(predicate_p_2, root, node2);
-    new Edge<>(predicate_1_3, node1, node3);
-    new Edge<>(predicate_1_4, node1, node4);
-    new Edge<>(predicate_3_5, node3, node5);
-    new Edge<>(predicate_4_5, node4, node5);
-    new Edge<>(predicate_2_6, node2, leaf);
-    new Edge<>(predicate_5_6, node5, leaf);
+    root.addChild(predicate_p_1, node1);
+    root.addChild(predicate_p_2, node2);
+    node1.addChild(predicate_1_3, node3);
+    node1.addChild(predicate_1_4, node4);
+    node3.addChild(predicate_3_5, node5);
+    node4.addChild(predicate_4_5, node5);
+    node2.addChild(predicate_2_6, leaf);
+    node5.addChild(predicate_5_6, leaf);
   }
 
   @Test

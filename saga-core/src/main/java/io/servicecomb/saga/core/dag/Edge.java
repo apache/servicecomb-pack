@@ -18,12 +18,12 @@ package io.servicecomb.saga.core.dag;
 
 import java.util.function.Predicate;
 
-public class Edge<C, T> {
+class Edge<C, T> {
   private final Predicate<C> predicate;
   private final Node<C, T> parent;
   private final Node<C, T> child;
 
-  public Edge(Predicate<C> predicate, Node<C, T> parent, Node<C, T> child) {
+  Edge(Predicate<C> predicate, Node<C, T> parent, Node<C, T> child) {
     this.predicate = predicate;
     this.parent = parent;
     this.child = child;
