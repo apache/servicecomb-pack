@@ -48,9 +48,7 @@ public class ByLevelTraveller<C, T> implements Traveller<C, T> {
     nodesWithoutParent.offer(traversalDirection.root(dag));
   }
 
-  @Segment(name = "travelNext", category = "application", library = "kamon")
-  @Override
-  public void next(C condition) {
+  private void spitSatisfiedNodes(C condition, Collection<Node<C, T>> nodes) {
     do {
       Set<Node<C, T>> orphans = new LinkedHashSet<>();
       nodesBuffer.forEach(node -> {
@@ -64,14 +62,20 @@ public class ByLevelTraveller<C, T> implements Traveller<C, T> {
       nodesBuffer.clear();
       nodesBuffer.addAll(orphans);
     } while (!nodesBuffer.isEmpty());
+  }
+
+  @Segment(name = "travelNext", category = "application", library = "kamon")
+  @Override
+  public void next(C condition) {
+    spitSatisfiedNodes(condition, nodes);
 
     while (!nodesWithoutParent.isEmpty() && nodesBuffer.isEmpty()) {
       Node<C, T> node = nodesWithoutParent.poll();
       nodes.add(node);
 
-      collectOrphans(node, child -> {
-        nodesWithoutParent.offer(child);
-        nodesBuffer.add(child);
+      collectOrphans(node, orphan -> {
+        nodesWithoutParent.offer(orphan);
+        nodesBuffer.add(orphan);
       });
     }
   }
