@@ -20,9 +20,10 @@ public interface Operation {
 
   String TYPE_NOP = "NOP";
   String TYPE_REST = "rest";
+  SagaResponse SUCCESSFUL_SAGA_RESPONSE = new SuccessfulSagaResponse(200, "success");
 
   default SagaResponse send(String address) {
-    return new SuccessfulSagaResponse(200, "success");
+    return SUCCESSFUL_SAGA_RESPONSE;
   }
 
   default SagaResponse send(String address, SagaResponse response) {
