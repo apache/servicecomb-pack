@@ -39,12 +39,12 @@ class TransactionTaskConsumer implements TaskConsumer {
 
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final Map<String, SagaTask> tasks;
-  private final CompletionService<Operation> executorService;
+  private final CompletionService<SagaResponse> executorService;
   private final RecoveryPolicy recoveryPolicy;
 
   TransactionTaskConsumer(
       Map<String, SagaTask> tasks,
-      CompletionService<Operation> executorService,
+      CompletionService<SagaResponse> executorService,
       RecoveryPolicy recoveryPolicy) {
 
     this.tasks = tasks;
@@ -54,16 +54,17 @@ class TransactionTaskConsumer implements TaskConsumer {
 
   @Segment(name = "consumeTask", category = "application", library = "kamon")
   @Override
-  public void consume(Collection<Node<SagaRequest>> nodes) {
-    List<Future<Operation>> futures = new ArrayList<>(nodes.size());
+  public SagaResponse consume(Collection<Node<SagaRequest>> nodes) {
+    List<Future<SagaResponse>> futures = new ArrayList<>(nodes.size());
     for (Node<SagaRequest> node : nodes) {
       SagaRequest request = node.value();
       futures.add(futureOf(request));
     }
 
+    List<SagaResponse> responses = new ArrayList<>(nodes.size());
     for (int i = 0; i < futures.size(); i++) {
       try {
-        executorService.take().get();
+        responses.add(executorService.take().get());
       } catch (ExecutionException e) {
         if (e.getCause() instanceof SagaStartFailedException) {
           throw ((SagaStartFailedException) e.getCause());
@@ -74,6 +75,7 @@ class TransactionTaskConsumer implements TaskConsumer {
         throw new TransactionFailedException(e);
       }
     }
+    return new CompositeSagaResponse(responses);
   }
 
   @Override
@@ -90,12 +92,12 @@ class TransactionTaskConsumer implements TaskConsumer {
   }
 
   @Segment(name = "submitCallable", category = "application", library = "kamon")
-  private Future<Operation> futureOf(SagaRequest request) {
+  private Future<SagaResponse> futureOf(SagaRequest request) {
     return executorService.submit(new OperationCallable(tasks, recoveryPolicy, request));
   }
 
   @EnableKamon
-  private static class OperationCallable implements Callable<Operation> {
+  private static class OperationCallable implements Callable<SagaResponse> {
 
     private final SagaRequest request;
     private final RecoveryPolicy recoveryPolicy;
@@ -109,9 +111,8 @@ class TransactionTaskConsumer implements TaskConsumer {
 
     @Trace("runTransactionCallable")
     @Override
-    public Operation call() throws Exception {
-      recoveryPolicy.apply(tasks.get(request.task()), request);
-      return request.transaction();
+    public SagaResponse call() throws Exception {
+      return recoveryPolicy.apply(tasks.get(request.task()), request);
     }
   }
 }

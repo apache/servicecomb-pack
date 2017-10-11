@@ -36,9 +36,10 @@ class LoggingRecoveryPolicy implements RecoveryPolicy {
 
   @Segment(name = "loggingPolicy", category = "application", library = "kamon")
   @Override
-  public void apply(SagaTask task, SagaRequest request) {
+  public SagaResponse apply(SagaTask task, SagaRequest request) {
     log.info("Starting request id={} for service {}", request.id(), request.serviceName());
-    recoveryPolicy.apply(task, request);
+    SagaResponse response = recoveryPolicy.apply(task, request);
     log.info("Completed request id={} for service {}", request.id(), request.serviceName());
+    return response;
   }
 }

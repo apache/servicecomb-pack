@@ -26,7 +26,7 @@ public interface SagaResponse {
 
     @Override
     public String body() {
-      return "";
+      return "{}";
     }
   };
 

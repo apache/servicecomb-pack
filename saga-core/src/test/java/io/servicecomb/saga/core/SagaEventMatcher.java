@@ -16,6 +16,8 @@
 
 package io.servicecomb.saga.core;
 
+import java.util.Objects;
+
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -48,7 +50,7 @@ class SagaEventMatcher extends TypeSafeMatcher<SagaEvent> {
 
   @Override
   protected boolean matchesSafely(SagaEvent envelope) {
-    return envelope.sagaId == sagaId
+    return Objects.equals(envelope.sagaId, sagaId)
         && operation(envelope).equals(operation)
         && envelope.getClass().equals(aClass);
   }
