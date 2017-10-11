@@ -59,6 +59,10 @@
       <groupId>com.github.seanyinx</groupId>
       <artifactId>unit-scaffolding</artifactId>
     </dependency>
+    <dependency>
+      <groupId>uk.co.datumedge</groupId>
+      <artifactId>hamcrest-json</artifactId>
+    </dependency>
   </dependencies>
 
 </project>

@@ -36,18 +36,21 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.seanyinx.github.unit.scaffolding.Randomness;
-import io.servicecomb.saga.core.dag.Node;
-import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
-import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
+
+import com.seanyinx.github.unit.scaffolding.Randomness;
+
+import io.servicecomb.saga.core.dag.Node;
+import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
+import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 
 @SuppressWarnings("unchecked")
 public class SagaIntegrationTest {
@@ -71,6 +74,13 @@ public class SagaIntegrationTest {
   private final SagaRequest request2 = request("request2", "service2", transaction2, compensation2);
   private final SagaRequest request3 = request("request3", "service3", transaction3, compensation3);
 
+  private final SagaResponse transactionResponse1 = new SuccessfulSagaResponse(200, "transaction1");
+  private final SagaResponse transactionResponse2 = new SuccessfulSagaResponse(200, "transaction2");
+  private final SagaResponse transactionResponse3 = new SuccessfulSagaResponse(200, "transaction3");
+  private final SagaResponse compensationResponse1 = new SuccessfulSagaResponse(200, "compensation1");
+  private final SagaResponse compensationResponse2 = new SuccessfulSagaResponse(200, "compensation2");
+  private final SagaResponse compensationResponse3 = new SuccessfulSagaResponse(200, "compensation3");
+
   @SuppressWarnings("ThrowableInstanceNeverThrown")
   private final RuntimeException exception = new RuntimeException("oops");
 
@@ -80,7 +90,6 @@ public class SagaIntegrationTest {
   private final Node<SagaRequest> root = new Node<>(0, SAGA_START_REQUEST);
   private final Node<SagaRequest> leaf = new Node<>(4, SAGA_END_REQUEST);
   private final SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph = new SingleLeafDirectedAcyclicGraph<>(root, leaf);
-  private final SuccessfulSagaResponse response = new SuccessfulSagaResponse(200, "blah");
 
   private Saga saga;
   private final Map<String, SagaTask> tasks = new HashMap<>();
@@ -88,6 +97,14 @@ public class SagaIntegrationTest {
   // root - node1 - node2 - leaf
   @Before
   public void setUp() throws Exception {
+    when(transaction1.send(request1.serviceName())).thenReturn(transactionResponse1);
+    when(transaction2.send(request2.serviceName())).thenReturn(transactionResponse2);
+    when(transaction3.send(request3.serviceName())).thenReturn(transactionResponse3);
+
+    when(compensation1.send(request1.serviceName())).thenReturn(compensationResponse1);
+    when(compensation2.send(request2.serviceName())).thenReturn(compensationResponse2);
+    when(compensation3.send(request3.serviceName())).thenReturn(compensationResponse3);
+
     root.addChild(node1);
     node1.addChild(node2);
     node2.addChild(leaf);
@@ -143,7 +160,7 @@ public class SagaIntegrationTest {
         .thenAnswer(
             withAnswer(() -> {
               barrier.await();
-              return null;
+              return transactionResponse3;
             }));
 
     saga.run();
@@ -189,8 +206,8 @@ public class SagaIntegrationTest {
         .thenAnswer(withAnswer(() -> {
       barrier.await();
       latch.await();
-      return null;
-    })).thenReturn(response);
+      return transactionResponse2;
+    })).thenReturn(transactionResponse2);
 
     saga.run();
 
@@ -228,7 +245,7 @@ public class SagaIntegrationTest {
     Saga saga = new Saga(eventStore, new ForwardRecovery(), tasks, sagaTaskGraph);
 
     when(transaction2.send(request2.serviceName()))
-        .thenThrow(exception).thenThrow(exception).thenReturn(response);
+        .thenThrow(exception).thenThrow(exception).thenReturn(transactionResponse2);
 
     saga.run();
 
@@ -497,7 +514,7 @@ public class SagaIntegrationTest {
     verify(compensation2, never()).send(request2.serviceName());
   }
 
-  private Answer<Void> withAnswer(Callable<Void> callable) {
+  private Answer<SagaResponse> withAnswer(Callable<SagaResponse> callable) {
     return invocationOnMock -> callable.call();
   }
 
