@@ -36,8 +36,8 @@ public abstract class SagaEvent implements Descriptive {
   public abstract void gatherTo(
       Map<String, SagaRequest> hangingTransactions,
       Set<String> abortedTransactions,
-      Set<String> completedTransactions,
-      Set<String> completedCompensations);
+      Map<String, SagaResponse> completedTransactions,
+      Map<String, SagaResponse> completedCompensations);
 
   public String json(ToJsonFormat toJsonFormat) {
     return "{}";

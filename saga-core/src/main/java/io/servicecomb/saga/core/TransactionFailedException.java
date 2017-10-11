@@ -18,15 +18,19 @@ package io.servicecomb.saga.core;
 
 public class TransactionFailedException extends RuntimeException {
 
-  public TransactionFailedException(Throwable throwable) {
+  private final SagaResponse previousResponse;
+
+  public TransactionFailedException(Throwable throwable, SagaResponse previousResponse) {
     super(throwable);
+    this.previousResponse = previousResponse;
   }
 
-  public TransactionFailedException(String cause) {
+  public TransactionFailedException(String cause, SagaResponse previousResponse) {
     super(cause);
+    this.previousResponse = previousResponse;
   }
 
-  public TransactionFailedException(String cause, Throwable e) {
-    super(cause, e);
+  public SagaResponse previousResponse() {
+    return previousResponse;
   }
 }

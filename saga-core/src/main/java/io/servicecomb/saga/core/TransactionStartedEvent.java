@@ -29,8 +29,8 @@ public class TransactionStartedEvent extends SagaEvent {
   public void gatherTo(
       Map<String, SagaRequest> hangingTransactions,
       Set<String> abortedTransactions,
-      Set<String> completedTransactions,
-      Set<String> completedCompensations) {
+      Map<String, SagaResponse> completedTransactions,
+      Map<String, SagaResponse> completedCompensations) {
 
     hangingTransactions.put(payload().id(), payload());
   }

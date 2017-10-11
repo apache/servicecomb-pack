@@ -110,7 +110,7 @@ public class SagaEventFormatTest {
 
   @Test
   public void TransactionAbortedEventCanBeSerializedAndDeserialized() throws JsonProcessingException {
-    TransactionFailedException exception = new TransactionFailedException("oops");
+    TransactionFailedException exception = new TransactionFailedException("oops", null);
     SagaEvent event = new TransactionAbortedEvent(sagaId, request, exception);
     String json = event.json(toJsonFormat);
 

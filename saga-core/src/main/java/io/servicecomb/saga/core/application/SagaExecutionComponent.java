@@ -20,6 +20,19 @@ import static io.servicecomb.saga.core.SagaTask.SAGA_END_TASK;
 import static io.servicecomb.saga.core.SagaTask.SAGA_REQUEST_TASK;
 import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.EventStore;
 import io.servicecomb.saga.core.FallbackPolicy;
@@ -30,25 +43,15 @@ import io.servicecomb.saga.core.SagaDefinition;
 import io.servicecomb.saga.core.SagaEndTask;
 import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.SagaLog;
+import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SagaStartTask;
 import io.servicecomb.saga.core.SagaTask;
 import io.servicecomb.saga.core.ToJsonFormat;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.core.dag.GraphCycleDetectorImpl;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
-import java.lang.invoke.MethodHandles;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @EnableKamon
 public class SagaExecutionComponent {
@@ -120,8 +123,7 @@ public class SagaExecutionComponent {
           sagaTasks(event.sagaId, requestJson, eventStore),
           graphBuilder.build(definition.requests()));
 
-      saga.play();
-      saga.run();
+      saga.run(saga.play());
     }
   }
 

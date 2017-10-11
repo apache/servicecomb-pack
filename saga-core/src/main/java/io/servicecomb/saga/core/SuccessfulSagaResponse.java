@@ -43,4 +43,11 @@ public class SuccessfulSagaResponse implements SagaResponse {
         + "  \"content\": \"%s\"\n"
         + "}", statusCode, content);
   }
+
+  @Override
+  public String toString() {
+    return "SuccessfulSagaResponse{" +
+        "body='" + body + '\'' +
+        '}';
+  }
 }

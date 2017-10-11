@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -54,11 +53,11 @@ class TransactionTaskConsumer implements TaskConsumer {
 
   @Segment(name = "consumeTask", category = "application", library = "kamon")
   @Override
-  public SagaResponse consume(Collection<Node<SagaRequest>> nodes) {
+  public SagaResponse consume(Collection<Node<SagaRequest>> nodes, SagaResponse previousResponse) {
     List<Future<SagaResponse>> futures = new ArrayList<>(nodes.size());
     for (Node<SagaRequest> node : nodes) {
       SagaRequest request = node.value();
-      futures.add(futureOf(request));
+      futures.add(futureOf(request, previousResponse));
     }
 
     List<SagaResponse> responses = new ArrayList<>(nodes.size());
@@ -69,31 +68,38 @@ class TransactionTaskConsumer implements TaskConsumer {
         if (e.getCause() instanceof SagaStartFailedException) {
           throw ((SagaStartFailedException) e.getCause());
         }
-        throw new TransactionFailedException(e.getCause());
+        throw new TransactionFailedException(e.getCause(), previousResponse);
       } catch (InterruptedException e) {
         // TODO: 7/29/2017 what shall we do when system is shutting down?
-        throw new TransactionFailedException(e);
+        throw new TransactionFailedException(e, previousResponse);
       }
     }
-    return new CompositeSagaResponse(responses);
+    return responseOf(responses);
   }
 
   @Override
-  public boolean replay(Collection<Node<SagaRequest>> nodes, Set<String> completedOperations) {
-
+  public boolean replay(Collection<Node<SagaRequest>> nodes, Map<String, SagaResponse> completedOperations, Collection<SagaResponse> responses) {
     for (Iterator<Node<SagaRequest>> iterator = nodes.iterator(); iterator.hasNext(); ) {
       SagaRequest request = iterator.next().value();
-      if (completedOperations.contains(request.id())) {
+      if (completedOperations.containsKey(request.id())) {
         log.info("Skipped completed transaction id={} operation={} while replay", request.id(), request.transaction());
         iterator.remove();
+        responses.add(completedOperations.get(request.id()));
       }
     }
     return !nodes.isEmpty();
   }
 
+  private SagaResponse responseOf(List<SagaResponse> responses) {
+    if (responses.size() == 1) {
+      return responses.get(0);
+    }
+    return new CompositeSagaResponse(responses);
+  }
+
   @Segment(name = "submitCallable", category = "application", library = "kamon")
-  private Future<SagaResponse> futureOf(SagaRequest request) {
-    return executorService.submit(new OperationCallable(tasks, recoveryPolicy, request));
+  private Future<SagaResponse> futureOf(SagaRequest request, SagaResponse response) {
+    return executorService.submit(new OperationCallable(tasks, recoveryPolicy, request, response));
   }
 
   @EnableKamon
@@ -102,17 +108,23 @@ class TransactionTaskConsumer implements TaskConsumer {
     private final SagaRequest request;
     private final RecoveryPolicy recoveryPolicy;
     private final Map<String, SagaTask> tasks;
+    private final SagaResponse previousResponse;
 
-    private OperationCallable(Map<String, SagaTask> tasks, RecoveryPolicy recoveryPolicy, SagaRequest request) {
+    private OperationCallable(
+        Map<String, SagaTask> tasks,
+        RecoveryPolicy recoveryPolicy,
+        SagaRequest request,
+        SagaResponse previousResponse) {
       this.request = request;
       this.recoveryPolicy = recoveryPolicy;
       this.tasks = tasks;
+      this.previousResponse = previousResponse;
     }
 
     @Trace("runTransactionCallable")
     @Override
     public SagaResponse call() throws Exception {
-      return recoveryPolicy.apply(tasks.get(request.task()), request);
+      return recoveryPolicy.apply(tasks.get(request.task()), request, previousResponse);
     }
   }
 }

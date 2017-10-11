@@ -36,7 +36,7 @@ public class SagaStartTask implements SagaTask {
 
   @Segment(name = "startTaskCommit", category = "application", library = "kamon")
   @Override
-  public SagaResponse commit(SagaRequest request) {
+  public SagaResponse commit(SagaRequest request, SagaResponse previousResponse) {
     try {
       sagaLog.offer(new SagaStartedEvent(sagaId, requestJson, request));
       return EMPTY_RESPONSE;

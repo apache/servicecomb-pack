@@ -37,7 +37,7 @@ import static org.junit.Assert.assertThat;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.servicecomb.saga.core.SagaResponse;
-import io.servicecomb.saga.core.TransactionFailedException;
+import io.servicecomb.saga.core.TransportFailedException;
 import io.servicecomb.saga.transports.RestTransport;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -128,8 +128,8 @@ public class HttpClientTransportTest {
 
     try {
       transport.with(address, faultyResource, "POST", requests);
-      expectFailing(TransactionFailedException.class);
-    } catch (TransactionFailedException e) {
+      expectFailing(TransportFailedException.class);
+    } catch (TransportFailedException e) {
       assertThat(e.getMessage(), containsString("The remote service returned with status code 500"));
     }
   }
@@ -138,8 +138,8 @@ public class HttpClientTransportTest {
   public void blowsUpWhenRemoteIsNotReachable() {
     try {
       transport.with("http://somewhere:9090", faultyResource, "DELETE", emptyMap());
-      expectFailing(TransactionFailedException.class);
-    } catch (TransactionFailedException e) {
+      expectFailing(TransportFailedException.class);
+    } catch (TransportFailedException e) {
       assertThat(e.getMessage(), is("Network Error"));
     }
   }
@@ -148,8 +148,8 @@ public class HttpClientTransportTest {
   public void blowsUpWhenMethodIsUnknown() {
     try {
       transport.with(address, usableResource, "Blah", emptyMap());
-      expectFailing(TransactionFailedException.class);
-    } catch (TransactionFailedException e) {
+      expectFailing(TransportFailedException.class);
+    } catch (TransportFailedException e) {
       assertThat(e.getMessage(), is("No such method Blah"));
     }
   }
@@ -158,8 +158,8 @@ public class HttpClientTransportTest {
   public void blowsUpWhenUriIsMalformed() {
     try {
       transport.with("\\", usableResource, "GET", emptyMap());
-      expectFailing(TransactionFailedException.class);
-    } catch (TransactionFailedException e) {
+      expectFailing(TransportFailedException.class);
+    } catch (TransportFailedException e) {
       assertThat(e.getMessage(), is("Wrong request URI"));
     }
   }
