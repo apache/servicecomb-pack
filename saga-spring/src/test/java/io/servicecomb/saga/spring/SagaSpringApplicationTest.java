@@ -31,6 +31,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.net.URLEncoder;
+
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.hamcrest.Description;
@@ -121,7 +123,7 @@ public class SagaSpringApplicationTest {
   @BeforeClass
   public static void setUp() throws Exception {
     stubFor(WireMock.post(urlPathEqualTo("/rest/as"))
-        .withRequestBody(containing("foo=as"))
+        .withRequestBody(containing("foo=as&response=" + URLEncoder.encode("{}", "UTF-8")))
         .willReturn(
             aResponse()
                 .withStatus(HttpStatus.SC_OK)
