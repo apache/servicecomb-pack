@@ -21,6 +21,8 @@ import io.servicecomb.saga.core.RestOperation;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.transports.RestTransport;
 import io.servicecomb.saga.transports.TransportFactory;
+
+import java.util.HashMap;
 import java.util.Map;
 
 class JacksonRestOperation extends RestOperation implements TransportAware {
@@ -41,5 +43,17 @@ class JacksonRestOperation extends RestOperation implements TransportAware {
   @Override
   public SagaResponse send(String address) {
     return transport.with(address, path(), method(), params());
+  }
+
+  @Override
+  public SagaResponse send(String address, SagaResponse response) {
+    Map<String, Map<String, String>> updated = new HashMap<>(params());
+    updated.computeIfAbsent("form", (key) -> new HashMap<>()).put("response", response.body());
+
+    return transport.with(
+        address,
+        path(),
+        method(),
+        updated);
   }
 }
