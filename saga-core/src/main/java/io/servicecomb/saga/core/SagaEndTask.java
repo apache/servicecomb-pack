@@ -34,7 +34,7 @@ public class SagaEndTask implements SagaTask {
 
   @Segment(name = "endTaskCommit", category = "application", library = "kamon")
   @Override
-  public SagaResponse commit(SagaRequest request) {
+  public SagaResponse commit(SagaRequest request, SagaResponse previousResponse) {
     sagaLog.offer(new SagaEndedEvent(sagaId, request));
     return EMPTY_RESPONSE;
   }

@@ -28,7 +28,7 @@ import static org.junit.Assert.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 import io.servicecomb.saga.core.SagaResponse;
-import io.servicecomb.saga.core.TransactionFailedException;
+import io.servicecomb.saga.core.TransportFailedException;
 import io.servicecomb.saga.transports.RestTransport;
 import java.net.URL;
 import java.util.HashMap;
@@ -96,8 +96,8 @@ public class ServiceCenterDiscoveryRestTransportTest {
 
     try {
       transport.with(serviceName, faultyResource, "POST", requests);
-      expectFailing(TransactionFailedException.class);
-    } catch (TransactionFailedException e) {
+      expectFailing(TransportFailedException.class);
+    } catch (TransportFailedException e) {
       assertThat(e.getMessage(), containsString("The remote service " + serviceName + " failed to serve"));
     }
   }
@@ -106,8 +106,8 @@ public class ServiceCenterDiscoveryRestTransportTest {
   public void blowsUpWhenRemoteIsNotReachable() {
     try {
       transport.with("unknown-service", faultyResource, "DELETE", emptyMap());
-      expectFailing(TransactionFailedException.class);
-    } catch (TransactionFailedException e) {
+      expectFailing(TransportFailedException.class);
+    } catch (TransportFailedException e) {
       assertThat(e.getMessage(), containsString("The remote service unknown-service failed to serve"));
     }
   }
@@ -116,8 +116,8 @@ public class ServiceCenterDiscoveryRestTransportTest {
   public void blowsUpWhenMethodIsUnknown() {
     try {
       transport.with(serviceName, usableResource, "Blah", emptyMap());
-      expectFailing(TransactionFailedException.class);
-    } catch (TransactionFailedException e) {
+      expectFailing(TransportFailedException.class);
+    } catch (TransportFailedException e) {
       assertThat(e.getCause().getMessage(), is("No such method Blah"));
     }
   }

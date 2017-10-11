@@ -16,13 +16,13 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.Set;
+import java.util.Map;
 
 interface SagaState {
 
   boolean hasNext();
 
-  void run();
+  void run(SagaResponse previousResponse);
 
-  void replay(Set<String> completedOperations);
+  SagaResponse replay(Map<String, SagaResponse> completedOperations);
 }

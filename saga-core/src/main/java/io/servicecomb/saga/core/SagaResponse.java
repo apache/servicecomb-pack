@@ -28,6 +28,11 @@ public interface SagaResponse {
     public String body() {
       return "{}";
     }
+
+    @Override
+    public String toString() {
+      return "EMPTY_RESPONSE{body={}}";
+    }
   };
 
   boolean succeeded();

@@ -40,7 +40,6 @@ import io.servicecomb.saga.core.SuccessfulSagaResponse;
 import io.servicecomb.saga.core.ToJsonFormat;
 import io.servicecomb.saga.core.TransactionAbortedEvent;
 import io.servicecomb.saga.core.TransactionEndedEvent;
-import io.servicecomb.saga.core.TransactionFailedException;
 import io.servicecomb.saga.core.TransactionStartedEvent;
 import io.servicecomb.saga.format.JacksonFallback;
 import io.servicecomb.saga.format.JacksonRestCompensation;
@@ -159,7 +158,7 @@ public class SagaRecoveryTest {
       store.offer(new TransactionEndedEvent("yyy", request2, response2));
 
       store.offer(new TransactionStartedEvent("yyy", request3));
-      store.offer(new TransactionAbortedEvent("yyy", request3, new TransactionFailedException("oops")));
+      store.offer(new TransactionAbortedEvent("yyy", request3, new RuntimeException("oops")));
 
       store.offer(new TransactionCompensatedEvent("yyy", request2, response2));
 

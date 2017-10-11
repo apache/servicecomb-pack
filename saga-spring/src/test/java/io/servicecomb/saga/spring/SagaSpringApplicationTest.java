@@ -161,10 +161,9 @@ public class SagaSpringApplicationTest {
           .andExpect(content().string(containsString("transaction failed")));
     } catch (org.springframework.web.util.NestedServletException ex) {
       assertThat(ex.getMessage(), containsString(
-          "io.servicecomb.saga.core.TransactionFailedException: The remote service returned with status code 500, reason Server Error"));
+          "The remote service returned with status code 500, reason Server Error"));
     }
   }
-
 
   @Test
   public void processRequestByRest() throws Exception {

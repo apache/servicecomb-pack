@@ -31,10 +31,10 @@ public class ForwardRecoveryTest {
 
   @Test
   public void blowsUpWhenTaskIsNotCommitted() throws Exception {
-    doThrow(SagaStartFailedException.class).when(sagaTask).commit(sagaRequest);
+    doThrow(SagaStartFailedException.class).when(sagaTask).commit(sagaRequest, null);
 
     try {
-      forwardRecovery.apply(sagaTask, sagaRequest);
+      forwardRecovery.apply(sagaTask, sagaRequest, null);
       expectFailing(SagaStartFailedException.class);
     } catch (SagaStartFailedException ignored) {
     }
@@ -42,13 +42,13 @@ public class ForwardRecoveryTest {
 
   @Test
   public void blowsUpWhenTaskIsNotCommittedWithFailRetryDelaySeconds() throws Exception {
-    doThrow(Exception.class).when(sagaTask).commit(sagaRequest2);
+    doThrow(Exception.class).when(sagaTask).commit(sagaRequest2, null);
 
-    Thread t = new Thread(() -> forwardRecovery.apply(sagaTask, sagaRequest2));
+    Thread t = new Thread(() -> forwardRecovery.apply(sagaTask, sagaRequest2, null));
     t.start();
     Thread.sleep(400);
     t.interrupt();
 
-    verify(sagaTask,times(2)).commit(sagaRequest2);
+    verify(sagaTask,times(2)).commit(sagaRequest2, null);
   }
 }

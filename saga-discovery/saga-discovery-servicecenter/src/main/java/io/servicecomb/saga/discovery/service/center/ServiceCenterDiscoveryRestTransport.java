@@ -31,7 +31,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import io.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SuccessfulSagaResponse;
-import io.servicecomb.saga.core.TransactionFailedException;
+import io.servicecomb.saga.core.TransportFailedException;
 import io.servicecomb.saga.transports.RestTransport;
 import java.io.IOException;
 import java.util.HashMap;
@@ -77,7 +77,7 @@ class ServiceCenterDiscoveryRestTransport implements RestTransport {
       ResponseEntity<String> responseEntity = methodHandler(method).apply(url, params);
       return new SuccessfulSagaResponse(responseEntity.getStatusCodeValue(), responseEntity.getBody());
     } catch (Throwable e) {
-      throw new TransactionFailedException(
+      throw new TransportFailedException(
           String.format("The remote service %s failed to serve the %s request to %s ", address, method, path),
           e);
     }
@@ -93,7 +93,7 @@ class ServiceCenterDiscoveryRestTransport implements RestTransport {
 
   private BiFunction<String, Map<String, Map<String, String>>, ResponseEntity<String>> methodHandler(String method) {
     return methodMapping.getOrDefault(method.toUpperCase(), (url, params) -> {
-      throw new TransactionFailedException("No such method " + method);
+      throw new TransportFailedException("No such method " + method);
     });
   }
 

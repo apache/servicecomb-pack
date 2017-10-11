@@ -14,10 +14,10 @@ public class BackwardRecoveryTest {
 
   @Test
   public void blowsUpWhenTaskIsNotCommitted() {
-    doThrow(SagaStartFailedException.class).when(sagaTask).commit(sagaRequest);
+    doThrow(SagaStartFailedException.class).when(sagaTask).commit(sagaRequest, null);
 
     try {
-      backwardRecovery.apply(sagaTask, sagaRequest);
+      backwardRecovery.apply(sagaTask, sagaRequest, null);
       expectFailing(SagaStartFailedException.class);
     } catch (SagaStartFailedException ignored) {
     }

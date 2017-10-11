@@ -16,11 +16,8 @@
 
 package io.servicecomb.saga.core;
 
-import io.servicecomb.saga.core.dag.ByLevelTraveller;
-import io.servicecomb.saga.core.dag.FromLeafTraversalDirection;
-import io.servicecomb.saga.core.dag.FromRootTraversalDirection;
-import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
-import io.servicecomb.saga.core.dag.TraversalDirection;
+import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
+
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,10 +26,17 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
-import kamon.annotation.EnableKamon;
-import kamon.annotation.Segment;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.servicecomb.saga.core.dag.ByLevelTraveller;
+import io.servicecomb.saga.core.dag.FromLeafTraversalDirection;
+import io.servicecomb.saga.core.dag.FromRootTraversalDirection;
+import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
+import io.servicecomb.saga.core.dag.TraversalDirection;
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Segment;
 
 @EnableKamon
 public class Saga {
@@ -42,8 +46,8 @@ public class Saga {
   private final EventStore eventStore;
   private final Map<String, SagaTask> tasks;
 
-  private final Set<String> completedTransactions;
-  private final Set<String> completedCompensations;
+  private final Map<String, SagaResponse> completedTransactions;
+  private final Map<String, SagaResponse> completedCompensations;
   private final Set<String> abortedTransactions;
   private final Map<String, SagaRequest> hangingOperations;
 
@@ -75,8 +79,8 @@ public class Saga {
 
     this.eventStore = eventStore;
     this.tasks = tasks;
-    this.completedTransactions = new HashSet<>();
-    this.completedCompensations = new HashSet<>();
+    this.completedTransactions = new HashMap<>();
+    this.completedCompensations = new HashMap<>();
     this.abortedTransactions = new HashSet<>();
     this.hangingOperations = new HashMap<>();
 
@@ -94,11 +98,16 @@ public class Saga {
 
   @Segment(name = "runSaga", category = "application", library = "kamon")
   public String run() {
+    return run(EMPTY_RESPONSE);
+  }
+
+  @Segment(name = "runSaga", category = "application", library = "kamon")
+  public String run(SagaResponse previousResponse) {
     String failureInfo = null;
     log.info("Starting Saga");
     do {
       try {
-        currentTaskRunner.run();
+        currentTaskRunner.run(previousResponse);
       } catch (TransactionFailedException e) {
         failureInfo = e.getMessage();
         log.error("Failed to run operation", e);
@@ -109,7 +118,7 @@ public class Saga {
         gatherEvents(eventStore);
 
         hangingOperations.values().forEach(request -> {
-          tasks.get(request.task()).commit(request);
+          tasks.get(request.task()).commit(request, e.previousResponse());
           tasks.get(request.task()).compensate(request);
         });
       }
@@ -118,18 +127,19 @@ public class Saga {
     return failureInfo;
   }
 
-  public void play() {
+  public SagaResponse play() {
     log.info("Start playing events");
     gatherEvents(eventStore);
 
-    transactionTaskRunner.replay(completedTransactions);
+    SagaResponse response = transactionTaskRunner.replay(completedTransactions);
 
     if (!abortedTransactions.isEmpty() || !completedCompensations.isEmpty()) {
       currentTaskRunner = compensationTaskRunner;
-      compensationTaskRunner.replay(completedCompensations);
+      response = compensationTaskRunner.replay(completedCompensations);
     }
 
     log.info("Completed playing events");
+    return response;
   }
 
   private void gatherEvents(Iterable<SagaEvent> events) {

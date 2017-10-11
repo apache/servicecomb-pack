@@ -18,8 +18,7 @@ package io.servicecomb.saga.transports.httpclient;
 
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SuccessfulSagaResponse;
-import io.servicecomb.saga.core.TransactionFailedException;
-import io.servicecomb.saga.core.Transport;
+import io.servicecomb.saga.core.TransportFailedException;
 import io.servicecomb.saga.transports.RestTransport;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -80,13 +79,13 @@ public class HttpClientTransport implements RestTransport {
 
       return this.on(request);
     } catch (URISyntaxException e) {
-      throw new TransactionFailedException("Wrong request URI", e);
+      throw new TransportFailedException("Wrong request URI", e);
     }
   }
 
   private Function<URI, Request> exceptionThrowingFunction(String method) {
     return u -> {
-      throw new TransactionFailedException("No such method " + method);
+      throw new TransportFailedException("No such method " + method);
     };
   }
 
@@ -98,11 +97,11 @@ public class HttpClientTransport implements RestTransport {
       if (statusCode >= 200 && statusCode < 300) {
         return new SuccessfulSagaResponse(statusCode, content);
       }
-      throw new TransactionFailedException("The remote service returned with status code " + statusCode
+      throw new TransportFailedException("The remote service returned with status code " + statusCode
           + ", reason " + httpResponse.getStatusLine().getReasonPhrase()
           + ", and content " + content);
     } catch (IOException e) {
-      throw new TransactionFailedException("Network Error", e);
+      throw new TransportFailedException("Network Error", e);
     }
   }
 }
