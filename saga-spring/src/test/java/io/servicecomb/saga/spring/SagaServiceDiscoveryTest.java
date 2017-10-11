@@ -104,7 +104,7 @@ public class SagaServiceDiscoveryTest {
         .findFirst();
 
     assertThat(eventEntity.isPresent(), is(true));
-    assertThat(eventEntity.get().contentJson(), containsString("hello world"));
+    assertThat(eventEntity.get().contentJson(), containsString("hello world, with response {}"));
   }
 
 }

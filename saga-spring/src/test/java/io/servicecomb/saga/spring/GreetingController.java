@@ -31,7 +31,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class GreetingController {
 
   @RequestMapping(value = "/usableResource", method = POST, consumes = APPLICATION_FORM_URLENCODED_VALUE)
-  public ResponseEntity<String> postUsableResource(@RequestAttribute(name = "hello") String who) {
-    return ResponseEntity.ok("hello " + who);
+  public ResponseEntity<String> postUsableResource(
+      @RequestAttribute(name = "hello") String who,
+      @RequestAttribute(name = "response") String response) {
+
+    return ResponseEntity.ok("hello " + who + ", with response " + response);
   }
 }
