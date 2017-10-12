@@ -22,9 +22,9 @@ public interface SagaTask {
   String SAGA_REQUEST_TASK = "SagaRequest";
   String SAGA_END_TASK = "SagaEnd";
 
-  SagaResponse commit(SagaRequest request);
+  void commit(SagaRequest request);
 
-  SagaResponse compensate(SagaRequest request);
+  void compensate(SagaRequest request);
 
   void abort(SagaRequest request, Exception e);
 }

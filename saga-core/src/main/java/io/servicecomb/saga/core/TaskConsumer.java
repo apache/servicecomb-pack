@@ -22,7 +22,7 @@ import java.util.Map;
 
 interface TaskConsumer {
 
-  SagaResponse consume(Collection<Node<SagaRequest>> nodes);
+  void consume(Collection<Node<SagaRequest>> nodes);
 
   boolean replay(Collection<Node<SagaRequest>> nodes, Map<String, SagaResponse> completedOperations);
 }
