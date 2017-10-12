@@ -25,7 +25,7 @@ public class SagaStartTaskTest {
     ArgumentCaptor<SagaStartedEvent> argumentCaptor = ArgumentCaptor.forClass(SagaStartedEvent.class);
     doNothing().when(sagaLog).offer(argumentCaptor.capture());
 
-    SagaResponse response = sagaStartTask.commit(request, null);
+    SagaResponse response = sagaStartTask.commit(request);
 
     assertThat(response, is(EMPTY_RESPONSE));
 
@@ -40,7 +40,7 @@ public class SagaStartTaskTest {
     doThrow(RuntimeException.class).when(sagaLog).offer(any(SagaStartedEvent.class));
 
     try {
-      sagaStartTask.commit(request, null);
+      sagaStartTask.commit(request);
       expectFailing(SagaStartFailedException.class);
     } catch (SagaStartFailedException e) {
       assertThat(e.getMessage(), is("Failed to persist SagaStartedEvent"));

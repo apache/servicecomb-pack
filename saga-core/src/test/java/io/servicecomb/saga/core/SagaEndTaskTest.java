@@ -21,7 +21,7 @@ public class SagaEndTaskTest {
     ArgumentCaptor<SagaEndedEvent> argumentCaptor = ArgumentCaptor.forClass(SagaEndedEvent.class);
     doNothing().when(sagaLog).offer(argumentCaptor.capture());
 
-    SagaResponse response = sagaEndTask.commit(request, null);
+    SagaResponse response = sagaEndTask.commit(request);
 
     assertThat(response, is(EMPTY_RESPONSE));
 

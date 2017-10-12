@@ -16,8 +16,6 @@
 
 package io.servicecomb.saga.core;
 
-import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
-
 import java.lang.invoke.MethodHandles;
 import java.util.Iterator;
 import java.util.Map;
@@ -92,16 +90,11 @@ public class Saga {
 
   @Segment(name = "runSaga", category = "application", library = "kamon")
   public String run() {
-    return run(EMPTY_RESPONSE);
-  }
-
-  @Segment(name = "runSaga", category = "application", library = "kamon")
-  public String run(SagaResponse previousResponse) {
     String failureInfo = null;
     log.info("Starting Saga");
     do {
       try {
-        currentTaskRunner.run(previousResponse);
+        currentTaskRunner.run();
       } catch (TransactionFailedException e) {
         failureInfo = e.getMessage();
         log.error("Failed to run operation", e);
@@ -109,7 +102,7 @@ public class Saga {
 
         for (Iterator<SagaRequest> iterator = sagaContext.hangingTransactions().values().iterator(); iterator.hasNext(); ) {
           SagaRequest request = iterator.next();
-          tasks.get(request.task()).commit(request, e.previousResponse());
+          tasks.get(request.task()).commit(request);
           tasks.get(request.task()).compensate(request);
         }
       }
@@ -118,19 +111,18 @@ public class Saga {
     return failureInfo;
   }
 
-  public SagaResponse play() {
+  public void play() {
     log.info("Start playing events");
     gatherEvents(eventStore);
 
-    SagaResponse response = transactionTaskRunner.replay(sagaContext.completedTransactions());
+    transactionTaskRunner.replay(sagaContext.completedTransactions());
 
     if (sagaContext.isCompensationStarted()) {
       currentTaskRunner = compensationTaskRunner;
-      response = compensationTaskRunner.replay(sagaContext.completedCompensations());
+      compensationTaskRunner.replay(sagaContext.completedCompensations());
     }
 
     log.info("Completed playing events");
-    return response;
   }
 
   private void gatherEvents(Iterable<SagaEvent> events) {

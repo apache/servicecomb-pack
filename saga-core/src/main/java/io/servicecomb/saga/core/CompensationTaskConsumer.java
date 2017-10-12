@@ -40,7 +40,7 @@ class CompensationTaskConsumer implements TaskConsumer {
   }
 
   @Override
-  public SagaResponse consume(Collection<Node<SagaRequest>> nodes, SagaResponse previousResponse) {
+  public SagaResponse consume(Collection<Node<SagaRequest>> nodes) {
     List<SagaResponse> responses = new ArrayList<>(nodes.size());
     for (Node<SagaRequest> node : nodes) {
       SagaRequest request = node.value();
@@ -55,7 +55,7 @@ class CompensationTaskConsumer implements TaskConsumer {
   }
 
   @Override
-  public boolean replay(Collection<Node<SagaRequest>> nodes, Map<String, SagaResponse> completedOperations, Collection<SagaResponse> responses) {
+  public boolean replay(Collection<Node<SagaRequest>> nodes, Map<String, SagaResponse> completedOperations) {
 
     for (Iterator<Node<SagaRequest>> iterator = nodes.iterator(); iterator.hasNext(); ) {
       SagaRequest request = iterator.next().value();

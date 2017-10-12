@@ -75,8 +75,8 @@ public class SagaIntegrationTest {
 
   private final String requestJson = "{}";
   private final SagaRequest request1 = request("request1", "service1", transaction1, compensation1, fallback1);
-  private final SagaRequest request2 = request("request2", "service2", transaction2, compensation2);
-  private final SagaRequest request3 = request("request3", "service3", transaction3, compensation3);
+  private final SagaRequest request2 = request("request2", "service2", transaction2, compensation2, request1.id());
+  private final SagaRequest request3 = request("request3", "service3", transaction3, compensation3, request1.id());
 
   private final SagaResponse transactionResponse1 = new SuccessfulSagaResponse(200, "transaction1");
   private final SagaResponse transactionResponse2 = new SuccessfulSagaResponse(200, "transaction2");
@@ -303,9 +303,9 @@ public class SagaIntegrationTest {
     );
 
     eventStore.populate(events);
-    SagaResponse response = saga.play();
+    saga.play();
 
-    saga.run(response);
+    saga.run();
     assertThat(eventStore, contains(
         eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
         eventWith(sagaId, transaction1, TransactionStartedEvent.class),
@@ -340,9 +340,9 @@ public class SagaIntegrationTest {
     );
 
     eventStore.populate(events);
-    SagaResponse response = saga.play();
+    saga.play();
 
-    saga.run(response);
+    saga.run();
     assertThat(eventStore, contains(
         eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
         eventWith(sagaId, transaction1, TransactionStartedEvent.class),
@@ -379,9 +379,9 @@ public class SagaIntegrationTest {
     );
 
     eventStore.populate(events);
-    SagaResponse response = saga.play();
+    saga.play();
 
-    saga.run(response);
+    saga.run();
     assertThat(eventStore, contains(
         eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
         eventWith(sagaId, transaction1, TransactionStartedEvent.class),
@@ -420,9 +420,9 @@ public class SagaIntegrationTest {
     );
 
     eventStore.populate(events);
-    SagaResponse response = saga.play();
+    saga.play();
 
-    saga.run(response);
+    saga.run();
     assertThat(eventStore, contains(
         eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
         eventWith(sagaId, transaction1, TransactionStartedEvent.class),
@@ -462,9 +462,9 @@ public class SagaIntegrationTest {
     );
 
     eventStore.populate(events);
-    SagaResponse response = saga.play();
+    saga.play();
 
-    saga.run(response);
+    saga.run();
     assertThat(eventStore, contains(
         eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
         eventWith(sagaId, transaction1, TransactionStartedEvent.class),
@@ -499,9 +499,9 @@ public class SagaIntegrationTest {
     );
 
     eventStore.populate(events);
-    SagaResponse response = saga.play();
+    saga.play();
 
-    saga.run(response);
+    saga.run();
     assertThat(eventStore, contains(
         eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
         eventWith(sagaId, transaction1, TransactionStartedEvent.class),
@@ -534,9 +534,10 @@ public class SagaIntegrationTest {
   private SagaRequest request(String requestId,
       String serviceName,
       Transaction transaction,
-      Compensation compensation) {
+      Compensation compensation,
+      String... parentIds) {
 
-    return new SagaRequestImpl(requestId, serviceName, TYPE_REST, transaction, compensation);
+    return new SagaRequestImpl(requestId, serviceName, TYPE_REST, transaction, compensation, parentIds);
   }
 
   private SagaRequest request(String requestId,

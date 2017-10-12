@@ -16,9 +16,9 @@
 
 package io.servicecomb.saga.core;
 
-public interface SagaLog {
-
-  void offer(SagaEvent sagaEvent);
+public interface SagaLog extends PersistentLog {
 
   long size();
+
+  SagaResponse responseOf(String[] parentRequestIds);
 }

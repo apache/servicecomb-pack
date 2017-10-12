@@ -16,14 +16,10 @@
 
 package io.servicecomb.saga.core;
 
-import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
-
 import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.Traveller;
 
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import kamon.annotation.EnableKamon;
@@ -47,47 +43,30 @@ class TaskRunner implements SagaState {
 
   @Segment(name = "runTask", category = "application", library = "kamon")
   @Override
-  public void run(SagaResponse previousResponse) {
+  public void run() {
     Collection<Node<SagaRequest>> nodes = traveller.nodes();
 
-    SagaResponse response = previousResponse;
     // finish pending tasks from saga log at startup
     if (!nodes.isEmpty()) {
-      response = taskConsumer.consume(nodes, response);
+      taskConsumer.consume(nodes);
       nodes.clear();
     }
 
     while (traveller.hasNext()) {
       traveller.next();
-      response = taskConsumer.consume(nodes, response);
+      taskConsumer.consume(nodes);
       nodes.clear();
     }
   }
 
   @Override
-  public SagaResponse replay(Map<String, SagaResponse> completedOperations) {
+  public void replay(Map<String, SagaResponse> completedOperations) {
     boolean played = false;
     Collection<Node<SagaRequest>> nodes = traveller.nodes();
-    List<SagaResponse> previousResponses = new LinkedList<>();
-    List<SagaResponse> responses = new LinkedList<>();
 
     while (traveller.hasNext() && !played) {
-      previousResponses.clear();
-      previousResponses.addAll(responses);
-      responses.clear();
       traveller.next();
-      played = taskConsumer.replay(nodes, completedOperations, responses);
+      played = taskConsumer.replay(nodes, completedOperations);
     }
-    return responseOf(previousResponses);
-  }
-
-  private SagaResponse responseOf(List<SagaResponse> responses) {
-    if (responses.size() == 1) {
-      return responses.get(0);
-    }
-    if (responses.isEmpty()) {
-      return EMPTY_RESPONSE;
-    }
-    return new CompositeSagaResponse(responses);
   }
 }

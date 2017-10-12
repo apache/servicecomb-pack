@@ -30,9 +30,9 @@ public class BackwardRecovery implements RecoveryPolicy {
 
   @Segment(name = "backwardPolicy", category = "application", library = "kamon")
   @Override
-  public SagaResponse apply(SagaTask task, SagaRequest request, SagaResponse previousResponse) {
+  public SagaResponse apply(SagaTask task, SagaRequest request) {
     try {
-      return task.commit(request, previousResponse);
+      return task.commit(request);
     } catch (SagaStartFailedException e) {
       throw e;
     } catch (Exception e) {

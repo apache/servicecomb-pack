@@ -22,7 +22,7 @@ interface SagaState {
 
   boolean hasNext();
 
-  void run(SagaResponse previousResponse);
+  void run();
 
-  SagaResponse replay(Map<String, SagaResponse> completedOperations);
+  void replay(Map<String, SagaResponse> completedOperations);
 }

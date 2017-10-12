@@ -128,7 +128,8 @@ public class SagaExecutionComponent {
           sagaContext,
           graphBuilder.build(definition.requests()));
 
-      saga.run(saga.play());
+      saga.play();
+      saga.run();
     }
   }
 
@@ -171,11 +172,6 @@ public class SagaExecutionComponent {
           sleep(retryDelay);
         }
       } while (!success && !isInterrupted());
-    }
-
-    @Override
-    public long size() {
-      return persistentStore.size();
     }
 
     @Override
