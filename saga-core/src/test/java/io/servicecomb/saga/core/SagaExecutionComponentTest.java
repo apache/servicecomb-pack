@@ -233,6 +233,9 @@ public class SagaExecutionComponentTest {
   }
 
   private class EmbeddedPersistentStore extends EmbeddedEventStore implements PersistentStore {
+    EmbeddedPersistentStore() {
+      super(new SagaContextImpl());
+    }
 
     @Override
     public Map<String, List<EventEnvelope>> findPendingSagaEvents() {

@@ -19,6 +19,7 @@ package io.servicecomb.saga.core;
 import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
@@ -52,22 +53,25 @@ public class Saga {
   Saga(
       EventStore eventStore,
       Map<String, SagaTask> tasks,
+      SagaContext sagaContext,
       SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {
-    this(eventStore, new BackwardRecovery(), tasks, sagaTaskGraph);
+    this(eventStore, new BackwardRecovery(), tasks, sagaContext, sagaTaskGraph);
   }
 
   Saga(EventStore eventStore,
       RecoveryPolicy recoveryPolicy,
       Map<String, SagaTask> tasks,
+      SagaContext sagaContext,
       SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {
 
-    this(eventStore, Executors.newFixedThreadPool(5), recoveryPolicy, tasks, sagaTaskGraph);
+    this(eventStore, Executors.newFixedThreadPool(5), recoveryPolicy, tasks, sagaContext, sagaTaskGraph);
   }
 
   public Saga(EventStore eventStore,
       Executor executor,
       RecoveryPolicy recoveryPolicy,
       Map<String, SagaTask> tasks,
+      SagaContext sagaContext,
       SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {
 
     this.eventStore = eventStore;
@@ -78,7 +82,7 @@ public class Saga {
         new TransactionTaskConsumer(tasks, new ExecutorCompletionService<>(executor),
             new LoggingRecoveryPolicy(recoveryPolicy)));
 
-    sagaContext = new SagaContextImpl();
+    this.sagaContext = sagaContext;
     this.compensationTaskRunner = new TaskRunner(
         traveller(sagaTaskGraph, new FromLeafTraversalDirection<>()),
         new CompensationTaskConsumer(tasks, sagaContext.completedTransactions()));
@@ -103,14 +107,11 @@ public class Saga {
         log.error("Failed to run operation", e);
         currentTaskRunner = compensationTaskRunner;
 
-        // is it possible that other parallel transactions haven't write start event to saga log by now?
-        // if so, not all events are gathered here and some transactions will be missed
-        gatherEvents(eventStore);
-
-        sagaContext.hangingTransactions().values().forEach(request -> {
+        for (Iterator<SagaRequest> iterator = sagaContext.hangingTransactions().values().iterator(); iterator.hasNext(); ) {
+          SagaRequest request = iterator.next();
           tasks.get(request.task()).commit(request, e.previousResponse());
           tasks.get(request.task()).compensate(request);
-        });
+        }
       }
     } while (currentTaskRunner.hasNext());
     log.info("Completed Saga");

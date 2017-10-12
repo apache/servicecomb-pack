@@ -5,13 +5,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-class SagaContextImpl implements SagaContext {
+public class SagaContextImpl implements SagaContext {
   private final Map<String, SagaResponse> completedTransactions;
   private final Map<String, SagaResponse> completedCompensations;
   private final Set<String> abortedTransactions;
   private final Map<String, SagaRequest> hangingTransactions;
 
-  SagaContextImpl() {
+  public SagaContextImpl() {
     this.completedTransactions = new HashMap<>();
     this.completedCompensations = new HashMap<>();
     this.abortedTransactions = new HashSet<>();
@@ -44,6 +44,7 @@ class SagaContextImpl implements SagaContext {
   @Override
   public void compensateTransaction(SagaRequest request, SagaResponse response) {
     completedCompensations.put(request.id(), response);
+    completedTransactions.remove(request.id());
   }
 
   @Override

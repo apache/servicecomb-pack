@@ -18,6 +18,7 @@ package io.servicecomb.saga.infrastructure;
 
 import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.EventStore;
+import io.servicecomb.saga.core.SagaContext;
 import io.servicecomb.saga.core.SagaEvent;
 import java.lang.invoke.MethodHandles;
 import java.util.Iterator;
@@ -29,9 +30,15 @@ import org.slf4j.LoggerFactory;
 public class EmbeddedEventStore implements EventStore {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final Queue<SagaEvent> events = new LinkedBlockingQueue<>();
+  private final SagaContext sagaContext;
+
+  public EmbeddedEventStore(SagaContext sagaContext) {
+    this.sagaContext = sagaContext;
+  }
 
   @Override
   public void offer(SagaEvent sagaEvent) {
+    sagaEvent.gatherTo(sagaContext);
     events.offer(sagaEvent);
     log.info("Added event {}", sagaEvent);
   }
