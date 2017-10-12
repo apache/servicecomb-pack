@@ -16,9 +16,6 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.Map;
-import java.util.Set;
-
 public class SagaEndedEvent extends SagaEvent {
 
   public SagaEndedEvent(String sagaId, SagaRequest sagaTask) {
@@ -26,13 +23,8 @@ public class SagaEndedEvent extends SagaEvent {
   }
 
   @Override
-  public void gatherTo(
-      Map<String, SagaRequest> hangingTransactions,
-      Set<String> abortedTransactions,
-      Map<String, SagaResponse> completedTransactions,
-      Map<String, SagaResponse> completedCompensations) {
-
-    completedTransactions.put(payload().id(), SagaResponse.EMPTY_RESPONSE);
+  public void gatherTo(SagaContext sagaContext) {
+    sagaContext.endTransaction(payload(), SagaResponse.EMPTY_RESPONSE);
   }
 
   @Override

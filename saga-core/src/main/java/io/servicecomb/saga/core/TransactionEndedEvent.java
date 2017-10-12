@@ -16,9 +16,6 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.Map;
-import java.util.Set;
-
 public class TransactionEndedEvent extends SagaEvent {
 
   private final SagaResponse response;
@@ -33,14 +30,8 @@ public class TransactionEndedEvent extends SagaEvent {
   }
 
   @Override
-  public void gatherTo(
-      Map<String, SagaRequest> hangingTransactions,
-      Set<String> abortedTransactions,
-      Map<String, SagaResponse> completedTransactions,
-      Map<String, SagaResponse> completedCompensations) {
-
-    completedTransactions.put(payload().id(), response);
-    hangingTransactions.remove(payload().id());
+  public void gatherTo(SagaContext sagaContext) {
+    sagaContext.endTransaction(payload(), response);
   }
 
   @Override

@@ -19,10 +19,7 @@ package io.servicecomb.saga.core;
 import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
 
 import java.lang.invoke.MethodHandles;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
@@ -46,13 +43,9 @@ public class Saga {
   private final EventStore eventStore;
   private final Map<String, SagaTask> tasks;
 
-  private final Map<String, SagaResponse> completedTransactions;
-  private final Map<String, SagaResponse> completedCompensations;
-  private final Set<String> abortedTransactions;
-  private final Map<String, SagaRequest> hangingOperations;
-
   private final TaskRunner transactionTaskRunner;
   private final TaskRunner compensationTaskRunner;
+  private final SagaContext sagaContext;
   private volatile SagaState currentTaskRunner;
 
 
@@ -79,19 +72,16 @@ public class Saga {
 
     this.eventStore = eventStore;
     this.tasks = tasks;
-    this.completedTransactions = new HashMap<>();
-    this.completedCompensations = new HashMap<>();
-    this.abortedTransactions = new HashSet<>();
-    this.hangingOperations = new HashMap<>();
 
     this.transactionTaskRunner = new TaskRunner(
         traveller(sagaTaskGraph, new FromRootTraversalDirection<>()),
         new TransactionTaskConsumer(tasks, new ExecutorCompletionService<>(executor),
             new LoggingRecoveryPolicy(recoveryPolicy)));
 
+    sagaContext = new SagaContextImpl();
     this.compensationTaskRunner = new TaskRunner(
         traveller(sagaTaskGraph, new FromLeafTraversalDirection<>()),
-        new CompensationTaskConsumer(tasks, completedTransactions));
+        new CompensationTaskConsumer(tasks, sagaContext.completedTransactions()));
 
     currentTaskRunner = transactionTaskRunner;
   }
@@ -117,7 +107,7 @@ public class Saga {
         // if so, not all events are gathered here and some transactions will be missed
         gatherEvents(eventStore);
 
-        hangingOperations.values().forEach(request -> {
+        sagaContext.hangingTransactions().values().forEach(request -> {
           tasks.get(request.task()).commit(request, e.previousResponse());
           tasks.get(request.task()).compensate(request);
         });
@@ -131,11 +121,11 @@ public class Saga {
     log.info("Start playing events");
     gatherEvents(eventStore);
 
-    SagaResponse response = transactionTaskRunner.replay(completedTransactions);
+    SagaResponse response = transactionTaskRunner.replay(sagaContext.completedTransactions());
 
-    if (!abortedTransactions.isEmpty() || !completedCompensations.isEmpty()) {
+    if (sagaContext.isCompensationStarted()) {
       currentTaskRunner = compensationTaskRunner;
-      response = compensationTaskRunner.replay(completedCompensations);
+      response = compensationTaskRunner.replay(sagaContext.completedCompensations());
     }
 
     log.info("Completed playing events");
@@ -144,7 +134,7 @@ public class Saga {
 
   private void gatherEvents(Iterable<SagaEvent> events) {
     for (SagaEvent event : events) {
-      event.gatherTo(hangingOperations, abortedTransactions, completedTransactions, completedCompensations);
+      event.gatherTo(sagaContext);
     }
   }
 

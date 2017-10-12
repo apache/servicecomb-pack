@@ -16,9 +16,6 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.Map;
-import java.util.Set;
-
 public abstract class SagaEvent implements Descriptive {
 
   public final String sagaId;
@@ -33,11 +30,7 @@ public abstract class SagaEvent implements Descriptive {
     return payload;
   }
 
-  public abstract void gatherTo(
-      Map<String, SagaRequest> hangingTransactions,
-      Set<String> abortedTransactions,
-      Map<String, SagaResponse> completedTransactions,
-      Map<String, SagaResponse> completedCompensations);
+  public abstract void gatherTo(SagaContext sagaContext);
 
   public String json(ToJsonFormat toJsonFormat) {
     return "{}";

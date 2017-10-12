@@ -16,9 +16,6 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.Map;
-import java.util.Set;
-
 public class DummyEvent extends SagaEvent {
 
   public DummyEvent(SagaRequest payload) {
@@ -26,11 +23,7 @@ public class DummyEvent extends SagaEvent {
   }
 
   @Override
-  public void gatherTo(
-      Map<String, SagaRequest> hangingTransactions,
-      Set<String> abortedTransactions,
-      Map<String, SagaResponse> completedTransactions,
-      Map<String, SagaResponse> completedCompensations) {
+  public void gatherTo(SagaContext sagaContext) {
 
   }
 
