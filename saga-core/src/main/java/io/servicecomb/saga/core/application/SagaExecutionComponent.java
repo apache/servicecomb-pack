@@ -39,11 +39,12 @@ import io.servicecomb.saga.core.FallbackPolicy;
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.RequestProcessTask;
 import io.servicecomb.saga.core.Saga;
+import io.servicecomb.saga.core.SagaContext;
+import io.servicecomb.saga.core.SagaContextImpl;
 import io.servicecomb.saga.core.SagaDefinition;
 import io.servicecomb.saga.core.SagaEndTask;
 import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.SagaLog;
-import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SagaStartTask;
 import io.servicecomb.saga.core.SagaTask;
 import io.servicecomb.saga.core.ToJsonFormat;
@@ -94,13 +95,15 @@ public class SagaExecutionComponent {
   @Segment(name = "runSagaExecutionComponent", category = "application", library = "kamon")
   public String run(String requestJson) {
     String sagaId = UUID.randomUUID().toString();
-    EventStore sagaLog = new EmbeddedEventStore();
+    SagaContext sagaContext = new SagaContextImpl();
+    EventStore sagaLog = new EmbeddedEventStore(sagaContext);
     SagaDefinition definition = fromJsonFormat.fromJson(requestJson);
     Saga saga = new Saga(
         sagaLog,
         executorService,
         definition.policy(),
         sagaTasks(sagaId, requestJson, sagaLog),
+        sagaContext,
         graphBuilder.build(definition.requests()));
     return saga.run();
   }
@@ -109,7 +112,8 @@ public class SagaExecutionComponent {
     Map<String, List<EventEnvelope>> pendingSagaEvents = persistentStore.findPendingSagaEvents();
 
     for (Entry<String, List<EventEnvelope>> entry : pendingSagaEvents.entrySet()) {
-      EventStore eventStore = new EmbeddedEventStore();
+      SagaContext sagaContext = new SagaContextImpl();
+      EventStore eventStore = new EmbeddedEventStore(sagaContext);
       eventStore.populate(entry.getValue());
       SagaEvent event = entry.getValue().iterator().next().event;
 
@@ -121,6 +125,7 @@ public class SagaExecutionComponent {
           executorService,
           definition.policy(),
           sagaTasks(event.sagaId, requestJson, eventStore),
+          sagaContext,
           graphBuilder.build(definition.requests()));
 
       saga.run(saga.play());

@@ -59,8 +59,9 @@ import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 public class SagaIntegrationTest {
   private static final String sagaId = Randomness.uniquify("sagaId");
 
+  private final SagaContext sagaContext = new SagaContextImpl();
   private final IdGenerator<Long> idGenerator = new LongIdGenerator();
-  private final EventStore eventStore = new EmbeddedEventStore();
+  private final EventStore eventStore = new EmbeddedEventStore(sagaContext);
 
   private final Transaction transaction1 = mock(Transaction.class, "transaction1");
   private final Transaction transaction2 = mock(Transaction.class, "transaction2");
@@ -120,7 +121,7 @@ public class SagaIntegrationTest {
     tasks.put(SAGA_REQUEST_TASK, processTask);
     tasks.put(SAGA_END_TASK, sagaEndTask);
 
-    saga = new Saga(eventStore, tasks, sagaTaskGraph);
+    saga = new Saga(eventStore, tasks, sagaContext, sagaTaskGraph);
   }
 
   @Test
@@ -245,7 +246,7 @@ public class SagaIntegrationTest {
 
   @Test
   public void retriesFailedTransactionTillSuccess() {
-    Saga saga = new Saga(eventStore, new ForwardRecovery(), tasks, sagaTaskGraph);
+    Saga saga = new Saga(eventStore, new ForwardRecovery(), tasks, sagaContext, sagaTaskGraph);
 
     when(transaction2.send(request2.serviceName(), transactionResponse1))
         .thenThrow(exception).thenThrow(exception).thenReturn(transactionResponse2);
