@@ -63,9 +63,4 @@ class JpaPersistentStore implements PersistentStore {
   public void offer(SagaEvent event) {
     repo.save(new SagaEventEntity(event.sagaId, event.getClass().getSimpleName(), event.json(toJsonFormat)));
   }
-
-  @Override
-  public long size() {
-    return repo.count();
-  }
 }

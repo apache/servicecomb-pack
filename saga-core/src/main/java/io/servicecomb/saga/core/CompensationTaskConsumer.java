@@ -17,10 +17,8 @@
 package io.servicecomb.saga.core;
 
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -40,18 +38,16 @@ class CompensationTaskConsumer implements TaskConsumer {
   }
 
   @Override
-  public SagaResponse consume(Collection<Node<SagaRequest>> nodes) {
-    List<SagaResponse> responses = new ArrayList<>(nodes.size());
+  public void consume(Collection<Node<SagaRequest>> nodes) {
     for (Node<SagaRequest> node : nodes) {
       SagaRequest request = node.value();
 
       if (completedTransactions.containsKey(request.id())) {
         log.info("Starting request {} id={}", request.serviceName(), request.id());
-        responses.add(tasks.get(request.task()).compensate(request));
+        tasks.get(request.task()).compensate(request);
         log.info("Completed request {} id={}", request.serviceName(), request.id());
       }
     }
-    return responseOf(responses);
   }
 
   @Override
@@ -69,12 +65,5 @@ class CompensationTaskConsumer implements TaskConsumer {
       }
     }
     return !nodes.isEmpty();
-  }
-
-  private SagaResponse responseOf(List<SagaResponse> responses) {
-    if (responses.size() == 1) {
-      return responses.get(0);
-    }
-    return new CompositeSagaResponse(responses);
   }
 }

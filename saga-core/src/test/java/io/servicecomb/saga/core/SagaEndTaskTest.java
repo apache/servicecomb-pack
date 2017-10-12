@@ -1,8 +1,7 @@
 package io.servicecomb.saga.core;
 
-import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 
@@ -21,20 +20,11 @@ public class SagaEndTaskTest {
     ArgumentCaptor<SagaEndedEvent> argumentCaptor = ArgumentCaptor.forClass(SagaEndedEvent.class);
     doNothing().when(sagaLog).offer(argumentCaptor.capture());
 
-    SagaResponse response = sagaEndTask.commit(request);
-
-    assertThat(response, is(EMPTY_RESPONSE));
+    sagaEndTask.commit(request);
 
     SagaEndedEvent event = argumentCaptor.getValue();
     assertThat(event.sagaId, is(sagaId));
     assertThat(event.json(null), is("{}"));
     assertThat(event.payload(), is(request));
-  }
-
-  @Test
-  public void emptyResponseOnCompensation() throws Exception {
-    SagaResponse response = sagaEndTask.compensate(request);
-
-    assertThat(response, is(EMPTY_RESPONSE));
   }
 }

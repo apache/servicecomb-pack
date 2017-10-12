@@ -1,7 +1,6 @@
 package io.servicecomb.saga.core;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
-import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -25,9 +24,7 @@ public class SagaStartTaskTest {
     ArgumentCaptor<SagaStartedEvent> argumentCaptor = ArgumentCaptor.forClass(SagaStartedEvent.class);
     doNothing().when(sagaLog).offer(argumentCaptor.capture());
 
-    SagaResponse response = sagaStartTask.commit(request);
-
-    assertThat(response, is(EMPTY_RESPONSE));
+    sagaStartTask.commit(request);
 
     SagaStartedEvent event = argumentCaptor.getValue();
     assertThat(event.sagaId, is(sagaId));
@@ -45,12 +42,5 @@ public class SagaStartTaskTest {
     } catch (SagaStartFailedException e) {
       assertThat(e.getMessage(), is("Failed to persist SagaStartedEvent"));
     }
-  }
-
-  @Test
-  public void emptyResponseOnCompensation() throws Exception {
-    SagaResponse response = sagaStartTask.compensate(request);
-
-    assertThat(response, is(EMPTY_RESPONSE));
   }
 }
