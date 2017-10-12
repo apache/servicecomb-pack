@@ -25,11 +25,11 @@ public class ForwardRecovery implements RecoveryPolicy {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
-  public SagaResponse apply(SagaTask task, SagaRequest request, SagaResponse previousResponse) {
+  public SagaResponse apply(SagaTask task, SagaRequest request) {
     try {
       do {
         try {
-          return task.commit(request, previousResponse);
+          return task.commit(request);
         } catch (SagaStartFailedException e) {
           throw e;
         } catch (Exception e) {
@@ -48,7 +48,7 @@ public class ForwardRecovery implements RecoveryPolicy {
           request.transaction(),
           request.serviceName(),
           ignored);
-      throw new TransactionFailedException(ignored, previousResponse);
+      throw new TransactionFailedException(ignored);
     }
   }
 }

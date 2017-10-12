@@ -16,14 +16,23 @@
 
 package io.servicecomb.saga.infrastructure;
 
+import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
+
+import io.servicecomb.saga.core.CompositeSagaResponse;
 import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.EventStore;
 import io.servicecomb.saga.core.SagaContext;
 import io.servicecomb.saga.core.SagaEvent;
+import io.servicecomb.saga.core.SagaResponse;
+
 import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +63,23 @@ public class EmbeddedEventStore implements EventStore {
   @Override
   public long size() {
     return events.size();
+  }
+
+  @Override
+  public SagaResponse responseOf(String[] parentRequestIds) {
+    List<SagaResponse> responses = Arrays.stream(parentRequestIds)
+        .map(id -> sagaContext.completedTransactions().get(id))
+        .collect(Collectors.toList());
+
+    if (responses.isEmpty()) {
+      return EMPTY_RESPONSE;
+    }
+
+    if (responses.size() == 1) {
+      return responses.get(0);
+    }
+
+    return new CompositeSagaResponse(responses);
   }
 
   @Override

@@ -53,11 +53,11 @@ class TransactionTaskConsumer implements TaskConsumer {
 
   @Segment(name = "consumeTask", category = "application", library = "kamon")
   @Override
-  public SagaResponse consume(Collection<Node<SagaRequest>> nodes, SagaResponse previousResponse) {
+  public SagaResponse consume(Collection<Node<SagaRequest>> nodes) {
     List<Future<SagaResponse>> futures = new ArrayList<>(nodes.size());
     for (Node<SagaRequest> node : nodes) {
       SagaRequest request = node.value();
-      futures.add(futureOf(request, previousResponse));
+      futures.add(futureOf(request));
     }
 
     List<SagaResponse> responses = new ArrayList<>(nodes.size());
@@ -68,23 +68,22 @@ class TransactionTaskConsumer implements TaskConsumer {
         if (e.getCause() instanceof SagaStartFailedException) {
           throw ((SagaStartFailedException) e.getCause());
         }
-        throw new TransactionFailedException(e.getCause(), previousResponse);
+        throw new TransactionFailedException(e.getCause());
       } catch (InterruptedException e) {
         // TODO: 7/29/2017 what shall we do when system is shutting down?
-        throw new TransactionFailedException(e, previousResponse);
+        throw new TransactionFailedException(e);
       }
     }
     return responseOf(responses);
   }
 
   @Override
-  public boolean replay(Collection<Node<SagaRequest>> nodes, Map<String, SagaResponse> completedOperations, Collection<SagaResponse> responses) {
+  public boolean replay(Collection<Node<SagaRequest>> nodes, Map<String, SagaResponse> completedOperations) {
     for (Iterator<Node<SagaRequest>> iterator = nodes.iterator(); iterator.hasNext(); ) {
       SagaRequest request = iterator.next().value();
       if (completedOperations.containsKey(request.id())) {
         log.info("Skipped completed transaction id={} operation={} while replay", request.id(), request.transaction());
         iterator.remove();
-        responses.add(completedOperations.get(request.id()));
       }
     }
     return !nodes.isEmpty();
@@ -98,8 +97,8 @@ class TransactionTaskConsumer implements TaskConsumer {
   }
 
   @Segment(name = "submitCallable", category = "application", library = "kamon")
-  private Future<SagaResponse> futureOf(SagaRequest request, SagaResponse response) {
-    return executorService.submit(new OperationCallable(tasks, recoveryPolicy, request, response));
+  private Future<SagaResponse> futureOf(SagaRequest request) {
+    return executorService.submit(new OperationCallable(tasks, recoveryPolicy, request));
   }
 
   @EnableKamon
@@ -108,23 +107,20 @@ class TransactionTaskConsumer implements TaskConsumer {
     private final SagaRequest request;
     private final RecoveryPolicy recoveryPolicy;
     private final Map<String, SagaTask> tasks;
-    private final SagaResponse previousResponse;
 
     private OperationCallable(
         Map<String, SagaTask> tasks,
         RecoveryPolicy recoveryPolicy,
-        SagaRequest request,
-        SagaResponse previousResponse) {
+        SagaRequest request) {
       this.request = request;
       this.recoveryPolicy = recoveryPolicy;
       this.tasks = tasks;
-      this.previousResponse = previousResponse;
     }
 
     @Trace("runTransactionCallable")
     @Override
     public SagaResponse call() throws Exception {
-      return recoveryPolicy.apply(tasks.get(request.task()), request, previousResponse);
+      return recoveryPolicy.apply(tasks.get(request.task()), request);
     }
   }
 }

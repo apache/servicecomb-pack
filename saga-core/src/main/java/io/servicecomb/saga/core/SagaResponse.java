@@ -21,7 +21,7 @@ public interface SagaResponse {
   SagaResponse EMPTY_RESPONSE = new SagaResponse() {
     @Override
     public boolean succeeded() {
-      return false;
+      return true;
     }
 
     @Override

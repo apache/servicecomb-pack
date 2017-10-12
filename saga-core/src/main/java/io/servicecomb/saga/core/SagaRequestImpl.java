@@ -82,6 +82,16 @@ public class SagaRequestImpl implements SagaRequest {
     this(id, serviceName, type, transaction, compensation, NOP_FALLBACK, new String[0]);
   }
 
+  public SagaRequestImpl(
+      String id,
+      String serviceName,
+      String type,
+      Transaction transaction,
+      Compensation compensation,
+      String[] parents) {
+    this(id, serviceName, type, transaction, compensation, NOP_FALLBACK, parents);
+  }
+
   @Override
   public Transaction transaction() {
     return transaction;

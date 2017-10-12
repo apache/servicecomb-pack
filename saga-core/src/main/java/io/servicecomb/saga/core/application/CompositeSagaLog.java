@@ -16,8 +16,10 @@
 
 package io.servicecomb.saga.core.application;
 
+import io.servicecomb.saga.core.PersistentLog;
 import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.SagaLog;
+import io.servicecomb.saga.core.SagaResponse;
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
 
@@ -25,9 +27,9 @@ import kamon.annotation.Segment;
 class CompositeSagaLog implements SagaLog {
 
   private final SagaLog embedded;
-  private final SagaLog persistent;
+  private final PersistentLog persistent;
 
-  CompositeSagaLog(SagaLog embedded, SagaLog persistent) {
+  CompositeSagaLog(SagaLog embedded, PersistentLog persistent) {
     this.embedded = embedded;
     this.persistent = persistent;
   }
@@ -42,5 +44,10 @@ class CompositeSagaLog implements SagaLog {
   @Override
   public long size() {
     return embedded.size();
+  }
+
+  @Override
+  public SagaResponse responseOf(String[] parentRequestIds) {
+    return embedded.responseOf(parentRequestIds);
   }
 }

@@ -22,7 +22,7 @@ public interface SagaTask {
   String SAGA_REQUEST_TASK = "SagaRequest";
   String SAGA_END_TASK = "SagaEnd";
 
-  SagaResponse commit(SagaRequest request, SagaResponse previousResponse);
+  SagaResponse commit(SagaRequest request);
 
   SagaResponse compensate(SagaRequest request);
 

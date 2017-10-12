@@ -3,10 +3,10 @@ package io.servicecomb.saga.core;
 import java.util.List;
 import java.util.Optional;
 
-class CompositeSagaResponse implements SagaResponse {
+public class CompositeSagaResponse implements SagaResponse {
   private final List<SagaResponse> responses;
 
-  CompositeSagaResponse(List<SagaResponse> responses) {
+  public CompositeSagaResponse(List<SagaResponse> responses) {
     this.responses = responses;
   }
 
