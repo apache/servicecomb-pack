@@ -16,9 +16,6 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.Map;
-import java.util.Set;
-
 public class TransactionAbortedEvent extends SagaEvent {
 
   private final SagaResponse response;
@@ -34,16 +31,9 @@ public class TransactionAbortedEvent extends SagaEvent {
   }
 
   @Override
-  public void gatherTo(
-      Map<String, SagaRequest> hangingTransactions,
-      Set<String> abortedTransactions,
-      Map<String, SagaResponse> completedTransactions,
-      Map<String, SagaResponse> completedCompensations) {
-
+  public void gatherTo(SagaContext sagaContext) {
     // remove from completed operations in order not to compensate it
-    completedTransactions.remove(payload().id());
-    abortedTransactions.add(payload().id());
-    hangingTransactions.remove(payload().id());
+    sagaContext.abortTransaction(payload());
   }
 
   @Override
