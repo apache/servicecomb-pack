@@ -38,15 +38,18 @@ class TransactionTaskConsumer implements TaskConsumer {
 
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final Map<String, SagaTask> tasks;
+  private final SagaContext sagaContext;
   private final CompletionService<Operation> executorService;
   private final RecoveryPolicy recoveryPolicy;
 
   TransactionTaskConsumer(
       Map<String, SagaTask> tasks,
+      SagaContext sagaContext,
       CompletionService<Operation> executorService,
       RecoveryPolicy recoveryPolicy) {
 
     this.tasks = tasks;
+    this.sagaContext = sagaContext;
     this.executorService = executorService;
     this.recoveryPolicy = recoveryPolicy;
   }
@@ -76,10 +79,10 @@ class TransactionTaskConsumer implements TaskConsumer {
   }
 
   @Override
-  public boolean replay(Collection<Node<SagaRequest>> nodes, Map<String, SagaResponse> completedOperations) {
+  public boolean replay(Collection<Node<SagaRequest>> nodes) {
     for (Iterator<Node<SagaRequest>> iterator = nodes.iterator(); iterator.hasNext(); ) {
       SagaRequest request = iterator.next().value();
-      if (completedOperations.containsKey(request.id())) {
+      if (sagaContext.isTransactionCompleted(request)) {
         log.info("Skipped completed transaction id={} operation={} while replay", request.id(), request.transaction());
         iterator.remove();
       }

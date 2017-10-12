@@ -20,7 +20,6 @@ import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.Traveller;
 
 import java.util.Collection;
-import java.util.Map;
 
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
@@ -60,13 +59,13 @@ class TaskRunner implements SagaState {
   }
 
   @Override
-  public void replay(Map<String, SagaResponse> completedOperations) {
+  public void replay() {
     boolean played = false;
     Collection<Node<SagaRequest>> nodes = traveller.nodes();
 
     while (traveller.hasNext() && !played) {
       traveller.next();
-      played = taskConsumer.replay(nodes, completedOperations);
+      played = taskConsumer.replay(nodes);
     }
   }
 }
