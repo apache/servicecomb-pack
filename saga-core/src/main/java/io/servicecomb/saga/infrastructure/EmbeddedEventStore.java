@@ -68,7 +68,7 @@ public class EmbeddedEventStore implements EventStore {
   @Override
   public SagaResponse responseOf(String[] parentRequestIds) {
     List<SagaResponse> responses = Arrays.stream(parentRequestIds)
-        .map(id -> sagaContext.completedTransactions().get(id))
+        .map(sagaContext::responseOf)
         .collect(Collectors.toList());
 
     if (responses.isEmpty()) {

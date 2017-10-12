@@ -30,11 +30,11 @@ class CompensationTaskConsumer implements TaskConsumer {
 
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final Map<String, SagaTask> tasks;
-  private final Map<String, SagaResponse> completedTransactions;
+  private final SagaContext sagaContext;
 
-  CompensationTaskConsumer(Map<String, SagaTask> tasks, Map<String, SagaResponse> completedTransactions) {
+  CompensationTaskConsumer(Map<String, SagaTask> tasks, SagaContext sagaContext) {
     this.tasks = tasks;
-    this.completedTransactions = completedTransactions;
+    this.sagaContext = sagaContext;
   }
 
   @Override
@@ -42,7 +42,7 @@ class CompensationTaskConsumer implements TaskConsumer {
     for (Node<SagaRequest> node : nodes) {
       SagaRequest request = node.value();
 
-      if (completedTransactions.containsKey(request.id())) {
+      if (sagaContext.isTransactionCompleted(request)) {
         log.info("Starting request {} id={}", request.serviceName(), request.id());
         tasks.get(request.task()).compensate(request);
         log.info("Completed request {} id={}", request.serviceName(), request.id());
@@ -51,14 +51,14 @@ class CompensationTaskConsumer implements TaskConsumer {
   }
 
   @Override
-  public boolean replay(Collection<Node<SagaRequest>> nodes, Map<String, SagaResponse> completedOperations) {
+  public boolean replay(Collection<Node<SagaRequest>> nodes) {
 
     for (Iterator<Node<SagaRequest>> iterator = nodes.iterator(); iterator.hasNext(); ) {
       SagaRequest request = iterator.next().value();
-      if (completedOperations.containsKey(request.id())) {
+      if (sagaContext.isCompensationCompleted(request)) {
         log.info("Skipped completed compensation id={} operation={} while replay", request.id(), request.transaction());
         iterator.remove();
-      } else if (!completedTransactions.containsKey(request.id())) {
+      } else if (!sagaContext.isTransactionCompleted(request)) {
         // this transaction never started
         log.info("Skipped pending transaction id={} operation={} while replay", request.id(), request.transaction());
         iterator.remove();

@@ -17,7 +17,6 @@
 package io.servicecomb.saga.core;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
@@ -77,13 +76,16 @@ public class Saga {
 
     this.transactionTaskRunner = new TaskRunner(
         traveller(sagaTaskGraph, new FromRootTraversalDirection<>()),
-        new TransactionTaskConsumer(tasks, new ExecutorCompletionService<>(executor),
+        new TransactionTaskConsumer(
+            tasks,
+            sagaContext,
+            new ExecutorCompletionService<>(executor),
             new LoggingRecoveryPolicy(recoveryPolicy)));
 
     this.sagaContext = sagaContext;
     this.compensationTaskRunner = new TaskRunner(
         traveller(sagaTaskGraph, new FromLeafTraversalDirection<>()),
-        new CompensationTaskConsumer(tasks, sagaContext.completedTransactions()));
+        new CompensationTaskConsumer(tasks, sagaContext));
 
     currentTaskRunner = transactionTaskRunner;
   }
@@ -100,11 +102,10 @@ public class Saga {
         log.error("Failed to run operation", e);
         currentTaskRunner = compensationTaskRunner;
 
-        for (Iterator<SagaRequest> iterator = sagaContext.hangingTransactions().values().iterator(); iterator.hasNext(); ) {
-          SagaRequest request = iterator.next();
+        sagaContext.handleHangingTransactions(request -> {
           tasks.get(request.task()).commit(request);
           tasks.get(request.task()).compensate(request);
-        }
+        });
       }
     } while (currentTaskRunner.hasNext());
     log.info("Completed Saga");
@@ -115,11 +116,11 @@ public class Saga {
     log.info("Start playing events");
     gatherEvents(eventStore);
 
-    transactionTaskRunner.replay(sagaContext.completedTransactions());
+    transactionTaskRunner.replay();
 
     if (sagaContext.isCompensationStarted()) {
       currentTaskRunner = compensationTaskRunner;
-      compensationTaskRunner.replay(sagaContext.completedCompensations());
+      compensationTaskRunner.replay();
     }
 
     log.info("Completed playing events");
