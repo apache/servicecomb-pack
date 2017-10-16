@@ -16,10 +16,8 @@
 
 package io.servicecomb.saga.core.application.interpreter;
 
-import io.servicecomb.saga.core.SagaDefinition;
+public interface FromJsonFormat<T> {
 
-public interface FromJsonFormat {
-
-  SagaDefinition fromJson(String requestJson);
+  T fromJson(String requestJson);
 
 }

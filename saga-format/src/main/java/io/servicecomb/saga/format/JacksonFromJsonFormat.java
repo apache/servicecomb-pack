@@ -26,7 +26,7 @@ import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
 
 @EnableKamon
-public class JacksonFromJsonFormat implements FromJsonFormat {
+public class JacksonFromJsonFormat implements FromJsonFormat<SagaDefinition> {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final TransportFactory transportFactory;

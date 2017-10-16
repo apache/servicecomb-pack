@@ -18,6 +18,7 @@ package io.servicecomb.saga.spring;
 
 import io.servicecomb.saga.core.JacksonToJsonFormat;
 import io.servicecomb.saga.core.PersistentStore;
+import io.servicecomb.saga.core.SagaDefinition;
 import io.servicecomb.saga.core.ToJsonFormat;
 import io.servicecomb.saga.core.application.SagaExecutionComponent;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
@@ -42,7 +43,7 @@ class SagaSpringConfig {
   }
 
   @Bean
-  FromJsonFormat fromJsonFormat(TransportFactory transportFactory) {
+  FromJsonFormat<SagaDefinition> fromJsonFormat(TransportFactory transportFactory) {
     return new JacksonFromJsonFormat(transportFactory);
   }
 
@@ -67,7 +68,7 @@ class SagaSpringConfig {
       @Value("${saga.retry.delay:3000}") int retryDelay,
       PersistentStore persistentStore,
       ToJsonFormat format,
-      FromJsonFormat fromJsonFormat) {
+      FromJsonFormat<SagaDefinition> fromJsonFormat) {
 
     return new SagaExecutionComponent(
         retryDelay,

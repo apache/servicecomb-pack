@@ -27,6 +27,8 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.seanyinx.github.unit.scaffolding.AssertUtils;
+
+import io.servicecomb.saga.core.SagaDefinition;
 import io.servicecomb.saga.core.SagaException;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaResponse;
@@ -150,7 +152,7 @@ public class JacksonFromJsonFormatTest {
 
   private final RestTransport restTransport = Mockito.mock(RestTransport.class);
   private final TransportFactory transportFactory = Mockito.mock(TransportFactory.class);
-  private final FromJsonFormat format = new JacksonFromJsonFormat(transportFactory);
+  private final FromJsonFormat<SagaDefinition> format = new JacksonFromJsonFormat(transportFactory);
 
   @Before
   public void setUp() throws Exception {

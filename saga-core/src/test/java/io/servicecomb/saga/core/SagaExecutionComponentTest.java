@@ -126,7 +126,7 @@ public class SagaExecutionComponentTest {
     }
   };
 
-  private final FromJsonFormat fromJsonFormat = Mockito.mock(FromJsonFormat.class);
+  private final FromJsonFormat<SagaDefinition> fromJsonFormat = Mockito.mock(FromJsonFormat.class);
   private final EmbeddedPersistentStore eventStore = new EmbeddedPersistentStore();
 
   private final SagaExecutionComponent coordinator = new SagaExecutionComponent(
