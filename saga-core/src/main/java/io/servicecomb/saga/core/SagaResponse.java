@@ -16,6 +16,9 @@
 
 package io.servicecomb.saga.core;
 
+import java.util.Collections;
+import java.util.Set;
+
 public interface SagaResponse {
 
   SagaResponse EMPTY_RESPONSE = new SagaResponse() {
@@ -38,4 +41,8 @@ public interface SagaResponse {
   boolean succeeded();
 
   String body();
+
+  default Set<String> chosenChildren() {
+    return Collections.emptySet();
+  }
 }

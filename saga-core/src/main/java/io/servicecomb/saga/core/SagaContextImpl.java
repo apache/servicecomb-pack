@@ -16,12 +16,15 @@
 
 package io.servicecomb.saga.core;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class SagaContextImpl implements SagaContext {
   private final Map<String, SagaResponse> completedTransactions;
@@ -85,5 +88,25 @@ public class SagaContextImpl implements SagaContext {
   @Override
   public SagaResponse responseOf(String requestId) {
     return completedTransactions.get(requestId);
+  }
+
+  @Override
+  public List<SagaResponse> responsesOf(String[] parentRequestIds) {
+    return Arrays.stream(parentRequestIds)
+        .map(this::responseOf)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public boolean isChosenChild(SagaRequest request)  {
+    Set<String> chosenChildren = chosenChildrenOf(request.parents());
+    return chosenChildren.isEmpty() || chosenChildren.contains(request.id());
+  }
+
+  private Set<String> chosenChildrenOf(String[] parentRequestIds) {
+    return Arrays.stream(parentRequestIds)
+        .map(this::responseOf)
+        .flatMap(sagaResponse -> sagaResponse.chosenChildren().stream())
+        .collect(Collectors.toSet());
   }
 }

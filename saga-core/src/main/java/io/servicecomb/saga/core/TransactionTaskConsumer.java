@@ -27,6 +27,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
 import kamon.annotation.Trace;
@@ -60,7 +61,9 @@ class TransactionTaskConsumer implements TaskConsumer {
     List<Future<Operation>> futures = new ArrayList<>(nodes.size());
     for (Node<SagaRequest> node : nodes) {
       SagaRequest request = node.value();
-      futures.add(futureOf(request));
+      if (sagaContext.isChosenChild(request)) {
+        futures.add(futureOf(request));
+      }
     }
 
     for (int i = 0; i < futures.size(); i++) {
