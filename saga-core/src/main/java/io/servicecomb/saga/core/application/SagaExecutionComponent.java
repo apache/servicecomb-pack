@@ -58,7 +58,7 @@ import kamon.annotation.Segment;
 public class SagaExecutionComponent {
 
   private final PersistentStore persistentStore;
-  private final FromJsonFormat fromJsonFormat;
+  private final FromJsonFormat<SagaDefinition> fromJsonFormat;
   private final ToJsonFormat toJsonFormat;
   private final Executor executorService;
   private final FallbackPolicy fallbackPolicy;
@@ -67,7 +67,7 @@ public class SagaExecutionComponent {
 
   public SagaExecutionComponent(
       PersistentStore persistentStore,
-      FromJsonFormat fromJsonFormat,
+      FromJsonFormat<SagaDefinition> fromJsonFormat,
       ToJsonFormat toJsonFormat) {
     this(
         500,
@@ -80,7 +80,7 @@ public class SagaExecutionComponent {
   public SagaExecutionComponent(
       int retryDelay,
       PersistentStore persistentStore,
-      FromJsonFormat fromJsonFormat,
+      FromJsonFormat<SagaDefinition> fromJsonFormat,
       ToJsonFormat toJsonFormat,
       ExecutorService executorService) {
     this.fallbackPolicy = new FallbackPolicy(retryDelay);
