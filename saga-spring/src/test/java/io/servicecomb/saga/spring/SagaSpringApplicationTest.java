@@ -81,6 +81,30 @@ public class SagaSpringApplicationTest {
       + "        }\n"
       + "      }\n"
       + "    }\n"
+      + "  },\n"
+      + "  {\n"
+      + "    \"id\": \"request-bbb\",\n"
+      + "    \"type\": \"rest\",\n"
+      + "    \"serviceName\": \"localhost:8090\",\n"
+      + "    \"transaction\": {\n"
+      + "      \"method\": \"post\",\n"
+      + "      \"path\": \"/rest/as\",\n"
+      + "      \"params\": {\n"
+      + "        \"form\": {\n"
+      + "          \"foo\": \"as\"\n"
+      + "        }\n"
+      + "      }\n"
+      + "    },\n"
+      + "    \"compensation\": {\n"
+      + "      \"method\": \"delete\",\n"
+      + "      \"path\": \"/rest/as\",\n"
+      + "      \"params\": {\n"
+      + "        \"query\": {\n"
+      + "          \"bar\": \"as\"\n"
+      + "        }\n"
+      + "      }\n"
+      + "    },\n"
+      + "    \"parents\": [\"request-aaa\"]\n"
       + "  }\n"
       + "]\n";
 
@@ -127,7 +151,10 @@ public class SagaSpringApplicationTest {
         .willReturn(
             aResponse()
                 .withStatus(HttpStatus.SC_OK)
-                .withBody("success")));
+                .withBody("{\n"
+                    + "  \"body\": \"success\",\n"
+                    + "  \"sagaChildren\": [\"none\"]\n"
+                    + "}")));
 
     stubFor(WireMock.post(urlPathEqualTo("/rest/bs"))
         .withRequestBody(containing("foo=bs"))
