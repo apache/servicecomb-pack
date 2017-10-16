@@ -68,10 +68,12 @@ public class SagaIntegrationTest {
   private final Transaction transaction1 = mock(Transaction.class, "transaction1");
   private final Transaction transaction2 = mock(Transaction.class, "transaction2");
   private final Transaction transaction3 = mock(Transaction.class, "transaction3");
+  private final Transaction transaction4 = mock(Transaction.class, "transaction4");
 
   private final Compensation compensation1 = mock(Compensation.class, "compensation1");
   private final Compensation compensation2 = mock(Compensation.class, "compensation2");
   private final Compensation compensation3 = mock(Compensation.class, "compensation3");
+  private final Compensation compensation4 = mock(Compensation.class, "compensation4");
 
   private final Fallback fallback1 = mock(Fallback.class, "fallback1");
 
@@ -79,6 +81,7 @@ public class SagaIntegrationTest {
   private final SagaRequest request1 = request("request1", "service1", transaction1, compensation1, fallback1);
   private final SagaRequest request2 = request("request2", "service2", transaction2, compensation2, request1.id());
   private final SagaRequest request3 = request("request3", "service3", transaction3, compensation3, request1.id());
+  private final SagaRequest request4 = request("request4", "service4", transaction4, compensation4, request3.id());
 
   private final SagaResponse transactionResponse1 = new SuccessfulSagaResponse(200, "transaction1");
   private final SagaResponse transactionResponse2 = new SuccessfulSagaResponse(200, "transaction2");
@@ -93,8 +96,9 @@ public class SagaIntegrationTest {
   private final Node<SagaRequest> node1 = new Node<>(1, request1);
   private final Node<SagaRequest> node2 = new Node<>(2, request2);
   private final Node<SagaRequest> node3 = new Node<>(3, request3);
+  private final Node<SagaRequest> node4 = new Node<>(4, request4);
   private final Node<SagaRequest> root = new Node<>(0, SAGA_START_REQUEST);
-  private final Node<SagaRequest> leaf = new Node<>(4, SAGA_END_REQUEST);
+  private final Node<SagaRequest> leaf = new Node<>(5, SAGA_END_REQUEST);
   private final SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph = new SingleLeafDirectedAcyclicGraph<>(root, leaf);
 
   private Saga saga;
@@ -105,7 +109,7 @@ public class SagaIntegrationTest {
   public void setUp() throws Exception {
     when(transaction1.send(request1.serviceName(), EMPTY_RESPONSE)).thenReturn(transactionResponse1);
     when(transaction2.send(request2.serviceName(), transactionResponse1)).thenReturn(transactionResponse2);
-    when(transaction3.send(request3.serviceName(), transactionResponse2)).thenReturn(transactionResponse3);
+    when(transaction3.send(request3.serviceName(), transactionResponse1)).thenReturn(transactionResponse3);
 
     when(compensation1.send(request1.serviceName(), compensationResponse2)).thenReturn(compensationResponse1);
     when(compensation2.send(request2.serviceName(), compensationResponse3)).thenReturn(compensationResponse2);
@@ -223,7 +227,9 @@ public class SagaIntegrationTest {
 
   @Test
   public void skipAllIgnoredTransactions() throws Exception {
-    addExtraChildToNode1();
+    node1.addChild(node3);
+    node3.addChild(node4);
+    node4.addChild(leaf);
 
     SagaResponse response = mock(SagaResponse.class);
 
@@ -242,10 +248,52 @@ public class SagaIntegrationTest {
     verify(transaction1).send(request1.serviceName(), EMPTY_RESPONSE);
     verify(transaction2, never()).send(anyString(), any(SagaResponse.class));
     verify(transaction3, never()).send(anyString(), any(SagaResponse.class));
+    verify(transaction4, never()).send(anyString(), any(SagaResponse.class));
 
     verify(compensation1, never()).send(request1.serviceName());
     verify(compensation2, never()).send(request2.serviceName());
     verify(compensation3, never()).send(request3.serviceName());
+    verify(compensation4, never()).send(request4.serviceName());
+  }
+
+  @Test
+  public void doNotCompensateIgnoredTransactions() throws Exception {
+    node1.addChild(node3);
+    node3.addChild(node4);
+    node4.addChild(leaf);
+
+    SagaResponse response = mock(SagaResponse.class);
+
+    when(response.chosenChildren()).thenReturn(setOf(request3.id()));
+    when(transaction1.send(request1.serviceName(), EMPTY_RESPONSE)).thenReturn(response);
+
+    when(transaction3.send(request3.serviceName(), response)).thenReturn(transactionResponse3);
+    when(transaction4.send(request4.serviceName(), transactionResponse3)).thenThrow(exception);
+
+    saga.run();
+
+    assertThat(eventStore, contains(
+        eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionEndedEvent.class),
+        eventWith(sagaId, transaction3, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction3, TransactionEndedEvent.class),
+        eventWith(sagaId, transaction4, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction4, TransactionAbortedEvent.class),
+        eventWith(sagaId, transaction3, TransactionCompensatedEvent.class),
+        eventWith(sagaId, transaction1, TransactionCompensatedEvent.class),
+        eventWith(sagaId, SAGA_START_COMPENSATION, SagaEndedEvent.class)
+    ));
+
+    verify(transaction1).send(request1.serviceName(), EMPTY_RESPONSE);
+    verify(transaction3).send(request3.serviceName(), response);
+    verify(transaction4).send(request4.serviceName(), transactionResponse3);
+    verify(transaction2, never()).send(anyString(), any(SagaResponse.class));
+
+    verify(compensation1).send(request1.serviceName());
+    verify(compensation3).send(request3.serviceName());
+    verify(compensation2, never()).send(request2.serviceName());
+    verify(compensation4, never()).send(request4.serviceName());
   }
 
   // root - node1 - node2 - leaf

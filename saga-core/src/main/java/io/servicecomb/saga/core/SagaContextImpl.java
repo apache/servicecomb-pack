@@ -16,6 +16,8 @@
 
 package io.servicecomb.saga.core;
 
+import static java.util.Collections.singleton;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +29,23 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class SagaContextImpl implements SagaContext {
+  private static final SagaResponse NONE_RESPONSE = new SagaResponse() {
+    @Override
+    public boolean succeeded() {
+      return false;
+    }
+
+    @Override
+    public String body() {
+      return "{}";
+    }
+
+    @Override
+    public Set<String> chosenChildren() {
+      return new HashSet<>(singleton("none"));
+    }
+  };
+
   private final Map<String, SagaResponse> completedTransactions;
   private final Map<String, SagaResponse> completedCompensations;
   private final Set<String> abortedTransactions;
@@ -87,7 +106,7 @@ public class SagaContextImpl implements SagaContext {
 
   @Override
   public SagaResponse responseOf(String requestId) {
-    return completedTransactions.get(requestId);
+    return completedTransactions.getOrDefault(requestId, NONE_RESPONSE);
   }
 
   @Override
