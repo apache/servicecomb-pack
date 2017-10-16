@@ -55,7 +55,9 @@ public class PaymentController {
     }
 
     balance -= 800;
-    return ResponseEntity.ok(String.format("Payment made for customer %s and remaining balance is %d",
+    return ResponseEntity.ok(String.format("{\n"
+            + "  \"body\": \"Payment made for customer %s and remaining balance is %d\"\n"
+            + "}",
         customerId,
         balance));
   }
