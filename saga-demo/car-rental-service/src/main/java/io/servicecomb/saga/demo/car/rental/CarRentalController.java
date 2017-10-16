@@ -75,7 +75,9 @@ public class CarRentalController {
       }
     }
 
-    return ResponseEntity.ok(String.format("Car rented with id %s for customer %s",
+    return ResponseEntity.ok(String.format("{\n"
+            + "  \"body\": \"Car rented with id %s for customer %s\"\n"
+            + "}",
         UUID.randomUUID().toString(),
         customerId));
   }

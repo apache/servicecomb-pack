@@ -53,7 +53,9 @@ public class HotelReservationController {
       throw new InvocationException(FORBIDDEN, "No such customer with id " + customerId);
     }
 
-    return ResponseEntity.ok(String.format("Hotel reserved with id %s for customer %s",
+    return ResponseEntity.ok(String.format("{\n"
+            + "  \"body\": \"Hotel reserved with id %s for customer %s\"\n"
+            + "}",
         UUID.randomUUID().toString(),
         customerId));
   }

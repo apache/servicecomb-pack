@@ -52,7 +52,9 @@ public class FlightBookingController {
       throw new InvocationException(FORBIDDEN, "No such customer with id " + customerId);
     }
 
-    return ResponseEntity.ok(String.format("Flight booked with id %s for customer %s",
+    return ResponseEntity.ok(String.format("{\n"
+            + "  \"body\": \"Flight booked with id %s for customer %s\"\n"
+            + "}",
         UUID.randomUUID().toString(),
         customerId));
   }
