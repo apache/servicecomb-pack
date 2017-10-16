@@ -75,7 +75,7 @@ class ServiceCenterDiscoveryRestTransport implements RestTransport {
 
     try {
       ResponseEntity<String> responseEntity = methodHandler(method).apply(url, params);
-      return new SuccessfulSagaResponse(responseEntity.getStatusCodeValue(), responseEntity.getBody());
+      return new SuccessfulSagaResponse(responseEntity.getBody());
     } catch (Throwable e) {
       throw new TransportFailedException(
           String.format("The remote service %s failed to serve the %s request to %s ", address, method, path),

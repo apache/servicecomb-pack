@@ -19,10 +19,6 @@ package io.servicecomb.saga.core;
 public class SuccessfulSagaResponse implements SagaResponse {
   private final String body;
 
-  public SuccessfulSagaResponse(int statusCode, String content) {
-    this.body = format(statusCode, content);
-  }
-
   public SuccessfulSagaResponse(String body) {
     this.body = body;
   }
@@ -35,13 +31,6 @@ public class SuccessfulSagaResponse implements SagaResponse {
   @Override
   public String body() {
     return body;
-  }
-
-  private String format(int statusCode, String content) {
-    return String.format("{\n"
-        + "  \"statusCode\": %d,\n"
-        + "  \"content\": \"%s\"\n"
-        + "}", statusCode, content);
   }
 
   @Override

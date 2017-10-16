@@ -20,6 +20,7 @@ import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
 import static io.servicecomb.saga.core.Operation.TYPE_REST;
+import static io.servicecomb.saga.core.SagaContextImpl.NONE_RESPONSE;
 import static io.servicecomb.saga.core.SagaEventMatcher.eventWith;
 import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
 import static io.servicecomb.saga.core.SagaTask.SAGA_END_TASK;
@@ -28,6 +29,7 @@ import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
 import static io.servicecomb.saga.core.Transaction.SAGA_END_TRANSACTION;
 import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
@@ -43,6 +45,7 @@ import static org.mockito.Mockito.when;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
@@ -53,6 +56,7 @@ import org.mockito.stubbing.Answer;
 
 import com.seanyinx.github.unit.scaffolding.Randomness;
 
+import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
@@ -61,7 +65,8 @@ import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 public class SagaIntegrationTest {
   private static final String sagaId = Randomness.uniquify("sagaId");
 
-  private final SagaContext sagaContext = new SagaContextImpl();
+  private final FromJsonFormat<Set<String>> childrenExtractor = mock(FromJsonFormat.class);
+  private final SagaContext sagaContext = new SagaContextImpl(childrenExtractor);
   private final IdGenerator<Long> idGenerator = new LongIdGenerator();
   private final EventStore eventStore = new EmbeddedEventStore(sagaContext);
 
@@ -83,12 +88,12 @@ public class SagaIntegrationTest {
   private final SagaRequest request3 = request("request3", "service3", transaction3, compensation3, request1.id());
   private final SagaRequest request4 = request("request4", "service4", transaction4, compensation4, request3.id());
 
-  private final SagaResponse transactionResponse1 = new SuccessfulSagaResponse(200, "transaction1");
-  private final SagaResponse transactionResponse2 = new SuccessfulSagaResponse(200, "transaction2");
-  private final SagaResponse transactionResponse3 = new SuccessfulSagaResponse(200, "transaction3");
-  private final SagaResponse compensationResponse1 = new SuccessfulSagaResponse(200, "compensation1");
-  private final SagaResponse compensationResponse2 = new SuccessfulSagaResponse(200, "compensation2");
-  private final SagaResponse compensationResponse3 = new SuccessfulSagaResponse(200, "compensation3");
+  private final SagaResponse transactionResponse1 = new SuccessfulSagaResponse("transaction1");
+  private final SagaResponse transactionResponse2 = new SuccessfulSagaResponse("transaction2");
+  private final SagaResponse transactionResponse3 = new SuccessfulSagaResponse("transaction3");
+  private final SagaResponse compensationResponse1 = new SuccessfulSagaResponse("compensation1");
+  private final SagaResponse compensationResponse2 = new SuccessfulSagaResponse("compensation2");
+  private final SagaResponse compensationResponse3 = new SuccessfulSagaResponse("compensation3");
 
   @SuppressWarnings("ThrowableInstanceNeverThrown")
   private final RuntimeException exception = new RuntimeException("oops");
@@ -107,6 +112,9 @@ public class SagaIntegrationTest {
   // root - node1 - node2 - leaf
   @Before
   public void setUp() throws Exception {
+    when(childrenExtractor.fromJson(anyString())).thenReturn(emptySet());
+    when(childrenExtractor.fromJson(NONE_RESPONSE.body())).thenReturn(setOf("none"));
+
     when(transaction1.send(request1.serviceName(), EMPTY_RESPONSE)).thenReturn(transactionResponse1);
     when(transaction2.send(request2.serviceName(), transactionResponse1)).thenReturn(transactionResponse2);
     when(transaction3.send(request3.serviceName(), transactionResponse1)).thenReturn(transactionResponse3);
@@ -200,10 +208,7 @@ public class SagaIntegrationTest {
   public void skipIgnoredTransaction() throws Exception {
     addExtraChildToNode1();
 
-    SagaResponse response = mock(SagaResponse.class);
-
-    when(response.chosenChildren()).thenReturn(setOf(request3.id()));
-    when(transaction1.send(request1.serviceName(), EMPTY_RESPONSE)).thenReturn(response);
+    when(childrenExtractor.fromJson(transactionResponse1.body())).thenReturn(setOf(request3.id()));
 
     saga.run();
 
@@ -217,7 +222,7 @@ public class SagaIntegrationTest {
     ));
 
     verify(transaction1).send(request1.serviceName(), EMPTY_RESPONSE);
-    verify(transaction3).send(request3.serviceName(), response);
+    verify(transaction3).send(request3.serviceName(), transactionResponse1);
     verify(transaction2, never()).send(anyString(), any(SagaResponse.class));
 
     verify(compensation1, never()).send(request1.serviceName());
@@ -231,10 +236,7 @@ public class SagaIntegrationTest {
     node3.addChild(node4);
     node4.addChild(leaf);
 
-    SagaResponse response = mock(SagaResponse.class);
-
-    when(response.chosenChildren()).thenReturn(setOf("none"));
-    when(transaction1.send(request1.serviceName(), EMPTY_RESPONSE)).thenReturn(response);
+    when(childrenExtractor.fromJson(transactionResponse1.body())).thenReturn(setOf("none"));
 
     saga.run();
 
@@ -262,12 +264,8 @@ public class SagaIntegrationTest {
     node3.addChild(node4);
     node4.addChild(leaf);
 
-    SagaResponse response = mock(SagaResponse.class);
+    when(childrenExtractor.fromJson(transactionResponse1.body())).thenReturn(setOf(request3.id()));
 
-    when(response.chosenChildren()).thenReturn(setOf(request3.id()));
-    when(transaction1.send(request1.serviceName(), EMPTY_RESPONSE)).thenReturn(response);
-
-    when(transaction3.send(request3.serviceName(), response)).thenReturn(transactionResponse3);
     when(transaction4.send(request4.serviceName(), transactionResponse3)).thenThrow(exception);
 
     saga.run();
@@ -286,7 +284,7 @@ public class SagaIntegrationTest {
     ));
 
     verify(transaction1).send(request1.serviceName(), EMPTY_RESPONSE);
-    verify(transaction3).send(request3.serviceName(), response);
+    verify(transaction3).send(request3.serviceName(), transactionResponse1);
     verify(transaction4).send(request4.serviceName(), transactionResponse3);
     verify(transaction2, never()).send(anyString(), any(SagaResponse.class));
 

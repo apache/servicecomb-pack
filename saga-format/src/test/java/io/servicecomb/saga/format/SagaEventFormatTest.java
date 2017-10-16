@@ -69,7 +69,7 @@ public class SagaEventFormatTest {
   private final TransportFactory transportFactory = Mockito.mock(TransportFactory.class);
   private final SagaEventFormat toEventFormat = new JacksonSagaEventFormat(transportFactory);
   private final ToJsonFormat toJsonFormat = new JacksonToJsonFormat();
-  private final SuccessfulSagaResponse response = new SuccessfulSagaResponse(200, "a wonderful day");
+  private final SuccessfulSagaResponse response = new SuccessfulSagaResponse("a wonderful day");
 
   @Before
   public void setUp() throws Exception {

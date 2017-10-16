@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -58,6 +59,7 @@ import kamon.annotation.Segment;
 public class SagaExecutionComponent {
 
   private final PersistentStore persistentStore;
+  private final FromJsonFormat<Set<String>> childrenExtractor;
   private final FromJsonFormat<SagaDefinition> fromJsonFormat;
   private final ToJsonFormat toJsonFormat;
   private final Executor executorService;
@@ -68,12 +70,14 @@ public class SagaExecutionComponent {
   public SagaExecutionComponent(
       PersistentStore persistentStore,
       FromJsonFormat<SagaDefinition> fromJsonFormat,
-      ToJsonFormat toJsonFormat) {
+      ToJsonFormat toJsonFormat,
+      FromJsonFormat<Set<String>> childrenExtractor) {
     this(
         500,
         persistentStore,
         fromJsonFormat,
         toJsonFormat,
+        childrenExtractor,
         Executors.newFixedThreadPool(5));
   }
 
@@ -82,9 +86,11 @@ public class SagaExecutionComponent {
       PersistentStore persistentStore,
       FromJsonFormat<SagaDefinition> fromJsonFormat,
       ToJsonFormat toJsonFormat,
+      FromJsonFormat<Set<String>> childrenExtractor,
       ExecutorService executorService) {
     this.fallbackPolicy = new FallbackPolicy(retryDelay);
     this.persistentStore = persistentStore;
+    this.childrenExtractor = childrenExtractor;
     this.graphBuilder = new GraphBuilder(new GraphCycleDetectorImpl<>());
     this.fromJsonFormat = fromJsonFormat;
     this.toJsonFormat = toJsonFormat;
@@ -95,7 +101,7 @@ public class SagaExecutionComponent {
   @Segment(name = "runSagaExecutionComponent", category = "application", library = "kamon")
   public String run(String requestJson) {
     String sagaId = UUID.randomUUID().toString();
-    SagaContext sagaContext = new SagaContextImpl();
+    SagaContext sagaContext = new SagaContextImpl(childrenExtractor);
     EventStore sagaLog = new EmbeddedEventStore(sagaContext);
     SagaDefinition definition = fromJsonFormat.fromJson(requestJson);
     Saga saga = new Saga(
@@ -112,7 +118,7 @@ public class SagaExecutionComponent {
     Map<String, List<EventEnvelope>> pendingSagaEvents = persistentStore.findPendingSagaEvents();
 
     for (Entry<String, List<EventEnvelope>> entry : pendingSagaEvents.entrySet()) {
-      SagaContext sagaContext = new SagaContextImpl();
+      SagaContext sagaContext = new SagaContextImpl(childrenExtractor);
       EventStore eventStore = new EmbeddedEventStore(sagaContext);
       eventStore.populate(entry.getValue());
       SagaEvent event = entry.getValue().iterator().next().event;
