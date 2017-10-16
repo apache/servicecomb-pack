@@ -16,6 +16,7 @@
 
 package io.servicecomb.saga.core;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public interface SagaContext {
@@ -36,4 +37,8 @@ public interface SagaContext {
   void handleHangingTransactions(Consumer<SagaRequest> consumer);
 
   SagaResponse responseOf(String requestId);
+
+  List<SagaResponse> responsesOf(String[] parentRequestIds);
+
+  boolean isChosenChild(SagaRequest request);
 }

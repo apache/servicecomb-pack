@@ -28,6 +28,7 @@ import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
 import static io.servicecomb.saga.core.Transaction.SAGA_END_TRANSACTION;
 import static io.servicecomb.saga.core.Transaction.SAGA_START_TRANSACTION;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
@@ -40,6 +41,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -188,6 +190,62 @@ public class SagaIntegrationTest {
     verify(compensation1).send(request1.serviceName());
     verify(compensation2, never()).send(request2.serviceName());
     verify(compensation3).send(request3.serviceName());
+  }
+
+  @Test
+  public void skipIgnoredTransaction() throws Exception {
+    addExtraChildToNode1();
+
+    SagaResponse response = mock(SagaResponse.class);
+
+    when(response.chosenChildren()).thenReturn(setOf(request3.id()));
+    when(transaction1.send(request1.serviceName(), EMPTY_RESPONSE)).thenReturn(response);
+
+    saga.run();
+
+    assertThat(eventStore, contains(
+        eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionEndedEvent.class),
+        eventWith(sagaId, transaction3, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction3, TransactionEndedEvent.class),
+        eventWith(sagaId, SAGA_END_TRANSACTION, SagaEndedEvent.class)
+    ));
+
+    verify(transaction1).send(request1.serviceName(), EMPTY_RESPONSE);
+    verify(transaction3).send(request3.serviceName(), response);
+    verify(transaction2, never()).send(anyString(), any(SagaResponse.class));
+
+    verify(compensation1, never()).send(request1.serviceName());
+    verify(compensation2, never()).send(request2.serviceName());
+    verify(compensation3, never()).send(request3.serviceName());
+  }
+
+  @Test
+  public void skipAllIgnoredTransactions() throws Exception {
+    addExtraChildToNode1();
+
+    SagaResponse response = mock(SagaResponse.class);
+
+    when(response.chosenChildren()).thenReturn(setOf("none"));
+    when(transaction1.send(request1.serviceName(), EMPTY_RESPONSE)).thenReturn(response);
+
+    saga.run();
+
+    assertThat(eventStore, contains(
+        eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionEndedEvent.class),
+        eventWith(sagaId, SAGA_END_TRANSACTION, SagaEndedEvent.class)
+    ));
+
+    verify(transaction1).send(request1.serviceName(), EMPTY_RESPONSE);
+    verify(transaction2, never()).send(anyString(), any(SagaResponse.class));
+    verify(transaction3, never()).send(anyString(), any(SagaResponse.class));
+
+    verify(compensation1, never()).send(request1.serviceName());
+    verify(compensation2, never()).send(request2.serviceName());
+    verify(compensation3, never()).send(request3.serviceName());
   }
 
   // root - node1 - node2 - leaf
@@ -547,5 +605,9 @@ public class SagaIntegrationTest {
       Fallback fallback) {
 
     return new SagaRequestImpl(requestId, serviceName, TYPE_REST, transaction, compensation, fallback);
+  }
+
+  private HashSet<String> setOf(String requestId) {
+    return new HashSet<>(singletonList(requestId));
   }
 }
