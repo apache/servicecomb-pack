@@ -101,9 +101,7 @@ public class HttpClientTransportTest {
     SagaResponse response = transport.with(address, usableResource, "GET", requests);
 
     assertThat(response.succeeded(), is(true));
-    assertThat(response.body(), allOf(
-        containsString(usableResponse),
-        containsString(String.valueOf(SC_OK))));
+    assertThat(response.body(), containsString(usableResponse));
   }
 
   @Test
@@ -115,9 +113,7 @@ public class HttpClientTransportTest {
     SagaResponse response = transport.with(address, usableResource, "PUT", requests);
 
     assertThat(response.succeeded(), is(true));
-    assertThat(response.body(), allOf(
-        containsString(usableResponse),
-        containsString(String.valueOf(SC_OK))));
+    assertThat(response.body(), containsString(usableResponse));
   }
 
   @Test

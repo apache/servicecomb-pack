@@ -22,6 +22,7 @@ import io.servicecomb.saga.core.SagaDefinition;
 import io.servicecomb.saga.core.ToJsonFormat;
 import io.servicecomb.saga.core.application.SagaExecutionComponent;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
+import io.servicecomb.saga.format.ChildrenExtractor;
 import io.servicecomb.saga.format.JacksonFromJsonFormat;
 import io.servicecomb.saga.format.JacksonSagaEventFormat;
 import io.servicecomb.saga.format.SagaEventFormat;
@@ -75,6 +76,7 @@ class SagaSpringConfig {
         persistentStore,
         fromJsonFormat,
         format,
+        new ChildrenExtractor(),
         Executors.newFixedThreadPool(numberOfThreads, sagaThreadFactory()));
   }
 

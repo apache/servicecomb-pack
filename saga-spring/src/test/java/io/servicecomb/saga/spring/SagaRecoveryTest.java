@@ -137,8 +137,8 @@ public class SagaRecoveryTest {
     private final SagaRequest request2 = sagaRequest("yyy2");
     private final SagaRequest request3 = sagaRequest("yyy3");
 
-    private final SagaResponse response1 = new SuccessfulSagaResponse(200, "succeeded, yyy1");
-    private final SagaResponse response2 = new SuccessfulSagaResponse(200, "succeeded, yyy2");
+    private final SagaResponse response1 = new SuccessfulSagaResponse("succeeded, yyy1");
+    private final SagaResponse response2 = new SuccessfulSagaResponse("succeeded, yyy2");
 
     @Primary
     @Bean

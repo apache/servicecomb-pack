@@ -69,9 +69,7 @@ public class ServiceCenterDiscoveryRestTransportTest {
     SagaResponse response = transport.with(serviceName, usableResource, "get", requests);
 
     assertThat(response.succeeded(), is(true));
-    assertThat(response.body(), allOf(
-        containsString(usableResponse),
-        containsString(String.valueOf(SC_OK))));
+    assertThat(response.body(), containsString(usableResponse));
   }
 
   @Test
@@ -83,9 +81,7 @@ public class ServiceCenterDiscoveryRestTransportTest {
     SagaResponse response = transport.with(serviceName, usableResource, "PUT", requests);
 
     assertThat(response.succeeded(), is(true));
-    assertThat(response.body(), allOf(
-        containsString(usableResponse + json),
-        containsString(String.valueOf(SC_OK))));
+    assertThat(response.body(), containsString(usableResponse + json));
   }
 
   @Test

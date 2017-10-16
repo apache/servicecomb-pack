@@ -132,6 +132,7 @@ public class SagaExecutionComponentTest {
   private final SagaExecutionComponent coordinator = new SagaExecutionComponent(
       eventStore,
       fromJsonFormat,
+      null,
       null
   );
   private final String sagaId = "1";
@@ -234,7 +235,7 @@ public class SagaExecutionComponentTest {
 
   private class EmbeddedPersistentStore extends EmbeddedEventStore implements PersistentStore {
     EmbeddedPersistentStore() {
-      super(new SagaContextImpl());
+      super(new SagaContextImpl(null));
     }
 
     @Override

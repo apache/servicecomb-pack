@@ -28,7 +28,7 @@ public class FailedSagaResponse implements SagaResponse {
   }
 
   public FailedSagaResponse(Throwable e) {
-    this.body = format(stackTrace(e));
+    this.body = stackTrace(e);
   }
 
   @Override
@@ -39,12 +39,6 @@ public class FailedSagaResponse implements SagaResponse {
   @Override
   public String body() {
     return body;
-  }
-
-  private String format(String body) {
-    return String.format("{\n"
-        + "  \"body\": \"%s\"\n"
-        + "}", body);
   }
 
   private String stackTrace(Throwable e) {

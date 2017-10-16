@@ -140,15 +140,15 @@ public class JacksonFromJsonFormatTest {
       + "  ]\n"
       + "}\n";
 
-  private final SagaResponse response11 = new SuccessfulSagaResponse(200, uniquify("response11"));
-  private final SagaResponse response12 = new SuccessfulSagaResponse(200, uniquify("response12"));
-  private final SagaResponse response13 = new SuccessfulSagaResponse(200, uniquify("response13"));
-  private final SagaResponse response21 = new SuccessfulSagaResponse(200, uniquify("response21"));
-  private final SagaResponse response22 = new SuccessfulSagaResponse(200, uniquify("response22"));
-  private final SagaResponse response23 = new SuccessfulSagaResponse(200, uniquify("response23"));
-  private final SagaResponse response31 = new SuccessfulSagaResponse(200, uniquify("response31"));
-  private final SagaResponse response32 = new SuccessfulSagaResponse(200, uniquify("response32"));
-  private final SagaResponse response33 = new SuccessfulSagaResponse(200, uniquify("response33"));
+  private final SagaResponse response11 = new SuccessfulSagaResponse(uniquify("response11"));
+  private final SagaResponse response12 = new SuccessfulSagaResponse(uniquify("response12"));
+  private final SagaResponse response13 = new SuccessfulSagaResponse(uniquify("response13"));
+  private final SagaResponse response21 = new SuccessfulSagaResponse(uniquify("response21"));
+  private final SagaResponse response22 = new SuccessfulSagaResponse(uniquify("response22"));
+  private final SagaResponse response23 = new SuccessfulSagaResponse(uniquify("response23"));
+  private final SagaResponse response31 = new SuccessfulSagaResponse(uniquify("response31"));
+  private final SagaResponse response32 = new SuccessfulSagaResponse(uniquify("response32"));
+  private final SagaResponse response33 = new SuccessfulSagaResponse(uniquify("response33"));
 
   private final RestTransport restTransport = Mockito.mock(RestTransport.class);
   private final TransportFactory transportFactory = Mockito.mock(TransportFactory.class);

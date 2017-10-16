@@ -16,8 +16,6 @@
 
 package io.servicecomb.saga.core;
 
-import static java.util.Collections.singleton;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,8 +26,10 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
+
 public class SagaContextImpl implements SagaContext {
-  private static final SagaResponse NONE_RESPONSE = new SagaResponse() {
+  public static final SagaResponse NONE_RESPONSE = new SagaResponse() {
     @Override
     public boolean succeeded() {
       return false;
@@ -37,12 +37,9 @@ public class SagaContextImpl implements SagaContext {
 
     @Override
     public String body() {
-      return "{}";
-    }
-
-    @Override
-    public Set<String> chosenChildren() {
-      return new HashSet<>(singleton("none"));
+      return "{\n"
+          + "  \"sagaChildren\": [\"none\"]\n"
+          + "}";
     }
   };
 
@@ -50,8 +47,10 @@ public class SagaContextImpl implements SagaContext {
   private final Map<String, SagaResponse> completedCompensations;
   private final Set<String> abortedTransactions;
   private final Map<String, SagaRequest> hangingTransactions;
+  private final FromJsonFormat<Set<String>> childrenExtractor;
 
-  public SagaContextImpl() {
+  public SagaContextImpl(FromJsonFormat<Set<String>> childrenExtractor) {
+    this.childrenExtractor = childrenExtractor;
     this.completedTransactions = new HashMap<>();
     this.completedCompensations = new HashMap<>();
     this.abortedTransactions = new HashSet<>();
@@ -125,7 +124,7 @@ public class SagaContextImpl implements SagaContext {
   private Set<String> chosenChildrenOf(String[] parentRequestIds) {
     return Arrays.stream(parentRequestIds)
         .map(this::responseOf)
-        .flatMap(sagaResponse -> sagaResponse.chosenChildren().stream())
+        .flatMap(sagaResponse -> childrenExtractor.fromJson(sagaResponse.body()).stream())
         .collect(Collectors.toSet());
   }
 }

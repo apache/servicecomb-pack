@@ -95,7 +95,7 @@ public class HttpClientTransport implements RestTransport {
       int statusCode = httpResponse.getStatusLine().getStatusCode();
       String content = IOUtils.toString(new InputStreamReader(httpResponse.getEntity().getContent()));
       if (statusCode >= 200 && statusCode < 300) {
-        return new SuccessfulSagaResponse(statusCode, content);
+        return new SuccessfulSagaResponse(content);
       }
       throw new TransportFailedException("The remote service returned with status code " + statusCode
           + ", reason " + httpResponse.getStatusLine().getReasonPhrase()
