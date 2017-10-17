@@ -36,13 +36,7 @@ public class InventoryControllerTest {
   private MockMvc mockMvc;
 
   @Test
-  public void respondWithChildren_IfTotalPurchaseIsLowerThanThreshold() throws Exception {
-    mockMvc.perform(post("/inventory")
-        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-        .content("customerId=mike"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.sagaChildren[0]", is("none")));
-
+  public void respondWithChildren_IfStockIsLowerThanThreshold() throws Exception {
     mockMvc.perform(post("/inventory")
         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
         .content("customerId=mike"))

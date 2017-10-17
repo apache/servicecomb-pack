@@ -15,32 +15,17 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <artifactId>saga-demo</artifactId>
+    <artifactId>conditional-transaction-demo</artifactId>
     <groupId>io.servicecomb.saga.demo</groupId>
     <version>0.0.2-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>demo-tests</artifactId>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>3.6</version>
-      </dependency>
-      <dependency>
-        <groupId>io.servicecomb</groupId>
-        <artifactId>java-chassis-dependencies</artifactId>
-        <version>${java.chassis.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+  <artifactId>conditional-transaction-demo-tests</artifactId>
 
   <dependencies>
     <dependency>
@@ -78,24 +63,6 @@
         <configuration>
           <images>
             <image>
-              <name>servicecomb/service-center</name>
-              <alias>service-center</alias>
-              <run>
-                <wait>
-                  <log>Local listen address</log>
-                  <tcp>
-                    <ports>
-                      <port>30100</port>
-                    </ports>
-                  </tcp>
-                  <time>60000</time>
-                </wait>
-                <ports>
-                  <port>service.center.port:30100</port>
-                </ports>
-              </run>
-            </image>
-            <image>
               <name>mysql/mysql-server:5.7</name>
               <alias>mysql</alias>
               <run>
@@ -120,79 +87,7 @@
               </run>
             </image>
             <image>
-              <name>car-rental-service:${project.version}</name>
-              <alias>car</alias>
-              <run>
-                <env>
-                  <JAVA_OPTS />
-                </env>
-                <wait>
-                  <log>Tomcat started on port</log>
-                  <tcp>
-                    <ports>
-                      <port>8080</port>
-                    </ports>
-                  </tcp>
-                  <time>120000</time>
-                </wait>
-                <links>
-                  <link>service-center:sc.servicecomb.io</link>
-                </links>
-                <ports>
-                  <port>car.port:8080</port>
-                </ports>
-              </run>
-            </image>
-            <image>
-              <name>flight-booking-service:${project.version}</name>
-              <alias>flight</alias>
-              <run>
-                <env>
-                  <JAVA_OPTS />
-                </env>
-                <wait>
-                  <log>Tomcat started on port</log>
-                  <tcp>
-                    <ports>
-                      <port>8080</port>
-                    </ports>
-                  </tcp>
-                  <time>120000</time>
-                </wait>
-                <links>
-                  <link>service-center:sc.servicecomb.io</link>
-                </links>
-                <ports>
-                  <port>flight.port:8080</port>
-                </ports>
-              </run>
-            </image>
-            <image>
-              <name>hotel-reservation-service:${project.version}</name>
-              <alias>hotel</alias>
-              <run>
-                <env>
-                  <JAVA_OPTS />
-                </env>
-                <wait>
-                  <log>Tomcat started on port</log>
-                  <tcp>
-                    <ports>
-                      <port>8080</port>
-                    </ports>
-                  </tcp>
-                  <time>120000</time>
-                </wait>
-                <links>
-                  <link>service-center:sc.servicecomb.io</link>
-                </links>
-                <ports>
-                  <port>hotel.port:8080</port>
-                </ports>
-              </run>
-            </image>
-            <image>
-              <name>payment-service:${project.version}</name>
+              <name>payment:${project.version}</name>
               <alias>payment</alias>
               <run>
                 <env>
@@ -207,11 +102,71 @@
                   </tcp>
                   <time>120000</time>
                 </wait>
-                <links>
-                  <link>service-center:sc.servicecomb.io</link>
-                </links>
                 <ports>
                   <port>payment.port:8080</port>
+                </ports>
+              </run>
+            </image>
+            <image>
+              <name>membership:${project.version}</name>
+              <alias>membership</alias>
+              <run>
+                <env>
+                  <JAVA_OPTS />
+                </env>
+                <wait>
+                  <log>Tomcat started on port</log>
+                  <tcp>
+                    <ports>
+                      <port>8080</port>
+                    </ports>
+                  </tcp>
+                  <time>120000</time>
+                </wait>
+                <ports>
+                  <port>membership.port:8080</port>
+                </ports>
+              </run>
+            </image>
+            <image>
+              <name>inventory:${project.version}</name>
+              <alias>inventory</alias>
+              <run>
+                <env>
+                  <JAVA_OPTS />
+                </env>
+                <wait>
+                  <log>Tomcat started on port</log>
+                  <tcp>
+                    <ports>
+                      <port>8080</port>
+                    </ports>
+                  </tcp>
+                  <time>120000</time>
+                </wait>
+                <ports>
+                  <port>inventory.port:8080</port>
+                </ports>
+              </run>
+            </image>
+            <image>
+              <name>supplier:${project.version}</name>
+              <alias>supplier</alias>
+              <run>
+                <env>
+                  <JAVA_OPTS />
+                </env>
+                <wait>
+                  <log>Tomcat started on port</log>
+                  <tcp>
+                    <ports>
+                      <port>8080</port>
+                    </ports>
+                  </tcp>
+                  <time>120000</time>
+                </wait>
+                <ports>
+                  <port>supplier.port:8080</port>
                 </ports>
               </run>
             </image>
@@ -221,17 +176,15 @@
               <run>
                 <env>
                   <JAVA_OPTS>
-                    -Dspring.profiles.active=prd,servicecomb
-                    -Dcse.service.registry.address=http://sc.servicecomb.io:30100
+                    -Dspring.profiles.active=prd -Dspring.main.webEnvironment=true
                   </JAVA_OPTS>
                 </env>
                 <links>
-                  <link>service-center:sc.servicecomb.io</link>
                   <link>mysql:mysql.servicecomb.io</link>
-                  <link>car:car.servicecomb.io</link>
-                  <link>flight:flight.servicecomb.io</link>
-                  <link>hotel:hotel.servicecomb.io</link>
                   <link>payment:payment.servicecomb.io</link>
+                  <link>membership:membership.servicecomb.io</link>
+                  <link>inventory:inventory.servicecomb.io</link>
+                  <link>supplier:supplier.servicecomb.io</link>
                 </links>
                 <wait>
                   <log>Tomcat started on port</log>
