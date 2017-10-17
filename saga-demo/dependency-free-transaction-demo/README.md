@@ -1,4 +1,4 @@
-# Saga Demo
+# Dependency Free Transaction Demo
 This demo simulates a bare minimal travel application including four services:
 * car rental
 * flight booking

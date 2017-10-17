@@ -26,6 +26,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>dependency-free-transaction-demo</artifactId>
+  <packaging>pom</packaging>
 
   <modules>
     <module>car-rental-service</module>
