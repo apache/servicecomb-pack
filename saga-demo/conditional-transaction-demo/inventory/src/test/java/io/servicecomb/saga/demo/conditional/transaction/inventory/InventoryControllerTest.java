@@ -21,6 +21,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +35,19 @@ import org.springframework.test.web.servlet.MockMvc;
 @RunWith(SpringRunner.class)
 @WebMvcTest(InventoryController.class)
 public class InventoryControllerTest {
+  private static final String content = "response=" + encode("{\n"
+      + "  \"customerId\": \"mike\",\n"
+      + "  \"foo\": \"bar\"\n"
+      + "}");
+
+  private static String encode(String param) {
+    try {
+      return URLEncoder.encode(param, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalArgumentException(e);
+    }
+  }
+
   @Autowired
   private MockMvc mockMvc;
 
@@ -39,14 +55,24 @@ public class InventoryControllerTest {
   public void respondWithChildren_IfStockIsLowerThanThreshold() throws Exception {
     mockMvc.perform(post("/inventory")
         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-        .content("customerId=mike"))
+        .content(content))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.sagaChildren[0]", is("none")));
 
     mockMvc.perform(post("/inventory")
         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-        .content("customerId=mike"))
+        .content(content))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.sagaChildren[0]").doesNotExist());
+  }
+
+  @Test
+  public void badRequestIfCustomerIdIsNotInRequestContent() throws Exception {
+    String content = "response=" + encode("{}");
+
+    mockMvc.perform(post("/inventory")
+        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+        .content(content))
+        .andExpect(status().isBadRequest());
   }
 }
