@@ -28,6 +28,23 @@
   <artifactId>dependency-free-transaction-demo</artifactId>
   <packaging>pom</packaging>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.6</version>
+      </dependency>
+      <dependency>
+        <groupId>io.servicecomb</groupId>
+        <artifactId>java-chassis-dependencies</artifactId>
+        <version>${java.chassis.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <modules>
     <module>car-rental-service</module>
     <module>flight-booking-service</module>
