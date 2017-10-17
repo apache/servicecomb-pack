@@ -27,11 +27,8 @@
   <artifactId>saga-demo</artifactId>
   <packaging>pom</packaging>
   <modules>
-    <module>car-rental-service</module>
-    <module>flight-booking-service</module>
-    <module>hotel-reservation-service</module>
-    <module>payment-service</module>
-    <module>demo-tests</module>
+    <module>dependency-free-transaction-demo</module>
+    <module>conditional-transaction-demo</module>
   </modules>
 
   <dependencyManagement>
