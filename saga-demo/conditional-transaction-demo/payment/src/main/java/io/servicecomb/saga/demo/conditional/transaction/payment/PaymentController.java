@@ -68,6 +68,7 @@ public class PaymentController {
 
   private ResponseEntity<String> response(String customerId, String extra) {
     return ResponseEntity.ok(String.format("{\n"
+            + "  \"customerId\": \"mike\",\n"
             + "  \"body\": \"Payment made with id %s for customer %s\"\n"
             + extra
             + "}",
