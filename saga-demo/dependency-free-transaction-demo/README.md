@@ -29,7 +29,7 @@ User ---> Saga -----> flight booking service
 mvn package -DskipTests -Pdocker -Pdemo
 ```
 
-2. start application up in saga/saga-demo/ with the following command
+2. start application up in saga/saga-demo/dependency-free-transaction-demo with the following command
 ```
 docker-compose up
 ```
