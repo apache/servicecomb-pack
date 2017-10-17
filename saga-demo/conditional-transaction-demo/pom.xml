@@ -33,6 +33,7 @@
     <module>membership</module>
     <module>inventory</module>
     <module>supplier</module>
+    <module>conditional-transaction-demo-tests</module>
   </modules>
 
 

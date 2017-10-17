@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.demo.conditional.transaction.inventory;
+package io.servicecomb.saga.demo.conditional.transaction.supplier;
 
 import static java.util.Collections.singleton;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
 import java.util.Set;
 import java.util.UUID;
@@ -33,48 +32,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/")
-public class InventoryController {
-  private static final int FETCH_THRESHOLD = 10;
+public class SupplierController {
 
-  private final Set<String> customers = singleton("mike");
-  private int stock = 11;
+  private final Set<String> customers = singleton("servicecomb_mall");
 
-  @RequestMapping(value = "inventory", method = POST, consumes = APPLICATION_FORM_URLENCODED_VALUE, produces = TEXT_PLAIN_VALUE)
-  public ResponseEntity<String> dispatch(@RequestParam String customerId) {
+  @RequestMapping(value = "supplier", method = POST, consumes = APPLICATION_FORM_URLENCODED_VALUE, produces = TEXT_PLAIN_VALUE)
+  public ResponseEntity<String> supply(@RequestParam String customerId) {
     if (!customers.contains(customerId)) {
       return new ResponseEntity<>("No such customer with id " + customerId, FORBIDDEN);
     }
 
-    stock--;
-    if (isStockShort()) {
-      return response(customerId, "");
-    }
-
-    return response(customerId,",  \"sagaChildren\": [\"none\"] \n");
-  }
-
-  @RequestMapping(value = "inventory", method = PUT, consumes = APPLICATION_FORM_URLENCODED_VALUE, produces = TEXT_PLAIN_VALUE)
-  public ResponseEntity<String> recall(@RequestParam String customerId) {
-    if (!customers.contains(customerId)) {
-      return new ResponseEntity<>("No such customer with id " + customerId, FORBIDDEN);
-    }
-
-    stock++;
-    return ResponseEntity.ok(String.format("Dispatch recalled with id %s for customer %s",
-        UUID.randomUUID().toString(),
-        customerId));
-  }
-
-  private ResponseEntity<String> response(String customerId, String extra) {
     return ResponseEntity.ok(String.format("{\n"
-            + "  \"body\": \"Goods dispatched with id %s for customer %s\"\n"
-            + extra
+            + "  \"body\": \"Goods supply with id %s on the way for customer %s\"\n"
             + "}",
         UUID.randomUUID().toString(),
         customerId));
-  }
-
-  private boolean isStockShort() {
-    return stock < FETCH_THRESHOLD;
   }
 }
