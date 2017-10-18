@@ -35,23 +35,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("/")
 public class PaymentController {
-  private static final int PRICE = 400;
   private static final int UPGRADE_THRESHOLD = 1000;
 
   private final Map<String, Integer> customerPurchases = new HashMap<>(singletonMap("mike", 0));
 
   @RequestMapping(value = "payment", method = POST, consumes = APPLICATION_FORM_URLENCODED_VALUE, produces = TEXT_PLAIN_VALUE)
-  public ResponseEntity<String> purchase(@RequestParam String customerId) {
+  public ResponseEntity<String> purchase(@RequestParam String customerId, @RequestParam int purchaseAmount) {
     if (!customerPurchases.containsKey(customerId)) {
       return new ResponseEntity<>("No such customer with id " + customerId, FORBIDDEN);
     }
 
-    customerPurchases.compute(customerId, (id, purchases) -> purchases + PRICE);
+    customerPurchases.compute(customerId, (id, purchases) -> purchases + purchaseAmount);
 
     if (isUpgradable(customerId)) {
+      // when no sagaChildren is provided, all child sub-transaction of payment will be run
       return response(customerId, "");
     }
 
+    // select only sub-transaction of inventory service to run next, by specifying inventory in sagaChildren
     return response(customerId, ",  \"sagaChildren\": [\"inventory\"] \n");
   }
 
@@ -66,11 +67,11 @@ public class PaymentController {
         customerId));
   }
 
-  private ResponseEntity<String> response(String customerId, String extra) {
+  private ResponseEntity<String> response(String customerId, String optionalSagaChildren) {
     return ResponseEntity.ok(String.format("{\n"
             + "  \"customerId\": \"mike\",\n"
             + "  \"body\": \"Payment made with id %s for customer %s\"\n"
-            + extra
+            + optionalSagaChildren
             + "}",
         UUID.randomUUID().toString(),
         customerId));

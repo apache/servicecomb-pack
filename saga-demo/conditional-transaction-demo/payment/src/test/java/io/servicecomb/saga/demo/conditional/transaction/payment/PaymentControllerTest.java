@@ -32,6 +32,8 @@ import org.springframework.test.web.servlet.MockMvc;
 @RunWith(SpringRunner.class)
 @WebMvcTest(PaymentController.class)
 public class PaymentControllerTest {
+  private static final String requestContent = "customerId=mike&purchaseAmount=400";
+
   @Autowired
   private MockMvc mockMvc;
 
@@ -39,19 +41,19 @@ public class PaymentControllerTest {
   public void respondWithChildren_IfTotalPurchaseIsLowerThanThreshold() throws Exception {
     mockMvc.perform(post("/payment")
         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-        .content("customerId=mike"))
+        .content(requestContent))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.sagaChildren[0]", is("inventory")));
 
     mockMvc.perform(post("/payment")
         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-        .content("customerId=mike"))
+        .content(requestContent))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.sagaChildren[0]", is("inventory")));
 
     mockMvc.perform(post("/payment")
         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-        .content("customerId=mike"))
+        .content(requestContent))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.sagaChildren[0]").doesNotExist());
   }
