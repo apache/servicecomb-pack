@@ -31,7 +31,10 @@ next as shown below.
 ```
 
 If `sagaChildren` is empty or not provided in service response, saga will invoke all of its child services. To invoke none
-of them, explicitly return `"sagaChildren": ["none"]`. 
+of them, explicitly return `"sagaChildren": ["none"]`.
+
+If any of the sub-transaction specified in sagaChildren fails, all completed sub-transactions will be compensated as usual,
+when the recovery policy if backward recovery. 
 
 ## Running Demo
 1. run the following command to create docker images in saga project root folder.
@@ -59,7 +62,8 @@ The request JSON to ensure the workflow order looks like the following:
         "path": "/payment",
         "params": {
           "form": {
-            "customerId": "mike"
+            "customerId": "mike",
+            "purchaseAmount": 400
           }
         }
       },

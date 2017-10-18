@@ -52,9 +52,11 @@ public class InventoryController {
 
         stock--;
         if (isStockShort()) {
+          // when no sagaChildren is provided, all child sub-transaction of inventory will be run
           return response(customerId, "");
         }
 
+        // select no child sub-transaction to run next, by specifying none in sagaChildren
         return response(customerId,",  \"sagaChildren\": [\"none\"] \n");
       }
       return new ResponseEntity<>("Customer Id is missing", BAD_REQUEST);
@@ -71,10 +73,10 @@ public class InventoryController {
         customerId));
   }
 
-  private ResponseEntity<String> response(String customerId, String extra) {
+  private ResponseEntity<String> response(String customerId, String optionalSagaChildren) {
     return ResponseEntity.ok(String.format("{\n"
             + "  \"body\": \"Goods dispatched with id %s for customer %s\"\n"
-            + extra
+            + optionalSagaChildren
             + "}",
         UUID.randomUUID().toString(),
         customerId));
