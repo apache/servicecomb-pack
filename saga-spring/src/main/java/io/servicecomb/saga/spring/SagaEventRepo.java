@@ -16,7 +16,11 @@
 
 package io.servicecomb.saga.spring;
 
+import java.util.Date;
 import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
@@ -29,4 +33,11 @@ interface SagaEventRepo extends PagingAndSortingRepository<SagaEventEntity, Long
       + "  WHERE type = 'SagaEndedEvent'"
       + ")", nativeQuery = true)
   List<SagaEventEntity> findIncompleteSagaEventsGroupBySagaId();
+
+  Page<SagaEventEntity> findByTypeAndCreationTimeBetweenOrderByIdDesc(String type, Date startTime, Date endTime,
+      Pageable pageable);
+
+  SagaEventEntity findFirstByTypeAndSagaId(String type, String sagaId);
+
+  List<SagaEventEntity> findBySagaId(String sagaId);
 }
