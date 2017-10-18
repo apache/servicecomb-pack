@@ -3,17 +3,6 @@
 <head>
     <title>Result</title>
     <link rel="stylesheet" href="style.css" type="text/css">
-	
-	<link id="uiThemes" rel="stylesheet" type="text/css" media="screen" href="styles/themes/redmond/jquery-ui-1.7.2.custom.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="styles/themes/ui.jqgrid.css" />
-    <!-- 引入jQuery -->
-    <script type="text/javascript" src="scripts/jQuery/jquery-1.3.2.js"></script>
-    <script src="scripts/jQuery/plugins/jquery-ui-1.7.2.custom.min.js" type="text/javascript"></script>
-    <script src="scripts/jQuery/plugins/grid.locale-zh_CN.js" type="text/javascript"></script>
-    <script src="scripts/jQuery/plugins/jquery.jqGrid.min.js" type="text/javascript"></script>
-	
-	
-	<script src="result.js" type="text/javascript"></script>
 </head>
 <body>
 <ul id="nav">
@@ -36,10 +25,6 @@
 </div>
 
 <div id="content">
-	<!-- add datagrid start -->
-	<table id="list47"></table>
-	<div id="plist47"></div>
-	<!-- add datagrid end -->
     <table class="table table-bordered table-striped text-center">
         <thead>
         <tr>
