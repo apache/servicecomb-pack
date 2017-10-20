@@ -113,33 +113,29 @@ public class SagaController {
       @RequestParam(name = "pageSize") String pageSize,
       @RequestParam(name = "startTime") String startTime,
       @RequestParam(name = "endTime") String endTime) {
-    try {
-      if (isRequestParamValid(pageIndex, pageSize, startTime, endTime)) {
-        List<SagaRequest> requests = new ArrayList<>();
-        Page<SagaEventEntity> startEvents = repo.findByTypeAndCreationTimeBetweenOrderByIdDesc(
-            SagaStartedEvent.class.getSimpleName(),
-            new Date(Long.parseLong(startTime)), new Date(Long.parseLong(endTime)),
-            new PageRequest(Integer.parseInt(pageIndex), Integer.parseInt(pageSize)));
-        for (SagaEventEntity event : startEvents) {
-          SagaEventEntity endEvent = repo
-              .findFirstByTypeAndSagaId(SagaEndedEvent.class.getSimpleName(), event.sagaId());
-          SagaEventEntity abortedEvent = repo
-              .findFirstByTypeAndSagaId(TransactionAbortedEvent.class.getSimpleName(), event.sagaId());
+    if (isRequestParamValid(pageIndex, pageSize, startTime, endTime)) {
+      List<SagaRequest> requests = new ArrayList<>();
+      Page<SagaEventEntity> startEvents = repo.findByTypeAndCreationTimeBetweenOrderByIdDesc(
+          SagaStartedEvent.class.getSimpleName(),
+          new Date(Long.parseLong(startTime)), new Date(Long.parseLong(endTime)),
+          new PageRequest(Integer.parseInt(pageIndex), Integer.parseInt(pageSize)));
+      for (SagaEventEntity event : startEvents) {
+        SagaEventEntity endEvent = repo
+            .findFirstByTypeAndSagaId(SagaEndedEvent.class.getSimpleName(), event.sagaId());
+        SagaEventEntity abortedEvent = repo
+            .findFirstByTypeAndSagaId(TransactionAbortedEvent.class.getSimpleName(), event.sagaId());
 
-          requests.add(new SagaRequest(
-              event.id(),
-              event.creationTime(),
-              endEvent == null ? 0 : endEvent.creationTime(),
-              endEvent == null ? "Running" : abortedEvent == null ? "OK" : "Failed"));
-        }
-        return ResponseEntity.ok(
-            new SagaRequestQueryResult(Integer.parseInt(pageIndex), Integer.parseInt(pageSize),
-                startEvents.getTotalPages(), requests));
-      } else {
-        throw new InvocationException(BAD_REQUEST, "illegal request content");
+        requests.add(new SagaRequest(
+            event.id(),
+            event.creationTime(),
+            endEvent == null ? 0 : endEvent.creationTime(),
+            endEvent == null ? "Running" : abortedEvent == null ? "OK" : "Failed"));
       }
-    } catch (SagaException se) {
-      throw new InvocationException(BAD_REQUEST, se);
+      return ResponseEntity.ok(
+          new SagaRequestQueryResult(Integer.parseInt(pageIndex), Integer.parseInt(pageSize),
+              startEvents.getTotalPages(), requests));
+    } else {
+      throw new InvocationException(BAD_REQUEST, "illegal request content");
     }
   }
 
@@ -154,15 +150,11 @@ public class SagaController {
   })
   @RequestMapping(value = "requests/{sagaId}", method = GET)
   public ResponseEntity<List<SagaEventVo>> queryRequest(@PathVariable String sagaId) {
-    try {
-      Iterable<SagaEventEntity> entities = repo.findBySagaId(sagaId);
-      List<SagaEventVo> events = new ArrayList<>();
-      entities
-          .forEach(e -> events.add(new SagaEventVo(e.id(), e.sagaId(), e.creationTime(), e.type(), e.contentJson())));
-      return ResponseEntity.ok(events);
-    } catch (SagaException se) {
-      throw new InvocationException(BAD_REQUEST, se);
-    }
+    Iterable<SagaEventEntity> entities = repo.findBySagaId(sagaId);
+    List<SagaEventVo> events = new ArrayList<>();
+    entities
+        .forEach(e -> events.add(new SagaEventVo(e.id(), e.sagaId(), e.creationTime(), e.type(), e.contentJson())));
+    return ResponseEntity.ok(events);
   }
 
   @JsonAutoDetect(fieldVisibility = ANY, getterVisibility = NONE, setterVisibility = NONE)
@@ -185,6 +177,7 @@ public class SagaController {
     }
 
     public SagaRequestQueryResult(int pageIndex, int pageSize, int totalPages, List<SagaRequest> requests) {
+      this();
       this.pageIndex = pageIndex;
       this.pageSize = pageSize;
       this.totalPages = totalPages;
@@ -203,6 +196,7 @@ public class SagaController {
     }
 
     public SagaRequest(long id, long startTime, long completedTime, String status) {
+      this();
       this.id = id;
       this.startTime = startTime;
       this.completedTime = completedTime;

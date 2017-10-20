@@ -27,6 +27,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 import static org.springframework.http.MediaType.TEXT_PLAIN;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -212,6 +213,21 @@ public class SagaSpringApplicationTest {
         eventWith(3L, "TransactionEndedEvent"),
         eventWith(4L, "SagaEndedEvent")
     ));
+  }
+
+  @Test
+  public void queryRequestsWithBadParameter() throws Exception {
+    try {
+    mockMvc.perform(get("/requests")
+        .param("pageIndex", "xxx")
+        .param("pageSize", "xxx")
+        .param("startTime", "xx0")
+        .param("endTime", "x1"))
+        .andExpect(status().is(HttpStatus.SC_BAD_REQUEST));
+    } catch (org.springframework.web.util.NestedServletException ex) {
+      assertThat(ex.getMessage(), containsString(
+          "java.lang.NumberFormatException"));
+    }
   }
 
   private Matcher<SagaEventEntity> eventWith(
