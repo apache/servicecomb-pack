@@ -49,6 +49,7 @@ public class SagaRequestImpl implements SagaRequest {
     this.compensation = compensation;
     this.fallback = fallback;
     this.failRetryDelayMilliseconds = failRetryDelayMilliseconds <= 0 ? 50 : failRetryDelayMilliseconds;
+    // TODO: 2017/10/21 set parent to root when null
     this.parents = parents == null ? new String[0] : parents;
   }
 
