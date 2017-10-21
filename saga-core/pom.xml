@@ -27,6 +27,10 @@
       <artifactId>log4j-core</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-actor_2.12</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.kamon</groupId>
       <artifactId>kamon-core_2.11</artifactId>
     </dependency>
@@ -35,6 +39,15 @@
       <artifactId>kamon-annotation_2.11</artifactId>
     </dependency>
 
+    <!-- test dependencies -->
+    <dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-testkit_2.12</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.scalatest</groupId>
+      <artifactId>scalatest_2.12</artifactId>
+    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

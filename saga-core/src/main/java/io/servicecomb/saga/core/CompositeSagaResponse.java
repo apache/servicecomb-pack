@@ -16,13 +16,13 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 
 public class CompositeSagaResponse implements SagaResponse {
-  private final List<SagaResponse> responses;
+  private final Collection<SagaResponse> responses;
 
-  public CompositeSagaResponse(List<SagaResponse> responses) {
+  public CompositeSagaResponse(Collection<SagaResponse> responses) {
     this.responses = responses;
   }
 
@@ -39,5 +39,9 @@ public class CompositeSagaResponse implements SagaResponse {
         .map(combined -> "[" + combined + "]");
 
     return reduce.orElse("{}");
+  }
+
+  public Collection<SagaResponse> responses() {
+    return responses;
   }
 }
