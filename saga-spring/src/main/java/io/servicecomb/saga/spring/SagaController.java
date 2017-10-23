@@ -173,11 +173,7 @@ public class SagaController {
 
     public List<SagaRequest> requests = null;
 
-    public SagaRequestQueryResult() {
-    }
-
     public SagaRequestQueryResult(int pageIndex, int pageSize, int totalPages, List<SagaRequest> requests) {
-      this();
       this.pageIndex = pageIndex;
       this.pageSize = pageSize;
       this.totalPages = totalPages;
@@ -192,11 +188,7 @@ public class SagaController {
     public String status;
     public long completedTime;
 
-    public SagaRequest() {
-    }
-
     public SagaRequest(long id, long startTime, long completedTime, String status) {
-      this();
       this.id = id;
       this.startTime = startTime;
       this.completedTime = completedTime;
