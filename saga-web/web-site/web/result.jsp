@@ -32,7 +32,6 @@
         </tr>
     </table>
 </div>
-
 <div id="content"></div>
 <script src="table.js"></script>
 </body>
