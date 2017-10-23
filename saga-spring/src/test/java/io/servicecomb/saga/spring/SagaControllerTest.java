@@ -24,6 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -93,20 +94,28 @@ public class SagaControllerTest {
   public void queryRequests() throws Exception {
     long id = 0L;
 
+    OffsetDateTime now = OffsetDateTime.now();
+
     String sagaId1 = "xxxx";
-    SagaEventEntity saga1StartEvent = new SagaEventEntity(++id, sagaId1, new Date().getTime() + id * 50,
+    SagaEventEntity saga1StartEvent = new SagaEventEntity(++id, sagaId1,
+        Date.from(now.plusSeconds(id).toInstant()).getTime(),
         SagaStartedEvent.class.getSimpleName(), "{}");
-    SagaEventEntity saga1EndEvent = new SagaEventEntity(++id, sagaId1, new Date().getTime() + id * 50,
+    SagaEventEntity saga1EndEvent = new SagaEventEntity(++id, sagaId1,
+        Date.from(now.plusSeconds(id).toInstant()).getTime(),
         SagaEndedEvent.class.getSimpleName(), "{}");
     String sagaId2 = "yyyy";
-    SagaEventEntity saga2StartEvent = new SagaEventEntity(++id, sagaId2, new Date().getTime() + id * 50,
+    SagaEventEntity saga2StartEvent = new SagaEventEntity(++id, sagaId2,
+        Date.from(now.plusSeconds(id).toInstant()).getTime(),
         SagaStartedEvent.class.getSimpleName(), "{}");
     String sagaId3 = "zzzz";
-    SagaEventEntity saga3StartEvent = new SagaEventEntity(++id, sagaId3, new Date().getTime() + id * 50,
+    SagaEventEntity saga3StartEvent = new SagaEventEntity(++id, sagaId3,
+        Date.from(now.plusSeconds(id).toInstant()).getTime(),
         SagaStartedEvent.class.getSimpleName(), "{}");
-    SagaEventEntity saga3TransactionAbortEvent = new SagaEventEntity(++id, sagaId3, new Date().getTime() + id * 50,
+    SagaEventEntity saga3TransactionAbortEvent = new SagaEventEntity(++id, sagaId3,
+        Date.from(now.plusSeconds(id).toInstant()).getTime(),
         TransactionAbortedEvent.class.getSimpleName(), "{}");
-    SagaEventEntity saga3EndEvent = new SagaEventEntity(++id, sagaId3, new Date().getTime() + id * 50,
+    SagaEventEntity saga3EndEvent = new SagaEventEntity(++id, sagaId3,
+        Date.from(now.plusSeconds(id).toInstant()).getTime(),
         SagaEndedEvent.class.getSimpleName(), "{}");
 
     List<SagaEventEntity> startEvents = new ArrayList<>();
