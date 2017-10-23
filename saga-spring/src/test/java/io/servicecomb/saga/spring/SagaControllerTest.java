@@ -94,28 +94,20 @@ public class SagaControllerTest {
     long id = 0L;
 
     String sagaId1 = "xxxx";
-    SagaEventEntity saga1StartEvent = new SagaEventEntity(++id, sagaId1, new Date().getTime(),
+    SagaEventEntity saga1StartEvent = new SagaEventEntity(++id, sagaId1, new Date().getTime() + id * 50,
         SagaStartedEvent.class.getSimpleName(), "{}");
-    Thread.sleep(50);
-    SagaEventEntity saga1EndEvent = new SagaEventEntity(++id, sagaId1, new Date().getTime(),
+    SagaEventEntity saga1EndEvent = new SagaEventEntity(++id, sagaId1, new Date().getTime() + id * 50,
         SagaEndedEvent.class.getSimpleName(), "{}");
-    Thread.sleep(50);
-
     String sagaId2 = "yyyy";
-    SagaEventEntity saga2StartEvent = new SagaEventEntity(++id, sagaId2, new Date().getTime(),
+    SagaEventEntity saga2StartEvent = new SagaEventEntity(++id, sagaId2, new Date().getTime() + id * 50,
         SagaStartedEvent.class.getSimpleName(), "{}");
-    Thread.sleep(50);
-
     String sagaId3 = "zzzz";
-    SagaEventEntity saga3StartEvent = new SagaEventEntity(++id, sagaId3, new Date().getTime(),
+    SagaEventEntity saga3StartEvent = new SagaEventEntity(++id, sagaId3, new Date().getTime() + id * 50,
         SagaStartedEvent.class.getSimpleName(), "{}");
-    Thread.sleep(50);
-    SagaEventEntity saga3TransactionAbortEvent = new SagaEventEntity(++id, sagaId3, new Date().getTime(),
+    SagaEventEntity saga3TransactionAbortEvent = new SagaEventEntity(++id, sagaId3, new Date().getTime() + id * 50,
         TransactionAbortedEvent.class.getSimpleName(), "{}");
-    Thread.sleep(50);
-    SagaEventEntity saga3EndEvent = new SagaEventEntity(++id, sagaId3, new Date().getTime(),
+    SagaEventEntity saga3EndEvent = new SagaEventEntity(++id, sagaId3, new Date().getTime() + id * 50,
         SagaEndedEvent.class.getSimpleName(), "{}");
-    Thread.sleep(50);
 
     List<SagaEventEntity> startEvents = new ArrayList<>();
     startEvents.add(saga1StartEvent);
