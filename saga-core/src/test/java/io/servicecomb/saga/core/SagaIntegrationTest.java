@@ -401,9 +401,9 @@ public class SagaIntegrationTest {
     Iterable<EventEnvelope> events = asList(
         envelope(new SagaStartedEvent(sagaId, requestJson, SAGA_START_REQUEST)),
         envelope(new TransactionStartedEvent(sagaId, request1)),
-        envelope(new TransactionEndedEvent(sagaId, request1)),
+        envelope(new TransactionEndedEvent(sagaId, request1, transactionResponse1)),
         envelope(new TransactionStartedEvent(sagaId, request2)),
-        envelope(new TransactionEndedEvent(sagaId, request2))
+        envelope(new TransactionEndedEvent(sagaId, request2, transactionResponse2))
     );
 
     eventStore.populate(events);
@@ -423,7 +423,7 @@ public class SagaIntegrationTest {
 
     verify(transaction1, never()).send(anyString(), any(SagaResponse.class));
     verify(transaction2, never()).send(anyString(), any(SagaResponse.class));
-    verify(transaction3).send(request3.serviceName(), EMPTY_RESPONSE);
+    verify(transaction3).send(request3.serviceName(), transactionResponse1);
 
     verify(compensation1, never()).send(request1.serviceName());
     verify(compensation2, never()).send(request2.serviceName());
