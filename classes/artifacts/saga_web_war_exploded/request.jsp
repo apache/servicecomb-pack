@@ -35,9 +35,9 @@
 <div id="msg"></div>
 <script>
     $(function () {
+        alert('init js');
         $('#send-request').click(function () {
             var content = $('#content').val();
-            
             $.ajax({
                 type: "POST",
                 url: "http://localhost:8080/requests",
