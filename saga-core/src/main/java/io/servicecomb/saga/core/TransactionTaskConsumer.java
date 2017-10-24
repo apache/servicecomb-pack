@@ -95,7 +95,7 @@ class TransactionTaskConsumer implements TaskConsumer {
 
   @Segment(name = "submitCallable", category = "application", library = "kamon")
   private Future<Operation> futureOf(SagaRequest request) {
-    return executorService.submit(new OperationCallable(tasks, recoveryPolicy, request));
+    return executorService.submit(new OperationCallable(tasks, recoveryPolicy, request, sagaContext.responseOf(request.parents())));
   }
 
   @EnableKamon
@@ -104,20 +104,23 @@ class TransactionTaskConsumer implements TaskConsumer {
     private final SagaRequest request;
     private final RecoveryPolicy recoveryPolicy;
     private final Map<String, SagaTask> tasks;
+    private final SagaResponse parentResponse;
 
     private OperationCallable(
         Map<String, SagaTask> tasks,
         RecoveryPolicy recoveryPolicy,
-        SagaRequest request) {
+        SagaRequest request,
+        SagaResponse parentResponse) {
       this.request = request;
       this.recoveryPolicy = recoveryPolicy;
       this.tasks = tasks;
+      this.parentResponse = parentResponse;
     }
 
     @Trace("runTransactionCallable")
     @Override
     public Operation call() throws Exception {
-      recoveryPolicy.apply(tasks.get(request.task()), request);
+      recoveryPolicy.apply(tasks.get(request.task()), request, parentResponse);
       return request.transaction();
     }
   }

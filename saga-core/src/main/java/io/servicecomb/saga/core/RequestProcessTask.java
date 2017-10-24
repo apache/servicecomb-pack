@@ -38,13 +38,14 @@ public class RequestProcessTask implements SagaTask {
 
   @Segment(name = "commit", category = "application", library = "kamon")
   @Override
-  public void commit(SagaRequest request) {
+  public SagaResponse commit(SagaRequest request, SagaResponse parentResponse) {
     sagaLog.offer(new TransactionStartedEvent(sagaId, request));
 
     Transaction transaction = request.transaction();
-    SagaResponse response = transaction.send(request.serviceName(), sagaLog.responseOf(request.parents()));
+    SagaResponse response = transaction.send(request.serviceName(), parentResponse);
 
     sagaLog.offer(new TransactionEndedEvent(sagaId, request, response));
+    return response;
   }
 
   @Segment(name = "compensate", category = "application", library = "kamon")

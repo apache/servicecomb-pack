@@ -18,7 +18,7 @@ package io.servicecomb.saga.core.actors;
 
 import static io.servicecomb.saga.core.Operation.SUCCESSFUL_SAGA_RESPONSE;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -40,9 +40,10 @@ import org.scalatest.junit.JUnitSuite;
 import com.seanyinx.github.unit.scaffolding.Randomness;
 
 import io.servicecomb.saga.core.CompositeSagaResponse;
+import io.servicecomb.saga.core.RecoveryPolicy;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaResponse;
-import io.servicecomb.saga.core.Transaction;
+import io.servicecomb.saga.core.SagaTask;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.testkit.javadsl.TestKit;
@@ -52,13 +53,13 @@ public class NodeTest extends JUnitSuite {
   private final String parentRequestId1 = Randomness.uniquify("parentRequestId1");
   private final String parentRequestId2 = Randomness.uniquify("parentRequestId2");
   private final String requestId = Randomness.uniquify("requestId");
-  private final String serviceName = Randomness.uniquify("serviceName");
 
+  private final RecoveryPolicy recoveryPolicy = Mockito.mock(RecoveryPolicy.class);
+  private final SagaTask task = Mockito.mock(SagaTask.class);
   private final SagaRequest request = Mockito.mock(SagaRequest.class, "request");
   private final SagaRequest request1 = Mockito.mock(SagaRequest.class, "request1");
   private final SagaRequest request2 = Mockito.mock(SagaRequest.class, "request2");
   private final SagaResponse response = Mockito.mock(SagaResponse.class);
-  private final Transaction transaction = Mockito.mock(Transaction.class);
 
   private final Map<String, List<ActorRef>> children = new HashMap<>();
 
@@ -67,8 +68,6 @@ public class NodeTest extends JUnitSuite {
   @Before
   public void setUp() throws Exception {
     when(request.id()).thenReturn(requestId);
-    when(request.serviceName()).thenReturn(serviceName);
-    when(request.transaction()).thenReturn(transaction);
 
     when(request1.id()).thenReturn(parentRequestId1);
     when(request2.id()).thenReturn(parentRequestId2);
@@ -88,9 +87,9 @@ public class NodeTest extends JUnitSuite {
       children.get(requestId).add(getRef());
 
       when(request.parents()).thenReturn(new String[] {parentRequestId1});
-      when(transaction.send(serviceName, SUCCESSFUL_SAGA_RESPONSE)).thenReturn(response);
+      when(recoveryPolicy.apply(task, request, SUCCESSFUL_SAGA_RESPONSE)).thenReturn(response);
 
-      ActorRef actorRef = actorSystem.actorOf(Node.props(request, children));
+      ActorRef actorRef = actorSystem.actorOf(Node.props(recoveryPolicy, task, request, children));
 
       actorRef.tell(new ResponseContext(request, SUCCESSFUL_SAGA_RESPONSE), ActorRef.noSender());
 
@@ -100,7 +99,7 @@ public class NodeTest extends JUnitSuite {
 
       assertThat(responses, containsInAnyOrder(response, response));
 
-      verify(transaction).send(serviceName, SUCCESSFUL_SAGA_RESPONSE);
+      verify(recoveryPolicy).apply(task, request, SUCCESSFUL_SAGA_RESPONSE);
     }};
   }
 
@@ -113,9 +112,9 @@ public class NodeTest extends JUnitSuite {
       ArgumentCaptor<SagaResponse> argumentCaptor = ArgumentCaptor.forClass(SagaResponse.class);
 
       when(request.parents()).thenReturn(new String[] {parentRequestId1, parentRequestId2});
-      when(transaction.send(eq(serviceName), argumentCaptor.capture())).thenReturn(response);
+      when(recoveryPolicy.apply(eq(task), eq(request), argumentCaptor.capture())).thenReturn(response);
 
-      ActorRef actorRef = actorSystem.actorOf(Node.props(request, children));
+      ActorRef actorRef = actorSystem.actorOf(Node.props(recoveryPolicy, task, request, children));
 
       actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), ActorRef.noSender());
       actorRef.tell(new ResponseContext(request2, SUCCESSFUL_SAGA_RESPONSE), ActorRef.noSender());

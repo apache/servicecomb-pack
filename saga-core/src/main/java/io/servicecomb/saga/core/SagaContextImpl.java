@@ -16,6 +16,8 @@
 
 package io.servicecomb.saga.core;
 
+import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -109,11 +111,25 @@ public class SagaContextImpl implements SagaContext {
     return completedTransactions.getOrDefault(requestId, NONE_RESPONSE);
   }
 
-  @Override
-  public List<SagaResponse> responsesOf(String[] parentRequestIds) {
+  private List<SagaResponse> responsesOf(String[] parentRequestIds) {
     return Arrays.stream(parentRequestIds)
         .map(this::responseOf)
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public SagaResponse responseOf(String[] parentRequestIds) {
+    List<SagaResponse> responses = responsesOf(parentRequestIds);
+
+    if (responses.isEmpty()) {
+      return EMPTY_RESPONSE;
+    }
+
+    if (responses.size() == 1) {
+      return responses.get(0);
+    }
+
+    return new CompositeSagaResponse(responses);
   }
 
   @Override

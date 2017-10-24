@@ -103,7 +103,7 @@ public class Saga {
         currentTaskRunner = compensationTaskRunner;
 
         sagaContext.handleHangingTransactions(request -> {
-          tasks.get(request.task()).commit(request);
+          tasks.get(request.task()).commit(request, sagaContext.responseOf(request.parents()));
           tasks.get(request.task()).compensate(request);
         });
       }
