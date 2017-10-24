@@ -16,7 +16,6 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 public interface SagaContext {
@@ -38,7 +37,7 @@ public interface SagaContext {
 
   SagaResponse responseOf(String requestId);
 
-  List<SagaResponse> responsesOf(String[] parentRequestIds);
-
   boolean isChosenChild(SagaRequest request);
+
+  SagaResponse responseOf(String[] parentRequestIds);
 }

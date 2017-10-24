@@ -16,6 +16,8 @@
 
 package io.servicecomb.saga.core;
 
+import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
+
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
 
@@ -34,12 +36,13 @@ public class SagaStartTask implements SagaTask {
 
   @Segment(name = "startTaskCommit", category = "application", library = "kamon")
   @Override
-  public void commit(SagaRequest request) {
+  public SagaResponse commit(SagaRequest request, SagaResponse parentResponse) {
     try {
       sagaLog.offer(new SagaStartedEvent(sagaId, requestJson, request));
     } catch (Exception e) {
       throw new SagaStartFailedException("Failed to persist SagaStartedEvent", e);
     }
+    return EMPTY_RESPONSE;
   }
 
   @Override

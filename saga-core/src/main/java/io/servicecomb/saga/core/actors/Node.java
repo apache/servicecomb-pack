@@ -21,22 +21,28 @@ import java.util.List;
 import java.util.Map;
 
 import io.servicecomb.saga.core.CompositeSagaResponse;
+import io.servicecomb.saga.core.RecoveryPolicy;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaResponse;
+import io.servicecomb.saga.core.SagaTask;
 import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 
 public class Node extends AbstractLoggingActor {
+  private final RecoveryPolicy recoveryPolicy;
+  private final SagaTask task;
   private final SagaRequest request;
   private final Map<String, List<ActorRef>> children;
   private final Map<String, SagaResponse> parentContexts;
 
-  static Props props(SagaRequest request, Map<String, List<ActorRef>> children) {
-    return Props.create(Node.class, () -> new Node(request, children));
+  static Props props(RecoveryPolicy recoveryPolicy, SagaTask task, SagaRequest request, Map<String, List<ActorRef>> children) {
+    return Props.create(Node.class, () -> new Node(recoveryPolicy, task, request, children));
   }
 
-  public Node(SagaRequest request, Map<String, List<ActorRef>> children) {
+  public Node(RecoveryPolicy recoveryPolicy, SagaTask task, SagaRequest request, Map<String, List<ActorRef>> children) {
+    this.recoveryPolicy = recoveryPolicy;
+    this.task = task;
     this.request = request;
     this.children = children;
     this.parentContexts = new HashMap<>(request.parents().length);
@@ -48,7 +54,7 @@ public class Node extends AbstractLoggingActor {
     return receiveBuilder().match(ResponseContext.class, parentContext -> {
       parentContexts.put(parentContext.request().id(), parentContext.response());
       if (parentContexts.size() == request.parents().length) {
-        SagaResponse sagaResponse = request.transaction().send(request.serviceName(), responseOf(parentContexts));
+        SagaResponse sagaResponse = recoveryPolicy.apply(task, request, responseOf(parentContexts));
         children.get(request.id()).forEach(actor -> actor.tell(new ResponseContext(request, sagaResponse), self()));
       }
     }).build();

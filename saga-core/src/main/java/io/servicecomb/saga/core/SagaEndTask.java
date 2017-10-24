@@ -16,6 +16,8 @@
 
 package io.servicecomb.saga.core;
 
+import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
+
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
 
@@ -32,8 +34,9 @@ public class SagaEndTask implements SagaTask {
 
   @Segment(name = "endTaskCommit", category = "application", library = "kamon")
   @Override
-  public void commit(SagaRequest request) {
+  public SagaResponse commit(SagaRequest request, SagaResponse parentResponse) {
     sagaLog.offer(new SagaEndedEvent(sagaId, request));
+    return EMPTY_RESPONSE;
   }
 
   @Override
