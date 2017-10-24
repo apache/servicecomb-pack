@@ -16,11 +16,17 @@
 
 package io.servicecomb.saga.core.actors;
 
+import static akka.actor.ActorRef.noSender;
+import static akka.actor.Props.empty;
 import static io.servicecomb.saga.core.Operation.SUCCESSFUL_SAGA_RESPONSE;
+import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
+import static io.servicecomb.saga.core.actors.Node.Messages.MESSAGE_ABORT;
+import static io.servicecomb.saga.core.actors.Node.Messages.MESSAGE_COMPENSATE;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -44,6 +50,7 @@ import io.servicecomb.saga.core.RecoveryPolicy;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SagaTask;
+import io.servicecomb.saga.core.TransactionFailedException;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.testkit.javadsl.TestKit;
@@ -53,6 +60,7 @@ public class NodeTest extends JUnitSuite {
   private final String parentRequestId1 = Randomness.uniquify("parentRequestId1");
   private final String parentRequestId2 = Randomness.uniquify("parentRequestId2");
   private final String requestId = Randomness.uniquify("requestId");
+  private final String unRelatedRequestId = Randomness.uniquify("unRelatedRequestId");
 
   private final RecoveryPolicy recoveryPolicy = Mockito.mock(RecoveryPolicy.class);
   private final SagaTask task = Mockito.mock(SagaTask.class);
@@ -62,6 +70,7 @@ public class NodeTest extends JUnitSuite {
   private final SagaResponse response = Mockito.mock(SagaResponse.class);
 
   private final Map<String, List<ActorRef>> children = new HashMap<>();
+  private final Map<String, List<ActorRef>> parents = new HashMap<>();
 
   private static final ActorSystem actorSystem = ActorSystem.create();
 
@@ -72,7 +81,8 @@ public class NodeTest extends JUnitSuite {
     when(request1.id()).thenReturn(parentRequestId1);
     when(request2.id()).thenReturn(parentRequestId2);
 
-    children.computeIfAbsent(requestId, k -> new ArrayList<>());
+    children.put(requestId, new ArrayList<>());
+    parents.put(requestId, new ArrayList<>());
   }
 
   @AfterClass
@@ -89,9 +99,9 @@ public class NodeTest extends JUnitSuite {
       when(request.parents()).thenReturn(new String[] {parentRequestId1});
       when(recoveryPolicy.apply(task, request, SUCCESSFUL_SAGA_RESPONSE)).thenReturn(response);
 
-      ActorRef actorRef = actorSystem.actorOf(Node.props(recoveryPolicy, task, request, children));
+      ActorRef actorRef = actorSystem.actorOf(Node.props(recoveryPolicy, task, request, parents, children));
 
-      actorRef.tell(new ResponseContext(request, SUCCESSFUL_SAGA_RESPONSE), ActorRef.noSender());
+      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), noSender());
 
       List<SagaResponse> responses = receiveN(2, duration("2 seconds")).stream()
           .map(o -> ((ResponseContext) o).response())
@@ -114,10 +124,13 @@ public class NodeTest extends JUnitSuite {
       when(request.parents()).thenReturn(new String[] {parentRequestId1, parentRequestId2});
       when(recoveryPolicy.apply(eq(task), eq(request), argumentCaptor.capture())).thenReturn(response);
 
-      ActorRef actorRef = actorSystem.actorOf(Node.props(recoveryPolicy, task, request, children));
+      ActorRef actorRef = actorSystem.actorOf(Node.props(recoveryPolicy, task, request, parents, children));
 
-      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), ActorRef.noSender());
-      actorRef.tell(new ResponseContext(request2, SUCCESSFUL_SAGA_RESPONSE), ActorRef.noSender());
+      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), actorSystem.actorOf(empty()));
+      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), actorSystem.actorOf(empty()));
+      expectNoMsg(duration("500 milliseconds"));
+
+      actorRef.tell(new ResponseContext(request2, EMPTY_RESPONSE), actorSystem.actorOf(empty()));
 
       List<SagaResponse> responses = receiveN(2, duration("2 seconds")).stream()
           .map(o -> ((ResponseContext) o).response())
@@ -128,7 +141,66 @@ public class NodeTest extends JUnitSuite {
       SagaResponse response = argumentCaptor.getValue();
       assertThat(response, instanceOf(CompositeSagaResponse.class));
       assertThat(((CompositeSagaResponse) response).responses(),
-          containsInAnyOrder(SUCCESSFUL_SAGA_RESPONSE, SUCCESSFUL_SAGA_RESPONSE));
+          containsInAnyOrder(EMPTY_RESPONSE, SUCCESSFUL_SAGA_RESPONSE));
+    }};
+  }
+
+  @Test
+  public void tellEveryoneElseToCompensateOnError() throws Exception {
+    new TestKit(actorSystem) {{
+      children.get(requestId).add(getRef());
+      children.get(requestId).add(getRef());
+      children.computeIfAbsent(unRelatedRequestId, k -> new ArrayList<>()).add(getRef());
+
+      when(request.parents()).thenReturn(new String[] {parentRequestId1});
+      when(recoveryPolicy.apply(task, request, SUCCESSFUL_SAGA_RESPONSE)).thenThrow(TransactionFailedException.class);
+
+      ActorRef actorRef = actorSystem.actorOf(Node.props(recoveryPolicy, task, request, parents, children));
+
+      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), noSender());
+
+      expectMsgAllOf(duration("2 seconds"), MESSAGE_ABORT, MESSAGE_ABORT, MESSAGE_ABORT);
+    }};
+  }
+
+  @Test
+  public void compensateIfTransactionIsCompleted() throws Exception {
+    new TestKit(actorSystem) {{
+      children.get(requestId).add(actorSystem.actorOf(empty()));
+      children.get(requestId).add(actorSystem.actorOf(empty()));
+      parents.get(requestId).add(getRef());
+
+      when(request.parents()).thenReturn(new String[] {parentRequestId1});
+
+      ActorRef actorRef = actorSystem.actorOf(Node.props(recoveryPolicy, task, request, parents, children));
+
+      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), getRef());
+      actorRef.tell(MESSAGE_ABORT, noSender());
+      actorRef.tell(MESSAGE_COMPENSATE, getRef());
+      actorRef.tell(MESSAGE_COMPENSATE, getRef());
+
+      expectMsg(duration("2 seconds"), MESSAGE_COMPENSATE);
+      verify(task).compensate(request);
+    }};
+  }
+
+  @Test
+  public void doNotCompensateIfTransactionIsNotCompleted() throws Exception {
+    new TestKit(actorSystem) {{
+      children.get(requestId).add(actorSystem.actorOf(empty()));
+      children.get(requestId).add(actorSystem.actorOf(empty()));
+      parents.get(requestId).add(getRef());
+
+      when(request.parents()).thenReturn(new String[] {parentRequestId1});
+
+      ActorRef actorRef = actorSystem.actorOf(Node.props(recoveryPolicy, task, request, parents, children));
+
+      actorRef.tell(MESSAGE_ABORT, noSender());
+      actorRef.tell(MESSAGE_COMPENSATE, getRef());
+      actorRef.tell(MESSAGE_COMPENSATE, getRef());
+
+      expectMsg(duration("2 seconds"), MESSAGE_COMPENSATE);
+      verify(task, never()).compensate(request);
     }};
   }
 }
