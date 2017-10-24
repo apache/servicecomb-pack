@@ -18,11 +18,12 @@ package io.servicecomb.saga.core;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -51,10 +52,10 @@ public class SagaContextImpl implements SagaContext {
 
   public SagaContextImpl(FromJsonFormat<Set<String>> childrenExtractor) {
     this.childrenExtractor = childrenExtractor;
-    this.completedTransactions = new HashMap<>();
+    this.completedTransactions = new ConcurrentHashMap<>();
     this.completedCompensations = new HashMap<>();
-    this.abortedTransactions = new HashSet<>();
-    this.hangingTransactions = new HashMap<>();
+    this.abortedTransactions = new ConcurrentSkipListSet<>();
+    this.hangingTransactions = new ConcurrentHashMap<>();
   }
 
   @Override
