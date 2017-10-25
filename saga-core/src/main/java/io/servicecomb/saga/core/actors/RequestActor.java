@@ -23,12 +23,12 @@ import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
 import io.servicecomb.saga.core.CompositeSagaResponse;
-import io.servicecomb.saga.core.RecoveryPolicy;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SagaTask;
@@ -39,7 +39,6 @@ import akka.actor.Props;
 
 public class RequestActor extends AbstractLoggingActor {
   private final RequestActorContext context;
-  private final RecoveryPolicy recoveryPolicy;
   private final SagaTask task;
   private final SagaRequest request;
 
@@ -62,11 +61,10 @@ public class RequestActor extends AbstractLoggingActor {
       SagaTask task,
       SagaRequest request) {
     this.context = context;
-    this.recoveryPolicy = context.recoveryPolicy();
     this.task = task;
     this.request = request;
     this.parentResponses = new ArrayList<>(request.parents().length);
-    this.compensatedChildren = new ArrayList<>(context.childrenOf(request).size());
+    this.compensatedChildren = new LinkedList<>();
     this.pendingParents = new HashSet<>(asList(request.parents()));
 
     this.transacted = onReceive(task::compensate);
@@ -99,7 +97,7 @@ public class RequestActor extends AbstractLoggingActor {
           .anyMatch(chosenChildren -> chosenChildren.isEmpty() || chosenChildren.contains(request.id()));
 
       if (isChosenChild) {
-        SagaResponse sagaResponse = recoveryPolicy.apply(task, request, responseOf(parentResponses));
+        SagaResponse sagaResponse = task.commit(request, responseOf(parentResponses));
         context.childrenOf(request).forEach(actor -> actor.tell(new ResponseContext(request, sagaResponse), self()));
         getContext().become(transacted);
       } else {

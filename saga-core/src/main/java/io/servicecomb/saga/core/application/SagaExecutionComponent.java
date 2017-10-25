@@ -37,7 +37,9 @@ import org.slf4j.LoggerFactory;
 import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.EventStore;
 import io.servicecomb.saga.core.FallbackPolicy;
+import io.servicecomb.saga.core.LoggingRecoveryPolicy;
 import io.servicecomb.saga.core.PersistentStore;
+import io.servicecomb.saga.core.RecoveryPolicy;
 import io.servicecomb.saga.core.RequestProcessTask;
 import io.servicecomb.saga.core.Saga;
 import io.servicecomb.saga.core.SagaContext;
@@ -107,8 +109,7 @@ public class SagaExecutionComponent {
     Saga saga = new Saga(
         sagaLog,
         executorService,
-        definition.policy(),
-        sagaTasks(sagaId, requestJson, sagaLog),
+        sagaTasks(sagaId, requestJson, sagaLog, definition.policy()),
         sagaContext,
         graphBuilder.build(definition.requests()));
     return saga.run();
@@ -129,8 +130,7 @@ public class SagaExecutionComponent {
       Saga saga = new Saga(
           eventStore,
           executorService,
-          definition.policy(),
-          sagaTasks(event.sagaId, requestJson, eventStore),
+          sagaTasks(event.sagaId, requestJson, eventStore, definition.policy()),
           sagaContext,
           graphBuilder.build(definition.requests()));
 
@@ -143,13 +143,13 @@ public class SagaExecutionComponent {
     return new CompositeSagaLog(sagaLog, persistentStore);
   }
 
-  private Map<String, SagaTask> sagaTasks(String sagaId, String requestJson, EventStore sagaLog) {
+  private Map<String, SagaTask> sagaTasks(String sagaId, String requestJson, EventStore sagaLog, RecoveryPolicy recoveryPolicy) {
     SagaLog compositeSagaLog = compositeSagaLog(sagaLog, persistentStore);
 
     return new HashMap<String, SagaTask>() {{
       put(SAGA_START_TASK, new SagaStartTask(sagaId, requestJson, compositeSagaLog));
       SagaLog retrySagaLog = compositeSagaLog(sagaLog, SagaExecutionComponent.this.retrySagaLog);
-      put(SAGA_REQUEST_TASK, new RequestProcessTask(sagaId, retrySagaLog, fallbackPolicy));
+      put(SAGA_REQUEST_TASK, new RequestProcessTask(sagaId, retrySagaLog, new LoggingRecoveryPolicy(recoveryPolicy), fallbackPolicy));
       put(SAGA_END_TASK, new SagaEndTask(sagaId, retrySagaLog));
     }};
   }

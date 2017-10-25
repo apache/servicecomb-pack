@@ -41,18 +41,15 @@ class TransactionTaskConsumer implements TaskConsumer {
   private final Map<String, SagaTask> tasks;
   private final SagaContext sagaContext;
   private final CompletionService<Operation> executorService;
-  private final RecoveryPolicy recoveryPolicy;
 
   TransactionTaskConsumer(
       Map<String, SagaTask> tasks,
       SagaContext sagaContext,
-      CompletionService<Operation> executorService,
-      RecoveryPolicy recoveryPolicy) {
+      CompletionService<Operation> executorService) {
 
     this.tasks = tasks;
     this.sagaContext = sagaContext;
     this.executorService = executorService;
-    this.recoveryPolicy = recoveryPolicy;
   }
 
   @Segment(name = "consumeTask", category = "application", library = "kamon")
@@ -95,24 +92,21 @@ class TransactionTaskConsumer implements TaskConsumer {
 
   @Segment(name = "submitCallable", category = "application", library = "kamon")
   private Future<Operation> futureOf(SagaRequest request) {
-    return executorService.submit(new OperationCallable(tasks, recoveryPolicy, request, sagaContext.responseOf(request.parents())));
+    return executorService.submit(new OperationCallable(tasks, request, sagaContext.responseOf(request.parents())));
   }
 
   @EnableKamon
   private static class OperationCallable implements Callable<Operation> {
 
     private final SagaRequest request;
-    private final RecoveryPolicy recoveryPolicy;
     private final Map<String, SagaTask> tasks;
     private final SagaResponse parentResponse;
 
     private OperationCallable(
         Map<String, SagaTask> tasks,
-        RecoveryPolicy recoveryPolicy,
         SagaRequest request,
         SagaResponse parentResponse) {
       this.request = request;
-      this.recoveryPolicy = recoveryPolicy;
       this.tasks = tasks;
       this.parentResponse = parentResponse;
     }
@@ -120,7 +114,7 @@ class TransactionTaskConsumer implements TaskConsumer {
     @Trace("runTransactionCallable")
     @Override
     public Operation call() throws Exception {
-      recoveryPolicy.apply(tasks.get(request.task()), request, parentResponse);
+      tasks.get(request.task()).commit(request, parentResponse);
       return request.transaction();
     }
   }

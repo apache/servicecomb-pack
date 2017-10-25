@@ -129,7 +129,7 @@ public class SagaIntegrationTest {
 
     SagaStartTask sagaStartTask = new SagaStartTask(sagaId, requestJson, eventStore);
     SagaEndTask sagaEndTask = new SagaEndTask(sagaId, eventStore);
-    RequestProcessTask processTask = new RequestProcessTask(sagaId, eventStore, new FallbackPolicy(100));
+    RequestProcessTask processTask = requestProcessTask(new BackwardRecovery());
 
     tasks.put(SAGA_START_TASK, sagaStartTask);
     tasks.put(SAGA_REQUEST_TASK, processTask);
@@ -350,7 +350,8 @@ public class SagaIntegrationTest {
 
   @Test
   public void retriesFailedTransactionTillSuccess() {
-    Saga saga = new Saga(eventStore, new ForwardRecovery(), tasks, sagaContext, sagaTaskGraph);
+    RequestProcessTask processTask = requestProcessTask(new ForwardRecovery());
+    tasks.put(SAGA_REQUEST_TASK, processTask);
 
     when(transaction2.send(request2.serviceName(), transactionResponse1))
         .thenThrow(exception).thenThrow(exception).thenReturn(transactionResponse2);
@@ -361,8 +362,6 @@ public class SagaIntegrationTest {
         eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
         eventWith(sagaId, transaction1, TransactionStartedEvent.class),
         eventWith(sagaId, transaction1, TransactionEndedEvent.class),
-        eventWith(sagaId, transaction2, TransactionStartedEvent.class),
-        eventWith(sagaId, transaction2, TransactionStartedEvent.class),
         eventWith(sagaId, transaction2, TransactionStartedEvent.class),
         eventWith(sagaId, transaction2, TransactionEndedEvent.class),
         eventWith(sagaId, SAGA_END_TRANSACTION, SagaEndedEvent.class)
@@ -655,5 +654,9 @@ public class SagaIntegrationTest {
 
   private HashSet<String> setOf(String requestId) {
     return new HashSet<>(singletonList(requestId));
+  }
+
+  private RequestProcessTask requestProcessTask(RecoveryPolicy recoveryPolicy) {
+    return new RequestProcessTask(sagaId, eventStore, recoveryPolicy, new FallbackPolicy(100));
   }
 }

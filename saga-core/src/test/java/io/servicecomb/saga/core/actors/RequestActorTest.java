@@ -49,7 +49,6 @@ import org.mockito.Mockito;
 import org.scalatest.junit.JUnitSuite;
 
 import io.servicecomb.saga.core.CompositeSagaResponse;
-import io.servicecomb.saga.core.RecoveryPolicy;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SagaTask;
@@ -66,7 +65,6 @@ public class RequestActorTest extends JUnitSuite {
   private final String requestId = uniquify("requestId");
   private final String unRelatedRequestId = uniquify("unRelatedRequestId");
 
-  private final RecoveryPolicy recoveryPolicy = Mockito.mock(RecoveryPolicy.class);
   private final SagaTask task = Mockito.mock(SagaTask.class);
   private final SagaRequest request = Mockito.mock(SagaRequest.class, "request");
   private final SagaRequest request1 = Mockito.mock(SagaRequest.class, "request1");
@@ -74,7 +72,7 @@ public class RequestActorTest extends JUnitSuite {
   private final SagaResponse response = Mockito.mock(SagaResponse.class);
   private final FromJsonFormat<Set<String>> childrenExtractor = mock(FromJsonFormat.class);
 
-  private final RequestActorContext context = new RequestActorContext(recoveryPolicy, childrenExtractor);
+  private final RequestActorContext context = new RequestActorContext(childrenExtractor);
 
   private static final ActorSystem actorSystem = ActorSystem.create();
 
@@ -98,7 +96,7 @@ public class RequestActorTest extends JUnitSuite {
       addChildren(getRef());
 
       when(request.parents()).thenReturn(new String[] {parentRequestId1});
-      when(recoveryPolicy.apply(task, request, SUCCESSFUL_SAGA_RESPONSE)).thenReturn(response);
+      when(task.commit(request, SUCCESSFUL_SAGA_RESPONSE)).thenReturn(response);
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
@@ -110,7 +108,7 @@ public class RequestActorTest extends JUnitSuite {
 
       assertThat(responses, containsInAnyOrder(response, response));
 
-      verify(recoveryPolicy).apply(task, request, SUCCESSFUL_SAGA_RESPONSE);
+      verify(task).commit(request, SUCCESSFUL_SAGA_RESPONSE);
     }};
   }
 
@@ -122,7 +120,7 @@ public class RequestActorTest extends JUnitSuite {
       ArgumentCaptor<SagaResponse> argumentCaptor = ArgumentCaptor.forClass(SagaResponse.class);
 
       when(request.parents()).thenReturn(new String[] {parentRequestId1, parentRequestId2});
-      when(recoveryPolicy.apply(eq(task), eq(request), argumentCaptor.capture())).thenReturn(response);
+      when(task.commit(eq(request), argumentCaptor.capture())).thenReturn(response);
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
@@ -152,7 +150,7 @@ public class RequestActorTest extends JUnitSuite {
       context.addChild(unRelatedRequestId, getRef());
 
       when(request.parents()).thenReturn(new String[] {parentRequestId1});
-      when(recoveryPolicy.apply(task, request, SUCCESSFUL_SAGA_RESPONSE)).thenThrow(TransactionFailedException.class);
+      when(task.commit(request, SUCCESSFUL_SAGA_RESPONSE)).thenThrow(TransactionFailedException.class);
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
@@ -169,7 +167,7 @@ public class RequestActorTest extends JUnitSuite {
       context.addParent(requestId, getRef());
 
       when(request.parents()).thenReturn(new String[] {parentRequestId1});
-      when(recoveryPolicy.apply(task, request, SUCCESSFUL_SAGA_RESPONSE)).thenReturn(response);
+      when(task.commit(request, SUCCESSFUL_SAGA_RESPONSE)).thenReturn(response);
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
@@ -221,7 +219,7 @@ public class RequestActorTest extends JUnitSuite {
           .collect(Collectors.toList());
 
       assertThat(responses, containsInAnyOrder(NONE_RESPONSE, NONE_RESPONSE));
-      verify(recoveryPolicy, never()).apply(task, request, SUCCESSFUL_SAGA_RESPONSE);
+      verify(task, never()).commit(request, SUCCESSFUL_SAGA_RESPONSE);
 
       // skip compensation for ignored actor
       actorRef.tell(MESSAGE_COMPENSATE, getRef());
@@ -240,7 +238,7 @@ public class RequestActorTest extends JUnitSuite {
       addChildren(getRef());
 
       when(request.parents()).thenReturn(new String[] {parentRequestId1, parentRequestId2});
-      when(recoveryPolicy.apply(eq(task), eq(request), any(CompositeSagaResponse.class))).thenReturn(response);
+      when(task.commit(eq(request), any(CompositeSagaResponse.class))).thenReturn(response);
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 

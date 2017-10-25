@@ -32,9 +32,7 @@ public class BackwardRecovery implements RecoveryPolicy {
   @Override
   public SagaResponse apply(SagaTask task, SagaRequest request, SagaResponse parentResponse) {
     try {
-      return task.commit(request, parentResponse);
-    } catch (SagaStartFailedException e) {
-      throw e;
+      return request.transaction().send(request.serviceName(), parentResponse);
     } catch (Exception e) {
       log.error("Applying {} policy due to failure in transaction {} of service {}",
           description(),
