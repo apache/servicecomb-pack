@@ -19,8 +19,47 @@
 <html>
 <head>
     <title>Detail</title>
+    <script type="text/javascript" src="assets/raphael.min.js"></script>
+    <script type="text/javascript" src="assets/graffle.js"></script>
+    <script type="text/javascript" src="assets/graph.js"></script>
+    <script type="text/javascript">
+      <!--
+
+      var redraw;
+      var height = 300;
+      var width = 400;
+
+      /* only do all this when document has finished loading (needed for RaphaelJS */
+      window.onload = function () {
+
+        var g = new Graph();
+
+        g.addEdge("cherry", "apple");
+        g.addEdge("strawberry", "cherry");
+        g.addEdge("strawberry", "apple");
+        g.addEdge("strawberry", "tomato");
+        g.addEdge("tomato", "apple");
+        g.addEdge("cherry", "kiwi");
+        g.addEdge("tomato", "kiwi");
+
+        /* layout the graph using the Spring layout implementation */
+        var layouter = new Graph.Layout.Spring(g);
+        layouter.layout();
+
+        /* draw the graph using the RaphaelJS draw implementation */
+        var renderer = new Graph.Renderer.Raphael('canvas', g, width, height);
+        renderer.draw();
+
+        redraw = function () {
+          layouter.layout();
+          renderer.draw();
+        };
+      };
+
+      -->
+    </script>
 </head>
 <body>
-
+<div id="canvas" style="height: 400px; width: 600px;"></div>
 </body>
 </html>
