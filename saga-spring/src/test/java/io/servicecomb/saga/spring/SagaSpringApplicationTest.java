@@ -208,6 +208,27 @@ public class SagaSpringApplicationTest {
       assertThat(ex.getMessage(), containsString(
           "The remote service returned with status code 500, reason Server Error"));
     }
+
+    MvcResult resultJson = mockMvc.perform(get("/requests")
+        .param("pageIndex", "0")
+        .param("pageSize", "10")
+        .param("startTime", "1")
+        .param("endTime", String.valueOf(Long.MAX_VALUE)))
+        .andExpect(status().isOk()).andReturn();
+    SagaExecutionQueryResult result = mapper
+        .readValue(resultJson.getResponse().getContentAsString(), SagaExecutionQueryResult.class);
+    assertThat(result.requests.size(), is(1));
+
+    String sagaId = result.requests.get(0).sagaId;
+
+    MvcResult detailJson = mockMvc.perform(get("/requests/" + sagaId)).andExpect(status().isOk())
+        .andReturn();
+    SagaExecutionDetail executionDetail = mapper
+        .readValue(detailJson.getResponse().getContentAsString(), SagaExecutionDetail.class);
+
+    assertThat(executionDetail.router.keySet(), containsInAnyOrder("saga-start", "request-aaa"));
+    assertThat(executionDetail.status.get("request-aaa"), is("Failed"));
+    assertThat(executionDetail.error.size(), is(1));
   }
 
   @Test
