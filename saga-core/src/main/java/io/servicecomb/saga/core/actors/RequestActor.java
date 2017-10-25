@@ -16,16 +16,14 @@
 
 package io.servicecomb.saga.core.actors;
 
+import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
 import static io.servicecomb.saga.core.SagaResponse.NONE_RESPONSE;
 import static io.servicecomb.saga.core.actors.RequestActor.Messages.MESSAGE_ABORT;
 import static io.servicecomb.saga.core.actors.RequestActor.Messages.MESSAGE_COMPENSATE;
-import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 
 import io.servicecomb.saga.core.CompositeSagaResponse;
@@ -44,7 +42,6 @@ public class RequestActor extends AbstractLoggingActor {
 
   private final List<SagaResponse> parentResponses;
   private final List<ActorRef> compensatedChildren;
-  private final Set<String> pendingParents;
 
   private final Receive transacted;
   private final Receive aborted;
@@ -65,7 +62,6 @@ public class RequestActor extends AbstractLoggingActor {
     this.request = request;
     this.parentResponses = new ArrayList<>(request.parents().length);
     this.compensatedChildren = new LinkedList<>();
-    this.pendingParents = new HashSet<>(asList(request.parents()));
 
     this.transacted = onReceive(task::compensate);
     this.aborted = onReceive(ignored -> {
@@ -81,22 +77,18 @@ public class RequestActor extends AbstractLoggingActor {
   }
 
   private void handleContext(ResponseContext parentContext) {
-    if (pendingParents.remove(parentContext.request().id())) {
+    if (context.parentsOf(request).contains(sender())) {
       parentResponses.add(parentContext.response());
     }
 
-    if (pendingParents.isEmpty()) {
+    if (parentResponses.size() == context.parentsOf(request).size()) {
       transact();
     }
   }
 
   private void transact() {
     try {
-      boolean isChosenChild = parentResponses.stream()
-          .map(context::chosenChildren)
-          .anyMatch(chosenChildren -> chosenChildren.isEmpty() || chosenChildren.contains(request.id()));
-
-      if (isChosenChild) {
+      if (isChosenChild(parentResponses)) {
         SagaResponse sagaResponse = task.commit(request, responseOf(parentResponses));
         context.childrenOf(request).forEach(actor -> actor.tell(new ResponseContext(request, sagaResponse), self()));
         getContext().become(transacted);
@@ -105,13 +97,26 @@ public class RequestActor extends AbstractLoggingActor {
         getContext().become(aborted);
       }
     } catch (TransactionFailedException e) {
-      log().error("Failed to run operation {}", request.transaction(), e);
+      log().error("Failed to run operation {} with error {}", request.transaction(), e);
       context.forAll(actor -> actor.tell(MESSAGE_ABORT, self()));
     }
   }
 
+  private boolean isChosenChild(List<SagaResponse> parentResponses) {
+    return parentResponses.isEmpty() || parentResponses.stream()
+            .map(context::chosenChildren)
+            .anyMatch(chosenChildren -> chosenChildren.isEmpty() || chosenChildren.contains(request.id()));
+  }
+
   private SagaResponse responseOf(List<SagaResponse> responseContexts) {
-    return responseContexts.size() > 1 ? new CompositeSagaResponse(responseContexts) : responseContexts.get(0);
+    if (responseContexts.isEmpty()) {
+      return EMPTY_RESPONSE;
+    }
+
+    if (responseContexts.size() == 1) {
+      return responseContexts.get(0);
+    }
+    return new CompositeSagaResponse(responseContexts);
   }
 
   private Receive onReceive(Consumer<SagaRequest> requestConsumer) {
