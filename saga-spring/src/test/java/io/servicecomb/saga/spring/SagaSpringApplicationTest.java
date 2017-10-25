@@ -24,6 +24,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 import static org.springframework.http.MediaType.TEXT_PLAIN;
@@ -34,11 +36,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.net.URLEncoder;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -48,6 +49,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+
+import io.servicecomb.saga.spring.SagaController.SagaExecutionDetail;
+import io.servicecomb.saga.spring.SagaController.SagaExecutionQueryResult;
 import wiremock.org.apache.http.HttpStatus;
 
 @SuppressWarnings("unchecked")
@@ -55,6 +64,8 @@ import wiremock.org.apache.http.HttpStatus;
 @SpringBootTest(classes = SagaSpringApplication.class)
 @AutoConfigureMockMvc
 public class SagaSpringApplicationTest {
+
+  private static final ObjectMapper mapper = new ObjectMapper();
 
   @ClassRule
   public static final WireMockRule wireMockRule = new WireMockRule(8090);
@@ -163,7 +174,11 @@ public class SagaSpringApplicationTest {
             aResponse()
                 .withStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR)
                 .withBody("process failed")));
+  }
 
+  @Before
+  public void tearUp() {
+    sagaEventRepo.deleteAll();
   }
 
   @Test
@@ -213,21 +228,56 @@ public class SagaSpringApplicationTest {
         eventWith(3L, "TransactionEndedEvent"),
         eventWith(4L, "SagaEndedEvent")
     ));
+
+    MvcResult resultJson = mockMvc.perform(get("/requests")
+        .param("pageIndex", "0")
+        .param("pageSize", "10")
+        .param("startTime", "1")
+        .param("endTime", String.valueOf(Long.MAX_VALUE)))
+        .andExpect(status().isOk()).andReturn();
+    SagaExecutionQueryResult result = mapper
+        .readValue(resultJson.getResponse().getContentAsString(), SagaExecutionQueryResult.class);
+    assertThat(result.requests.size(), is(1));
+
+    String sagaId = result.requests.get(0).sagaId;
+
+    MvcResult detailJson = mockMvc.perform(get("/requests/" + sagaId)).andExpect(status().isOk())
+        .andReturn();
+    SagaExecutionDetail executionDetail = mapper
+        .readValue(detailJson.getResponse().getContentAsString(), SagaExecutionDetail.class);
+
+    assertThat(executionDetail.router.keySet(), containsInAnyOrder("saga-start", "request-bbb", "request-aaa"));
+    assertThat(executionDetail.status.get("request-aaa"), is("OK"));
+    assertThat(executionDetail.error.size(), is(0));
   }
 
   @Test
   public void queryRequestsWithBadParameter() throws Exception {
     try {
-    mockMvc.perform(get("/requests")
-        .param("pageIndex", "xxx")
-        .param("pageSize", "xxx")
-        .param("startTime", "xx0")
-        .param("endTime", "x1"))
-        .andExpect(status().is(HttpStatus.SC_BAD_REQUEST));
+      mockMvc.perform(get("/requests")
+          .param("pageIndex", "xxx")
+          .param("pageSize", "xxx")
+          .param("startTime", "xx0")
+          .param("endTime", "x1"))
+          .andExpect(status().is(HttpStatus.SC_BAD_REQUEST));
     } catch (org.springframework.web.util.NestedServletException ex) {
       assertThat(ex.getMessage(), containsString(
           "java.lang.NumberFormatException"));
     }
+  }
+
+  @Test
+  public void allEvents() throws Exception {
+    mockMvc.perform(
+        post("/requests/")
+            .contentType(TEXT_PLAIN)
+            .content(sagaDefinition))
+        .andExpect(status().isOk());
+    mockMvc.perform(get("/events")).andExpect(status().isOk())
+        .andExpect(content().string(containsString("SagaStartedEvent")))
+        .andExpect(content().string(containsString("request-aaa")))
+        .andExpect(content().string(containsString("request-bbb")))
+        .andExpect(content().string(containsString("SagaEndedEvent")));
   }
 
   private Matcher<SagaEventEntity> eventWith(

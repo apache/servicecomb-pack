@@ -27,7 +27,7 @@ public class SingleLeafDirectedAcyclicGraph<T> {
     this.leaf = leaf;
   }
 
-  Node<T> root() {
+  public Node<T> root() {
     return root;
   }
 
