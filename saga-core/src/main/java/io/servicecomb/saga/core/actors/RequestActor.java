@@ -16,15 +16,14 @@
 
 package io.servicecomb.saga.core.actors;
 
-import static io.servicecomb.saga.core.actors.Node.Messages.MESSAGE_ABORT;
-import static io.servicecomb.saga.core.actors.Node.Messages.MESSAGE_COMPENSATE;
+import static io.servicecomb.saga.core.SagaResponse.NONE_RESPONSE;
+import static io.servicecomb.saga.core.actors.RequestActor.Messages.MESSAGE_ABORT;
+import static io.servicecomb.saga.core.actors.RequestActor.Messages.MESSAGE_COMPENSATE;
 import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -38,13 +37,11 @@ import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 
-public class Node extends AbstractLoggingActor {
+public class RequestActor extends AbstractLoggingActor {
+  private final RequestActorContext context;
   private final RecoveryPolicy recoveryPolicy;
   private final SagaTask task;
   private final SagaRequest request;
-
-  private final Map<String, List<ActorRef>> parents;
-  private final Map<String, List<ActorRef>> children;
 
   private final List<SagaResponse> parentResponses;
   private final List<ActorRef> compensatedChildren;
@@ -54,27 +51,22 @@ public class Node extends AbstractLoggingActor {
   private final Receive aborted;
 
   static Props props(
-      RecoveryPolicy recoveryPolicy,
+      RequestActorContext context,
       SagaTask task,
-      SagaRequest request,
-      Map<String, List<ActorRef>> parents,
-      Map<String, List<ActorRef>> children) {
-    return Props.create(Node.class, () -> new Node(recoveryPolicy, task, request, parents, children));
+      SagaRequest request) {
+    return Props.create(RequestActor.class, () -> new RequestActor(context, task, request));
   }
 
-  public Node(
-      RecoveryPolicy recoveryPolicy,
+  private RequestActor(
+      RequestActorContext context,
       SagaTask task,
-      SagaRequest request,
-      Map<String, List<ActorRef>> parents,
-      Map<String, List<ActorRef>> children) {
-    this.recoveryPolicy = recoveryPolicy;
+      SagaRequest request) {
+    this.context = context;
+    this.recoveryPolicy = context.recoveryPolicy();
     this.task = task;
     this.request = request;
-    this.parents = parents;
-    this.children = children;
     this.parentResponses = new ArrayList<>(request.parents().length);
-    this.compensatedChildren = new ArrayList<>(children.get(request.id()).size());
+    this.compensatedChildren = new ArrayList<>(context.childrenOf(request).size());
     this.pendingParents = new HashSet<>(asList(request.parents()));
 
     this.transacted = onReceive(task::compensate);
@@ -102,21 +94,22 @@ public class Node extends AbstractLoggingActor {
 
   private void transact() {
     try {
-      SagaResponse sagaResponse = recoveryPolicy.apply(task, request, responseOf(parentResponses));
-      children.get(request.id()).forEach(actor -> actor.tell(new ResponseContext(request, sagaResponse), self()));
+      boolean isChosenChild = parentResponses.stream()
+          .map(context::chosenChildren)
+          .anyMatch(chosenChildren -> chosenChildren.isEmpty() || chosenChildren.contains(request.id()));
 
-      getContext().become(transacted);
+      if (isChosenChild) {
+        SagaResponse sagaResponse = recoveryPolicy.apply(task, request, responseOf(parentResponses));
+        context.childrenOf(request).forEach(actor -> actor.tell(new ResponseContext(request, sagaResponse), self()));
+        getContext().become(transacted);
+      } else {
+        context.childrenOf(request).forEach(actor -> actor.tell(new ResponseContext(request, NONE_RESPONSE), self()));
+        getContext().become(aborted);
+      }
     } catch (TransactionFailedException e) {
       log().error("Failed to run operation {}", request.transaction(), e);
-      abort(children.values());
+      context.forAll(actor -> actor.tell(MESSAGE_ABORT, self()));
     }
-  }
-
-  private void abort(Collection<List<ActorRef>> allTransactions) {
-    allTransactions
-        .stream()
-        .flatMap(Collection::stream)
-        .forEach(actor -> actor.tell(MESSAGE_ABORT, self()));
   }
 
   private SagaResponse responseOf(List<SagaResponse> responseContexts) {
@@ -132,9 +125,9 @@ public class Node extends AbstractLoggingActor {
   private void onCompensate(Consumer<SagaRequest> requestConsumer) {
     compensatedChildren.add(sender());
 
-    if (compensatedChildren.size() == children.get(request.id()).size()) {
+    if (compensatedChildren.size() == context.childrenOf(request).size()) {
       requestConsumer.accept(request);
-      parents.get(request.id()).forEach(actor -> actor.tell(MESSAGE_COMPENSATE, self()));
+      context.parentsOf(request).forEach(actor -> actor.tell(MESSAGE_COMPENSATE, self()));
     }
   }
 

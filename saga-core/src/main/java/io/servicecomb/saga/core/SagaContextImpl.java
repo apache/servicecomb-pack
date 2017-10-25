@@ -17,6 +17,7 @@
 package io.servicecomb.saga.core;
 
 import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
+import static io.servicecomb.saga.core.SagaResponse.NONE_RESPONSE;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -32,19 +33,6 @@ import java.util.stream.Collectors;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 
 public class SagaContextImpl implements SagaContext {
-  public static final SagaResponse NONE_RESPONSE = new SagaResponse() {
-    @Override
-    public boolean succeeded() {
-      return false;
-    }
-
-    @Override
-    public String body() {
-      return "{\n"
-          + "  \"sagaChildren\": [\"none\"]\n"
-          + "}";
-    }
-  };
 
   private final Map<String, SagaResponse> completedTransactions;
   private final Map<String, SagaResponse> completedCompensations;
