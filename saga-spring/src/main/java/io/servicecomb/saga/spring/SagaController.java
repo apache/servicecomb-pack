@@ -164,8 +164,12 @@ public class SagaController {
   }
 
   private boolean isRequestParamValid(String pageIndex, String pageSize, String startTime, String endTime) {
-    return Integer.parseInt(pageIndex) >= 0 && Integer.parseInt(pageSize) > 0
-        && Long.parseLong(startTime) <= Long.parseLong(endTime);
+    try {
+      return Integer.parseInt(pageIndex) >= 0 && Integer.parseInt(pageSize) > 0
+          && Long.parseLong(startTime) <= Long.parseLong(endTime);
+    } catch (NumberFormatException nfe) {
+      return false;
+    }
   }
 
   @ApiResponses({

@@ -282,8 +282,7 @@ public class SagaSpringApplicationTest {
           .param("endTime", "x1"))
           .andExpect(status().is(HttpStatus.SC_BAD_REQUEST));
     } catch (org.springframework.web.util.NestedServletException ex) {
-      assertThat(ex.getMessage(), containsString(
-          "java.lang.NumberFormatException"));
+      assertThat(ex.getMessage(), containsString("illegal request content"));
     }
   }
 
