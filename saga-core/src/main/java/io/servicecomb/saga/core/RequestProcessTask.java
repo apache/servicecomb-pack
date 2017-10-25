@@ -24,15 +24,18 @@ public class RequestProcessTask implements SagaTask {
 
   private final String sagaId;
   private final SagaLog sagaLog;
+  private final RecoveryPolicy recoveryPolicy;
   private final FallbackPolicy fallbackPolicy;
 
   public RequestProcessTask(
       String sagaId,
       SagaLog sagaLog,
+      RecoveryPolicy recoveryPolicy,
       FallbackPolicy fallbackPolicy) {
 
     this.sagaId = sagaId;
     this.sagaLog = sagaLog;
+    this.recoveryPolicy = recoveryPolicy;
     this.fallbackPolicy = fallbackPolicy;
   }
 
@@ -41,8 +44,7 @@ public class RequestProcessTask implements SagaTask {
   public SagaResponse commit(SagaRequest request, SagaResponse parentResponse) {
     sagaLog.offer(new TransactionStartedEvent(sagaId, request));
 
-    Transaction transaction = request.transaction();
-    SagaResponse response = transaction.send(request.serviceName(), parentResponse);
+    SagaResponse response = recoveryPolicy.apply(this, request, parentResponse);
 
     sagaLog.offer(new TransactionEndedEvent(sagaId, request, response));
     return response;

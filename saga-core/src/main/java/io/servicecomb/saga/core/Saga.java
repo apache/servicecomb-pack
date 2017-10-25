@@ -46,27 +46,16 @@ public class Saga {
   private final SagaContext sagaContext;
   private volatile SagaState currentTaskRunner;
 
-
-  Saga(
-      EventStore eventStore,
-      Map<String, SagaTask> tasks,
-      SagaContext sagaContext,
-      SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {
-    this(eventStore, new BackwardRecovery(), tasks, sagaContext, sagaTaskGraph);
-  }
-
   Saga(EventStore eventStore,
-      RecoveryPolicy recoveryPolicy,
       Map<String, SagaTask> tasks,
       SagaContext sagaContext,
       SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {
 
-    this(eventStore, Executors.newFixedThreadPool(5), recoveryPolicy, tasks, sagaContext, sagaTaskGraph);
+    this(eventStore, Executors.newFixedThreadPool(5), tasks, sagaContext, sagaTaskGraph);
   }
 
   public Saga(EventStore eventStore,
       Executor executor,
-      RecoveryPolicy recoveryPolicy,
       Map<String, SagaTask> tasks,
       SagaContext sagaContext,
       SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {
@@ -79,8 +68,7 @@ public class Saga {
         new TransactionTaskConsumer(
             tasks,
             sagaContext,
-            new ExecutorCompletionService<>(executor),
-            new LoggingRecoveryPolicy(recoveryPolicy)));
+            new ExecutorCompletionService<>(executor)));
 
     this.sagaContext = sagaContext;
     this.compensationTaskRunner = new TaskRunner(

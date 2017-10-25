@@ -24,23 +24,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import io.servicecomb.saga.core.RecoveryPolicy;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import akka.actor.ActorRef;
 
 class RequestActorContext {
-  private final RecoveryPolicy recoveryPolicy;
   private final Map<String, List<ActorRef>> parents;
   private final Map<String, List<ActorRef>> children;
   private final FromJsonFormat<Set<String>> childrenExtractor;
 
   RequestActorContext(
-      RecoveryPolicy recoveryPolicy,
       FromJsonFormat<Set<String>> childrenExtractor) {
 
-    this.recoveryPolicy = recoveryPolicy;
     this.children = new HashMap<>();
     this.parents = new HashMap<>();
     this.childrenExtractor = childrenExtractor;
@@ -71,9 +67,5 @@ class RequestActorContext {
 
   Set<String> chosenChildren(SagaResponse response) {
     return childrenExtractor.fromJson(response.body());
-  }
-
-  RecoveryPolicy recoveryPolicy() {
-    return recoveryPolicy;
   }
 }

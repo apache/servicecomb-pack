@@ -25,12 +25,12 @@ import org.slf4j.LoggerFactory;
 
 
 @EnableKamon
-class LoggingRecoveryPolicy implements RecoveryPolicy {
+public class LoggingRecoveryPolicy implements RecoveryPolicy {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final RecoveryPolicy recoveryPolicy;
 
-  LoggingRecoveryPolicy(RecoveryPolicy recoveryPolicy) {
+  public LoggingRecoveryPolicy(RecoveryPolicy recoveryPolicy) {
     this.recoveryPolicy = recoveryPolicy;
   }
 
