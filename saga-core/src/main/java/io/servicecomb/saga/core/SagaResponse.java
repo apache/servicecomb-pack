@@ -35,6 +35,25 @@ public interface SagaResponse {
     }
   };
 
+  SagaResponse NONE_RESPONSE = new SagaResponse() {
+    @Override
+    public boolean succeeded() {
+      return false;
+    }
+
+    @Override
+    public String body() {
+      return "{\n"
+          + "  \"sagaChildren\": [\"none\"]\n"
+          + "}";
+    }
+
+    @Override
+    public String toString() {
+      return "NONE_RESPONSE{body={\"sagaChildren\": [\"none\"]\n}}";
+    }
+  };
+
   boolean succeeded();
 
   String body();
