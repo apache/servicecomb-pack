@@ -60,7 +60,6 @@ import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaStartedEvent;
 import io.servicecomb.saga.core.TransactionAbortedEvent;
 import io.servicecomb.saga.core.TransactionEndedEvent;
-import io.servicecomb.saga.core.TransactionStartedEvent;
 import io.servicecomb.saga.core.application.GraphBuilder;
 import io.servicecomb.saga.core.application.SagaExecutionComponent;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
@@ -185,36 +184,32 @@ public class SagaController {
       SingleLeafDirectedAcyclicGraph<SagaRequest> graph = graphBuilder
           .build(definition.requests());
       loopLoadGraphNodes(router, graph.root());
-      Collection<SagaEventEntity> transactionStartEvents = Arrays.stream(entities)
-          .filter(entity -> TransactionStartedEvent.class.getSimpleName().equals(entity.type())).collect(
+
+      Collection<SagaEventEntity> transactionAbortEvents = Arrays.stream(entities)
+          .filter(entity -> TransactionAbortedEvent.class.getSimpleName().equals(entity.type())).collect(
               Collectors.toList());
-      JsonNode root;
-      for (SagaEventEntity transactionStartEvent : transactionStartEvents) {
+      for (SagaEventEntity transactionAbortEvent : transactionAbortEvents) {
         try {
-          root = mapper.readTree(transactionStartEvent.contentJson());
-        } catch (IOException e) {
-          continue;
-        }
-        if (isEndedTransaction(entities)) {
-          status.put(root.at("/id").asText(), "OK");
-        } else if (isAbortedTransaction(entities)) {
+          JsonNode root = mapper.readTree(transactionAbortEvent.contentJson());
           String id = root.at("/request/id").asText();
           status.put(id, "Failed");
           error.put(id, root.at("/response/body").asText());
+        } catch (IOException ignored) {
+        }
+      }
+
+      Collection<SagaEventEntity> transactionEndEvents = Arrays.stream(entities)
+          .filter(entity -> TransactionEndedEvent.class.getSimpleName().equals(entity.type())).collect(
+              Collectors.toList());
+      for (SagaEventEntity transactionEndEvent : transactionEndEvents) {
+        try {
+          JsonNode root = mapper.readTree(transactionEndEvent.contentJson());
+          status.put(root.at("/request/id").asText(), "OK");
+        } catch (IOException ignored) {
         }
       }
     }
     return ResponseEntity.ok(new SagaExecutionDetail(router, status, error));
-  }
-
-  private boolean isAbortedTransaction(SagaEventEntity[] entities) {
-    return Arrays.stream(entities)
-        .anyMatch(entity -> TransactionAbortedEvent.class.getSimpleName().equals(entity.type()));
-  }
-
-  private boolean isEndedTransaction(SagaEventEntity[] entities) {
-    return Arrays.stream(entities)
-        .anyMatch(entity -> TransactionEndedEvent.class.getSimpleName().equals(entity.type()));
   }
 
   private void loopLoadGraphNodes(Map<String, List<String>> router,
