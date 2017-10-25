@@ -126,7 +126,7 @@
                 $("#v_loading").show();
                 $.ajax({
                     type: "POST",
-                    url: "http://localhost:30486/DownAppThird.aspx",
+                    url: "http://localhost:8080/requests",
                     data: "content=" + content,
                     dataType: "text",
                     success: function (msg) {
