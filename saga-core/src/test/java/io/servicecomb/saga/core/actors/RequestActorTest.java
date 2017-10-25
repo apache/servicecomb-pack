@@ -95,12 +95,15 @@ public class RequestActorTest extends JUnitSuite {
     new TestKit(actorSystem) {{
       addChildren(getRef());
 
+      ActorRef parent = someActor();
+      context.addParent(requestId, parent);
+
       when(request.parents()).thenReturn(new String[] {parentRequestId1});
       when(task.commit(request, SUCCESSFUL_SAGA_RESPONSE)).thenReturn(response);
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
-      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), noSender());
+      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), parent);
 
       List<SagaResponse> responses = receiveN(2, duration("2 seconds")).stream()
           .map(o -> ((ResponseContext) o).response())
@@ -117,6 +120,12 @@ public class RequestActorTest extends JUnitSuite {
     new TestKit(actorSystem) {{
       addChildren(getRef());
 
+      ActorRef parent1 = someActor();
+      context.addParent(requestId, parent1);
+
+      ActorRef parent2 = someActor();
+      context.addParent(requestId, parent2);
+
       ArgumentCaptor<SagaResponse> argumentCaptor = ArgumentCaptor.forClass(SagaResponse.class);
 
       when(request.parents()).thenReturn(new String[] {parentRequestId1, parentRequestId2});
@@ -124,11 +133,10 @@ public class RequestActorTest extends JUnitSuite {
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
-      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), someActor());
-      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), someActor());
+      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), parent1);
       expectNoMsg(duration("500 milliseconds"));
 
-      actorRef.tell(new ResponseContext(request2, EMPTY_RESPONSE), someActor());
+      actorRef.tell(new ResponseContext(request2, EMPTY_RESPONSE), parent2);
 
       List<SagaResponse> responses = receiveN(2, duration("2 seconds")).stream()
           .map(o -> ((ResponseContext) o).response())
@@ -149,12 +157,15 @@ public class RequestActorTest extends JUnitSuite {
       addChildren(getRef());
       context.addChild(unRelatedRequestId, getRef());
 
+      ActorRef parent = someActor();
+      context.addParent(requestId, parent);
+
       when(request.parents()).thenReturn(new String[] {parentRequestId1});
       when(task.commit(request, SUCCESSFUL_SAGA_RESPONSE)).thenThrow(TransactionFailedException.class);
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
-      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), noSender());
+      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), parent);
 
       expectMsgAllOf(duration("2 seconds"), MESSAGE_ABORT, MESSAGE_ABORT, MESSAGE_ABORT);
     }};
@@ -237,13 +248,19 @@ public class RequestActorTest extends JUnitSuite {
     new TestKit(actorSystem) {{
       addChildren(getRef());
 
+      ActorRef parent1 = someActor();
+      context.addParent(requestId, parent1);
+
+      ActorRef parent2 = someActor();
+      context.addParent(requestId, parent2);
+
       when(request.parents()).thenReturn(new String[] {parentRequestId1, parentRequestId2});
       when(task.commit(eq(request), any(CompositeSagaResponse.class))).thenReturn(response);
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
-      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), someActor());
-      actorRef.tell(new ResponseContext(request2, SUCCESSFUL_SAGA_RESPONSE), someActor());
+      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), parent1);
+      actorRef.tell(new ResponseContext(request2, SUCCESSFUL_SAGA_RESPONSE), parent2);
 
       List<SagaResponse> responses = receiveN(2, duration("2 seconds")).stream()
           .map(o -> ((ResponseContext) o).response())

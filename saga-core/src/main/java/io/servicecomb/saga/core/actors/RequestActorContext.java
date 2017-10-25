@@ -16,6 +16,8 @@
 
 package io.servicecomb.saga.core.actors;
 
+import static java.util.Collections.emptyList;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,16 +32,21 @@ import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import akka.actor.ActorRef;
 
 class RequestActorContext {
+  private final Map<String, ActorRef> actors;
   private final Map<String, List<ActorRef>> parents;
   private final Map<String, List<ActorRef>> children;
   private final FromJsonFormat<Set<String>> childrenExtractor;
 
   RequestActorContext(
       FromJsonFormat<Set<String>> childrenExtractor) {
-
+    this.actors = new HashMap<>();
     this.children = new HashMap<>();
     this.parents = new HashMap<>();
     this.childrenExtractor = childrenExtractor;
+  }
+
+  void addActor(String id, ActorRef actorRef) {
+    actors.put(id, actorRef);
   }
 
   void addChild(String requestId, ActorRef ref) {
@@ -50,12 +57,16 @@ class RequestActorContext {
     parents.computeIfAbsent(requestId, k -> new ArrayList<>()).add(ref);
   }
 
+  ActorRef actorOf(String id) {
+    return actors.get(id);
+  }
+
   Collection<ActorRef> parentsOf(SagaRequest request) {
-    return parents.get(request.id());
+    return parents.getOrDefault(request.id(), emptyList());
   }
 
   Collection<ActorRef> childrenOf(SagaRequest request) {
-    return children.get(request.id());
+    return children.getOrDefault(request.id(), emptyList());
   }
 
   void forAll(Consumer<ActorRef> consumer) {
