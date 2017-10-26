@@ -41,11 +41,11 @@
     <table>
         <tr>
             <td>From:</td>
-            <td><input title="Saga Start Time From" type="datetime-local"/></td>
+            <td><input title="Saga Start Time From" id="startTime" type="datetime-local"/></td>
             <td>To:</td>
-            <td><input title="Saga End Time From" type="datetime-local"/></td>
+            <td><input title="Saga End Time From" id="endTime" type="datetime-local"/></td>
             <td>
-                <button>Search</button>
+                <button onclick="refresh(this)">Search</button>
             </td>
         </tr>
     </table>
