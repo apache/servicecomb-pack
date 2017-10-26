@@ -16,12 +16,12 @@
 
 package io.servicecomb.saga.core.actors;
 
-import static akka.actor.ActorRef.noSender;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
 import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
 import static io.servicecomb.saga.core.SagaTask.SAGA_END_TASK;
 import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
+import static io.servicecomb.saga.core.actors.messages.CompensateMessage.MESSAGE_COMPENSATE;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -123,7 +123,7 @@ public class RequestActorBuilderTest extends JUnitSuite {
 
       ActorRef root = actorBuilder.build(requests, tasks, getRef());
 
-      root.tell(new TransactMessage(SAGA_START_REQUEST, EMPTY_RESPONSE), noSender());
+      root.tell(new TransactMessage(SAGA_START_REQUEST, EMPTY_RESPONSE), getRef());
 
       List<SagaResponse> responses = receiveN(1, duration("2 seconds")).stream()
           .map(o -> ((TransactMessage) o).response())
@@ -141,6 +141,34 @@ public class RequestActorBuilderTest extends JUnitSuite {
       assertThat(response, instanceOf(CompositeSagaResponse.class));
       assertThat(((CompositeSagaResponse) response).responses(),
           containsInAnyOrder(response2, response3));
+    }};
+  }
+
+  @Test
+  public void compensateAllCompletedTransactions() throws Exception {
+    new TestKit(actorSystem) {{
+      ArgumentCaptor<SagaResponse> argumentCaptor = ArgumentCaptor.forClass(SagaResponse.class);
+      when(task.commit(eq(SAGA_END_REQUEST), argumentCaptor.capture())).thenReturn(EMPTY_RESPONSE);
+
+      ActorRef root = actorBuilder.build(requests, tasks, getRef());
+
+      root.tell(new TransactMessage(SAGA_START_REQUEST, EMPTY_RESPONSE), getRef());
+
+      List<SagaResponse> responses = receiveN(1, duration("2 seconds")).stream()
+          .map(o -> ((TransactMessage) o).response())
+          .collect(Collectors.toList());
+
+      assertThat(responses, containsInAnyOrder(EMPTY_RESPONSE));
+
+      getLastSender().tell(MESSAGE_COMPENSATE, getRef());
+
+      verify(task).compensate(SAGA_START_REQUEST);
+      verify(task).compensate(request1);
+      verify(task).compensate(request2);
+      verify(task).compensate(request3);
+      verify(task).compensate(SAGA_END_REQUEST);
+
+      expectMsg(MESSAGE_COMPENSATE);
     }};
   }
 }
