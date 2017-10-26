@@ -61,7 +61,7 @@
         <configuration>
           <images>
             <image>
-              <name>servicecomb/service-center</name>
+              <name>servicecomb/service-center:0.2.0</name>
               <alias>service-center</alias>
               <run>
                 <wait>
