@@ -14,25 +14,8 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core.actors;
+package io.servicecomb.saga.core.actors.messages;
 
-import io.servicecomb.saga.core.SagaRequest;
-import io.servicecomb.saga.core.SagaResponse;
-
-public class ResponseContext {
-  private final SagaRequest request;
-  private final SagaResponse response;
-
-  ResponseContext(SagaRequest request, SagaResponse response) {
-    this.request = request;
-    this.response = response;
-  }
-
-  public SagaRequest request() {
-    return request;
-  }
-
-  public SagaResponse response() {
-    return response;
-  }
+public class AbortMessage implements Message {
+  public static final AbortMessage MESSAGE_ABORT = new AbortMessage();
 }

@@ -52,6 +52,7 @@ import io.servicecomb.saga.core.CompositeSagaResponse;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SagaTask;
+import io.servicecomb.saga.core.actors.messages.TransactMessage;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -122,10 +123,10 @@ public class RequestActorBuilderTest extends JUnitSuite {
 
       ActorRef root = actorBuilder.build(requests, tasks, getRef());
 
-      root.tell(new ResponseContext(SAGA_START_REQUEST, EMPTY_RESPONSE), noSender());
+      root.tell(new TransactMessage(SAGA_START_REQUEST, EMPTY_RESPONSE), noSender());
 
       List<SagaResponse> responses = receiveN(1, duration("2 seconds")).stream()
-          .map(o -> ((ResponseContext) o).response())
+          .map(o -> ((TransactMessage) o).response())
           .collect(Collectors.toList());
 
       assertThat(responses, containsInAnyOrder(EMPTY_RESPONSE));
