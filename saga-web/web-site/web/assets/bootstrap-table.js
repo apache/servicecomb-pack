@@ -1975,7 +1975,8 @@
             params = {
                 searchText: this.searchText,
                 sortName: this.options.sortName,
-                sortOrder: this.options.sortOrder
+                sortOrder: this.options.sortOrder,
+                pageNumber: this.options.pageNumber
             },
             request;
 
@@ -2001,6 +2002,7 @@
                     0 : this.options.pageSize * (this.options.pageNumber - 1);
                 params.limit = this.options.pageSize === this.options.formatAllRows() ?
                     this.options.totalRows : this.options.pageSize;
+                params.pageNumber = this.options.pageNumber;
             }
         }
 
