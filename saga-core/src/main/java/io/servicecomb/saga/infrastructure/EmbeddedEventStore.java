@@ -20,7 +20,6 @@ import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.EventStore;
 import io.servicecomb.saga.core.SagaContext;
 import io.servicecomb.saga.core.SagaEvent;
-import io.servicecomb.saga.core.SagaResponse;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Iterator;
@@ -57,11 +56,6 @@ public class EmbeddedEventStore implements EventStore {
   @Override
   public long size() {
     return events.size();
-  }
-
-  @Override
-  public SagaResponse responseOf(String[] parentRequestIds) {
-    return sagaContext.responseOf(parentRequestIds);
   }
 
   @Override

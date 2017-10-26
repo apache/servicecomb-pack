@@ -40,7 +40,7 @@ public class SagaStartTask implements SagaTask {
     try {
       sagaLog.offer(new SagaStartedEvent(sagaId, requestJson, request));
     } catch (Exception e) {
-      throw new SagaStartFailedException("Failed to persist SagaStartedEvent", e);
+      throw new SagaStartFailedException("Failed to persist SagaStartedEvent for " + requestJson, e);
     }
     return EMPTY_RESPONSE;
   }

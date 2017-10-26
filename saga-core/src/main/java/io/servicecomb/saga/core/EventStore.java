@@ -20,4 +20,5 @@ public interface EventStore extends SagaLog, Iterable<SagaEvent> {
 
   void populate(Iterable<EventEnvelope> events);
 
+  long size();
 }
