@@ -33,7 +33,7 @@ public class RequestActorBuilder {
   private final ActorSystem actorSystem;
   private final FromJsonFormat<Set<String>> childrenExtractor;
 
-  public RequestActorBuilder(
+  RequestActorBuilder(
       ActorSystem actorSystem,
       FromJsonFormat<Set<String>> childrenExtractor) {
 
@@ -52,6 +52,7 @@ public class RequestActorBuilder {
     linkActorsById(rootActor, requests, context);
     addLeafToChildless(leafActor, requests, context);
 
+    context.addParent(SAGA_START_REQUEST.id(), completionCallback);
     context.addChild(SAGA_END_REQUEST.id(), completionCallback);
     return rootActor;
   }
