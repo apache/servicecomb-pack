@@ -22,7 +22,6 @@ import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static io.servicecomb.saga.core.Operation.SUCCESSFUL_SAGA_RESPONSE;
 import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
 import static io.servicecomb.saga.core.SagaResponse.NONE_RESPONSE;
-import static io.servicecomb.saga.core.actors.messages.AbortMessage.MESSAGE_ABORT;
 import static io.servicecomb.saga.core.actors.messages.CompensateMessage.MESSAGE_COMPENSATE;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
@@ -55,6 +54,7 @@ import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SagaStartFailedException;
 import io.servicecomb.saga.core.SagaTask;
 import io.servicecomb.saga.core.TransactionFailedException;
+import io.servicecomb.saga.core.actors.messages.AbortMessage;
 import io.servicecomb.saga.core.actors.messages.CompensationRecoveryMessage;
 import io.servicecomb.saga.core.actors.messages.TransactMessage;
 import io.servicecomb.saga.core.actors.messages.TransactionRecoveryMessage;
@@ -79,6 +79,7 @@ public class RequestActorTest extends JUnitSuite {
 
   private final RequestActorContext context = new RequestActorContext(childrenExtractor);
 
+  private final TransactionFailedException exception = new TransactionFailedException("oops");
   private static final ActorSystem actorSystem = ActorSystem.create();
 
   @Before
@@ -168,13 +169,17 @@ public class RequestActorTest extends JUnitSuite {
       context.addParent(requestId, parent);
 
       when(request.parents()).thenReturn(new String[] {parentRequestId1});
-      when(task.commit(request, SUCCESSFUL_SAGA_RESPONSE)).thenThrow(TransactionFailedException.class);
+      when(task.commit(request, SUCCESSFUL_SAGA_RESPONSE)).thenThrow(exception);
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
       actorRef.tell(new TransactMessage(request1, SUCCESSFUL_SAGA_RESPONSE), parent);
 
-      expectMsgAllOf(duration("2 seconds"), MESSAGE_ABORT, MESSAGE_ABORT);
+      List<Throwable> responses = receiveN(2, duration("2 seconds")).stream()
+          .map(o -> ((AbortMessage) o).exception())
+          .collect(Collectors.toList());
+
+      assertThat(responses, containsInAnyOrder(exception, exception));
     }};
   }
 
@@ -190,7 +195,7 @@ public class RequestActorTest extends JUnitSuite {
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
       actorRef.tell(new TransactMessage(request1, SUCCESSFUL_SAGA_RESPONSE), getRef());
-      actorRef.tell(MESSAGE_ABORT, noSender());
+      actorRef.tell(new AbortMessage(exception), noSender());
       actorRef.tell(MESSAGE_COMPENSATE, getRef());
       actorRef.tell(MESSAGE_COMPENSATE, getRef());
 
@@ -216,7 +221,7 @@ public class RequestActorTest extends JUnitSuite {
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
-      actorRef.tell(MESSAGE_ABORT, noSender());
+      actorRef.tell(new AbortMessage(exception), noSender());
       actorRef.tell(MESSAGE_COMPENSATE, getRef());
       actorRef.tell(MESSAGE_COMPENSATE, getRef());
 
@@ -326,7 +331,7 @@ public class RequestActorTest extends JUnitSuite {
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
-      actorRef.tell(MESSAGE_ABORT, noSender());
+      actorRef.tell(new AbortMessage(exception), noSender());
       actorRef.tell(new CompensationRecoveryMessage(), noSender());
       actorRef.tell(MESSAGE_COMPENSATE, noSender());
 
@@ -343,13 +348,19 @@ public class RequestActorTest extends JUnitSuite {
       context.addParent(requestId, getRef());
 
       when(request.parents()).thenReturn(new String[] {parentRequestId1});
-      when(task.commit(request, EMPTY_RESPONSE)).thenThrow(SagaStartFailedException.class);
+
+      SagaStartFailedException oops = new SagaStartFailedException("oops", exception);
+      when(task.commit(request, EMPTY_RESPONSE)).thenThrow(oops);
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
       actorRef.tell(new TransactMessage(request, EMPTY_RESPONSE), getRef());
 
-      expectMsg(duration("2 seconds"), MESSAGE_ABORT);
+      List<Throwable> responses = receiveN(1, duration("2 seconds")).stream()
+          .map(o -> ((AbortMessage) o).exception())
+          .collect(Collectors.toList());
+
+      assertThat(responses, containsInAnyOrder(oops));
     }};
   }
 

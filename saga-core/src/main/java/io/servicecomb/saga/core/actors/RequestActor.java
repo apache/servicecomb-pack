@@ -18,7 +18,6 @@ package io.servicecomb.saga.core.actors;
 
 import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
 import static io.servicecomb.saga.core.SagaResponse.NONE_RESPONSE;
-import static io.servicecomb.saga.core.actors.messages.AbortMessage.MESSAGE_ABORT;
 import static io.servicecomb.saga.core.actors.messages.CompensateMessage.MESSAGE_COMPENSATE;
 
 import java.util.ArrayList;
@@ -118,9 +117,9 @@ public class RequestActor extends AbstractLoggingActor {
       }
     } catch (TransactionFailedException e) {
       log().error("Failed to run operation {} with error {}", request.transaction(), e);
-      context.forAll(actor -> actor.tell(MESSAGE_ABORT, self()));
+      context.forAll(actor -> actor.tell(new AbortMessage(e), self()));
     } catch (SagaStartFailedException e) {
-      context.parentsOf(request).forEach(actor -> actor.tell(MESSAGE_ABORT, self()));
+      context.parentsOf(request).forEach(actor -> actor.tell(new AbortMessage(e), self()));
       getContext().stop(self());
     }
   }

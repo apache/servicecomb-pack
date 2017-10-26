@@ -17,5 +17,13 @@
 package io.servicecomb.saga.core.actors.messages;
 
 public class AbortMessage implements Message {
-  public static final AbortMessage MESSAGE_ABORT = new AbortMessage();
+  private final Throwable exception;
+
+  public AbortMessage(Throwable e) {
+    exception = e;
+  }
+
+  public Throwable exception() {
+    return exception;
+  }
 }
