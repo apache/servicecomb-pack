@@ -25,18 +25,23 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import io.servicecomb.saga.core.CompositeSagaResponse;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaResponse;
+import io.servicecomb.saga.core.SagaStartFailedException;
 import io.servicecomb.saga.core.SagaTask;
 import io.servicecomb.saga.core.TransactionFailedException;
 import io.servicecomb.saga.core.actors.messages.AbortMessage;
 import io.servicecomb.saga.core.actors.messages.CompensateMessage;
+import io.servicecomb.saga.core.actors.messages.CompensationRecoveryMessage;
+import io.servicecomb.saga.core.actors.messages.TransactionRecoveryMessage;
 import io.servicecomb.saga.core.actors.messages.TransactMessage;
 import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import akka.japi.pf.ReceiveBuilder;
 
 public class RequestActor extends AbstractLoggingActor {
   private final RequestActorContext context;
@@ -66,33 +71,45 @@ public class RequestActor extends AbstractLoggingActor {
     this.parentResponses = new ArrayList<>(request.parents().length);
     this.compensatedChildren = new LinkedList<>();
 
-    this.transacted = onReceive(task::compensate);
     this.aborted = onReceive(ignored -> {
-    });
+    }).build();
+
+    this.transacted = onReceive(task::compensate)
+        .match(CompensationRecoveryMessage.class, message -> getContext().become(aborted))
+        .build();
   }
 
   @Override
   public Receive createReceive() {
     return receiveBuilder()
-        .match(TransactMessage.class, this::handleContext)
+        .match(TransactMessage.class,
+            message -> handleTransaction(message, () -> task.commit(request, responseOf(parentResponses))))
+        .match(TransactionRecoveryMessage.class, this::handleRecovery)
         .match(AbortMessage.class, message -> getContext().become(aborted))
         .build();
   }
 
-  private void handleContext(TransactMessage parentContext) {
+  private void handleRecovery(TransactionRecoveryMessage message) {
+    getContext().become(receiveBuilder()
+        .match(TransactMessage.class, m -> handleTransaction(m, message::response))
+        .build()
+    );
+  }
+
+  private void handleTransaction(TransactMessage message, Supplier<SagaResponse> responseSupplier) {
     if (context.parentsOf(request).contains(sender())) {
-      parentResponses.add(parentContext.response());
+      parentResponses.add(message.response());
     }
 
     if (parentResponses.size() == context.parentsOf(request).size()) {
-      transact();
+      transact(responseSupplier);
     }
   }
 
-  private void transact() {
+  private void transact(Supplier<SagaResponse> responseSupplier) {
     try {
       if (isChosenChild(parentResponses)) {
-        SagaResponse sagaResponse = task.commit(request, responseOf(parentResponses));
+        SagaResponse sagaResponse = responseSupplier.get();
         context.childrenOf(request).forEach(actor -> actor.tell(new TransactMessage(request, sagaResponse), self()));
         getContext().become(transacted);
       } else {
@@ -102,6 +119,9 @@ public class RequestActor extends AbstractLoggingActor {
     } catch (TransactionFailedException e) {
       log().error("Failed to run operation {} with error {}", request.transaction(), e);
       context.forAll(actor -> actor.tell(MESSAGE_ABORT, self()));
+    } catch (SagaStartFailedException e) {
+      context.parentsOf(request).forEach(actor -> actor.tell(MESSAGE_ABORT, self()));
+      getContext().stop(self());
     }
   }
 
@@ -122,10 +142,9 @@ public class RequestActor extends AbstractLoggingActor {
     return new CompositeSagaResponse(responseContexts);
   }
 
-  private Receive onReceive(Consumer<SagaRequest> requestConsumer) {
+  private ReceiveBuilder onReceive(Consumer<SagaRequest> requestConsumer) {
     return receiveBuilder()
-        .match(CompensateMessage.class, message -> onCompensate(requestConsumer))
-        .build();
+        .match(CompensateMessage.class, message -> onCompensate(requestConsumer));
   }
 
   private void onCompensate(Consumer<SagaRequest> requestConsumer) {
@@ -134,6 +153,7 @@ public class RequestActor extends AbstractLoggingActor {
     if (compensatedChildren.size() == context.childrenOf(request).size()) {
       requestConsumer.accept(request);
       context.parentsOf(request).forEach(actor -> actor.tell(MESSAGE_COMPENSATE, self()));
+      getContext().stop(self());
     }
   }
 }

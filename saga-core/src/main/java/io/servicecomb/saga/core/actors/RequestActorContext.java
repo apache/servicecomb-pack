@@ -70,9 +70,8 @@ class RequestActorContext {
   }
 
   void forAll(Consumer<ActorRef> consumer) {
-    children.values()
+    actors.values()
         .stream()
-        .flatMap(Collection::stream)
         .forEach(consumer);
   }
 
