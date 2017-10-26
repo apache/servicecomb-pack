@@ -24,22 +24,12 @@ import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,24 +38,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.servicecomb.provider.rest.common.RestSchema;
-import io.servicecomb.saga.core.NoOpSagaRequest;
-import io.servicecomb.saga.core.SagaDefinition;
-import io.servicecomb.saga.core.SagaEndedEvent;
 import io.servicecomb.saga.core.SagaException;
-import io.servicecomb.saga.core.SagaRequest;
-import io.servicecomb.saga.core.SagaStartedEvent;
-import io.servicecomb.saga.core.TransactionAbortedEvent;
-import io.servicecomb.saga.core.TransactionEndedEvent;
-import io.servicecomb.saga.core.application.GraphBuilder;
 import io.servicecomb.saga.core.application.SagaExecutionComponent;
-import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
-import io.servicecomb.saga.core.dag.GraphCycleDetectorImpl;
-import io.servicecomb.saga.core.dag.Node;
-import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
 import io.servicecomb.swagger.invocation.exception.InvocationException;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -80,17 +56,14 @@ public class SagaController {
 
   private final SagaExecutionComponent sagaExecutionComponent;
   private final SagaEventRepo repo;
-  private final ObjectMapper mapper = new ObjectMapper();
-  private final GraphBuilder graphBuilder = new GraphBuilder(new GraphCycleDetectorImpl<>());
-
-  private FromJsonFormat<SagaDefinition> fromJsonFormat = null;
+  private final SagaExecutionQueryService queryService;
 
   @Autowired
   public SagaController(SagaExecutionComponent sagaExecutionComponent, SagaEventRepo repo,
-      FromJsonFormat<SagaDefinition> fromJsonFormat) {
+      SagaExecutionQueryService queryService) {
     this.sagaExecutionComponent = sagaExecutionComponent;
     this.repo = repo;
-    this.fromJsonFormat = fromJsonFormat;
+    this.queryService = queryService;
   }
 
   @Trace("processRequests")
@@ -137,27 +110,7 @@ public class SagaController {
       @RequestParam(name = "startTime") String startTime,
       @RequestParam(name = "endTime") String endTime) {
     if (isRequestParamValid(pageIndex, pageSize, startTime, endTime)) {
-      List<SagaExecution> requests = new ArrayList<>();
-      Page<SagaEventEntity> startEvents = repo.findByTypeAndCreationTimeBetweenOrderByIdDesc(
-          SagaStartedEvent.class.getSimpleName(),
-          new Date(Long.parseLong(startTime)), new Date(Long.parseLong(endTime)),
-          new PageRequest(Integer.parseInt(pageIndex), Integer.parseInt(pageSize)));
-      for (SagaEventEntity event : startEvents) {
-        SagaEventEntity endEvent = repo
-            .findFirstByTypeAndSagaId(SagaEndedEvent.class.getSimpleName(), event.sagaId());
-        SagaEventEntity abortedEvent = repo
-            .findFirstByTypeAndSagaId(TransactionAbortedEvent.class.getSimpleName(), event.sagaId());
-
-        requests.add(new SagaExecution(
-            event.id(),
-            event.sagaId(),
-            event.creationTime(),
-            endEvent == null ? 0 : endEvent.creationTime(),
-            endEvent == null ? "Running" : abortedEvent == null ? "OK" : "Failed"));
-      }
-      return ResponseEntity.ok(
-          new SagaExecutionQueryResult(Integer.parseInt(pageIndex), Integer.parseInt(pageSize),
-              startEvents.getTotalPages(), requests));
+      return ResponseEntity.ok(queryService.querySagaExecution(pageIndex, pageSize, startTime, endTime));
     } else {
       throw new InvocationException(BAD_REQUEST, "illegal request content");
     }
@@ -174,64 +127,11 @@ public class SagaController {
 
   @ApiResponses({
       @ApiResponse(code = 200, response = String.class, message = "success"),
+      @ApiResponse(code = 200, response = String.class, message = "success"),
   })
   @RequestMapping(value = "requests/{sagaId}", method = GET)
   public ResponseEntity<SagaExecutionDetail> queryExecutionDetail(@PathVariable String sagaId) {
-    SagaEventEntity[] entities = repo.findBySagaId(sagaId).toArray(new SagaEventEntity[0]);
-    Optional<SagaEventEntity> sagaStartEvent = Arrays.stream(entities)
-        .filter(entity -> SagaStartedEvent.class.getSimpleName().equals(entity.type())).findFirst();
-    Map<String, List<String>> router = new HashMap<>();
-    Map<String, String> status = new HashMap<>();
-    Map<String, String> error = new HashMap<>();
-    if (sagaStartEvent.isPresent()) {
-      SagaDefinition definition = fromJsonFormat.fromJson(sagaStartEvent.get().contentJson());
-      SingleLeafDirectedAcyclicGraph<SagaRequest> graph = graphBuilder
-          .build(definition.requests());
-      loopLoadGraphNodes(router, graph.root());
-
-      Collection<SagaEventEntity> transactionAbortEvents = Arrays.stream(entities)
-          .filter(entity -> TransactionAbortedEvent.class.getSimpleName().equals(entity.type())).collect(
-              Collectors.toList());
-      for (SagaEventEntity transactionAbortEvent : transactionAbortEvents) {
-        try {
-          JsonNode root = mapper.readTree(transactionAbortEvent.contentJson());
-          String id = root.at("/request/id").asText();
-          status.put(id, "Failed");
-          error.put(id, root.at("/response/body").asText());
-        } catch (IOException ignored) {
-        }
-      }
-
-      Collection<SagaEventEntity> transactionEndEvents = Arrays.stream(entities)
-          .filter(entity -> TransactionEndedEvent.class.getSimpleName().equals(entity.type())).collect(
-              Collectors.toList());
-      for (SagaEventEntity transactionEndEvent : transactionEndEvents) {
-        try {
-          JsonNode root = mapper.readTree(transactionEndEvent.contentJson());
-          status.put(root.at("/request/id").asText(), "OK");
-        } catch (IOException ignored) {
-        }
-      }
-    }
-    return ResponseEntity.ok(new SagaExecutionDetail(router, status, error));
-  }
-
-  private void loopLoadGraphNodes(Map<String, List<String>> router,
-      Node<SagaRequest> node) {
-    if (node != null) {
-      if (isNodeValid(node)) {
-        List<String> point = router.computeIfAbsent(node.value().id(), key -> new ArrayList<>());
-        for (Node<SagaRequest> child : node.children()) {
-          point.add(child.value().id());
-          loopLoadGraphNodes(router, child);
-        }
-      }
-    }
-  }
-
-  private boolean isNodeValid(Node<SagaRequest> node) {
-    return !NoOpSagaRequest.SAGA_END_REQUEST.id().equals(node.value().id())
-        && node.children() != null && node.children().size() != 0;
+    return ResponseEntity.ok(queryService.querySagaExecutionDetail(sagaId));
   }
 
   @JsonAutoDetect(fieldVisibility = ANY, getterVisibility = NONE, setterVisibility = NONE)
@@ -248,7 +148,7 @@ public class SagaController {
     public int pageSize;
     public int totalPages;
 
-    public List<SagaExecution> requests = null;
+    public List<SagaExecution> requests;
 
     public SagaExecutionQueryResult() {
     }
