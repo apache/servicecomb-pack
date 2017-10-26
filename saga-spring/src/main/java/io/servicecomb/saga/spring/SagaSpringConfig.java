@@ -16,6 +16,14 @@
 
 package io.servicecomb.saga.spring;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
 import io.servicecomb.saga.core.JacksonToJsonFormat;
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.SagaDefinition;
@@ -28,12 +36,6 @@ import io.servicecomb.saga.format.JacksonSagaEventFormat;
 import io.servicecomb.saga.format.SagaEventFormat;
 import io.servicecomb.saga.transports.RestTransport;
 import io.servicecomb.saga.transports.TransportFactory;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 @Configuration
 class SagaSpringConfig {
@@ -61,6 +63,11 @@ class SagaSpringConfig {
   @Bean
   PersistentStore persistentStore(SagaEventRepo repo, ToJsonFormat toJsonFormat, SagaEventFormat eventFormat) {
     return new JpaPersistentStore(repo, toJsonFormat, eventFormat);
+  }
+
+  @Bean
+  SagaExecutionQueryService queryService(SagaEventRepo repo, FromJsonFormat<SagaDefinition> fromJsonFormat) {
+    return new SagaExecutionQueryService(repo, fromJsonFormat);
   }
 
   @Bean
