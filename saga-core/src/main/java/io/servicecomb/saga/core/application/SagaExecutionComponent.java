@@ -38,6 +38,7 @@ import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.EventStore;
 import io.servicecomb.saga.core.FallbackPolicy;
 import io.servicecomb.saga.core.LoggingRecoveryPolicy;
+import io.servicecomb.saga.core.PersistentLog;
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.RecoveryPolicy;
 import io.servicecomb.saga.core.RequestProcessTask;
@@ -139,8 +140,8 @@ public class SagaExecutionComponent {
     }
   }
 
-  private CompositeSagaLog compositeSagaLog(SagaLog sagaLog, PersistentStore persistentStore) {
-    return new CompositeSagaLog(sagaLog, persistentStore);
+  private CompositeSagaLog compositeSagaLog(SagaLog sagaLog, PersistentLog persistentLog) {
+    return new CompositeSagaLog(sagaLog, persistentLog);
   }
 
   private Map<String, SagaTask> sagaTasks(String sagaId, String requestJson, EventStore sagaLog, RecoveryPolicy recoveryPolicy) {
@@ -154,7 +155,7 @@ public class SagaExecutionComponent {
     }};
   }
 
-  static class RetrySagaLog implements PersistentStore {
+  static class RetrySagaLog implements PersistentLog {
 
     private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final PersistentStore persistentStore;
@@ -178,11 +179,6 @@ public class SagaExecutionComponent {
           sleep(retryDelay);
         }
       } while (!success && !isInterrupted());
-    }
-
-    @Override
-    public Map<String, List<EventEnvelope>> findPendingSagaEvents() {
-      return persistentStore.findPendingSagaEvents();
     }
 
     private boolean isInterrupted() {

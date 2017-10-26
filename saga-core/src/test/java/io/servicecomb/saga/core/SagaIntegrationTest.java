@@ -16,13 +16,14 @@
 
 package io.servicecomb.saga.core;
 
+import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
 import static io.servicecomb.saga.core.Operation.TYPE_REST;
-import static io.servicecomb.saga.core.SagaResponse.NONE_RESPONSE;
 import static io.servicecomb.saga.core.SagaEventMatcher.eventWith;
 import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
+import static io.servicecomb.saga.core.SagaResponse.NONE_RESPONSE;
 import static io.servicecomb.saga.core.SagaTask.SAGA_END_TASK;
 import static io.servicecomb.saga.core.SagaTask.SAGA_REQUEST_TASK;
 import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
@@ -32,10 +33,12 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -614,6 +617,28 @@ public class SagaIntegrationTest {
         eventWith(sagaId, SAGA_END_TRANSACTION, SagaEndedEvent.class)
     ));
 
+    verify(transaction1, never()).send(anyString(), any(SagaResponse.class));
+    verify(transaction2, never()).send(anyString(), any(SagaResponse.class));
+
+    verify(compensation1, never()).send(request1.serviceName());
+    verify(compensation2, never()).send(request2.serviceName());
+  }
+
+  @Test
+  public void failFastIfSagaLogIsDown() throws Exception {
+    SagaLog sagaLog = mock(SagaLog.class);
+    tasks.put(SAGA_START_TASK, new SagaStartTask(sagaId, requestJson, sagaLog));
+
+    doThrow(RuntimeException.class).when(sagaLog).offer(any(SagaStartedEvent.class));
+
+    try {
+      saga.run();
+      expectFailing(SagaStartFailedException.class);
+    } catch (SagaStartFailedException e) {
+      assertThat(e.getMessage(), is("Failed to persist SagaStartedEvent for " + requestJson));
+    }
+
+    verify(sagaLog).offer(any(SagaStartedEvent.class));
     verify(transaction1, never()).send(anyString(), any(SagaResponse.class));
     verify(transaction2, never()).send(anyString(), any(SagaResponse.class));
 
