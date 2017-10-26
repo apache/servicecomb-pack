@@ -22,8 +22,8 @@ import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static io.servicecomb.saga.core.Operation.SUCCESSFUL_SAGA_RESPONSE;
 import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
 import static io.servicecomb.saga.core.SagaResponse.NONE_RESPONSE;
-import static io.servicecomb.saga.core.actors.RequestActor.Messages.MESSAGE_ABORT;
-import static io.servicecomb.saga.core.actors.RequestActor.Messages.MESSAGE_COMPENSATE;
+import static io.servicecomb.saga.core.actors.messages.AbortMessage.MESSAGE_ABORT;
+import static io.servicecomb.saga.core.actors.messages.CompensateMessage.MESSAGE_COMPENSATE;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -53,6 +53,7 @@ import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SagaTask;
 import io.servicecomb.saga.core.TransactionFailedException;
+import io.servicecomb.saga.core.actors.messages.TransactMessage;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -103,10 +104,10 @@ public class RequestActorTest extends JUnitSuite {
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
-      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), parent);
+      actorRef.tell(new TransactMessage(request1, SUCCESSFUL_SAGA_RESPONSE), parent);
 
       List<SagaResponse> responses = receiveN(2, duration("2 seconds")).stream()
-          .map(o -> ((ResponseContext) o).response())
+          .map(o -> ((TransactMessage) o).response())
           .collect(Collectors.toList());
 
       assertThat(responses, containsInAnyOrder(response, response));
@@ -133,13 +134,13 @@ public class RequestActorTest extends JUnitSuite {
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
-      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), parent1);
+      actorRef.tell(new TransactMessage(request1, SUCCESSFUL_SAGA_RESPONSE), parent1);
       expectNoMsg(duration("500 milliseconds"));
 
-      actorRef.tell(new ResponseContext(request2, EMPTY_RESPONSE), parent2);
+      actorRef.tell(new TransactMessage(request2, EMPTY_RESPONSE), parent2);
 
       List<SagaResponse> responses = receiveN(2, duration("2 seconds")).stream()
-          .map(o -> ((ResponseContext) o).response())
+          .map(o -> ((TransactMessage) o).response())
           .collect(Collectors.toList());
 
       assertThat(responses, containsInAnyOrder(response, response));
@@ -165,7 +166,7 @@ public class RequestActorTest extends JUnitSuite {
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
-      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), parent);
+      actorRef.tell(new TransactMessage(request1, SUCCESSFUL_SAGA_RESPONSE), parent);
 
       expectMsgAllOf(duration("2 seconds"), MESSAGE_ABORT, MESSAGE_ABORT, MESSAGE_ABORT);
     }};
@@ -182,7 +183,7 @@ public class RequestActorTest extends JUnitSuite {
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
-      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), getRef());
+      actorRef.tell(new TransactMessage(request1, SUCCESSFUL_SAGA_RESPONSE), getRef());
       actorRef.tell(MESSAGE_ABORT, noSender());
       actorRef.tell(MESSAGE_COMPENSATE, getRef());
       actorRef.tell(MESSAGE_COMPENSATE, getRef());
@@ -223,10 +224,10 @@ public class RequestActorTest extends JUnitSuite {
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
-      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), getRef());
+      actorRef.tell(new TransactMessage(request1, SUCCESSFUL_SAGA_RESPONSE), getRef());
 
       List<SagaResponse> responses = receiveN(2, duration("2 seconds")).stream()
-          .map(o -> ((ResponseContext) o).response())
+          .map(o -> ((TransactMessage) o).response())
           .collect(Collectors.toList());
 
       assertThat(responses, containsInAnyOrder(NONE_RESPONSE, NONE_RESPONSE));
@@ -259,11 +260,11 @@ public class RequestActorTest extends JUnitSuite {
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
-      actorRef.tell(new ResponseContext(request1, SUCCESSFUL_SAGA_RESPONSE), parent1);
-      actorRef.tell(new ResponseContext(request2, SUCCESSFUL_SAGA_RESPONSE), parent2);
+      actorRef.tell(new TransactMessage(request1, SUCCESSFUL_SAGA_RESPONSE), parent1);
+      actorRef.tell(new TransactMessage(request2, SUCCESSFUL_SAGA_RESPONSE), parent2);
 
       List<SagaResponse> responses = receiveN(2, duration("2 seconds")).stream()
-          .map(o -> ((ResponseContext) o).response())
+          .map(o -> ((TransactMessage) o).response())
           .collect(Collectors.toList());
 
       assertThat(responses, containsInAnyOrder(response, response));

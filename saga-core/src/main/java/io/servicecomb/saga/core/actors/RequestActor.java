@@ -18,8 +18,8 @@ package io.servicecomb.saga.core.actors;
 
 import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
 import static io.servicecomb.saga.core.SagaResponse.NONE_RESPONSE;
-import static io.servicecomb.saga.core.actors.RequestActor.Messages.MESSAGE_ABORT;
-import static io.servicecomb.saga.core.actors.RequestActor.Messages.MESSAGE_COMPENSATE;
+import static io.servicecomb.saga.core.actors.messages.AbortMessage.MESSAGE_ABORT;
+import static io.servicecomb.saga.core.actors.messages.CompensateMessage.MESSAGE_COMPENSATE;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -31,6 +31,9 @@ import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SagaTask;
 import io.servicecomb.saga.core.TransactionFailedException;
+import io.servicecomb.saga.core.actors.messages.AbortMessage;
+import io.servicecomb.saga.core.actors.messages.CompensateMessage;
+import io.servicecomb.saga.core.actors.messages.TransactMessage;
 import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -71,12 +74,12 @@ public class RequestActor extends AbstractLoggingActor {
   @Override
   public Receive createReceive() {
     return receiveBuilder()
-        .match(ResponseContext.class, this::handleContext)
-        .match(Messages.class, MESSAGE_ABORT::equals, message -> getContext().become(aborted))
+        .match(TransactMessage.class, this::handleContext)
+        .match(AbortMessage.class, message -> getContext().become(aborted))
         .build();
   }
 
-  private void handleContext(ResponseContext parentContext) {
+  private void handleContext(TransactMessage parentContext) {
     if (context.parentsOf(request).contains(sender())) {
       parentResponses.add(parentContext.response());
     }
@@ -90,10 +93,10 @@ public class RequestActor extends AbstractLoggingActor {
     try {
       if (isChosenChild(parentResponses)) {
         SagaResponse sagaResponse = task.commit(request, responseOf(parentResponses));
-        context.childrenOf(request).forEach(actor -> actor.tell(new ResponseContext(request, sagaResponse), self()));
+        context.childrenOf(request).forEach(actor -> actor.tell(new TransactMessage(request, sagaResponse), self()));
         getContext().become(transacted);
       } else {
-        context.childrenOf(request).forEach(actor -> actor.tell(new ResponseContext(request, NONE_RESPONSE), self()));
+        context.childrenOf(request).forEach(actor -> actor.tell(new TransactMessage(request, NONE_RESPONSE), self()));
         getContext().become(aborted);
       }
     } catch (TransactionFailedException e) {
@@ -121,7 +124,7 @@ public class RequestActor extends AbstractLoggingActor {
 
   private Receive onReceive(Consumer<SagaRequest> requestConsumer) {
     return receiveBuilder()
-        .match(Messages.class, MESSAGE_COMPENSATE::equals, message -> onCompensate(requestConsumer))
+        .match(CompensateMessage.class, message -> onCompensate(requestConsumer))
         .build();
   }
 
@@ -132,10 +135,5 @@ public class RequestActor extends AbstractLoggingActor {
       requestConsumer.accept(request);
       context.parentsOf(request).forEach(actor -> actor.tell(MESSAGE_COMPENSATE, self()));
     }
-  }
-
-  enum Messages {
-    MESSAGE_COMPENSATE,
-    MESSAGE_ABORT
   }
 }
