@@ -49,6 +49,7 @@ import io.servicecomb.saga.core.SagaDefinition;
 import io.servicecomb.saga.core.SagaEndTask;
 import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.SagaLog;
+import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SagaStartTask;
 import io.servicecomb.saga.core.SagaTask;
 import io.servicecomb.saga.core.ToJsonFormat;
@@ -102,7 +103,7 @@ public class SagaExecutionComponent {
   }
 
   @Segment(name = "runSagaExecutionComponent", category = "application", library = "kamon")
-  public String run(String requestJson) {
+  public SagaResponse run(String requestJson) {
     String sagaId = UUID.randomUUID().toString();
     SagaContext sagaContext = new SagaContextImpl(childrenExtractor);
     EventStore sagaLog = new EmbeddedEventStore(sagaContext);

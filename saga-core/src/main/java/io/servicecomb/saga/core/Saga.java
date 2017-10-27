@@ -79,14 +79,14 @@ public class Saga {
   }
 
   @Segment(name = "runSaga", category = "application", library = "kamon")
-  public String run() {
-    String failureInfo = null;
+  public SagaResponse run() {
+    SagaResponse response = SagaResponse.EMPTY_RESPONSE;
     log.info("Starting Saga");
     do {
       try {
         currentTaskRunner.run();
       } catch (TransactionFailedException e) {
-        failureInfo = e.getMessage();
+        response = new FailedSagaResponse(e);
         log.error("Failed to run operation", e);
         currentTaskRunner = compensationTaskRunner;
 
@@ -97,7 +97,7 @@ public class Saga {
       }
     } while (currentTaskRunner.hasNext());
     log.info("Completed Saga");
-    return failureInfo;
+    return response;
   }
 
   public void play() {

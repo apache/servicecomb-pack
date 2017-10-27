@@ -44,6 +44,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 import io.servicecomb.provider.rest.common.RestSchema;
 import io.servicecomb.saga.core.SagaException;
+import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.application.SagaExecutionComponent;
 import io.servicecomb.swagger.invocation.exception.InvocationException;
 import io.swagger.annotations.ApiResponse;
@@ -80,11 +81,11 @@ public class SagaController {
   @RequestMapping(value = "requests", method = POST, consumes = TEXT_PLAIN_VALUE, produces = TEXT_PLAIN_VALUE)
   public ResponseEntity<String> processRequests(@RequestBody String request) {
     try {
-      String runResult = sagaExecutionComponent.run(request);
-      if (runResult == null) {
+      SagaResponse response = sagaExecutionComponent.run(request);
+      if (response.succeeded()) {
         return ResponseEntity.ok("success");
       } else {
-        throw new InvocationException(INTERNAL_SERVER_ERROR, runResult);
+        throw new InvocationException(INTERNAL_SERVER_ERROR, response.body());
       }
     } catch (SagaException se) {
       throw new InvocationException(BAD_REQUEST, se);
