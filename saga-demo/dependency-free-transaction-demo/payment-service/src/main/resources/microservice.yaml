@@ -1,7 +1,9 @@
-APPLICATION_ID: saga
+APPLICATION_ID: saga-crossapp
 service_description:
   name: payment-service
   version: 0.0.1
+  properties:
+    allowCrossApp: true
 cse:
   service:
     registry:
