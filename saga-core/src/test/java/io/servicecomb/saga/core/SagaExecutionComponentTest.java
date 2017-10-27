@@ -26,6 +26,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -158,8 +159,9 @@ public class SagaExecutionComponentTest {
 
   @Test
   public void runSagaWithEventStore() throws IOException {
-    coordinator.run(sagaJson);
+    SagaResponse response = coordinator.run(sagaJson);
 
+    assertThat(response, is(SagaResponse.EMPTY_RESPONSE));
     assertThat(eventStore, contains(
         eventWith(SAGA_START_REQUEST, SagaStartedEvent.class),
         eventWith(request1, TransactionStartedEvent.class),

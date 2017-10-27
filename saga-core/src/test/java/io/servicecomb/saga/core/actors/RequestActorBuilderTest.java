@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -59,7 +58,6 @@ import akka.actor.ActorSystem;
 import akka.testkit.javadsl.TestKit;
 
 @SuppressWarnings("unchecked")
-@Ignore
 public class RequestActorBuilderTest extends JUnitSuite {
   private static final ActorSystem actorSystem = ActorSystem.create();
 
