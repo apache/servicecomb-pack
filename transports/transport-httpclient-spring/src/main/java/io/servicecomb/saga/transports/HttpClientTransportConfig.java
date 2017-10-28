@@ -16,17 +16,22 @@
 
 package io.servicecomb.saga.transports;
 
-import io.servicecomb.saga.transports.httpclient.HttpClientTransport;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import io.servicecomb.saga.transports.httpclient.HttpClientTransport;
+
 @Configuration
 public class HttpClientTransportConfig {
+
+  @Value("${saga.request.timeout:30000}")
+  private int requestTimeout;
 
   @Bean
   @ConditionalOnMissingBean(RestTransport.class)
   RestTransport transport() {
-    return new HttpClientTransport();
+    return new HttpClientTransport(requestTimeout);
   }
 }

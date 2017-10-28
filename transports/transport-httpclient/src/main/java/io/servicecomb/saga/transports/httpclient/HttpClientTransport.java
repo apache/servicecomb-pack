@@ -16,10 +16,6 @@
 
 package io.servicecomb.saga.transports.httpclient;
 
-import io.servicecomb.saga.core.SagaResponse;
-import io.servicecomb.saga.core.SuccessfulSagaResponse;
-import io.servicecomb.saga.core.TransportFailedException;
-import io.servicecomb.saga.transports.RestTransport;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
@@ -28,8 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
-import kamon.annotation.EnableKamon;
-import kamon.annotation.Segment;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
@@ -37,9 +32,18 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.core.util.IOUtils;
 
+import io.servicecomb.saga.core.SagaResponse;
+import io.servicecomb.saga.core.SuccessfulSagaResponse;
+import io.servicecomb.saga.core.TransportFailedException;
+import io.servicecomb.saga.transports.RestTransport;
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Segment;
+
 @EnableKamon
 public class HttpClientTransport implements RestTransport {
 
+  private int requestTimeout;
+  private static final int DEFAULT_REQUEST_TIMEOUT = 30000;
 
   private static final Map<String, Function<URI, Request>> requestFactories = new HashMap<String, Function<URI, Request>>() {{
     put("GET", Request::Get);
@@ -47,6 +51,14 @@ public class HttpClientTransport implements RestTransport {
     put("PUT", Request::Put);
     put("DELETE", Request::Delete);
   }};
+
+  public HttpClientTransport() {
+    this(DEFAULT_REQUEST_TIMEOUT);
+  }
+
+  public HttpClientTransport(int requestTimeout) {
+    this.requestTimeout = requestTimeout;
+  }
 
   @Segment(name = "transport", category = "network", library = "kamon")
   @Override
@@ -65,6 +77,7 @@ public class HttpClientTransport implements RestTransport {
           method.toUpperCase(),
           exceptionThrowingFunction(method)).apply(uri);
 
+      request.socketTimeout(requestTimeout);
       if (params.containsKey("json")) {
         request.bodyString(params.get("json").get("body"), ContentType.APPLICATION_JSON);
       }
