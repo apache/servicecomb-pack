@@ -31,21 +31,24 @@ import static java.util.Collections.singletonMap;
 import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import io.servicecomb.saga.core.SagaResponse;
-import io.servicecomb.saga.core.TransportFailedException;
-import io.servicecomb.saga.transports.RestTransport;
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+
+import io.servicecomb.saga.core.SagaResponse;
+import io.servicecomb.saga.core.TransportFailedException;
+import io.servicecomb.saga.transports.RestTransport;
 
 public class HttpClientTransportTest {
 
@@ -54,6 +57,7 @@ public class HttpClientTransportTest {
 
   private static final String usableResource = "/rest/usableResource";
   private static final String faultyResource = "/rest/faultyResource";
+  private static final String slowResource = "/rest/slowResource";
   private static final String usableResponse = "hello world";
   private static final String faultyResponse = "no such resource";
   private static final String json = "{\"hello\", \"world\"}";
@@ -87,6 +91,12 @@ public class HttpClientTransportTest {
             aResponse()
                 .withStatus(SC_OK)
                 .withBody(usableResponse)));
+
+    stubFor(get(urlPathEqualTo(slowResource))
+        .willReturn(
+            aResponse()
+                .withStatus(SC_OK)
+                .withFixedDelay(2000)));
   }
 
   @Before
@@ -157,6 +167,17 @@ public class HttpClientTransportTest {
       expectFailing(TransportFailedException.class);
     } catch (TransportFailedException e) {
       assertThat(e.getMessage(), is("Wrong request URI"));
+    }
+  }
+
+  @Test
+  public void blowsUpWhenRequestTimeout() {
+    HttpClientTransport transportWithShortTimeout = new HttpClientTransport(1000);
+    try {
+      transportWithShortTimeout.with(address, slowResource, "GET", emptyMap());
+      expectFailing(TransportFailedException.class);
+    } catch (TransportFailedException e) {
+      assertThat(SocketTimeoutException.class.isInstance(e.getCause()), is(true));
     }
   }
 
