@@ -40,9 +40,7 @@ public class ContextAwareEventStore implements EventStore {
 
   @Override
   public void populate(Iterable<EventEnvelope> events) {
-    for (EventEnvelope event : events) {
-      eventStore.offer(event.event);
-    }
+    eventStore.populate(events);
   }
 
   @Override
