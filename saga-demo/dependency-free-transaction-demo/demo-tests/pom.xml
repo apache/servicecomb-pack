@@ -110,7 +110,7 @@
                   <JAVA_OPTS />
                 </env>
                 <wait>
-                  <log>Tomcat started on port</log>
+                  <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
                   <tcp>
                     <ports>
                       <port>8080</port>
@@ -134,7 +134,7 @@
                   <JAVA_OPTS />
                 </env>
                 <wait>
-                  <log>Tomcat started on port</log>
+                  <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
                   <tcp>
                     <ports>
                       <port>8080</port>
@@ -158,7 +158,7 @@
                   <JAVA_OPTS />
                 </env>
                 <wait>
-                  <log>Tomcat started on port</log>
+                  <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
                   <tcp>
                     <ports>
                       <port>8080</port>
@@ -182,7 +182,7 @@
                   <JAVA_OPTS />
                 </env>
                 <wait>
-                  <log>Tomcat started on port</log>
+                  <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
                   <tcp>
                     <ports>
                       <port>8080</port>
@@ -217,7 +217,7 @@
                   <link>payment:payment.servicecomb.io</link>
                 </links>
                 <wait>
-                  <log>Tomcat started on port</log>
+                  <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
                   <tcp>
                     <ports>
                       <port>8080</port>
