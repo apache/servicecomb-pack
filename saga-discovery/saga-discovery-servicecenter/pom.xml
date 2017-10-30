@@ -19,7 +19,7 @@
   <parent>
     <artifactId>saga-discovery</artifactId>
     <groupId>io.servicecomb.saga.discovery</groupId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.2</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
