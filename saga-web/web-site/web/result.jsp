@@ -27,6 +27,7 @@
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <%--<script src="/js/examples.js"></script>--%>
     <script src="assets/bootstrap-table.js"></script>
+	<script src="js/date.js"></script>
 
 
 </head>
@@ -41,11 +42,11 @@
     <table>
         <tr>
             <td>From:</td>
-            <td><input title="Saga Start Time From" id="startTime" type="datetime-local"/></td>
+            <td><input title="Saga Start Time From" id="startTime" onclick="SetDate(this,'yyyy-MM-dd hh:mm')"/></td>
             <td>To:</td>
-            <td><input title="Saga End Time From" id="endTime" type="datetime-local"/></td>
+            <td><input title="Saga End Time From" id="endTime"  onclick="SetDate(this,'yyyy-MM-dd hh:mm')"/></td>
             <td>
-                <button onclick="refresh(this)">Search</button>
+                <button onClick="refresh(this)">Search</button>
             </td>
         </tr>
     </table>
