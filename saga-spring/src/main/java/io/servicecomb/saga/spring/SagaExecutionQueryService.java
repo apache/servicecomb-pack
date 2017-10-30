@@ -145,6 +145,6 @@ public class SagaExecutionQueryService {
   }
 
   private boolean isNodeValid(Node<SagaRequest> node) {
-    return node.children() != null && node.children().size() != 0;
+    return !node.children().isEmpty();
   }
 }
