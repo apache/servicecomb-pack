@@ -42,7 +42,7 @@ import kamon.annotation.Segment;
 @EnableKamon
 public class HttpClientTransport implements RestTransport {
 
-  private int requestTimeout;
+  private final int requestTimeout;
   private static final int DEFAULT_REQUEST_TIMEOUT = 30000;
 
   private static final Map<String, Function<URI, Request>> requestFactories = new HashMap<String, Function<URI, Request>>() {{
