@@ -20,7 +20,7 @@ import io.servicecomb.saga.core.DummyEvent;
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.SagaRequest;
-import io.servicecomb.saga.core.application.SagaExecutionComponent.RetrySagaLog;
+import io.servicecomb.saga.core.application.SagaTaskFactory.RetrySagaLog;
 
 public class RetrySagaLogTest {
 
