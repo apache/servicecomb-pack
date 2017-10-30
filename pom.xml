@@ -44,10 +44,29 @@
     <spring.version>4.3.7.RELEASE</spring.version>
   </properties>
 
+  <name>ServiceComb Saga</name>
+  <description>Eventual consistency component for distributed systems</description>
+  <url>https://github.com/ServiceComb/ServiceComb-Saga</url>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>The ServiceComb Developer Team</name>
+      <email>dev@servicecomb.io</email>
+    </developer>
+  </developers>
+
   <scm>
-    <connection>scm:git:https://github.com/ServiceComb/saga.git</connection>
-    <developerConnection>scm:git:https://github.com/ServiceComb/saga.git</developerConnection>
-    <url>https://github.com/servicecomb/saga</url>
+    <connection>scm:git:https://github.com/ServiceComb/ServiceComb-Saga.git</connection>
+    <developerConnection>scm:git:https://github.com/ServiceComb/ServiceComb-Saga.git</developerConnection>
+    <url>https://github.com/ServiceComb/ServiceComb-Saga</url>
     <tag>${project.version}</tag>
   </scm>
 
