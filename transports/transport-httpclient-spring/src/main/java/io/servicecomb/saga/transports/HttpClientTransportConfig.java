@@ -26,8 +26,11 @@ import io.servicecomb.saga.transports.httpclient.HttpClientTransport;
 @Configuration
 public class HttpClientTransportConfig {
 
-  @Value("${saga.request.timeout:30000}")
-  private int requestTimeout;
+  private final int requestTimeout;
+
+  public HttpClientTransportConfig(@Value("${saga.request.timeout:30000}") int requestTimeout) {
+    this.requestTimeout = requestTimeout;
+  }
 
   @Bean
   @ConditionalOnMissingBean(RestTransport.class)
