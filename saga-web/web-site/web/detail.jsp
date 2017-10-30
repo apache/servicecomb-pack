@@ -19,44 +19,127 @@
 <html>
 <head>
     <title>Detail</title>
-    <script type="text/javascript" src="assets/raphael.min.js"></script>
+    <!--<script type="text/javascript" src="assets/raphael.min.js"></script>
     <script type="text/javascript" src="assets/graffle.js"></script>
-    <script type="text/javascript" src="assets/graph.js"></script>
+    <script type="text/javascript" src="assets/graph.js"></script>-->
+    <script type="text/javascript" src="assets/jquery.min.js"></script>
+    <script type="text/javascript" src="assets/dracula.min.js"></script>
+    <!--  The Raphael JavaScript library for vector graphics display  -->
+    <script type="text/javascript" src="assets/raphael-min.js"></script>
+    <!--  Dracula  -->
+    <!--  An extension of Raphael for connecting shapes -->
+    <script type="text/javascript" src="assets/dracula_graffle.js"></script>
+    <!--  Graphs  -->
+    <script type="text/javascript" src="assets/dracula_graph.js"></script>
+    <script type="text/javascript" src="assets/dracula_algorithms.js"></script>
     <script type="text/javascript">
-      <!--
+    var redraw;
+    var height = 300;
+    var width = 400;
 
-      var redraw;
-      var height = 300;
-      var width = 400;
+	var host_url = window.location.host;
+	var url = "http://"+host_url+":8080/requests/b";
+	var render = function(r, n) {
+		/* the Raphael set is obligatory, containing all you want to display */
+		var set = r.set().push(
+			/* custom objects go here */
+			r.rect(n.point[0]-30, n.point[1]-13, 60, 44).attr({"fill": "#5b9bd5", r : "12px", "stroke-width" : n.distance == 0 ? "3px" : "1px" })).push(
+			r.text(n.point[0], n.point[1] + 10, (n.label || n.id)));
+		return set;
+	};
+	
+	var render_false = function(r, n) {
+		/* the Raphael set is obligatory, containing all you want to display */
+		var set = r.set().push(
+			/* custom objects go here */
+			r.rect(n.point[0]-30, n.point[1]-13, 60, 44).attr({"fill": "#d16d2a", r : "12px", "stroke-width" : n.distance == 0 ? "3px" : "1px" })).push(
+			r.text(n.point[0], n.point[1] + 10, (n.label || n.id)));
+		return set;
+	};
+	
+	var render_no = function(r, n) {
+		/* the Raphael set is obligatory, containing all you want to display */
+		var set = r.set().push(
+			/* custom objects go here */
+			r.rect(n.point[0]-30, n.point[1]-13, 60, 44).attr({"fill": "#f2f2f2", r : "12px", "stroke-width" : n.distance == 0 ? "3px" : "1px" })).push(
+			r.text(n.point[0], n.point[1] + 10, (n.label || n.id)));
+		return set;
+	};
+    
+    var g = new Graph();
+	/* modify the edge creation to attach random weights */
+    g.edgeFactory.build = function(source, target) {
+		var e = jQuery.extend(true, {}, this.template);
+		e.source = source;
+		e.target = target;
+		e.style.label = e.weight = Math.floor(Math.random() * 10) + 1;
+		return e;
+    }
+    
+    /* modify the edge creation to attach random weights */
+    g.edgeFactory.build = function(source, target) {
+		var e = jQuery.extend(true, {}, this.template);
+		e.source = source;
+		e.target = target;
+		e.style.label = e.weight = Math.floor(Math.random() * 10) + 1;
+		return e;
+    }
+	
+    window.onload = function () {
+		$.ajax({
+			type: 'GET',
+			url: url,
+			dataType: "json",
+			success:function(datas){
+				console.log(datas);
+				//var datas = {"router":{"request-aaa":["request-bbb"],"saga-start":["request-aaa"],"request-bbb":["saga-end"]},"status":{"request-aaa":"OK","request-bbb":"OK"},"error":{}};
+				var datas_status = datas.status;
+				$.each(datas.router,function(key,value){
+					if(datas_status[key] == 'Failed'){
+						g.addNode(key, {render:render_no});
+						g.addNode(value, {render:render_no});
+						g.addEdge(key, value, {
+							stroke: '#adadad',
+							//fill: '#f2f2f2',
+							label: '',
+							directed : true
+						});
+					}else if(datas_status[value] == 'Failed'){
+						g.addNode(key, {render:render});
+						g.addNode(value, {render:render_false});
+						g.addEdge(key, value, {
+							stroke: '#adadad',
+							//fill: '#f2f2f2',
+							label: '',
+							directed : true
+						});
+					}else{
+						g.addNode(key, {render:render});
+						g.addNode(value, {render:render});
+						g.addEdge(key, value, {
+							stroke: '#5b9bd5',
+							//fill: '#5b9bd5',
+							label: '',
+							directed : true
+						});	
+					}
+				})
 
-      /* only do all this when document has finished loading (needed for RaphaelJS */
-      window.onload = function () {
+				/* layout the graph using the Spring layout implementation */
+				var layouter = new Graph.Layout.Spring(g);
+				layouter.layout();
 
-        var g = new Graph();
+				/* draw the graph using the RaphaelJS draw implementation */
+				var renderer = new Graph.Renderer.Raphael('canvas', g, width, height);
+				renderer.draw();
 
-        g.addEdge("cherry", "apple");
-        g.addEdge("strawberry", "cherry");
-        g.addEdge("strawberry", "apple");
-        g.addEdge("strawberry", "tomato");
-        g.addEdge("tomato", "apple");
-        g.addEdge("cherry", "kiwi");
-        g.addEdge("tomato", "kiwi");
-
-        /* layout the graph using the Spring layout implementation */
-        var layouter = new Graph.Layout.Spring(g);
-        layouter.layout();
-
-        /* draw the graph using the RaphaelJS draw implementation */
-        var renderer = new Graph.Renderer.Raphael('canvas', g, width, height);
-        renderer.draw();
-
-        redraw = function () {
-          layouter.layout();
-          renderer.draw();
-        };
-      };
-
-      -->
+				redraw = function () {
+				layouter.layout();
+					renderer.draw();
+				};
+			}
+		});
+    };
     </script>
 </head>
 <body>
