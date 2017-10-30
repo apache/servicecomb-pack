@@ -62,6 +62,7 @@ import com.seanyinx.github.unit.scaffolding.Randomness;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
+import io.servicecomb.saga.infrastructure.ContextAwareEventStore;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 
 @SuppressWarnings("unchecked")
@@ -71,7 +72,8 @@ public class SagaIntegrationTest {
   private final FromJsonFormat<Set<String>> childrenExtractor = mock(FromJsonFormat.class);
   private final SagaContext sagaContext = new SagaContextImpl(childrenExtractor);
   private final IdGenerator<Long> idGenerator = new LongIdGenerator();
-  private final EventStore eventStore = new EmbeddedEventStore(sagaContext);
+  private final EventStore eventStore = new EmbeddedEventStore();
+  private final ContextAwareEventStore sagaLog = new ContextAwareEventStore(eventStore, sagaContext);
 
   private final Transaction transaction1 = mock(Transaction.class, "transaction1");
   private final Transaction transaction2 = mock(Transaction.class, "transaction2");
@@ -130,8 +132,8 @@ public class SagaIntegrationTest {
     node1.addChild(node2);
     node2.addChild(leaf);
 
-    SagaStartTask sagaStartTask = new SagaStartTask(sagaId, requestJson, eventStore);
-    SagaEndTask sagaEndTask = new SagaEndTask(sagaId, eventStore);
+    SagaStartTask sagaStartTask = new SagaStartTask(sagaId, requestJson, sagaLog);
+    SagaEndTask sagaEndTask = new SagaEndTask(sagaId, sagaLog);
     RequestProcessTask processTask = requestProcessTask(new BackwardRecovery());
 
     tasks.put(SAGA_START_TASK, sagaStartTask);
@@ -682,6 +684,6 @@ public class SagaIntegrationTest {
   }
 
   private RequestProcessTask requestProcessTask(RecoveryPolicy recoveryPolicy) {
-    return new RequestProcessTask(sagaId, eventStore, recoveryPolicy, new FallbackPolicy(100));
+    return new RequestProcessTask(sagaId, sagaLog, recoveryPolicy, new FallbackPolicy(100));
   }
 }
