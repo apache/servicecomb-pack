@@ -127,7 +127,6 @@ public class SagaController {
 
   @ApiResponses({
       @ApiResponse(code = 200, response = String.class, message = "success"),
-      @ApiResponse(code = 200, response = String.class, message = "success"),
   })
   @RequestMapping(value = "requests/{sagaId}", method = GET)
   public ResponseEntity<SagaExecutionDetail> queryExecutionDetail(@PathVariable String sagaId) {
