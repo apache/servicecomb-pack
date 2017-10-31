@@ -19,6 +19,8 @@ package io.servicecomb.saga.spring;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,6 +59,7 @@ import io.servicecomb.swagger.invocation.exception.InvocationException;
 public class SagaExecutionQueryService {
   private final SagaEventRepo repo;
   private final FromJsonFormat<SagaDefinition> fromJsonFormat;
+  private final SimpleDateFormat dateFormat;
 
   private final ObjectMapper mapper = new ObjectMapper();
   private final GraphBuilder graphBuilder = new GraphBuilder(new GraphCycleDetectorImpl<>());
@@ -65,14 +68,18 @@ public class SagaExecutionQueryService {
   public SagaExecutionQueryService(SagaEventRepo repo, FromJsonFormat<SagaDefinition> fromJsonFormat) {
     this.repo = repo;
     this.fromJsonFormat = fromJsonFormat;
+    this.dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
   }
 
   public SagaExecutionQueryResult querySagaExecution(String pageIndex, String pageSize,
-      String startTime, String endTime) {
+      String startTime, String endTime) throws ParseException {
+
+    Date start = "NaN-NaN-NaN NaN:NaN:NaN".equals(startTime) ? new Date(0) : this.dateFormat.parse(startTime);
+    Date end = "NaN-NaN-NaN NaN:NaN:NaN".equals(endTime) ? new Date(Long.MAX_VALUE) : this.dateFormat.parse(endTime);
+
     List<SagaExecution> requests = new ArrayList<>();
     Page<SagaEventEntity> startEvents = repo.findByTypeAndCreationTimeBetweenOrderByIdDesc(
-        SagaStartedEvent.class.getSimpleName(),
-        new Date(Long.parseLong(startTime)), new Date(Long.parseLong(endTime)),
+        SagaStartedEvent.class.getSimpleName(), start, end,
         new PageRequest(Integer.parseInt(pageIndex), Integer.parseInt(pageSize)));
     for (SagaEventEntity event : startEvents) {
       SagaEventEntity endEvent = repo
