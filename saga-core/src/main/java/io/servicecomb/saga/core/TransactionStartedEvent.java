@@ -23,7 +23,7 @@ public class TransactionStartedEvent extends SagaEvent {
   }
 
   @Override
-  public void gatherTo(SagaContext sagaContext) {
+  public void gatherTo(EventContext sagaContext) {
     sagaContext.beginTransaction(payload());
   }
 

@@ -22,22 +22,23 @@ import java.util.concurrent.ExecutorService;
 
 import io.servicecomb.saga.core.EventStore;
 import io.servicecomb.saga.core.PersistentStore;
-import io.servicecomb.saga.core.Saga;
+import io.servicecomb.saga.core.GraphBasedSaga;
 import io.servicecomb.saga.core.SagaContext;
 import io.servicecomb.saga.core.SagaContextImpl;
 import io.servicecomb.saga.core.SagaDefinition;
+import io.servicecomb.saga.core.SagaTaskFactory;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.core.dag.GraphCycleDetectorImpl;
 import io.servicecomb.saga.infrastructure.ContextAwareEventStore;
 
-class SagaFactory {
+class GraphBasedSagaFactory {
   private final FromJsonFormat<Set<String>> childrenExtractor;
   private final Executor executorService;
   private final GraphBuilder graphBuilder;
   private final SagaTaskFactory sagaTaskFactory;
   private final PersistentStore persistentStore;
 
-  SagaFactory(int retryDelay,
+  GraphBasedSagaFactory(int retryDelay,
       PersistentStore persistentStore,
       FromJsonFormat<Set<String>> childrenExtractor,
       ExecutorService executorService) {
@@ -49,10 +50,10 @@ class SagaFactory {
     this.graphBuilder = new GraphBuilder(new GraphCycleDetectorImpl<>());
   }
 
-  Saga createSaga(String requestJson, String sagaId, EventStore sagaLog, SagaDefinition definition) {
+  public GraphBasedSaga createSaga(String requestJson, String sagaId, EventStore sagaLog, SagaDefinition definition) {
     SagaContext sagaContext = new SagaContextImpl(childrenExtractor);
 
-    return new Saga(
+    return new GraphBasedSaga(
         sagaLog,
         executorService,
         sagaTaskFactory.sagaTasks(sagaId,

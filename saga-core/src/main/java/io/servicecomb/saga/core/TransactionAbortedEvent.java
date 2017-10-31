@@ -31,9 +31,9 @@ public class TransactionAbortedEvent extends SagaEvent {
   }
 
   @Override
-  public void gatherTo(SagaContext sagaContext) {
+  public void gatherTo(EventContext sagaContext) {
     // remove from completed operations in order not to compensate it
-    sagaContext.abortTransaction(payload());
+    sagaContext.abortTransaction(payload(), response);
   }
 
   @Override

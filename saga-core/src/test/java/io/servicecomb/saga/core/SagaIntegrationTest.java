@@ -111,7 +111,7 @@ public class SagaIntegrationTest {
   private final Node<SagaRequest> leaf = new Node<>(5, SAGA_END_REQUEST);
   private final SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph = new SingleLeafDirectedAcyclicGraph<>(root, leaf);
 
-  private Saga saga;
+  private GraphBasedSaga saga;
   private final Map<String, SagaTask> tasks = new HashMap<>();
 
   // root - node1 - node2 - leaf
@@ -140,7 +140,7 @@ public class SagaIntegrationTest {
     tasks.put(SAGA_REQUEST_TASK, processTask);
     tasks.put(SAGA_END_TASK, sagaEndTask);
 
-    saga = new Saga(eventStore, tasks, sagaContext, sagaTaskGraph);
+    saga = new GraphBasedSaga(eventStore, tasks, sagaContext, sagaTaskGraph);
   }
 
   @Test

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core.application;
+package io.servicecomb.saga.core;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static org.mockito.Mockito.doThrow;
@@ -22,9 +22,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import io.servicecomb.saga.core.DummyEvent;
-import io.servicecomb.saga.core.SagaLog;
-import io.servicecomb.saga.core.SagaRequest;
 import org.junit.Test;
 
 public class CompositeSagaLogTest {

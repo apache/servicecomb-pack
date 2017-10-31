@@ -16,5 +16,5 @@
 
 package io.servicecomb.saga.core.actors.messages;
 
-interface Message {
+public interface Message {
 }
