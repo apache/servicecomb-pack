@@ -23,19 +23,20 @@ import java.util.concurrent.CompletableFuture;
 
 import io.servicecomb.saga.core.EventContext;
 import io.servicecomb.saga.core.EventStore;
+import io.servicecomb.saga.core.Saga;
 import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.actors.messages.TransactMessage;
 import akka.actor.ActorRef;
 
-public class Saga {
+public class ActorBasedSaga implements Saga {
   private final ActorRef root;
   private final ActorRef completionCallback;
   private final CompletableFuture<SagaResponse> future;
   private final EventStore sagaLog;
   private final EventContext sagaContext;
 
-  Saga(ActorRef root, ActorRef completionCallback, CompletableFuture<SagaResponse> future, EventStore sagaLog,
+  ActorBasedSaga(ActorRef root, ActorRef completionCallback, CompletableFuture<SagaResponse> future, EventStore sagaLog,
       EventContext sagaContext) {
     this.root = root;
     this.completionCallback = completionCallback;
@@ -44,13 +45,15 @@ public class Saga {
     this.sagaContext = sagaContext;
   }
 
-  SagaResponse run() {
+  @Override
+  public SagaResponse run() {
     root.tell(new TransactMessage(SAGA_START_REQUEST, EMPTY_RESPONSE), completionCallback);
 
     return future.join();
   }
 
-  void play() {
+  @Override
+  public void play() {
     gatherEvents(sagaLog);
   }
 

@@ -28,13 +28,14 @@ import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SagaTaskFactory;
 import io.servicecomb.saga.core.actors.messages.CompensateMessage;
 import io.servicecomb.saga.core.actors.messages.TransactMessage;
+import io.servicecomb.saga.core.application.SagaFactory;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 
-public class ActorBasedSagaFactory {
+public class ActorBasedSagaFactory implements SagaFactory {
   private final ActorSystem actorSystem = ActorSystem.create("saga");
   private final PersistentStore persistentStore;
   private final RequestActorBuilder actorBuilder;
@@ -49,8 +50,8 @@ public class ActorBasedSagaFactory {
     this.actorBuilder = new RequestActorBuilder(actorSystem, childrenExtractor);
   }
 
-
-  Saga createSaga(String requestJson, String sagaId, EventStore sagaLog, SagaDefinition definition) {
+  @Override
+  public ActorBasedSaga createSaga(String requestJson, String sagaId, EventStore sagaLog, SagaDefinition definition) {
 
     CompletableFuture<SagaResponse> future = new CompletableFuture<>();
     ActorRef completionCallback = actorSystem.actorOf(CompletionCallbackActor.props(future));
@@ -63,7 +64,7 @@ public class ActorBasedSagaFactory {
             persistentStore),
         completionCallback);
 
-    return new Saga(root, completionCallback, future, sagaLog, new EventContextImpl(null));
+    return new ActorBasedSaga(root, completionCallback, future, sagaLog, new EventContextImpl(null));
   }
 
   static class CompletionCallbackActor extends AbstractLoggingActor {

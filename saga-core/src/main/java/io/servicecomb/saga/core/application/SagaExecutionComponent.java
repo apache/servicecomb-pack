@@ -27,7 +27,7 @@ import java.util.concurrent.Executors;
 import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.EventStore;
 import io.servicecomb.saga.core.PersistentStore;
-import io.servicecomb.saga.core.GraphBasedSaga;
+import io.servicecomb.saga.core.Saga;
 import io.servicecomb.saga.core.SagaDefinition;
 import io.servicecomb.saga.core.SagaEvent;
 import io.servicecomb.saga.core.SagaResponse;
@@ -43,7 +43,7 @@ public class SagaExecutionComponent {
   private final PersistentStore persistentStore;
   private final FromJsonFormat<SagaDefinition> fromJsonFormat;
   private final ToJsonFormat toJsonFormat;
-  private final GraphBasedSagaFactory sagaFactory;
+  private final SagaFactory sagaFactory;
 
   public SagaExecutionComponent(
       PersistentStore persistentStore,
@@ -77,7 +77,7 @@ public class SagaExecutionComponent {
     String sagaId = UUID.randomUUID().toString();
     EventStore sagaLog = new EmbeddedEventStore();
     SagaDefinition definition = fromJsonFormat.fromJson(requestJson);
-    GraphBasedSaga saga = sagaFactory.createSaga(requestJson, sagaId, sagaLog, definition);
+    Saga saga = sagaFactory.createSaga(requestJson, sagaId, sagaLog, definition);
     return saga.run();
   }
 
@@ -92,7 +92,7 @@ public class SagaExecutionComponent {
       String requestJson = event.json(toJsonFormat);
       SagaDefinition definition = fromJsonFormat.fromJson(requestJson);
 
-      GraphBasedSaga saga = sagaFactory.createSaga(requestJson, event.sagaId, eventStore, definition);
+      Saga saga = sagaFactory.createSaga(requestJson, event.sagaId, eventStore, definition);
 
       saga.play();
       saga.run();
