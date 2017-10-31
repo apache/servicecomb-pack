@@ -61,8 +61,8 @@ class GraphBasedSagaFactory implements SagaFactory {
         sagaTaskFactory.sagaTasks(sagaId,
             requestJson,
             definition.policy(),
-            new ContextAwareEventStore(sagaLog, sagaContext),
-            persistentStore),
+            new ContextAwareEventStore(sagaLog, sagaContext)
+        ),
         sagaContext,
         graphBuilder.build(definition.requests()));
   }

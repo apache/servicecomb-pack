@@ -16,7 +16,9 @@
 
 package io.servicecomb.saga.core.actors;
 
-import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
+import static akka.actor.ActorRef.noSender;
+import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
+import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
 
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -26,25 +28,19 @@ import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.SagaDefinition;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SagaTaskFactory;
-import io.servicecomb.saga.core.actors.messages.CompensateMessage;
-import io.servicecomb.saga.core.actors.messages.TransactMessage;
 import io.servicecomb.saga.core.application.SagaFactory;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
-import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import akka.actor.Props;
 
 public class ActorBasedSagaFactory implements SagaFactory {
   private final ActorSystem actorSystem = ActorSystem.create("saga");
-  private final PersistentStore persistentStore;
   private final RequestActorBuilder actorBuilder;
   private final SagaTaskFactory sagaTaskFactory;
 
   public ActorBasedSagaFactory(int retryDelay,
       PersistentStore persistentStore,
       FromJsonFormat<Set<String>> childrenExtractor) {
-    this.persistentStore = persistentStore;
 
     this.sagaTaskFactory = new SagaTaskFactory(retryDelay, persistentStore);
     this.actorBuilder = new RequestActorBuilder(actorSystem, childrenExtractor);
@@ -55,35 +51,21 @@ public class ActorBasedSagaFactory implements SagaFactory {
 
     CompletableFuture<SagaResponse> future = new CompletableFuture<>();
     ActorRef completionCallback = actorSystem.actorOf(CompletionCallbackActor.props(future));
-    ActorRef root = actorBuilder.build(
+    RequestActorContext context = actorBuilder.build(
         definition.requests(),
         sagaTaskFactory.sagaTasks(sagaId,
             requestJson,
             definition.policy(),
-            sagaLog,
-            persistentStore),
+            sagaLog
+        ),
         completionCallback);
 
-    return new ActorBasedSaga(root, completionCallback, future, sagaLog, new EventContextImpl(null));
-  }
-
-  static class CompletionCallbackActor extends AbstractLoggingActor {
-    private final CompletableFuture<SagaResponse> future;
-
-    CompletionCallbackActor(CompletableFuture<SagaResponse> future) {
-      this.future = future;
-    }
-
-    static Props props(CompletableFuture<SagaResponse> future) {
-      return Props.create(CompletionCallbackActor.class, () -> new CompletionCallbackActor(future));
-    }
-
-    @Override
-    public Receive createReceive() {
-      return receiveBuilder()
-          .match(CompensateMessage.class, message -> future.complete(EMPTY_RESPONSE))
-          .match(TransactMessage.class, message -> future.complete(message.response()))
-          .build();
-    }
+    completionCallback.tell(context.actorOf(SAGA_END_REQUEST.id()), noSender());
+    return new ActorBasedSaga(
+        context.actorOf(SAGA_START_REQUEST.id()),
+        completionCallback,
+        future,
+        sagaLog,
+        new EventContextImpl(context));
   }
 }

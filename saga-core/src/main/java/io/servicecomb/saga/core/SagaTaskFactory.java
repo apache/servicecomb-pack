@@ -30,8 +30,11 @@ import org.slf4j.LoggerFactory;
 public class SagaTaskFactory {
   private final FallbackPolicy fallbackPolicy;
   private final RetrySagaLog retrySagaLog;
+  private final PersistentStore persistentStore;
 
   public SagaTaskFactory(int retryDelay, PersistentStore persistentStore) {
+    this.persistentStore = persistentStore;
+
     fallbackPolicy = new FallbackPolicy(retryDelay);
     retrySagaLog = new RetrySagaLog(persistentStore, retryDelay);
   }
@@ -39,8 +42,7 @@ public class SagaTaskFactory {
   public Map<String, SagaTask> sagaTasks(String sagaId,
       String requestJson,
       RecoveryPolicy recoveryPolicy,
-      EventStore sagaLog,
-      PersistentStore persistentStore) {
+      EventStore sagaLog) {
 
     SagaLog compositeSagaLog = compositeSagaLog(sagaLog, persistentStore);
 

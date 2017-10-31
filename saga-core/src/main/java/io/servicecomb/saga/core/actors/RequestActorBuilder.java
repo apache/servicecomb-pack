@@ -41,7 +41,7 @@ public class RequestActorBuilder {
     this.childrenExtractor = childrenExtractor;
   }
 
-  public ActorRef build(SagaRequest[] requests, Map<String, SagaTask> tasks, ActorRef completionCallback) {
+  public RequestActorContext build(SagaRequest[] requests, Map<String, SagaTask> tasks, ActorRef sagaActor) {
     RequestActorContext context = new RequestActorContext(childrenExtractor);
 
     ActorRef rootActor = rootActor(context, tasks);
@@ -52,9 +52,9 @@ public class RequestActorBuilder {
     linkActorsById(rootActor, requests, context);
     addLeafToChildless(leafActor, requests, context);
 
-    context.addParent(SAGA_START_REQUEST.id(), completionCallback);
-    context.addChild(SAGA_END_REQUEST.id(), completionCallback);
-    return rootActor;
+    context.addParent(SAGA_START_REQUEST.id(), sagaActor);
+    context.addChild(SAGA_END_REQUEST.id(), sagaActor);
+    return context;
   }
 
   private void linkActorsById(ActorRef rootActor, SagaRequest[] requests, RequestActorContext context) {
