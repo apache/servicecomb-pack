@@ -24,6 +24,9 @@ import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,6 +60,7 @@ public class SagaController {
   private final SagaExecutionComponent sagaExecutionComponent;
   private final SagaEventRepo repo;
   private final SagaExecutionQueryService queryService;
+  private final SimpleDateFormat dateFormat;
 
   @Autowired
   public SagaController(SagaExecutionComponent sagaExecutionComponent, SagaEventRepo repo,
@@ -64,6 +68,7 @@ public class SagaController {
     this.sagaExecutionComponent = sagaExecutionComponent;
     this.repo = repo;
     this.queryService = queryService;
+    this.dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
   }
 
   @Trace("processRequests")
@@ -110,7 +115,11 @@ public class SagaController {
       @RequestParam(name = "startTime") String startTime,
       @RequestParam(name = "endTime") String endTime) {
     if (isRequestParamValid(pageIndex, pageSize, startTime, endTime)) {
-      return ResponseEntity.ok(queryService.querySagaExecution(pageIndex, pageSize, startTime, endTime));
+      try {
+        return ResponseEntity.ok(queryService.querySagaExecution(pageIndex, pageSize, startTime, endTime));
+      } catch (ParseException ignored) {
+        throw new InvocationException(BAD_REQUEST, "illegal request content");
+      }
     } else {
       throw new InvocationException(BAD_REQUEST, "illegal request content");
     }
@@ -118,11 +127,14 @@ public class SagaController {
 
   private boolean isRequestParamValid(String pageIndex, String pageSize, String startTime, String endTime) {
     try {
-      return Integer.parseInt(pageIndex) >= 0 && Integer.parseInt(pageSize) > 0
-          && Long.parseLong(startTime) <= Long.parseLong(endTime);
-    } catch (NumberFormatException nfe) {
-      return false;
+      if (Integer.parseInt(pageIndex) >= 0 && Integer.parseInt(pageSize) > 0) {
+        Date start = "NaN-NaN-NaN NaN:NaN:NaN".equals(startTime) ? new Date(0) : this.dateFormat.parse(startTime);
+        Date end = "NaN-NaN-NaN NaN:NaN:NaN".equals(endTime) ? new Date(Long.MAX_VALUE) : this.dateFormat.parse(endTime);
+        return start.getTime() <= end.getTime();
+      }
+    } catch (NumberFormatException | ParseException ignored) {
     }
+    return false;
   }
 
   @ApiResponses({

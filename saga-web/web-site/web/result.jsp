@@ -42,9 +42,9 @@
     <table>
         <tr>
             <td>From:</td>
-            <td><input title="Saga Start Time From" id="startTime" onclick="SetDate(this,'yyyy-MM-dd hh:mm')"/></td>
+            <td><input title="Saga Start Time From" id="startTime" onclick="SetDate(this,'yyyy-MM-dd hh:mm:ss')"/></td>
             <td>To:</td>
-            <td><input title="Saga End Time From" id="endTime" onclick="SetDate(this,'yyyy-MM-dd hh:mm')"/></td>
+            <td><input title="Saga End Time From" id="endTime" onclick="SetDate(this,'yyyy-MM-dd hh:mm:ss')"/></td>
             <td>
                 <button onClick="refresh(this)">Search</button>
             </td>

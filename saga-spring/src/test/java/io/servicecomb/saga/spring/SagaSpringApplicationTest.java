@@ -212,8 +212,8 @@ public class SagaSpringApplicationTest {
     MvcResult resultJson = mockMvc.perform(get("/requests")
         .param("pageIndex", "0")
         .param("pageSize", "10")
-        .param("startTime", "1")
-        .param("endTime", String.valueOf(Long.MAX_VALUE)))
+        .param("startTime", "NaN-NaN-NaN NaN:NaN:NaN")
+        .param("endTime", "NaN-NaN-NaN NaN:NaN:NaN"))
         .andExpect(status().isOk()).andReturn();
     SagaExecutionQueryResult result = mapper
         .readValue(resultJson.getResponse().getContentAsString(), SagaExecutionQueryResult.class);
@@ -253,8 +253,8 @@ public class SagaSpringApplicationTest {
     MvcResult resultJson = mockMvc.perform(get("/requests")
         .param("pageIndex", "0")
         .param("pageSize", "10")
-        .param("startTime", "1")
-        .param("endTime", String.valueOf(Long.MAX_VALUE)))
+        .param("startTime", "NaN-NaN-NaN NaN:NaN:NaN")
+        .param("endTime", "NaN-NaN-NaN NaN:NaN:NaN"))
         .andExpect(status().isOk()).andReturn();
     SagaExecutionQueryResult result = mapper
         .readValue(resultJson.getResponse().getContentAsString(), SagaExecutionQueryResult.class);
@@ -278,8 +278,69 @@ public class SagaSpringApplicationTest {
       mockMvc.perform(get("/requests")
           .param("pageIndex", "xxx")
           .param("pageSize", "xxx")
-          .param("startTime", "xx0")
+          .param("startTime", "NaN-NaN-NaN NaN:NaN:NaN")
+          .param("endTime", "NaN-NaN-NaN NaN:NaN:NaN"))
+          .andExpect(status().is(HttpStatus.SC_BAD_REQUEST));
+    } catch (org.springframework.web.util.NestedServletException ex) {
+      assertThat(ex.getMessage(), containsString("illegal request content"));
+    }
+
+    try {
+      mockMvc.perform(get("/requests")
+          .param("pageIndex", "0")
+          .param("pageSize", "10")
+          .param("startTime", "x0")
           .param("endTime", "x1"))
+          .andExpect(status().is(HttpStatus.SC_BAD_REQUEST));
+    } catch (org.springframework.web.util.NestedServletException ex) {
+      assertThat(ex.getMessage(), containsString("illegal request content"));
+    }
+  }
+
+  @Test
+  public void queryRequestsWithNANParameter() throws Exception {
+    mockMvc.perform(
+        post("/requests/")
+            .contentType(TEXT_PLAIN)
+            .content(sagaDefinition))
+        .andExpect(status().isOk());
+
+    MvcResult resultJson = mockMvc.perform(get("/requests")
+        .param("pageIndex", "0")
+        .param("pageSize", "10")
+        .param("startTime", "NaN-NaN-NaN NaN:NaN:NaN")
+        .param("endTime", "NaN-NaN-NaN NaN:NaN:NaN"))
+        .andExpect(status().is(HttpStatus.SC_OK)).andReturn();
+    SagaExecutionQueryResult result = mapper
+        .readValue(resultJson.getResponse().getContentAsString(), SagaExecutionQueryResult.class);
+    assertThat(result.requests.size(), is(1));
+
+    resultJson = mockMvc.perform(get("/requests")
+        .param("pageIndex", "0")
+        .param("pageSize", "10")
+        .param("startTime", "2000-1-1 00:00:00")
+        .param("endTime", "NaN-NaN-NaN NaN:NaN:NaN"))
+        .andExpect(status().is(HttpStatus.SC_OK)).andReturn();
+    result = mapper
+        .readValue(resultJson.getResponse().getContentAsString(), SagaExecutionQueryResult.class);
+    assertThat(result.requests.size(), is(1));
+
+    resultJson = mockMvc.perform(get("/requests")
+        .param("pageIndex", "0")
+        .param("pageSize", "10")
+        .param("startTime", "NaN-NaN-NaN NaN:NaN:NaN")
+        .param("endTime", "9999-12-31 12:59:59"))
+        .andExpect(status().is(HttpStatus.SC_OK)).andReturn();
+    result = mapper
+        .readValue(resultJson.getResponse().getContentAsString(), SagaExecutionQueryResult.class);
+    assertThat(result.requests.size(), is(1));
+
+    try {
+      mockMvc.perform(get("/requests")
+          .param("pageIndex", "0")
+          .param("pageSize", "10")
+          .param("startTime", "9999-12-31 12:59:59")
+          .param("endTime", "2000-1-1 00:00:00"))
           .andExpect(status().is(HttpStatus.SC_BAD_REQUEST));
     } catch (org.springframework.web.util.NestedServletException ex) {
       assertThat(ex.getMessage(), containsString("illegal request content"));
@@ -299,6 +360,7 @@ public class SagaSpringApplicationTest {
         .andExpect(content().string(containsString("request-bbb")))
         .andExpect(content().string(containsString("SagaEndedEvent")));
   }
+
 
   private Matcher<SagaEventEntity> eventWith(
       long eventId,
