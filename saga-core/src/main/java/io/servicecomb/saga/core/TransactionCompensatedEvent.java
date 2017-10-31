@@ -20,7 +20,7 @@ public class TransactionCompensatedEvent extends SagaEvent {
 
   private final SagaResponse response;
 
-  TransactionCompensatedEvent(String sagaId, SagaRequest request) {
+  public TransactionCompensatedEvent(String sagaId, SagaRequest request) {
     this(sagaId, request, SagaResponse.EMPTY_RESPONSE);
   }
 

@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core;
+package io.servicecomb.saga.core.actors.messages;
 
-import java.util.concurrent.atomic.AtomicLong;
+import io.servicecomb.saga.core.FailedSagaResponse;
+import io.servicecomb.saga.core.SagaResponse;
 
-public class LongIdGenerator implements IdGenerator<Long> {
+public class FailMessage implements Message {
+  private final SagaResponse response;
 
-  private final AtomicLong atomicLong = new AtomicLong();
+  public FailMessage(Throwable e) {
+    response = new FailedSagaResponse(e);
+  }
 
-  @Override
-  public Long nextId() {
-    return atomicLong.incrementAndGet();
+  public SagaResponse response() {
+    return response;
   }
 }

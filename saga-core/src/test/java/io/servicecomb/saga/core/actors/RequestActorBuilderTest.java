@@ -20,6 +20,7 @@ import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
 import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
 import static io.servicecomb.saga.core.SagaTask.SAGA_END_TASK;
+import static io.servicecomb.saga.core.SagaTask.SAGA_REQUEST_TASK;
 import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
 import static io.servicecomb.saga.core.actors.messages.CompensateMessage.MESSAGE_COMPENSATE;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -119,7 +120,7 @@ public class RequestActorBuilderTest extends JUnitSuite {
       ArgumentCaptor<SagaResponse> argumentCaptor = ArgumentCaptor.forClass(SagaResponse.class);
       when(task.commit(eq(SAGA_END_REQUEST), argumentCaptor.capture())).thenReturn(EMPTY_RESPONSE);
 
-      ActorRef root = actorBuilder.build(requests, tasks, getRef());
+      ActorRef root = actorBuilder.build(requests, tasks, getRef()).actorOf(SAGA_START_REQUEST.id());
 
       root.tell(new TransactMessage(SAGA_START_REQUEST, EMPTY_RESPONSE), getRef());
 
@@ -148,7 +149,7 @@ public class RequestActorBuilderTest extends JUnitSuite {
       ArgumentCaptor<SagaResponse> argumentCaptor = ArgumentCaptor.forClass(SagaResponse.class);
       when(task.commit(eq(SAGA_END_REQUEST), argumentCaptor.capture())).thenReturn(EMPTY_RESPONSE);
 
-      ActorRef root = actorBuilder.build(requests, tasks, getRef());
+      ActorRef root = actorBuilder.build(requests, tasks, getRef()).actorOf(SAGA_START_REQUEST.id());
 
       root.tell(new TransactMessage(SAGA_START_REQUEST, EMPTY_RESPONSE), getRef());
 

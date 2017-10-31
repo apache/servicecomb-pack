@@ -35,6 +35,8 @@ import io.servicecomb.saga.core.TransactionFailedException;
 import io.servicecomb.saga.core.actors.messages.AbortMessage;
 import io.servicecomb.saga.core.actors.messages.CompensateMessage;
 import io.servicecomb.saga.core.actors.messages.CompensationRecoveryMessage;
+import io.servicecomb.saga.core.actors.messages.FailMessage;
+import io.servicecomb.saga.core.actors.messages.Message;
 import io.servicecomb.saga.core.actors.messages.TransactionRecoveryMessage;
 import io.servicecomb.saga.core.actors.messages.TransactMessage;
 import akka.actor.AbstractLoggingActor;
@@ -84,13 +86,39 @@ public class RequestActor extends AbstractLoggingActor {
         .match(TransactMessage.class,
             message -> handleTransaction(message, () -> task.commit(request, responseOf(parentResponses))))
         .match(TransactionRecoveryMessage.class, this::handleRecovery)
-        .match(AbortMessage.class, message -> getContext().become(aborted))
+        .match(AbortMessage.class, this::onAbort)
         .build();
+  }
+
+  private void onAbort(AbortMessage message) {
+    sendToChildrenButSender(message);
+    sendToParentsButSender(message);
+
+    getContext().become(aborted);
+  }
+
+  private void sendToParentsButSender(AbortMessage message) {
+    context.parentsOf(request)
+        .stream()
+        .filter(this::isNotSender)
+        .forEach(actor -> actor.tell(message, self()));
+  }
+
+  private void sendToChildrenButSender(AbortMessage message) {
+    context.childrenOf(request)
+        .stream()
+        .filter(this::isNotSender)
+        .forEach(actor -> actor.tell(message, self()));
+  }
+
+  private boolean isNotSender(ActorRef actor) {
+    return !actor.equals(sender());
   }
 
   private void handleRecovery(TransactionRecoveryMessage message) {
     getContext().become(receiveBuilder()
         .match(TransactMessage.class, m -> handleTransaction(m, message::response))
+        .match(CompensationRecoveryMessage.class, m -> getContext().become(aborted))
         .build()
     );
   }
@@ -109,23 +137,35 @@ public class RequestActor extends AbstractLoggingActor {
     try {
       if (isChosenChild(parentResponses)) {
         SagaResponse sagaResponse = responseSupplier.get();
-        context.childrenOf(request).forEach(actor -> actor.tell(new TransactMessage(request, sagaResponse), self()));
+        sendToChildren(new TransactMessage(request, sagaResponse));
         getContext().become(transacted);
       } else {
-        context.childrenOf(request).forEach(actor -> actor.tell(new TransactMessage(request, NONE_RESPONSE), self()));
+        sendToChildren(new TransactMessage(request, NONE_RESPONSE));
         getContext().become(aborted);
       }
-    } catch (TransactionFailedException e) {
-      log().error("Failed to run operation {} with error {}", request.transaction(), e);
-      context.forAll(actor -> actor.tell(new AbortMessage(e), self()));
     } catch (SagaStartFailedException e) {
-      context.parentsOf(request).forEach(actor -> actor.tell(new AbortMessage(e), self()));
+      sendToParents(new FailMessage(e));
       getContext().stop(self());
+    } catch (Exception e) {
+      log().error("Failed to run operation {} with error {}", request.transaction(), e);
+
+      Message abortMessage = new AbortMessage(new TransactionFailedException(e));
+      sendToParents(abortMessage);
+      sendToChildren(abortMessage);
+      getContext().become(aborted);
     }
   }
 
+  private void sendToParents(Message message) {
+    context.parentsOf(request).forEach(actor -> actor.tell(message, self()));
+  }
+
+  private void sendToChildren(Message message) {
+    context.childrenOf(request).forEach(actor -> actor.tell(message, self()));
+  }
+
   private boolean isChosenChild(List<SagaResponse> parentResponses) {
-    return parentResponses.isEmpty() || parentResponses.stream()
+    return request.parents().length == 0 || parentResponses.isEmpty() || parentResponses.stream()
             .map(context::chosenChildren)
             .anyMatch(chosenChildren -> chosenChildren.isEmpty() || chosenChildren.contains(request.id()));
   }
@@ -151,7 +191,7 @@ public class RequestActor extends AbstractLoggingActor {
 
     if (compensatedChildren.size() == context.childrenOf(request).size()) {
       requestConsumer.accept(request);
-      context.parentsOf(request).forEach(actor -> actor.tell(MESSAGE_COMPENSATE, self()));
+      sendToParents(MESSAGE_COMPENSATE);
       getContext().stop(self());
     }
   }

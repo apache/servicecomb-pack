@@ -25,6 +25,7 @@ import static io.servicecomb.saga.core.SagaResponse.NONE_RESPONSE;
 import static io.servicecomb.saga.core.actors.messages.CompensateMessage.MESSAGE_COMPENSATE;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -56,7 +57,9 @@ import io.servicecomb.saga.core.SagaStartFailedException;
 import io.servicecomb.saga.core.SagaTask;
 import io.servicecomb.saga.core.TransactionFailedException;
 import io.servicecomb.saga.core.actors.messages.AbortMessage;
+import io.servicecomb.saga.core.actors.messages.CompensateMessage;
 import io.servicecomb.saga.core.actors.messages.CompensationRecoveryMessage;
+import io.servicecomb.saga.core.actors.messages.FailMessage;
 import io.servicecomb.saga.core.actors.messages.TransactMessage;
 import io.servicecomb.saga.core.actors.messages.TransactionRecoveryMessage;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
@@ -159,28 +162,50 @@ public class RequestActorTest extends JUnitSuite {
   }
 
   @Test
-  public void tellEveryoneElseToAbortOnError() throws Exception {
+  public void tellAllRelativesToAbortOnError() throws Exception {
     new TestKit(actorSystem) {{
       context.addChild(requestId, getRef());
       context.addActor(requestId, getRef());
-      context.addChild(unRelatedRequestId, getRef());
-      context.addActor(unRelatedRequestId, getRef());
 
-      ActorRef parent = someActor();
-      context.addParent(requestId, parent);
+      context.addParent(requestId, getRef());
 
       when(request.parents()).thenReturn(new String[] {parentRequestId1});
       when(task.commit(request, SUCCESSFUL_SAGA_RESPONSE)).thenThrow(exception);
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
-      actorRef.tell(new TransactMessage(request1, SUCCESSFUL_SAGA_RESPONSE), parent);
+      actorRef.tell(new TransactMessage(request1, SUCCESSFUL_SAGA_RESPONSE), getRef());
 
       List<SagaResponse> responses = receiveN(2, duration("2 seconds")).stream()
           .map(o -> ((AbortMessage) o).response())
           .collect(Collectors.toList());
 
       assertThat(responses, containsInAnyOrder(instanceOf(FailedSagaResponse.class), instanceOf(FailedSagaResponse.class)));
+    }};
+  }
+
+  @Test
+  public void tellAllRelativesExceptSenderToAbortOnAbort() throws Exception {
+    new TestKit(actorSystem) {{
+      context.addChild(requestId, getRef());
+      context.addActor(requestId, getRef());
+
+      context.addParent(requestId, getRef());
+
+      when(request.parents()).thenReturn(new String[] {parentRequestId1});
+
+      ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
+
+      actorRef.tell(new AbortMessage(exception), someActor());
+
+      List<SagaResponse> responses = receiveN(2, duration("2 seconds")).stream()
+          .map(o -> ((AbortMessage) o).response())
+          .collect(Collectors.toList());
+
+      assertThat(responses, containsInAnyOrder(instanceOf(FailedSagaResponse.class), instanceOf(FailedSagaResponse.class)));
+
+      actorRef.tell(new AbortMessage(exception), someActor());
+      expectNoMsg(duration("500 milliseconds"));
     }};
   }
 
@@ -226,7 +251,8 @@ public class RequestActorTest extends JUnitSuite {
       actorRef.tell(MESSAGE_COMPENSATE, getRef());
       actorRef.tell(MESSAGE_COMPENSATE, getRef());
 
-      expectMsg(duration("2 seconds"), MESSAGE_COMPENSATE);
+      List<Object> responses = receiveN(2, duration("2 seconds"));
+      assertThat(responses, contains(instanceOf(AbortMessage.class), instanceOf(CompensateMessage.class)));
       verify(task, never()).compensate(request);
 
       // no duplicate compensation
@@ -325,18 +351,19 @@ public class RequestActorTest extends JUnitSuite {
   @Test
   public void tellCompensationToParentsOnRecovery() throws Exception {
     new TestKit(actorSystem) {{
-      context.addChild(requestId, noSender());
+      context.addChild(requestId, someActor());
       context.addParent(requestId, getRef());
 
       when(request.parents()).thenReturn(new String[] {parentRequestId1});
 
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
-      actorRef.tell(new AbortMessage(exception), noSender());
-      actorRef.tell(new CompensationRecoveryMessage(), noSender());
-      actorRef.tell(MESSAGE_COMPENSATE, noSender());
+      actorRef.tell(new AbortMessage(exception), someActor());
+      actorRef.tell(new CompensationRecoveryMessage(), someActor());
+      actorRef.tell(MESSAGE_COMPENSATE, someActor());
 
-      expectMsg(duration("2 seconds"), MESSAGE_COMPENSATE);
+      List<Object> responses = receiveN(2, duration("2 seconds"));
+      assertThat(responses, contains(instanceOf(AbortMessage.class), instanceOf(CompensateMessage.class)));
 
       verify(task, never()).compensate(request);
     }};
@@ -357,7 +384,7 @@ public class RequestActorTest extends JUnitSuite {
 
       actorRef.tell(new TransactMessage(request, EMPTY_RESPONSE), getRef());
 
-      expectMsgClass(AbortMessage.class);
+      expectMsgClass(FailMessage.class);
     }};
   }
 

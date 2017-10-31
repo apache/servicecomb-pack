@@ -22,13 +22,13 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-class SagaEventMatcher extends TypeSafeMatcher<SagaEvent> {
+public class SagaEventMatcher extends TypeSafeMatcher<SagaEvent> {
 
   private final String sagaId;
   private final Operation operation;
   private final Class<?> aClass;
 
-  static Matcher<SagaEvent> eventWith(String sagaId, Operation operation, Class<?> aClass) {
+  public static Matcher<SagaEvent> eventWith(String sagaId, Operation operation, Class<?> aClass) {
     return new SagaEventMatcher(sagaId, operation, aClass);
   }
 
