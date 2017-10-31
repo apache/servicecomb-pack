@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core.application;
+package io.servicecomb.saga.core;
 
 import static io.servicecomb.saga.core.SagaTask.SAGA_END_TASK;
 import static io.servicecomb.saga.core.SagaTask.SAGA_REQUEST_TASK;
@@ -27,29 +27,16 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.servicecomb.saga.core.EventStore;
-import io.servicecomb.saga.core.FallbackPolicy;
-import io.servicecomb.saga.core.LoggingRecoveryPolicy;
-import io.servicecomb.saga.core.PersistentLog;
-import io.servicecomb.saga.core.PersistentStore;
-import io.servicecomb.saga.core.RecoveryPolicy;
-import io.servicecomb.saga.core.RequestProcessTask;
-import io.servicecomb.saga.core.SagaEndTask;
-import io.servicecomb.saga.core.SagaEvent;
-import io.servicecomb.saga.core.SagaLog;
-import io.servicecomb.saga.core.SagaStartTask;
-import io.servicecomb.saga.core.SagaTask;
-
-class SagaTaskFactory {
+public class SagaTaskFactory {
   private final FallbackPolicy fallbackPolicy;
   private final RetrySagaLog retrySagaLog;
 
-  SagaTaskFactory(int retryDelay, PersistentStore persistentStore) {
+  public SagaTaskFactory(int retryDelay, PersistentStore persistentStore) {
     fallbackPolicy = new FallbackPolicy(retryDelay);
     retrySagaLog = new RetrySagaLog(persistentStore, retryDelay);
   }
 
-  Map<String, SagaTask> sagaTasks(String sagaId,
+  public Map<String, SagaTask> sagaTasks(String sagaId,
       String requestJson,
       RecoveryPolicy recoveryPolicy,
       EventStore sagaLog,

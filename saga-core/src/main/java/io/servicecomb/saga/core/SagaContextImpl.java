@@ -75,7 +75,7 @@ public class SagaContextImpl implements SagaContext {
   }
 
   @Override
-  public void abortTransaction(SagaRequest request) {
+  public void abortTransaction(SagaRequest request, SagaResponse response) {
     completedTransactions.remove(request.id());
     abortedTransactions.add(request.id());
     hangingTransactions.remove(request.id());

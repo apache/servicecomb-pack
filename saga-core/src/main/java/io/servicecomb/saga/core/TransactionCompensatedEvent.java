@@ -30,7 +30,7 @@ public class TransactionCompensatedEvent extends SagaEvent {
   }
 
   @Override
-  public void gatherTo(SagaContext sagaContext) {
+  public void gatherTo(EventContext sagaContext) {
     sagaContext.compensateTransaction(payload(), response);
   }
 

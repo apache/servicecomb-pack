@@ -16,30 +16,12 @@
 
 package io.servicecomb.saga.core;
 
-public class SagaStartedEvent extends SagaEvent {
+public interface EventContext {
+  void beginTransaction(SagaRequest request);
 
-  private final String requestJson;
+  void endTransaction(SagaRequest request, SagaResponse response);
 
-  public SagaStartedEvent(String sagaId, String requestJson, SagaRequest request) {
-    super(sagaId, request);
-    this.requestJson = requestJson;
-  }
+  void abortTransaction(SagaRequest request, SagaResponse response);
 
-  @Override
-  public void gatherTo(EventContext sagaContext) {
-    sagaContext.endTransaction(payload(), SagaResponse.EMPTY_RESPONSE);
-  }
-
-  @Override
-  public String json(ToJsonFormat toJsonFormat) {
-    return requestJson;
-  }
-
-  @Override
-  public String toString() {
-    return "SagaStartedEvent{id="
-        + payload().id()
-        + ", sagaId=" + sagaId
-        + "}";
-  }
+  void compensateTransaction(SagaRequest request, SagaResponse response);
 }

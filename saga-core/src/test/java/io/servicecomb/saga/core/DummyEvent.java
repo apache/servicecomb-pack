@@ -18,12 +18,12 @@ package io.servicecomb.saga.core;
 
 public class DummyEvent extends SagaEvent {
 
-  public DummyEvent(SagaRequest payload) {
+  DummyEvent(SagaRequest payload) {
     super("0", payload);
   }
 
   @Override
-  public void gatherTo(SagaContext sagaContext) {
+  public void gatherTo(EventContext sagaContext) {
 
   }
 

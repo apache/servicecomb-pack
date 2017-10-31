@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core.application;
+package io.servicecomb.saga.core;
 
-import io.servicecomb.saga.core.PersistentLog;
-import io.servicecomb.saga.core.SagaEvent;
-import io.servicecomb.saga.core.SagaLog;
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
 

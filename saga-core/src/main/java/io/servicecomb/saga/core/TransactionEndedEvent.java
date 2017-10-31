@@ -30,7 +30,7 @@ public class TransactionEndedEvent extends SagaEvent {
   }
 
   @Override
-  public void gatherTo(SagaContext sagaContext) {
+  public void gatherTo(EventContext sagaContext) {
     sagaContext.endTransaction(payload(), response);
   }
 

@@ -16,14 +16,21 @@
 
 package io.servicecomb.saga.core.actors.messages;
 
+import io.servicecomb.saga.core.FailedSagaResponse;
+import io.servicecomb.saga.core.SagaResponse;
+
 public class AbortMessage implements Message {
-  private final Throwable exception;
+  private final SagaResponse response;
 
   public AbortMessage(Throwable e) {
-    exception = e;
+    response = new FailedSagaResponse(e);
   }
 
-  public Throwable exception() {
-    return exception;
+  public AbortMessage(SagaResponse response) {
+    this.response = response;
+  }
+
+  public SagaResponse response() {
+    return response;
   }
 }

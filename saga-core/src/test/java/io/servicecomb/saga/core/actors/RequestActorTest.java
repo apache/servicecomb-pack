@@ -49,6 +49,7 @@ import org.mockito.Mockito;
 import org.scalatest.junit.JUnitSuite;
 
 import io.servicecomb.saga.core.CompositeSagaResponse;
+import io.servicecomb.saga.core.FailedSagaResponse;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SagaStartFailedException;
@@ -175,11 +176,11 @@ public class RequestActorTest extends JUnitSuite {
 
       actorRef.tell(new TransactMessage(request1, SUCCESSFUL_SAGA_RESPONSE), parent);
 
-      List<Throwable> responses = receiveN(2, duration("2 seconds")).stream()
-          .map(o -> ((AbortMessage) o).exception())
+      List<SagaResponse> responses = receiveN(2, duration("2 seconds")).stream()
+          .map(o -> ((AbortMessage) o).response())
           .collect(Collectors.toList());
 
-      assertThat(responses, containsInAnyOrder(exception, exception));
+      assertThat(responses, containsInAnyOrder(instanceOf(FailedSagaResponse.class), instanceOf(FailedSagaResponse.class)));
     }};
   }
 
@@ -356,11 +357,7 @@ public class RequestActorTest extends JUnitSuite {
 
       actorRef.tell(new TransactMessage(request, EMPTY_RESPONSE), getRef());
 
-      List<Throwable> responses = receiveN(1, duration("2 seconds")).stream()
-          .map(o -> ((AbortMessage) o).exception())
-          .collect(Collectors.toList());
-
-      assertThat(responses, containsInAnyOrder(oops));
+      expectMsgClass(AbortMessage.class);
     }};
   }
 

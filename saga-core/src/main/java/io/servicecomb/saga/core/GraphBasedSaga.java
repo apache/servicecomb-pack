@@ -34,7 +34,7 @@ import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
 
 @EnableKamon
-public class Saga {
+public class GraphBasedSaga {
 
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -46,7 +46,7 @@ public class Saga {
   private final SagaContext sagaContext;
   private volatile SagaState currentTaskRunner;
 
-  Saga(EventStore eventStore,
+  GraphBasedSaga(EventStore eventStore,
       Map<String, SagaTask> tasks,
       SagaContext sagaContext,
       SingleLeafDirectedAcyclicGraph<SagaRequest> sagaTaskGraph) {
@@ -54,7 +54,7 @@ public class Saga {
     this(eventStore, Executors.newFixedThreadPool(5), tasks, sagaContext, sagaTaskGraph);
   }
 
-  public Saga(EventStore eventStore,
+  public GraphBasedSaga(EventStore eventStore,
       Executor executor,
       Map<String, SagaTask> tasks,
       SagaContext sagaContext,
