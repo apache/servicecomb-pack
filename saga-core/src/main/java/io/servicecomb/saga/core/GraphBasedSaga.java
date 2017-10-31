@@ -34,7 +34,7 @@ import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
 
 @EnableKamon
-public class GraphBasedSaga {
+public class GraphBasedSaga implements Saga {
 
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -78,6 +78,7 @@ public class GraphBasedSaga {
     currentTaskRunner = transactionTaskRunner;
   }
 
+  @Override
   @Segment(name = "runSaga", category = "application", library = "kamon")
   public SagaResponse run() {
     SagaResponse response = SagaResponse.EMPTY_RESPONSE;
@@ -100,6 +101,7 @@ public class GraphBasedSaga {
     return response;
   }
 
+  @Override
   public void play() {
     log.info("Start playing events");
     gatherEvents(eventStore);

@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutorService;
 import io.servicecomb.saga.core.EventStore;
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.GraphBasedSaga;
+import io.servicecomb.saga.core.Saga;
 import io.servicecomb.saga.core.SagaContext;
 import io.servicecomb.saga.core.SagaContextImpl;
 import io.servicecomb.saga.core.SagaDefinition;
@@ -31,7 +32,7 @@ import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.core.dag.GraphCycleDetectorImpl;
 import io.servicecomb.saga.infrastructure.ContextAwareEventStore;
 
-class GraphBasedSagaFactory {
+class GraphBasedSagaFactory implements SagaFactory {
   private final FromJsonFormat<Set<String>> childrenExtractor;
   private final Executor executorService;
   private final GraphBuilder graphBuilder;
@@ -50,7 +51,8 @@ class GraphBasedSagaFactory {
     this.graphBuilder = new GraphBuilder(new GraphCycleDetectorImpl<>());
   }
 
-  public GraphBasedSaga createSaga(String requestJson, String sagaId, EventStore sagaLog, SagaDefinition definition) {
+  @Override
+  public Saga createSaga(String requestJson, String sagaId, EventStore sagaLog, SagaDefinition definition) {
     SagaContext sagaContext = new SagaContextImpl(childrenExtractor);
 
     return new GraphBasedSaga(
