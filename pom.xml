@@ -37,7 +37,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>1.8</java.version>
-    <kamon.version>0.6.2</kamon.version>
+    <kamon.version>0.6.7</kamon.version>
     <log4j.version>2.6.2</log4j.version>
     <spring.boot.version>1.4.5.RELEASE</spring.boot.version>
     <java.chassis.version>0.2.0</java.chassis.version>
@@ -145,12 +145,12 @@
       </dependency>
       <dependency>
         <groupId>io.kamon</groupId>
-        <artifactId>kamon-core_2.11</artifactId>
+        <artifactId>kamon-core_2.12</artifactId>
         <version>${kamon.version}</version>
         <exclusions>
           <exclusion>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-actor_2.11</artifactId>
+            <artifactId>akka-actor_2.12</artifactId>
           </exclusion>
           <exclusion>
             <groupId>org.scala-lang</groupId>
@@ -160,12 +160,12 @@
       </dependency>
       <dependency>
         <groupId>io.kamon</groupId>
-        <artifactId>kamon-annotation_2.11</artifactId>
+        <artifactId>kamon-annotation_2.12</artifactId>
         <version>${kamon.version}</version>
         <exclusions>
           <exclusion>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-actor_2.11</artifactId>
+            <artifactId>akka-actor_2.12</artifactId>
           </exclusion>
           <exclusion>
             <groupId>org.scala-lang</groupId>
@@ -175,12 +175,12 @@
       </dependency>
       <dependency>
         <groupId>io.kamon</groupId>
-        <artifactId>kamon-log-reporter_2.11</artifactId>
+        <artifactId>kamon-log-reporter_2.12</artifactId>
         <version>${kamon.version}</version>
         <exclusions>
           <exclusion>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-actor_2.11</artifactId>
+            <artifactId>akka-actor_2.12</artifactId>
           </exclusion>
           <exclusion>
             <groupId>org.scala-lang</groupId>
@@ -190,12 +190,12 @@
       </dependency>
       <dependency>
         <groupId>io.kamon</groupId>
-        <artifactId>kamon-statsd_2.11</artifactId>
+        <artifactId>kamon-statsd_2.12</artifactId>
         <version>${kamon.version}</version>
         <exclusions>
           <exclusion>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-actor_2.11</artifactId>
+            <artifactId>akka-actor_2.12</artifactId>
           </exclusion>
           <exclusion>
             <groupId>org.scala-lang</groupId>
@@ -205,12 +205,12 @@
       </dependency>
       <dependency>
         <groupId>io.kamon</groupId>
-        <artifactId>kamon-autoweave_2.11</artifactId>
+        <artifactId>kamon-autoweave_2.12</artifactId>
         <version>${kamon.version}</version>
         <exclusions>
           <exclusion>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-actor_2.11</artifactId>
+            <artifactId>akka-actor_2.12</artifactId>
           </exclusion>
           <exclusion>
             <groupId>org.scala-lang</groupId>

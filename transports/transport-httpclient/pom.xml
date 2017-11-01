@@ -37,11 +37,11 @@
     </dependency>
     <dependency>
       <groupId>io.kamon</groupId>
-      <artifactId>kamon-core_2.11</artifactId>
+      <artifactId>kamon-core_2.12</artifactId>
     </dependency>
     <dependency>
       <groupId>io.kamon</groupId>
-      <artifactId>kamon-annotation_2.11</artifactId>
+      <artifactId>kamon-annotation_2.12</artifactId>
     </dependency>
 
     <dependency>
