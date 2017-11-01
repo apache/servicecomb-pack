@@ -63,7 +63,7 @@ import wiremock.org.apache.http.HttpStatus;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SagaSpringApplication.class)
 @AutoConfigureMockMvc
-public class SagaSpringApplicationTest {
+public class SagaSpringApplicationTestBase {
 
   private static final ObjectMapper mapper = new ObjectMapper();
 

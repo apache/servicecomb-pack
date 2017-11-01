@@ -16,11 +16,13 @@
 
 package io.servicecomb.saga.spring;
 
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -28,7 +30,9 @@ import io.servicecomb.saga.core.JacksonToJsonFormat;
 import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.SagaDefinition;
 import io.servicecomb.saga.core.ToJsonFormat;
+import io.servicecomb.saga.core.actors.ActorBasedSagaFactory;
 import io.servicecomb.saga.core.application.SagaExecutionComponent;
+import io.servicecomb.saga.core.application.SagaFactory;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.core.dag.GraphBasedSagaFactory;
 import io.servicecomb.saga.format.ChildrenExtractor;
@@ -73,21 +77,49 @@ class SagaSpringConfig {
 
   @Bean
   SagaExecutionComponent sagaExecutionComponent(
-      @Value("${saga.thread.count:5}") int numberOfThreads,
-      @Value("${saga.retry.delay:3000}") int retryDelay,
       PersistentStore persistentStore,
       ToJsonFormat format,
-      FromJsonFormat<SagaDefinition> fromJsonFormat) {
+      FromJsonFormat<SagaDefinition> fromJsonFormat,
+      SagaFactory sagaFactory) {
 
     return new SagaExecutionComponent(
         persistentStore,
         fromJsonFormat,
         format,
-        new GraphBasedSagaFactory(
-            retryDelay,
-            persistentStore,
-            new ChildrenExtractor(),
-            Executors.newFixedThreadPool(numberOfThreads, sagaThreadFactory())));
+        sagaFactory);
+  }
+
+  @Bean
+  FromJsonFormat<Set<String>> childrenExtractor() {
+    return new ChildrenExtractor();
+  }
+
+  @ConditionalOnProperty(value = "saga.runningMode", havingValue = "graph", matchIfMissing = true)
+  @Bean
+  SagaFactory graphBasedSagaFactory(
+      @Value("${saga.thread.count:5}") int numberOfThreads,
+      @Value("${saga.retry.delay:3000}") int retryDelay,
+      PersistentStore persistentStore,
+      FromJsonFormat<Set<String>> childrenExtractor) {
+
+    return new GraphBasedSagaFactory(
+        retryDelay,
+        persistentStore,
+        childrenExtractor,
+        Executors.newFixedThreadPool(numberOfThreads, sagaThreadFactory()));
+  }
+
+  @ConditionalOnProperty(value = "saga.runningMode", havingValue = "actor")
+  @Bean
+  SagaFactory actorBasedSagaFactory(
+      @Value("${saga.retry.delay:3000}") int retryDelay,
+      PersistentStore persistentStore,
+      FromJsonFormat<Set<String>> childrenExtractor) {
+
+    return new ActorBasedSagaFactory(
+        retryDelay,
+        persistentStore,
+        childrenExtractor);
   }
 
   private ThreadFactory sagaThreadFactory() {
