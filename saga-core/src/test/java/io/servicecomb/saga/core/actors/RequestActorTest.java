@@ -22,7 +22,6 @@ import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static io.servicecomb.saga.core.Operation.SUCCESSFUL_SAGA_RESPONSE;
 import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
 import static io.servicecomb.saga.core.SagaResponse.NONE_RESPONSE;
-import static io.servicecomb.saga.core.actors.messages.CompensateMessage.MESSAGE_COMPENSATE;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.hamcrest.Matchers.contains;
@@ -72,7 +71,6 @@ public class RequestActorTest extends JUnitSuite {
   private final String parentRequestId1 = uniquify("parentRequestId1");
   private final String parentRequestId2 = uniquify("parentRequestId2");
   private final String requestId = uniquify("requestId");
-  private final String unRelatedRequestId = uniquify("unRelatedRequestId");
 
   private final SagaTask task = Mockito.mock(SagaTask.class);
   private final SagaRequest request = Mockito.mock(SagaRequest.class, "request");
@@ -85,6 +83,7 @@ public class RequestActorTest extends JUnitSuite {
 
   private final TransactionFailedException exception = new TransactionFailedException("oops");
   private static final ActorSystem actorSystem = ActorSystem.create();
+  private final CompensateMessage compensateMessage = new CompensateMessage(new FailedSagaResponse(exception));
 
   @Before
   public void setUp() throws Exception {
@@ -222,16 +221,16 @@ public class RequestActorTest extends JUnitSuite {
 
       actorRef.tell(new TransactMessage(request1, SUCCESSFUL_SAGA_RESPONSE), getRef());
       actorRef.tell(new AbortMessage(exception), noSender());
-      actorRef.tell(MESSAGE_COMPENSATE, getRef());
-      actorRef.tell(MESSAGE_COMPENSATE, getRef());
+      actorRef.tell(compensateMessage, getRef());
+      actorRef.tell(compensateMessage, getRef());
 
-      expectMsg(duration("2 seconds"), MESSAGE_COMPENSATE);
+      expectMsg(duration("2 seconds"), compensateMessage);
       verify(task).compensate(request);
 
       // no duplicate compensation
       reset(task);
-      actorRef.tell(MESSAGE_COMPENSATE, getRef());
-      actorRef.tell(MESSAGE_COMPENSATE, getRef());
+      actorRef.tell(compensateMessage, getRef());
+      actorRef.tell(compensateMessage, getRef());
       expectNoMsg(duration("200 milliseconds"));
       verify(task, never()).compensate(request);
     }};
@@ -248,8 +247,8 @@ public class RequestActorTest extends JUnitSuite {
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
       actorRef.tell(new AbortMessage(exception), noSender());
-      actorRef.tell(MESSAGE_COMPENSATE, getRef());
-      actorRef.tell(MESSAGE_COMPENSATE, getRef());
+      actorRef.tell(compensateMessage, getRef());
+      actorRef.tell(compensateMessage, getRef());
 
       List<Object> responses = receiveN(2, duration("2 seconds"));
       assertThat(responses, contains(instanceOf(AbortMessage.class), instanceOf(CompensateMessage.class)));
@@ -257,8 +256,8 @@ public class RequestActorTest extends JUnitSuite {
 
       // no duplicate compensation
       reset(task);
-      actorRef.tell(MESSAGE_COMPENSATE, getRef());
-      actorRef.tell(MESSAGE_COMPENSATE, getRef());
+      actorRef.tell(compensateMessage, getRef());
+      actorRef.tell(compensateMessage, getRef());
       expectNoMsg(duration("200 milliseconds"));
       verify(task, never()).compensate(request);
     }};
@@ -286,10 +285,10 @@ public class RequestActorTest extends JUnitSuite {
       verify(task, never()).commit(request, SUCCESSFUL_SAGA_RESPONSE);
 
       // skip compensation for ignored actor
-      actorRef.tell(MESSAGE_COMPENSATE, getRef());
-      actorRef.tell(MESSAGE_COMPENSATE, getRef());
+      actorRef.tell(compensateMessage, getRef());
+      actorRef.tell(compensateMessage, getRef());
 
-      expectMsg(duration("2 seconds"), MESSAGE_COMPENSATE);
+      expectMsg(duration("2 seconds"), compensateMessage);
       verify(task, never()).compensate(request);
     }};
   }
@@ -360,7 +359,7 @@ public class RequestActorTest extends JUnitSuite {
 
       actorRef.tell(new AbortMessage(exception), someActor());
       actorRef.tell(new CompensationRecoveryMessage(), someActor());
-      actorRef.tell(MESSAGE_COMPENSATE, someActor());
+      actorRef.tell(compensateMessage, someActor());
 
       List<Object> responses = receiveN(2, duration("2 seconds"));
       assertThat(responses, contains(instanceOf(AbortMessage.class), instanceOf(CompensateMessage.class)));

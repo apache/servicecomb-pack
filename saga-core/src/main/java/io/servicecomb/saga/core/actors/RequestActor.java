@@ -18,7 +18,6 @@ package io.servicecomb.saga.core.actors;
 
 import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
 import static io.servicecomb.saga.core.SagaResponse.NONE_RESPONSE;
-import static io.servicecomb.saga.core.actors.messages.CompensateMessage.MESSAGE_COMPENSATE;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -193,16 +192,16 @@ public class RequestActor extends AbstractLoggingActor {
 
   private ReceiveBuilder onReceive(Consumer<SagaRequest> requestConsumer) {
     return receiveBuilder()
-        .match(CompensateMessage.class, message -> onCompensate(requestConsumer));
+        .match(CompensateMessage.class, message -> onCompensate(message, requestConsumer));
   }
 
-  private void onCompensate(Consumer<SagaRequest> requestConsumer) {
+  private void onCompensate(CompensateMessage message, Consumer<SagaRequest> requestConsumer) {
     log().debug("{}: received compensation message from {}", request.id(), sender());
     compensatedChildren.add(sender());
 
     if (compensatedChildren.size() == context.childrenOf(request).size()) {
       requestConsumer.accept(request);
-      sendToParents(MESSAGE_COMPENSATE);
+      sendToParents(message);
     }
   }
 }

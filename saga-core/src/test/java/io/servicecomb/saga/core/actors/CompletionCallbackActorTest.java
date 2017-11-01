@@ -20,8 +20,6 @@ import static akka.actor.ActorRef.noSender;
 import static akka.actor.Props.empty;
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
-import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
-import static io.servicecomb.saga.core.actors.messages.CompensateMessage.MESSAGE_COMPENSATE;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
@@ -90,12 +88,12 @@ public class CompletionCallbackActorTest {
       ActorRef actor = actorSystem.actorOf(CompletionCallbackActor.props(future));
 
       actor.tell(context, noSender());
-      actor.tell(new CompensateMessage(), noSender());
+      actor.tell(new CompensateMessage(response), noSender());
 
       await().atMost(2, TimeUnit.SECONDS)
           .until(() -> actor1.isTerminated() && actor2.isTerminated() && actor.isTerminated());
 
-      assertThat(future.get(), is(EMPTY_RESPONSE));
+      assertThat(future.get(), is(response));
     }};
   }
 
@@ -125,9 +123,11 @@ public class CompletionCallbackActorTest {
       ActorRef actor = actorSystem.actorOf(CompletionCallbackActor.props(future));
 
       actor.tell(context, noSender());
-      actor.tell(new AbortMessage(new RuntimeException("oops")), noSender());
+      AbortMessage message = new AbortMessage(new RuntimeException("oops"));
+      actor.tell(message, noSender());
 
-      expectMsg(duration("2 seconds"), MESSAGE_COMPENSATE);
+      CompensateMessage compensateMessage = (CompensateMessage) receiveOne(duration("2 seconds"));
+      assertThat(compensateMessage.response(), is(message.response()));
     }};
   }
 

@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.exactly;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.resetAllRequests;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
@@ -61,7 +62,6 @@ import wiremock.org.apache.http.HttpStatus;
 
 @SuppressWarnings("unchecked")
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = SagaSpringApplication.class)
 @AutoConfigureMockMvc
 public class SagaSpringApplicationTestBase {
 
@@ -178,6 +178,7 @@ public class SagaSpringApplicationTestBase {
 
   @Before
   public void tearUp() {
+    resetAllRequests();
     sagaEventRepo.deleteAll();
   }
 
