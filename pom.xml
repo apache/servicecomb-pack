@@ -147,26 +147,76 @@
         <groupId>io.kamon</groupId>
         <artifactId>kamon-core_2.11</artifactId>
         <version>${kamon.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.11</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>io.kamon</groupId>
         <artifactId>kamon-annotation_2.11</artifactId>
         <version>${kamon.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.11</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>io.kamon</groupId>
         <artifactId>kamon-log-reporter_2.11</artifactId>
         <version>${kamon.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.11</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>io.kamon</groupId>
         <artifactId>kamon-statsd_2.11</artifactId>
         <version>${kamon.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.11</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>io.kamon</groupId>
         <artifactId>kamon-autoweave_2.11</artifactId>
         <version>${kamon.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.11</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.aspectj</groupId>

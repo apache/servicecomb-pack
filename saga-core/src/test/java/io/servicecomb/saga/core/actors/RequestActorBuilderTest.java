@@ -20,9 +20,7 @@ import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
 import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
 import static io.servicecomb.saga.core.SagaTask.SAGA_END_TASK;
-import static io.servicecomb.saga.core.SagaTask.SAGA_REQUEST_TASK;
 import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
-import static io.servicecomb.saga.core.actors.messages.CompensateMessage.MESSAGE_COMPENSATE;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -52,6 +50,7 @@ import io.servicecomb.saga.core.CompositeSagaResponse;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SagaTask;
+import io.servicecomb.saga.core.actors.messages.CompensateMessage;
 import io.servicecomb.saga.core.actors.messages.TransactMessage;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import akka.actor.ActorRef;
@@ -159,8 +158,9 @@ public class RequestActorBuilderTest extends JUnitSuite {
 
       assertThat(responses, containsInAnyOrder(EMPTY_RESPONSE));
 
-      getLastSender().tell(MESSAGE_COMPENSATE, getRef());
-      expectMsg(MESSAGE_COMPENSATE);
+      CompensateMessage message = new CompensateMessage(response1);
+      getLastSender().tell(message, getRef());
+      expectMsg(message);
 
       verify(task).compensate(SAGA_START_REQUEST);
       verify(task).compensate(request1);

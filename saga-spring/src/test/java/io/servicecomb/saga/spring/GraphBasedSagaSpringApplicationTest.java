@@ -14,18 +14,11 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core.actors.messages;
+package io.servicecomb.saga.spring;
 
-import io.servicecomb.saga.core.SagaResponse;
+import org.springframework.boot.test.context.SpringBootTest;
 
-public class CompensateMessage implements Message {
-  private final SagaResponse response;
+@SpringBootTest(classes = SagaSpringApplication.class)
+public class GraphBasedSagaSpringApplicationTest extends SagaSpringApplicationTestBase {
 
-  public CompensateMessage(SagaResponse response) {
-    this.response = response;
-  }
-
-  public SagaResponse response() {
-    return response;
-  }
 }

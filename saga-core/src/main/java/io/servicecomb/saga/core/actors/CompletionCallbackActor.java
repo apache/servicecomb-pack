@@ -17,8 +17,6 @@
 package io.servicecomb.saga.core.actors;
 
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
-import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
-import static io.servicecomb.saga.core.actors.messages.CompensateMessage.MESSAGE_COMPENSATE;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -50,7 +48,7 @@ class CompletionCallbackActor extends AbstractLoggingActor {
 
   private void ready(RequestActorContext context) {
     getContext().become(receiveBuilder()
-        .match(CompensateMessage.class, message -> end(context, EMPTY_RESPONSE))
+        .match(CompensateMessage.class, message -> end(context, message.response()))
         .match(TransactMessage.class, message -> end(context, message.response()))
         .match(AbortMessage.class, message -> onAbort(context, message))
         .match(FailMessage.class, message -> end(context, message.response()))
@@ -59,7 +57,7 @@ class CompletionCallbackActor extends AbstractLoggingActor {
 
   private void onAbort(RequestActorContext context, AbortMessage message) {
     log().info("saga actor: received abort message of {}", message.response());
-    context.actorOf(SAGA_END_REQUEST.id()).tell(MESSAGE_COMPENSATE, self());
+    context.actorOf(SAGA_END_REQUEST.id()).tell(new CompensateMessage(message.response()), self());
   }
 
   private void end(RequestActorContext context, SagaResponse response) {
