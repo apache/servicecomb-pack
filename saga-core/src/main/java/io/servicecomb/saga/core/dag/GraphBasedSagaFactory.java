@@ -14,39 +14,37 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core.application;
+package io.servicecomb.saga.core.dag;
 
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
 import io.servicecomb.saga.core.EventStore;
-import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.GraphBasedSaga;
+import io.servicecomb.saga.core.PersistentStore;
 import io.servicecomb.saga.core.Saga;
 import io.servicecomb.saga.core.SagaContext;
 import io.servicecomb.saga.core.SagaContextImpl;
 import io.servicecomb.saga.core.SagaDefinition;
 import io.servicecomb.saga.core.SagaTaskFactory;
+import io.servicecomb.saga.core.application.SagaFactory;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
-import io.servicecomb.saga.core.dag.GraphCycleDetectorImpl;
 import io.servicecomb.saga.infrastructure.ContextAwareEventStore;
 
-class GraphBasedSagaFactory implements SagaFactory {
+public class GraphBasedSagaFactory implements SagaFactory {
   private final FromJsonFormat<Set<String>> childrenExtractor;
   private final Executor executorService;
   private final GraphBuilder graphBuilder;
   private final SagaTaskFactory sagaTaskFactory;
-  private final PersistentStore persistentStore;
 
-  GraphBasedSagaFactory(int retryDelay,
+  public GraphBasedSagaFactory(int retryDelay,
       PersistentStore persistentStore,
       FromJsonFormat<Set<String>> childrenExtractor,
       ExecutorService executorService) {
 
     this.childrenExtractor = childrenExtractor;
     this.executorService = executorService;
-    this.persistentStore = persistentStore;
     this.sagaTaskFactory = new SagaTaskFactory(retryDelay, persistentStore);
     this.graphBuilder = new GraphBuilder(new GraphCycleDetectorImpl<>());
   }

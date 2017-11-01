@@ -45,7 +45,7 @@ import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaStartedEvent;
 import io.servicecomb.saga.core.TransactionAbortedEvent;
 import io.servicecomb.saga.core.TransactionEndedEvent;
-import io.servicecomb.saga.core.application.GraphBuilder;
+import io.servicecomb.saga.core.dag.GraphBuilder;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.core.dag.GraphCycleDetectorImpl;
 import io.servicecomb.saga.core.dag.Node;

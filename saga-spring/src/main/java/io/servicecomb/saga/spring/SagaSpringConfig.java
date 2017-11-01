@@ -30,6 +30,7 @@ import io.servicecomb.saga.core.SagaDefinition;
 import io.servicecomb.saga.core.ToJsonFormat;
 import io.servicecomb.saga.core.application.SagaExecutionComponent;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
+import io.servicecomb.saga.core.dag.GraphBasedSagaFactory;
 import io.servicecomb.saga.format.ChildrenExtractor;
 import io.servicecomb.saga.format.JacksonFromJsonFormat;
 import io.servicecomb.saga.format.JacksonSagaEventFormat;
@@ -79,12 +80,14 @@ class SagaSpringConfig {
       FromJsonFormat<SagaDefinition> fromJsonFormat) {
 
     return new SagaExecutionComponent(
-        retryDelay,
         persistentStore,
         fromJsonFormat,
         format,
-        new ChildrenExtractor(),
-        Executors.newFixedThreadPool(numberOfThreads, sagaThreadFactory()));
+        new GraphBasedSagaFactory(
+            retryDelay,
+            persistentStore,
+            new ChildrenExtractor(),
+            Executors.newFixedThreadPool(numberOfThreads, sagaThreadFactory())));
   }
 
   private ThreadFactory sagaThreadFactory() {
