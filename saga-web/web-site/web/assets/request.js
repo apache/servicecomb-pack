@@ -78,19 +78,8 @@ $(function () {
         });
     });
 
-    $('#transaction-params-btn').click(function() {
-        $('#transaction-params').append('<tr><td><input></td><td><input></td><td><button class="btn btn-danger remove-button">Remove</button></td></tr>');
-        $('.remove-button').click(function() {
-            $(this).parent().parent().remove();
-        });
-    });
-
-    $('#compensation-params-btn').click(function() {
-        $('#compensation-params').append('<tr><td><input></td><td><input></td><td><button class="btn btn-danger remove-button">Remove</button></td></tr>');
-        $('.remove-button').click(function() {
-            $(this).parent().parent().remove();
-        });
-    });
+    addParameter('transaction');
+    addParameter('compensation');
 
     $('#reset').click(function() {
         $('#content').val('');
@@ -112,42 +101,49 @@ function clearModalValues() {
     $('#compensation-path').val('');
     $('#compensation-params tr').remove();
     $('#parents').multiselect('deselectAll', true);
+    $('#transaction-params-json-div').hide();
+    $('#transaction-params-json').val('');
+    $('#compensation-params-json-div').hide();
+    $('#compensation-params-json').val('');
+}
+
+function loadParameterValue(operationName, operation, type) {
+    if (type in operation.params && operation.params[type].length != 0) {
+        var form = operation.params[type];
+        for (var key in form) {
+            var content = '<tr><td>' + type + '</td><td><input type="text" value="' + key +
+                '"></td><td><input type="text" value="' + form[key] +
+                '"></td><td><button class="btn btn-danger remove-button">Remove</button></td></tr>';
+            $('#' + operationName + '-params').append(content);
+            removeRowFromTable('.remove-button');
+        }
+    }
+}
+
+function loadParameterValues(operationName, operation) {
+    loadParameterValue(operationName, operation, 'form');
+    loadParameterValue(operationName, operation, 'query');
+    if ('json' in operation.params) {
+        $('#' + operationName + '-params-json').val(operation.params.json);
+        $('#' + operationName + '-params-json-div').show();
+    }
+}
+
+function loadOperationModalValue(operationName, operation) {
+    $('#' + operationName + '-method').val(operation.method);
+    $('#' + operationName + '-path').val(operation.path);
+    loadParameterValues(operationName, operation);
 }
 
 function loadModalValues(request) {
-    // TODO
     clearModalValues();
     $('#id').val(request.id);
     $('#type').val(request.type);
     $('#service-name').val(request.serviceName);
-    $('#transaction-method').val(request.transaction.method);
-    $('#transaction-path').val(request.transaction.path);
-    if (request.transaction.params.form.length != 0) {
-        var transactionForms = request.transaction.params.form;
-        for (var key in transactionForms) {
-            var transactionContent = '<tr><td><input type="text" value="' + key +
-                '"></td><td><input type="text" value="' + transactionForms[key] +
-            '"></td><td><button class="btn btn-danger remove-button">Remove</button></td></tr>';
-            $('#transaction-params').append(transactionContent);
-            $('.remove-button').click(function() {
-                $(this).parent().parent().remove();
-            });
-        }
-    }
-    $('#compensation-method').val(request.compensation.method);
-    $('#compensation-path').val(request.compensation.path);
-    if (request.compensation.params.form.length != 0) {
-        var compensationForms = request.compensation.params.form;
-        for (var compensationKey in compensationForms) {
-            var compensationContent = '<tr><td><input type="text" value="' + compensationKey +
-                '"></td><td><input type="text" value="' + compensationForms[compensationKey] +
-                '"></td><td><button class="btn btn-danger remove-button">Remove</button></td></tr>';
-            $('#compensation-params').append(compensationContent);
-            $('.remove-button').click(function() {
-                $(this).parent().parent().remove();
-            });
-        }
-    }
+
+    loadOperationModalValue('transaction', request.transaction);
+    loadOperationModalValue('compensation', request.compensation);
+
     var requestIds = getRequestIds();
     requestIds = requestIds.filter(function(item) {
         return item.value != request.id;
@@ -158,36 +154,62 @@ function loadModalValues(request) {
     }
 }
 
+function retrieveParameterValues(operationName) {
+    var parameters = {};
+    var query = {};
+    var form = {};
+
+    if ($('#' + operationName + '-params').children().length != 0) {
+        $('#' + operationName + '-params tr').each(function() {
+            var type = $(this).find("td:nth-child(1)").html();
+            var key = $(this).find("td:nth-child(2) input").val();
+            var value = $(this).find("td:nth-child(3) input").val();
+            if (type === 'query') {
+                query[key] = value;
+            } else {
+                form[key] = value;
+            }
+        });
+    }
+
+    if (!isDictEmpty(query)) {
+        parameters.query = query;
+    }
+
+    if (!isDictEmpty(form)) {
+        parameters.form = form;
+    }
+
+    var jsonParameter = $('#' + operationName + '-params-json').val();
+    if (jsonParameter != '') {
+        parameters.json = jsonParameter;
+    }
+    return parameters;
+}
+
+function retrieveOperationValues(operationName) {
+    var operation = {};
+    operation.method = $('#' + operationName + '-method option:selected').text();
+    operation.path = $('#' + operationName + '-path').val();
+    operation.params = retrieveParameterValues(operationName);
+    return operation;
+}
+
 function saveRequest() {
     var request = {};
     request.id = $('#id').val();
     request.type = $('#type option:selected').text();
     request.serviceName = $('#service-name').val();
-    var transaction = {};
-    transaction.method = $('#transaction-method option:selected').text();
-    transaction.path = $('#transaction-path').val();
-    transaction.params = {'form': {}};
-    if ($('#transaction-params').children().length != 0) {
-        $('#transaction-params tr').each(function() {
-            var key = $(this).find("td:first input").val();
-            var value = $(this).find("td:nth-child(2) input").val();
-            transaction.params.form[key] = value;
-        });
-    }
-    request.transaction = transaction;
 
-    var compensation = {};
-    compensation.method = $('#compensation-method option:selected').text();
-    compensation.path = $('#compensation-path').val();
-    compensation.params = {'form': {}};
-    if ($('#compensation-params').children().length != 0) {
-        $('#compensation-params tr').each(function() {
-            var key = $(this).find("td:first input").val();
-            var value = $(this).find("td:nth-child(2) input").val();
-            compensation.params.form[key] = value;
-        });
+    var transaction = retrieveOperationValues('transaction');
+    if (!isDictEmpty(transaction)) {
+        request.transaction = transaction;
     }
-    request.compensation = compensation;
+
+    var compensation = retrieveOperationValues('compensation');
+    if (!isDictEmpty(compensation)) {
+        request.compensation = compensation;
+    }
 
     var parents = [];
     $("#parents option:selected").each(function() {
@@ -219,4 +241,33 @@ function getRequestIds() {
         requestIds.push({"label": req.id, "value": req.id});
     });
     return requestIds;
+}
+
+function addParameterRowInTable(clickableSelector, tableSelector, type) {
+    $(clickableSelector).click(function() {
+        $(tableSelector).append('<tr><td>' + type + '</td><td><input></td><td><input></td><td><button class="btn btn-danger remove-button">Remove</button></td></tr>');
+        removeRowFromTable('.remove-button');
+    });
+}
+
+function addJsonParameter(clickableSelector, textAreaSelector) {
+    $(clickableSelector).click(function() {
+        $(textAreaSelector).show();
+    });
+}
+
+function addParameter(operationName) {
+    addParameterRowInTable('#' + operationName + '-new-query-btn', '#' + operationName + '-params', 'query');
+    addParameterRowInTable('#' + operationName + '-new-form-btn', '#' + operationName + '-params', 'form');
+    addJsonParameter('#' + operationName + '-new-json-btn', '#' + operationName + '-params-json-div');
+}
+
+function removeRowFromTable(buttonSelector) {
+    $(buttonSelector).click(function() {
+        $(this).parent().parent().remove();
+    });
+}
+
+function isDictEmpty(obj) {
+    return Object.keys(obj).length === 0;
 }
