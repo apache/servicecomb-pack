@@ -33,12 +33,13 @@ import io.servicecomb.saga.core.SagaStartFailedException;
 import io.servicecomb.saga.core.SagaTask;
 import io.servicecomb.saga.core.TransactionFailedException;
 import io.servicecomb.saga.core.actors.messages.AbortMessage;
+import io.servicecomb.saga.core.actors.messages.AbortRecoveryMessage;
 import io.servicecomb.saga.core.actors.messages.CompensateMessage;
 import io.servicecomb.saga.core.actors.messages.CompensationRecoveryMessage;
 import io.servicecomb.saga.core.actors.messages.FailMessage;
 import io.servicecomb.saga.core.actors.messages.Message;
-import io.servicecomb.saga.core.actors.messages.TransactionRecoveryMessage;
 import io.servicecomb.saga.core.actors.messages.TransactMessage;
+import io.servicecomb.saga.core.actors.messages.TransactionRecoveryMessage;
 import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -84,13 +85,15 @@ public class RequestActor extends AbstractLoggingActor {
   public Receive createReceive() {
     return receiveBuilder()
         .match(TransactMessage.class,
-            message -> handleTransaction(message, () -> task.commit(request, responseOf(parentResponses))))
-        .match(TransactionRecoveryMessage.class, this::handleRecovery)
+            message -> onTransaction(message, () -> task.commit(request, responseOf(parentResponses))))
+        .match(TransactionRecoveryMessage.class, this::onTransactRecovery)
+        .match(AbortRecoveryMessage.class, this::onAbortRecovery)
         .match(AbortMessage.class, this::onAbort)
         .build();
   }
 
   private void onAbort(AbortMessage message) {
+    log().debug("{}: received abort message of {}", request.id(), message.response());
     sendToChildrenButSender(message);
     sendToParentsButSender(message);
 
@@ -115,15 +118,23 @@ public class RequestActor extends AbstractLoggingActor {
     return !actor.equals(sender());
   }
 
-  private void handleRecovery(TransactionRecoveryMessage message) {
+  private void onTransactRecovery(TransactionRecoveryMessage message) {
     getContext().become(receiveBuilder()
-        .match(TransactMessage.class, m -> handleTransaction(m, message::response))
+        .match(TransactMessage.class, m -> onTransaction(m, message::response))
         .match(CompensationRecoveryMessage.class, m -> getContext().become(aborted))
         .build()
     );
   }
 
-  private void handleTransaction(TransactMessage message, Supplier<SagaResponse> responseSupplier) {
+  private void onAbortRecovery(AbortRecoveryMessage message) {
+    getContext().become(
+        receiveBuilder()
+            .match(TransactMessage.class, m -> onAbort(new AbortMessage(message.response())))
+            .build());
+  }
+
+  private void onTransaction(TransactMessage message, Supplier<SagaResponse> responseSupplier) {
+    log().debug("{}: received transaction message of {}", request.id(), message.request());
     if (context.parentsOf(request).contains(sender())) {
       parentResponses.add(message.response());
     }
@@ -145,7 +156,6 @@ public class RequestActor extends AbstractLoggingActor {
       }
     } catch (SagaStartFailedException e) {
       sendToParents(new FailMessage(e));
-      getContext().stop(self());
     } catch (Exception e) {
       log().error("Failed to run operation {} with error {}", request.transaction(), e);
 
@@ -187,12 +197,12 @@ public class RequestActor extends AbstractLoggingActor {
   }
 
   private void onCompensate(Consumer<SagaRequest> requestConsumer) {
+    log().debug("{}: received compensation message from {}", request.id(), sender());
     compensatedChildren.add(sender());
 
     if (compensatedChildren.size() == context.childrenOf(request).size()) {
       requestConsumer.accept(request);
       sendToParents(MESSAGE_COMPENSATE);
-      getContext().stop(self());
     }
   }
 }

@@ -16,6 +16,7 @@
 
 package io.servicecomb.saga.core.actors;
 
+import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
 import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
 import static io.servicecomb.saga.core.actors.messages.CompensateMessage.MESSAGE_COMPENSATE;
 
@@ -27,7 +28,6 @@ import io.servicecomb.saga.core.actors.messages.CompensateMessage;
 import io.servicecomb.saga.core.actors.messages.FailMessage;
 import io.servicecomb.saga.core.actors.messages.TransactMessage;
 import akka.actor.AbstractLoggingActor;
-import akka.actor.ActorRef;
 import akka.actor.Props;
 
 class CompletionCallbackActor extends AbstractLoggingActor {
@@ -44,19 +44,28 @@ class CompletionCallbackActor extends AbstractLoggingActor {
   @Override
   public Receive createReceive() {
     return receiveBuilder()
-        .match(ActorRef.class, this::ready)
+        .match(RequestActorContext.class, this::ready)
         .build();
   }
 
-  private void ready(ActorRef leaf) {
+  private void ready(RequestActorContext context) {
     getContext().become(receiveBuilder()
-        .match(CompensateMessage.class, message -> {
-          future.complete(EMPTY_RESPONSE);
-          getContext().stop(self());
-        })
-        .match(TransactMessage.class, message -> future.complete(message.response()))
-        .match(AbortMessage.class, message -> leaf.tell(MESSAGE_COMPENSATE, self()))
-        .match(FailMessage.class, message -> future.complete(message.response()))
+        .match(CompensateMessage.class, message -> end(context, EMPTY_RESPONSE))
+        .match(TransactMessage.class, message -> end(context, message.response()))
+        .match(AbortMessage.class, message -> onAbort(context, message))
+        .match(FailMessage.class, message -> end(context, message.response()))
         .build());
+  }
+
+  private void onAbort(RequestActorContext context, AbortMessage message) {
+    log().info("saga actor: received abort message of {}", message.response());
+    context.actorOf(SAGA_END_REQUEST.id()).tell(MESSAGE_COMPENSATE, self());
+  }
+
+  private void end(RequestActorContext context, SagaResponse response) {
+    log().info("saga actor: received response {}", response);
+    future.complete(response);
+    context.forAll(actor -> getContext().stop(actor));
+    getContext().stop(self());
   }
 }

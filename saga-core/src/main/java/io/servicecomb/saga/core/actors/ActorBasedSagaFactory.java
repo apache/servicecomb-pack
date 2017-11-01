@@ -60,7 +60,7 @@ public class ActorBasedSagaFactory implements SagaFactory {
         ),
         completionCallback);
 
-    completionCallback.tell(context.actorOf(SAGA_END_REQUEST.id()), noSender());
+    completionCallback.tell(context, noSender());
     return new ActorBasedSaga(
         context.actorOf(SAGA_START_REQUEST.id()),
         completionCallback,
