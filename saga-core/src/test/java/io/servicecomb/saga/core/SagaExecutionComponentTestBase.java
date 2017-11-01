@@ -30,15 +30,10 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
-import io.servicecomb.saga.core.application.SagaExecutionComponent;
-import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
-import io.servicecomb.saga.core.dag.GraphBasedSagaFactory;
-import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -47,9 +42,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-@SuppressWarnings("unchecked")
-public class SagaExecutionComponentTestBase {
+import io.servicecomb.saga.core.application.SagaExecutionComponent;
+import io.servicecomb.saga.core.application.SagaFactory;
+import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
+import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 
+@SuppressWarnings("unchecked")
+public abstract class SagaExecutionComponentTestBase {
   private static final String requestJson = "[\n"
       + "  {\n"
       + "    \"id\": \"request-1\",\n"
@@ -137,14 +136,10 @@ public class SagaExecutionComponentTestBase {
       eventStore,
       fromJsonFormat,
       null,
-      sagaFactory()
+      sagaFactory(eventStore)
   );
 
   private final String sagaId = "1";
-
-  GraphBasedSagaFactory sagaFactory() {
-    return new GraphBasedSagaFactory(500, eventStore, null, Executors.newFixedThreadPool(5));
-  }
 
   @Before
   public void setUp() throws Exception {
@@ -251,4 +246,6 @@ public class SagaExecutionComponentTestBase {
           new EventEnvelope(1L, new SagaStartedEvent(sagaId, sagaJson, SAGA_START_REQUEST))));
     }
   }
+
+  protected abstract SagaFactory sagaFactory(PersistentStore eventStore);
 }
