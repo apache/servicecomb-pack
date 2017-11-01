@@ -160,14 +160,13 @@ public class RequestActorBuilderTest extends JUnitSuite {
       assertThat(responses, containsInAnyOrder(EMPTY_RESPONSE));
 
       getLastSender().tell(MESSAGE_COMPENSATE, getRef());
+      expectMsg(MESSAGE_COMPENSATE);
 
       verify(task).compensate(SAGA_START_REQUEST);
       verify(task).compensate(request1);
       verify(task).compensate(request2);
       verify(task).compensate(request3);
       verify(task).compensate(SAGA_END_REQUEST);
-
-      expectMsg(MESSAGE_COMPENSATE);
     }};
   }
 }

@@ -32,11 +32,14 @@ import static org.mockito.Mockito.when;
 
 import io.servicecomb.saga.core.application.SagaExecutionComponent;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
+import io.servicecomb.saga.core.dag.GraphBasedSagaFactory;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -45,7 +48,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 @SuppressWarnings("unchecked")
-public class SagaExecutionComponentTest {
+public class SagaExecutionComponentTestBase {
 
   private static final String requestJson = "[\n"
       + "  {\n"
@@ -134,9 +137,14 @@ public class SagaExecutionComponentTest {
       eventStore,
       fromJsonFormat,
       null,
-      null
+      sagaFactory()
   );
+
   private final String sagaId = "1";
+
+  GraphBasedSagaFactory sagaFactory() {
+    return new GraphBasedSagaFactory(500, eventStore, null, Executors.newFixedThreadPool(5));
+  }
 
   @Before
   public void setUp() throws Exception {

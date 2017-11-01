@@ -19,10 +19,7 @@ package io.servicecomb.saga.core.application;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import io.servicecomb.saga.core.EventEnvelope;
 import io.servicecomb.saga.core.EventStore;
@@ -49,27 +46,11 @@ public class SagaExecutionComponent {
       PersistentStore persistentStore,
       FromJsonFormat<SagaDefinition> fromJsonFormat,
       ToJsonFormat toJsonFormat,
-      FromJsonFormat<Set<String>> childrenExtractor) {
-    this(
-        500,
-        persistentStore,
-        fromJsonFormat,
-        toJsonFormat,
-        childrenExtractor,
-        Executors.newFixedThreadPool(5));
-  }
-
-  public SagaExecutionComponent(
-      int retryDelay,
-      PersistentStore persistentStore,
-      FromJsonFormat<SagaDefinition> fromJsonFormat,
-      ToJsonFormat toJsonFormat,
-      FromJsonFormat<Set<String>> childrenExtractor,
-      ExecutorService executorService) {
+      SagaFactory sagaFactory) {
     this.persistentStore = persistentStore;
     this.fromJsonFormat = fromJsonFormat;
     this.toJsonFormat = toJsonFormat;
-    this.sagaFactory = new GraphBasedSagaFactory(retryDelay, persistentStore, childrenExtractor, executorService);
+    this.sagaFactory = sagaFactory;
   }
 
   @Segment(name = "runSagaExecutionComponent", category = "application", library = "kamon")

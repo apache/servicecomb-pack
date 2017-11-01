@@ -17,13 +17,9 @@
 package io.servicecomb.saga.core.actors;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
-import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -33,7 +29,7 @@ import org.scalatest.junit.JUnitSuite;
 
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaResponse;
-import io.servicecomb.saga.core.actors.messages.AbortMessage;
+import io.servicecomb.saga.core.actors.messages.AbortRecoveryMessage;
 import io.servicecomb.saga.core.actors.messages.CompensationRecoveryMessage;
 import io.servicecomb.saga.core.actors.messages.TransactionRecoveryMessage;
 import akka.actor.ActorSystem;
@@ -83,18 +79,14 @@ public class EventContextImplTest extends JUnitSuite {
   }
 
   @Test
-  public void sendAbortMessageToAllActors_OnAbort() throws Exception {
+  public void sendAbortMessageToActor_OnAbort() throws Exception {
     new TestKit(actorSystem) {{
       context.addActor(requestId, getRef());
-      context.addActor(uniquify("anotherRequestId"), getRef());
 
       eventContext.abortTransaction(request, response);
 
-      List<SagaResponse> responses = receiveN(2, duration("2 seconds")).stream()
-          .map(o -> ((AbortMessage) o).response())
-          .collect(Collectors.toList());
-
-      assertThat(responses, contains(response, response));
+      AbortRecoveryMessage message = ((AbortRecoveryMessage) receiveOne(duration("2 seconds")));
+      assertThat(message.response(), is(response));
     }};
   }
 }
