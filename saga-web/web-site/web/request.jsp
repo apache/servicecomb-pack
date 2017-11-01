@@ -119,11 +119,17 @@
                                                 <div class="form-group row">
                                                     <label for="transaction-params-btn" class="col-sm-3 col-form-label">Params</label>
                                                     <div class="col-sm-9">
-                                                        <button type="button" class="btn btn-primary" id="transaction-params-btn">Add a parameter</button>
+                                                        <button type="button" class="btn btn-primary" id="transaction-new-query-btn">Add query data</button>
+                                                        <button type="button" class="btn btn-primary" id="transaction-new-form-btn">Add form data</button>
+                                                        <button type="button" class="btn btn-primary" id="transaction-new-json-btn">Add json body</button>
                                                     </div>
                                                 </div>
                                                 <table class="table" id="transaction-params">
                                                 </table>
+                                                <div class="form-group" id="transaction-params-json-div" hidden>
+                                                    <label for="transaction-params-json">json</label>
+                                                    <textarea class="form-control" rows="5" id="transaction-params-json"></textarea>
+                                                </div>
                                                 <h4>Compensation:</h4>
                                                 <div class="form-group row">
                                                     <label for="compensation-method" class="col-sm-3 col-form-label">Method</label>
@@ -145,11 +151,17 @@
                                                 <div class="form-group row">
                                                     <label for="compensation-params-btn" class="col-sm-3 col-form-label">Params</label>
                                                     <div class="col-sm-9">
-                                                        <button type="button" class="btn btn-primary" id="compensation-params-btn">Add a parameter</button>
+                                                        <button type="button" class="btn btn-primary" id="compensation-new-query-btn">Add query data</button>
+                                                        <button type="button" class="btn btn-primary" id="compensation-new-form-btn">Add form data</button>
+                                                        <button type="button" class="btn btn-primary" id="compensation-new-json-btn">Add json body</button>
                                                     </div>
                                                 </div>
                                                 <table class="table" id="compensation-params">
                                                 </table>
+                                                <div class="form-group" id="compensation-params-json-div" hidden>
+                                                    <label for="compensation-params-json">json</label>
+                                                    <textarea class="form-control" rows="5" id="compensation-params-json"></textarea>
+                                                </div>
                                                 <div class="form-group row">
                                                     <label for="parents-btn" class="h4 col-sm-3 col-form-label">Parents:</label>
                                                     <div class="col-sm-9">
