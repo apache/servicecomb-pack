@@ -142,8 +142,6 @@ public class ActorBasedSagaIntegrationTest {
     when(compensation1.send(request1.serviceName(), compensationResponse2)).thenReturn(compensationResponse1);
     when(compensation2.send(request2.serviceName(), compensationResponse3)).thenReturn(compensationResponse2);
     when(compensation3.send(request3.serviceName(), EMPTY_RESPONSE)).thenReturn(compensationResponse3);
-
-    saga = sagaFactory.createSaga(requestJson, sagaId, eventStore, sagaDefinition);
   }
 
   @AfterClass
@@ -153,6 +151,7 @@ public class ActorBasedSagaIntegrationTest {
 
   @Test
   public void transactionsAreRunSuccessfully() {
+    saga = sagaFactory.createSaga(requestJson, sagaId, eventStore, sagaDefinition);
     saga.run();
 
     assertThat(eventStore, contains(
@@ -393,6 +392,7 @@ public class ActorBasedSagaIntegrationTest {
   @Test
   public void fallbackWhenCompensationFailed() {
     int retries = 3;
+    saga = sagaFactory.createSaga(requestJson, sagaId, eventStore, sagaDefinition);
 
     when(transaction2.send(request2.serviceName(), transactionResponse1)).thenThrow(exception);
     when(compensation1.send(request1.serviceName())).thenThrow(exception);
@@ -612,6 +612,7 @@ public class ActorBasedSagaIntegrationTest {
 
   @Test
   public void restoresSagaToEndStateByPlayingAllEvents() {
+    saga = sagaFactory.createSaga(requestJson, sagaId, eventStore, sagaDefinition);
     Iterable<EventEnvelope> events = asList(
         envelope(new SagaStartedEvent(sagaId, requestJson, SAGA_START_REQUEST)),
         envelope(new TransactionStartedEvent(sagaId, request1)),

@@ -21,7 +21,7 @@ import static akka.actor.ActorRef.noSender;
 import io.servicecomb.saga.core.EventContext;
 import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaResponse;
-import io.servicecomb.saga.core.actors.messages.AbortMessage;
+import io.servicecomb.saga.core.actors.messages.AbortRecoveryMessage;
 import io.servicecomb.saga.core.actors.messages.CompensationRecoveryMessage;
 import io.servicecomb.saga.core.actors.messages.Message;
 import io.servicecomb.saga.core.actors.messages.TransactionRecoveryMessage;
@@ -45,7 +45,7 @@ public class EventContextImpl implements EventContext {
 
   @Override
   public void abortTransaction(SagaRequest request, SagaResponse response) {
-    context.forAll(actor -> actor.tell(new AbortMessage(response), noSender()));
+    sendMessage(request, new AbortRecoveryMessage(response));
   }
 
   @Override
