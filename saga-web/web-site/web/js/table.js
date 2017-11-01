@@ -77,7 +77,11 @@ $("#content").bootstrapTable({
             field: 'status',
             title: 'Status',
             align: 'center',
-            width: '15%'
+            width: '15%',
+            //查看状态详情
+            formatter: function (value, row, index) {
+                return statusDetails(value,row);
+            }
         }
 
     ]
@@ -114,3 +118,11 @@ function changeDateFormat(value) {
     second = second < 10 ? ('0' + second) : second;
     return y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second;
 }
+
+//查看状态详情
+function statusDetails(value,row) {
+    var sagaId = row.sagaId;
+    var url = "<a href='detail.jsp?sagaId="+sagaId+"'>"+value+"</a>";
+    return url;
+}
+
