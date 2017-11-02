@@ -37,8 +37,7 @@
       var height = 300;
       var width = 400;
 
-      var host_url = window.location.host;
-      var url = "http://" + host_url + ":8080/requests/b";
+      var url = "http://127.0.0.1:8080/requests/b";
       var render = function (r, n) {
         /* the Raphael set is obligatory, containing all you want to display */
         var set = r.set().push(

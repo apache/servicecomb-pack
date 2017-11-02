@@ -22,8 +22,8 @@ function SetDate(obj, strFormat) {
   var by = date.getFullYear() - 50; // 最小值 → 50年前
   var ey = date.getFullYear() + 20; // 最大值 → 20年后
   // 初始化为中文版，1为英文版
-  cal = (cal == null) ? new Calendar(by, ey, 0, strFormat)
-      : (cal.dateFormatStyle == strFormat ? cal : new Calendar(by, ey, 0,
+  cal = (cal == null) ? new Calendar(by, ey, 1, strFormat)
+      : (cal.dateFormatStyle == strFormat ? cal : new Calendar(by, ey, 1,
           strFormat));
   cal.show(obj);
 }
