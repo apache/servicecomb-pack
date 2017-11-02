@@ -36,8 +36,17 @@
       var redraw;
       var height = 300;
       var width = 400;
-
-      var url = "http://127.0.0.1:8080/requests/b";
+      function getQueryString(name, url) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var r = url.match(reg);
+        if (r != null) return unescape(r[2]); return null;
+      }
+      var sagaId = "";
+      if (url.split('?').length > 1) {
+        var par = location.href.split('?')[1];
+        sagaId= getQueryString("sagaId", par);
+        }
+      var url = "http://127.0.0.1:8080/requests/"+sagaId;
       var render = function (r, n) {
         /* the Raphael set is obligatory, containing all you want to display */
         var set = r.set().push(
