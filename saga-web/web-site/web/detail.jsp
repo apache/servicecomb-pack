@@ -42,7 +42,7 @@
         if (r != null) return unescape(r[2]); return null;
       }
       var sagaId = "";
-      if (url.split('?').length > 1) {
+      if (location.href.split('?').length > 1) {
         var par = location.href.split('?')[1];
         sagaId= getQueryString("sagaId", par);
         }
