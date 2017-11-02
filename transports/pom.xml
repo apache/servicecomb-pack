@@ -29,6 +29,7 @@
   <modules>
     <module>transport-httpclient</module>
     <module>transport-httpclient-spring</module>
+    <module>transport-resttemplate</module>
   </modules>
 
 

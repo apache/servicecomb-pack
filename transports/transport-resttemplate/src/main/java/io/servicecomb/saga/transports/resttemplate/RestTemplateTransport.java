@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.discovery.service.center;
+package io.servicecomb.saga.transports.resttemplate;
 
 import static io.servicecomb.saga.core.SagaRequest.PARAM_FORM;
 import static io.servicecomb.saga.core.SagaRequest.PARAM_JSON;
@@ -28,7 +28,6 @@ import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
-import io.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SuccessfulSagaResponse;
 import io.servicecomb.saga.core.TransportFailedException;
@@ -46,12 +45,15 @@ import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-class ServiceCenterDiscoveryRestTransport implements RestTransport {
+public class RestTemplateTransport implements RestTransport {
 
-  private final RestTemplate restTemplate = RestTemplateBuilder.create();
+  private final String protocol;
+  private final RestTemplate restTemplate;
   private final Map<String, BiFunction<String, Map<String, Map<String, String>>, ResponseEntity<String>>> methodMapping = new HashMap<>();
 
-  ServiceCenterDiscoveryRestTransport() {
+  public RestTemplateTransport(RestTemplate restTemplate, String protocol) {
+    this.protocol = protocol;
+    this.restTemplate = restTemplate;
     this.restTemplate.setErrorHandler(new ResponseErrorHandler() {
       @Override
       public boolean hasError(ClientHttpResponse clientHttpResponse) throws IOException {
@@ -88,7 +90,7 @@ class ServiceCenterDiscoveryRestTransport implements RestTransport {
     params.getOrDefault(PARAM_QUERY, emptyMap())
         .forEach(uriComponentsBuilder::queryParam);
 
-    return "cse://" + address + uriComponentsBuilder.build().toString();
+    return protocol + address + uriComponentsBuilder.build().toString();
   }
 
   private BiFunction<String, Map<String, Map<String, String>>, ResponseEntity<String>> methodHandler(String method) {

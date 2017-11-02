@@ -91,5 +91,10 @@
       <groupId>com.github.seanyinx</groupId>
       <artifactId>unit-scaffolding</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.servicecomb.saga.transports</groupId>
+      <artifactId>transport-resttemplate</artifactId>
+      <version>0.0.3-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 </project>
