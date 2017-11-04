@@ -75,15 +75,15 @@
 		e.style.label = e.weight = Math.floor(Math.random() * 10) + 1;
 		return e;
     }
-    
-    /* modify the edge creation to attach random weights */
-    g.edgeFactory.build = function(source, target) {
-		var e = jQuery.extend(true, {}, this.template);
-		e.source = source;
-		e.target = target;
-		e.style.label = e.weight = Math.floor(Math.random() * 10) + 1;
-		return e;
-    }
+						
+	var render_st = function(r, n) {
+		/* the Raphael set is obligatory, containing all you want to display */
+		var set = r.set().push(
+			/* custom objects go here */
+			r.rect(n.point[0]-30, n.point[1]-13, 60, 44).attr({"fill": "#7b92f1", r : "22px", "stroke-width" : n.distance == 0 ? "3px" : "1px" })).push(
+			r.text(n.point[0], n.point[1] + 10, (n.label || n.id)));
+		return set;
+	};
 	
     window.onload = function () {
 		$.ajax({
@@ -96,8 +96,13 @@
 				var datas_status = datas.status;
 				$.each(datas.router,function(key,value){
 					if(datas_status[key] == 'Failed'){
-						g.addNode(key, {render:render_no});
-						g.addNode(value, {render:render_no});
+						if(key.indexOf("saga-start") == -1 && value.indexOf("saga-end") == -1){
+							g.addNode(key, {render:render_no});
+							g.addNode(value, {render:render_no});
+						}else{
+							g.addNode(key, {render:render_st});
+							g.addNode(value, {render:render_st});
+						}
 						g.addEdge(key, value, {
 							stroke: '#adadad',
 							//fill: '#f2f2f2',
@@ -105,8 +110,13 @@
 							directed : true
 						});
 					}else if(datas_status[value] == 'Failed'){
-						g.addNode(key, {render:render});
-						g.addNode(value, {render:render_false});
+						if(key.indexOf("saga-start") == -1 && value.indexOf("saga-end") == -1){
+							g.addNode(key, {render:render});
+							g.addNode(value, {render:render_false});
+						}else{
+							g.addNode(key, {render:render_st});
+							g.addNode(value, {render:render_st});
+						}
 						g.addEdge(key, value, {
 							stroke: '#adadad',
 							//fill: '#f2f2f2',
@@ -114,8 +124,13 @@
 							directed : true
 						});
 					}else{
-						g.addNode(key, {render:render});
-						g.addNode(value, {render:render});
+						if(key.indexOf("saga-start") == -1 && value.indexOf("saga-end") == -1){
+							g.addNode(key, {render:render});
+							g.addNode(value, {render:render});
+						}else{
+							g.addNode(key, {render:render_st});
+							g.addNode(value, {render:render_st});
+						}
 						g.addEdge(key, value, {
 							stroke: '#5b9bd5',
 							//fill: '#5b9bd5',
