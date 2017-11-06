@@ -35,6 +35,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -78,6 +79,7 @@ public class SagaController {
       @ApiResponse(code = 400, response = String.class, message = "illegal request content"),
       @ApiResponse(code = 500, response = String.class, message = "transaction failed")
   })
+  @CrossOrigin
   @RequestMapping(value = "requests", method = POST, consumes = TEXT_PLAIN_VALUE, produces = TEXT_PLAIN_VALUE)
   public ResponseEntity<String> processRequests(@RequestBody String request) {
     try {
@@ -109,6 +111,7 @@ public class SagaController {
       @ApiResponse(code = 200, response = String.class, message = "success"),
       @ApiResponse(code = 400, response = String.class, message = "illegal request content"),
   })
+  @CrossOrigin
   @RequestMapping(value = "requests", method = GET)
   public ResponseEntity<SagaExecutionQueryResult> queryExecutions(
       @RequestParam(name = "pageIndex") String pageIndex,
@@ -141,6 +144,7 @@ public class SagaController {
   @ApiResponses({
       @ApiResponse(code = 200, response = String.class, message = "success"),
   })
+  @CrossOrigin
   @RequestMapping(value = "requests/{sagaId}", method = GET)
   public ResponseEntity<SagaExecutionDetail> queryExecutionDetail(@PathVariable String sagaId) {
     return ResponseEntity.ok(queryService.querySagaExecutionDetail(sagaId));
