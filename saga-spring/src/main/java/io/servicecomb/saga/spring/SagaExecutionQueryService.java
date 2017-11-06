@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,8 +46,8 @@ import io.servicecomb.saga.core.SagaRequest;
 import io.servicecomb.saga.core.SagaStartedEvent;
 import io.servicecomb.saga.core.TransactionAbortedEvent;
 import io.servicecomb.saga.core.TransactionEndedEvent;
-import io.servicecomb.saga.core.dag.GraphBuilder;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
+import io.servicecomb.saga.core.dag.GraphBuilder;
 import io.servicecomb.saga.core.dag.GraphCycleDetectorImpl;
 import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
@@ -75,7 +76,7 @@ public class SagaExecutionQueryService {
       String startTime, String endTime) throws ParseException {
 
     Date start = "NaN-NaN-NaN NaN:NaN:NaN".equals(startTime) ? new Date(0) : this.dateFormat.parse(startTime);
-    Date end = "NaN-NaN-NaN NaN:NaN:NaN".equals(endTime) ? new Date(Long.MAX_VALUE) : this.dateFormat.parse(endTime);
+    Date end = "NaN-NaN-NaN NaN:NaN:NaN".equals(endTime) ? new Date() : this.dateFormat.parse(endTime);
 
     List<SagaExecution> requests = new ArrayList<>();
     Page<SagaEventEntity> startEvents = repo.findByTypeAndCreationTimeBetweenOrderByIdDesc(
@@ -103,7 +104,7 @@ public class SagaExecutionQueryService {
     SagaEventEntity[] entities = repo.findBySagaId(sagaId).toArray(new SagaEventEntity[0]);
     Optional<SagaEventEntity> sagaStartEvent = Arrays.stream(entities)
         .filter(entity -> SagaStartedEvent.class.getSimpleName().equals(entity.type())).findFirst();
-    Map<String, List<String>> router = new HashMap<>();
+    Map<String, HashSet<String>> router = new HashMap<>();
     Map<String, String> status = new HashMap<>();
     Map<String, String> error = new HashMap<>();
     if (sagaStartEvent.isPresent()) {
@@ -141,9 +142,9 @@ public class SagaExecutionQueryService {
     return new SagaExecutionDetail(router, status, error);
   }
 
-  private void loopLoadGraphNodes(Map<String, List<String>> router, Node<SagaRequest> node) {
+  private void loopLoadGraphNodes(Map<String, HashSet<String>> router, Node<SagaRequest> node) {
     if (isNodeValid(node)) {
-      List<String> point = router.computeIfAbsent(node.value().id(), key -> new ArrayList<>());
+      HashSet<String> point = router.computeIfAbsent(node.value().id(), key -> new HashSet<>());
       for (Node<SagaRequest> child : node.children()) {
         point.add(child.value().id());
         loopLoadGraphNodes(router, child);

@@ -15,114 +15,113 @@
  */
 
 $("#content").bootstrapTable({
-    method: 'get',
-    dataType: 'json',
-    url: '/saga-service/requests/',
-    queryParams: function queryParams(params) {
-        var start = document.getElementById("startTime").value;
-        var end = document.getElementById("endTime").value;
-        return {
-            startTime: changeDateFormat(start),
-            endTime: changeDateFormat(end),
-            pageIndex: params.pageNumber,
-            pageSize: params.limit
-        };
+  method: 'get',
+  dataType: 'json',
+  url: '/saga-service/requests/',
+  queryParams: function queryParams(params) {
+    var start = document.getElementById("startTime").value;
+    var end = document.getElementById("endTime").value;
+    return {
+      startTime: changeDateFormat(start),
+      endTime: changeDateFormat(end),
+      pageIndex: params.pageNumber,
+      pageSize: params.limit
+    };
 
+  }
+  ,
+  cache: false,
+  totalField: 'totalCount',
+  dataField: 'requests',
+  striped: true,
+  pageNumber: 0,
+  pageSize: 50,
+  pagination: true,
+  sidePagination: "server",
+  queryParamsType: 'limit',
+  columns: [
+    {checkbox: true},
+    {
+      field: 'id',
+      title: 'Id',
+      align: 'center',
+      width: '10%'
+    },
+    {
+      field: 'sagaId',
+      title: 'SagaId',
+      align: 'center',
+      width: '35%'
+    },
+    {
+      field: 'startTime',
+      title: 'StartTime',
+      align: 'center',
+      width: '20%',
+      //——修改——获取日期列的值进行转换
+      formatter: function (value, row, index) {
+        return changeDateFormat(value);
+      }
+    },
+    {
+      field: 'completedTime',
+      title: 'CompletedTime',
+      align: 'center',
+      width: '20%',
+      //——修改——获取日期列的值进行转换
+      formatter: function (value, row, index) {
+        return changeDateFormat(value);
+      }
+    },
+    {
+      field: 'status',
+      title: 'Status',
+      align: 'center',
+      width: '15%',
+      //查看状态详情
+      formatter: function (value, row, index) {
+        return statusDetails(value, row);
+      }
     }
-    ,
-    cache: false,
-    totalField: 'totalCount',
-    dataField: 'requests',
-    striped: true,
-    pageNumber: 1,
-    pageSize: 2,
-    pagination: true,
-    sidePagination: "server",
-    queryParamsType: 'limit',
-    columns: [
-        {checkbox: true},
-        {
-            field: 'id',
-            title: 'Id',
-            align: 'center',
-            width: '10%'
-        },
-        {
-            field: 'sagaId',
-            title: 'SagaId',
-            align: 'center',
-            width: '35%'
-        },
-        {
-            field: 'startTime',
-            title: 'StartTime',
-            align: 'center',
-            width: '20%',
-            //——修改——获取日期列的值进行转换
-            formatter: function (value, row, index) {
-                return changeDateFormat(value);
-            }
-        },
-        {
-            field: 'completedTime',
-            title: 'CompletedTime',
-            align: 'center',
-            width: '20%',
-            //——修改——获取日期列的值进行转换
-            formatter: function (value, row, index) {
-                return changeDateFormat(value);
-            }
-        },
-        {
-            field: 'status',
-            title: 'Status',
-            align: 'center',
-            width: '15%',
-            //查看状态详情
-            formatter: function (value, row, index) {
-                return statusDetails(value,row);
-            }
-        }
 
-    ]
+  ]
 
 });
 
-
 function refresh(params) {
 
-    var start = document.getElementById("startTime").value;
-    var end = document.getElementById("endTime").value;
+  var start = document.getElementById("startTime").value;
+  var end = document.getElementById("endTime").value;
 
-    var params = {
-        startTime: changeDateFormat(start),
-        endTime: changeDateFormat(end),
-        pageIndex: 0,
-        pageSize: params.limit
-    }
-    $('#content').bootstrapTable('refresh', params);
+  var params = {
+    startTime: changeDateFormat(start),
+    endTime: changeDateFormat(end),
+    pageIndex: 0,
+    pageSize: 50
+  }
+  $('#content').bootstrapTable('refresh', params);
 }
 
 //时间转换
 function changeDateFormat(value) {
-    var date = new Date(value);
-    var y = date.getFullYear();
-    var m = date.getMonth() + 1;
-    m = m < 10 ? ('0' + m) : m;
-    var d = date.getDate();
-    d = d < 10 ? ('0' + d) : d;
-    var h = date.getHours();
-    var minute = date.getMinutes();
-    minute = minute < 10 ? ('0' + minute) : minute;
-    var second = date.getSeconds();
-    second = second < 10 ? ('0' + second) : second;
-    return y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second;
+  var date = new Date(value);
+  var y = date.getFullYear();
+  var m = date.getMonth() + 1;
+  m = m < 10 ? ('0' + m) : m;
+  var d = date.getDate();
+  d = d < 10 ? ('0' + d) : d;
+  var h = date.getHours();
+  var minute = date.getMinutes();
+  minute = minute < 10 ? ('0' + minute) : minute;
+  var second = date.getSeconds();
+  second = second < 10 ? ('0' + second) : second;
+  return y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second;
 }
 
 //查看状态详情
-function statusDetails(value,row) {
-    var sagaId = row.sagaId;
-    var url = "<a href='detail.html?sagaId="+sagaId+"'>"+value+"</a>";
-    return url;
+function statusDetails(value, row) {
+  var sagaId = row.sagaId;
+  var url = "<a href='detail.html?sagaId=" + sagaId + "'>" + value + "</a>";
+  return url;
 }
 

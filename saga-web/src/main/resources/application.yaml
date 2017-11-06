@@ -16,7 +16,7 @@
 
 zuul:
   routes:
-    calculator:
+    saga-service:
       serviceId: saga-service
 
 # disable netflix eurkea since it's not used for service discovery
