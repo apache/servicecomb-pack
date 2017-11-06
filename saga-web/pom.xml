@@ -105,27 +105,6 @@
         </plugins>
       </build>
     </profile>
-    <profile>
-      <id>perf</id>
-      <dependencies>
-        <dependency>
-          <groupId>io.kamon</groupId>
-          <artifactId>kamon-log-reporter_2.12</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>io.kamon</groupId>
-          <artifactId>kamon-statsd_2.12</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>io.kamon</groupId>
-          <artifactId>kamon-autoweave_2.12</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.aspectj</groupId>
-          <artifactId>aspectjweaver</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
   </profiles>
 
 </project>
