@@ -17,7 +17,7 @@
 $("#content").bootstrapTable({
     method: 'get',
     dataType: 'json',
-    url: 'http://localhost:8080/requests/',
+    url: '/saga-service/requests/',
     queryParams: function queryParams(params) {
         var start = document.getElementById("startTime").value;
         var end = document.getElementById("endTime").value;
@@ -97,7 +97,7 @@ function refresh(params) {
     var params = {
         startTime: changeDateFormat(start),
         endTime: changeDateFormat(end),
-        pageIndex: 1,
+        pageIndex: 0,
         pageSize: params.limit
     }
     $('#content').bootstrapTable('refresh', params);
@@ -122,7 +122,7 @@ function changeDateFormat(value) {
 //查看状态详情
 function statusDetails(value,row) {
     var sagaId = row.sagaId;
-    var url = "<a href='detail.jsp?sagaId="+sagaId+"'>"+value+"</a>";
+    var url = "<a href='detail.html?sagaId="+sagaId+"'>"+value+"</a>";
     return url;
 }
 

@@ -26,12 +26,14 @@
   transform: translate(-50%, -50%);
   -webkit-transform: translate(-50%, -50%);
 }
+
 .loading,
 .loading span {
   width: 62px;
   height: 62px;
   border-radius: 62px;
 }
+
 .loading {
   border: 5px solid #d0cecc;
 }
@@ -46,6 +48,7 @@
   background-size: 17px 8px;
   background-position: 31px 1px;
 }
+
 .loading::after {
   content: "loading";
   display: block;
@@ -59,6 +62,7 @@
   border-radius: 50px;
   background: #d0cecc;
 }
+
 .loading-data img {
   width: 100%;
   max-width: 100%;
