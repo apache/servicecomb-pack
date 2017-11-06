@@ -27,6 +27,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -133,7 +134,8 @@ public class SagaController {
     try {
       if (Integer.parseInt(pageIndex) >= 0 && Integer.parseInt(pageSize) > 0) {
         Date start = "NaN-NaN-NaN NaN:NaN:NaN".equals(startTime) ? new Date(0) : this.dateFormat.parse(startTime);
-        Date end = "NaN-NaN-NaN NaN:NaN:NaN".equals(endTime) ? new Date(Long.MAX_VALUE) : this.dateFormat.parse(endTime);
+        Date end =
+            "NaN-NaN-NaN NaN:NaN:NaN".equals(endTime) ? new Date(Long.MAX_VALUE) : this.dateFormat.parse(endTime);
         return start.getTime() <= end.getTime();
       }
     } catch (NumberFormatException | ParseException ignored) {
@@ -201,14 +203,14 @@ public class SagaController {
 
   @JsonAutoDetect(fieldVisibility = ANY, getterVisibility = NONE, setterVisibility = NONE)
   static class SagaExecutionDetail {
-    public Map<String, List<String>> router;
+    public Map<String, HashSet<String>> router;
     public Map<String, String> status;
     public Map<String, String> error;
 
     public SagaExecutionDetail() {
     }
 
-    public SagaExecutionDetail(Map<String, List<String>> router, Map<String, String> status,
+    public SagaExecutionDetail(Map<String, HashSet<String>> router, Map<String, String> status,
         Map<String, String> error) {
       this();
       this.router = router;

@@ -74,12 +74,12 @@ services:
         condition: service_healthy
 
   web:
-      image: "saga-web:0.0.3-SNAPSHOT"
-      hostname: web
-      links:
-        - "service-center:sc.servicecomb.io"
-        - "saga:saga.servicecomb.io"
-      environment:
-        - JAVA_OPTS=-Dspring.profiles.active=prd,servicecomb -Dcse.service.registry.address=http://sc.servicecomb.io:30100
-      ports:
-        - "8888:8888"
+    image: "saga-web:0.0.3-SNAPSHOT"
+    hostname: web
+    links:
+      - "service-center:sc.servicecomb.io"
+      - "saga:saga.servicecomb.io"
+    environment:
+      - JAVA_OPTS=-Dspring.profiles.active=prd,servicecomb -Dcse.service.registry.address=http://sc.servicecomb.io:30100
+    ports:
+      - "8888:8888"
