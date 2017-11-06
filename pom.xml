@@ -15,14 +15,13 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>io.servicecomb.saga</groupId>
   <artifactId>saga</artifactId>
   <packaging>pom</packaging>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>0.0.3-SNAPSHOT</version>
 
   <modules>
     <module>saga-core</module>
@@ -38,17 +37,38 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>1.8</java.version>
-    <kamon.version>0.6.2</kamon.version>
+    <kamon.version>0.6.7</kamon.version>
     <log4j.version>2.6.2</log4j.version>
     <spring.boot.version>1.4.5.RELEASE</spring.boot.version>
+    <spring.cloud.version>Camden.SR6</spring.cloud.version>
     <java.chassis.version>0.2.0</java.chassis.version>
     <spring.version>4.3.7.RELEASE</spring.version>
+    <akka.version>2.5.6</akka.version>
   </properties>
 
+  <name>ServiceComb Saga</name>
+  <description>Eventual consistency component for distributed systems</description>
+  <url>https://github.com/ServiceComb/ServiceComb-Saga</url>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>The ServiceComb Developer Team</name>
+      <email>dev@servicecomb.io</email>
+    </developer>
+  </developers>
+
   <scm>
-    <connection>scm:git:https://github.com/ServiceComb/saga.git</connection>
-    <developerConnection>scm:git:https://github.com/ServiceComb/saga.git</developerConnection>
-    <url>https://github.com/servicecomb/saga</url>
+    <connection>scm:git:https://github.com/ServiceComb/ServiceComb-Saga.git</connection>
+    <developerConnection>scm:git:https://github.com/ServiceComb/ServiceComb-Saga.git</developerConnection>
+    <url>https://github.com/ServiceComb/ServiceComb-Saga</url>
     <tag>${project.version}</tag>
   </scm>
 
@@ -72,32 +92,37 @@
       <dependency>
         <groupId>io.servicecomb.saga</groupId>
         <artifactId>saga-core</artifactId>
-        <version>0.0.2-SNAPSHOT</version>
+        <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>io.servicecomb.saga</groupId>
         <artifactId>saga-format</artifactId>
-        <version>0.0.2-SNAPSHOT</version>
+        <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>io.servicecomb.saga</groupId>
         <artifactId>saga-spring</artifactId>
-        <version>0.0.2-SNAPSHOT</version>
+        <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>io.servicecomb.saga.transports</groupId>
         <artifactId>transport-httpclient</artifactId>
-        <version>0.0.2-SNAPSHOT</version>
+        <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>io.servicecomb.saga.transports</groupId>
         <artifactId>transport-httpclient-spring</artifactId>
-        <version>0.0.2-SNAPSHOT</version>
+        <version>0.0.3-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>io.servicecomb.saga.transports</groupId>
+        <artifactId>transport-resttemplate</artifactId>
+        <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>io.servicecomb.saga.discovery</groupId>
         <artifactId>saga-discovery-servicecenter</artifactId>
-        <version>0.0.2-SNAPSHOT</version>
+        <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>
@@ -126,28 +151,78 @@
       </dependency>
       <dependency>
         <groupId>io.kamon</groupId>
-        <artifactId>kamon-core_2.11</artifactId>
+        <artifactId>kamon-core_2.12</artifactId>
         <version>${kamon.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.12</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>io.kamon</groupId>
-        <artifactId>kamon-annotation_2.11</artifactId>
+        <artifactId>kamon-annotation_2.12</artifactId>
         <version>${kamon.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.12</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>io.kamon</groupId>
-        <artifactId>kamon-log-reporter_2.11</artifactId>
+        <artifactId>kamon-log-reporter_2.12</artifactId>
         <version>${kamon.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.12</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>io.kamon</groupId>
-        <artifactId>kamon-statsd_2.11</artifactId>
+        <artifactId>kamon-statsd_2.12</artifactId>
         <version>${kamon.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.12</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>io.kamon</groupId>
-        <artifactId>kamon-autoweave_2.11</artifactId>
+        <artifactId>kamon-autoweave_2.12</artifactId>
         <version>${kamon.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.12</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.aspectj</groupId>
@@ -159,8 +234,30 @@
         <artifactId>disruptor</artifactId>
         <version>3.3.6</version>
       </dependency>
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-actor_2.12</artifactId>
+        <version>${akka.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-slf4j_2.12</artifactId>
+        <version>${akka.version}</version>
+      </dependency>
 
       <!-- test dependencies -->
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-testkit_2.12</artifactId>
+        <version>${akka.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.scalatest</groupId>
+        <artifactId>scalatest_2.12</artifactId>
+        <version>3.0.4</version>
+        <scope>test</scope>
+      </dependency>
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
@@ -219,6 +316,12 @@
         <groupId>uk.co.datumedge</groupId>
         <artifactId>hamcrest-json</artifactId>
         <version>0.2</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-test</artifactId>
+        <version>${spring.version}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>

@@ -16,29 +16,20 @@
 
 package io.servicecomb.saga.core;
 
-import java.util.List;
 import java.util.function.Consumer;
 
-public interface SagaContext {
+public interface SagaContext extends EventContext {
   boolean isCompensationStarted();
 
   boolean isTransactionCompleted(SagaRequest request);
 
   boolean isCompensationCompleted(SagaRequest request);
 
-  void beginTransaction(SagaRequest request);
-
-  void endTransaction(SagaRequest request, SagaResponse response);
-
-  void abortTransaction(SagaRequest request);
-
-  void compensateTransaction(SagaRequest request, SagaResponse response);
-
   void handleHangingTransactions(Consumer<SagaRequest> consumer);
 
   SagaResponse responseOf(String requestId);
 
-  List<SagaResponse> responsesOf(String[] parentRequestIds);
-
   boolean isChosenChild(SagaRequest request);
+
+  SagaResponse responseOf(String[] parentRequestIds);
 }

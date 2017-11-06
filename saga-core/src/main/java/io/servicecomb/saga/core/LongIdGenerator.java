@@ -18,7 +18,7 @@ package io.servicecomb.saga.core;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-class LongIdGenerator implements IdGenerator<Long> {
+public class LongIdGenerator implements IdGenerator<Long> {
 
   private final AtomicLong atomicLong = new AtomicLong();
 

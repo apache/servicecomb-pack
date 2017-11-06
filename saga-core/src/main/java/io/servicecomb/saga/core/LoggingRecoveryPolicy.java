@@ -25,20 +25,21 @@ import org.slf4j.LoggerFactory;
 
 
 @EnableKamon
-class LoggingRecoveryPolicy implements RecoveryPolicy {
+public class LoggingRecoveryPolicy implements RecoveryPolicy {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final RecoveryPolicy recoveryPolicy;
 
-  LoggingRecoveryPolicy(RecoveryPolicy recoveryPolicy) {
+  public LoggingRecoveryPolicy(RecoveryPolicy recoveryPolicy) {
     this.recoveryPolicy = recoveryPolicy;
   }
 
   @Segment(name = "loggingPolicy", category = "application", library = "kamon")
   @Override
-  public void apply(SagaTask task, SagaRequest request) {
+  public SagaResponse apply(SagaTask task, SagaRequest request, SagaResponse parentResponse) {
     log.info("Starting request id={} for service {}", request.id(), request.serviceName());
-    recoveryPolicy.apply(task, request);
+    SagaResponse response = recoveryPolicy.apply(task, request, parentResponse);
     log.info("Completed request id={} for service {}", request.id(), request.serviceName());
+    return response;
   }
 }

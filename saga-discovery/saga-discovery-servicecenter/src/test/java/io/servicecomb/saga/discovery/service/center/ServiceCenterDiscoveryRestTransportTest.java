@@ -17,28 +17,31 @@
 package io.servicecomb.saga.discovery.service.center;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
+import static io.servicecomb.saga.discovery.service.center.ServiceCenterDiscoveryConfig.PROTOCOL;
 import static io.servicecomb.serviceregistry.client.LocalServiceRegistryClientImpl.LOCAL_REGISTRY_FILE_KEY;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
-import static org.apache.http.HttpStatus.SC_OK;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
-import io.servicecomb.saga.core.SagaResponse;
-import io.servicecomb.saga.core.TransportFailedException;
-import io.servicecomb.saga.transports.RestTransport;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import io.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
+import io.servicecomb.saga.core.SagaResponse;
+import io.servicecomb.saga.core.TransportFailedException;
+import io.servicecomb.saga.transports.RestTransport;
+import io.servicecomb.saga.transports.resttemplate.RestTemplateTransport;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ServiceCenterDiscoveryApplication.class, webEnvironment = RANDOM_PORT)
@@ -49,7 +52,7 @@ public class ServiceCenterDiscoveryRestTransportTest {
   private static final String usableResponse = "foo bar, hello world";
   private static final String json = "{\"hello\", \"world\"}";
 
-  private final RestTransport transport = new ServiceCenterDiscoveryRestTransport();
+  private final RestTransport transport = new RestTemplateTransport(RestTemplateBuilder.create(), PROTOCOL);
   private final String serviceName = "saga-service";
 
   @BeforeClass

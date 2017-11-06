@@ -16,8 +16,10 @@
 
 package io.servicecomb.saga.discovery.service.center;
 
+import io.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import io.servicecomb.saga.transports.HttpClientTransportConfig;
 import io.servicecomb.saga.transports.RestTransport;
+import io.servicecomb.saga.transports.resttemplate.RestTemplateTransport;
 import io.servicecomb.springboot.starter.provider.EnableServiceComb;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.context.annotation.Bean;
@@ -30,8 +32,10 @@ import org.springframework.context.annotation.Profile;
 @AutoConfigureBefore(HttpClientTransportConfig.class)
 public class ServiceCenterDiscoveryConfig {
 
+  static final String PROTOCOL = "cse://";
+
   @Bean
   RestTransport restTransport() {
-    return new ServiceCenterDiscoveryRestTransport();
+    return new RestTemplateTransport(RestTemplateBuilder.create(), PROTOCOL);
   }
 }

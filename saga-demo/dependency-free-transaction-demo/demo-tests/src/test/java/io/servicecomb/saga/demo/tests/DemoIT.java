@@ -100,7 +100,7 @@ public class DemoIT {
       + "    {\n"
       + "      \"id\": \"request-payment\",\n"
       + "      \"type\": \"rest\",\n"
-      + "      \"serviceName\": \"payment-service\",\n"
+      + "      \"serviceName\": \"saga-crossapp:payment-service\",\n"
       + "      \"parents\": [\n"
       + "        \"request-car\",\n"
       + "        \"request-flight\",\n"

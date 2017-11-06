@@ -30,7 +30,7 @@ public abstract class SagaEvent implements Descriptive {
     return payload;
   }
 
-  public abstract void gatherTo(SagaContext sagaContext);
+  public abstract void gatherTo(EventContext sagaContext);
 
   public String json(ToJsonFormat toJsonFormat) {
     return "{}";

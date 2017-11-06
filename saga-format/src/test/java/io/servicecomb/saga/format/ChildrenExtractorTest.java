@@ -17,7 +17,7 @@
 package io.servicecomb.saga.format;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
-import static io.servicecomb.saga.core.SagaContextImpl.NONE_RESPONSE;
+import static io.servicecomb.saga.core.SagaResponse.NONE_RESPONSE;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;

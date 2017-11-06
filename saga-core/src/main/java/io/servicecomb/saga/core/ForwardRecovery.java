@@ -25,15 +25,11 @@ public class ForwardRecovery implements RecoveryPolicy {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
-  public void apply(SagaTask task, SagaRequest request) {
+  public SagaResponse apply(SagaTask task, SagaRequest request, SagaResponse parentResponse) {
     try {
-      boolean success = false;
       do {
         try {
-          task.commit(request);
-          success = true;
-        } catch (SagaStartFailedException e) {
-          throw e;
+          return request.transaction().send(request.serviceName(), parentResponse);
         } catch (Exception e) {
           log.error("Applying {} policy due to failure in transaction {} of service {}",
               description(),
@@ -43,7 +39,7 @@ public class ForwardRecovery implements RecoveryPolicy {
           );
           Thread.sleep(request.failRetryDelayMilliseconds());
         }
-      } while (!success);
+      } while (true);
     } catch (InterruptedException ignored) {
       log.warn("Applying {} interrupted in transaction {} of service {}",
           description(),

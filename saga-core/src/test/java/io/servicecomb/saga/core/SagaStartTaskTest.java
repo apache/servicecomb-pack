@@ -2,6 +2,7 @@ package io.servicecomb.saga.core;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -24,7 +25,7 @@ public class SagaStartTaskTest {
     ArgumentCaptor<SagaStartedEvent> argumentCaptor = ArgumentCaptor.forClass(SagaStartedEvent.class);
     doNothing().when(sagaLog).offer(argumentCaptor.capture());
 
-    sagaStartTask.commit(request);
+    sagaStartTask.commit(request, SagaResponse.EMPTY_RESPONSE);
 
     SagaStartedEvent event = argumentCaptor.getValue();
     assertThat(event.sagaId, is(sagaId));
@@ -37,10 +38,10 @@ public class SagaStartTaskTest {
     doThrow(RuntimeException.class).when(sagaLog).offer(any(SagaStartedEvent.class));
 
     try {
-      sagaStartTask.commit(request);
+      sagaStartTask.commit(request, SagaResponse.EMPTY_RESPONSE);
       expectFailing(SagaStartFailedException.class);
     } catch (SagaStartFailedException e) {
-      assertThat(e.getMessage(), is("Failed to persist SagaStartedEvent"));
+      assertThat(e.getMessage(), startsWith("Failed to persist SagaStartedEvent"));
     }
   }
 }

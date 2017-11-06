@@ -16,13 +16,14 @@
 
 package io.servicecomb.saga.core;
 
+import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static io.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
 import static io.servicecomb.saga.core.Operation.TYPE_REST;
-import static io.servicecomb.saga.core.SagaContextImpl.NONE_RESPONSE;
 import static io.servicecomb.saga.core.SagaEventMatcher.eventWith;
 import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
+import static io.servicecomb.saga.core.SagaResponse.NONE_RESPONSE;
 import static io.servicecomb.saga.core.SagaTask.SAGA_END_TASK;
 import static io.servicecomb.saga.core.SagaTask.SAGA_REQUEST_TASK;
 import static io.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
@@ -32,10 +33,12 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -59,6 +62,7 @@ import com.seanyinx.github.unit.scaffolding.Randomness;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.core.dag.Node;
 import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
+import io.servicecomb.saga.infrastructure.ContextAwareEventStore;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 
 @SuppressWarnings("unchecked")
@@ -68,7 +72,8 @@ public class SagaIntegrationTest {
   private final FromJsonFormat<Set<String>> childrenExtractor = mock(FromJsonFormat.class);
   private final SagaContext sagaContext = new SagaContextImpl(childrenExtractor);
   private final IdGenerator<Long> idGenerator = new LongIdGenerator();
-  private final EventStore eventStore = new EmbeddedEventStore(sagaContext);
+  private final EventStore eventStore = new EmbeddedEventStore();
+  private final ContextAwareEventStore sagaLog = new ContextAwareEventStore(eventStore, sagaContext);
 
   private final Transaction transaction1 = mock(Transaction.class, "transaction1");
   private final Transaction transaction2 = mock(Transaction.class, "transaction2");
@@ -127,15 +132,15 @@ public class SagaIntegrationTest {
     node1.addChild(node2);
     node2.addChild(leaf);
 
-    SagaStartTask sagaStartTask = new SagaStartTask(sagaId, requestJson, eventStore);
-    SagaEndTask sagaEndTask = new SagaEndTask(sagaId, eventStore);
-    RequestProcessTask processTask = new RequestProcessTask(sagaId, eventStore, new FallbackPolicy(100));
+    SagaStartTask sagaStartTask = new SagaStartTask(sagaId, requestJson, sagaLog);
+    SagaEndTask sagaEndTask = new SagaEndTask(sagaId, sagaLog);
+    RequestProcessTask processTask = requestProcessTask(new BackwardRecovery());
 
     tasks.put(SAGA_START_TASK, sagaStartTask);
     tasks.put(SAGA_REQUEST_TASK, processTask);
     tasks.put(SAGA_END_TASK, sagaEndTask);
 
-    saga = new Saga(eventStore, tasks, sagaContext, sagaTaskGraph);
+    saga = new GraphBasedSaga(eventStore, tasks, sagaContext, sagaTaskGraph);
   }
 
   @Test
@@ -350,7 +355,8 @@ public class SagaIntegrationTest {
 
   @Test
   public void retriesFailedTransactionTillSuccess() {
-    Saga saga = new Saga(eventStore, new ForwardRecovery(), tasks, sagaContext, sagaTaskGraph);
+    RequestProcessTask processTask = requestProcessTask(new ForwardRecovery());
+    tasks.put(SAGA_REQUEST_TASK, processTask);
 
     when(transaction2.send(request2.serviceName(), transactionResponse1))
         .thenThrow(exception).thenThrow(exception).thenReturn(transactionResponse2);
@@ -361,8 +367,6 @@ public class SagaIntegrationTest {
         eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
         eventWith(sagaId, transaction1, TransactionStartedEvent.class),
         eventWith(sagaId, transaction1, TransactionEndedEvent.class),
-        eventWith(sagaId, transaction2, TransactionStartedEvent.class),
-        eventWith(sagaId, transaction2, TransactionStartedEvent.class),
         eventWith(sagaId, transaction2, TransactionStartedEvent.class),
         eventWith(sagaId, transaction2, TransactionEndedEvent.class),
         eventWith(sagaId, SAGA_END_TRANSACTION, SagaEndedEvent.class)
@@ -561,7 +565,7 @@ public class SagaIntegrationTest {
         envelope(new TransactionStartedEvent(sagaId, request2)),
         envelope(new TransactionEndedEvent(sagaId, request2)),
         envelope(new TransactionStartedEvent(sagaId, request3)),
-        envelope(new TransactionEndedEvent(sagaId, request3)),
+        envelope(new TransactionAbortedEvent(sagaId, request3, exception)),
         envelope(new TransactionCompensatedEvent(sagaId, request2))
     );
 
@@ -576,9 +580,8 @@ public class SagaIntegrationTest {
         eventWith(sagaId, transaction2, TransactionStartedEvent.class),
         eventWith(sagaId, transaction2, TransactionEndedEvent.class),
         eventWith(sagaId, transaction3, TransactionStartedEvent.class),
-        eventWith(sagaId, transaction3, TransactionEndedEvent.class),
+        eventWith(sagaId, transaction3, TransactionAbortedEvent.class),
         eventWith(sagaId, compensation2, TransactionCompensatedEvent.class),
-        eventWith(sagaId, compensation3, TransactionCompensatedEvent.class),
         eventWith(sagaId, compensation1, TransactionCompensatedEvent.class),
         eventWith(sagaId, SAGA_START_COMPENSATION, SagaEndedEvent.class)
     ));
@@ -589,7 +592,7 @@ public class SagaIntegrationTest {
 
     verify(compensation1).send(request1.serviceName());
     verify(compensation2, never()).send(request2.serviceName());
-    verify(compensation3).send(request3.serviceName());
+    verify(compensation3, never()).send(request3.serviceName());
   }
 
   @Test
@@ -615,6 +618,28 @@ public class SagaIntegrationTest {
         eventWith(sagaId, SAGA_END_TRANSACTION, SagaEndedEvent.class)
     ));
 
+    verify(transaction1, never()).send(anyString(), any(SagaResponse.class));
+    verify(transaction2, never()).send(anyString(), any(SagaResponse.class));
+
+    verify(compensation1, never()).send(request1.serviceName());
+    verify(compensation2, never()).send(request2.serviceName());
+  }
+
+  @Test
+  public void failFastIfSagaLogIsDown() throws Exception {
+    SagaLog sagaLog = mock(SagaLog.class);
+    tasks.put(SAGA_START_TASK, new SagaStartTask(sagaId, requestJson, sagaLog));
+
+    doThrow(RuntimeException.class).when(sagaLog).offer(any(SagaStartedEvent.class));
+
+    try {
+      saga.run();
+      expectFailing(SagaStartFailedException.class);
+    } catch (SagaStartFailedException e) {
+      assertThat(e.getMessage(), is("Failed to persist SagaStartedEvent for " + requestJson));
+    }
+
+    verify(sagaLog).offer(any(SagaStartedEvent.class));
     verify(transaction1, never()).send(anyString(), any(SagaResponse.class));
     verify(transaction2, never()).send(anyString(), any(SagaResponse.class));
 
@@ -655,5 +680,9 @@ public class SagaIntegrationTest {
 
   private HashSet<String> setOf(String requestId) {
     return new HashSet<>(singletonList(requestId));
+  }
+
+  private RequestProcessTask requestProcessTask(RecoveryPolicy recoveryPolicy) {
+    return new RequestProcessTask(sagaId, sagaLog, recoveryPolicy, new FallbackPolicy(100));
   }
 }

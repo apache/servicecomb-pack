@@ -116,7 +116,7 @@ The request JSON to ensure this process order looks like the following:
     {
       "id": "request-payment",
       "type": "rest",
-      "serviceName": "payment-service",
+      "serviceName": "saga-crossapp:payment-service",
       "parents": [
         "request-car",
         "request-flight",

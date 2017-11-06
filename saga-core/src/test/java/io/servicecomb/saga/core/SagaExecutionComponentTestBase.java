@@ -26,16 +26,15 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
-import io.servicecomb.saga.core.application.SagaExecutionComponent;
-import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
-import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -43,9 +42,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-@SuppressWarnings("unchecked")
-public class SagaExecutionComponentTest {
+import io.servicecomb.saga.core.application.SagaExecutionComponent;
+import io.servicecomb.saga.core.application.SagaFactory;
+import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
+import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
 
+@SuppressWarnings("unchecked")
+public abstract class SagaExecutionComponentTestBase {
   private static final String requestJson = "[\n"
       + "  {\n"
       + "    \"id\": \"request-1\",\n"
@@ -133,8 +136,9 @@ public class SagaExecutionComponentTest {
       eventStore,
       fromJsonFormat,
       null,
-      null
+      sagaFactory(eventStore)
   );
+
   private final String sagaId = "1";
 
   @Before
@@ -158,8 +162,9 @@ public class SagaExecutionComponentTest {
 
   @Test
   public void runSagaWithEventStore() throws IOException {
-    coordinator.run(sagaJson);
+    SagaResponse response = coordinator.run(sagaJson);
 
+    assertThat(response, is(SagaResponse.EMPTY_RESPONSE));
     assertThat(eventStore, contains(
         eventWith(SAGA_START_REQUEST, SagaStartedEvent.class),
         eventWith(request1, TransactionStartedEvent.class),
@@ -234,9 +239,6 @@ public class SagaExecutionComponentTest {
   }
 
   private class EmbeddedPersistentStore extends EmbeddedEventStore implements PersistentStore {
-    EmbeddedPersistentStore() {
-      super(new SagaContextImpl(null));
-    }
 
     @Override
     public Map<String, List<EventEnvelope>> findPendingSagaEvents() {
@@ -244,4 +246,6 @@ public class SagaExecutionComponentTest {
           new EventEnvelope(1L, new SagaStartedEvent(sagaId, sagaJson, SAGA_START_REQUEST))));
     }
   }
+
+  protected abstract SagaFactory sagaFactory(PersistentStore eventStore);
 }

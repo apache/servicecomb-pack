@@ -3,13 +3,17 @@
   <parent>
     <artifactId>saga</artifactId>
     <groupId>io.servicecomb.saga</groupId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>saga-core</artifactId>
 
   <dependencies>
+    <dependency>
+      <groupId>com.lmax</groupId>
+      <artifactId>disruptor</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -27,14 +31,31 @@
       <artifactId>log4j-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.kamon</groupId>
-      <artifactId>kamon-core_2.11</artifactId>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-actor_2.12</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-slf4j_2.12</artifactId>
     </dependency>
     <dependency>
       <groupId>io.kamon</groupId>
-      <artifactId>kamon-annotation_2.11</artifactId>
+      <artifactId>kamon-core_2.12</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.kamon</groupId>
+      <artifactId>kamon-annotation_2.12</artifactId>
     </dependency>
 
+    <!-- test dependencies -->
+    <dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-testkit_2.12</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.scalatest</groupId>
+      <artifactId>scalatest_2.12</artifactId>
+    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

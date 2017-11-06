@@ -16,6 +16,9 @@
 
 package io.servicecomb.saga.core;
 
+import static io.servicecomb.saga.core.SagaResponse.EMPTY_RESPONSE;
+import static io.servicecomb.saga.core.SagaResponse.NONE_RESPONSE;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,19 +33,6 @@ import java.util.stream.Collectors;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 
 public class SagaContextImpl implements SagaContext {
-  public static final SagaResponse NONE_RESPONSE = new SagaResponse() {
-    @Override
-    public boolean succeeded() {
-      return false;
-    }
-
-    @Override
-    public String body() {
-      return "{\n"
-          + "  \"sagaChildren\": [\"none\"]\n"
-          + "}";
-    }
-  };
 
   private final Map<String, SagaResponse> completedTransactions;
   private final Map<String, SagaResponse> completedCompensations;
@@ -85,7 +75,7 @@ public class SagaContextImpl implements SagaContext {
   }
 
   @Override
-  public void abortTransaction(SagaRequest request) {
+  public void abortTransaction(SagaRequest request, SagaResponse response) {
     completedTransactions.remove(request.id());
     abortedTransactions.add(request.id());
     hangingTransactions.remove(request.id());
@@ -109,11 +99,25 @@ public class SagaContextImpl implements SagaContext {
     return completedTransactions.getOrDefault(requestId, NONE_RESPONSE);
   }
 
-  @Override
-  public List<SagaResponse> responsesOf(String[] parentRequestIds) {
+  private List<SagaResponse> responsesOf(String[] parentRequestIds) {
     return Arrays.stream(parentRequestIds)
         .map(this::responseOf)
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public SagaResponse responseOf(String[] parentRequestIds) {
+    List<SagaResponse> responses = responsesOf(parentRequestIds);
+
+    if (responses.isEmpty()) {
+      return EMPTY_RESPONSE;
+    }
+
+    if (responses.size() == 1) {
+      return responses.get(0);
+    }
+
+    return new CompositeSagaResponse(responses);
   }
 
   @Override

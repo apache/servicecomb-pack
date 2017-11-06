@@ -14,31 +14,29 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.core.application;
+package io.servicecomb.saga.core.dag;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import io.servicecomb.saga.core.NoOpSagaRequest;
 import io.servicecomb.saga.core.SagaException;
 import io.servicecomb.saga.core.SagaRequest;
-import io.servicecomb.saga.core.dag.GraphCycleDetector;
-import io.servicecomb.saga.core.dag.Node;
-import io.servicecomb.saga.core.dag.SingleLeafDirectedAcyclicGraph;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
 
 @EnableKamon
-class GraphBuilder {
+public class GraphBuilder {
 
   private final GraphCycleDetector<SagaRequest> detector;
 
-  GraphBuilder(GraphCycleDetector<SagaRequest> detector) {
+  public GraphBuilder(GraphCycleDetector<SagaRequest> detector) {
     this.detector = detector;
   }
 
   @Segment(name = "buildGraph", category = "application", library = "kamon")
-  SingleLeafDirectedAcyclicGraph<SagaRequest> build(SagaRequest[] sagaRequests) {
+  public SingleLeafDirectedAcyclicGraph<SagaRequest> build(SagaRequest[] sagaRequests) {
     Map<String, Node<SagaRequest>> requestNodes = requestsToNodes(sagaRequests);
 
     SingleLeafDirectedAcyclicGraph<SagaRequest> graph = linkNodesToGraph(sagaRequests, requestNodes);

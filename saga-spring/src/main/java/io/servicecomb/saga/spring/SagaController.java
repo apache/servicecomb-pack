@@ -24,7 +24,8 @@ import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
-import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -32,8 +33,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,10 +43,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 import io.servicecomb.provider.rest.common.RestSchema;
-import io.servicecomb.saga.core.SagaEndedEvent;
 import io.servicecomb.saga.core.SagaException;
-import io.servicecomb.saga.core.SagaStartedEvent;
-import io.servicecomb.saga.core.TransactionAbortedEvent;
+import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.application.SagaExecutionComponent;
 import io.servicecomb.swagger.invocation.exception.InvocationException;
 import io.swagger.annotations.ApiResponse;
@@ -63,11 +60,16 @@ public class SagaController {
 
   private final SagaExecutionComponent sagaExecutionComponent;
   private final SagaEventRepo repo;
+  private final SagaExecutionQueryService queryService;
+  private final SimpleDateFormat dateFormat;
 
   @Autowired
-  public SagaController(SagaExecutionComponent sagaExecutionComponent, SagaEventRepo repo) {
+  public SagaController(SagaExecutionComponent sagaExecutionComponent, SagaEventRepo repo,
+      SagaExecutionQueryService queryService) {
     this.sagaExecutionComponent = sagaExecutionComponent;
     this.repo = repo;
+    this.queryService = queryService;
+    this.dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
   }
 
   @Trace("processRequests")
@@ -79,11 +81,11 @@ public class SagaController {
   @RequestMapping(value = "requests", method = POST, consumes = TEXT_PLAIN_VALUE, produces = TEXT_PLAIN_VALUE)
   public ResponseEntity<String> processRequests(@RequestBody String request) {
     try {
-      String runResult = sagaExecutionComponent.run(request);
-      if (runResult == null) {
+      SagaResponse response = sagaExecutionComponent.run(request);
+      if (response.succeeded()) {
         return ResponseEntity.ok("success");
       } else {
-        throw new InvocationException(INTERNAL_SERVER_ERROR, runResult);
+        throw new InvocationException(INTERNAL_SERVER_ERROR, response.body());
       }
     } catch (SagaException se) {
       throw new InvocationException(BAD_REQUEST, se);
@@ -108,53 +110,40 @@ public class SagaController {
       @ApiResponse(code = 400, response = String.class, message = "illegal request content"),
   })
   @RequestMapping(value = "requests", method = GET)
-  public ResponseEntity<SagaRequestQueryResult> queryRequests(
+  public ResponseEntity<SagaExecutionQueryResult> queryExecutions(
       @RequestParam(name = "pageIndex") String pageIndex,
       @RequestParam(name = "pageSize") String pageSize,
       @RequestParam(name = "startTime") String startTime,
       @RequestParam(name = "endTime") String endTime) {
     if (isRequestParamValid(pageIndex, pageSize, startTime, endTime)) {
-      List<SagaRequest> requests = new ArrayList<>();
-      Page<SagaEventEntity> startEvents = repo.findByTypeAndCreationTimeBetweenOrderByIdDesc(
-          SagaStartedEvent.class.getSimpleName(),
-          new Date(Long.parseLong(startTime)), new Date(Long.parseLong(endTime)),
-          new PageRequest(Integer.parseInt(pageIndex), Integer.parseInt(pageSize)));
-      for (SagaEventEntity event : startEvents) {
-        SagaEventEntity endEvent = repo
-            .findFirstByTypeAndSagaId(SagaEndedEvent.class.getSimpleName(), event.sagaId());
-        SagaEventEntity abortedEvent = repo
-            .findFirstByTypeAndSagaId(TransactionAbortedEvent.class.getSimpleName(), event.sagaId());
-
-        requests.add(new SagaRequest(
-            event.id(),
-            event.creationTime(),
-            endEvent == null ? 0 : endEvent.creationTime(),
-            endEvent == null ? "Running" : abortedEvent == null ? "OK" : "Failed"));
+      try {
+        return ResponseEntity.ok(queryService.querySagaExecution(pageIndex, pageSize, startTime, endTime));
+      } catch (ParseException ignored) {
+        throw new InvocationException(BAD_REQUEST, "illegal request content");
       }
-      return ResponseEntity.ok(
-          new SagaRequestQueryResult(Integer.parseInt(pageIndex), Integer.parseInt(pageSize),
-              startEvents.getTotalPages(), requests));
     } else {
       throw new InvocationException(BAD_REQUEST, "illegal request content");
     }
   }
 
   private boolean isRequestParamValid(String pageIndex, String pageSize, String startTime, String endTime) {
-    return Integer.parseInt(pageIndex) >= 0 && Integer.parseInt(pageSize) > 0
-        && Long.parseLong(startTime) <= Long.parseLong(endTime);
+    try {
+      if (Integer.parseInt(pageIndex) >= 0 && Integer.parseInt(pageSize) > 0) {
+        Date start = "NaN-NaN-NaN NaN:NaN:NaN".equals(startTime) ? new Date(0) : this.dateFormat.parse(startTime);
+        Date end = "NaN-NaN-NaN NaN:NaN:NaN".equals(endTime) ? new Date(Long.MAX_VALUE) : this.dateFormat.parse(endTime);
+        return start.getTime() <= end.getTime();
+      }
+    } catch (NumberFormatException | ParseException ignored) {
+    }
+    return false;
   }
 
   @ApiResponses({
       @ApiResponse(code = 200, response = String.class, message = "success"),
-      @ApiResponse(code = 400, response = String.class, message = "illegal request content"),
   })
   @RequestMapping(value = "requests/{sagaId}", method = GET)
-  public ResponseEntity<List<SagaEventVo>> queryRequest(@PathVariable String sagaId) {
-    Iterable<SagaEventEntity> entities = repo.findBySagaId(sagaId);
-    List<SagaEventVo> events = new ArrayList<>();
-    entities
-        .forEach(e -> events.add(new SagaEventVo(e.id(), e.sagaId(), e.creationTime(), e.type(), e.contentJson())));
-    return ResponseEntity.ok(events);
+  public ResponseEntity<SagaExecutionDetail> queryExecutionDetail(@PathVariable String sagaId) {
+    return ResponseEntity.ok(queryService.querySagaExecutionDetail(sagaId));
   }
 
   @JsonAutoDetect(fieldVisibility = ANY, getterVisibility = NONE, setterVisibility = NONE)
@@ -166,14 +155,18 @@ public class SagaController {
   }
 
   @JsonAutoDetect(fieldVisibility = ANY, getterVisibility = NONE, setterVisibility = NONE)
-  protected static class SagaRequestQueryResult {
+  static class SagaExecutionQueryResult {
     public int pageIndex;
     public int pageSize;
     public int totalPages;
 
-    public List<SagaRequest> requests = null;
+    public List<SagaExecution> requests;
 
-    public SagaRequestQueryResult(int pageIndex, int pageSize, int totalPages, List<SagaRequest> requests) {
+    public SagaExecutionQueryResult() {
+    }
+
+    public SagaExecutionQueryResult(int pageIndex, int pageSize, int totalPages, List<SagaExecution> requests) {
+      this();
       this.pageIndex = pageIndex;
       this.pageSize = pageSize;
       this.totalPages = totalPages;
@@ -182,17 +175,41 @@ public class SagaController {
   }
 
   @JsonAutoDetect(fieldVisibility = ANY, getterVisibility = NONE, setterVisibility = NONE)
-  protected static class SagaRequest {
+  static class SagaExecution {
     public long id;
+    public String sagaId;
     public long startTime;
     public String status;
     public long completedTime;
 
-    public SagaRequest(long id, long startTime, long completedTime, String status) {
+    public SagaExecution() {
+    }
+
+    public SagaExecution(long id, String sagaId, long startTime, long completedTime, String status) {
+      this();
       this.id = id;
+      this.sagaId = sagaId;
       this.startTime = startTime;
       this.completedTime = completedTime;
       this.status = status;
+    }
+  }
+
+  @JsonAutoDetect(fieldVisibility = ANY, getterVisibility = NONE, setterVisibility = NONE)
+  static class SagaExecutionDetail {
+    public Map<String, List<String>> router;
+    public Map<String, String> status;
+    public Map<String, String> error;
+
+    public SagaExecutionDetail() {
+    }
+
+    public SagaExecutionDetail(Map<String, List<String>> router, Map<String, String> status,
+        Map<String, String> error) {
+      this();
+      this.router = router;
+      this.status = status;
+      this.error = error;
     }
   }
 }
