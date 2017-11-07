@@ -49,7 +49,6 @@
     <module>hotel-reservation-service</module>
     <module>payment-service</module>
     <module>demo-tests</module>
-    <module>../../docker-build-config</module>
   </modules>
 
 </project>
