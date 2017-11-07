@@ -21,11 +21,11 @@ $(function () {
         $.ajax({
             type: "POST",
             url: $("#submit-url").val(),
-            data: "content=" + content,
-            dataType: "text",
+            data: content,
+            contentType: "text/plain; charset=utf-8",
+            dataType: "json",
             success: function (msg) {
                 $("#v_loading").hide();
-                alert(msg);
             }
         });
     });
