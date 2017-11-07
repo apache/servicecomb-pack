@@ -26,6 +26,10 @@ $(function () {
             dataType: "json",
             success: function (msg) {
                 $("#v_loading").hide();
+            },
+            error: function (req) {
+                alert(req.statusText);
+                $("#v_loading").hide();
             }
         });
     });
