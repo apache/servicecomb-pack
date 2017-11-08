@@ -31,6 +31,7 @@
     <module>docker-build-config</module>
     <module>saga-format</module>
     <module>saga-discovery</module>
+    <module>saga-web</module>
   </modules>
 
   <properties>
@@ -40,7 +41,8 @@
     <kamon.version>0.6.7</kamon.version>
     <log4j.version>2.6.2</log4j.version>
     <spring.boot.version>1.4.5.RELEASE</spring.boot.version>
-    <java.chassis.version>0.2.0</java.chassis.version>
+    <spring.cloud.version>Camden.SR6</spring.cloud.version>
+    <java.chassis.version>0.4.0</java.chassis.version>
     <spring.version>4.3.7.RELEASE</spring.version>
     <akka.version>2.5.6</akka.version>
   </properties>
@@ -111,6 +113,11 @@
       <dependency>
         <groupId>io.servicecomb.saga.transports</groupId>
         <artifactId>transport-httpclient-spring</artifactId>
+        <version>0.0.3-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>io.servicecomb.saga.transports</groupId>
+        <artifactId>transport-resttemplate</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>

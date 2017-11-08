@@ -47,6 +47,10 @@
       <artifactId>transport-httpclient-spring</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.servicecomb.saga.transports</groupId>
+      <artifactId>transport-resttemplate</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.servicecomb</groupId>
       <artifactId>spring-boot-starter-provider</artifactId>
       <exclusions>
