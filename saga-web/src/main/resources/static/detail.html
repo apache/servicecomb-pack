@@ -109,51 +109,56 @@
           console.log(datas);
           //var datas = {"router":{"request-aaa":["request-bbb"],"saga-start":["request-aaa"],"request-bbb":["saga-end"]},"status":{"request-aaa":"OK","request-bbb":"OK"},"error":{}};
           var datas_status = datas.status;
-          $.each(datas.router, function (key, value) {
-            if (datas_status[key] == 'Failed') {
-              if (key.indexOf("saga-start") == -1 && value.indexOf("saga-end") == -1) {
-                g.addNode(key, {render: render_no});
-                g.addNode(value, {render: render_no});
-              } else {
-                g.addNode(key, {render: render_st});
-                g.addNode(value, {render: render_st});
-              }
-              g.addEdge(key, value, {
-                stroke: '#adadad',
-                //fill: '#f2f2f2',
-                label: '',
-                directed: true
-              });
-            } else if (datas_status[value] == 'Failed') {
-              if (key.indexOf("saga-start") == -1 && value.indexOf("saga-end") == -1) {
-                g.addNode(key, {render: render});
-                g.addNode(value, {render: render_false});
-              } else {
-                g.addNode(key, {render: render_st});
-                g.addNode(value, {render: render_st});
-              }
-              g.addEdge(key, value, {
-                stroke: '#adadad',
-                //fill: '#f2f2f2',
-                label: '',
-                directed: true
-              });
-            } else {
-              if (key.indexOf("saga-start") == -1 && value.indexOf("saga-end") == -1) {
-                g.addNode(key, {render: render});
-                g.addNode(value, {render: render});
-              } else {
-                g.addNode(key, {render: render_st});
-                g.addNode(value, {render: render_st});
-              }
-              g.addEdge(key, value, {
-                stroke: '#5b9bd5',
-                //fill: '#5b9bd5',
-                label: '',
-                directed: true
-              });
-            }
-          })
+          $.each(datas.router,function(key,value){
+				$.each(value,function(k,val){
+					if(datas_status[key] == 'Failed'){
+						if(key.indexOf("saga-start") >= 0){
+							g.addNode(key, {render:render_st});
+						}else if(val.indexOf("saga-end") >= 0){
+							g.addNode(val, {render:render_st});
+						}else{
+							g.addNode(key, {render:render_no});
+							g.addNode(val, {render:render_no});
+						}
+						g.addEdge(key, val, {
+							stroke: '#adadad',
+							//fill: '#f2f2f2',
+							label: '',
+							directed : true
+						});
+					}else if(datas_status[val] == 'Failed'){
+						if(key.indexOf("saga-start") >= 0){
+							g.addNode(key, {render:render_st});
+						}else if(val.indexOf("saga-end") >= 0){
+							g.addNode(val, {render:render_st});
+						}else{
+							g.addNode(key, {render:render});
+							g.addNode(val, {render:render_false});
+						}
+						g.addEdge(key, val, {
+							stroke: '#adadad',
+							//fill: '#f2f2f2',
+							label: '',
+							directed : true
+						});
+					}else{
+						if(key.indexOf("saga-start") >= 0){
+							g.addNode(key, {render:render_st});
+						}else if(val.indexOf("saga-end") >= 0){
+							g.addNode(val, {render:render_st});
+						}else{
+							g.addNode(key, {render:render});
+							g.addNode(val, {render:render});
+						}
+						g.addEdge(key, val, {
+							stroke: '#5b9bd5',
+							//fill: '#5b9bd5',
+							label: '',
+							directed : true
+						});	
+					}
+				})
+			})
 
           /* layout the graph using the Spring layout implementation */
           var layouter = new Graph.Layout.Spring(g);
