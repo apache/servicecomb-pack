@@ -19,11 +19,12 @@ package io.servicecomb.saga.spring;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
-import io.servicecomb.provider.rest.common.RestSchema;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import io.servicecomb.provider.rest.common.RestSchema;
 
 @Controller
 @RequestMapping("/rest")

@@ -17,6 +17,7 @@
 package io.servicecomb.saga.format;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.servicecomb.saga.core.SuccessfulSagaResponse;
 
 public class JsonSuccessfulSagaResponse extends SuccessfulSagaResponse {

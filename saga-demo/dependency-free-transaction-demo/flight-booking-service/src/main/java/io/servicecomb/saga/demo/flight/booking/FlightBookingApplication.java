@@ -16,9 +16,10 @@
 
 package io.servicecomb.saga.demo.flight.booking;
 
-import io.servicecomb.springboot.starter.provider.EnableServiceComb;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import io.servicecomb.springboot.starter.provider.EnableServiceComb;
 
 @SpringBootApplication
 @EnableServiceComb

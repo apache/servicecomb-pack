@@ -16,14 +16,15 @@
 
 package io.servicecomb.saga.format;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import io.servicecomb.saga.core.RestOperation;
 import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.transports.RestTransport;
 import io.servicecomb.saga.transports.TransportFactory;
-
-import java.util.HashMap;
-import java.util.Map;
 
 class JacksonRestOperation extends RestOperation implements TransportAware {
 
