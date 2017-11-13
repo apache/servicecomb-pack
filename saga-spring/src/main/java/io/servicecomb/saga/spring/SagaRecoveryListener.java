@@ -16,12 +16,14 @@
 
 package io.servicecomb.saga.spring;
 
-import io.servicecomb.saga.core.application.SagaExecutionComponent;
 import java.lang.invoke.MethodHandles;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
+
+import io.servicecomb.saga.core.application.SagaExecutionComponent;
 
 class SagaRecoveryListener implements ApplicationListener<ApplicationReadyEvent> {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

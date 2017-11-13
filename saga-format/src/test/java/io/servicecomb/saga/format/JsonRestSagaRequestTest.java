@@ -28,10 +28,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.servicecomb.saga.transports.RestTransport;
-import io.servicecomb.saga.transports.TransportFactory;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import io.servicecomb.saga.transports.RestTransport;
+import io.servicecomb.saga.transports.TransportFactory;
 
 public class JsonRestSagaRequestTest {
 

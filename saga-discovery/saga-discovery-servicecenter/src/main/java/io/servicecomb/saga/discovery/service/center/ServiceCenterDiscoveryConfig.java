@@ -16,15 +16,16 @@
 
 package io.servicecomb.saga.discovery.service.center;
 
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+
 import io.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import io.servicecomb.saga.transports.HttpClientTransportConfig;
 import io.servicecomb.saga.transports.RestTransport;
 import io.servicecomb.saga.transports.resttemplate.RestTemplateTransport;
 import io.servicecomb.springboot.starter.provider.EnableServiceComb;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 @EnableServiceComb
 @Profile("servicecomb")

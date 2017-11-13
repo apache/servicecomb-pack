@@ -17,7 +17,7 @@
 package io.servicecomb.saga.format;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 

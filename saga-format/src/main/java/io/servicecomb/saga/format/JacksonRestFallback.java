@@ -16,9 +16,10 @@
 
 package io.servicecomb.saga.format;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Map;
 
 class JacksonRestFallback extends JacksonRestOperation implements JacksonFallback {
 

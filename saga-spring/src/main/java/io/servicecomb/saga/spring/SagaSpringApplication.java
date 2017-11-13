@@ -17,9 +17,11 @@
 package io.servicecomb.saga.spring;
 
 import javax.annotation.PreDestroy;
-import kamon.Kamon;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import kamon.Kamon;
 
 @SpringBootApplication
 public class SagaSpringApplication {
