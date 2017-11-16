@@ -27,6 +27,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,6 +36,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -78,6 +80,7 @@ public class SagaController {
       @ApiResponse(code = 400, response = String.class, message = "illegal request content"),
       @ApiResponse(code = 500, response = String.class, message = "transaction failed")
   })
+  @CrossOrigin
   @RequestMapping(value = "requests", method = POST, consumes = TEXT_PLAIN_VALUE, produces = TEXT_PLAIN_VALUE)
   public ResponseEntity<String> processRequests(@RequestBody String request) {
     try {
@@ -109,6 +112,7 @@ public class SagaController {
       @ApiResponse(code = 200, response = String.class, message = "success"),
       @ApiResponse(code = 400, response = String.class, message = "illegal request content"),
   })
+  @CrossOrigin
   @RequestMapping(value = "requests", method = GET)
   public ResponseEntity<SagaExecutionQueryResult> queryExecutions(
       @RequestParam(name = "pageIndex") String pageIndex,
@@ -130,7 +134,8 @@ public class SagaController {
     try {
       if (Integer.parseInt(pageIndex) >= 0 && Integer.parseInt(pageSize) > 0) {
         Date start = "NaN-NaN-NaN NaN:NaN:NaN".equals(startTime) ? new Date(0) : this.dateFormat.parse(startTime);
-        Date end = "NaN-NaN-NaN NaN:NaN:NaN".equals(endTime) ? new Date(Long.MAX_VALUE) : this.dateFormat.parse(endTime);
+        Date end =
+            "NaN-NaN-NaN NaN:NaN:NaN".equals(endTime) ? new Date(Long.MAX_VALUE) : this.dateFormat.parse(endTime);
         return start.getTime() <= end.getTime();
       }
     } catch (NumberFormatException | ParseException ignored) {
@@ -141,6 +146,7 @@ public class SagaController {
   @ApiResponses({
       @ApiResponse(code = 200, response = String.class, message = "success"),
   })
+  @CrossOrigin
   @RequestMapping(value = "requests/{sagaId}", method = GET)
   public ResponseEntity<SagaExecutionDetail> queryExecutionDetail(@PathVariable String sagaId) {
     return ResponseEntity.ok(queryService.querySagaExecutionDetail(sagaId));
@@ -197,14 +203,14 @@ public class SagaController {
 
   @JsonAutoDetect(fieldVisibility = ANY, getterVisibility = NONE, setterVisibility = NONE)
   static class SagaExecutionDetail {
-    public Map<String, List<String>> router;
+    public Map<String, HashSet<String>> router;
     public Map<String, String> status;
     public Map<String, String> error;
 
     public SagaExecutionDetail() {
     }
 
-    public SagaExecutionDetail(Map<String, List<String>> router, Map<String, String> status,
+    public SagaExecutionDetail(Map<String, HashSet<String>> router, Map<String, String> status,
         Map<String, String> error) {
       this();
       this.router = router;

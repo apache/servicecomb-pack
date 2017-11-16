@@ -26,6 +26,18 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
 import com.seanyinx.github.unit.scaffolding.AssertUtils;
 
 import io.servicecomb.saga.core.SagaDefinition;
@@ -36,16 +48,6 @@ import io.servicecomb.saga.core.SuccessfulSagaResponse;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.transports.RestTransport;
 import io.servicecomb.saga.transports.TransportFactory;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
 
 public class JacksonFromJsonFormatTest {
 

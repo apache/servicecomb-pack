@@ -27,9 +27,17 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.seanyinx.github.unit.scaffolding.Randomness;
-import io.servicecomb.saga.core.TransactionCompensatedEvent;
+
 import io.servicecomb.saga.core.FailedSagaResponse;
 import io.servicecomb.saga.core.JacksonToJsonFormat;
 import io.servicecomb.saga.core.RestOperation;
@@ -40,18 +48,12 @@ import io.servicecomb.saga.core.SagaResponse;
 import io.servicecomb.saga.core.SuccessfulSagaResponse;
 import io.servicecomb.saga.core.ToJsonFormat;
 import io.servicecomb.saga.core.TransactionAbortedEvent;
+import io.servicecomb.saga.core.TransactionCompensatedEvent;
 import io.servicecomb.saga.core.TransactionEndedEvent;
 import io.servicecomb.saga.core.TransactionFailedException;
 import io.servicecomb.saga.core.TransactionStartedEvent;
 import io.servicecomb.saga.transports.RestTransport;
 import io.servicecomb.saga.transports.TransportFactory;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
 
 public class SagaEventFormatTest {
 

@@ -16,10 +16,12 @@
 
 package io.servicecomb.saga.format;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.servicecomb.saga.core.Transaction;
-import java.util.Map;
 
 public class JacksonRestTransaction extends JacksonRestOperation implements Transaction {
 

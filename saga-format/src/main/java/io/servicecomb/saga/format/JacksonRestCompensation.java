@@ -16,10 +16,12 @@
 
 package io.servicecomb.saga.format;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.servicecomb.saga.core.Compensation;
-import java.util.Map;
 
 public class JacksonRestCompensation extends JacksonRestOperation implements Compensation {
 
