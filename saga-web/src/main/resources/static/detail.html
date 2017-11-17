@@ -32,8 +32,8 @@
   <script type="text/javascript" src="assets/dracula_algorithms.js"></script>
   <script type="text/javascript">
     var redraw;
-    var height = 300;
-    var width = 400;
+	var height = 600;
+	var width = 600;
 
     function getQueryString(name, url) {
       var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
@@ -116,10 +116,10 @@
 							g.addNode(key, {render:render_st});
 						}else if(val.indexOf("saga-end") >= 0){
 							g.addNode(val, {render:render_st});
-						}else{
-							g.addNode(key, {render:render_no});
-							g.addNode(val, {render:render_no});
 						}
+						g.addNode(key, {render:render_no});
+						g.addNode(val, {render:render_no});
+						
 						g.addEdge(key, val, {
 							stroke: '#adadad',
 							//fill: '#f2f2f2',
@@ -131,10 +131,10 @@
 							g.addNode(key, {render:render_st});
 						}else if(val.indexOf("saga-end") >= 0){
 							g.addNode(val, {render:render_st});
-						}else{
-							g.addNode(key, {render:render});
-							g.addNode(val, {render:render_false});
 						}
+						g.addNode(key, {render:render});
+						g.addNode(val, {render:render_false});
+						
 						g.addEdge(key, val, {
 							stroke: '#adadad',
 							//fill: '#f2f2f2',
@@ -146,10 +146,10 @@
 							g.addNode(key, {render:render_st});
 						}else if(val.indexOf("saga-end") >= 0){
 							g.addNode(val, {render:render_st});
-						}else{
-							g.addNode(key, {render:render});
-							g.addNode(val, {render:render});
 						}
+						g.addNode(key, {render:render});
+						g.addNode(val, {render:render});
+						
 						g.addEdge(key, val, {
 							stroke: '#5b9bd5',
 							//fill: '#5b9bd5',
@@ -178,6 +178,6 @@
   </script>
 </head>
 <body>
-<div id="canvas" style="height: 400px; width: 600px;"></div>
+<div id="canvas" style="height: 600px; width: 100%;text-align: center;"></div>
 </body>
 </html>
