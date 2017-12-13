@@ -455,6 +455,11 @@
             <exclude>**/README.md</exclude>
             <exclude>**/api.md</exclude>
             <excldue>target/**</excldue>
+            <exclude>**/*.sql</exclude>
+            <!-- just exclude the css and js check -->
+            <exclude>**/*.js</exclude>
+            <exclude>**/*.css</exclude>
+            <exclude>**/*.css.map</exclude>
           </excludes>
         </configuration>
       </plugin>
