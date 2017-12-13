@@ -46,6 +46,7 @@
     <java.chassis.version>0.4.0</java.chassis.version>
     <spring.version>4.3.7.RELEASE</spring.version>
     <akka.version>2.5.6</akka.version>
+    <rat.version>0.12</rat.version>
   </properties>
 
   <name>ServiceComb Saga</name>
@@ -333,6 +334,11 @@
     <pluginManagement>
       <plugins>
         <plugin>
+          <groupId>org.apache.rat</groupId>
+          <artifactId>apache-rat-plugin</artifactId>
+          <version>${rat.version}</version>
+        </plugin>
+        <plugin>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
           <version>${spring.boot.version}</version>
@@ -438,7 +444,21 @@
         </plugin>
       </plugins>
     </pluginManagement>
-
+    <!-- enable the rat check by default -->
+    <plugins>
+      <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>.travis.yml</exclude>
+            <exclude>**/README.md</exclude>
+            <exclude>**/api.md</exclude>
+            <excldue>target/**</excldue>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 
   <profiles>
