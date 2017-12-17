@@ -80,4 +80,8 @@ public class SagaExecutionComponent {
       saga.run();
     }
   }
+
+  public void terminate() throws Exception {
+    sagaFactory.terminate();
+  }
 }

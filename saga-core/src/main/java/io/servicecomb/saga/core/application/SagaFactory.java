@@ -23,4 +23,8 @@ import io.servicecomb.saga.core.SagaDefinition;
 
 public interface SagaFactory {
   Saga createSaga(String requestJson, String sagaId, EventStore sagaLog, SagaDefinition definition);
+
+  boolean isTerminated();
+
+  void terminate() throws Exception;
 }

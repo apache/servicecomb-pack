@@ -20,6 +20,7 @@ package io.servicecomb.saga.core.dag;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.servicecomb.saga.core.EventStore;
 import io.servicecomb.saga.core.GraphBasedSaga;
@@ -34,6 +35,7 @@ import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.infrastructure.ContextAwareEventStore;
 
 public class GraphBasedSagaFactory implements SagaFactory {
+  private final AtomicBoolean isRunning = new AtomicBoolean(true);
   private final FromJsonFormat<Set<String>> childrenExtractor;
   private final Executor executorService;
   private final GraphBuilder graphBuilder;
@@ -64,5 +66,15 @@ public class GraphBasedSagaFactory implements SagaFactory {
         ),
         sagaContext,
         graphBuilder.build(definition.requests()));
+  }
+
+  @Override
+  public boolean isTerminated() {
+    return !isRunning.get();
+  }
+
+  @Override
+  public void terminate() throws Exception {
+    isRunning.compareAndSet(true, false);
   }
 }

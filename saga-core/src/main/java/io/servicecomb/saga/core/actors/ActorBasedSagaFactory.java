@@ -18,7 +18,6 @@
 package io.servicecomb.saga.core.actors;
 
 import static akka.actor.ActorRef.noSender;
-import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_END_REQUEST;
 import static io.servicecomb.saga.core.NoOpSagaRequest.SAGA_START_REQUEST;
 
 import java.util.Set;
@@ -33,6 +32,8 @@ import io.servicecomb.saga.core.application.SagaFactory;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import scala.concurrent.Await;
+import scala.concurrent.duration.Duration;
 
 public class ActorBasedSagaFactory implements SagaFactory {
   private final ActorSystem actorSystem = ActorSystem.create("saga");
@@ -68,5 +69,15 @@ public class ActorBasedSagaFactory implements SagaFactory {
         future,
         sagaLog,
         new EventContextImpl(context));
+  }
+
+  @Override
+  public boolean isTerminated() {
+    return actorSystem.whenTerminated().isCompleted();
+  }
+
+  @Override
+  public void terminate() throws Exception {
+    Await.result(actorSystem.terminate(), Duration.Inf());
   }
 }
