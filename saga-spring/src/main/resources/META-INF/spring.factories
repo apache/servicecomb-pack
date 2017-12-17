@@ -16,4 +16,5 @@
 ## ---------------------------------------------------------------------------
 
 org.springframework.context.ApplicationListener=\
-  io.servicecomb.saga.spring.SagaRecoveryListener
+  io.servicecomb.saga.spring.SagaRecoveryListener,\
+  io.servicecomb.saga.spring.SagaShutdownListener

@@ -32,6 +32,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -47,7 +48,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -81,12 +82,9 @@ import io.servicecomb.saga.core.TransactionStartedEvent;
 import io.servicecomb.saga.core.application.SagaFactory;
 import io.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import io.servicecomb.saga.infrastructure.EmbeddedEventStore;
-import akka.actor.ActorSystem;
-import akka.testkit.javadsl.TestKit;
 
 @SuppressWarnings("unchecked")
 public class ActorBasedSagaIntegrationTest {
-  private static final ActorSystem actorSystem = ActorSystem.create();
   private static final String sagaId = Randomness.uniquify("sagaId");
 
   private final FromJsonFormat<Set<String>> childrenExtractor = mock(FromJsonFormat.class);
@@ -145,9 +143,10 @@ public class ActorBasedSagaIntegrationTest {
     when(compensation3.send(request3.serviceName(), EMPTY_RESPONSE)).thenReturn(compensationResponse3);
   }
 
-  @AfterClass
-  public static void tearDown() throws Exception {
-    TestKit.shutdownActorSystem(actorSystem);
+  @After
+  public void tearDown() throws Exception {
+    sagaFactory.terminate();
+    assertTrue(sagaFactory.isTerminated());
   }
 
   @Test
