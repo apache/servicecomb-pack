@@ -64,15 +64,15 @@ See [Saga API](docs/api/api.md) for details.
 
 
 ## Example
-See [Saga demo](saga-demo/README.md) for details.
+See [Saga demo](https://github.com/ServiceComb/ServiceComb-Saga/tree/master/saga-demo) for details.
 
 ## Contact
 Bugs: [issues](https://github.com/ServiceComb/saga/issues).
 
-Mailing lists: [users](https://groups.google.com/forum/#!forum/servicecomb-users) , [developers](https://groups.google.com/forum/#!forum/servicecomb-developers)
+Mailing lists: [subscribe](mailto:dev-subscribe@servicecomb.incubator.apache.org) 
 
 ## Contributing
-See [Pull Request Guide](http://servicecomb.io/developers/pull-request-guide/) for details.
+See [Pull Request Guide](http://servicecomb.io/developers/submit-codes/) for details.
 
 ## Reporting Issues
 See reporting bugs for details about reporting any issues.
