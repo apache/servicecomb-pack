@@ -44,7 +44,7 @@ Download the source code.
 git clone https://github.com/ServiceComb/saga.git
 ```
 
-Enter the Saga root directory,biuld Saga project by maven command and generate a docker image named saga-spring in local.
+Enter the Saga root directory,build Saga project by maven command and generate a docker image named saga-spring in local.
 ```
 mvn package -DskipTests -Pdocker
 ```
