@@ -15,9 +15,22 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction;
+package io.servicecomb.saga.omega.transaction.spring;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
-public interface UserRepository extends CrudRepository<User, Long> {
+import io.servicecomb.saga.omega.transaction.MessageSender;
+import io.servicecomb.saga.omega.transaction.MessageSerializer;
+import io.servicecomb.saga.omega.transaction.TransactionAspect;
+
+@Configuration
+@EnableAspectJAutoProxy
+class TransactionAspectConfig {
+
+  @Bean
+  TransactionAspect transactionAspect(MessageSerializer serializer, MessageSender sender) {
+    return new TransactionAspect(serializer, sender);
+  }
 }

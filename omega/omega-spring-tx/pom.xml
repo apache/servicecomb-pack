@@ -26,20 +26,23 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>omega-transaction</artifactId>
-
+  <artifactId>omega-spring-tx</artifactId>
   <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
     <dependency>
       <groupId>io.servicecomb.saga</groupId>
       <artifactId>omega-context</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.aspectj</groupId>
-      <artifactId>aspectjweaver</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
+      <groupId>io.servicecomb.saga</groupId>
+      <artifactId>omega-transaction</artifactId>
     </dependency>
 
     <dependency>
@@ -57,6 +60,16 @@
     <dependency>
       <groupId>com.github.seanyinx</groupId>
       <artifactId>unit-scaffolding</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>test</scope>
     </dependency>
 
   </dependencies>

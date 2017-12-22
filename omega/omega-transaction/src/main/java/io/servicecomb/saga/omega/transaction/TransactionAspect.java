@@ -28,12 +28,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Aspect
-class TransactionAspect {
+public class TransactionAspect {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final PreTransactionInterceptor preTransactionInterceptor;
 
 
-  TransactionAspect(MessageSerializer serializer, MessageSender sender) {
+  public TransactionAspect(MessageSerializer serializer, MessageSender sender) {
     this.preTransactionInterceptor = new PreTransactionInterceptor(sender, serializer);
   }
 

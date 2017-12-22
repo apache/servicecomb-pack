@@ -15,24 +15,14 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction;
+package io.servicecomb.saga.omega.transaction.spring;
 
-import javax.transaction.Transactional;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-@Component
-class TransactionalUserService {
-  private final UserRepository userRepository;
-
-  @Autowired
-  TransactionalUserService(UserRepository userRepository) {
-    this.userRepository = userRepository;
-  }
-
-  @Transactional
-  void add(User user) {
-    userRepository.save(user);
+@SpringBootApplication
+public class TransactionTestMain {
+  public static void main(String[] args) {
+    SpringApplication.run(TransactionTestMain.class, args);
   }
 }
