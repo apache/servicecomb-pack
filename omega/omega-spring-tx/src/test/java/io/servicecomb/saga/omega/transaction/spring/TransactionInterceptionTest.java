@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction;
+package io.servicecomb.saga.omega.transaction.spring;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
@@ -32,7 +32,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import io.servicecomb.saga.omega.transaction.TransactionInterceptionTest.MessageConfig;
+import io.servicecomb.saga.omega.transaction.MessageSender;
+import io.servicecomb.saga.omega.transaction.MessageSerializer;
+import io.servicecomb.saga.omega.transaction.spring.TransactionInterceptionTest.MessageConfig;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {TransactionTestMain.class, MessageConfig.class})

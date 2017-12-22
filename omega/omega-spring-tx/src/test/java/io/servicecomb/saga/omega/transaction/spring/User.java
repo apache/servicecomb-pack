@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction;
+package io.servicecomb.saga.omega.transaction.spring;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -30,7 +30,7 @@ public class User {
   private String username;
   private String email;
 
-  public User(String username, String email) {
+  User(String username, String email) {
     this.username = username;
     this.email = email;
   }
@@ -39,11 +39,11 @@ public class User {
     return id;
   }
 
-  public String username() {
+  String username() {
     return username;
   }
 
-  public String email() {
+  String email() {
     return email;
   }
 }

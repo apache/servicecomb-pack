@@ -15,14 +15,9 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction;
+package io.servicecomb.saga.omega.transaction.spring;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.repository.CrudRepository;
 
-@SpringBootApplication
-public class TransactionTestMain {
-  public static void main(String[] args) {
-    SpringApplication.run(TransactionTestMain.class, args);
-  }
+interface UserRepository extends CrudRepository<User, Long> {
 }

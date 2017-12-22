@@ -15,18 +15,24 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction;
+package io.servicecomb.saga.omega.transaction.spring;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import javax.transaction.Transactional;
 
-@Configuration
-@EnableAspectJAutoProxy
-class TransactionAspectConfig {
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-  @Bean
-  TransactionAspect transactionAspect(MessageSerializer serializer, MessageSender sender) {
-    return new TransactionAspect(serializer, sender);
+@Component
+class TransactionalUserService {
+  private final UserRepository userRepository;
+
+  @Autowired
+  TransactionalUserService(UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
+
+  @Transactional
+  void add(User user) {
+    userRepository.save(user);
   }
 }
