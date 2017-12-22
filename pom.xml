@@ -33,6 +33,7 @@
     <module>saga-format</module>
     <module>saga-discovery</module>
     <module>saga-web</module>
+    <module>omega</module>
   </modules>
 
   <properties>
