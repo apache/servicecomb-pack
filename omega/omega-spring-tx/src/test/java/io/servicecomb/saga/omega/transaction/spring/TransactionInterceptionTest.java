@@ -17,6 +17,7 @@
 
 package io.servicecomb.saga.omega.transaction.spring;
 
+import static com.seanyinx.github.unit.scaffolding.Randomness.nextId;
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
@@ -24,6 +25,7 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import io.servicecomb.saga.omega.context.OmegaContext;
 import io.servicecomb.saga.omega.transaction.MessageSender;
 import io.servicecomb.saga.omega.transaction.MessageSerializer;
 import io.servicecomb.saga.omega.transaction.spring.TransactionInterceptionTest.MessageConfig;
@@ -39,6 +42,7 @@ import io.servicecomb.saga.omega.transaction.spring.TransactionInterceptionTest.
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {TransactionTestMain.class, MessageConfig.class})
 public class TransactionInterceptionTest {
+  private final long txId = nextId();
   private final String username = uniquify("username");
   private final String email = uniquify("email");
 
@@ -48,11 +52,19 @@ public class TransactionInterceptionTest {
   @Autowired
   private TransactionalUserService userService;
 
+  @Autowired
+  private OmegaContext omegaContext;
+
+  @Before
+  public void setUp() throws Exception {
+    omegaContext.setTxId(txId);
+  }
+
   @Test
   public void sendsUserToRemote_BeforeTransaction() throws Exception {
     userService.add(new User(username, email));
 
-    assertThat(messages, contains((username + ":" + email).getBytes()));
+    assertThat(messages, contains(serialize(txId, "TxStartedEvent", username, email)));
   }
 
   @Configuration
@@ -71,14 +83,17 @@ public class TransactionInterceptionTest {
 
     @Bean
     MessageSerializer serializer() {
-      return messages -> {
-        if (messages[0] instanceof User) {
-          User user = ((User) messages[0]);
-          return (user.username() + ":" + user.email()).getBytes();
+      return event -> {
+        if (event.payloads()[0] instanceof User) {
+          User user = ((User) event.payloads()[0]);
+          return serialize(event.txId(), event.type(), user.username(), user.email());
         }
-        throw new IllegalArgumentException("Expected instance of User, but was " + messages.getClass());
+        throw new IllegalArgumentException("Expected instance of User, but was " + event.getClass());
       };
     }
   }
 
+  private static byte[] serialize(long txId, String eventType, String username, String email) {
+    return (txId + ":" + eventType + ":" + username + ":" + email).getBytes();
+  }
 }

@@ -27,13 +27,16 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.servicecomb.saga.omega.context.OmegaContext;
+
 @Aspect
 public class TransactionAspect {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final PreTransactionInterceptor preTransactionInterceptor;
+  private final OmegaContext context;
 
-
-  public TransactionAspect(MessageSerializer serializer, MessageSender sender) {
+  public TransactionAspect(MessageSerializer serializer, MessageSender sender, OmegaContext context) {
+    this.context = context;
     this.preTransactionInterceptor = new PreTransactionInterceptor(sender, serializer);
   }
 
@@ -42,7 +45,7 @@ public class TransactionAspect {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
     LOG.debug("Intercepting transactional method {}", method.toString());
 
-    preTransactionInterceptor.intercept(joinPoint.getArgs());
+    preTransactionInterceptor.intercept(context.txId(), joinPoint.getArgs());
     return joinPoint.proceed();
   }
 }

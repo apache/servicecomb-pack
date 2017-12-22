@@ -18,5 +18,5 @@
 package io.servicecomb.saga.omega.transaction;
 
 public interface MessageSerializer {
-  byte[] serialize(Object[] message);
+  byte[] serialize(TxEvent event);
 }

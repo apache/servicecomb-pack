@@ -17,16 +17,22 @@
 
 package io.servicecomb.saga.omega.transaction;
 
-class PreTransactionInterceptor {
-  private final MessageSender sender;
-  private final MessageSerializer serializer;
+public abstract class TxEvent {
+  private final long txId;
+  private final Object[] payloads;
 
-  PreTransactionInterceptor(MessageSender sender, MessageSerializer serializer) {
-    this.sender = sender;
-    this.serializer = serializer;
+  TxEvent(Object[] payloads, long txId) {
+    this.payloads = payloads;
+    this.txId = txId;
   }
 
-  void intercept(long txId, Object... message) {
-    sender.send(serializer.serialize(new TxStartedEvent(txId, message)));
+  public long txId() {
+    return txId;
   }
+
+  public Object[] payloads() {
+    return payloads;
+  }
+
+  public abstract String type();
 }
