@@ -17,6 +17,7 @@
 
 package io.servicecomb.saga.omega.transaction;
 
+import static com.seanyinx.github.unit.scaffolding.Randomness.nextId;
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
@@ -28,22 +29,28 @@ import org.junit.Test;
 
 public class PreTransactionInterceptorTest {
   private final List<byte[]> messages = new ArrayList<>();
+  private final long txId = nextId();
 
   private final MessageSender sender = messages::add;
-  private final MessageSerializer serializer = messages -> {
-    if (messages[0] instanceof String) {
-      return ((String) messages[0]).getBytes();
+  private final MessageSerializer serializer = event -> {
+    if (event.payloads()[0] instanceof String) {
+      String message = (String) event.payloads()[0];
+      return serialize(txId, message);
     }
-    throw new IllegalArgumentException("Expected instance of String, but was " + messages.getClass());
+    throw new IllegalArgumentException("Expected instance of String, but was " + event.getClass());
   };
 
   private final String message = uniquify("message");
   private final PreTransactionInterceptor interceptor = new PreTransactionInterceptor(sender, serializer);
 
+  private byte[] serialize(long txId, String message) {
+    return (txId + ":" + message).getBytes();
+  }
+
   @Test
   public void sendsSerializedMessage() throws Exception {
-    interceptor.intercept(message);
+    interceptor.intercept(txId, message);
 
-    assertThat(messages, contains(message.getBytes()));
+    assertThat(messages, contains(serialize(txId, message)));
   }
 }
