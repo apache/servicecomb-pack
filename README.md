@@ -69,7 +69,7 @@ See [Saga demo](https://github.com/apache/incubator-servicecomb-saga/tree/master
 ## Contact
 Bugs: [issues](issues.apache.org/jira/browse/SCB).
 
-Mailing lists: [subscribe](mailto:dev-subscribe@servicecomb.incubator.apache.org) 
+Mailing lists: [subscribe](mailto:dev-subscribe@servicecomb.incubator.apache.org) [dev](https://lists.apache.org/list.html?dev@servicecomb.apache.org)
 
 ## Contributing
 See [Pull Request Guide](http://servicecomb.io/developers/submit-codes/) for details.
