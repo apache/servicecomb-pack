@@ -33,11 +33,13 @@ import io.servicecomb.saga.omega.context.OmegaContext;
 public class TransactionAspect {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final PreTransactionInterceptor preTransactionInterceptor;
+  private final PostTransactionInterceptor postTransactionInterceptor;
   private final OmegaContext context;
 
   public TransactionAspect(MessageSerializer serializer, MessageSender sender, OmegaContext context) {
     this.context = context;
     this.preTransactionInterceptor = new PreTransactionInterceptor(sender, serializer);
+    this.postTransactionInterceptor = new PostTransactionInterceptor(sender, serializer);
   }
 
   @Around("execution(@javax.transaction.Transactional * *(..))")
@@ -45,12 +47,25 @@ public class TransactionAspect {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
     LOG.debug("Intercepting transactional method {} with context {}", method.toString(), context);
 
+    preIntercept(joinPoint);
+    Object result = joinPoint.proceed();
+    postIntercept();
+
+    return result;
+  }
+
+  private void preIntercept(ProceedingJoinPoint joinPoint) {
     preTransactionInterceptor.intercept(
         context.globalTxId(),
         context.localTxId(),
         context.parentTxId(),
         joinPoint.getArgs());
+  }
 
-    return joinPoint.proceed();
+  private void postIntercept() {
+    postTransactionInterceptor.intercept(
+        context.globalTxId(),
+        context.localTxId(),
+        context.parentTxId());
   }
 }

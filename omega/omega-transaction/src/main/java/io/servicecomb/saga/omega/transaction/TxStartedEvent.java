@@ -22,9 +22,4 @@ class TxStartedEvent extends TxEvent {
   TxStartedEvent(String globalTxId, String localTxId, String parentTxId, Object[] payloads) {
     super(globalTxId, localTxId, parentTxId, payloads);
   }
-
-  @Override
-  public String type() {
-    return this.getClass().getSimpleName();
-  }
 }

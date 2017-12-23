@@ -17,36 +17,16 @@
 
 package io.servicecomb.saga.omega.transaction;
 
-public abstract class TxEvent {
-  private final String globalTxId;
-  private final String localTxId;
-  private final String parentTxId;
-  private final Object[] payloads;
+class PostTransactionInterceptor {
+  private final MessageSender sender;
+  private final MessageSerializer serializer;
 
-  TxEvent(String globalTxId, String localTxId, String parentTxId, Object... payloads) {
-    this.localTxId = localTxId;
-    this.parentTxId = parentTxId;
-    this.payloads = payloads;
-    this.globalTxId = globalTxId;
+  PostTransactionInterceptor(MessageSender sender, MessageSerializer serializer) {
+    this.sender = sender;
+    this.serializer = serializer;
   }
 
-  public String globalTxId() {
-    return globalTxId;
-  }
-
-  public String localTxId() {
-    return localTxId;
-  }
-
-  public String parentTxId() {
-    return parentTxId;
-  }
-
-  public Object[] payloads() {
-    return payloads;
-  }
-
-  public String type() {
-    return this.getClass().getSimpleName();
+  void intercept(String globalTxId, String localTxId, String parentTxId) {
+    sender.send(serializer.serialize(new TxEndedEvent(globalTxId, localTxId, parentTxId)));
   }
 }
