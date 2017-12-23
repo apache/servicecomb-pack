@@ -17,10 +17,11 @@
 
 package io.servicecomb.saga.omega.context;
 
-import static com.seanyinx.github.unit.scaffolding.Randomness.nextId;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CyclicBarrier;
 
@@ -31,15 +32,51 @@ public class OmegaContextTest {
   private final OmegaContext omegaContext = new OmegaContext();
 
   @Test
-  public void eachThreadGetsDifferentId() throws Exception {
+  public void eachThreadGetsDifferentGlobalTxId() throws Exception {
     CyclicBarrier barrier = new CyclicBarrier(2);
 
     Runnable runnable = exceptionalRunnable(() -> {
-      long txId = nextId();
-      omegaContext.setTxId(txId);
+      String txId = UUID.randomUUID().toString();
+      omegaContext.setGlobalTxId(txId);
       barrier.await();
 
-      assertThat(omegaContext.txId(), is(txId));
+      assertThat(omegaContext.globalTxId(), is(txId));
+    });
+
+    CompletableFuture<Void> future1 = CompletableFuture.runAsync(runnable);
+    CompletableFuture<Void> future2 = CompletableFuture.runAsync(runnable);
+
+    CompletableFuture.allOf(future1, future2).join();
+  }
+
+  @Test
+  public void eachThreadGetsDifferentLocalTxId() throws Exception {
+    CyclicBarrier barrier = new CyclicBarrier(2);
+
+    Runnable runnable = exceptionalRunnable(() -> {
+      String spanId = UUID.randomUUID().toString();
+      omegaContext.setLocalTxId(spanId);
+      barrier.await();
+
+      assertThat(omegaContext.localTxId(), is(spanId));
+    });
+
+    CompletableFuture<Void> future1 = CompletableFuture.runAsync(runnable);
+    CompletableFuture<Void> future2 = CompletableFuture.runAsync(runnable);
+
+    CompletableFuture.allOf(future1, future2).join();
+  }
+
+  @Test
+  public void eachThreadGetsDifferentParentTxId() throws Exception {
+    CyclicBarrier barrier = new CyclicBarrier(2);
+
+    Runnable runnable = exceptionalRunnable(() -> {
+      String parentId = UUID.randomUUID().toString();
+      omegaContext.setParentTxId(parentId);
+      barrier.await();
+
+      assertThat(omegaContext.parentTxId(), is(parentId));
     });
 
     CompletableFuture<Void> future1 = CompletableFuture.runAsync(runnable);

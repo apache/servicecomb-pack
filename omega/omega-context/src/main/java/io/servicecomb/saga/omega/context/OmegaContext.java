@@ -18,14 +18,41 @@
 package io.servicecomb.saga.omega.context;
 
 public class OmegaContext {
-  private final ThreadLocal<Long> transactionId = new ThreadLocal<>();
+  private final ThreadLocal<String> globalTxId = new ThreadLocal<>();
+  private final ThreadLocal<String> localTxId = new ThreadLocal<>();
+  private final ThreadLocal<String> parentTxId = new ThreadLocal<>();
 
 
-  public void setTxId(long txId) {
-    transactionId.set(txId);
+  public void setGlobalTxId(String txId) {
+    globalTxId.set(txId);
   }
 
-  public long txId() {
-    return transactionId.get();
+  public String globalTxId() {
+    return globalTxId.get();
+  }
+
+  public void setLocalTxId(String localTxId) {
+    this.localTxId.set(localTxId);
+  }
+
+  public String localTxId() {
+    return localTxId.get();
+  }
+
+  public String parentTxId() {
+    return parentTxId.get();
+  }
+
+  public void setParentTxId(String parentTxId) {
+    this.parentTxId.set(parentTxId);
+  }
+
+  @Override
+  public String toString() {
+    return "OmegaContext{" +
+        "globalTxId=" + globalTxId.get() +
+        ", localTxId=" + localTxId.get() +
+        ", parentTxId=" + parentTxId.get() +
+        '}';
   }
 }

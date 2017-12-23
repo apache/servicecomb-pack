@@ -43,9 +43,14 @@ public class TransactionAspect {
   @Around("execution(@javax.transaction.Transactional * *(..))")
   Object advise(ProceedingJoinPoint joinPoint) throws Throwable {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
-    LOG.debug("Intercepting transactional method {}", method.toString());
+    LOG.debug("Intercepting transactional method {} with context {}", method.toString(), context);
 
-    preTransactionInterceptor.intercept(context.txId(), joinPoint.getArgs());
+    preTransactionInterceptor.intercept(
+        context.globalTxId(),
+        context.localTxId(),
+        context.parentTxId(),
+        joinPoint.getArgs());
+
     return joinPoint.proceed();
   }
 }

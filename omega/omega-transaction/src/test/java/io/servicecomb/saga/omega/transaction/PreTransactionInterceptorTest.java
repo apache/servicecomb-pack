@@ -17,25 +17,27 @@
 
 package io.servicecomb.saga.omega.transaction;
 
-import static com.seanyinx.github.unit.scaffolding.Randomness.nextId;
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.Test;
 
 public class PreTransactionInterceptorTest {
   private final List<byte[]> messages = new ArrayList<>();
-  private final long txId = nextId();
+  private final String globalTxId = UUID.randomUUID().toString();
+  private final String localTxId = UUID.randomUUID().toString();
+  private final String parentTxId = UUID.randomUUID().toString();
 
   private final MessageSender sender = messages::add;
   private final MessageSerializer serializer = event -> {
     if (event.payloads()[0] instanceof String) {
       String message = (String) event.payloads()[0];
-      return serialize(txId, message);
+      return serialize(globalTxId, localTxId, parentTxId, message);
     }
     throw new IllegalArgumentException("Expected instance of String, but was " + event.getClass());
   };
@@ -43,14 +45,14 @@ public class PreTransactionInterceptorTest {
   private final String message = uniquify("message");
   private final PreTransactionInterceptor interceptor = new PreTransactionInterceptor(sender, serializer);
 
-  private byte[] serialize(long txId, String message) {
-    return (txId + ":" + message).getBytes();
+  private byte[] serialize(String globalTxId, String localTxId, String parentTxId, String message) {
+    return (globalTxId + ":" + localTxId + ":" + parentTxId + ":" + message).getBytes();
   }
 
   @Test
   public void sendsSerializedMessage() throws Exception {
-    interceptor.intercept(txId, message);
+    interceptor.intercept(globalTxId, localTxId, parentTxId, message);
 
-    assertThat(messages, contains(serialize(txId, message)));
+    assertThat(messages, contains(serialize(globalTxId, localTxId, parentTxId, message)));
   }
 }
