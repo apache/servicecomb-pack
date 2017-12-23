@@ -26,7 +26,7 @@ class PreTransactionInterceptor {
     this.serializer = serializer;
   }
 
-  void intercept(long txId, Object... message) {
-    sender.send(serializer.serialize(new TxStartedEvent(txId, message)));
+  void intercept(String globalTxId, String localTxId, String parentTxId, Object... message) {
+    sender.send(serializer.serialize(new TxStartedEvent(globalTxId, localTxId, parentTxId, message)));
   }
 }

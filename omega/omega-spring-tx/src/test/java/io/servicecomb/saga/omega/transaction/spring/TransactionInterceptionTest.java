@@ -17,13 +17,13 @@
 
 package io.servicecomb.saga.omega.transaction.spring;
 
-import static com.seanyinx.github.unit.scaffolding.Randomness.nextId;
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +42,9 @@ import io.servicecomb.saga.omega.transaction.spring.TransactionInterceptionTest.
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {TransactionTestMain.class, MessageConfig.class})
 public class TransactionInterceptionTest {
-  private final long txId = nextId();
+  private final String globalTxId = UUID.randomUUID().toString();
+  private final String localTxId = UUID.randomUUID().toString();
+  private final String parentTxId = UUID.randomUUID().toString();
   private final String username = uniquify("username");
   private final String email = uniquify("email");
 
@@ -57,14 +59,16 @@ public class TransactionInterceptionTest {
 
   @Before
   public void setUp() throws Exception {
-    omegaContext.setTxId(txId);
+    omegaContext.setGlobalTxId(globalTxId);
+    omegaContext.setLocalTxId(localTxId);
+    omegaContext.setParentTxId(parentTxId);
   }
 
   @Test
   public void sendsUserToRemote_BeforeTransaction() throws Exception {
     userService.add(new User(username, email));
 
-    assertThat(messages, contains(serialize(txId, "TxStartedEvent", username, email)));
+    assertThat(messages, contains(serialize(globalTxId, localTxId, parentTxId, "TxStartedEvent", username, email)));
   }
 
   @Configuration
@@ -86,14 +90,24 @@ public class TransactionInterceptionTest {
       return event -> {
         if (event.payloads()[0] instanceof User) {
           User user = ((User) event.payloads()[0]);
-          return serialize(event.txId(), event.type(), user.username(), user.email());
+          return serialize(event.globalTxId(),
+              event.localTxId(),
+              event.parentTxId(),
+              event.type(),
+              user.username(),
+              user.email());
         }
         throw new IllegalArgumentException("Expected instance of User, but was " + event.getClass());
       };
     }
   }
 
-  private static byte[] serialize(long txId, String eventType, String username, String email) {
-    return (txId + ":" + eventType + ":" + username + ":" + email).getBytes();
+  private static byte[] serialize(String globalTxId,
+      String localTxId,
+      String parentTxId,
+      String eventType,
+      String username,
+      String email) {
+    return (globalTxId + ":" + localTxId + ":" + parentTxId + ":" + eventType + ":" + username + ":" + email).getBytes();
   }
 }
