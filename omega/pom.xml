@@ -32,6 +32,7 @@
     <module>omega-transaction</module>
     <module>omega-context</module>
     <module>omega-spring-tx</module>
+    <module>omega-transport</module>
   </modules>
 
   <dependencyManagement>
