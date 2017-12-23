@@ -108,6 +108,8 @@ public class TransactionInterceptionTest {
 
     User actual = userRepository.findOne(user.id());
     assertThat(actual, is(nullValue()));
+
+    assertThat(omegaContext.containsContext(globalTxId), is(false));
   }
 
   private List<String> toString(List<byte[]> messages) {

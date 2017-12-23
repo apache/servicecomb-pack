@@ -57,6 +57,10 @@ public class OmegaContext {
     compensationContexts.put(id, new CompensationContext(target, compensationMethod, args));
   }
 
+  public boolean containsContext(String globalTxId) {
+    return compensationContexts.containsKey(globalTxId);
+  }
+
   public void compensate(String globalTxId) {
     CompensationContext compensationContext = compensationContexts.get(globalTxId);
 
@@ -64,8 +68,11 @@ public class OmegaContext {
       invokeMethod(compensationContext);
     } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
       throw new IllegalStateException(
-          "Pre-checking for compensate method " + compensationContext.compensationMethod + " was somehow skipped",
+          "Pre-checking for compensate method " + compensationContext.compensationMethod
+              + " was somehow skipped, did you forget to configure compensable method checking on service startup?",
           e);
+    } finally {
+      compensationContexts.remove(globalTxId);
     }
   }
 
