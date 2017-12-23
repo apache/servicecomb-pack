@@ -15,28 +15,8 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction.spring;
+package io.servicecomb.saga.omega.transaction;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import io.servicecomb.saga.omega.transaction.annotations.Compensable;
-
-@Component
-class TransactionalUserService {
-  private final UserRepository userRepository;
-
-  @Autowired
-  TransactionalUserService(UserRepository userRepository) {
-    this.userRepository = userRepository;
-  }
-
-  @Compensable(compensationMethod = "delete")
-  User add(User user) {
-    return userRepository.save(user);
-  }
-
-  void delete(User user) {
-    userRepository.delete(user.id());
-  }
+public interface MessageHandler {
+  void onReceive(byte[] message);
 }

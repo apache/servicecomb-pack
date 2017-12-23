@@ -19,33 +19,40 @@ package io.servicecomb.saga.omega.transaction.spring;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import io.servicecomb.saga.omega.context.OmegaContext;
+import io.servicecomb.saga.omega.transaction.MessageHandler;
 import io.servicecomb.saga.omega.transaction.MessageSender;
 import io.servicecomb.saga.omega.transaction.MessageSerializer;
 import io.servicecomb.saga.omega.transaction.spring.TransactionInterceptionTest.MessageConfig;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {TransactionTestMain.class, MessageConfig.class})
+@AutoConfigureMockMvc
 public class TransactionInterceptionTest {
   private static final String TX_STARTED_EVENT = "TxStartedEvent";
   private static final String TX_ENDED_EVENT = "TxEndedEvent";
-  private final String globalTxId = UUID.randomUUID().toString();
+  private static final String globalTxId = UUID.randomUUID().toString();
   private final String localTxId = UUID.randomUUID().toString();
   private final String parentTxId = UUID.randomUUID().toString();
   private final String username = uniquify("username");
@@ -60,6 +67,12 @@ public class TransactionInterceptionTest {
   @Autowired
   private OmegaContext omegaContext;
 
+  @Autowired
+  private UserRepository userRepository;
+
+  @Autowired
+  private MessageHandler messageHandler;
+
   @Before
   public void setUp() throws Exception {
     omegaContext.setGlobalTxId(globalTxId);
@@ -67,9 +80,14 @@ public class TransactionInterceptionTest {
     omegaContext.setParentTxId(parentTxId);
   }
 
+  @After
+  public void tearDown() throws Exception {
+    messages.clear();
+  }
+
   @Test
-  public void sendsUserToRemote_BeforeTransaction() throws Exception {
-    userService.add(new User(username, email));
+  public void sendsUserToRemote_AroundTransaction() throws Exception {
+    User user = userService.add(new User(username, email));
 
     assertEquals(
         asList(
@@ -77,6 +95,19 @@ public class TransactionInterceptionTest {
             txEndedEvent(globalTxId, localTxId, parentTxId)),
         toString(messages)
     );
+
+    User actual = userRepository.findOne(user.id());
+    assertThat(actual, is(user));
+  }
+
+  @Test
+  public void compensateOnTransactionException() throws Exception {
+    User user = userService.add(new User(username, email));
+
+    messageHandler.onReceive("to be compensated".getBytes());
+
+    User actual = userRepository.findOne(user.id());
+    assertThat(actual, is(nullValue()));
   }
 
   private List<String> toString(List<byte[]> messages) {
@@ -114,6 +145,11 @@ public class TransactionInterceptionTest {
             event.localTxId(),
             event.parentTxId()).getBytes();
       };
+    }
+
+    @Bean
+    MessageHandler handler(OmegaContext omegaContext) {
+      return bytes -> omegaContext.compensate(globalTxId);
     }
   }
 
