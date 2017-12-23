@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.servicecomb.saga.omega.context.OmegaContext;
+import io.servicecomb.saga.omega.transaction.annotations.Compensable;
 
 @Aspect
 public class TransactionAspect {
@@ -42,10 +43,15 @@ public class TransactionAspect {
     this.postTransactionInterceptor = new PostTransactionInterceptor(sender, serializer);
   }
 
-  @Around("execution(@javax.transaction.Transactional * *(..))")
-  Object advise(ProceedingJoinPoint joinPoint) throws Throwable {
+  @Around("execution(@io.servicecomb.saga.omega.transaction.annotations.Compensable * *(..)) && @annotation(compensable)")
+  Object advise(ProceedingJoinPoint joinPoint, Compensable compensable) throws Throwable {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
-    LOG.debug("Intercepting transactional method {} with context {}", method.toString(), context);
+    LOG.debug("Intercepting compensable method {} with context {}", method.toString(), context);
+
+    context.addContext(context.globalTxId(),
+        joinPoint.getTarget(),
+        compensable.compensationMethod(),
+        joinPoint.getArgs());
 
     preIntercept(joinPoint);
     Object result = joinPoint.proceed();

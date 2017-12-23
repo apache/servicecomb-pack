@@ -17,11 +17,16 @@
 
 package io.servicecomb.saga.omega.context;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class OmegaContext {
   private final ThreadLocal<String> globalTxId = new ThreadLocal<>();
   private final ThreadLocal<String> localTxId = new ThreadLocal<>();
   private final ThreadLocal<String> parentTxId = new ThreadLocal<>();
-
+  private final Map<String, CompensationContext> compensationContexts = new ConcurrentHashMap<>();
 
   public void setGlobalTxId(String txId) {
     globalTxId.set(txId);
@@ -47,6 +52,44 @@ public class OmegaContext {
     this.parentTxId.set(parentTxId);
   }
 
+  // TODO: 2017/12/23 remove this context entry by the end of its corresponding global tx
+  public void addContext(String id, Object target, String compensationMethod, Object... args) {
+    compensationContexts.put(id, new CompensationContext(target, compensationMethod, args));
+  }
+
+  public void compensate(String globalTxId) {
+    CompensationContext compensationContext = compensationContexts.get(globalTxId);
+
+    try {
+      invokeMethod(compensationContext);
+    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+      throw new IllegalStateException(
+          "Pre-checking for compensate method " + compensationContext.compensationMethod + " was somehow skipped",
+          e);
+    }
+  }
+
+  private void invokeMethod(CompensationContext compensationContext)
+      throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+
+    Method method = compensationContext.target
+        .getClass()
+        .getDeclaredMethod(compensationContext.compensationMethod, argClasses(compensationContext));
+    method.setAccessible(true);
+
+    method.invoke(compensationContext.target, compensationContext.args);
+  }
+
+  private Class<?>[] argClasses(CompensationContext compensationContext) {
+    Class<?>[] classes = new Class<?>[compensationContext.args.length];
+
+    for (int i = 0; i < compensationContext.args.length; i++) {
+      classes[i] = compensationContext.args[i].getClass();
+    }
+
+    return classes;
+  }
+
   @Override
   public String toString() {
     return "OmegaContext{" +
@@ -54,5 +97,17 @@ public class OmegaContext {
         ", localTxId=" + localTxId.get() +
         ", parentTxId=" + parentTxId.get() +
         '}';
+  }
+
+  private static final class CompensationContext {
+    private final Object target;
+    private final String compensationMethod;
+    private final Object[] args;
+
+    private CompensationContext(Object target, String compensationMethod, Object... args) {
+      this.target = target;
+      this.compensationMethod = compensationMethod;
+      this.args = args;
+    }
   }
 }
