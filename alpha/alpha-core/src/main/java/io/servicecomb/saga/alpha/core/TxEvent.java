@@ -15,21 +15,26 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction;
+package io.servicecomb.saga.alpha.core;
 
 public class TxEvent {
-  private final long timestamp;
-  private final String globalTxId;
-  private final String localTxId;
-  private final String parentTxId;
-  private final Object[] payloads;
+  private long timestamp;
+  private String globalTxId;
+  private String localTxId;
+  private String parentTxId;
+  private String type;
+  private byte[] payloads;
 
-  public TxEvent(String globalTxId, String localTxId, String parentTxId, Object... payloads) {
-    this.timestamp = System.currentTimeMillis();
+  private TxEvent() {
+  }
+
+  public TxEvent(long timestamp, String globalTxId, String localTxId, String parentTxId, String type, byte[] payloads) {
+    this.timestamp = timestamp;
+    this.globalTxId = globalTxId;
     this.localTxId = localTxId;
     this.parentTxId = parentTxId;
+    this.type = type;
     this.payloads = payloads;
-    this.globalTxId = globalTxId;
   }
 
   public long timestamp() {
@@ -48,11 +53,11 @@ public class TxEvent {
     return parentTxId;
   }
 
-  public Object[] payloads() {
-    return payloads;
+  public String type() {
+    return type;
   }
 
-  public String type() {
-    return this.getClass().getSimpleName();
+  public byte[] payloads() {
+    return payloads;
   }
 }

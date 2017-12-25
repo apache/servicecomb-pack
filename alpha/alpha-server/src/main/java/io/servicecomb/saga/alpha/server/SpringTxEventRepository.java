@@ -15,8 +15,20 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction;
+package io.servicecomb.saga.alpha.server;
 
-public interface MessageSender {
-  void send(TxEvent event);
+import io.servicecomb.saga.alpha.core.TxEvent;
+import io.servicecomb.saga.alpha.core.TxEventRepository;
+
+class SpringTxEventRepository implements TxEventRepository {
+  private final TxEventEnvelopeRepository eventRepo;
+
+  SpringTxEventRepository(TxEventEnvelopeRepository eventRepo) {
+    this.eventRepo = eventRepo;
+  }
+
+  @Override
+  public void save(TxEvent event) {
+    eventRepo.save(new TxEventEnvelope(event));
+  }
 }

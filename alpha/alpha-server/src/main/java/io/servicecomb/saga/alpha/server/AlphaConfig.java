@@ -15,8 +15,25 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction;
+package io.servicecomb.saga.alpha.server;
 
-public interface MessageSender {
-  void send(TxEvent event);
+import java.util.concurrent.CompletableFuture;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import io.servicecomb.saga.alpha.core.TxEventRepository;
+
+@Configuration
+class AlphaConfig {
+
+  @Bean
+  TxEventRepository springTxEventRepository(TxEventEnvelopeRepository eventRepo) {
+    TxEventRepository eventRepository = new SpringTxEventRepository(eventRepo);
+
+    ThriftStartable startable = new ThriftStartable(8090, new SwiftTxEventEndpointImpl(eventRepository));
+    CompletableFuture.runAsync(startable::start);
+
+    return eventRepository;
+  }
 }

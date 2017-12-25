@@ -33,7 +33,6 @@ public class PreTransactionInterceptorTest {
   private final String localTxId = UUID.randomUUID().toString();
   private final String parentTxId = UUID.randomUUID().toString();
 
-  private final MessageSender sender = messages::add;
   private final MessageSerializer serializer = event -> {
     if (event.payloads()[0] instanceof String) {
       String message = (String) event.payloads()[0];
@@ -41,9 +40,10 @@ public class PreTransactionInterceptorTest {
     }
     throw new IllegalArgumentException("Expected instance of String, but was " + event.getClass());
   };
+  private final MessageSender sender = (msg) -> messages.add(serializer.serialize(msg));
 
   private final String message = uniquify("message");
-  private final PreTransactionInterceptor interceptor = new PreTransactionInterceptor(sender, serializer);
+  private final PreTransactionInterceptor interceptor = new PreTransactionInterceptor(sender);
 
   private byte[] serialize(String globalTxId, String localTxId, String parentTxId, String message) {
     return (globalTxId + ":" + localTxId + ":" + parentTxId + ":" + message).getBytes();

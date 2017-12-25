@@ -128,8 +128,8 @@ public class TransactionInterceptionTest {
     }
 
     @Bean
-    MessageSender sender() {
-      return messages::add;
+    MessageSender sender(MessageSerializer serializer) {
+      return (event) -> messages.add(serializer.serialize(event));
     }
 
     @Bean

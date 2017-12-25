@@ -15,8 +15,30 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction;
+package io.servicecomb.saga.alpha.server;
 
-public interface MessageSender {
-  void send(TxEvent event);
+import io.servicecomb.saga.alpha.core.TxEvent;
+import io.servicecomb.saga.alpha.core.TxEventRepository;
+import io.servicecomb.saga.pack.contracts.thrift.SwiftTxEvent;
+import io.servicecomb.saga.pack.contracts.thrift.SwiftTxEventEndpoint;
+
+class SwiftTxEventEndpointImpl implements SwiftTxEventEndpoint {
+
+  private final TxEventRepository eventRepository;
+
+  SwiftTxEventEndpointImpl(TxEventRepository eventRepository) {
+    this.eventRepository = eventRepository;
+  }
+
+  @Override
+  public void handle(SwiftTxEvent message) {
+    eventRepository.save(new TxEvent(
+        message.timestamp(),
+        message.globalTxId(),
+        message.localTxId(),
+        message.parentTxId(),
+        message.type(),
+        message.payloads()
+    ));
+  }
 }

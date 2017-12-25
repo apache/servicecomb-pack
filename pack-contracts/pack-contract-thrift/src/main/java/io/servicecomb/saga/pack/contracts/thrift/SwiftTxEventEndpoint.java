@@ -15,8 +15,14 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction;
+package io.servicecomb.saga.pack.contracts.thrift;
 
-public interface MessageSender {
-  void send(TxEvent event);
+import com.facebook.swift.service.ThriftMethod;
+import com.facebook.swift.service.ThriftService;
+
+@ThriftService("TxEventEndpoint")
+public interface SwiftTxEventEndpoint {
+
+  @ThriftMethod
+  void handle(SwiftTxEvent message);
 }
