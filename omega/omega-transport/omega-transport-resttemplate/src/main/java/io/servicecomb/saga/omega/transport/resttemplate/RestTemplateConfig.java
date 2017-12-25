@@ -25,7 +25,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
-import io.servicecomb.saga.core.IdGenerator;
+import io.servicecomb.saga.omega.context.IdGenerator;
+import io.servicecomb.saga.omega.context.OmegaContext;
 
 @Configuration
 public class RestTemplateConfig {
@@ -36,10 +37,10 @@ public class RestTemplateConfig {
   }
 
   @Bean
-  public RestTemplate restTemplate(IdGenerator<String> idGenerator) {
+  public RestTemplate restTemplate(IdGenerator<String> idGenerator, OmegaContext context) {
     RestTemplate template = new RestTemplate();
     List<ClientHttpRequestInterceptor> interceptors = template.getInterceptors();
-    interceptors.add(new TransactionClientHttpRequestInterceptor(idGenerator));
+    interceptors.add(new TransactionClientHttpRequestInterceptor(context, idGenerator));
     template.setInterceptors(interceptors);
     return template;
   }

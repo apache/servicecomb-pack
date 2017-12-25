@@ -25,25 +25,48 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
-import io.servicecomb.saga.core.IdGenerator;
+import io.servicecomb.saga.omega.context.IdGenerator;
+import io.servicecomb.saga.omega.context.OmegaContext;
 
 public class TransactionClientHttpRequestInterceptor implements ClientHttpRequestInterceptor {
 
-  public static final String TRANSACTION_ID_KEY = "X-Transaction-Id";
+  public static final String GLOBAL_TX_ID_KEY = "X-Pack-Global-Transaction-Id";
+  public static final String LOCAL_TX_ID_KEY = "X-Pack-Local-Transaction-Id";
 
+  private final OmegaContext omegaContext;
   private final IdGenerator<String> idGenerator;
 
-  public TransactionClientHttpRequestInterceptor(IdGenerator<String> idGenerator) {
+  TransactionClientHttpRequestInterceptor(OmegaContext omegaContext, IdGenerator<String> idGenerator) {
+    this.omegaContext = omegaContext;
     this.idGenerator = idGenerator;
   }
 
   @Override
   public ClientHttpResponse intercept(HttpRequest request, byte[] body,
       ClientHttpRequestExecution execution) throws IOException {
-    if (!request.getHeaders().containsKey(TRANSACTION_ID_KEY)) {
-      String txId = idGenerator.nextId();
-      request.getHeaders().add(TRANSACTION_ID_KEY, txId);
-    }
+
+    request.getHeaders().add(GLOBAL_TX_ID_KEY, globalTxId());
+    request.getHeaders().add(LOCAL_TX_ID_KEY, localTxId());
     return execution.execute(request, body);
+  }
+
+  private String globalTxId() {
+    String globalTxId = omegaContext.globalTxId();
+
+    if (globalTxId == null) {
+      globalTxId = idGenerator.nextId();
+      omegaContext.setGlobalTxId(globalTxId);
+    }
+    return globalTxId;
+  }
+
+  private String localTxId() {
+    String localTxId = omegaContext.localTxId();
+
+    if (localTxId == null) {
+      localTxId = idGenerator.nextId();
+      omegaContext.setLocalTxId(localTxId);
+    }
+    return localTxId;
   }
 }

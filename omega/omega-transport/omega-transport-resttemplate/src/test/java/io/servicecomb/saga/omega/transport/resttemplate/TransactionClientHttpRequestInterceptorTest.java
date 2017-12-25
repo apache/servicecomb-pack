@@ -18,37 +18,54 @@
 
 package io.servicecomb.saga.omega.transport.resttemplate;
 
-import static io.servicecomb.saga.omega.transport.resttemplate.TransactionClientHttpRequestInterceptor.TRANSACTION_ID_KEY;
-import static org.hamcrest.Matchers.notNullValue;
+import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
+import static io.servicecomb.saga.omega.transport.resttemplate.TransactionClientHttpRequestInterceptor.GLOBAL_TX_ID_KEY;
+import static io.servicecomb.saga.omega.transport.resttemplate.TransactionClientHttpRequestInterceptor.LOCAL_TX_ID_KEY;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mockito;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
+import io.servicecomb.saga.omega.context.IdGenerator;
+import io.servicecomb.saga.omega.context.OmegaContext;
+
+@SuppressWarnings("unchecked")
 @RunWith(JUnit4.class)
 public class TransactionClientHttpRequestInterceptorTest {
 
-  private HttpRequest request = mock(HttpRequest.class);
+  private final HttpRequest request = mock(HttpRequest.class);
 
-  private ClientHttpRequestExecution execution = mock(ClientHttpRequestExecution.class);
+  private final ClientHttpRequestExecution execution = mock(ClientHttpRequestExecution.class);
 
-  private ClientHttpResponse response = mock(ClientHttpResponse.class);
+  private final ClientHttpResponse response = mock(ClientHttpResponse.class);
 
-  private ClientHttpRequestInterceptor clientHttpRequestInterceptor = new TransactionClientHttpRequestInterceptor(
-      new UniqueIdGenerator());
+  private final String globalTxId = uniquify("global tx id");
+  private final String localTxId = uniquify("local tx id");
+  private final IdGenerator<String> idGenerator = Mockito.mock(IdGenerator.class);
+
+  private final OmegaContext omegaContext = new OmegaContext();
+  private final ClientHttpRequestInterceptor clientHttpRequestInterceptor = new TransactionClientHttpRequestInterceptor(
+      omegaContext,
+      idGenerator);
+
+  @Before
+  public void setUp() throws Exception {
+    when(idGenerator.nextId()).thenReturn(globalTxId, localTxId);
+  }
 
   @Test
   public void newTransactionIdInHeaderIfNonExists() throws IOException {
@@ -58,19 +75,28 @@ public class TransactionClientHttpRequestInterceptorTest {
 
     clientHttpRequestInterceptor.intercept(request, null, execution);
 
-    assertThat(request.getHeaders().getOrDefault(TRANSACTION_ID_KEY, null), is(notNullValue()));
+    assertThat(request.getHeaders().get(GLOBAL_TX_ID_KEY), contains(globalTxId));
+    assertThat(request.getHeaders().get(LOCAL_TX_ID_KEY), contains(localTxId));
+
+    assertThat(omegaContext.globalTxId(), is(globalTxId));
+    assertThat(omegaContext.localTxId(), is(localTxId));
   }
 
   @Test
   public void sameTransactionIdInHeaderIfAlreadyExists() throws IOException {
+    omegaContext.setGlobalTxId(globalTxId);
+    omegaContext.setLocalTxId(localTxId);
+
     HttpHeaders headers = new HttpHeaders();
-    headers.add(TRANSACTION_ID_KEY, "txId");
     when(request.getHeaders()).thenReturn(headers);
     when(execution.execute(request, null)).thenReturn(response);
 
     clientHttpRequestInterceptor.intercept(request, null, execution);
 
-    List<String> expected = Collections.singletonList("txId");
-    assertThat(request.getHeaders().getOrDefault(TRANSACTION_ID_KEY, null), is(expected));
+    assertThat(request.getHeaders().get(GLOBAL_TX_ID_KEY), contains(globalTxId));
+    assertThat(request.getHeaders().get(LOCAL_TX_ID_KEY), contains(localTxId));
+
+    assertThat(omegaContext.globalTxId(), is(globalTxId));
+    assertThat(omegaContext.localTxId(), is(localTxId));
   }
 }
