@@ -47,6 +47,22 @@
       <groupId>io.servicecomb.saga.discovery</groupId>
       <artifactId>saga-discovery-servicecenter</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.servicecomb.saga</groupId>
+      <artifactId>omega-context</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.servicecomb.saga</groupId>
+      <artifactId>omega-transaction</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.servicecomb.saga</groupId>
+      <artifactId>omega-spring-tx</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.servicecomb.saga</groupId>
+      <artifactId>omega-transport-resttemplate</artifactId>
+    </dependency>
   </dependencies>
 
   <profiles>
