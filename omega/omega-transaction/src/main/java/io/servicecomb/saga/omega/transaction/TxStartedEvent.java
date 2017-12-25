@@ -17,9 +17,9 @@
 
 package io.servicecomb.saga.omega.transaction;
 
-class TxStartedEvent extends TxEvent {
+public class TxStartedEvent extends TxEvent {
 
-  TxStartedEvent(String globalTxId, String localTxId, String parentTxId, Object[] payloads) {
+  public TxStartedEvent(String globalTxId, String localTxId, String parentTxId, Object[] payloads) {
     super(globalTxId, localTxId, parentTxId, payloads);
   }
 }
