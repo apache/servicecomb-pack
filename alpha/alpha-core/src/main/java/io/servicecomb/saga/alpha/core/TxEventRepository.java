@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction;
+package io.servicecomb.saga.alpha.core;
 
-public interface MessageSender {
-  void send(TxEvent event);
+public interface TxEventRepository {
+  void save(TxEvent event);
 }

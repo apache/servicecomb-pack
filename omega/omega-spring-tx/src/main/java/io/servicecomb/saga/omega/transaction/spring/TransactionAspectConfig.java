@@ -23,7 +23,6 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 import io.servicecomb.saga.omega.context.OmegaContext;
 import io.servicecomb.saga.omega.transaction.MessageSender;
-import io.servicecomb.saga.omega.transaction.MessageSerializer;
 import io.servicecomb.saga.omega.transaction.TransactionAspect;
 
 @Configuration
@@ -35,7 +34,7 @@ class TransactionAspectConfig {
   }
 
   @Bean
-  TransactionAspect transactionAspect(MessageSerializer serializer, MessageSender sender, OmegaContext context) {
-    return new TransactionAspect(serializer, sender, context);
+  TransactionAspect transactionAspect(MessageSender sender, OmegaContext context) {
+    return new TransactionAspect(sender, context);
   }
 }

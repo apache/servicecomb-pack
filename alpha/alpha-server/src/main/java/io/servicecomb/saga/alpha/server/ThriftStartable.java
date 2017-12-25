@@ -15,8 +15,29 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction;
+package io.servicecomb.saga.alpha.server;
 
-public interface MessageSender {
-  void send(TxEvent event);
+import java.util.Collections;
+
+import com.facebook.swift.codec.ThriftCodecManager;
+import com.facebook.swift.service.ThriftServer;
+import com.facebook.swift.service.ThriftServerConfig;
+import com.facebook.swift.service.ThriftServiceProcessor;
+
+class ThriftStartable {
+  private final ThriftServer server;
+
+  ThriftStartable(int port, Object... services) {
+    server = new ThriftServer(
+        new ThriftServiceProcessor(new ThriftCodecManager(),
+            Collections.emptyList(),
+            services),
+        new ThriftServerConfig().setPort(port));
+  }
+
+  void start() {
+    Runtime.getRuntime().addShutdownHook(new Thread(server::close));
+
+    server.start();
+  }
 }

@@ -32,10 +32,10 @@ public class PostTransactionInterceptorTest {
   private final String localTxId = UUID.randomUUID().toString();
   private final String parentTxId = UUID.randomUUID().toString();
 
-  private final MessageSender sender = messages::add;
   private final MessageSerializer serializer = event -> serialize(globalTxId, localTxId, parentTxId);
+  private final MessageSender sender = (msg) -> messages.add(serializer.serialize(msg));
 
-  private final PostTransactionInterceptor interceptor = new PostTransactionInterceptor(sender, serializer);
+  private final PostTransactionInterceptor interceptor = new PostTransactionInterceptor(sender);
 
   private byte[] serialize(String globalTxId, String localTxId, String parentTxId) {
     return (globalTxId + ":" + localTxId + ":" + parentTxId).getBytes();

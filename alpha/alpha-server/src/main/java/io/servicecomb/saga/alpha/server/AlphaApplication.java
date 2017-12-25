@@ -15,8 +15,14 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction;
+package io.servicecomb.saga.alpha.server;
 
-public interface MessageSender {
-  void send(TxEvent event);
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class AlphaApplication {
+  public static void main(String[] args) {
+    SpringApplication.run(AlphaApplication.class, args);
+  }
 }

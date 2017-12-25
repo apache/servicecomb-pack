@@ -15,8 +15,52 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction;
+package io.servicecomb.saga.alpha.server;
 
-public interface MessageSender {
-  void send(TxEvent event);
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+import io.servicecomb.saga.alpha.core.TxEvent;
+
+@Entity
+class TxEventEnvelope {
+  @Id
+  @GeneratedValue
+  private long surrogateId;
+
+  @Embedded
+  private TxEvent event;
+
+  private TxEventEnvelope() {
+  }
+
+  TxEventEnvelope(TxEvent event) {
+    this.event = event;
+  }
+
+  public long timestamp() {
+    return event.timestamp();
+  }
+
+  String globalTxId() {
+    return event.globalTxId();
+  }
+
+  String localTxId() {
+    return event.localTxId();
+  }
+
+  String parentTxId() {
+    return event.parentTxId();
+  }
+
+  String type() {
+    return event.type();
+  }
+
+  byte[] payloads() {
+    return event.payloads();
+  }
 }

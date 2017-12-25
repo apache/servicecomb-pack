@@ -34,6 +34,8 @@
     <module>saga-discovery</module>
     <module>saga-web</module>
     <module>omega</module>
+    <module>alpha</module>
+    <module>pack-contracts</module>
   </modules>
 
   <properties>
@@ -146,6 +148,16 @@
       <dependency>
         <groupId>io.servicecomb.saga</groupId>
         <artifactId>omega-transport-resttemplate</artifactId>
+        <version>0.0.3-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>io.servicecomb.saga</groupId>
+        <artifactId>alpha-core</artifactId>
+        <version>0.0.3-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>io.servicecomb.saga</groupId>
+        <artifactId>pack-contract-thrift</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
@@ -267,6 +279,22 @@
         <groupId>com.typesafe.akka</groupId>
         <artifactId>akka-slf4j_2.12</artifactId>
         <version>${akka.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.thrift</groupId>
+        <artifactId>libthrift</artifactId>
+        <version>0.10.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.facebook.swift</groupId>
+        <artifactId>swift-service</artifactId>
+        <version>0.23.1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <!-- test dependencies -->
@@ -462,6 +490,18 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>
           <version>2.8.2</version>
+        </plugin>
+        <plugin>
+          <groupId>com.facebook.mojo</groupId>
+          <artifactId>swift-maven-plugin</artifactId>
+          <version>0.23.1</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>generate</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
     </pluginManagement>

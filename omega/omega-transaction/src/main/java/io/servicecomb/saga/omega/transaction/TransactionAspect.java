@@ -37,10 +37,10 @@ public class TransactionAspect {
   private final PostTransactionInterceptor postTransactionInterceptor;
   private final OmegaContext context;
 
-  public TransactionAspect(MessageSerializer serializer, MessageSender sender, OmegaContext context) {
+  public TransactionAspect(MessageSender sender, OmegaContext context) {
     this.context = context;
-    this.preTransactionInterceptor = new PreTransactionInterceptor(sender, serializer);
-    this.postTransactionInterceptor = new PostTransactionInterceptor(sender, serializer);
+    this.preTransactionInterceptor = new PreTransactionInterceptor(sender);
+    this.postTransactionInterceptor = new PostTransactionInterceptor(sender);
   }
 
   @Around("execution(@io.servicecomb.saga.omega.transaction.annotations.Compensable * *(..)) && @annotation(compensable)")

@@ -15,8 +15,10 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction;
+package io.servicecomb.saga.alpha.server;
 
-public interface MessageSender {
-  void send(TxEvent event);
+import org.springframework.data.repository.CrudRepository;
+
+interface TxEventEnvelopeRepository extends CrudRepository<TxEventEnvelope, Long> {
+  TxEventEnvelope findByEventGlobalTxId(String globalTxId);
 }

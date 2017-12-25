@@ -15,44 +15,58 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction;
+package io.servicecomb.saga.pack.contracts.thrift;
 
-public class TxEvent {
+import com.facebook.swift.codec.ThriftConstructor;
+import com.facebook.swift.codec.ThriftField;
+import com.facebook.swift.codec.ThriftStruct;
+
+@ThriftStruct("TxEvent")
+public class SwiftTxEvent {
   private final long timestamp;
   private final String globalTxId;
   private final String localTxId;
   private final String parentTxId;
-  private final Object[] payloads;
+  private final String type;
+  private final byte[] payloads;
 
-  public TxEvent(String globalTxId, String localTxId, String parentTxId, Object... payloads) {
-    this.timestamp = System.currentTimeMillis();
+  @ThriftConstructor
+  public SwiftTxEvent(long timestamp, String globalTxId, String localTxId, String parentTxId, String type, byte[] payloads) {
+    this.timestamp = timestamp;
+    this.globalTxId = globalTxId;
     this.localTxId = localTxId;
     this.parentTxId = parentTxId;
+    this.type = type;
     this.payloads = payloads;
-    this.globalTxId = globalTxId;
   }
 
+  @ThriftField(1)
   public long timestamp() {
     return timestamp;
   }
 
+  @ThriftField(2)
   public String globalTxId() {
     return globalTxId;
   }
 
+  @ThriftField(3)
   public String localTxId() {
     return localTxId;
   }
 
+  @ThriftField(4)
   public String parentTxId() {
     return parentTxId;
   }
 
-  public Object[] payloads() {
-    return payloads;
+  @ThriftField(5)
+  public String type() {
+    return type;
   }
 
-  public String type() {
-    return this.getClass().getSimpleName();
+  @ThriftField(6)
+  public byte[] payloads() {
+    return payloads;
   }
 }

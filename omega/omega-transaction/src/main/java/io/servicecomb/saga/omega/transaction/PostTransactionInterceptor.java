@@ -19,14 +19,12 @@ package io.servicecomb.saga.omega.transaction;
 
 class PostTransactionInterceptor {
   private final MessageSender sender;
-  private final MessageSerializer serializer;
 
-  PostTransactionInterceptor(MessageSender sender, MessageSerializer serializer) {
+  PostTransactionInterceptor(MessageSender sender) {
     this.sender = sender;
-    this.serializer = serializer;
   }
 
   void intercept(String globalTxId, String localTxId, String parentTxId) {
-    sender.send(serializer.serialize(new TxEndedEvent(globalTxId, localTxId, parentTxId)));
+    sender.send(new TxEndedEvent(globalTxId, localTxId, parentTxId));
   }
 }
