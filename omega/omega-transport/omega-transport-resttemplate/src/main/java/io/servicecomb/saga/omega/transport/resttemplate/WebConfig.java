@@ -26,25 +26,21 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import io.servicecomb.saga.omega.transaction.MessageSender;
-import io.servicecomb.saga.omega.transaction.MessageSerializer;
+import io.servicecomb.saga.omega.context.OmegaContext;
 
 @Configuration
 @EnableWebMvc
 public class WebConfig extends WebMvcConfigurerAdapter {
 
-  private MessageSender sender;
-
-  private MessageSerializer serializer;
+  private final OmegaContext omegaContext;
 
   @Autowired
-  public WebConfig(MessageSender sender, MessageSerializer serializer) {
-    this.sender = sender;
-    this.serializer = serializer;
+  public WebConfig(OmegaContext omegaContext) {
+    this.omegaContext = omegaContext;
   }
 
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
-    registry.addInterceptor(new TransactionHandlerInterceptor(sender, serializer));
+    registry.addInterceptor(new TransactionHandlerInterceptor(omegaContext));
   }
 }
