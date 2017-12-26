@@ -23,6 +23,7 @@ import static org.junit.Assert.assertThat;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.OK;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.Test;
@@ -41,18 +42,22 @@ import io.servicecomb.saga.omega.context.OmegaContext;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = GreetingApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class PackIT {
+  private final String globalTxId = UUID.randomUUID().toString();
+
   @Autowired
   private TestRestTemplate restTemplate;
 
   @Autowired
   private OmegaContext omegaContext;
 
+  @Autowired
+  private TxEventEnvelopeRepository repository;
 
   @Test
   public void updatesTxStateToAlpha() throws Exception {
     HttpHeaders headers = new HttpHeaders();
 
-    headers.set(GLOBAL_TX_ID_KEY, UUID.randomUUID().toString());
+    headers.set(GLOBAL_TX_ID_KEY, globalTxId);
 
     ResponseEntity<String> entity = restTemplate.exchange("/greet?name={name}",
         GET,
@@ -62,5 +67,11 @@ public class PackIT {
 
     assertThat(entity.getStatusCode(), is(OK));
     assertThat(entity.getBody(), is("Greetings, mike"));
+
+    List<TxEventEnvelope> envelopes = repository.findByGlobalTxIdOrderByCreationTime(globalTxId);
+
+    assertThat(envelopes.size(), is(2));
+    assertThat(envelopes.get(0).type(), is("TxStartedEvent"));
+    assertThat(envelopes.get(1).type(), is("TxEndedEvent"));
   }
 }
