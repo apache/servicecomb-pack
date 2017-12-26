@@ -15,26 +15,19 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction.spring;
+package io.servicecomb.saga.omega.spring;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import io.servicecomb.saga.omega.context.OmegaContext;
-import io.servicecomb.saga.omega.transaction.MessageSender;
-import io.servicecomb.saga.omega.transaction.TransactionAspect;
+import org.springframework.context.annotation.Import;
 
-@Configuration
-@EnableAspectJAutoProxy
-public class TransactionAspectConfig {
-  @Bean
-  OmegaContext omegaContext() {
-    return new OmegaContext();
-  }
+import io.servicecomb.saga.omega.transaction.spring.TransactionAspectConfig;
 
-  @Bean
-  TransactionAspect transactionAspect(MessageSender sender, OmegaContext context) {
-    return new TransactionAspect(sender, context);
-  }
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Import({OmegaSpringConfig.class, TransactionAspectConfig.class})
+public @interface EnableOmega {
 }

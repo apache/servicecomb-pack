@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 
+import io.servicecomb.saga.omega.transaction.OmegaException;
 import io.servicecomb.saga.omega.transaction.annotations.Compensable;
 
 class CompensableMethodCheckingCallback implements MethodCallback {
@@ -47,7 +48,7 @@ class CompensableMethodCheckingCallback implements MethodCallback {
       bean.getClass().getDeclaredMethod(compensationMethod, method.getParameterTypes());
       LOG.debug("Found compensation method [{}] in {}", compensationMethod, bean.getClass().getCanonicalName());
     } catch (NoSuchMethodException e) {
-      throw new IllegalArgumentException(
+      throw new OmegaException(
           "No such compensation method [" + compensationMethod + "] found in " + bean.getClass().getCanonicalName(),
           e);
     }

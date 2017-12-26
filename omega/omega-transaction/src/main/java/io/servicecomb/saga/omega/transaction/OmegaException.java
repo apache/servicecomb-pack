@@ -15,26 +15,11 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction.spring;
+package io.servicecomb.saga.omega.transaction;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
+public class OmegaException extends RuntimeException {
 
-import io.servicecomb.saga.omega.context.OmegaContext;
-import io.servicecomb.saga.omega.transaction.MessageSender;
-import io.servicecomb.saga.omega.transaction.TransactionAspect;
-
-@Configuration
-@EnableAspectJAutoProxy
-public class TransactionAspectConfig {
-  @Bean
-  OmegaContext omegaContext() {
-    return new OmegaContext();
-  }
-
-  @Bean
-  TransactionAspect transactionAspect(MessageSender sender, OmegaContext context) {
-    return new TransactionAspect(sender, context);
+  public OmegaException(String cause, Throwable throwable) {
+    super(cause, throwable);
   }
 }

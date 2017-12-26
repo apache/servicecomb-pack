@@ -15,32 +15,20 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.alpha.server;
+package io.servicecomb.saga.integration.pack.tests;
 
-import java.util.Date;
+import org.springframework.stereotype.Service;
 
-import io.servicecomb.saga.alpha.core.TxEvent;
-import io.servicecomb.saga.alpha.core.TxEventRepository;
-import io.servicecomb.saga.pack.contracts.thrift.SwiftTxEvent;
-import io.servicecomb.saga.pack.contracts.thrift.SwiftTxEventEndpoint;
+import io.servicecomb.saga.omega.transaction.annotations.Compensable;
 
-class SwiftTxEventEndpointImpl implements SwiftTxEventEndpoint {
-
-  private final TxEventRepository eventRepository;
-
-  SwiftTxEventEndpointImpl(TxEventRepository eventRepository) {
-    this.eventRepository = eventRepository;
+@Service
+public class GreetingService {
+  @Compensable(compensationMethod = "goodbye")
+  String greet(String name) {
+    return "Greetings, " + name;
   }
 
-  @Override
-  public void handle(SwiftTxEvent message) {
-    eventRepository.save(new TxEvent(
-        new Date(message.timestamp()),
-        message.globalTxId(),
-        message.localTxId(),
-        message.parentTxId(),
-        message.type(),
-        message.payloads()
-    ));
+  String goodbye(String name) {
+    return "Goodbye, " + name;
   }
 }

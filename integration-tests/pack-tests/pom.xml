@@ -16,17 +16,35 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <artifactId>dependency-free-transaction-demo</artifactId>
-    <groupId>io.servicecomb.saga.demo</groupId>
+    <artifactId>integration-tests</artifactId>
+    <groupId>io.servicecomb.saga.tests</groupId>
     <version>0.0.3-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>demo-tests</artifactId>
+  <artifactId>pack-tests</artifactId>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring.boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
+    <dependency>
+      <groupId>io.servicecomb.saga</groupId>
+      <artifactId>omega-spring-starter</artifactId>
+    </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
@@ -40,6 +58,16 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -61,24 +89,6 @@
         <artifactId>docker-maven-plugin</artifactId>
         <configuration>
           <images>
-            <image>
-              <name>servicecomb/service-center:latest</name>
-              <alias>service-center</alias>
-              <run>
-                <wait>
-                  <log>Local listen address</log>
-                  <tcp>
-                    <ports>
-                      <port>30100</port>
-                    </ports>
-                  </tcp>
-                  <time>60000</time>
-                </wait>
-                <ports>
-                  <port>service.center.port:30100</port>
-                </ports>
-              </run>
-            </image>
             <image>
               <name>mysql/mysql-server:5.7</name>
               <alias>mysql</alias>
@@ -104,118 +114,16 @@
               </run>
             </image>
             <image>
-              <name>car-rental-service:${project.version}</name>
-              <alias>car</alias>
-              <run>
-                <env>
-                  <JAVA_OPTS />
-                </env>
-                <wait>
-                  <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
-                  <tcp>
-                    <ports>
-                      <port>8080</port>
-                    </ports>
-                  </tcp>
-                  <time>120000</time>
-                </wait>
-                <links>
-                  <link>service-center:sc.servicecomb.io</link>
-                </links>
-                <ports>
-                  <port>car.port:8080</port>
-                </ports>
-              </run>
-            </image>
-            <image>
-              <name>flight-booking-service:${project.version}</name>
-              <alias>flight</alias>
-              <run>
-                <env>
-                  <JAVA_OPTS />
-                </env>
-                <wait>
-                  <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
-                  <tcp>
-                    <ports>
-                      <port>8080</port>
-                    </ports>
-                  </tcp>
-                  <time>120000</time>
-                </wait>
-                <links>
-                  <link>service-center:sc.servicecomb.io</link>
-                </links>
-                <ports>
-                  <port>flight.port:8080</port>
-                </ports>
-              </run>
-            </image>
-            <image>
-              <name>hotel-reservation-service:${project.version}</name>
-              <alias>hotel</alias>
-              <run>
-                <env>
-                  <JAVA_OPTS />
-                </env>
-                <wait>
-                  <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
-                  <tcp>
-                    <ports>
-                      <port>8080</port>
-                    </ports>
-                  </tcp>
-                  <time>120000</time>
-                </wait>
-                <links>
-                  <link>service-center:sc.servicecomb.io</link>
-                </links>
-                <ports>
-                  <port>hotel.port:8080</port>
-                </ports>
-              </run>
-            </image>
-            <image>
-              <name>payment-service:${project.version}</name>
-              <alias>payment</alias>
-              <run>
-                <env>
-                  <JAVA_OPTS />
-                </env>
-                <wait>
-                  <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
-                  <tcp>
-                    <ports>
-                      <port>8080</port>
-                    </ports>
-                  </tcp>
-                  <time>120000</time>
-                </wait>
-                <links>
-                  <link>service-center:sc.servicecomb.io</link>
-                </links>
-                <ports>
-                  <port>payment.port:8080</port>
-                </ports>
-              </run>
-            </image>
-            <image>
-              <name>saga-spring:${project.version}</name>
-              <alias>saga</alias>
+              <name>alpha-server:${project.version}</name>
+              <alias>alpha</alias>
               <run>
                 <env>
                   <JAVA_OPTS>
-                    -Dspring.profiles.active=prd,servicecomb
-                    -Dcse.service.registry.address=http://sc.servicecomb.io:30100
+                    -Dspring.profiles.active=prd
                   </JAVA_OPTS>
                 </env>
                 <links>
-                  <link>service-center:sc.servicecomb.io</link>
                   <link>mysql:mysql.servicecomb.io</link>
-                  <link>car:car.servicecomb.io</link>
-                  <link>flight:flight.servicecomb.io</link>
-                  <link>hotel:hotel.servicecomb.io</link>
-                  <link>payment:payment.servicecomb.io</link>
                 </links>
                 <wait>
                   <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
@@ -227,7 +135,7 @@
                   <time>120000</time>
                 </wait>
                 <ports>
-                  <port>saga.port:8080</port>
+                  <port>alpha.port:8080</port>
                 </ports>
                 <dependsOn>
                   <dependsOn>mysql</dependsOn>
@@ -286,7 +194,7 @@
             <configuration>
               <systemPropertyVariables>
                 <saga.address>
-                  http://${docker.hostname}:${saga.port}
+                  http://${docker.hostname}:${alpha.port}
                 </saga.address>
               </systemPropertyVariables>
               <argLine>${jacoco.failsafe.argLine}</argLine>
