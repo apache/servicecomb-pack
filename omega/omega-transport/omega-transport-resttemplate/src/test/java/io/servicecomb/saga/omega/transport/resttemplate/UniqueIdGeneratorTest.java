@@ -34,6 +34,8 @@ import java.util.concurrent.Future;
 
 import org.junit.Test;
 
+import io.servicecomb.saga.omega.context.UniqueIdGenerator;
+
 public class UniqueIdGeneratorTest {
 
   private final UniqueIdGenerator idGenerator = new UniqueIdGenerator();

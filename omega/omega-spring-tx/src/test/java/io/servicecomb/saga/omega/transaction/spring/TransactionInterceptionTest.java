@@ -41,6 +41,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import io.servicecomb.saga.omega.context.OmegaContext;
+import io.servicecomb.saga.omega.context.UniqueIdGenerator;
 import io.servicecomb.saga.omega.transaction.MessageHandler;
 import io.servicecomb.saga.omega.transaction.MessageSender;
 import io.servicecomb.saga.omega.transaction.TxEvent;
@@ -121,6 +122,11 @@ public class TransactionInterceptionTest {
   @Configuration
   static class MessageConfig {
     private final List<byte[]> messages = new ArrayList<>();
+
+    @Bean
+    OmegaContext omegaContext() {
+      return new OmegaContext(new UniqueIdGenerator());
+    }
 
     @Bean
     List<byte[]> messages() {

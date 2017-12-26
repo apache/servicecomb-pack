@@ -29,7 +29,7 @@ import org.junit.Test;
 
 public class OmegaContextTest {
 
-  private final OmegaContext omegaContext = new OmegaContext();
+  private final OmegaContext omegaContext = new OmegaContext(() -> "ignored");
 
   @Test
   public void eachThreadGetsDifferentGlobalTxId() throws Exception {

@@ -17,9 +17,13 @@
 
 package io.servicecomb.saga.integration.pack.tests;
 
+import static io.servicecomb.saga.omega.context.OmegaContext.GLOBAL_TX_ID_KEY;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.OK;
+
+import java.util.UUID;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,13 +31,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import io.servicecomb.saga.omega.context.OmegaContext;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = GreetingApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {"alpha.cluster.address=localhost:32782"})
+@SpringBootTest(classes = GreetingApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class PackIT {
   @Autowired
   private TestRestTemplate restTemplate;
@@ -44,7 +50,15 @@ public class PackIT {
 
   @Test
   public void updatesTxStateToAlpha() throws Exception {
-    ResponseEntity<String> entity = restTemplate.getForEntity("/greet?name={name}", String.class, "mike");
+    HttpHeaders headers = new HttpHeaders();
+
+    headers.set(GLOBAL_TX_ID_KEY, UUID.randomUUID().toString());
+
+    ResponseEntity<String> entity = restTemplate.exchange("/greet?name={name}",
+        GET,
+        new HttpEntity<>(headers),
+        String.class,
+        "mike");
 
     assertThat(entity.getStatusCode(), is(OK));
     assertThat(entity.getBody(), is("Greetings, mike"));

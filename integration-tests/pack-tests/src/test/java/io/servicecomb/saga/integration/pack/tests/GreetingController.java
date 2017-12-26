@@ -17,8 +17,6 @@
 
 package io.servicecomb.saga.integration.pack.tests;
 
-import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -26,27 +24,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import io.servicecomb.saga.omega.context.OmegaContext;
-
 @Controller
 @RequestMapping("/")
 public class GreetingController {
   private final GreetingService greetingService;
-  private final OmegaContext context;
 
   @Autowired
-  public GreetingController(GreetingService greetingService, OmegaContext context) {
+  public GreetingController(GreetingService greetingService) {
     this.greetingService = greetingService;
-    this.context = context;
   }
 
 
   @GetMapping("/greet")
   ResponseEntity<String> greet(@RequestParam String name) {
-    // TODO: 2017/12/26 to be removed when tx id retrieval is done
-    context.setGlobalTxId(UUID.randomUUID().toString());
-    context.setLocalTxId(UUID.randomUUID().toString());
-
     return ResponseEntity.ok(greetingService.greet(name));
   }
 }

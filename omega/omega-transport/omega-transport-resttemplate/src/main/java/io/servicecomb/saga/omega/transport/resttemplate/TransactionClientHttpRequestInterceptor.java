@@ -18,6 +18,9 @@
 
 package io.servicecomb.saga.omega.transport.resttemplate;
 
+import static io.servicecomb.saga.omega.context.OmegaContext.GLOBAL_TX_ID_KEY;
+import static io.servicecomb.saga.omega.context.OmegaContext.LOCAL_TX_ID_KEY;
+
 import java.io.IOException;
 
 import org.springframework.http.HttpRequest;
@@ -25,20 +28,14 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
-import io.servicecomb.saga.omega.context.IdGenerator;
 import io.servicecomb.saga.omega.context.OmegaContext;
 
-public class TransactionClientHttpRequestInterceptor implements ClientHttpRequestInterceptor {
-
-  public static final String GLOBAL_TX_ID_KEY = "X-Pack-Global-Transaction-Id";
-  public static final String LOCAL_TX_ID_KEY = "X-Pack-Local-Transaction-Id";
+class TransactionClientHttpRequestInterceptor implements ClientHttpRequestInterceptor {
 
   private final OmegaContext omegaContext;
-  private final IdGenerator<String> idGenerator;
 
-  TransactionClientHttpRequestInterceptor(OmegaContext omegaContext, IdGenerator<String> idGenerator) {
+  TransactionClientHttpRequestInterceptor(OmegaContext omegaContext) {
     this.omegaContext = omegaContext;
-    this.idGenerator = idGenerator;
   }
 
   @Override
@@ -54,8 +51,7 @@ public class TransactionClientHttpRequestInterceptor implements ClientHttpReques
     String globalTxId = omegaContext.globalTxId();
 
     if (globalTxId == null) {
-      globalTxId = idGenerator.nextId();
-      omegaContext.setGlobalTxId(globalTxId);
+      return omegaContext.newGlobalTxId();
     }
     return globalTxId;
   }
@@ -64,8 +60,7 @@ public class TransactionClientHttpRequestInterceptor implements ClientHttpReques
     String localTxId = omegaContext.localTxId();
 
     if (localTxId == null) {
-      localTxId = idGenerator.nextId();
-      omegaContext.setLocalTxId(localTxId);
+      return omegaContext.newLocalTxId();
     }
     return localTxId;
   }

@@ -46,6 +46,10 @@
       <artifactId>omega-spring-starter</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.servicecomb.saga</groupId>
+      <artifactId>omega-transport-resttemplate</artifactId>
+    </dependency>
+    <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.2</version>
@@ -193,9 +197,9 @@
             <version>${maven.failsafe.version}</version>
             <configuration>
               <systemPropertyVariables>
-                <saga.address>
-                  http://${docker.hostname}:${alpha.port}
-                </saga.address>
+                <alpha.cluster.address>
+                  ${docker.hostname}:${alpha.port}
+                </alpha.cluster.address>
               </systemPropertyVariables>
               <argLine>${jacoco.failsafe.argLine}</argLine>
             </configuration>

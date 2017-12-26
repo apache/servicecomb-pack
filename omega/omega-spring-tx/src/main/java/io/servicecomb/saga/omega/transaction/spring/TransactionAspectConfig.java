@@ -28,10 +28,6 @@ import io.servicecomb.saga.omega.transaction.TransactionAspect;
 @Configuration
 @EnableAspectJAutoProxy
 public class TransactionAspectConfig {
-  @Bean
-  OmegaContext omegaContext() {
-    return new OmegaContext();
-  }
 
   @Bean
   TransactionAspect transactionAspect(MessageSender sender, OmegaContext context) {

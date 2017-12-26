@@ -27,12 +27,25 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import io.servicecomb.saga.omega.connector.thrift.ThriftMessageSender;
+import io.servicecomb.saga.omega.context.IdGenerator;
+import io.servicecomb.saga.omega.context.OmegaContext;
+import io.servicecomb.saga.omega.context.UniqueIdGenerator;
 import io.servicecomb.saga.omega.format.NativeMessageFormat;
 import io.servicecomb.saga.omega.transaction.MessageSender;
 
 @Configuration
 class OmegaSpringConfig {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+  @Bean
+  IdGenerator<String> idGenerator() {
+    return new UniqueIdGenerator();
+  }
+
+  @Bean
+  OmegaContext omegaContext(IdGenerator<String> idGenerator) {
+    return new OmegaContext(idGenerator);
+  }
 
   @Bean
   MessageSender messageSender(@Value("${alpha.cluster.address}") String[] addresses) {
