@@ -33,55 +33,42 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import io.servicecomb.saga.omega.transaction.MessageSender;
-import io.servicecomb.saga.omega.transaction.MessageSerializer;
-import io.servicecomb.saga.omega.transaction.TxEndedEvent;
-import io.servicecomb.saga.omega.transaction.TxStartedEvent;
+import io.servicecomb.saga.omega.context.OmegaContext;
 
 public class TransactionHandlerInterceptor implements HandlerInterceptor {
 
   private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private final MessageSender sender;
+  private final OmegaContext omegaContext;
 
-  private final MessageSerializer serializer;
-
-  public TransactionHandlerInterceptor(MessageSender sender, MessageSerializer serializer) {
-    this.sender = sender;
-    this.serializer = serializer;
+  public TransactionHandlerInterceptor(OmegaContext omegaContext) {
+    this.omegaContext = omegaContext;
   }
 
   @Override
-  public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+  public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
     String globalTxId = request.getHeader(GLOBAL_TX_ID_KEY);
     if (globalTxId == null) {
       LOG.info("no such header: {}", GLOBAL_TX_ID_KEY);
+    } else {
+      omegaContext.setGlobalTxId(globalTxId);
     }
-    String localTxId = request.getHeader(LOCAL_TX_ID_KEY);
-    if (localTxId == null) {
+    String parentTxId = request.getHeader(LOCAL_TX_ID_KEY);
+    if (parentTxId == null) {
       LOG.info("no such header: {}", LOCAL_TX_ID_KEY);
+    } else {
+      omegaContext.setParentTxId(parentTxId);
     }
-    // TODO: 12/25/2017 which content should be inside payloads?
-    sender.send(serializer.serialize(new TxStartedEvent(globalTxId, localTxId, null, null)));
     return true;
   }
 
   @Override
   public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o,
-      ModelAndView modelAndView) throws Exception {
+      ModelAndView modelAndView) {
   }
 
   @Override
   public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object o,
-      Exception e) throws Exception {
-    String globalTxId = request.getHeader(GLOBAL_TX_ID_KEY);
-    if (globalTxId == null) {
-      LOG.info("no such header: {}", GLOBAL_TX_ID_KEY);
-    }
-    String localTxId = request.getHeader(LOCAL_TX_ID_KEY);
-    if (localTxId == null) {
-      LOG.info("no such header: {}", LOCAL_TX_ID_KEY);
-    }
-    sender.send(serializer.serialize(new TxEndedEvent(globalTxId, localTxId, null)));
+      Exception e) {
   }
 }
