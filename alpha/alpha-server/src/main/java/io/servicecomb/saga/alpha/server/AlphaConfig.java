@@ -19,6 +19,7 @@ package io.servicecomb.saga.alpha.server;
 
 import java.util.concurrent.CompletableFuture;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -28,10 +29,10 @@ import io.servicecomb.saga.alpha.core.TxEventRepository;
 class AlphaConfig {
 
   @Bean
-  TxEventRepository springTxEventRepository(TxEventEnvelopeRepository eventRepo) {
+  TxEventRepository springTxEventRepository(@Value("${alpha.server.port:8080}") int port, TxEventEnvelopeRepository eventRepo) {
     TxEventRepository eventRepository = new SpringTxEventRepository(eventRepo);
 
-    ThriftStartable startable = new ThriftStartable(8090, new SwiftTxEventEndpointImpl(eventRepository));
+    ThriftStartable startable = new ThriftStartable(port, new SwiftTxEventEndpointImpl(eventRepository));
     CompletableFuture.runAsync(startable::start);
 
     return eventRepository;
