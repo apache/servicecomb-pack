@@ -43,7 +43,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import io.servicecomb.saga.omega.context.OmegaContext;
 import io.servicecomb.saga.omega.transaction.MessageHandler;
 import io.servicecomb.saga.omega.transaction.MessageSender;
-import io.servicecomb.saga.omega.transaction.MessageSerializer;
+import io.servicecomb.saga.omega.transaction.TxEvent;
 import io.servicecomb.saga.omega.transaction.spring.TransactionInterceptionTest.MessageConfig;
 
 @RunWith(SpringRunner.class)
@@ -128,25 +128,22 @@ public class TransactionInterceptionTest {
     }
 
     @Bean
-    MessageSender sender(MessageSerializer serializer) {
-      return (event) -> messages.add(serializer.serialize(event));
+    MessageSender sender() {
+      return (event) -> messages.add(serialize(event));
     }
 
-    @Bean
-    MessageSerializer serializer() {
-      return event -> {
-        if (TX_STARTED_EVENT.equals(event.type())) {
-          User user = ((User) event.payloads()[0]);
-          return txStartedEvent(event.globalTxId(),
-              event.localTxId(),
-              event.parentTxId(),
-              user.username(),
-              user.email()).getBytes();
-        }
-        return txEndedEvent(event.globalTxId(),
+    private byte[] serialize(TxEvent event) {
+      if (TX_STARTED_EVENT.equals(event.type())) {
+        User user = ((User) event.payloads()[0]);
+        return txStartedEvent(event.globalTxId(),
             event.localTxId(),
-            event.parentTxId()).getBytes();
-      };
+            event.parentTxId(),
+            user.username(),
+            user.email()).getBytes();
+      }
+      return txEndedEvent(event.globalTxId(),
+          event.localTxId(),
+          event.parentTxId()).getBytes();
     }
 
     @Bean
