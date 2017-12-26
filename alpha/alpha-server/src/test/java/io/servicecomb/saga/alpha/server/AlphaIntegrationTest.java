@@ -37,7 +37,7 @@ import io.servicecomb.saga.pack.contracts.thrift.SwiftTxEvent;
 import io.servicecomb.saga.pack.contracts.thrift.SwiftTxEventEndpoint;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = AlphaApplication.class)
+@SpringBootTest(classes = AlphaApplication.class, properties = "alpha.server.port=8090")
 public class AlphaIntegrationTest {
   private static final ThriftClientManager clientManager = new ThriftClientManager();
   private static final String TX_STARTED_EVENT = "TxStartedEvent";
