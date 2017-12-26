@@ -1,10 +1,10 @@
 # Saga [![Build Status](https://travis-ci.org/apache/incubator-servicecomb-saga.svg?branch=master)](https://travis-ci.org/apache/incubator-servicecomb-saga?branch=master) [![Coverage Status](https://coveralls.io/repos/github/apache/incubator-servicecomb-saga/badge.svg?branch=master)](https://coveralls.io/github/apache/incubator-servicecomb-saga?branch=master) [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-Apache Saga (incubating) is a type of Compensating Transaction pattern, which provides a simple way to help users solve the data consistency problems encountered in micro-service applications.
+Apache ServiceComb (incubating) Saga is a type of Compensating Transaction pattern, which provides a simple way to help users solve the data consistency problems encountered in micro-service applications.
 
 ## Documentation
 Reference documentation is available on the [ServiceComb website][servicecomb-website].
 
-[servicecomb-website]: http://servicecomb.io/
+[servicecomb-website]: http://servicecomb.incubator.apache.org/
 
 ## Major Architecture of Saga
 * saga-core(transaction and compensation handling logic)
