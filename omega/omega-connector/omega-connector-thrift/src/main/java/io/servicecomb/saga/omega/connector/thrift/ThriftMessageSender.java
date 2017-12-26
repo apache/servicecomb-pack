@@ -17,35 +17,17 @@
 
 package io.servicecomb.saga.omega.connector.thrift;
 
-import static com.google.common.net.HostAndPort.fromParts;
-
-import java.util.concurrent.ExecutionException;
-
-import com.facebook.nifty.client.FramedClientConnector;
-import com.facebook.swift.service.ThriftClientManager;
-
 import io.servicecomb.saga.omega.transaction.MessageSender;
 import io.servicecomb.saga.omega.transaction.MessageSerializer;
 import io.servicecomb.saga.omega.transaction.TxEvent;
 import io.servicecomb.saga.pack.contracts.thrift.SwiftTxEvent;
 import io.servicecomb.saga.pack.contracts.thrift.SwiftTxEventEndpoint;
 
-public class ThriftMessageSender implements MessageSender {
-  private static final ThriftClientManager clientManager = new ThriftClientManager();
+public class ThriftMessageSender implements MessageSender, AutoCloseable {
   private final SwiftTxEventEndpoint eventService;
   private final MessageSerializer serializer;
 
-  public static ThriftMessageSender create(String host, int port, MessageSerializer serializer) {
-    FramedClientConnector connector = new FramedClientConnector(fromParts(host, port));
-    try {
-      SwiftTxEventEndpoint endpoint = clientManager.createClient(connector, SwiftTxEventEndpoint.class).get();
-      return new ThriftMessageSender(endpoint, serializer);
-    } catch (InterruptedException | ExecutionException e) {
-      throw new IllegalStateException("Failed to create transaction event endpoint client to " + host + ":" + port, e);
-    }
-  }
-
-  ThriftMessageSender(SwiftTxEventEndpoint eventService, MessageSerializer serializer) {
+  public ThriftMessageSender(SwiftTxEventEndpoint eventService, MessageSerializer serializer) {
     this.eventService = eventService;
     this.serializer = serializer;
   }
@@ -60,5 +42,10 @@ public class ThriftMessageSender implements MessageSender {
         event.type(),
         serializer.serialize(event)
     ));
+  }
+
+  @Override
+  public void close() throws Exception {
+    eventService.close();
   }
 }
