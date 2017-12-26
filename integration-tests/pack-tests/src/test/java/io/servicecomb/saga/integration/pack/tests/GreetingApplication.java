@@ -15,26 +15,17 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction.spring;
+package io.servicecomb.saga.integration.pack.tests;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import io.servicecomb.saga.omega.context.OmegaContext;
-import io.servicecomb.saga.omega.transaction.MessageSender;
-import io.servicecomb.saga.omega.transaction.TransactionAspect;
+import io.servicecomb.saga.omega.spring.EnableOmega;
 
-@Configuration
-@EnableAspectJAutoProxy
-public class TransactionAspectConfig {
-  @Bean
-  OmegaContext omegaContext() {
-    return new OmegaContext();
-  }
-
-  @Bean
-  TransactionAspect transactionAspect(MessageSender sender, OmegaContext context) {
-    return new TransactionAspect(sender, context);
+@EnableOmega
+@SpringBootApplication
+public class GreetingApplication {
+  public static void main(String[] args) {
+    SpringApplication.run(GreetingApplication.class, args);
   }
 }

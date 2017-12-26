@@ -18,5 +18,5 @@
 package io.servicecomb.saga.omega.transaction;
 
 public interface MessageDeserializer {
-  <T> T deserialize(byte[] message);
+  Object[] deserialize(byte[] message);
 }

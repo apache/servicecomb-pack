@@ -40,8 +40,8 @@ class TxEventEnvelope {
     this.event = event;
   }
 
-  public long timestamp() {
-    return event.timestamp();
+  public long creationTime() {
+    return event.creationTime().getTime();
   }
 
   String globalTxId() {

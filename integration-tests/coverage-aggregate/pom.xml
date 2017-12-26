@@ -63,6 +63,14 @@
       <groupId>io.servicecomb.saga</groupId>
       <artifactId>omega-transport-resttemplate</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.servicecomb.saga</groupId>
+      <artifactId>omega-format</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.servicecomb.saga</groupId>
+      <artifactId>alpha-server</artifactId>
+    </dependency>
   </dependencies>
 
   <profiles>

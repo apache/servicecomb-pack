@@ -29,6 +29,7 @@
   <packaging>pom</packaging>
   <modules>
     <module>coverage-aggregate</module>
+    <module>pack-tests</module>
   </modules>
 
   <build>

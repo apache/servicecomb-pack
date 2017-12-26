@@ -33,7 +33,7 @@ public class CompensableAnnotationCheckingTest {
       try (ConfigurableApplicationContext ignored = new SpringApplicationBuilder(TransactionTestMain.class)
           .profiles("annotation-checking")
           .run()) {
-        expectFailing(IllegalArgumentException.class);
+        expectFailing(BeanCreationException.class);
       }
     } catch (BeanCreationException e) {
       assertThat(e.getCause().getMessage(), startsWith("No such compensation method [none]"));

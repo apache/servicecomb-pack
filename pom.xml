@@ -26,7 +26,6 @@
 
   <modules>
     <module>saga-core</module>
-    <module>integration-tests</module>
     <module>transports</module>
     <module>saga-spring</module>
     <module>docker-build-config</module>
@@ -36,6 +35,7 @@
     <module>omega</module>
     <module>alpha</module>
     <module>pack-contracts</module>
+    <module>integration-tests</module>
   </modules>
 
   <properties>
@@ -50,6 +50,7 @@
     <spring.version>4.3.7.RELEASE</spring.version>
     <akka.version>2.5.6</akka.version>
     <rat.version>0.12</rat.version>
+    <maven.failsafe.version>2.19.1</maven.failsafe.version>
   </properties>
 
   <name>ServiceComb Saga</name>
@@ -152,7 +153,27 @@
       </dependency>
       <dependency>
         <groupId>io.servicecomb.saga</groupId>
+        <artifactId>omega-connector-thrift</artifactId>
+        <version>0.0.3-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>io.servicecomb.saga</groupId>
+        <artifactId>omega-spring-starter</artifactId>
+        <version>0.0.3-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>io.servicecomb.saga</groupId>
+        <artifactId>omega-format</artifactId>
+        <version>0.0.3-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>io.servicecomb.saga</groupId>
         <artifactId>alpha-core</artifactId>
+        <version>0.0.3-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>io.servicecomb.saga</groupId>
+        <artifactId>alpha-server</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
@@ -293,6 +314,10 @@
           <exclusion>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.bval</groupId>
+            <artifactId>bval-jsr303</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
