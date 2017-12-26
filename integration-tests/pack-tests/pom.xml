@@ -76,6 +76,16 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
@@ -200,6 +210,9 @@
                 <alpha.cluster.address>
                   ${docker.hostname}:${alpha.port}
                 </alpha.cluster.address>
+                <spring.datasource.url>
+                  jdbc:mysql://${docker.hostname}:${mysql.port}/saga?useSSL=false
+                </spring.datasource.url>
               </systemPropertyVariables>
               <argLine>${jacoco.failsafe.argLine}</argLine>
             </configuration>
