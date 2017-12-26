@@ -18,9 +18,10 @@
 
 package io.servicecomb.saga.omega.transport.resttemplate;
 
-import static io.servicecomb.saga.omega.transport.resttemplate.TransactionClientHttpRequestInterceptor.GLOBAL_TX_ID_KEY;
-import static io.servicecomb.saga.omega.transport.resttemplate.TransactionClientHttpRequestInterceptor.LOCAL_TX_ID_KEY;
+import static io.servicecomb.saga.omega.context.OmegaContext.GLOBAL_TX_ID_KEY;
+import static io.servicecomb.saga.omega.context.OmegaContext.LOCAL_TX_ID_KEY;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -43,7 +44,7 @@ public class TransactionHandlerInterceptorTest {
 
   private static final String localTxId = UUID.randomUUID().toString();
 
-  private final OmegaContext omegaContext = new OmegaContext();
+  private final OmegaContext omegaContext = new OmegaContext(() -> "ignored");
 
   private HandlerInterceptor requestInterceptor = new TransactionHandlerInterceptor(omegaContext);
 
@@ -66,6 +67,7 @@ public class TransactionHandlerInterceptorTest {
     requestInterceptor.preHandle(request, response, null);
 
     assertThat(omegaContext.globalTxId(), is(globalTxId));
+    assertThat(omegaContext.localTxId(), is(notNullValue()));
     assertThat(omegaContext.parentTxId(), is(localTxId));
   }
 

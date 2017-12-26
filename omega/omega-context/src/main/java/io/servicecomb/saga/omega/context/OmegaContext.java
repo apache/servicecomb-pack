@@ -23,10 +23,24 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class OmegaContext {
+  public static final String GLOBAL_TX_ID_KEY = "X-Pack-Global-Transaction-Id";
+  public static final String LOCAL_TX_ID_KEY = "X-Pack-Local-Transaction-Id";
+
   private final ThreadLocal<String> globalTxId = new ThreadLocal<>();
   private final ThreadLocal<String> localTxId = new ThreadLocal<>();
   private final ThreadLocal<String> parentTxId = new ThreadLocal<>();
   private final Map<String, CompensationContext> compensationContexts = new ConcurrentHashMap<>();
+  private final IdGenerator<String> idGenerator;
+
+  public OmegaContext(IdGenerator<String> idGenerator) {
+    this.idGenerator = idGenerator;
+  }
+
+  public String newGlobalTxId() {
+    String id = idGenerator.nextId();
+    globalTxId.set(id);
+    return id;
+  }
 
   public void setGlobalTxId(String txId) {
     globalTxId.set(txId);
@@ -34,6 +48,12 @@ public class OmegaContext {
 
   public String globalTxId() {
     return globalTxId.get();
+  }
+
+  public String newLocalTxId() {
+    String id = idGenerator.nextId();
+    localTxId.set(id);
+    return id;
   }
 
   public void setLocalTxId(String localTxId) {

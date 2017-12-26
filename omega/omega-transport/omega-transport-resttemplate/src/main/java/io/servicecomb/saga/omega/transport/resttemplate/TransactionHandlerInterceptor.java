@@ -20,8 +20,8 @@
 
 package io.servicecomb.saga.omega.transport.resttemplate;
 
-import static io.servicecomb.saga.omega.transport.resttemplate.TransactionClientHttpRequestInterceptor.GLOBAL_TX_ID_KEY;
-import static io.servicecomb.saga.omega.transport.resttemplate.TransactionClientHttpRequestInterceptor.LOCAL_TX_ID_KEY;
+import static io.servicecomb.saga.omega.context.OmegaContext.GLOBAL_TX_ID_KEY;
+import static io.servicecomb.saga.omega.context.OmegaContext.LOCAL_TX_ID_KEY;
 
 import java.lang.invoke.MethodHandles;
 
@@ -35,13 +35,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 import io.servicecomb.saga.omega.context.OmegaContext;
 
-public class TransactionHandlerInterceptor implements HandlerInterceptor {
+class TransactionHandlerInterceptor implements HandlerInterceptor {
 
   private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final OmegaContext omegaContext;
 
-  public TransactionHandlerInterceptor(OmegaContext omegaContext) {
+  TransactionHandlerInterceptor(OmegaContext omegaContext) {
     this.omegaContext = omegaContext;
   }
 
@@ -49,15 +49,11 @@ public class TransactionHandlerInterceptor implements HandlerInterceptor {
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
     String globalTxId = request.getHeader(GLOBAL_TX_ID_KEY);
     if (globalTxId == null) {
-      LOG.info("no such header: {}", GLOBAL_TX_ID_KEY);
+      LOG.debug("no such header: {}", GLOBAL_TX_ID_KEY);
     } else {
       omegaContext.setGlobalTxId(globalTxId);
-    }
-    String parentTxId = request.getHeader(LOCAL_TX_ID_KEY);
-    if (parentTxId == null) {
-      LOG.info("no such header: {}", LOCAL_TX_ID_KEY);
-    } else {
-      omegaContext.setParentTxId(parentTxId);
+      omegaContext.newLocalTxId();
+      omegaContext.setParentTxId(request.getHeader(LOCAL_TX_ID_KEY));
     }
     return true;
   }

@@ -19,8 +19,8 @@
 package io.servicecomb.saga.omega.transport.resttemplate;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
-import static io.servicecomb.saga.omega.transport.resttemplate.TransactionClientHttpRequestInterceptor.GLOBAL_TX_ID_KEY;
-import static io.servicecomb.saga.omega.transport.resttemplate.TransactionClientHttpRequestInterceptor.LOCAL_TX_ID_KEY;
+import static io.servicecomb.saga.omega.context.OmegaContext.GLOBAL_TX_ID_KEY;
+import static io.servicecomb.saga.omega.context.OmegaContext.LOCAL_TX_ID_KEY;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -57,10 +57,10 @@ public class TransactionClientHttpRequestInterceptorTest {
   private final String localTxId = uniquify("local tx id");
   private final IdGenerator<String> idGenerator = Mockito.mock(IdGenerator.class);
 
-  private final OmegaContext omegaContext = new OmegaContext();
+  private final OmegaContext omegaContext = new OmegaContext(idGenerator);
   private final ClientHttpRequestInterceptor clientHttpRequestInterceptor = new TransactionClientHttpRequestInterceptor(
-      omegaContext,
-      idGenerator);
+      omegaContext
+  );
 
   @Before
   public void setUp() throws Exception {
