@@ -52,7 +52,17 @@ public class ThriftMessageSenderTest {
     }
   };
 
-  private final SwiftTxEventEndpoint eventService = (event) -> swiftTxEvent = event;
+  private final SwiftTxEventEndpoint eventService = new SwiftTxEventEndpoint() {
+    @Override
+    public void handle(SwiftTxEvent message) {
+      swiftTxEvent = message;
+    }
+
+    @Override
+    public void close() throws Exception {
+    }
+  };
+
   private final ThriftMessageSender messageSender = new ThriftMessageSender(eventService, serializer);
 
   @Test

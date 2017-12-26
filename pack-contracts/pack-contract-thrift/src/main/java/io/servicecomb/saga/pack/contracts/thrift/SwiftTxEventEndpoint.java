@@ -21,7 +21,7 @@ import com.facebook.swift.service.ThriftMethod;
 import com.facebook.swift.service.ThriftService;
 
 @ThriftService("TxEventEndpoint")
-public interface SwiftTxEventEndpoint {
+public interface SwiftTxEventEndpoint extends AutoCloseable {
 
   @ThriftMethod
   void handle(SwiftTxEvent message);

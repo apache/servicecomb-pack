@@ -43,4 +43,9 @@ class SwiftTxEventEndpointImpl implements SwiftTxEventEndpoint {
         message.payloads()
     ));
   }
+
+  @Override
+  public void close() throws Exception {
+    
+  }
 }
