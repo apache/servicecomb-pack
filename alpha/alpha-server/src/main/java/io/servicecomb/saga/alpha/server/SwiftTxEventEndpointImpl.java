@@ -19,22 +19,22 @@ package io.servicecomb.saga.alpha.server;
 
 import java.util.Date;
 
+import io.servicecomb.saga.alpha.core.TxConsistentService;
 import io.servicecomb.saga.alpha.core.TxEvent;
-import io.servicecomb.saga.alpha.core.TxEventRepository;
 import io.servicecomb.saga.pack.contracts.thrift.SwiftTxEvent;
 import io.servicecomb.saga.pack.contracts.thrift.SwiftTxEventEndpoint;
 
 class SwiftTxEventEndpointImpl implements SwiftTxEventEndpoint {
 
-  private final TxEventRepository eventRepository;
+  private final TxConsistentService txConsistentService;
 
-  SwiftTxEventEndpointImpl(TxEventRepository eventRepository) {
-    this.eventRepository = eventRepository;
+  SwiftTxEventEndpointImpl(TxConsistentService txConsistentService) {
+    this.txConsistentService = txConsistentService;
   }
 
   @Override
   public void handle(SwiftTxEvent message) {
-    eventRepository.save(new TxEvent(
+    txConsistentService.handle(new TxEvent(
         new Date(message.timestamp()),
         message.globalTxId(),
         message.localTxId(),
