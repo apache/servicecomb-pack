@@ -71,6 +71,11 @@
       <groupId>io.servicecomb.saga</groupId>
       <artifactId>alpha-server</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.servicecomb.saga.tests</groupId>
+      <artifactId>pack-tests</artifactId>
+      <version>0.0.3-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 
   <profiles>

@@ -77,5 +77,7 @@ public class AlphaIntegrationTest {
     assertThat(envelope.parentTxId(), is(parentTxId));
     assertThat(envelope.type(), is(TX_STARTED_EVENT));
     assertThat(envelope.payloads(), is(payload.getBytes()));
+
+    endpoint.close();
   }
 }

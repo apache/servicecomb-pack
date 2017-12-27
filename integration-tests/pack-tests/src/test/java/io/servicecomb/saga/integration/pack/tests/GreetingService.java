@@ -31,4 +31,13 @@ public class GreetingService {
   String goodbye(String name) {
     return "Goodbye, " + name;
   }
+
+  @Compensable(compensationMethod = "auRevoir")
+  String bonjour(String name) {
+    return "Bonjour, " + name;
+  }
+
+  String auRevoir(String name) {
+    return "Au revoir, " + name;
+  }
 }

@@ -23,20 +23,31 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
 
 @Controller
 @RequestMapping("/")
 public class GreetingController {
   private final GreetingService greetingService;
+  private final RestTemplate restTemplate;
 
   @Autowired
-  public GreetingController(GreetingService greetingService) {
+  public GreetingController(GreetingService greetingService, RestTemplate restTemplate) {
     this.greetingService = greetingService;
+    this.restTemplate = restTemplate;
   }
 
 
   @GetMapping("/greet")
   ResponseEntity<String> greet(@RequestParam String name) {
-    return ResponseEntity.ok(greetingService.greet(name));
+    String greetings = greetingService.greet(name);
+    String bonjour = restTemplate.getForObject("http://localhost:8080/bonjour?name={name}", String.class, name);
+
+    return ResponseEntity.ok(greetings + "; " + bonjour);
+  }
+
+  @GetMapping("/bonjour")
+  ResponseEntity<String> bonjour(@RequestParam String name) {
+    return ResponseEntity.ok(greetingService.bonjour(name));
   }
 }
