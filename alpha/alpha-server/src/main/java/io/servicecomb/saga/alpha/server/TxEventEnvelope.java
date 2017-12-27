@@ -63,4 +63,8 @@ class TxEventEnvelope {
   byte[] payloads() {
     return event.payloads();
   }
+
+  TxEvent event() {
+    return event;
+  }
 }

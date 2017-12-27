@@ -23,16 +23,34 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import io.servicecomb.saga.alpha.core.OmegaCallback;
+import io.servicecomb.saga.alpha.core.TxConsistentService;
 import io.servicecomb.saga.alpha.core.TxEventRepository;
 
 @Configuration
 class AlphaConfig {
 
   @Bean
-  TxEventRepository springTxEventRepository(@Value("${alpha.server.port:8080}") int port, TxEventEnvelopeRepository eventRepo) {
+  OmegaCallback omegaCallback() {
+    // TODO: 2017/12/27 to be replaced with actual callback on completion of SCB-138
+    return (globalTxId, message) -> {
+    };
+  }
+  
+  @Bean
+  TxEventRepository springTxEventRepository(@Value("${alpha.server.port:8080}") int port,
+      TxEventEnvelopeRepository eventRepo,
+      OmegaCallback omegaCallback) {
+
     TxEventRepository eventRepository = new SpringTxEventRepository(eventRepo);
 
-    ThriftStartable startable = new ThriftStartable(port, new SwiftTxEventEndpointImpl(eventRepository));
+    ThriftStartable startable = new ThriftStartable(
+        port,
+        new SwiftTxEventEndpointImpl(
+            new TxConsistentService(
+                eventRepository,
+                omegaCallback)));
+
     CompletableFuture.runAsync(startable::start);
 
     return eventRepository;

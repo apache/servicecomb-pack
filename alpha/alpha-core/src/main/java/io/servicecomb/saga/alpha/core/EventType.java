@@ -15,31 +15,13 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.alpha.server;
+package io.servicecomb.saga.alpha.core;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import io.servicecomb.saga.alpha.core.TxEvent;
-import io.servicecomb.saga.alpha.core.TxEventRepository;
-
-class SpringTxEventRepository implements TxEventRepository {
-  private final TxEventEnvelopeRepository eventRepo;
-
-  SpringTxEventRepository(TxEventEnvelopeRepository eventRepo) {
-    this.eventRepo = eventRepo;
-  }
-
-  @Override
-  public void save(TxEvent event) {
-    eventRepo.save(new TxEventEnvelope(event));
-  }
-
-  @Override
-  public List<TxEvent> findCompletedEvents(String globalTxId, String type) {
-    return eventRepo.findByEventGlobalTxIdAndEventType(globalTxId, type)
-        .stream()
-        .map(TxEventEnvelope::event)
-        .collect(Collectors.toList());
-  }
+public enum EventType {
+  SagaStartedEvent,
+  TxStartedEvent,
+  TxEndedEvent,
+  TxAbortedEvent,
+  TxCompensatedEvent,
+  SagaEndedEvent
 }

@@ -17,6 +17,10 @@
 
 package io.servicecomb.saga.alpha.core;
 
+import java.util.List;
+
 public interface TxEventRepository {
   void save(TxEvent event);
+
+  List<TxEvent> findCompletedEvents(String globalTxId, String type);
 }

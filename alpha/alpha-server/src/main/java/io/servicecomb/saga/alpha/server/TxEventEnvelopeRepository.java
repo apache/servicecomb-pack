@@ -17,8 +17,12 @@
 
 package io.servicecomb.saga.alpha.server;
 
+import java.util.List;
+
 import org.springframework.data.repository.CrudRepository;
 
 interface TxEventEnvelopeRepository extends CrudRepository<TxEventEnvelope, Long> {
   TxEventEnvelope findByEventGlobalTxId(String globalTxId);
+
+  List<TxEventEnvelope> findByEventGlobalTxIdAndEventType(String globalTxId, String type);
 }
