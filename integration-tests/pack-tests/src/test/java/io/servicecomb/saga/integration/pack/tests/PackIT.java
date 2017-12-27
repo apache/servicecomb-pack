@@ -18,6 +18,7 @@
 package io.servicecomb.saga.integration.pack.tests;
 
 import static io.servicecomb.saga.omega.context.OmegaContext.GLOBAL_TX_ID_KEY;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.springframework.http.HttpMethod.GET;
@@ -40,7 +41,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import io.servicecomb.saga.omega.context.OmegaContext;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = GreetingApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = GreetingApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT,
+    properties = {"server.port=8080"})
 public class PackIT {
   private final String globalTxId = UUID.randomUUID().toString();
 
@@ -66,12 +68,19 @@ public class PackIT {
         "mike");
 
     assertThat(entity.getStatusCode(), is(OK));
-    assertThat(entity.getBody(), is("Greetings, mike"));
+    assertThat(entity.getBody(), is("Greetings, mike; Bonjour, mike"));
 
     List<TxEventEnvelope> envelopes = repository.findByGlobalTxIdOrderByCreationTime(globalTxId);
 
-    assertThat(envelopes.size(), is(2));
+    assertThat(envelopes.size(), is(4));
     assertThat(envelopes.get(0).type(), is("TxStartedEvent"));
+    assertThat(envelopes.get(0).parentTxId(), is(nullValue()));
     assertThat(envelopes.get(1).type(), is("TxEndedEvent"));
+    assertThat(envelopes.get(1).parentTxId(), is(nullValue()));
+
+    assertThat(envelopes.get(2).type(), is("TxStartedEvent"));
+    assertThat(envelopes.get(2).parentTxId(), is(envelopes.get(0).localTxId()));
+    assertThat(envelopes.get(3).type(), is("TxEndedEvent"));
+    assertThat(envelopes.get(3).parentTxId(), is(envelopes.get(0).localTxId()));
   }
 }

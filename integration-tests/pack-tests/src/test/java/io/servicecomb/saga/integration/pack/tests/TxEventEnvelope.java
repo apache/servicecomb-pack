@@ -39,6 +39,14 @@ class TxEventEnvelope {
   private TxEventEnvelope() {
   }
 
+  String localTxId() {
+    return localTxId;
+  }
+
+  String parentTxId() {
+    return parentTxId;
+  }
+
   String type() {
     return type;
   }
