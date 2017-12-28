@@ -43,15 +43,27 @@ class AlphaConfig {
 
     TxEventRepository eventRepository = new SpringTxEventRepository(eventRepo);
 
-    ThriftStartable startable = new ThriftStartable(
+    ServerStartable startable = buildGrpc(port, omegaCallback, eventRepository);
+    CompletableFuture.runAsync(startable::start);
+
+    return eventRepository;
+  }
+
+  private ServerStartable buildThrift(int port, OmegaCallback omegaCallback, TxEventRepository eventRepository) {
+    return new ThriftStartable(
         port,
         new SwiftTxEventEndpointImpl(
             new TxConsistentService(
                 eventRepository,
                 omegaCallback)));
+  }
 
-    CompletableFuture.runAsync(startable::start);
-
-    return eventRepository;
+  private ServerStartable buildGrpc(int port, OmegaCallback omegaCallback, TxEventRepository eventRepository) {
+    return new GrpcStartable(
+        port,
+        new GrpcTxEventEndpointImpl(
+            new TxConsistentService(
+                eventRepository,
+                omegaCallback)));
   }
 }

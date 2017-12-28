@@ -30,6 +30,7 @@
   <packaging>pom</packaging>
   <modules>
     <module>pack-contract-thrift</module>
+    <module>pack-contract-grpc</module>
   </modules>
 
 </project>

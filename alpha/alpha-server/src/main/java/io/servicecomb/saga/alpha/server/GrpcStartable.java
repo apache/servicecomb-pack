@@ -1,4 +1,5 @@
 /*
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -13,32 +14,40 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ *
  */
 
 package io.servicecomb.saga.alpha.server;
 
-import java.util.Collections;
+import java.io.IOException;
+import java.util.Arrays;
 
-import com.facebook.swift.codec.ThriftCodecManager;
-import com.facebook.swift.service.ThriftServer;
-import com.facebook.swift.service.ThriftServerConfig;
-import com.facebook.swift.service.ThriftServiceProcessor;
+import io.grpc.BindableService;
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
 
-class ThriftStartable implements ServerStartable {
-  private final ThriftServer server;
+class GrpcStartable implements ServerStartable {
 
-  ThriftStartable(int port, Object... services) {
-    server = new ThriftServer(
-        new ThriftServiceProcessor(new ThriftCodecManager(),
-            Collections.emptyList(),
-            services),
-        new ThriftServerConfig().setPort(port));
+  private final Server server;
+
+  GrpcStartable(int port, BindableService... services) {
+    ServerBuilder<?> serverBuilder = ServerBuilder.forPort(port);
+    Arrays.stream(services).forEach(serverBuilder::addService);
+    server = serverBuilder.build();
   }
 
   @Override
   public void start() {
-    Runtime.getRuntime().addShutdownHook(new Thread(server::close));
+    Runtime.getRuntime().addShutdownHook(new Thread(server::shutdown));
 
-    server.start();
+    try {
+      server.start();
+      server.awaitTermination();
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to start grpc server.", e);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
   }
 }

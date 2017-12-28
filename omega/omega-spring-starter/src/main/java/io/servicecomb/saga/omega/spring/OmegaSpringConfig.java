@@ -36,6 +36,10 @@ import org.springframework.context.annotation.Configuration;
 import com.facebook.nifty.client.FramedClientConnector;
 import com.facebook.swift.service.ThriftClientManager;
 
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.servicecomb.saga.omega.connector.grpc.GrpcClientMessageSender;
+import io.servicecomb.saga.omega.connector.grpc.GrpcTxEventEndpointImpl;
 import io.servicecomb.saga.omega.connector.thrift.ThriftMessageSender;
 import io.servicecomb.saga.omega.context.IdGenerator;
 import io.servicecomb.saga.omega.context.OmegaContext;
@@ -43,6 +47,8 @@ import io.servicecomb.saga.omega.context.UniqueIdGenerator;
 import io.servicecomb.saga.omega.format.NativeMessageFormat;
 import io.servicecomb.saga.omega.transaction.MessageSender;
 import io.servicecomb.saga.omega.transaction.MessageSerializer;
+import io.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc;
+import io.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceBlockingStub;
 import io.servicecomb.saga.pack.contracts.thrift.SwiftTxEventEndpoint;
 
 @Configuration
@@ -50,6 +56,8 @@ class OmegaSpringConfig {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final ThriftClientManager clientManager = new ThriftClientManager();
   private final List<AutoCloseable> closeables = new ArrayList<>();
+
+  private ManagedChannel clientChannel;
 
   @Bean
   IdGenerator<String> idGenerator() {
@@ -61,7 +69,7 @@ class OmegaSpringConfig {
     return new OmegaContext(idGenerator);
   }
 
-  @Bean
+  //  @Bean
   MessageSender messageSender(@Value("${alpha.cluster.address}") String[] addresses) {
     // TODO: 2017/12/26 connect to the one with lowest latency
     for (String address : addresses) {
@@ -105,5 +113,29 @@ class OmegaSpringConfig {
     }
 
     clientManager.close();
+    clientChannel.shutdown();
+  }
+
+  @Bean
+  MessageSender grpcMessageSender(@Value("${alpha.cluster.address}") String[] addresses) {
+    // TODO: 2017/12/26 connect to the one with lowest latency
+    for (String address : addresses) {
+      try {
+        String[] pair = address.split(":");
+        return createMessageSender(pair[0], Integer.parseInt(pair[1]), new NativeMessageFormat());
+      } catch (Exception e) {
+        log.error("Unable to connect to alpha at {}", address, e);
+      }
+    }
+
+    throw new IllegalArgumentException(
+        "None of the alpha cluster is reachable: " + Arrays.toString(addresses));
+  }
+
+  private GrpcClientMessageSender createMessageSender(String host, int port, MessageSerializer serializer) {
+    clientChannel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build();
+    TxEventServiceBlockingStub stub = TxEventServiceGrpc.newBlockingStub(clientChannel);
+    GrpcTxEventEndpointImpl eventService = new GrpcTxEventEndpointImpl(stub);
+    return new GrpcClientMessageSender(eventService, serializer);
   }
 }
