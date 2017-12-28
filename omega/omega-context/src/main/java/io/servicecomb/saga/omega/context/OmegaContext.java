@@ -20,8 +20,8 @@ package io.servicecomb.saga.omega.context;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +34,8 @@ public class OmegaContext {
   private final ThreadLocal<String> globalTxId = new ThreadLocal<>();
   private final ThreadLocal<String> localTxId = new ThreadLocal<>();
   private final ThreadLocal<String> parentTxId = new ThreadLocal<>();
-  private final Map<String, Map<String, CompensationContext>> compensationContexts = new ConcurrentHashMap<>();
   private final IdGenerator<String> idGenerator;
+  private final Map<String, CompensationContext> compensationContexts = new HashMap<>();
 
   public OmegaContext(IdGenerator<String> idGenerator) {
     this.idGenerator = idGenerator;
@@ -77,50 +77,23 @@ public class OmegaContext {
     this.parentTxId.set(parentTxId);
   }
 
-  // TODO: 2017/12/23 remove this context entry by the end of its corresponding global tx
-  public void addContext(String globalTxId, String localTxId, Object target, String compensationMethod, Object... args) {
-    compensationContexts.computeIfAbsent(globalTxId, k -> new ConcurrentHashMap<>())
-        .put(localTxId, new CompensationContext(target, compensationMethod, args));
+  public void addCompensationContext(Method compensationMethod, Object target) {
+    compensationMethod.setAccessible(true);
+    compensationContexts.put(compensationMethod.toString(), new CompensationContext(target, compensationMethod));
   }
 
-  public boolean containsContext(String globalTxId) {
-    return compensationContexts.containsKey(globalTxId);
-  }
+  public void compensate(String globalTxId, String localTxId, String compensationMethod, Object[] payloads) {
+    CompensationContext compensationContext = compensationContexts.get(compensationMethod);
 
-  public void compensate(String globalTxId) {
-    Map<String, CompensationContext> contexts = compensationContexts.remove(globalTxId);
-
-    for (CompensationContext compensationContext : contexts.values()) {
-      try {
-        invokeMethod(compensationContext);
-      } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-        LOG.error(
-            "Pre-checking for compensate method " + compensationContext.compensationMethod
-                + " was somehow skipped, did you forget to configure compensable method checking on service startup?",
-            e);
-      }
+    try {
+      compensationContext.compensationMethod.invoke(compensationContext.target, payloads);
+      LOG.info("Compensated transaction with global tx id [{}], local tx id [{}]", globalTxId, localTxId);
+    } catch (IllegalAccessException | InvocationTargetException e) {
+      LOG.error(
+          "Pre-checking for compensate method " + compensationContext.compensationMethod.toString()
+              + " was somehow skipped, did you forget to configure compensable method checking on service startup?",
+          e);
     }
-  }
-
-  private void invokeMethod(CompensationContext compensationContext)
-      throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-
-    Method method = compensationContext.target
-        .getClass()
-        .getDeclaredMethod(compensationContext.compensationMethod, argClasses(compensationContext));
-    method.setAccessible(true);
-
-    method.invoke(compensationContext.target, compensationContext.args);
-  }
-
-  private Class<?>[] argClasses(CompensationContext compensationContext) {
-    Class<?>[] classes = new Class<?>[compensationContext.args.length];
-
-    for (int i = 0; i < compensationContext.args.length; i++) {
-      classes[i] = compensationContext.args[i].getClass();
-    }
-
-    return classes;
   }
 
   @Override
@@ -134,13 +107,11 @@ public class OmegaContext {
 
   private static final class CompensationContext {
     private final Object target;
-    private final String compensationMethod;
-    private final Object[] args;
+    private final Method compensationMethod;
 
-    private CompensationContext(Object target, String compensationMethod, Object... args) {
+    private CompensationContext(Object target, Method compensationMethod) {
       this.target = target;
       this.compensationMethod = compensationMethod;
-      this.args = args;
     }
   }
 }

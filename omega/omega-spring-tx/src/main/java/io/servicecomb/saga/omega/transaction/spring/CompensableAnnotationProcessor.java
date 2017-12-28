@@ -21,7 +21,15 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.util.ReflectionUtils;
 
+import io.servicecomb.saga.omega.context.OmegaContext;
+
 class CompensableAnnotationProcessor implements BeanPostProcessor {
+
+  private final OmegaContext omegaContext;
+
+  CompensableAnnotationProcessor(OmegaContext omegaContext) {
+    this.omegaContext = omegaContext;
+  }
 
   @Override
   public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
@@ -35,6 +43,6 @@ class CompensableAnnotationProcessor implements BeanPostProcessor {
   }
 
   private void checkMethod(Object bean) {
-    ReflectionUtils.doWithMethods(bean.getClass(), new CompensableMethodCheckingCallback(bean));
+    ReflectionUtils.doWithMethods(bean.getClass(), new CompensableMethodCheckingCallback(bean, omegaContext));
   }
 }

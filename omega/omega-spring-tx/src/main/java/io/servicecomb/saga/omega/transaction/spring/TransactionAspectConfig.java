@@ -35,7 +35,7 @@ public class TransactionAspectConfig {
   }
 
   @Bean
-  CompensableAnnotationProcessor compensableAnnotationProcessor() {
-    return new CompensableAnnotationProcessor();
+  CompensableAnnotationProcessor compensableAnnotationProcessor(OmegaContext omegaContext) {
+    return new CompensableAnnotationProcessor(omegaContext);
   }
 }

@@ -106,15 +106,16 @@ public class TransactionInterceptionTest {
     User user = userService.add(new User(username, email));
 
     // another sub transaction to the same service within the same global transaction
-    omegaContext.newLocalTxId();
+    String localTxId = omegaContext.newLocalTxId();
     User anotherUser = userService.add(new User(uniquify("Jack"), uniquify("jack@gmail.com")));
 
-    messageHandler.onReceive("to be compensated".getBytes());
+    String compensationMethod = TransactionalUserService.class.getDeclaredMethod("delete", User.class).toString();
+
+    messageHandler.onReceive(globalTxId, this.localTxId, compensationMethod, user);
+    messageHandler.onReceive(globalTxId, localTxId, compensationMethod, anotherUser);
 
     assertThat(userRepository.findOne(user.id()), is(nullValue()));
     assertThat(userRepository.findOne(anotherUser.id()), is(nullValue()));
-
-    assertThat(omegaContext.containsContext(globalTxId), is(false));
   }
 
   private List<String> toString(List<byte[]> messages) {
@@ -158,7 +159,7 @@ public class TransactionInterceptionTest {
 
     @Bean
     MessageHandler handler(OmegaContext omegaContext) {
-      return bytes -> omegaContext.compensate(globalTxId);
+      return omegaContext::compensate;
     }
   }
 
