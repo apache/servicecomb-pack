@@ -32,13 +32,22 @@ public class NativeMessageFormat implements MessageSerializer, MessageDeserializ
   @Override
   public byte[] serialize(TxEvent event) {
     try {
+      return serialize(event.payloads());
+    } catch (OmegaException e) {
+      throw new OmegaException("Unable to serialize event with global tx id " + event.globalTxId(), e);
+    }
+  }
+
+  @Override
+  public byte[] serialize(Object[] objects) {
+    try {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       try (ObjectOutputStream outputStream = new ObjectOutputStream(out)) {
-        outputStream.writeObject(event.payloads());
+        outputStream.writeObject(objects);
         return out.toByteArray();
       }
     } catch (IOException e) {
-      throw new OmegaException("Unable to serialize event with global tx id " + event.globalTxId(), e);
+      throw new OmegaException("Unable to serialize object", e);
     }
   }
 

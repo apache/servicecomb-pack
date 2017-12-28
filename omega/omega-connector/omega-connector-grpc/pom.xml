@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
+  ~
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
   ~ this work for additional information regarding copyright ownership.
@@ -14,45 +15,59 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
+  ~
+  ~
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <artifactId>omega</artifactId>
+    <artifactId>omega-connector</artifactId>
     <groupId>io.servicecomb.saga</groupId>
     <version>0.0.3-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>omega-spring-starter</artifactId>
+  <artifactId>omega-connector-grpc</artifactId>
 
   <dependencies>
     <dependency>
-      <groupId>io.servicecomb.saga</groupId>
-      <artifactId>omega-spring-tx</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.servicecomb.saga</groupId>
-      <artifactId>omega-connector-thrift</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.servicecomb.saga</groupId>
-      <artifactId>omega-format</artifactId>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-protobuf</artifactId>
     </dependency>
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-netty</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.grpc</groupId>
-      <artifactId>grpc-stub</artifactId>
+      <groupId>io.servicecomb.saga</groupId>
+      <artifactId>omega-transaction</artifactId>
     </dependency>
     <dependency>
       <groupId>io.servicecomb.saga</groupId>
-      <artifactId>omega-connector-grpc</artifactId>
+      <artifactId>pack-contract-grpc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-all</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.seanyinx</groupId>
+      <artifactId>unit-scaffolding</artifactId>
     </dependency>
   </dependencies>
-
 </project>

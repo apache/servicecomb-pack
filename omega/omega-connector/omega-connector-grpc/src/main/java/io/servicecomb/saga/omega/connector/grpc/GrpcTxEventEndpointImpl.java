@@ -1,4 +1,5 @@
 /*
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -13,32 +14,26 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ *
  */
 
-package io.servicecomb.saga.alpha.server;
+package io.servicecomb.saga.omega.connector.grpc;
 
-import java.util.Collections;
+import io.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
+import io.servicecomb.saga.pack.contract.grpc.GrpcTxEventEndpoint;
+import io.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceBlockingStub;
 
-import com.facebook.swift.codec.ThriftCodecManager;
-import com.facebook.swift.service.ThriftServer;
-import com.facebook.swift.service.ThriftServerConfig;
-import com.facebook.swift.service.ThriftServiceProcessor;
+public class GrpcTxEventEndpointImpl implements GrpcTxEventEndpoint {
 
-class ThriftStartable implements ServerStartable {
-  private final ThriftServer server;
+  private final TxEventServiceBlockingStub stub;
 
-  ThriftStartable(int port, Object... services) {
-    server = new ThriftServer(
-        new ThriftServiceProcessor(new ThriftCodecManager(),
-            Collections.emptyList(),
-            services),
-        new ThriftServerConfig().setPort(port));
+  public GrpcTxEventEndpointImpl(TxEventServiceBlockingStub stub) {
+    this.stub = stub;
   }
 
   @Override
-  public void start() {
-    Runtime.getRuntime().addShutdownHook(new Thread(server::close));
-
-    server.start();
+  public void reportEvent(GrpcTxEvent event) {
+    stub.reportEvent(event);
   }
 }

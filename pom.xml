@@ -51,6 +51,7 @@
     <akka.version>2.5.6</akka.version>
     <rat.version>0.12</rat.version>
     <maven.failsafe.version>2.19.1</maven.failsafe.version>
+    <grpc.version>1.8.0</grpc.version>
   </properties>
 
   <name>ServiceComb Saga</name>
@@ -158,6 +159,11 @@
       </dependency>
       <dependency>
         <groupId>io.servicecomb.saga</groupId>
+        <artifactId>omega-connector-grpc</artifactId>
+        <version>0.0.3-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>io.servicecomb.saga</groupId>
         <artifactId>omega-spring-starter</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
@@ -179,6 +185,11 @@
       <dependency>
         <groupId>io.servicecomb.saga</groupId>
         <artifactId>pack-contract-thrift</artifactId>
+        <version>0.0.3-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>io.servicecomb.saga</groupId>
+        <artifactId>pack-contract-grpc</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
@@ -320,6 +331,21 @@
             <artifactId>bval-jsr303</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-netty</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-protobuf</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-stub</artifactId>
+        <version>${grpc.version}</version>
       </dependency>
 
       <!-- test dependencies -->
@@ -524,6 +550,24 @@
             <execution>
               <goals>
                 <goal>generate</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.xolstice.maven.plugins</groupId>
+          <artifactId>protobuf-maven-plugin</artifactId>
+          <version>0.5.0</version>
+          <configuration>
+            <protocArtifact>com.google.protobuf:protoc:3.5.0:exe:${os.detected.classifier}</protocArtifact>
+            <pluginId>grpc-java</pluginId>
+            <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.8.0:exe:${os.detected.classifier}</pluginArtifact>
+          </configuration>
+          <executions>
+            <execution>
+              <goals>
+                <goal>compile</goal>
+                <goal>compile-custom</goal>
               </goals>
             </execution>
           </executions>

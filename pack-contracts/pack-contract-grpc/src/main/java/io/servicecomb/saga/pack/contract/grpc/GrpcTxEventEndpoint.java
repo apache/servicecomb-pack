@@ -1,4 +1,5 @@
 /*
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -13,32 +14,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ *
  */
 
-package io.servicecomb.saga.alpha.server;
+package io.servicecomb.saga.pack.contract.grpc;
 
-import java.util.Collections;
-
-import com.facebook.swift.codec.ThriftCodecManager;
-import com.facebook.swift.service.ThriftServer;
-import com.facebook.swift.service.ThriftServerConfig;
-import com.facebook.swift.service.ThriftServiceProcessor;
-
-class ThriftStartable implements ServerStartable {
-  private final ThriftServer server;
-
-  ThriftStartable(int port, Object... services) {
-    server = new ThriftServer(
-        new ThriftServiceProcessor(new ThriftCodecManager(),
-            Collections.emptyList(),
-            services),
-        new ThriftServerConfig().setPort(port));
-  }
-
-  @Override
-  public void start() {
-    Runtime.getRuntime().addShutdownHook(new Thread(server::close));
-
-    server.start();
-  }
+public interface GrpcTxEventEndpoint {
+  void reportEvent(GrpcTxEvent message);
 }

@@ -1,4 +1,5 @@
 /*
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -13,9 +14,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ *
  */
 
-package io.servicecomb.saga.omega.connector.thrift;
+package io.servicecomb.saga.omega.connector.grpc;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static org.hamcrest.core.Is.is;
@@ -28,18 +31,21 @@ import org.junit.Test;
 
 import io.servicecomb.saga.omega.transaction.MessageSerializer;
 import io.servicecomb.saga.omega.transaction.TxEvent;
-import io.servicecomb.saga.pack.contracts.thrift.SwiftTxEvent;
-import io.servicecomb.saga.pack.contracts.thrift.SwiftTxEventEndpoint;
+import io.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
+import io.servicecomb.saga.pack.contract.grpc.GrpcTxEventEndpoint;
 
-public class ThriftMessageSenderTest {
-
+public class GrpcClientMessageSenderTest {
   private final String globalTxId = uniquify("global tx id");
+
   private final String localTxId = uniquify("local tx id");
+
   private final String parentTxId = uniquify("parent tx id");
+
   private final String payload1 = uniquify("payload1");
+
   private final String payload2 = uniquify("payload2");
 
-  private SwiftTxEvent swiftTxEvent;
+  private GrpcTxEvent grpcTxEvent;
 
   private final MessageSerializer serializer = new MessageSerializer() {
     @Override
@@ -60,29 +66,25 @@ public class ThriftMessageSenderTest {
     }
   };
 
-  private final SwiftTxEventEndpoint eventService = new SwiftTxEventEndpoint() {
-    @Override
-    public void handle(SwiftTxEvent message) {
-      swiftTxEvent = message;
-    }
 
+  private final GrpcTxEventEndpoint eventService = new GrpcTxEventEndpoint() {
     @Override
-    public void close() throws Exception {
+    public void reportEvent(GrpcTxEvent event) {
+      grpcTxEvent = event;
     }
   };
 
-  private final ThriftMessageSender messageSender = new ThriftMessageSender(eventService, serializer);
+  private final GrpcClientMessageSender messageSender = new GrpcClientMessageSender(eventService, serializer);
 
   @Test
   public void sendSerializedEvent() throws Exception {
-    TxEvent event = new TxEvent(globalTxId, localTxId, parentTxId, getClass().getCanonicalName(), payload1, payload2);
+    TxEvent event = new TxEvent(globalTxId, localTxId, parentTxId, payload1, payload2);
 
     messageSender.send(event);
 
-    assertThat(swiftTxEvent.globalTxId(), is(event.globalTxId()));
-    assertThat(swiftTxEvent.localTxId(), is(event.localTxId()));
-    assertThat(swiftTxEvent.parentTxId(), is(event.parentTxId()));
-    assertThat(swiftTxEvent.compensationMethod(), is(event.compensationMethod()));
-    assertThat(swiftTxEvent.payloads(), is(serializer.serialize(event)));
+    assertThat(grpcTxEvent.getGlobalTxId(), is(event.globalTxId()));
+    assertThat(grpcTxEvent.getLocalTxId(), is(event.localTxId()));
+    assertThat(grpcTxEvent.getParentTxId(), is(event.parentTxId()));
+    assertThat(grpcTxEvent.getPayloads().toByteArray(), is(serializer.serialize(event)));
   }
 }

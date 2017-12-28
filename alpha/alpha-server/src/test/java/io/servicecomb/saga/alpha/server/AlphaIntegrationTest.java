@@ -17,7 +17,6 @@
 
 package io.servicecomb.saga.alpha.server;
 
-import static com.google.common.net.HostAndPort.fromParts;
 import static io.servicecomb.saga.alpha.core.EventType.TxAbortedEvent;
 import static io.servicecomb.saga.alpha.core.EventType.TxEndedEvent;
 import static io.servicecomb.saga.alpha.core.EventType.TxStartedEvent;
@@ -45,23 +44,31 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.facebook.nifty.client.FramedClientConnector;
-import com.facebook.swift.service.ThriftClientManager;
+import com.google.protobuf.ByteString;
 
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import io.servicecomb.saga.alpha.core.EventType;
 import io.servicecomb.saga.alpha.core.OmegaCallback;
 import io.servicecomb.saga.alpha.core.TxEvent;
 import io.servicecomb.saga.alpha.server.AlphaIntegrationTest.OmegaCallbackConfig;
+import io.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
+import io.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc;
+import io.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceBlockingStub;
 import io.servicecomb.saga.pack.contracts.thrift.SwiftTxEvent;
-import io.servicecomb.saga.pack.contracts.thrift.SwiftTxEventEndpoint;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {AlphaApplication.class, OmegaCallbackConfig.class}, properties = "alpha.server.port=8090")
 public class AlphaIntegrationTest {
-  private static final ThriftClientManager clientManager = new ThriftClientManager();
-  private static final String payload = "hello world";
+  private static final int port = 8090;
 
-  private final int port = 8090;
+  //  private static final ThriftClientManager clientManager = new ThriftClientManager();
+  private static ManagedChannel clientChannel = ManagedChannelBuilder
+      .forAddress("localhost", port).usePlaintext(true).build();
+
+  private TxEventServiceBlockingStub stub = TxEventServiceGrpc.newBlockingStub(clientChannel);
+
+  private static final String payload = "hello world";
 
   private final String globalTxId = UUID.randomUUID().toString();
   private final String localTxId = UUID.randomUUID().toString();
@@ -74,27 +81,30 @@ public class AlphaIntegrationTest {
   @Autowired
   private List<CompensationContext> compensationContexts;
 
-  private final FramedClientConnector connector = new FramedClientConnector(fromParts("localhost", port));
-  private SwiftTxEventEndpoint endpoint;
+//  private final FramedClientConnector connector = new FramedClientConnector(fromParts("localhost", port));
+//  private SwiftTxEventEndpoint endpoint;
+
 
   @AfterClass
   public static void tearDown() throws Exception {
-    clientManager.close();
+    clientChannel.shutdown();
+//    clientManager.close();
   }
 
   @Before
-  public void setUp() throws Exception {
-    endpoint = clientManager.createClient(connector, SwiftTxEventEndpoint.class).get();
+  public void before() throws Exception {
+//    endpoint = clientManager.createClient(connector, SwiftTxEventEndpoint.class).get();
   }
 
   @After
   public void after() throws Exception {
-    endpoint.close();
+//    endpoint.close();
   }
 
   @Test
   public void persistsEvent() throws Exception {
-    endpoint.handle(someEvent(TxStartedEvent));
+//    endpoint.handle(someEvent(TxStartedEvent));
+    stub.reportEvent(someGrpcEvent(TxStartedEvent));
 
     TxEventEnvelope envelope = eventRepo.findByEventGlobalTxId(globalTxId);
 
@@ -117,7 +127,8 @@ public class AlphaIntegrationTest {
     eventRepo.save(eventEnvelopeOf(TxStartedEvent, localTxId1, UUID.randomUUID().toString(), "service b".getBytes()));
     eventRepo.save(eventEnvelopeOf(TxEndedEvent, new byte[0]));
 
-    endpoint.handle(someEvent(TxAbortedEvent));
+//    endpoint.handle(someEvent(TxAbortedEvent));
+    stub.reportEvent(someGrpcEvent(TxAbortedEvent));
 
     await().atMost(1, SECONDS).until(() -> compensationContexts.size() > 1);
     assertThat(compensationContexts, containsInAnyOrder(
@@ -135,6 +146,17 @@ public class AlphaIntegrationTest {
         type.name(),
         compensationMethod,
         payload.getBytes());
+  }
+
+  private GrpcTxEvent someGrpcEvent(EventType type) {
+    return GrpcTxEvent.newBuilder()
+        .setTimestamp(System.currentTimeMillis())
+        .setGlobalTxId(this.globalTxId)
+        .setLocalTxId(this.localTxId)
+        .setParentTxId(this.parentTxId)
+        .setType(type.name())
+        .setPayloads(ByteString.copyFrom(payload.getBytes()))
+        .build();
   }
 
   private TxEventEnvelope eventEnvelopeOf(EventType eventType, byte[] payloads) {
