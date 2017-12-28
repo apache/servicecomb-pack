@@ -40,6 +40,7 @@ public class ThriftMessageSender implements MessageSender, AutoCloseable {
         event.localTxId(),
         event.parentTxId(),
         event.type(),
+        event.compensationMethod(),
         serializer.serialize(event)
     ));
   }

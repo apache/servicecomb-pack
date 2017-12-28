@@ -90,10 +90,12 @@ public class TransactionInterceptionTest {
   public void sendsUserToRemote_AroundTransaction() throws Exception {
     User user = userService.add(new User(username, email));
 
+    String compensationMethod = TransactionalUserService.class.getDeclaredMethod("delete", User.class).toString();
+
     assertEquals(
         asList(
-            txStartedEvent(globalTxId, localTxId, parentTxId, username, email),
-            txEndedEvent(globalTxId, localTxId, parentTxId)),
+            txStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, username, email),
+            txEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod)),
         toString(messages)
     );
 
@@ -149,12 +151,14 @@ public class TransactionInterceptionTest {
         return txStartedEvent(event.globalTxId(),
             event.localTxId(),
             event.parentTxId(),
+            event.compensationMethod(),
             user.username(),
             user.email()).getBytes();
       }
       return txEndedEvent(event.globalTxId(),
           event.localTxId(),
-          event.parentTxId()).getBytes();
+          event.parentTxId(),
+          event.compensationMethod()).getBytes();
     }
 
     @Bean
@@ -166,12 +170,13 @@ public class TransactionInterceptionTest {
   private static String txStartedEvent(String globalTxId,
       String localTxId,
       String parentTxId,
+      String compensationMethod,
       String username,
       String email) {
-    return globalTxId + ":" + localTxId + ":" + parentTxId + ":" + TX_STARTED_EVENT + ":" + username + ":" + email;
+    return globalTxId + ":" + localTxId + ":" + parentTxId + ":" + compensationMethod + ":" + TX_STARTED_EVENT + ":" + username + ":" + email;
   }
 
-  private static String txEndedEvent(String globalTxId, String localTxId, String parentTxId) {
-    return globalTxId + ":" + localTxId + ":" + parentTxId + ":" + TX_ENDED_EVENT;
+  private static String txEndedEvent(String globalTxId, String localTxId, String parentTxId, String compensationMethod) {
+    return globalTxId + ":" + localTxId + ":" + parentTxId + ":" + compensationMethod + ":" + TX_ENDED_EVENT;
   }
 }

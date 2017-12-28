@@ -17,7 +17,7 @@
 
 package io.servicecomb.saga.omega.transaction;
 
-import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
@@ -27,23 +27,26 @@ import java.util.UUID;
 import org.junit.Test;
 
 public class PostTransactionInterceptorTest {
-  private final List<byte[]> messages = new ArrayList<>();
+  private final List<TxEvent> messages = new ArrayList<>();
   private final String globalTxId = UUID.randomUUID().toString();
   private final String localTxId = UUID.randomUUID().toString();
   private final String parentTxId = UUID.randomUUID().toString();
 
-  private final MessageSender sender = (msg) -> messages.add(serialize(msg.globalTxId(), msg.localTxId(), msg.parentTxId()));
+  private final MessageSender sender = messages::add;
 
   private final PostTransactionInterceptor interceptor = new PostTransactionInterceptor(sender);
 
-  private byte[] serialize(String globalTxId, String localTxId, String parentTxId) {
-    return (globalTxId + ":" + localTxId + ":" + parentTxId).getBytes();
-  }
-
   @Test
   public void sendsSerializedMessage() throws Exception {
-    interceptor.intercept(globalTxId, localTxId, parentTxId);
+    interceptor.intercept(globalTxId, localTxId, parentTxId, getClass().getCanonicalName());
 
-    assertThat(messages, contains(serialize(globalTxId, localTxId, parentTxId)));
+
+    TxEvent event = messages.get(0);
+
+    assertThat(event.globalTxId(), is(globalTxId));
+    assertThat(event.localTxId(), is(localTxId));
+    assertThat(event.parentTxId(), is(parentTxId));
+    assertThat(event.compensationMethod(), is(getClass().getCanonicalName()));
+    assertThat(event.payloads().length, is(0));
   }
 }

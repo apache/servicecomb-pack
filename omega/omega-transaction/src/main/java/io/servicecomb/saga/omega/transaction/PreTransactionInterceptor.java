@@ -24,7 +24,7 @@ class PreTransactionInterceptor {
     this.sender = sender;
   }
 
-  void intercept(String globalTxId, String localTxId, String parentTxId, Object... message) {
-    sender.send(new TxStartedEvent(globalTxId, localTxId, parentTxId, message));
+  void intercept(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Object... message) {
+    sender.send(new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, message));
   }
 }

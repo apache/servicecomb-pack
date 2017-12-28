@@ -24,7 +24,7 @@ class PostTransactionInterceptor {
     this.sender = sender;
   }
 
-  void intercept(String globalTxId, String localTxId, String parentTxId) {
-    sender.send(new TxEndedEvent(globalTxId, localTxId, parentTxId));
+  void intercept(String globalTxId, String localTxId, String parentTxId, String compensationMethod) {
+    sender.send(new TxEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod));
   }
 }

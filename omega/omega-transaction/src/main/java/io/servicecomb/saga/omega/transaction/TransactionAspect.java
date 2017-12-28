@@ -48,25 +48,38 @@ public class TransactionAspect {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
     LOG.debug("Intercepting compensable method {} with context {}", method.toString(), context);
 
-    preIntercept(joinPoint);
+    String signature = compensationMethodSignature(joinPoint, compensable, method);
+
+    preIntercept(joinPoint, signature);
     Object result = joinPoint.proceed();
-    postIntercept();
+    postIntercept(signature);
 
     return result;
   }
 
-  private void preIntercept(ProceedingJoinPoint joinPoint) {
+  private String compensationMethodSignature(ProceedingJoinPoint joinPoint, Compensable compensable, Method method)
+      throws NoSuchMethodException {
+
+    return joinPoint.getTarget()
+        .getClass()
+        .getDeclaredMethod(compensable.compensationMethod(), method.getParameterTypes())
+        .toString();
+  }
+
+  private void preIntercept(ProceedingJoinPoint joinPoint, String signature) {
     preTransactionInterceptor.intercept(
         context.globalTxId(),
         context.localTxId(),
         context.parentTxId(),
+        signature,
         joinPoint.getArgs());
   }
 
-  private void postIntercept() {
+  private void postIntercept(String signature) {
     postTransactionInterceptor.intercept(
         context.globalTxId(),
         context.localTxId(),
-        context.parentTxId());
+        context.parentTxId(),
+        signature);
   }
 }

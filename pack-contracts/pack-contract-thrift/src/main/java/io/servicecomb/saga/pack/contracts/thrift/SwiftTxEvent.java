@@ -29,15 +29,23 @@ public class SwiftTxEvent {
   private final String parentTxId;
   private final String type;
   private final byte[] payloads;
+  private final String compensationMethod;
 
   @ThriftConstructor
-  public SwiftTxEvent(long timestamp, String globalTxId, String localTxId, String parentTxId, String type, byte[] payloads) {
+  public SwiftTxEvent(long timestamp,
+      String globalTxId,
+      String localTxId,
+      String parentTxId,
+      String type,
+      String compensationMethod,
+      byte[] payloads) {
     this.timestamp = timestamp;
     this.globalTxId = globalTxId;
     this.localTxId = localTxId;
     this.parentTxId = parentTxId;
     this.type = type;
     this.payloads = payloads;
+    this.compensationMethod = compensationMethod;
   }
 
   @ThriftField(1)
@@ -66,6 +74,11 @@ public class SwiftTxEvent {
   }
 
   @ThriftField(6)
+  public String compensationMethod() {
+    return compensationMethod;
+  }
+
+  @ThriftField(7)
   public byte[] payloads() {
     return payloads;
   }

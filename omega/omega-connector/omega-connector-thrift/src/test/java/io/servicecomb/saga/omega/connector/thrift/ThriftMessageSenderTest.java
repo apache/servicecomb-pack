@@ -67,13 +67,14 @@ public class ThriftMessageSenderTest {
 
   @Test
   public void sendSerializedEvent() throws Exception {
-    TxEvent event = new TxEvent(globalTxId, localTxId, parentTxId, payload1, payload2);
+    TxEvent event = new TxEvent(globalTxId, localTxId, parentTxId, getClass().getCanonicalName(), payload1, payload2);
 
     messageSender.send(event);
 
     assertThat(swiftTxEvent.globalTxId(), is(event.globalTxId()));
     assertThat(swiftTxEvent.localTxId(), is(event.localTxId()));
     assertThat(swiftTxEvent.parentTxId(), is(event.parentTxId()));
+    assertThat(swiftTxEvent.compensationMethod(), is(event.compensationMethod()));
     assertThat(swiftTxEvent.payloads(), is(serializer.serialize(event)));
   }
 }
