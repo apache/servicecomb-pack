@@ -109,9 +109,23 @@ public class AlphaIntegrationTest {
   @Test
   public void compensateOnFailure() throws Exception {
     eventRepo.save(eventEnvelopeOf(TxStartedEvent, "service a".getBytes()));
-    eventRepo.save(eventEnvelopeOf(TxEndedEvent, "service a".getBytes()));
+    eventRepo.save(eventEnvelopeOf(TxEndedEvent, new byte[0]));
     eventRepo.save(eventEnvelopeOf(TxStartedEvent, "service b".getBytes()));
-    eventRepo.save(eventEnvelopeOf(TxEndedEvent, "service b".getBytes()));
+    eventRepo.save(eventEnvelopeOf(TxEndedEvent, new byte[0]));
+
+    endpoint.handle(someEvent(TxAbortedEvent));
+
+    await().atMost(1, SECONDS).until(() -> callbackArgs.getOrDefault(globalTxId, emptyList()).size() > 1);
+    assertThat(stringOf(callbackArgs.get(globalTxId)), containsInAnyOrder("service a", "service b"));
+  }
+
+  @Test
+  public void doNotCompensateDuplicateTxOnFailure() throws Exception {
+    eventRepo.save(eventEnvelopeOf(TxStartedEvent, localTxId, parentTxId, "service a".getBytes()));
+    eventRepo.save(eventEnvelopeOf(TxStartedEvent, localTxId, parentTxId, "service a".getBytes()));
+    eventRepo.save(eventEnvelopeOf(TxEndedEvent, new byte[0]));
+    eventRepo.save(eventEnvelopeOf(TxStartedEvent, "service b".getBytes()));
+    eventRepo.save(eventEnvelopeOf(TxEndedEvent, new byte[0]));
 
     endpoint.handle(someEvent(TxAbortedEvent));
 
@@ -136,10 +150,14 @@ public class AlphaIntegrationTest {
   }
 
   private TxEventEnvelope eventEnvelopeOf(EventType eventType, byte[] payloads) {
+    return eventEnvelopeOf(eventType, UUID.randomUUID().toString(), UUID.randomUUID().toString(), payloads);
+  }
+
+  private TxEventEnvelope eventEnvelopeOf(EventType eventType, String localTxId, String parentTxId, byte[] payloads) {
     return new TxEventEnvelope(new TxEvent(new Date(),
         globalTxId,
-        UUID.randomUUID().toString(),
-        UUID.randomUUID().toString(),
+        localTxId,
+        parentTxId,
         eventType.name(),
         payloads));
   }

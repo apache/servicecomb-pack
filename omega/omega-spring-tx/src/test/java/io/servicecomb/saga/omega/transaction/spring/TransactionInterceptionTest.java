@@ -105,10 +105,14 @@ public class TransactionInterceptionTest {
   public void compensateOnTransactionException() throws Exception {
     User user = userService.add(new User(username, email));
 
+    // another sub transaction to the same service within the same global transaction
+    omegaContext.newLocalTxId();
+    User anotherUser = userService.add(new User(uniquify("Jack"), uniquify("jack@gmail.com")));
+
     messageHandler.onReceive("to be compensated".getBytes());
 
-    User actual = userRepository.findOne(user.id());
-    assertThat(actual, is(nullValue()));
+    assertThat(userRepository.findOne(user.id()), is(nullValue()));
+    assertThat(userRepository.findOne(anotherUser.id()), is(nullValue()));
 
     assertThat(omegaContext.containsContext(globalTxId), is(false));
   }

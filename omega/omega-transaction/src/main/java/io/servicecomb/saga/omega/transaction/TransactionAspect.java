@@ -49,6 +49,7 @@ public class TransactionAspect {
     LOG.debug("Intercepting compensable method {} with context {}", method.toString(), context);
 
     context.addContext(context.globalTxId(),
+        context.localTxId(),
         joinPoint.getTarget(),
         compensable.compensationMethod(),
         joinPoint.getArgs());

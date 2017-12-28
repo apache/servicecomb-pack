@@ -17,6 +17,8 @@
 
 package io.servicecomb.saga.alpha.server;
 
+import java.util.Date;
+
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -38,6 +40,10 @@ class TxEventEnvelope {
 
   TxEventEnvelope(TxEvent event) {
     this.event = event;
+  }
+
+  public TxEventEnvelope(String globalTxId, String localTxId, String parentTxId, String type, byte[] payloads) {
+    this.event = new TxEvent(new Date(), globalTxId, localTxId, parentTxId, type, payloads);
   }
 
   public long creationTime() {
