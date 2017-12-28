@@ -19,10 +19,8 @@ package io.servicecomb.saga.omega.transaction.spring;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
-@Component
 class CompensableAnnotationProcessor implements BeanPostProcessor {
 
   @Override
