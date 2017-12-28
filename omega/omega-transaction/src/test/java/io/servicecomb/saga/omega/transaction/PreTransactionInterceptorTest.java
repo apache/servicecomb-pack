@@ -18,7 +18,9 @@
 package io.servicecomb.saga.omega.transaction;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
-import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
+import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
@@ -28,28 +30,26 @@ import java.util.UUID;
 import org.junit.Test;
 
 public class PreTransactionInterceptorTest {
-  private final List<byte[]> messages = new ArrayList<>();
+  private final List<TxEvent> messages = new ArrayList<>();
   private final String globalTxId = UUID.randomUUID().toString();
   private final String localTxId = UUID.randomUUID().toString();
   private final String parentTxId = UUID.randomUUID().toString();
 
-  private final MessageSender sender = (msg) -> messages.add(
-      serialize(msg.globalTxId(),
-          msg.localTxId(),
-          msg.parentTxId(),
-          (String) msg.payloads()[0]));
+  private final MessageSender sender = messages::add;
 
   private final String message = uniquify("message");
   private final PreTransactionInterceptor interceptor = new PreTransactionInterceptor(sender);
 
-  private byte[] serialize(String globalTxId, String localTxId, String parentTxId, String message) {
-    return (globalTxId + ":" + localTxId + ":" + parentTxId + ":" + message).getBytes();
-  }
-
   @Test
-  public void sendsSerializedMessage() throws Exception {
-    interceptor.intercept(globalTxId, localTxId, parentTxId, message);
+  public void sendsTxStartedEvent() throws Exception {
+    interceptor.intercept(globalTxId, localTxId, parentTxId, getClass().getCanonicalName(), message);
 
-    assertThat(messages, contains(serialize(globalTxId, localTxId, parentTxId, message)));
+    TxEvent event = messages.get(0);
+
+    assertThat(event.globalTxId(), is(globalTxId));
+    assertThat(event.localTxId(), is(localTxId));
+    assertThat(event.parentTxId(), is(parentTxId));
+    assertThat(event.compensationMethod(), is(getClass().getCanonicalName()));
+    assertThat(asList(event.payloads()), contains(message));
   }
 }

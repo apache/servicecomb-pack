@@ -22,12 +22,14 @@ public class TxEvent {
   private final String globalTxId;
   private final String localTxId;
   private final String parentTxId;
+  private final String compensationMethod;
   private final Object[] payloads;
 
-  public TxEvent(String globalTxId, String localTxId, String parentTxId, Object... payloads) {
+  public TxEvent(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Object... payloads) {
     this.timestamp = System.currentTimeMillis();
     this.localTxId = localTxId;
     this.parentTxId = parentTxId;
+    this.compensationMethod = compensationMethod;
     this.payloads = payloads;
     this.globalTxId = globalTxId;
   }
@@ -54,5 +56,9 @@ public class TxEvent {
 
   public String type() {
     return this.getClass().getSimpleName();
+  }
+
+  public String compensationMethod() {
+    return compensationMethod;
   }
 }

@@ -62,7 +62,7 @@ public class NativeMessageFormatTest {
   }
 
   private TxEvent eventOf(Object... payloads) {
-    return new TxEvent(null, null, null, payloads);
+    return new TxEvent(null, null, null, null, payloads);
   }
 
   private static class NotSerializable {
