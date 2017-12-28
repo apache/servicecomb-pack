@@ -33,4 +33,9 @@ public class TransactionAspectConfig {
   TransactionAspect transactionAspect(MessageSender sender, OmegaContext context) {
     return new TransactionAspect(sender, context);
   }
+
+  @Bean
+  CompensableAnnotationProcessor compensableAnnotationProcessor() {
+    return new CompensableAnnotationProcessor();
+  }
 }
