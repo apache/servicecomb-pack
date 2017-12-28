@@ -17,19 +17,24 @@
 
 package io.servicecomb.saga.omega.context;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class OmegaContext {
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   public static final String GLOBAL_TX_ID_KEY = "X-Pack-Global-Transaction-Id";
   public static final String LOCAL_TX_ID_KEY = "X-Pack-Local-Transaction-Id";
 
   private final ThreadLocal<String> globalTxId = new ThreadLocal<>();
   private final ThreadLocal<String> localTxId = new ThreadLocal<>();
   private final ThreadLocal<String> parentTxId = new ThreadLocal<>();
-  private final Map<String, CompensationContext> compensationContexts = new ConcurrentHashMap<>();
+  private final Map<String, Map<String, CompensationContext>> compensationContexts = new ConcurrentHashMap<>();
   private final IdGenerator<String> idGenerator;
 
   public OmegaContext(IdGenerator<String> idGenerator) {
@@ -73,8 +78,9 @@ public class OmegaContext {
   }
 
   // TODO: 2017/12/23 remove this context entry by the end of its corresponding global tx
-  public void addContext(String id, Object target, String compensationMethod, Object... args) {
-    compensationContexts.put(id, new CompensationContext(target, compensationMethod, args));
+  public void addContext(String globalTxId, String localTxId, Object target, String compensationMethod, Object... args) {
+    compensationContexts.computeIfAbsent(globalTxId, k -> new ConcurrentHashMap<>())
+        .put(localTxId, new CompensationContext(target, compensationMethod, args));
   }
 
   public boolean containsContext(String globalTxId) {
@@ -82,17 +88,17 @@ public class OmegaContext {
   }
 
   public void compensate(String globalTxId) {
-    CompensationContext compensationContext = compensationContexts.get(globalTxId);
+    Map<String, CompensationContext> contexts = compensationContexts.remove(globalTxId);
 
-    try {
-      invokeMethod(compensationContext);
-    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-      throw new IllegalStateException(
-          "Pre-checking for compensate method " + compensationContext.compensationMethod
-              + " was somehow skipped, did you forget to configure compensable method checking on service startup?",
-          e);
-    } finally {
-      compensationContexts.remove(globalTxId);
+    for (CompensationContext compensationContext : contexts.values()) {
+      try {
+        invokeMethod(compensationContext);
+      } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        LOG.error(
+            "Pre-checking for compensate method " + compensationContext.compensationMethod
+                + " was somehow skipped, did you forget to configure compensable method checking on service startup?",
+            e);
+      }
     }
   }
 

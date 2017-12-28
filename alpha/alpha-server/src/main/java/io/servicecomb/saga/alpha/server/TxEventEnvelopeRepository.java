@@ -19,10 +19,15 @@ package io.servicecomb.saga.alpha.server;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 interface TxEventEnvelopeRepository extends CrudRepository<TxEventEnvelope, Long> {
   TxEventEnvelope findByEventGlobalTxId(String globalTxId);
 
+  @Query("SELECT DISTINCT new io.servicecomb.saga.alpha.server.TxEventEnvelope("
+      + "t.event.globalTxId, t.event.localTxId, t.event.parentTxId, t.event.type, t.event.payloads"
+      + ") FROM TxEventEnvelope t "
+      + "WHERE t.event.globalTxId = ?1 AND t.event.type = ?2")
   List<TxEventEnvelope> findByEventGlobalTxIdAndEventType(String globalTxId, String type);
 }

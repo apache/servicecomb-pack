@@ -50,7 +50,7 @@ public class TxConsistentServiceTest {
     }
 
     @Override
-    public List<TxEvent> findCompletedEvents(String globalTxId, String type) {
+    public List<TxEvent> findStartedTransactions(String globalTxId, String type) {
       return events.stream()
           .filter(event -> globalTxId.equals(event.globalTxId()) && type.equals(event.type()))
           .collect(Collectors.toList());
@@ -85,9 +85,9 @@ public class TxConsistentServiceTest {
   @Test
   public void compensateGlobalTx_OnAnyLocalTxFailure() throws Exception {
     events.add(eventOf(TxStartedEvent, "service a".getBytes()));
-    events.add(eventOf(TxEndedEvent, "service a".getBytes()));
+    events.add(eventOf(TxEndedEvent, new byte[0]));
     events.add(eventOf(TxStartedEvent, "service b".getBytes()));
-    events.add(eventOf(TxEndedEvent, "service b".getBytes()));
+    events.add(eventOf(TxEndedEvent, new byte[0]));
 
     TxEvent abortEvent = newEvent(TxAbortedEvent);
 

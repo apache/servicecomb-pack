@@ -18,7 +18,6 @@
 package io.servicecomb.saga.alpha.core;
 
 import static io.servicecomb.saga.alpha.core.EventType.TxAbortedEvent;
-import static io.servicecomb.saga.alpha.core.EventType.TxEndedEvent;
 import static io.servicecomb.saga.alpha.core.EventType.TxStartedEvent;
 
 import java.util.HashMap;
@@ -49,7 +48,7 @@ public class TxConsistentService {
 
   // TODO: 2017/12/27 we must define a way to find which service to compensate, to avoid sending to all
   private void compensate(TxEvent event) {
-    List<TxEvent> events = eventRepository.findCompletedEvents(event.globalTxId(), TxEndedEvent.name());
+    List<TxEvent> events = eventRepository.findStartedTransactions(event.globalTxId(), TxStartedEvent.name());
     events.forEach(evt -> omegaCallback.compensate(evt.globalTxId(), evt.payloads()));
   }
 }
