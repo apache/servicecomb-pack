@@ -35,12 +35,14 @@ public class TransactionAspect {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final PreTransactionInterceptor preTransactionInterceptor;
   private final PostTransactionInterceptor postTransactionInterceptor;
+  private final FailedTransactionInterceptor failedTransactionInterceptor;
   private final OmegaContext context;
 
   public TransactionAspect(MessageSender sender, OmegaContext context) {
     this.context = context;
     this.preTransactionInterceptor = new PreTransactionInterceptor(sender);
     this.postTransactionInterceptor = new PostTransactionInterceptor(sender);
+    this.failedTransactionInterceptor = new FailedTransactionInterceptor(sender);
   }
 
   @Around("execution(@io.servicecomb.saga.omega.transaction.annotations.Compensable * *(..)) && @annotation(compensable)")
@@ -51,10 +53,16 @@ public class TransactionAspect {
     String signature = compensationMethodSignature(joinPoint, compensable, method);
 
     preIntercept(joinPoint, signature);
-    Object result = joinPoint.proceed();
-    postIntercept(signature);
 
-    return result;
+    try {
+      Object result = joinPoint.proceed();
+      postIntercept(signature);
+
+      return result;
+    } catch (Throwable throwable) {
+      interceptException(signature, throwable);
+      throw throwable;
+    }
   }
 
   private String compensationMethodSignature(ProceedingJoinPoint joinPoint, Compensable compensable, Method method)
@@ -81,5 +89,14 @@ public class TransactionAspect {
         context.localTxId(),
         context.parentTxId(),
         signature);
+  }
+
+  private void interceptException(String signature, Throwable throwable) {
+    failedTransactionInterceptor.intercept(
+        context.globalTxId(),
+        context.localTxId(),
+        context.parentTxId(),
+        signature,
+        throwable);
   }
 }

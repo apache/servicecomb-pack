@@ -15,32 +15,25 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.omega.transaction.spring;
+package io.servicecomb.saga.omega.transaction;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
-import io.servicecomb.saga.omega.transaction.annotations.Compensable;
+class FailedTransactionInterceptor {
+  private final MessageSender sender;
 
-@Component
-class TransactionalUserService {
-  static final String ILLEGAL_USER = "Illegal User";
-  private final UserRepository userRepository;
-
-  @Autowired
-  TransactionalUserService(UserRepository userRepository) {
-    this.userRepository = userRepository;
+  FailedTransactionInterceptor(MessageSender sender) {
+    this.sender = sender;
   }
 
-  @Compensable(compensationMethod = "delete")
-  User add(User user) {
-    if (ILLEGAL_USER.equals(user.username())) {
-      throw new IllegalArgumentException("User is illegal");
-    }
-    return userRepository.save(user);
+  void intercept(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Throwable throwable) {
+    sender.send(new TxAbortedEvent(globalTxId, localTxId, parentTxId, compensationMethod, stackTrace(throwable)));
   }
 
-  void delete(User user) {
-    userRepository.delete(user.id());
+  private String stackTrace(Throwable e) {
+    StringWriter writer = new StringWriter();
+    e.printStackTrace(new PrintWriter(writer));
+    return writer.toString();
   }
 }
