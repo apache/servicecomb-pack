@@ -123,6 +123,7 @@ public class AlphaIntegrationTest {
         .setLocalTxId(this.localTxId)
         .setParentTxId(this.parentTxId)
         .setType(type.name())
+        .setCompensationMethod(getClass().getCanonicalName())
         .setPayloads(ByteString.copyFrom(payload.getBytes()))
         .build();
   }

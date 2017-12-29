@@ -31,7 +31,8 @@ message GrpcTxEvent {
   string localTxId = 3;
   string parentTxId = 4;
   string type = 5;
-  bytes payloads = 6;
+  string compensationMethod = 6;
+  bytes payloads = 7;
 }
 
 message GrpcEmpty {}
