@@ -17,7 +17,9 @@
 
 package io.servicecomb.saga.omega.transaction.spring;
 
+import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
+import static io.servicecomb.saga.omega.transaction.spring.TransactionalUserService.ILLEGAL_USER;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -104,6 +106,24 @@ public class TransactionInterceptionTest {
   }
 
   @Test
+  public void sendsAbortEvent_OnSubTransactionFailure() throws Exception {
+    try {
+      userService.add(new User(ILLEGAL_USER, email));
+      expectFailing(IllegalArgumentException.class);
+    } catch (IllegalArgumentException ignored) {
+    }
+
+    String compensationMethod = TransactionalUserService.class.getDeclaredMethod("delete", User.class).toString();
+
+    assertEquals(
+        asList(
+            txStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, ILLEGAL_USER, email),
+            txAbortedEvent(globalTxId, localTxId, parentTxId, compensationMethod)),
+        toString(messages)
+    );
+  }
+
+  @Test
   public void compensateOnTransactionException() throws Exception {
     User user = userService.add(new User(username, email));
 
@@ -177,6 +197,10 @@ public class TransactionInterceptionTest {
   }
 
   private static String txEndedEvent(String globalTxId, String localTxId, String parentTxId, String compensationMethod) {
+    return globalTxId + ":" + localTxId + ":" + parentTxId + ":" + compensationMethod + ":" + TX_ENDED_EVENT;
+  }
+
+  private static String txAbortedEvent(String globalTxId, String localTxId, String parentTxId, String compensationMethod) {
     return globalTxId + ":" + localTxId + ":" + parentTxId + ":" + compensationMethod + ":" + TX_ENDED_EVENT;
   }
 }
