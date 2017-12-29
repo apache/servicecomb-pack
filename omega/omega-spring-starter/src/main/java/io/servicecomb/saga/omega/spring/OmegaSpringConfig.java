@@ -35,6 +35,7 @@ import io.grpc.ManagedChannelBuilder;
 import io.servicecomb.saga.omega.connector.grpc.GrpcClientMessageSender;
 import io.servicecomb.saga.omega.context.IdGenerator;
 import io.servicecomb.saga.omega.context.OmegaContext;
+import io.servicecomb.saga.omega.context.ServiceConfig;
 import io.servicecomb.saga.omega.context.UniqueIdGenerator;
 import io.servicecomb.saga.omega.format.NativeMessageFormat;
 import io.servicecomb.saga.omega.transaction.MessageSender;
@@ -55,17 +56,22 @@ class OmegaSpringConfig {
     return new OmegaContext(idGenerator);
   }
 
+  @Bean
+  ServiceConfig serviceConfig(@Value("${spring.application.name}") String serviceName) {
+    return new ServiceConfig(serviceName);
+  }
+
   @PreDestroy
   void close() {
     channels.forEach(ManagedChannel::shutdown);
   }
 
   @Bean
-  MessageSender grpcMessageSender(@Value("${alpha.cluster.address}") String[] addresses) {
+  MessageSender grpcMessageSender(@Value("${alpha.cluster.address}") String[] addresses, ServiceConfig serviceConfig) {
     // TODO: 2017/12/26 connect to the one with lowest latency
     for (String address : addresses) {
       try {
-        return new GrpcClientMessageSender(grpcChannel(address), new NativeMessageFormat());
+        return new GrpcClientMessageSender(grpcChannel(address), new NativeMessageFormat(), serviceConfig);
       } catch (Exception e) {
         log.error("Unable to connect to alpha at {}", address, e);
       }

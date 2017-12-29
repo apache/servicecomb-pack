@@ -23,6 +23,7 @@ package io.servicecomb.saga.omega.connector.grpc;
 import com.google.protobuf.ByteString;
 
 import io.grpc.ManagedChannel;
+import io.servicecomb.saga.omega.context.ServiceConfig;
 import io.servicecomb.saga.omega.transaction.MessageSender;
 import io.servicecomb.saga.omega.transaction.MessageSerializer;
 import io.servicecomb.saga.omega.transaction.TxEvent;
@@ -36,10 +37,12 @@ public class GrpcClientMessageSender implements MessageSender {
   private final TxEventServiceBlockingStub eventService;
 
   private final MessageSerializer serializer;
+  private final ServiceConfig serviceConfig;
 
-  public GrpcClientMessageSender(ManagedChannel eventService, MessageSerializer serializer) {
+  public GrpcClientMessageSender(ManagedChannel eventService, MessageSerializer serializer, ServiceConfig serviceConfig) {
     this.eventService = TxEventServiceGrpc.newBlockingStub(eventService);
     this.serializer = serializer;
+    this.serviceConfig = serviceConfig;
   }
 
   @Override
@@ -51,6 +54,8 @@ public class GrpcClientMessageSender implements MessageSender {
     ByteString payloads = ByteString.copyFrom(serializer.serialize(event.payloads()));
 
     Builder builder = GrpcTxEvent.newBuilder()
+        .setServiceName(serviceConfig.serviceName())
+        .setInstanceId(serviceConfig.instanceId())
         .setTimestamp(event.timestamp())
         .setGlobalTxId(event.globalTxId())
         .setLocalTxId(event.localTxId())

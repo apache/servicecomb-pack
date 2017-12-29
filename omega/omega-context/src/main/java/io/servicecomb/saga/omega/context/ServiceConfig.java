@@ -15,53 +15,29 @@
  * limitations under the License.
  */
 
-package io.servicecomb.saga.integration.pack.tests;
+package io.servicecomb.saga.omega.context;
 
-import java.util.Date;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+public class ServiceConfig {
+  private final String serviceName;
+  private final String instanceId;
 
-@Entity
-class TxEventEnvelope {
-  @Id
-  @GeneratedValue
-  private long surrogateId;
-
-  private String serviceName;
-  private String instanceId;
-  private Date creationTime;
-  private String globalTxId;
-  private String localTxId;
-  private String parentTxId;
-  private String type;
-  private byte[] payloads;
-
-  private TxEventEnvelope() {
+  public ServiceConfig(String serviceName) {
+    this.serviceName = serviceName;
+    try {
+      instanceId = serviceName + "-" + InetAddress.getLocalHost().getHostAddress();
+    } catch (UnknownHostException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
-  String serviceName() {
+  public String serviceName() {
     return serviceName;
   }
 
-  String instanceId() {
+  public String instanceId() {
     return instanceId;
-  }
-
-  String localTxId() {
-    return localTxId;
-  }
-
-  String parentTxId() {
-    return parentTxId;
-  }
-
-  String type() {
-    return type;
-  }
-
-  public byte[] payloads() {
-    return payloads;
   }
 }

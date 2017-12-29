@@ -42,13 +42,24 @@ class TxEventEnvelope {
     this.event = event;
   }
 
-  public TxEventEnvelope(String globalTxId,
+  public TxEventEnvelope(
+      String serviceName,
+      String instanceId,
+      String globalTxId,
       String localTxId,
       String parentTxId,
       String type,
       String compensationMethod,
       byte[] payloads) {
-    this.event = new TxEvent(new Date(), globalTxId, localTxId, parentTxId, type, compensationMethod, payloads);
+    this.event = new TxEvent(serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type, compensationMethod, payloads);
+  }
+
+  String serviceName() {
+    return event.serviceName();
+  }
+
+  String instanceId() {
+    return event.instanceId();
   }
 
   public long creationTime() {

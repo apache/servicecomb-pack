@@ -17,6 +17,7 @@
 
 package io.servicecomb.saga.alpha.server;
 
+import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static io.servicecomb.saga.alpha.core.EventType.TxAbortedEvent;
 import static io.servicecomb.saga.alpha.core.EventType.TxEndedEvent;
 import static io.servicecomb.saga.alpha.core.EventType.TxStartedEvent;
@@ -70,6 +71,8 @@ public class AlphaIntegrationTest {
   private final String localTxId = UUID.randomUUID().toString();
   private final String parentTxId = UUID.randomUUID().toString();
   private final String compensationMethod = getClass().getCanonicalName();
+  private final String serviceName = uniquify("serviceName");
+  private final String instanceId = uniquify("instanceId");
 
   @Autowired
   private TxEventEnvelopeRepository eventRepo;
@@ -88,6 +91,8 @@ public class AlphaIntegrationTest {
 
     TxEventEnvelope envelope = eventRepo.findByEventGlobalTxId(globalTxId);
 
+    assertThat(envelope.serviceName(), is(serviceName));
+    assertThat(envelope.instanceId(), is(instanceId));
     assertThat(envelope.globalTxId(), is(globalTxId));
     assertThat(envelope.localTxId(), is(localTxId));
     assertThat(envelope.parentTxId(), is(parentTxId));
@@ -118,6 +123,8 @@ public class AlphaIntegrationTest {
 
   private GrpcTxEvent someGrpcEvent(EventType type) {
     return GrpcTxEvent.newBuilder()
+        .setServiceName(serviceName)
+        .setInstanceId(instanceId)
         .setTimestamp(System.currentTimeMillis())
         .setGlobalTxId(this.globalTxId)
         .setLocalTxId(this.localTxId)
@@ -133,7 +140,10 @@ public class AlphaIntegrationTest {
   }
 
   private TxEventEnvelope eventEnvelopeOf(EventType eventType, String localTxId, String parentTxId, byte[] payloads) {
-    return new TxEventEnvelope(new TxEvent(new Date(),
+    return new TxEventEnvelope(new TxEvent(
+        serviceName,
+        instanceId,
+        new Date(),
         globalTxId,
         localTxId,
         parentTxId,

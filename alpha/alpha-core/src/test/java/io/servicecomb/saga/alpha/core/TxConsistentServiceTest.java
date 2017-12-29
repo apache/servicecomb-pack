@@ -17,6 +17,7 @@
 
 package io.servicecomb.saga.alpha.core;
 
+import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static io.servicecomb.saga.alpha.core.EventType.SagaEndedEvent;
 import static io.servicecomb.saga.alpha.core.EventType.SagaStartedEvent;
 import static io.servicecomb.saga.alpha.core.EventType.TxAbortedEvent;
@@ -59,6 +60,8 @@ public class TxConsistentServiceTest {
   private final String globalTxId = UUID.randomUUID().toString();
   private final String localTxId = UUID.randomUUID().toString();
   private final String parentTxId = UUID.randomUUID().toString();
+  private final String serviceName = uniquify("serviceName");
+  private final String instanceId = uniquify("instanceId");
 
   private final String compensationMethod = getClass().getCanonicalName();
   private final List<CompensationContext> compensationContexts = new ArrayList<>();
@@ -107,11 +110,11 @@ public class TxConsistentServiceTest {
   }
 
   private TxEvent newEvent(EventType eventType) {
-    return new TxEvent(new Date(), globalTxId, localTxId, parentTxId, eventType.name(), compensationMethod, "yeah".getBytes());
+    return new TxEvent(serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, eventType.name(), compensationMethod, "yeah".getBytes());
   }
 
   private TxEvent eventOf(EventType eventType, byte[] payloads, String localTxId) {
-    return new TxEvent(new Date(),
+    return new TxEvent(serviceName, instanceId, new Date(),
         globalTxId,
         localTxId,
         UUID.randomUUID().toString(),

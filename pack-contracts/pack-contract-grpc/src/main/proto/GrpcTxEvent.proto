@@ -33,6 +33,8 @@ message GrpcTxEvent {
   string type = 5;
   string compensationMethod = 6;
   bytes payloads = 7;
+  string serviceName = 8;
+  string instanceId = 9;
 }
 
 message GrpcEmpty {}

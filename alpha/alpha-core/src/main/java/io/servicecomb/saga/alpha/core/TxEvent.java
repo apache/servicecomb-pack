@@ -20,6 +20,8 @@ package io.servicecomb.saga.alpha.core;
 import java.util.Date;
 
 public class TxEvent {
+  private String serviceName;
+  private String instanceId;
   private Date creationTime;
   private String globalTxId;
   private String localTxId;
@@ -31,13 +33,18 @@ public class TxEvent {
   private TxEvent() {
   }
 
-  public TxEvent(Date creationTime,
+  public TxEvent(
+      String serviceName,
+      String instanceId,
+      Date creationTime,
       String globalTxId,
       String localTxId,
       String parentTxId,
       String type,
       String compensationMethod,
       byte[] payloads) {
+    this.serviceName = serviceName;
+    this.instanceId = instanceId;
     this.creationTime = creationTime;
     this.globalTxId = globalTxId;
     this.localTxId = localTxId;
@@ -45,6 +52,14 @@ public class TxEvent {
     this.type = type;
     this.compensationMethod = compensationMethod;
     this.payloads = payloads;
+  }
+
+  public String serviceName() {
+    return serviceName;
+  }
+
+  public String instanceId() {
+    return instanceId;
   }
 
   public Date creationTime() {
