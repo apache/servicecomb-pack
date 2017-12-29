@@ -21,7 +21,11 @@
 package io.servicecomb.saga.alpha.server;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.grpc.BindableService;
 import io.grpc.Server;
@@ -29,6 +33,7 @@ import io.grpc.ServerBuilder;
 
 class GrpcStartable implements ServerStartable {
 
+  private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final Server server;
 
   GrpcStartable(int port, BindableService... services) {
@@ -47,6 +52,7 @@ class GrpcStartable implements ServerStartable {
     } catch (IOException e) {
       throw new IllegalStateException("Unable to start grpc server.", e);
     } catch (InterruptedException e) {
+      LOG.error("grpc server was interrupted.", e);
       Thread.currentThread().interrupt();
     }
   }
