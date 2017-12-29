@@ -18,5 +18,5 @@
 package io.servicecomb.saga.alpha.core;
 
 public interface OmegaCallback {
-  void compensate(String globalTxId, byte[] message);
+  void compensate(String globalTxId, String localTxId, String compensationMethod, byte[] message);
 }

@@ -23,7 +23,6 @@ import static io.servicecomb.saga.alpha.core.EventType.TxAbortedEvent;
 import static io.servicecomb.saga.alpha.core.EventType.TxCompensatedEvent;
 import static io.servicecomb.saga.alpha.core.EventType.TxEndedEvent;
 import static io.servicecomb.saga.alpha.core.EventType.TxStartedEvent;
-import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.contains;
@@ -32,10 +31,10 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -61,8 +60,12 @@ public class TxConsistentServiceTest {
   private final String localTxId = UUID.randomUUID().toString();
   private final String parentTxId = UUID.randomUUID().toString();
 
-  private final Map<String, List<byte[]>> callbackArgs = new HashMap<>();
-  private final OmegaCallback omegaCallback = (key, value) -> callbackArgs.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
+  private final String compensationMethod = getClass().getCanonicalName();
+  private final List<CompensationContext> compensationContexts = new ArrayList<>();
+
+  private final OmegaCallback omegaCallback = (globalTxId, localTxId, compensationMethod, payloads) ->
+      compensationContexts.add(new CompensationContext(globalTxId, localTxId, compensationMethod, payloads));
+
   private final TxConsistentService consistentService = new TxConsistentService(eventRepository, omegaCallback);
 
   @Test
@@ -79,40 +82,85 @@ public class TxConsistentServiceTest {
     }
 
     assertThat(this.events, contains(events));
-    assertThat(callbackArgs.isEmpty(), is(true));
+    assertThat(compensationContexts.isEmpty(), is(true));
   }
 
   @Test
   public void compensateGlobalTx_OnAnyLocalTxFailure() throws Exception {
-    events.add(eventOf(TxStartedEvent, "service a".getBytes()));
-    events.add(eventOf(TxEndedEvent, new byte[0]));
-    events.add(eventOf(TxStartedEvent, "service b".getBytes()));
-    events.add(eventOf(TxEndedEvent, new byte[0]));
+    String localTxId1 = UUID.randomUUID().toString();
+    events.add(eventOf(TxStartedEvent, "service a".getBytes(), localTxId1));
+    events.add(eventOf(TxEndedEvent, new byte[0], localTxId1));
+
+    String localTxId2 = UUID.randomUUID().toString();
+    events.add(eventOf(TxStartedEvent, "service b".getBytes(), localTxId2));
+    events.add(eventOf(TxEndedEvent, new byte[0], localTxId2));
 
     TxEvent abortEvent = newEvent(TxAbortedEvent);
 
     consistentService.handle(abortEvent);
 
-    await().atMost(1, SECONDS).until(() -> callbackArgs.getOrDefault(globalTxId, emptyList()).size() > 1);
-    assertThat(stringOf(callbackArgs.get(globalTxId)), containsInAnyOrder("service a", "service b"));
-  }
-
-  private List<String> stringOf(List<byte[]> bytes) {
-    return bytes.stream()
-        .map(String::new)
-        .collect(Collectors.toList());
+    await().atMost(1, SECONDS).until(() -> compensationContexts.size() > 1);
+    assertThat(compensationContexts, containsInAnyOrder(
+        new CompensationContext(globalTxId, localTxId1, compensationMethod, "service a".getBytes()),
+        new CompensationContext(globalTxId, localTxId2, compensationMethod, "service b".getBytes())
+    ));
   }
 
   private TxEvent newEvent(EventType eventType) {
-    return new TxEvent(new Date(), globalTxId, localTxId, parentTxId, eventType.name(), "yeah".getBytes());
+    return new TxEvent(new Date(), globalTxId, localTxId, parentTxId, eventType.name(), compensationMethod, "yeah".getBytes());
   }
 
-  private TxEvent eventOf(EventType eventType, byte[] payloads) {
+  private TxEvent eventOf(EventType eventType, byte[] payloads, String localTxId) {
     return new TxEvent(new Date(),
         globalTxId,
-        UUID.randomUUID().toString(),
+        localTxId,
         UUID.randomUUID().toString(),
         eventType.name(),
+        compensationMethod,
         payloads);
+  }
+
+  private static class CompensationContext {
+    private final String globalTxId;
+    private final String localTxId;
+    private final String compensationMethod;
+    private final byte[] message;
+
+    private CompensationContext(String globalTxId, String localTxId, String compensationMethod, byte[] message) {
+      this.globalTxId = globalTxId;
+      this.localTxId = localTxId;
+      this.compensationMethod = compensationMethod;
+      this.message = message;
+    }
+
+    @Override
+    public String toString() {
+      return "CompensationContext{" +
+          "globalTxId='" + globalTxId + '\'' +
+          ", localTxId='" + localTxId + '\'' +
+          ", compensationMethod='" + compensationMethod + '\'' +
+          ", message=" + Arrays.toString(message) +
+          '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      CompensationContext that = (CompensationContext) o;
+      return Objects.equals(globalTxId, that.globalTxId) &&
+          Objects.equals(localTxId, that.localTxId) &&
+          Objects.equals(compensationMethod, that.compensationMethod) &&
+          Arrays.equals(message, that.message);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(globalTxId, localTxId, compensationMethod, message);
+    }
   }
 }
