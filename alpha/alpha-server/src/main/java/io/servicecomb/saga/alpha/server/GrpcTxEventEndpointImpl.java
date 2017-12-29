@@ -45,6 +45,7 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
         message.getLocalTxId(),
         message.getParentTxId().isEmpty()? null : message.getParentTxId(),
         message.getType(),
+        message.getCompensationMethod(),
         message.getPayloads().toByteArray()
     ));
     GrpcEmpty reply = GrpcEmpty.newBuilder().build();
