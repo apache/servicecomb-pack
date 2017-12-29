@@ -43,7 +43,7 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
         new Date(message.getTimestamp()),
         message.getGlobalTxId(),
         message.getLocalTxId(),
-        message.getParentTxId(),
+        message.getParentTxId().isEmpty()? null : message.getParentTxId(),
         message.getType(),
         message.getPayloads().toByteArray()
     ));

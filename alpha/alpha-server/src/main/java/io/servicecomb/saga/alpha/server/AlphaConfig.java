@@ -18,6 +18,9 @@
 package io.servicecomb.saga.alpha.server;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+
+import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -44,7 +47,7 @@ class AlphaConfig {
     TxEventRepository eventRepository = new SpringTxEventRepository(eventRepo);
 
     ServerStartable startable = buildGrpc(port, omegaCallback, eventRepository);
-    CompletableFuture.runAsync(startable::start);
+    new Thread(startable::start).start();
 
     return eventRepository;
   }
