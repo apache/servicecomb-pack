@@ -40,6 +40,8 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
   @Override
   public void reportEvent(GrpcTxEvent message, StreamObserver<GrpcEmpty> responseObserver) {
     txConsistentService.handle(new TxEvent(
+        message.getServiceName(),
+        message.getInstanceId(),
         new Date(message.getTimestamp()),
         message.getGlobalTxId(),
         message.getLocalTxId(),
