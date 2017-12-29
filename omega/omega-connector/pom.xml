@@ -29,7 +29,6 @@
   <artifactId>omega-connector</artifactId>
   <packaging>pom</packaging>
   <modules>
-    <module>omega-connector-thrift</module>
     <module>omega-connector-grpc</module>
   </modules>
 

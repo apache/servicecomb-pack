@@ -33,9 +33,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,14 +53,12 @@ import io.servicecomb.saga.alpha.server.AlphaIntegrationTest.OmegaCallbackConfig
 import io.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
 import io.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc;
 import io.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceBlockingStub;
-import io.servicecomb.saga.pack.contracts.thrift.SwiftTxEvent;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {AlphaApplication.class, OmegaCallbackConfig.class}, properties = "alpha.server.port=8090")
 public class AlphaIntegrationTest {
   private static final int port = 8090;
 
-  //  private static final ThriftClientManager clientManager = new ThriftClientManager();
   private static ManagedChannel clientChannel = ManagedChannelBuilder
       .forAddress("localhost", port).usePlaintext(true).build();
 
@@ -81,29 +77,13 @@ public class AlphaIntegrationTest {
   @Autowired
   private List<CompensationContext> compensationContexts;
 
-//  private final FramedClientConnector connector = new FramedClientConnector(fromParts("localhost", port));
-//  private SwiftTxEventEndpoint endpoint;
-
-
   @AfterClass
   public static void tearDown() throws Exception {
     clientChannel.shutdown();
-//    clientManager.close();
-  }
-
-  @Before
-  public void before() throws Exception {
-//    endpoint = clientManager.createClient(connector, SwiftTxEventEndpoint.class).get();
-  }
-
-  @After
-  public void after() throws Exception {
-//    endpoint.close();
   }
 
   @Test
   public void persistsEvent() throws Exception {
-//    endpoint.handle(someEvent(TxStartedEvent));
     stub.reportEvent(someGrpcEvent(TxStartedEvent));
 
     TxEventEnvelope envelope = eventRepo.findByEventGlobalTxId(globalTxId);
@@ -127,7 +107,6 @@ public class AlphaIntegrationTest {
     eventRepo.save(eventEnvelopeOf(TxStartedEvent, localTxId1, UUID.randomUUID().toString(), "service b".getBytes()));
     eventRepo.save(eventEnvelopeOf(TxEndedEvent, new byte[0]));
 
-//    endpoint.handle(someEvent(TxAbortedEvent));
     stub.reportEvent(someGrpcEvent(TxAbortedEvent));
 
     await().atMost(1, SECONDS).until(() -> compensationContexts.size() > 1);
@@ -135,17 +114,6 @@ public class AlphaIntegrationTest {
         new CompensationContext(globalTxId, this.localTxId, compensationMethod, "service a".getBytes()),
         new CompensationContext(globalTxId, localTxId1, compensationMethod, "service b".getBytes())
     ));
-  }
-
-  private SwiftTxEvent someEvent(EventType type) {
-    return new SwiftTxEvent(
-        System.currentTimeMillis(),
-        this.globalTxId,
-        this.localTxId,
-        this.parentTxId,
-        type.name(),
-        compensationMethod,
-        payload.getBytes());
   }
 
   private GrpcTxEvent someGrpcEvent(EventType type) {
