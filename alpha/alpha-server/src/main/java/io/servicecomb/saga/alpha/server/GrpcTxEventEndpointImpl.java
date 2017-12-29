@@ -48,6 +48,7 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
         message.getCompensationMethod(),
         message.getPayloads().toByteArray()
     ));
+
     GrpcEmpty reply = GrpcEmpty.newBuilder().build();
     responseObserver.onNext(reply);
     responseObserver.onCompleted();
