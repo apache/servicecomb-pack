@@ -22,21 +22,23 @@ package io.servicecomb.saga.omega.connector.grpc;
 
 import com.google.protobuf.ByteString;
 
+import io.grpc.ManagedChannel;
 import io.servicecomb.saga.omega.transaction.MessageSender;
 import io.servicecomb.saga.omega.transaction.MessageSerializer;
 import io.servicecomb.saga.omega.transaction.TxEvent;
 import io.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
 import io.servicecomb.saga.pack.contract.grpc.GrpcTxEvent.Builder;
-import io.servicecomb.saga.pack.contract.grpc.GrpcTxEventEndpoint;
+import io.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc;
+import io.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceBlockingStub;
 
 public class GrpcClientMessageSender implements MessageSender {
 
-  private final GrpcTxEventEndpoint eventService;
+  private final TxEventServiceBlockingStub eventService;
 
   private final MessageSerializer serializer;
 
-  public GrpcClientMessageSender(GrpcTxEventEndpoint eventService, MessageSerializer serializer) {
-    this.eventService = eventService;
+  public GrpcClientMessageSender(ManagedChannel eventService, MessageSerializer serializer) {
+    this.eventService = TxEventServiceGrpc.newBlockingStub(eventService);
     this.serializer = serializer;
   }
 
@@ -47,12 +49,14 @@ public class GrpcClientMessageSender implements MessageSender {
 
   private GrpcTxEvent convertEvent(TxEvent event) {
     ByteString payloads = ByteString.copyFrom(serializer.serialize(event.payloads()));
+
     Builder builder = GrpcTxEvent.newBuilder()
         .setTimestamp(event.timestamp())
         .setGlobalTxId(event.globalTxId())
         .setLocalTxId(event.localTxId())
         .setType(event.type())
         .setPayloads(payloads);
+
     if (event.parentTxId() != null) {
       builder.setParentTxId(event.parentTxId());
     }

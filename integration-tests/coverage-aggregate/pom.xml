@@ -69,6 +69,10 @@
     </dependency>
     <dependency>
       <groupId>io.servicecomb.saga</groupId>
+      <artifactId>omega-connector-grpc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.servicecomb.saga</groupId>
       <artifactId>alpha-server</artifactId>
     </dependency>
     <dependency>
