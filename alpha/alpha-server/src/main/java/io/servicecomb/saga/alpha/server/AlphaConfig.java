@@ -17,11 +17,6 @@
 
 package io.servicecomb.saga.alpha.server;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,15 +45,6 @@ class AlphaConfig {
     new Thread(startable::start).start();
 
     return eventRepository;
-  }
-
-  private ServerStartable buildThrift(int port, OmegaCallback omegaCallback, TxEventRepository eventRepository) {
-    return new ThriftStartable(
-        port,
-        new SwiftTxEventEndpointImpl(
-            new TxConsistentService(
-                eventRepository,
-                omegaCallback)));
   }
 
   private ServerStartable buildGrpc(int port, OmegaCallback omegaCallback, TxEventRepository eventRepository) {
