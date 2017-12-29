@@ -42,8 +42,13 @@ class TxEventEnvelope {
     this.event = event;
   }
 
-  public TxEventEnvelope(String globalTxId, String localTxId, String parentTxId, String type, byte[] payloads) {
-    this.event = new TxEvent(new Date(), globalTxId, localTxId, parentTxId, type, payloads);
+  public TxEventEnvelope(String globalTxId,
+      String localTxId,
+      String parentTxId,
+      String type,
+      String compensationMethod,
+      byte[] payloads) {
+    this.event = new TxEvent(new Date(), globalTxId, localTxId, parentTxId, type, compensationMethod, payloads);
   }
 
   public long creationTime() {
@@ -64,6 +69,10 @@ class TxEventEnvelope {
 
   String type() {
     return event.type();
+  }
+
+  String compensationMethod() {
+    return event.compensationMethod();
   }
 
   byte[] payloads() {

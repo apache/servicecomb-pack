@@ -40,6 +40,7 @@ class SwiftTxEventEndpointImpl implements SwiftTxEventEndpoint {
         message.localTxId(),
         message.parentTxId(),
         message.type(),
+        message.compensationMethod(),
         message.payloads()
     ));
   }

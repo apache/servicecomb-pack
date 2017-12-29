@@ -49,6 +49,6 @@ public class TxConsistentService {
   // TODO: 2017/12/27 we must define a way to find which service to compensate, to avoid sending to all
   private void compensate(TxEvent event) {
     List<TxEvent> events = eventRepository.findStartedTransactions(event.globalTxId(), TxStartedEvent.name());
-    events.forEach(evt -> omegaCallback.compensate(evt.globalTxId(), evt.payloads()));
+    events.forEach(evt -> omegaCallback.compensate(evt.globalTxId(), evt.localTxId(), event.compensationMethod(), evt.payloads()));
   }
 }

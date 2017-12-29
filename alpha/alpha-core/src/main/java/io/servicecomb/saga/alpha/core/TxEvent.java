@@ -25,17 +25,25 @@ public class TxEvent {
   private String localTxId;
   private String parentTxId;
   private String type;
+  private String compensationMethod;
   private byte[] payloads;
 
   private TxEvent() {
   }
 
-  public TxEvent(Date creationTime, String globalTxId, String localTxId, String parentTxId, String type, byte[] payloads) {
+  public TxEvent(Date creationTime,
+      String globalTxId,
+      String localTxId,
+      String parentTxId,
+      String type,
+      String compensationMethod,
+      byte[] payloads) {
     this.creationTime = creationTime;
     this.globalTxId = globalTxId;
     this.localTxId = localTxId;
     this.parentTxId = parentTxId;
     this.type = type;
+    this.compensationMethod = compensationMethod;
     this.payloads = payloads;
   }
 
@@ -57,6 +65,10 @@ public class TxEvent {
 
   public String type() {
     return type;
+  }
+
+  public String compensationMethod() {
+    return compensationMethod;
   }
 
   public byte[] payloads() {

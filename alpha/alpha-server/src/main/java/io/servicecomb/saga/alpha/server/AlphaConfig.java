@@ -33,8 +33,7 @@ class AlphaConfig {
   @Bean
   OmegaCallback omegaCallback() {
     // TODO: 2017/12/27 to be replaced with actual callback on completion of SCB-138
-    return (globalTxId, message) -> {
-    };
+    return (globalTxId, localTxId, compensationMethod, message) -> {};
   }
   
   @Bean
