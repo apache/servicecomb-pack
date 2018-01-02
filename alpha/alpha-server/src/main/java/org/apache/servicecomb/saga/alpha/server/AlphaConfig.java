@@ -54,25 +54,27 @@ class AlphaConfig {
   }
   
   @Bean
-  TxEventRepository springTxEventRepository(@Value("${alpha.server.port:8080}") int port,
-      TxEventEnvelopeRepository eventRepo,
-      OmegaCallback omegaCallback) {
-
-    TxEventRepository eventRepository = new SpringTxEventRepository(eventRepo);
-
-    ServerStartable startable = buildGrpc(port, omegaCallback, eventRepository);
-    new Thread(startable::start).start();
-
-    return eventRepository;
+  TxEventRepository springTxEventRepository(TxEventEnvelopeRepository eventRepo) {
+    return new SpringTxEventRepository(eventRepo);
   }
 
-  private ServerStartable buildGrpc(int port, OmegaCallback omegaCallback, TxEventRepository eventRepository) {
-    return new GrpcStartable(
-        port,
-        new GrpcTxEventEndpointImpl(
-            new TxConsistentService(
-                eventRepository,
-                omegaCallback)));
+  @Bean
+  TxConsistentService txConsistentService(@Value("${alpha.server.port:8080}") int port,
+      TxEventRepository eventRepository,
+      OmegaCallback omegaCallback,
+      Map<String, Map<String, OmegaCallback>> omegaCallbacks) {
+
+    TxConsistentService consistentService = new TxConsistentService(eventRepository, omegaCallback);
+
+    ServerStartable startable = buildGrpc(port, consistentService, omegaCallbacks);
+    new Thread(startable::start).start();
+
+    return consistentService;
+  }
+
+  private ServerStartable buildGrpc(int port, TxConsistentService txConsistentService,
+      Map<String, Map<String, OmegaCallback>> omegaCallbacks) {
+    return new GrpcStartable(port, new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks));
   }
 
   @PostConstruct

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -48,11 +49,24 @@ import com.google.protobuf.ByteString;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+<<<<<<< HEAD:alpha/alpha-server/src/test/java/org/apache/servicecomb/saga/alpha/server/AlphaIntegrationTest.java
 
 import org.apache.servicecomb.saga.alpha.server.AlphaIntegrationTest.OmegaCallbackConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc;
 import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceBlockingStub;
+=======
+import io.grpc.stub.StreamObserver;
+import io.servicecomb.saga.alpha.core.EventType;
+import io.servicecomb.saga.alpha.core.OmegaCallback;
+import io.servicecomb.saga.alpha.core.TxConsistentService;
+import io.servicecomb.saga.alpha.core.TxEvent;
+import io.servicecomb.saga.alpha.server.AlphaIntegrationTest.OmegaCallbackConfig;
+import io.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
+import io.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
+import io.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc;
+import io.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceStub;
+>>>>>>> 6985eb8... SCB-138 set up bidirectional streaming for alpha:alpha/alpha-server/src/test/java/io/servicecomb/saga/alpha/server/AlphaIntegrationTest.java
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {AlphaApplication.class, OmegaCallbackConfig.class}, properties = "alpha.server.port=8090")
@@ -62,7 +76,7 @@ public class AlphaIntegrationTest {
   private static ManagedChannel clientChannel = ManagedChannelBuilder
       .forAddress("localhost", port).usePlaintext(true).build();
 
-  private TxEventServiceBlockingStub stub = TxEventServiceGrpc.newBlockingStub(clientChannel);
+  private TxEventServiceStub stub = TxEventServiceGrpc.newStub(clientChannel);
 
   private static final String payload = "hello world";
 
@@ -79,6 +93,27 @@ public class AlphaIntegrationTest {
   @Autowired
   private List<CompensationContext> compensationContexts;
 
+  @Autowired
+  private Map<String, Map<String, OmegaCallback>> omegaCallbacks;
+
+  @Autowired
+  private TxConsistentService txConsistentService;
+
+  // use an empty response observer as we don't need the response
+  private final StreamObserver<GrpcCompensateCommand> emptyResponseObserver = new StreamObserver<GrpcCompensateCommand>() {
+    @Override
+    public void onNext(GrpcCompensateCommand value) {
+    }
+
+    @Override
+    public void onError(Throwable t) {
+    }
+
+    @Override
+    public void onCompleted() {
+    }
+  };
+
   @AfterClass
   public static void tearDown() throws Exception {
     clientChannel.shutdown();
@@ -86,7 +121,14 @@ public class AlphaIntegrationTest {
 
   @Test
   public void persistsEvent() throws Exception {
+<<<<<<< HEAD:alpha/alpha-server/src/test/java/org/apache/servicecomb/saga/alpha/server/AlphaIntegrationTest.java
     stub.reportEvent(someGrpcEvent(EventType.TxStartedEvent));
+=======
+    StreamObserver<GrpcTxEvent> requestObserver = stub.callbackCommand(emptyResponseObserver);
+    requestObserver.onNext(someGrpcEvent(TxStartedEvent));
+    // use the asynchronous stub need to wait for some time
+    await().atMost(1, SECONDS).until(() -> eventRepo.findByEventGlobalTxId(globalTxId) != null);
+>>>>>>> 6985eb8... SCB-138 set up bidirectional streaming for alpha:alpha/alpha-server/src/test/java/io/servicecomb/saga/alpha/server/AlphaIntegrationTest.java
 
     TxEventEnvelope envelope = eventRepo.findByEventGlobalTxId(globalTxId);
 
@@ -111,7 +153,12 @@ public class AlphaIntegrationTest {
     eventRepo.save(eventEnvelopeOf(EventType.TxStartedEvent, localTxId1, UUID.randomUUID().toString(), "service b".getBytes(), "method b"));
     eventRepo.save(eventEnvelopeOf(EventType.TxEndedEvent, new byte[0], "method b"));
 
+<<<<<<< HEAD:alpha/alpha-server/src/test/java/org/apache/servicecomb/saga/alpha/server/AlphaIntegrationTest.java
     stub.reportEvent(someGrpcEvent(EventType.TxAbortedEvent));
+=======
+    StreamObserver<GrpcTxEvent> requestObserver = stub.callbackCommand(emptyResponseObserver);
+    requestObserver.onNext(someGrpcEvent(TxAbortedEvent));
+>>>>>>> 6985eb8... SCB-138 set up bidirectional streaming for alpha:alpha/alpha-server/src/test/java/io/servicecomb/saga/alpha/server/AlphaIntegrationTest.java
 
     await().atMost(1, SECONDS).until(() -> compensationContexts.size() > 1);
     assertThat(compensationContexts, containsInAnyOrder(

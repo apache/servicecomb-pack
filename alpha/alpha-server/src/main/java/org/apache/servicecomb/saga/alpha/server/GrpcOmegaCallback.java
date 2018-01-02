@@ -20,30 +20,30 @@
 
 package org.apache.servicecomb.saga.alpha.server;
 
-import java.util.Map;
-
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
-import org.apache.servicecomb.saga.alpha.core.TxConsistentService;
+import org.apache.servicecomb.saga.alpha.core.TxEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
-import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceImplBase;
+
+import com.google.protobuf.ByteString;
 
 import io.grpc.stub.StreamObserver;
 
-class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
+public class GrpcOmegaCallback implements OmegaCallback {
 
-  private final TxConsistentService txConsistentService;
+  private final StreamObserver<GrpcCompensateCommand> observer;
 
-  private final Map<String, Map<String, OmegaCallback>> omegaCallbacks;
-
-  GrpcTxEventEndpointImpl(TxConsistentService txConsistentService,
-      Map<String, Map<String, OmegaCallback>> omegaCallbacks) {
-    this.txConsistentService = txConsistentService;
-    this.omegaCallbacks = omegaCallbacks;
+  public GrpcOmegaCallback(StreamObserver<GrpcCompensateCommand> observer) {
+    this.observer = observer;
   }
 
   @Override
-  public StreamObserver<GrpcTxEvent> callbackCommand(StreamObserver<GrpcCompensateCommand> responseObserver) {
-    return new GrpcOmegaStreamObserver(omegaCallbacks, txConsistentService, responseObserver);
+  public void compensate(TxEvent event) {
+    GrpcCompensateCommand command = GrpcCompensateCommand.newBuilder()
+        .setGlobalTxId(event.globalTxId())
+        .setLocalTxId(event.localTxId())
+        .setCompensateMethod(event.compensationMethod())
+        .setPayloads(ByteString.copyFrom(event.payloads()))
+        .build();
+    observer.onNext(command);
   }
 }
