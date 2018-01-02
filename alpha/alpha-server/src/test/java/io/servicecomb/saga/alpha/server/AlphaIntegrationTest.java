@@ -163,8 +163,8 @@ public class AlphaIntegrationTest {
 
     @Bean
     OmegaCallback omegaCallback() {
-      return (globalTxId, localTxId, compensationMethod, payloads) ->
-          compensationContexts.add(new CompensationContext(globalTxId, localTxId, compensationMethod, payloads));
+      return event ->
+          compensationContexts.add(new CompensationContext(event.globalTxId(), event.localTxId(), event.compensationMethod(), event.payloads()));
     }
   }
 
