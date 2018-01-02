@@ -21,7 +21,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>transports</artifactId>
-    <groupId>io.servicecomb.saga.transports</groupId>
+    <groupId>org.apache.servicecomb.saga.transports</groupId>
     <version>0.0.3-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -42,7 +42,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>saga-core</artifactId>
     </dependency>
     <dependency>

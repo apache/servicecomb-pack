@@ -18,7 +18,7 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <groupId>io.servicecomb.saga.tests</groupId>
+    <groupId>org.apache.servicecomb.saga.tests</groupId>
     <artifactId>integration-tests</artifactId>
     <version>0.0.3-SNAPSHOT</version>
   </parent>
@@ -28,55 +28,55 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>saga-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>saga-format</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>saga-spring</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.servicecomb.saga.transports</groupId>
+      <groupId>org.apache.servicecomb.saga.transports</groupId>
       <artifactId>transport-httpclient</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.servicecomb.saga.discovery</groupId>
+      <groupId>org.apache.servicecomb.saga.discovery</groupId>
       <artifactId>saga-discovery-servicecenter</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>omega-context</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>omega-transaction</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>omega-spring-tx</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>omega-transport-resttemplate</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>omega-format</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>omega-connector-grpc</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>alpha-server</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.servicecomb.saga.tests</groupId>
+      <groupId>org.apache.servicecomb.saga.tests</groupId>
       <artifactId>pack-tests</artifactId>
       <version>0.0.3-SNAPSHOT</version>
     </dependency>

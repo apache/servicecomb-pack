@@ -21,7 +21,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>alpha</artifactId>
-    <groupId>io.servicecomb.saga</groupId>
+    <groupId>org.apache.servicecomb.saga</groupId>
     <version>0.0.3-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -50,11 +50,11 @@
       <artifactId>grpc-netty</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>pack-contract-grpc</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>alpha-core</artifactId>
     </dependency>
     <dependency>
