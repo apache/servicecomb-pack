@@ -39,7 +39,7 @@ import io.grpc.stub.StreamObserver;
 
 class GrpcTxEventStreamObserver implements StreamObserver<GrpcTxEvent> {
 
-  private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final Map<String, Map<String, OmegaCallback>> omegaCallbacks;
 
@@ -58,9 +58,8 @@ class GrpcTxEventStreamObserver implements StreamObserver<GrpcTxEvent> {
   public void onNext(GrpcTxEvent message) {
     // register a callback on started event
     if (message.getType().equals(TxStartedEvent.name())) {
-      Map<String, OmegaCallback> callbacks = new ConcurrentHashMap<>();
-      callbacks.put(message.getInstanceId(), new GrpcOmegaCallback(responseObserver));
-      omegaCallbacks.put(message.getServiceName(), callbacks);
+      omegaCallbacks.computeIfAbsent(message.getServiceName(), (key) -> new ConcurrentHashMap<>())
+          .put(message.getInstanceId(), new GrpcOmegaCallback(responseObserver));
     }
 
     // store received event

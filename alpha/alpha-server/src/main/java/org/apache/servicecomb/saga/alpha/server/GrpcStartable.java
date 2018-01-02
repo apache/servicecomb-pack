@@ -33,7 +33,7 @@ import io.grpc.ServerBuilder;
 
 class GrpcStartable implements ServerStartable {
 
-  private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final Server server;
 
   GrpcStartable(int port, BindableService... services) {

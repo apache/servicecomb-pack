@@ -31,7 +31,7 @@ import io.grpc.stub.StreamObserver;
 
 public class GrpcCompensateStreamObserver implements StreamObserver<GrpcCompensateCommand> {
 
-  private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final MessageHandler messageHandler;
 

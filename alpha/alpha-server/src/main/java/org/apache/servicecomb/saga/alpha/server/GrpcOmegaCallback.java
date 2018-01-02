@@ -24,11 +24,18 @@ import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
 
+import java.lang.invoke.MethodHandles;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.protobuf.ByteString;
 
 import io.grpc.stub.StreamObserver;
 
 public class GrpcOmegaCallback implements OmegaCallback {
+
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final StreamObserver<GrpcCompensateCommand> observer;
 
@@ -41,7 +48,7 @@ public class GrpcOmegaCallback implements OmegaCallback {
     GrpcCompensateCommand command = GrpcCompensateCommand.newBuilder()
         .setGlobalTxId(event.globalTxId())
         .setLocalTxId(event.localTxId())
-        .setParentTxId(event.parentTxId().isEmpty() ? "" : event.parentTxId())
+        .setParentTxId(event.parentTxId() == null ? "" : event.parentTxId())
         .setCompensateMethod(event.compensationMethod())
         .setPayloads(ByteString.copyFrom(event.payloads()))
         .build();

@@ -33,7 +33,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 class TransactionHandlerInterceptor implements HandlerInterceptor {
 
-  private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final OmegaContext omegaContext;
 
