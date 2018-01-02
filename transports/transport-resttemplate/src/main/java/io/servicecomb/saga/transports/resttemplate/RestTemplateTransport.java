@@ -68,7 +68,7 @@ public class RestTemplateTransport implements RestTransport {
       }
     });
 
-    methodMapping.put(GET.name(), get());
+    methodMapping.put(GET.name(), exchange(GET));
     methodMapping.put(PUT.name(), exchange(PUT));
     methodMapping.put(POST.name(), exchange(POST));
     methodMapping.put(DELETE.name(), exchange(DELETE));
@@ -104,10 +104,6 @@ public class RestTemplateTransport implements RestTransport {
 
   private BiFunction<String, Map<String, Map<String, String>>, ResponseEntity<String>> exchange(HttpMethod method) {
     return (url, params) -> restTemplate.exchange(url, method, request(params), String.class);
-  }
-
-  private BiFunction<String, Map<String, Map<String, String>>, ResponseEntity<String>> get() {
-    return (url, params) -> restTemplate.getForEntity(url, String.class);
   }
 
   private HttpEntity<Object> request(Map<String, Map<String, String>> params) {
