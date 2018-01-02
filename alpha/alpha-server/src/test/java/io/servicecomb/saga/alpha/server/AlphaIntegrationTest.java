@@ -104,20 +104,20 @@ public class AlphaIntegrationTest {
   @Test
   public void doNotCompensateDuplicateTxOnFailure() throws Exception {
     // duplicate events with same content but different timestamp
-    eventRepo.save(eventEnvelopeOf(TxStartedEvent, localTxId, parentTxId, "service a".getBytes()));
-    eventRepo.save(eventEnvelopeOf(TxStartedEvent, localTxId, parentTxId, "service a".getBytes()));
-    eventRepo.save(eventEnvelopeOf(TxEndedEvent, new byte[0]));
+    eventRepo.save(eventEnvelopeOf(TxStartedEvent, localTxId, parentTxId, "service a".getBytes(), "method a"));
+    eventRepo.save(eventEnvelopeOf(TxStartedEvent, localTxId, parentTxId, "service a".getBytes(), "method a"));
+    eventRepo.save(eventEnvelopeOf(TxEndedEvent, new byte[0], "method a"));
 
     String localTxId1 = UUID.randomUUID().toString();
-    eventRepo.save(eventEnvelopeOf(TxStartedEvent, localTxId1, UUID.randomUUID().toString(), "service b".getBytes()));
-    eventRepo.save(eventEnvelopeOf(TxEndedEvent, new byte[0]));
+    eventRepo.save(eventEnvelopeOf(TxStartedEvent, localTxId1, UUID.randomUUID().toString(), "service b".getBytes(), "method b"));
+    eventRepo.save(eventEnvelopeOf(TxEndedEvent, new byte[0], "method b"));
 
     stub.reportEvent(someGrpcEvent(TxAbortedEvent));
 
     await().atMost(1, SECONDS).until(() -> compensationContexts.size() > 1);
     assertThat(compensationContexts, containsInAnyOrder(
-        new CompensationContext(globalTxId, this.localTxId, compensationMethod, "service a".getBytes()),
-        new CompensationContext(globalTxId, localTxId1, compensationMethod, "service b".getBytes())
+        new CompensationContext(globalTxId, this.localTxId, "method a", "service a".getBytes()),
+        new CompensationContext(globalTxId, localTxId1, "method b", "service b".getBytes())
     ));
   }
 
@@ -135,11 +135,11 @@ public class AlphaIntegrationTest {
         .build();
   }
 
-  private TxEventEnvelope eventEnvelopeOf(EventType eventType, byte[] payloads) {
-    return eventEnvelopeOf(eventType, UUID.randomUUID().toString(), UUID.randomUUID().toString(), payloads);
+  private TxEventEnvelope eventEnvelopeOf(EventType eventType, byte[] payloads, String compensationMethod) {
+    return eventEnvelopeOf(eventType, UUID.randomUUID().toString(), UUID.randomUUID().toString(), payloads, compensationMethod);
   }
 
-  private TxEventEnvelope eventEnvelopeOf(EventType eventType, String localTxId, String parentTxId, byte[] payloads) {
+  private TxEventEnvelope eventEnvelopeOf(EventType eventType, String localTxId, String parentTxId, byte[] payloads, String compensationMethod) {
     return new TxEventEnvelope(new TxEvent(
         serviceName,
         instanceId,
