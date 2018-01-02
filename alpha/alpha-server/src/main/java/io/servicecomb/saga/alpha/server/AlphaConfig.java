@@ -17,22 +17,34 @@
 
 package io.servicecomb.saga.alpha.server;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import io.servicecomb.saga.alpha.core.CompositeOmegaCallback;
 import io.servicecomb.saga.alpha.core.OmegaCallback;
+import io.servicecomb.saga.alpha.core.RetryOmegaCallback;
 import io.servicecomb.saga.alpha.core.TxConsistentService;
-import io.servicecomb.saga.alpha.core.TxEvent;
 import io.servicecomb.saga.alpha.core.TxEventRepository;
 
 @Configuration
 class AlphaConfig {
 
+  // TODO: 2017/12/27 to be filled with actual callbacks on completion of SCB-138
   @Bean
-  OmegaCallback omegaCallback() {
-    // TODO: 2017/12/27 to be replaced with actual callback on completion of SCB-138
-    return event -> {};
+  Map<String, Map<String, OmegaCallback>> omegaCallbacks() {
+    return new ConcurrentHashMap<>();
+  }
+
+  @Bean
+  OmegaCallback omegaCallback(
+      Map<String, Map<String, OmegaCallback>> callbacks,
+      @Value("${alpha.compensation.retry.delay:3000}") int delay) {
+
+    return new RetryOmegaCallback(new CompositeOmegaCallback(callbacks), delay);
   }
   
   @Bean
@@ -48,7 +60,6 @@ class AlphaConfig {
     return eventRepository;
   }
 
-  // TODO: 2017/12/29 how to match callback with service instance? send some msg on startup?
   private ServerStartable buildGrpc(int port, OmegaCallback omegaCallback, TxEventRepository eventRepository) {
     return new GrpcStartable(
         port,
