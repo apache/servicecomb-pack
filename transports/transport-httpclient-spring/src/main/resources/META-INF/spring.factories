@@ -16,4 +16,4 @@
 ## ---------------------------------------------------------------------------
 
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  io.servicecomb.saga.transports.HttpClientTransportConfig
+  org.apache.servicecomb.saga.transports.HttpClientTransportConfig
