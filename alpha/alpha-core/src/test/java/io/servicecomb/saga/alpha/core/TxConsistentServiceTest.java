@@ -91,12 +91,12 @@ public class TxConsistentServiceTest {
   @Test
   public void compensateGlobalTx_OnAnyLocalTxFailure() throws Exception {
     String localTxId1 = UUID.randomUUID().toString();
-    events.add(eventOf(TxStartedEvent, "service a".getBytes(), localTxId1));
-    events.add(eventOf(TxEndedEvent, new byte[0], localTxId1));
+    events.add(eventOf(TxStartedEvent, "service a".getBytes(), localTxId1, "method a"));
+    events.add(eventOf(TxEndedEvent, new byte[0], localTxId1, "method a"));
 
     String localTxId2 = UUID.randomUUID().toString();
-    events.add(eventOf(TxStartedEvent, "service b".getBytes(), localTxId2));
-    events.add(eventOf(TxEndedEvent, new byte[0], localTxId2));
+    events.add(eventOf(TxStartedEvent, "service b".getBytes(), localTxId2, "method b"));
+    events.add(eventOf(TxEndedEvent, new byte[0], localTxId2, "method b"));
 
     TxEvent abortEvent = newEvent(TxAbortedEvent);
 
@@ -104,8 +104,8 @@ public class TxConsistentServiceTest {
 
     await().atMost(1, SECONDS).until(() -> compensationContexts.size() > 1);
     assertThat(compensationContexts, containsInAnyOrder(
-        new CompensationContext(globalTxId, localTxId1, compensationMethod, "service a".getBytes()),
-        new CompensationContext(globalTxId, localTxId2, compensationMethod, "service b".getBytes())
+        new CompensationContext(globalTxId, localTxId1, "method a", "service a".getBytes()),
+        new CompensationContext(globalTxId, localTxId2, "method b", "service b".getBytes())
     ));
   }
 
@@ -113,7 +113,7 @@ public class TxConsistentServiceTest {
     return new TxEvent(serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, eventType.name(), compensationMethod, "yeah".getBytes());
   }
 
-  private TxEvent eventOf(EventType eventType, byte[] payloads, String localTxId) {
+  private TxEvent eventOf(EventType eventType, byte[] payloads, String localTxId, String compensationMethod) {
     return new TxEvent(serviceName, instanceId, new Date(),
         globalTxId,
         localTxId,
