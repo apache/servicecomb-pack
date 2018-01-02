@@ -19,12 +19,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>saga</artifactId>
-    <groupId>io.servicecomb.saga</groupId>
+    <groupId>org.apache.servicecomb.saga</groupId>
     <version>0.0.3-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>io.servicecomb.saga.tests</groupId>
+  <groupId>org.apache.servicecomb.saga.tests</groupId>
   <artifactId>integration-tests</artifactId>
   <packaging>pom</packaging>
   <modules>

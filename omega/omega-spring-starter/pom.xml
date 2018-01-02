@@ -21,7 +21,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>omega</artifactId>
-    <groupId>io.servicecomb.saga</groupId>
+    <groupId>org.apache.servicecomb.saga</groupId>
     <version>0.0.3-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -30,11 +30,11 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>omega-spring-tx</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>omega-format</artifactId>
     </dependency>
     <dependency>
@@ -46,7 +46,7 @@
       <artifactId>grpc-stub</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>omega-connector-grpc</artifactId>
     </dependency>
   </dependencies>

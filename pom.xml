@@ -19,7 +19,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>io.servicecomb.saga</groupId>
+  <groupId>org.apache.servicecomb.saga</groupId>
   <artifactId>saga</artifactId>
   <packaging>pom</packaging>
   <version>0.0.3-SNAPSHOT</version>
@@ -98,87 +98,87 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>io.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.saga</groupId>
         <artifactId>saga-core</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>io.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.saga</groupId>
         <artifactId>saga-format</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>io.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.saga</groupId>
         <artifactId>saga-spring</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>io.servicecomb.saga.transports</groupId>
+        <groupId>org.apache.servicecomb.saga.transports</groupId>
         <artifactId>transport-httpclient</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>io.servicecomb.saga.transports</groupId>
+        <groupId>org.apache.servicecomb.saga.transports</groupId>
         <artifactId>transport-httpclient-spring</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>io.servicecomb.saga.transports</groupId>
+        <groupId>org.apache.servicecomb.saga.transports</groupId>
         <artifactId>transport-resttemplate</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>io.servicecomb.saga.discovery</groupId>
+        <groupId>org.apache.servicecomb.saga.discovery</groupId>
         <artifactId>saga-discovery-servicecenter</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>io.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.saga</groupId>
         <artifactId>omega-context</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>io.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.saga</groupId>
         <artifactId>omega-transaction</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>io.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.saga</groupId>
         <artifactId>omega-spring-tx</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>io.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.saga</groupId>
         <artifactId>omega-transport-resttemplate</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>io.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.saga</groupId>
         <artifactId>omega-connector-grpc</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>io.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.saga</groupId>
         <artifactId>omega-spring-starter</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>io.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.saga</groupId>
         <artifactId>omega-format</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>io.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.saga</groupId>
         <artifactId>alpha-core</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>io.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.saga</groupId>
         <artifactId>alpha-server</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>io.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.saga</groupId>
         <artifactId>pack-contract-grpc</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
@@ -439,7 +439,7 @@
           <configuration>
             <mixins>
               <mixin>
-                <groupId>io.servicecomb.saga</groupId>
+                <groupId>org.apache.servicecomb.saga</groupId>
                 <artifactId>docker-build-config</artifactId>
                 <version>${project.version}</version>
               </mixin>
