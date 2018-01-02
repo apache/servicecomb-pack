@@ -82,7 +82,7 @@ public class OmegaContext {
     compensationContexts.put(compensationMethod.toString(), new CompensationContext(target, compensationMethod));
   }
 
-  public void compensate(String globalTxId, String localTxId, String compensationMethod, Object[] payloads) {
+  public void compensate(String globalTxId, String localTxId, String compensationMethod, Object... payloads) {
     CompensationContext compensationContext = compensationContexts.get(compensationMethod);
 
     try {

@@ -20,16 +20,14 @@ package io.servicecomb.saga.omega.transaction.spring;
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static io.servicecomb.saga.omega.transaction.spring.TransactionalUserService.ILLEGAL_USER;
-import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
@@ -46,7 +44,10 @@ import io.servicecomb.saga.omega.context.OmegaContext;
 import io.servicecomb.saga.omega.context.UniqueIdGenerator;
 import io.servicecomb.saga.omega.transaction.MessageHandler;
 import io.servicecomb.saga.omega.transaction.MessageSender;
-import io.servicecomb.saga.omega.transaction.TxEvent;
+import io.servicecomb.saga.omega.transaction.TxAbortedEvent;
+import io.servicecomb.saga.omega.transaction.TxCompensatedEvent;
+import io.servicecomb.saga.omega.transaction.TxEndedEvent;
+import io.servicecomb.saga.omega.transaction.TxStartedEvent;
 import io.servicecomb.saga.omega.transaction.spring.TransactionInterceptionTest.MessageConfig;
 
 @RunWith(SpringRunner.class)
@@ -62,7 +63,7 @@ public class TransactionInterceptionTest {
   private final String email = uniquify("email");
 
   @Autowired
-  private List<byte[]> messages;
+  private List<String> messages;
 
   @Autowired
   private TransactionalUserService userService;
@@ -94,11 +95,11 @@ public class TransactionInterceptionTest {
 
     String compensationMethod = TransactionalUserService.class.getDeclaredMethod("delete", User.class).toString();
 
-    assertEquals(
-        asList(
-            txStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, username, email),
-            txEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod)),
-        toString(messages)
+    assertArrayEquals(
+        new String[]{
+            new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, user).toString(),
+            new TxEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod).toString()},
+        toArray(messages)
     );
 
     User actual = userRepository.findOne(user.id());
@@ -107,19 +108,22 @@ public class TransactionInterceptionTest {
 
   @Test
   public void sendsAbortEvent_OnSubTransactionFailure() throws Exception {
+    Throwable throwable = null;
+    User user = new User(ILLEGAL_USER, email);
     try {
-      userService.add(new User(ILLEGAL_USER, email));
+      userService.add(user);
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException ignored) {
+      throwable = ignored;
     }
 
     String compensationMethod = TransactionalUserService.class.getDeclaredMethod("delete", User.class).toString();
 
-    assertEquals(
-        asList(
-            txStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, ILLEGAL_USER, email),
-            txAbortedEvent(globalTxId, localTxId, parentTxId, compensationMethod)),
-        toString(messages)
+    assertArrayEquals(
+        new String[]{
+            new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, user).toString(),
+            new TxAbortedEvent(globalTxId, localTxId, parentTxId, compensationMethod, throwable).toString()},
+        toArray(messages)
     );
   }
 
@@ -133,22 +137,32 @@ public class TransactionInterceptionTest {
 
     String compensationMethod = TransactionalUserService.class.getDeclaredMethod("delete", User.class).toString();
 
-    messageHandler.onReceive(globalTxId, this.localTxId, compensationMethod, user);
-    messageHandler.onReceive(globalTxId, localTxId, compensationMethod, anotherUser);
+    messageHandler.onReceive(globalTxId, this.localTxId, parentTxId, compensationMethod, user);
+    messageHandler.onReceive(globalTxId, localTxId, parentTxId, compensationMethod, anotherUser);
 
     assertThat(userRepository.findOne(user.id()), is(nullValue()));
     assertThat(userRepository.findOne(anotherUser.id()), is(nullValue()));
+
+    assertArrayEquals(
+        new String[]{
+            new TxStartedEvent(globalTxId, this.localTxId, parentTxId, compensationMethod, user).toString(),
+            new TxEndedEvent(globalTxId, this.localTxId, parentTxId, compensationMethod).toString(),
+            new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, anotherUser).toString(),
+            new TxEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod).toString(),
+            new TxCompensatedEvent(globalTxId, this.localTxId, parentTxId, compensationMethod).toString(),
+            new TxCompensatedEvent(globalTxId, localTxId, parentTxId, compensationMethod).toString()
+        },
+        toArray(messages)
+    );
   }
 
-  private List<String> toString(List<byte[]> messages) {
-    return messages.stream()
-        .map(String::new)
-        .collect(Collectors.toList());
+  private String[] toArray(List<String> messages) {
+    return messages.toArray(new String[messages.size()]);
   }
 
   @Configuration
   static class MessageConfig {
-    private final List<byte[]> messages = new ArrayList<>();
+    private final List<String> messages = new ArrayList<>();
 
     @Bean
     OmegaContext omegaContext() {
@@ -156,51 +170,13 @@ public class TransactionInterceptionTest {
     }
 
     @Bean
-    List<byte[]> messages() {
+    List<String> messages() {
       return messages;
     }
 
     @Bean
     MessageSender sender() {
-      return (event) -> messages.add(serialize(event));
+      return (event) -> messages.add(event.toString());
     }
-
-    private byte[] serialize(TxEvent event) {
-      if (TX_STARTED_EVENT.equals(event.type())) {
-        User user = ((User) event.payloads()[0]);
-        return txStartedEvent(event.globalTxId(),
-            event.localTxId(),
-            event.parentTxId(),
-            event.compensationMethod(),
-            user.username(),
-            user.email()).getBytes();
-      }
-      return txEndedEvent(event.globalTxId(),
-          event.localTxId(),
-          event.parentTxId(),
-          event.compensationMethod()).getBytes();
-    }
-
-    @Bean
-    MessageHandler handler(OmegaContext omegaContext) {
-      return omegaContext::compensate;
-    }
-  }
-
-  private static String txStartedEvent(String globalTxId,
-      String localTxId,
-      String parentTxId,
-      String compensationMethod,
-      String username,
-      String email) {
-    return globalTxId + ":" + localTxId + ":" + parentTxId + ":" + compensationMethod + ":" + TX_STARTED_EVENT + ":" + username + ":" + email;
-  }
-
-  private static String txEndedEvent(String globalTxId, String localTxId, String parentTxId, String compensationMethod) {
-    return globalTxId + ":" + localTxId + ":" + parentTxId + ":" + compensationMethod + ":" + TX_ENDED_EVENT;
-  }
-
-  private static String txAbortedEvent(String globalTxId, String localTxId, String parentTxId, String compensationMethod) {
-    return globalTxId + ":" + localTxId + ":" + parentTxId + ":" + compensationMethod + ":" + TX_ENDED_EVENT;
   }
 }

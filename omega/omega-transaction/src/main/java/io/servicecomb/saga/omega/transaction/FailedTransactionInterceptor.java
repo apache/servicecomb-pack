@@ -17,9 +17,6 @@
 
 package io.servicecomb.saga.omega.transaction;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 class FailedTransactionInterceptor {
   private final MessageSender sender;
 
@@ -28,12 +25,6 @@ class FailedTransactionInterceptor {
   }
 
   void intercept(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Throwable throwable) {
-    sender.send(new TxAbortedEvent(globalTxId, localTxId, parentTxId, compensationMethod, stackTrace(throwable)));
-  }
-
-  private String stackTrace(Throwable e) {
-    StringWriter writer = new StringWriter();
-    e.printStackTrace(new PrintWriter(writer));
-    return writer.toString();
+    sender.send(new TxAbortedEvent(globalTxId, localTxId, parentTxId, compensationMethod, throwable));
   }
 }
