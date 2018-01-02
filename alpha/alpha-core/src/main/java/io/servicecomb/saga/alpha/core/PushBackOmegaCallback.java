@@ -18,49 +18,35 @@
 package io.servicecomb.saga.alpha.core;
 
 import java.lang.invoke.MethodHandles;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.BlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RetryOmegaCallback implements OmegaCallback {
+public class PushBackOmegaCallback implements OmegaCallback {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private static final String ERROR_MESSAGE = "Failed to compensate service [{}] instance [{}] with method [{}], global tx id [{}] and local tx id [{}]";
 
+  private final BlockingQueue<Runnable> pendingCompensations;
   private final OmegaCallback underlying;
-  private final int delay;
 
-  public RetryOmegaCallback(OmegaCallback underlying, int delay) {
+  public PushBackOmegaCallback(BlockingQueue<Runnable> pendingCompensations, OmegaCallback underlying) {
+    this.pendingCompensations = pendingCompensations;
     this.underlying = underlying;
-    this.delay = delay;
   }
 
   @Override
   public void compensate(TxEvent event) {
-    boolean success = false;
-    do {
-      try {
-        underlying.compensate(event);
-        success = true;
-      } catch (Exception e) {
-        logError(ERROR_MESSAGE, event, e);
-        sleep(event);
-      }
-    } while (!success && !Thread.currentThread().isInterrupted());
-  }
-
-  private void sleep(TxEvent event) {
     try {
-      TimeUnit.MILLISECONDS.sleep(delay);
-    } catch (InterruptedException e) {
-      logError(ERROR_MESSAGE + " due to interruption", event, e);
-
-      Thread.currentThread().interrupt();
+      underlying.compensate(event);
+    } catch (Exception e) {
+      logError(event, e);
+      pendingCompensations.offer(() -> compensate(event));
     }
   }
 
-  private void logError(String message, TxEvent event, Exception e) {
-    log.error(message,
+  private void logError(TxEvent event, Exception e) {
+    log.error(
+        "Failed to compensate service [{}] instance [{}] with method [{}], global tx id [{}] and local tx id [{}]",
         event.serviceName(),
         event.instanceId(),
         event.compensationMethod(),

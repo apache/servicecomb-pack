@@ -46,7 +46,6 @@ public class TxConsistentService {
     CompletableFuture.runAsync(() -> eventCallbacks.getOrDefault(event.type(), DO_NOTHING_CONSUMER).accept(event));
   }
 
-  // TODO: 2017/12/27 we must define a way to find which service to compensate, to avoid sending to all
   private void compensate(TxEvent event) {
     List<TxEvent> events = eventRepository.findStartedTransactions(event.globalTxId(), TxStartedEvent.name());
     events.forEach(omegaCallback::compensate);

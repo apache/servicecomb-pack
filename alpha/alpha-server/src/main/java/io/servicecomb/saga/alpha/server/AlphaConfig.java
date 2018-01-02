@@ -18,7 +18,11 @@
 package io.servicecomb.saga.alpha.server;
 
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -26,12 +30,17 @@ import org.springframework.context.annotation.Configuration;
 
 import io.servicecomb.saga.alpha.core.CompositeOmegaCallback;
 import io.servicecomb.saga.alpha.core.OmegaCallback;
-import io.servicecomb.saga.alpha.core.RetryOmegaCallback;
+import io.servicecomb.saga.alpha.core.PendingTaskRunner;
+import io.servicecomb.saga.alpha.core.PushBackOmegaCallback;
 import io.servicecomb.saga.alpha.core.TxConsistentService;
 import io.servicecomb.saga.alpha.core.TxEventRepository;
 
 @Configuration
 class AlphaConfig {
+  private final BlockingQueue<Runnable> pendingCompensations = new LinkedBlockingQueue<>();
+
+  @Value("${alpha.compensation.retry.delay:3000}")
+  private int delay;
 
   // TODO: 2017/12/27 to be filled with actual callbacks on completion of SCB-138
   @Bean
@@ -40,11 +49,8 @@ class AlphaConfig {
   }
 
   @Bean
-  OmegaCallback omegaCallback(
-      Map<String, Map<String, OmegaCallback>> callbacks,
-      @Value("${alpha.compensation.retry.delay:3000}") int delay) {
-
-    return new RetryOmegaCallback(new CompositeOmegaCallback(callbacks), delay);
+  OmegaCallback omegaCallback(Map<String, Map<String, OmegaCallback>> callbacks) {
+    return new PushBackOmegaCallback(pendingCompensations, new CompositeOmegaCallback(callbacks));
   }
   
   @Bean
@@ -67,5 +73,10 @@ class AlphaConfig {
             new TxConsistentService(
                 eventRepository,
                 omegaCallback)));
+  }
+
+  @PostConstruct
+  void init() {
+    new PendingTaskRunner(pendingCompensations, delay).run();
   }
 }
