@@ -66,8 +66,8 @@ public class TxConsistentServiceTest {
   private final String compensationMethod = getClass().getCanonicalName();
   private final List<CompensationContext> compensationContexts = new ArrayList<>();
 
-  private final OmegaCallback omegaCallback = (globalTxId, localTxId, compensationMethod, payloads) ->
-      compensationContexts.add(new CompensationContext(globalTxId, localTxId, compensationMethod, payloads));
+  private final OmegaCallback omegaCallback = event ->
+      compensationContexts.add(new CompensationContext(event.globalTxId(), event.localTxId(), event.compensationMethod(), event.payloads()));
 
   private final TxConsistentService consistentService = new TxConsistentService(eventRepository, omegaCallback);
 

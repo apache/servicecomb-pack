@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Configuration;
 
 import io.servicecomb.saga.alpha.core.OmegaCallback;
 import io.servicecomb.saga.alpha.core.TxConsistentService;
+import io.servicecomb.saga.alpha.core.TxEvent;
 import io.servicecomb.saga.alpha.core.TxEventRepository;
 
 @Configuration
@@ -31,7 +32,7 @@ class AlphaConfig {
   @Bean
   OmegaCallback omegaCallback() {
     // TODO: 2017/12/27 to be replaced with actual callback on completion of SCB-138
-    return (globalTxId, localTxId, compensationMethod, message) -> {};
+    return event -> {};
   }
   
   @Bean
@@ -47,6 +48,7 @@ class AlphaConfig {
     return eventRepository;
   }
 
+  // TODO: 2017/12/29 how to match callback with service instance? send some msg on startup?
   private ServerStartable buildGrpc(int port, OmegaCallback omegaCallback, TxEventRepository eventRepository) {
     return new GrpcStartable(
         port,
