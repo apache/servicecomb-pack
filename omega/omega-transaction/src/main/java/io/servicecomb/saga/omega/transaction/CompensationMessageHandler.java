@@ -17,17 +17,20 @@
 
 package io.servicecomb.saga.omega.transaction;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import io.servicecomb.saga.omega.context.OmegaContext;
 
-public class TxAbortedEvent extends TxEvent {
-  public TxAbortedEvent(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Throwable throwable) {
-    super(globalTxId, localTxId, parentTxId, compensationMethod, stackTrace(throwable));
+public class CompensationMessageHandler implements MessageHandler {
+  private final MessageSender sender;
+  private final OmegaContext omegaContext;
+
+  public CompensationMessageHandler(MessageSender sender, OmegaContext omegaContext) {
+    this.sender = sender;
+    this.omegaContext = omegaContext;
   }
 
-  private static String stackTrace(Throwable e) {
-    StringWriter writer = new StringWriter();
-    e.printStackTrace(new PrintWriter(writer));
-    return writer.toString();
+  @Override
+  public void onReceive(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Object... payloads) {
+    omegaContext.compensate(globalTxId, localTxId, compensationMethod, payloads);
+    sender.send(new TxCompensatedEvent(globalTxId, localTxId, parentTxId, compensationMethod));
   }
 }

@@ -18,39 +18,46 @@
 package io.servicecomb.saga.omega.transaction;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
-import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.junit.Test;
 
-public class PreTransactionInterceptorTest {
-  private final List<TxEvent> messages = new ArrayList<>();
-  private final String globalTxId = UUID.randomUUID().toString();
-  private final String localTxId = UUID.randomUUID().toString();
-  private final String parentTxId = UUID.randomUUID().toString();
+import io.servicecomb.saga.omega.context.OmegaContext;
 
-  private final MessageSender sender = messages::add;
+public class CompensationMessageHandlerTest {
 
-  private final String message = uniquify("message");
-  private final PreTransactionInterceptor interceptor = new PreTransactionInterceptor(sender);
+  private final List<TxEvent> events = new ArrayList<>();
+  private final MessageSender sender = events::add;
+
+  private final String globalTxId = uniquify("globalTxId");
+  private final String localTxId = uniquify("localTxId");
+  private final String parentTxId = uniquify("parentTxId");
+  private final String compensationMethod = getClass().getCanonicalName();
+  private final String payload = uniquify("blah");
+
+  private final OmegaContext omegaContext = mock(OmegaContext.class);
+  private final CompensationMessageHandler handler = new CompensationMessageHandler(sender, omegaContext);
 
   @Test
-  public void sendsTxStartedEvent() throws Exception {
-    interceptor.intercept(globalTxId, localTxId, parentTxId, getClass().getCanonicalName(), message);
+  public void sendsEventOnCompensationCompleted() throws Exception {
+    handler.onReceive(globalTxId, localTxId, parentTxId, compensationMethod, payload);
 
-    TxEvent event = messages.get(0);
+    assertThat(events.size(), is(1));
 
+    TxEvent event = events.get(0);
     assertThat(event.globalTxId(), is(globalTxId));
     assertThat(event.localTxId(), is(localTxId));
     assertThat(event.parentTxId(), is(parentTxId));
-    assertThat(event.type(), is("TxStartedEvent"));
+    assertThat(event.type(), is("TxCompensatedEvent"));
     assertThat(event.compensationMethod(), is(getClass().getCanonicalName()));
-    assertThat(asList(event.payloads()), contains(message));
+    assertThat(event.payloads().length, is(0));
+
+    verify(omegaContext).compensate(globalTxId, localTxId, compensationMethod, payload);
   }
 }

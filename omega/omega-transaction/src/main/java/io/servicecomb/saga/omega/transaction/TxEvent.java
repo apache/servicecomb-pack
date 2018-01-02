@@ -17,6 +17,8 @@
 
 package io.servicecomb.saga.omega.transaction;
 
+import java.util.Arrays;
+
 public class TxEvent {
   private final long timestamp;
   private final String globalTxId;
@@ -60,5 +62,16 @@ public class TxEvent {
 
   public String compensationMethod() {
     return compensationMethod;
+  }
+
+  @Override
+  public String toString() {
+    return "TxEvent{" +
+        "globalTxId='" + globalTxId + '\'' +
+        ", localTxId='" + localTxId + '\'' +
+        ", parentTxId='" + parentTxId + '\'' +
+        ", compensationMethod='" + compensationMethod + '\'' +
+        ", payloads=" + Arrays.toString(payloads) +
+        '}';
   }
 }

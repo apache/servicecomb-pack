@@ -17,17 +17,8 @@
 
 package io.servicecomb.saga.omega.transaction;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-public class TxAbortedEvent extends TxEvent {
-  public TxAbortedEvent(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Throwable throwable) {
-    super(globalTxId, localTxId, parentTxId, compensationMethod, stackTrace(throwable));
-  }
-
-  private static String stackTrace(Throwable e) {
-    StringWriter writer = new StringWriter();
-    e.printStackTrace(new PrintWriter(writer));
-    return writer.toString();
+public class TxCompensatedEvent extends TxEvent {
+  public TxCompensatedEvent(String globalTxId, String localTxId, String parentTxId, String compensationMethod) {
+    super(globalTxId, localTxId, parentTxId, compensationMethod);
   }
 }

@@ -22,12 +22,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 import io.servicecomb.saga.omega.context.OmegaContext;
+import io.servicecomb.saga.omega.transaction.CompensationMessageHandler;
+import io.servicecomb.saga.omega.transaction.MessageHandler;
 import io.servicecomb.saga.omega.transaction.MessageSender;
 import io.servicecomb.saga.omega.transaction.TransactionAspect;
 
 @Configuration
 @EnableAspectJAutoProxy
 public class TransactionAspectConfig {
+
+  @Bean
+  MessageHandler messageHandler(MessageSender sender, OmegaContext context) {
+    return new CompensationMessageHandler(sender, context);
+  }
 
   @Bean
   TransactionAspect transactionAspect(MessageSender sender, OmegaContext context) {

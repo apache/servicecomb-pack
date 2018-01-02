@@ -18,5 +18,5 @@
 package io.servicecomb.saga.omega.transaction;
 
 public interface MessageHandler {
-  void onReceive(String globalTxId, String localTxId, String compensationMethod, Object... payloads);
+  void onReceive(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Object... payloads);
 }
