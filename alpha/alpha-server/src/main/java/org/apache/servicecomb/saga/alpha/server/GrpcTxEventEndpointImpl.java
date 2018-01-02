@@ -44,6 +44,6 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
 
   @Override
   public StreamObserver<GrpcTxEvent> callbackCommand(StreamObserver<GrpcCompensateCommand> responseObserver) {
-    return new GrpcOmegaStreamObserver(omegaCallbacks, txConsistentService, responseObserver);
+    return new GrpcTxEventStreamObserver(omegaCallbacks, txConsistentService, responseObserver);
   }
 }

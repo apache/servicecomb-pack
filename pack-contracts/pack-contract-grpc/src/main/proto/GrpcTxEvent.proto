@@ -22,8 +22,7 @@ option java_package = "org.apache.servicecomb.saga.pack.contract.grpc";
 option java_outer_classname = "TxEventProto";
 
 service TxEventService {
-  rpc CallbackCommand (stream GrpcTxEvent) returns (stream GrpcCompensateCommand) {
-  }
+  rpc CallbackCommand (stream GrpcTxEvent) returns (stream GrpcCompensateCommand) {}
 }
 
 message GrpcTxEvent {
@@ -41,6 +40,7 @@ message GrpcTxEvent {
 message GrpcCompensateCommand {
   string globalTxId = 1;
   string localTxId = 2;
-  string compensateMethod = 3;
-  bytes payloads = 4;
+  string parentTxId = 3;
+  string compensateMethod = 4;
+  bytes payloads = 5;
 }

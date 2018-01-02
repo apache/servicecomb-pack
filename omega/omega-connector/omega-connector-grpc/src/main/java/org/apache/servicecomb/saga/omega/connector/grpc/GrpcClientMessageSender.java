@@ -20,36 +20,41 @@
 
 package org.apache.servicecomb.saga.omega.connector.grpc;
 
+import org.apache.servicecomb.saga.omega.context.ServiceConfig;
+import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
+import org.apache.servicecomb.saga.omega.transaction.MessageSender;
+import org.apache.servicecomb.saga.omega.transaction.MessageSerializer;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTxEvent.Builder;
+import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc;
+import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceStub;
 
 import com.google.protobuf.ByteString;
 
 import io.grpc.ManagedChannel;
-import org.apache.servicecomb.saga.omega.context.ServiceConfig;
-import org.apache.servicecomb.saga.omega.transaction.MessageSender;
-import org.apache.servicecomb.saga.omega.transaction.MessageSerializer;
-
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTxEvent.Builder;
-import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc;
-import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceBlockingStub;
+import io.grpc.stub.StreamObserver;
 
 public class GrpcClientMessageSender implements MessageSender {
 
-  private final TxEventServiceBlockingStub eventService;
+  private final TxEventServiceStub eventService;
 
   private final MessageSerializer serializer;
   private final ServiceConfig serviceConfig;
 
-  public GrpcClientMessageSender(ManagedChannel eventService, MessageSerializer serializer, ServiceConfig serviceConfig) {
-    this.eventService = TxEventServiceGrpc.newBlockingStub(eventService);
+  private StreamObserver<GrpcTxEvent> requestObserver;
+
+  public GrpcClientMessageSender(ManagedChannel channel, MessageSerializer serializer, ServiceConfig serviceConfig,
+      MessageHandler handler) {
+    this.eventService = TxEventServiceGrpc.newStub(channel);
     this.serializer = serializer;
     this.serviceConfig = serviceConfig;
+    this.requestObserver = this.eventService.callbackCommand(new GrpcCompensateStreamObserver(handler));
   }
 
   @Override
   public void send(TxEvent event) {
-    eventService.reportEvent(convertEvent(event));
+    requestObserver.onNext(convertEvent(event));
   }
 
   private GrpcTxEvent convertEvent(TxEvent event) {
