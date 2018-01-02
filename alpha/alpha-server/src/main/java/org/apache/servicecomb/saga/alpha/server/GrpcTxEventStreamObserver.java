@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import io.grpc.stub.StreamObserver;
 
-class GrpcOmegaStreamObserver implements StreamObserver<GrpcTxEvent> {
+class GrpcTxEventStreamObserver implements StreamObserver<GrpcTxEvent> {
 
   private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -47,7 +47,7 @@ class GrpcOmegaStreamObserver implements StreamObserver<GrpcTxEvent> {
 
   private final StreamObserver<GrpcCompensateCommand> responseObserver;
 
-  GrpcOmegaStreamObserver(Map<String, Map<String, OmegaCallback>> omegaCallbacks,
+  GrpcTxEventStreamObserver(Map<String, Map<String, OmegaCallback>> omegaCallbacks,
       TxConsistentService txConsistentService, StreamObserver<GrpcCompensateCommand> responseObserver) {
     this.omegaCallbacks = omegaCallbacks;
     this.txConsistentService = txConsistentService;

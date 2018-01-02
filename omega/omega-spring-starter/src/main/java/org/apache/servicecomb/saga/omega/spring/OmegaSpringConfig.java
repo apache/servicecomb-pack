@@ -27,19 +27,20 @@ import javax.annotation.PreDestroy;
 import org.apache.servicecomb.saga.omega.connector.grpc.GrpcClientMessageSender;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
+import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.context.UniqueIdGenerator;
 import org.apache.servicecomb.saga.omega.format.NativeMessageFormat;
+import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-
-import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 
 @Configuration
 class OmegaSpringConfig {
@@ -68,11 +69,12 @@ class OmegaSpringConfig {
   }
 
   @Bean
-  MessageSender grpcMessageSender(@Value("${alpha.cluster.address}") String[] addresses, ServiceConfig serviceConfig) {
+  MessageSender grpcMessageSender(@Value("${alpha.cluster.address}") String[] addresses, ServiceConfig serviceConfig,
+      @Lazy MessageHandler handler) {
     // TODO: 2017/12/26 connect to the one with lowest latency
     for (String address : addresses) {
       try {
-        return new GrpcClientMessageSender(grpcChannel(address), new NativeMessageFormat(), serviceConfig);
+        return new GrpcClientMessageSender(grpcChannel(address), new NativeMessageFormat(), serviceConfig, handler);
       } catch (Exception e) {
         log.error("Unable to connect to alpha at {}", address, e);
       }

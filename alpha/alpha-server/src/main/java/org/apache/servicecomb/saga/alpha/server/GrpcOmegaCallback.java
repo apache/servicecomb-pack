@@ -41,6 +41,7 @@ public class GrpcOmegaCallback implements OmegaCallback {
     GrpcCompensateCommand command = GrpcCompensateCommand.newBuilder()
         .setGlobalTxId(event.globalTxId())
         .setLocalTxId(event.localTxId())
+        .setParentTxId(event.parentTxId().isEmpty() ? "" : event.parentTxId())
         .setCompensateMethod(event.compensationMethod())
         .setPayloads(ByteString.copyFrom(event.payloads()))
         .build();
