@@ -65,7 +65,7 @@ See [Saga API](docs/api/api.md) for details.
 See [Saga demo](https://github.com/apache/incubator-servicecomb-saga/tree/master/saga-demo) for details.
 
 ## Contact
-Bugs: [issues](issues.apache.org/jira/browse/SCB).
+Bugs: [issues](https://issues.apache.org/jira/browse/SCB).
 
 Mailing lists: [subscribe](mailto:dev-subscribe@servicecomb.incubator.apache.org) [dev](https://lists.apache.org/list.html?dev@servicecomb.apache.org)
 
