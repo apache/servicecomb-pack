@@ -76,6 +76,12 @@
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.reactivex.rxjava2</groupId>
+      <artifactId>rxjava</artifactId>
+      <version>2.1.8</version>
+      <scope>test</scope>
+    </dependency>
 
   </dependencies>
 
