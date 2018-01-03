@@ -33,6 +33,7 @@ class CompensableAnnotationProcessor implements BeanPostProcessor {
   @Override
   public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
     checkMethod(bean);
+    checkFields(bean);
     return bean;
   }
 
@@ -43,5 +44,9 @@ class CompensableAnnotationProcessor implements BeanPostProcessor {
 
   private void checkMethod(Object bean) {
     ReflectionUtils.doWithMethods(bean.getClass(), new CompensableMethodCheckingCallback(bean, omegaContext));
+  }
+
+  private void checkFields(Object bean) {
+    ReflectionUtils.doWithFields(bean.getClass(), new ExecutorFieldCallback(bean, omegaContext));
   }
 }

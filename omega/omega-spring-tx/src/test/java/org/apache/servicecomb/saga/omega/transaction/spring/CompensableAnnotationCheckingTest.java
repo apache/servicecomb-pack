@@ -19,6 +19,7 @@ package org.apache.servicecomb.saga.omega.transaction.spring;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
@@ -37,6 +38,20 @@ public class CompensableAnnotationCheckingTest {
       }
     } catch (BeanCreationException e) {
       assertThat(e.getCause().getMessage(), startsWith("No such compensation method [none]"));
+    }
+  }
+
+  @Test
+  public void blowsUpWhenAnnotationOnWrongType() throws Exception {
+    try {
+      try (ConfigurableApplicationContext ignored = new SpringApplicationBuilder(TransactionTestMain.class)
+          .profiles("omega-context-aware-checking")
+          .run()) {
+        expectFailing(BeanCreationException.class);
+      }
+    } catch (BeanCreationException e) {
+      assertThat(e.getCause().getMessage(),
+          is("Only Executor, ExecutorService, and ScheduledExecutorService are supported for @OmegaContextAware"));
     }
   }
 }
