@@ -93,11 +93,14 @@ class GrpcTxEventStreamObserver implements StreamObserver<GrpcTxEvent> {
   @Override
   public void onError(Throwable t) {
     LOG.error("failed to process grpc message.", t);
-    onCompleted();
+    responseObserver.onCompleted();
+    removeInvalidCallback();
   }
 
+  // unless we shutdown the alpha server gracefully, this method should never be called
   @Override
   public void onCompleted() {
+    LOG.info("disconnect the grpc client");
     responseObserver.onCompleted();
     removeInvalidCallback();
   }
