@@ -77,6 +77,12 @@ public class OmegaContext {
     this.parentTxId.set(parentTxId);
   }
 
+  public void clear() {
+    globalTxId.remove();
+    localTxId.remove();
+    parentTxId.remove();
+  }
+
   public void addCompensationContext(Method compensationMethod, Object target) {
     compensationMethod.setAccessible(true);
     compensationContexts.put(compensationMethod.toString(), new CompensationContext(target, compensationMethod));
