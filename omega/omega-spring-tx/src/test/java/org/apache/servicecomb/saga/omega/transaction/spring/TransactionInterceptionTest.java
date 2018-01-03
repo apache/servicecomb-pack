@@ -54,6 +54,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import io.reactivex.Flowable;
+import io.reactivex.schedulers.Schedulers;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {TransactionTestMain.class, MessageConfig.class})
 @AutoConfigureMockMvc
@@ -180,6 +183,27 @@ public class TransactionInterceptionTest {
   public void passesOmegaContextInThreadPool() throws Exception {
     User user = new User(username, email);
     executor.execute(() -> userService.add(user));
+
+    await().atMost(500, MILLISECONDS).until(() -> userRepository.findByUsername(username) != null);
+
+    assertArrayEquals(
+        new String[]{
+            new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, user).toString(),
+            new TxEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod).toString()},
+        toArray(messages)
+    );
+  }
+
+  @Test
+  public void passesOmegaContextThroughReactiveX() throws Exception {
+    User user = new User(username, email);
+
+    Flowable.just(user)
+        .parallel()
+        .runOn(Schedulers.io())
+        .doOnNext(userService::add)
+        .sequential()
+        .subscribe();
 
     await().atMost(500, MILLISECONDS).until(() -> userRepository.findByUsername(username) != null);
 
