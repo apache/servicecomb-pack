@@ -31,9 +31,9 @@ public class OmegaContext {
   public static final String GLOBAL_TX_ID_KEY = "X-Pack-Global-Transaction-Id";
   public static final String LOCAL_TX_ID_KEY = "X-Pack-Local-Transaction-Id";
 
-  private final ThreadLocal<String> globalTxId = new ThreadLocal<>();
-  private final ThreadLocal<String> localTxId = new ThreadLocal<>();
-  private final ThreadLocal<String> parentTxId = new ThreadLocal<>();
+  private final ThreadLocal<String> globalTxId = new InheritableThreadLocal<>();
+  private final ThreadLocal<String> localTxId = new InheritableThreadLocal<>();
+  private final ThreadLocal<String> parentTxId = new InheritableThreadLocal<>();
   private final IdGenerator<String> idGenerator;
   private final Map<String, CompensationContext> compensationContexts = new HashMap<>();
 
