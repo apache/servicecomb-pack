@@ -103,6 +103,7 @@ public class TransactionInterceptionTest {
   public void tearDown() throws Exception {
     messages.clear();
     userRepository.deleteAll();
+    omegaContext.clear();
   }
 
   @AfterClass
