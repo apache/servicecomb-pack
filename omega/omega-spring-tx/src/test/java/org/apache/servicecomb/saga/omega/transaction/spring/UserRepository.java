@@ -20,4 +20,5 @@ package org.apache.servicecomb.saga.omega.transaction.spring;
 import org.springframework.data.repository.CrudRepository;
 
 interface UserRepository extends CrudRepository<User, Long> {
+  User findByUsername(String username);
 }

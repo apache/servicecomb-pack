@@ -19,7 +19,9 @@ package org.apache.servicecomb.saga.omega.transaction.spring;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.servicecomb.saga.omega.transaction.spring.TransactionalUserService.ILLEGAL_USER;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertArrayEquals;
@@ -28,17 +30,8 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.junit4.SpringRunner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.context.UniqueIdGenerator;
@@ -49,13 +42,23 @@ import org.apache.servicecomb.saga.omega.transaction.TxCompensatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxEndedEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxStartedEvent;
 import org.apache.servicecomb.saga.omega.transaction.spring.TransactionInterceptionTest.MessageConfig;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {TransactionTestMain.class, MessageConfig.class})
 @AutoConfigureMockMvc
 public class TransactionInterceptionTest {
-  private static final String TX_STARTED_EVENT = "TxStartedEvent";
-  private static final String TX_ENDED_EVENT = "TxEndedEvent";
+  private static final ExecutorService executor = Executors.newSingleThreadExecutor();
   private static final String globalTxId = UUID.randomUUID().toString();
   private final String localTxId = UUID.randomUUID().toString();
   private final String parentTxId = UUID.randomUUID().toString();
@@ -77,11 +80,14 @@ public class TransactionInterceptionTest {
   @Autowired
   private MessageHandler messageHandler;
 
+  private String compensationMethod;
+
   @Before
   public void setUp() throws Exception {
     omegaContext.setGlobalTxId(globalTxId);
     omegaContext.setLocalTxId(localTxId);
     omegaContext.setParentTxId(parentTxId);
+    compensationMethod = TransactionalUserService.class.getDeclaredMethod("delete", User.class).toString();
   }
 
   @After
@@ -89,11 +95,14 @@ public class TransactionInterceptionTest {
     messages.clear();
   }
 
+  @AfterClass
+  public static void afterClass() throws Exception {
+    executor.shutdown();
+  }
+
   @Test
   public void sendsUserToRemote_AroundTransaction() throws Exception {
     User user = userService.add(new User(username, email));
-
-    String compensationMethod = TransactionalUserService.class.getDeclaredMethod("delete", User.class).toString();
 
     assertArrayEquals(
         new String[]{
@@ -117,8 +126,6 @@ public class TransactionInterceptionTest {
       throwable = ignored;
     }
 
-    String compensationMethod = TransactionalUserService.class.getDeclaredMethod("delete", User.class).toString();
-
     assertArrayEquals(
         new String[]{
             new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, user).toString(),
@@ -135,8 +142,6 @@ public class TransactionInterceptionTest {
     String localTxId = omegaContext.newLocalTxId();
     User anotherUser = userService.add(new User(uniquify("Jack"), uniquify("jack@gmail.com")));
 
-    String compensationMethod = TransactionalUserService.class.getDeclaredMethod("delete", User.class).toString();
-
     messageHandler.onReceive(globalTxId, this.localTxId, parentTxId, compensationMethod, user);
     messageHandler.onReceive(globalTxId, localTxId, parentTxId, compensationMethod, anotherUser);
 
@@ -152,6 +157,36 @@ public class TransactionInterceptionTest {
             new TxCompensatedEvent(globalTxId, this.localTxId, parentTxId, compensationMethod).toString(),
             new TxCompensatedEvent(globalTxId, localTxId, parentTxId, compensationMethod).toString()
         },
+        toArray(messages)
+    );
+  }
+
+  @Test
+  public void passesOmegaContextThroughDifferentThreads() throws Exception {
+    User user = new User(username, email);
+    new Thread(() -> userService.add(user)).start();
+
+    await().atMost(500, MILLISECONDS).until(() -> userRepository.findByUsername(username) != null);
+
+    assertArrayEquals(
+        new String[]{
+            new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, user).toString(),
+            new TxEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod).toString()},
+        toArray(messages)
+    );
+  }
+
+  @Test
+  public void passesOmegaContextInThreadPool() throws Exception {
+    User user = new User(username, email);
+    executor.execute(() -> userService.add(user));
+
+    await().atMost(500, MILLISECONDS).until(() -> userRepository.findByUsername(username) != null);
+
+    assertArrayEquals(
+        new String[]{
+            new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, user).toString(),
+            new TxEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod).toString()},
         toArray(messages)
     );
   }
