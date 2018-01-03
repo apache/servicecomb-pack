@@ -17,9 +17,11 @@
 
 package org.apache.servicecomb.saga.omega.transaction.spring;
 
+import static akka.actor.ActorRef.noSender;
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.servicecomb.saga.omega.transaction.spring.TransactionalUserService.ILLEGAL_USER;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -56,6 +58,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import io.reactivex.Flowable;
 import io.reactivex.schedulers.Schedulers;
+import akka.actor.AbstractLoggingActor;
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {TransactionTestMain.class, MessageConfig.class})
@@ -96,6 +102,7 @@ public class TransactionInterceptionTest {
   @After
   public void tearDown() throws Exception {
     messages.clear();
+    userRepository.deleteAll();
   }
 
   @AfterClass
@@ -213,6 +220,47 @@ public class TransactionInterceptionTest {
             new TxEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod).toString()},
         toArray(messages)
     );
+  }
+
+  @Test
+  public void passesOmegaContextAmongActors() throws Exception {
+    // TODO: 2018/1/3 if actor system starts before omega context initialized, this test will fail
+    ActorSystem actorSystem = ActorSystem.create();
+
+    User user = new User(username, email);
+
+    ActorRef actorRef = actorSystem.actorOf(UserServiceActor.props(userService));
+    actorRef.tell(user, noSender());
+
+    await().atMost(1, SECONDS).until(() -> userRepository.findByUsername(username) != null);
+
+    assertArrayEquals(
+        new String[] {
+            new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, user).toString(),
+            new TxEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod).toString()},
+        toArray(messages)
+    );
+
+    actorSystem.terminate();
+  }
+
+  private static class UserServiceActor extends AbstractLoggingActor {
+    private final TransactionalUserService userService;
+
+    private UserServiceActor(TransactionalUserService userService) {
+      this.userService = userService;
+    }
+
+    static Props props(TransactionalUserService userService) {
+      return Props.create(UserServiceActor.class, () -> new UserServiceActor(userService));
+    }
+
+    @Override
+    public Receive createReceive() {
+      return receiveBuilder()
+          .match(User.class, userService::add)
+          .build();
+    }
   }
 
   private String[] toArray(List<String> messages) {
