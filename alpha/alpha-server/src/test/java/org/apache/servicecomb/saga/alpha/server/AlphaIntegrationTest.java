@@ -73,9 +73,6 @@ public class AlphaIntegrationTest {
   @Autowired
   private TxEventEnvelopeRepository eventRepo;
 
-  // use an empty response observer as we don't need the response in client side
-  private final StreamObserver<GrpcCompensateCommand> emptyResponseObserver = new EmptyStreamObserver();
-
   private static final List<GrpcCompensateCommand> receivedCommands = new CopyOnWriteArrayList<>();
   private final StreamObserver<GrpcCompensateCommand> compensateResponseObserver = new CompensateStreamObserver();
 
@@ -85,17 +82,19 @@ public class AlphaIntegrationTest {
   }
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     eventRepo.deleteAll();
     receivedCommands.clear();
   }
 
   @Test
-  public void persistsEvent() throws Exception {
-    StreamObserver<GrpcTxEvent> requestObserver = stub.callbackCommand(emptyResponseObserver);
+  public void persistsEvent() {
+    StreamObserver<GrpcTxEvent> requestObserver = stub.callbackCommand(compensateResponseObserver);
     requestObserver.onNext(someGrpcEvent(TxStartedEvent));
     // use the asynchronous stub need to wait for some time
     await().atMost(1, SECONDS).until(() -> eventRepo.findByEventGlobalTxId(globalTxId) != null);
+
+    assertThat(receivedCommands.size(), is(0));
 
     TxEventEnvelope envelope = eventRepo.findByEventGlobalTxId(globalTxId);
 
@@ -110,7 +109,7 @@ public class AlphaIntegrationTest {
   }
 
   @Test
-  public void doNotCompensateDuplicateTxOnFailure() throws Exception {
+  public void doNotCompensateDuplicateTxOnFailure() {
     // duplicate events with same content but different timestamp
     StreamObserver<GrpcTxEvent> requestObserver = stub.callbackCommand(compensateResponseObserver);
     requestObserver.onNext(eventOf(TxStartedEvent, localTxId, parentTxId, "service a".getBytes(), "method a"));
@@ -171,9 +170,11 @@ public class AlphaIntegrationTest {
         .build();
   }
 
-  private static class EmptyStreamObserver implements StreamObserver<GrpcCompensateCommand> {
+  private static class CompensateStreamObserver implements StreamObserver<GrpcCompensateCommand> {
     @Override
     public void onNext(GrpcCompensateCommand command) {
+      // intercept received command
+      receivedCommands.add(command);
     }
 
     @Override
@@ -182,14 +183,6 @@ public class AlphaIntegrationTest {
 
     @Override
     public void onCompleted() {
-    }
-  }
-
-  private static class CompensateStreamObserver extends EmptyStreamObserver {
-    @Override
-    public void onNext(GrpcCompensateCommand command) {
-      // intercept received command
-      receivedCommands.add(command);
     }
   }
 }
