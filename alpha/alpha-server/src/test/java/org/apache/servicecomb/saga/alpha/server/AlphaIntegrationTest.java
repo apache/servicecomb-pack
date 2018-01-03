@@ -124,8 +124,6 @@ public class AlphaIntegrationTest {
     requestObserver.onNext(someGrpcEvent(TxAbortedEvent));
 
     await().atMost(1, SECONDS).until(() -> receivedCommands.size() > 1);
-    System.out.println(receivedCommands.size());
-    receivedCommands.forEach((command) -> System.out.println(command.getCompensateMethod()));
     assertThat(receivedCommands, containsInAnyOrder(
         GrpcCompensateCommand.newBuilder().setGlobalTxId(globalTxId).setLocalTxId(localTxId).setParentTxId(parentTxId)
             .setCompensateMethod("method a").setPayloads(ByteString.copyFrom("service a".getBytes())).build(),
