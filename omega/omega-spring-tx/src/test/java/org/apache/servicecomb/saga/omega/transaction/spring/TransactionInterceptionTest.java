@@ -20,8 +20,8 @@ package org.apache.servicecomb.saga.omega.transaction.spring;
 import static akka.actor.ActorRef.noSender;
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
+import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.servicecomb.saga.omega.transaction.spring.TransactionalUserService.ILLEGAL_USER;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -44,6 +44,7 @@ import org.apache.servicecomb.saga.omega.transaction.TxCompensatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxEndedEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxStartedEvent;
 import org.apache.servicecomb.saga.omega.transaction.spring.TransactionInterceptionTest.MessageConfig;
+import org.apache.servicecomb.saga.omega.transaction.spring.annotations.OmegaContextAware;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -67,12 +68,20 @@ import akka.actor.Props;
 @SpringBootTest(classes = {TransactionTestMain.class, MessageConfig.class})
 @AutoConfigureMockMvc
 public class TransactionInterceptionTest {
-  private static final ExecutorService executor = Executors.newSingleThreadExecutor();
   private static final String globalTxId = UUID.randomUUID().toString();
   private final String localTxId = UUID.randomUUID().toString();
   private final String parentTxId = UUID.randomUUID().toString();
   private final String username = uniquify("username");
   private final String email = uniquify("email");
+
+  private final User user = new User(username, email);
+  private final User illegalUser = new User(ILLEGAL_USER, email);
+
+  private final String usernameJack = uniquify("Jack");
+  private final User jack = new User(usernameJack, uniquify("jack@gmail.com"));
+
+  @OmegaContextAware
+  private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
   @Autowired
   private List<String> messages;
@@ -108,12 +117,11 @@ public class TransactionInterceptionTest {
 
   @AfterClass
   public static void afterClass() throws Exception {
-    executor.shutdown();
   }
 
   @Test
   public void sendsUserToRemote_AroundTransaction() throws Exception {
-    User user = userService.add(new User(username, email));
+    User user = userService.add(this.user);
 
     assertArrayEquals(
         new String[]{
@@ -129,9 +137,8 @@ public class TransactionInterceptionTest {
   @Test
   public void sendsAbortEvent_OnSubTransactionFailure() throws Exception {
     Throwable throwable = null;
-    User user = new User(ILLEGAL_USER, email);
     try {
-      userService.add(user);
+      userService.add(illegalUser);
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException ignored) {
       throwable = ignored;
@@ -139,7 +146,7 @@ public class TransactionInterceptionTest {
 
     assertArrayEquals(
         new String[]{
-            new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, user).toString(),
+            new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, illegalUser).toString(),
             new TxAbortedEvent(globalTxId, localTxId, parentTxId, compensationMethod, throwable).toString()},
         toArray(messages)
     );
@@ -147,11 +154,11 @@ public class TransactionInterceptionTest {
 
   @Test
   public void compensateOnTransactionException() throws Exception {
-    User user = userService.add(new User(username, email));
+    User user = userService.add(this.user);
 
     // another sub transaction to the same service within the same global transaction
     String localTxId = omegaContext.newLocalTxId();
-    User anotherUser = userService.add(new User(uniquify("Jack"), uniquify("jack@gmail.com")));
+    User anotherUser = userService.add(jack);
 
     messageHandler.onReceive(globalTxId, this.localTxId, parentTxId, compensationMethod, user);
     messageHandler.onReceive(globalTxId, localTxId, parentTxId, compensationMethod, anotherUser);
@@ -174,38 +181,44 @@ public class TransactionInterceptionTest {
 
   @Test
   public void passesOmegaContextThroughDifferentThreads() throws Exception {
-    User user = new User(username, email);
     new Thread(() -> userService.add(user)).start();
+    waitTillSavedUser(username);
 
-    await().atMost(500, MILLISECONDS).until(() -> userRepository.findByUsername(username) != null);
+    String newLocalTxId = omegaContext.newLocalTxId();
+    new Thread(() -> userService.add(jack)).start();
+    waitTillSavedUser(usernameJack);
 
     assertArrayEquals(
         new String[]{
             new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, user).toString(),
-            new TxEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod).toString()},
+            new TxEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod).toString(),
+            new TxStartedEvent(globalTxId, newLocalTxId, parentTxId, compensationMethod, jack).toString(),
+            new TxEndedEvent(globalTxId, newLocalTxId, parentTxId, compensationMethod).toString()},
         toArray(messages)
     );
   }
 
   @Test
   public void passesOmegaContextInThreadPool() throws Exception {
-    User user = new User(username, email);
     executor.execute(() -> userService.add(user));
+    waitTillSavedUser(username);
 
-    await().atMost(500, MILLISECONDS).until(() -> userRepository.findByUsername(username) != null);
+    String newLocalTxId = omegaContext.newLocalTxId();
+    executor.invokeAll(singletonList(() -> userService.add(jack)));
+    waitTillSavedUser(usernameJack);
 
     assertArrayEquals(
         new String[]{
             new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, user).toString(),
-            new TxEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod).toString()},
+            new TxEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod).toString(),
+            new TxStartedEvent(globalTxId, newLocalTxId, parentTxId, compensationMethod, jack).toString(),
+            new TxEndedEvent(globalTxId, newLocalTxId, parentTxId, compensationMethod).toString()},
         toArray(messages)
     );
   }
 
   @Test
   public void passesOmegaContextThroughReactiveX() throws Exception {
-    User user = new User(username, email);
-
     Flowable.just(user)
         .parallel()
         .runOn(Schedulers.io())
@@ -213,7 +226,7 @@ public class TransactionInterceptionTest {
         .sequential()
         .subscribe();
 
-    await().atMost(500, MILLISECONDS).until(() -> userRepository.findByUsername(username) != null);
+    waitTillSavedUser(username);
 
     assertArrayEquals(
         new String[]{
@@ -228,12 +241,10 @@ public class TransactionInterceptionTest {
     // TODO: 2018/1/3 if actor system starts before omega context initialized, this test will fail
     ActorSystem actorSystem = ActorSystem.create();
 
-    User user = new User(username, email);
-
     ActorRef actorRef = actorSystem.actorOf(UserServiceActor.props(userService));
     actorRef.tell(user, noSender());
 
-    await().atMost(1, SECONDS).until(() -> userRepository.findByUsername(username) != null);
+    waitTillSavedUser(username);
 
     assertArrayEquals(
         new String[] {
@@ -243,6 +254,10 @@ public class TransactionInterceptionTest {
     );
 
     actorSystem.terminate();
+  }
+
+  private void waitTillSavedUser(String username) {
+    await().atMost(500, MILLISECONDS).until(() -> userRepository.findByUsername(username) != null);
   }
 
   private static class UserServiceActor extends AbstractLoggingActor {
