@@ -32,8 +32,8 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.context.UniqueIdGenerator;
@@ -81,7 +81,7 @@ public class TransactionInterceptionTest {
   private final User jack = new User(usernameJack, uniquify("jack@gmail.com"));
 
   @OmegaContextAware
-  private final ExecutorService executor = Executors.newSingleThreadExecutor();
+  private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
   @Autowired
   private List<String> messages;
@@ -200,7 +200,7 @@ public class TransactionInterceptionTest {
 
   @Test
   public void passesOmegaContextInThreadPool() throws Exception {
-    executor.execute(() -> userService.add(user));
+    executor.schedule(() -> userService.add(user), 0, MILLISECONDS);
     waitTillSavedUser(username);
 
     String newLocalTxId = omegaContext.newLocalTxId();
