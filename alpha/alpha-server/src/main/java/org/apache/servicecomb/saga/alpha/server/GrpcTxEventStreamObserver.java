@@ -24,9 +24,9 @@ import static org.apache.servicecomb.saga.alpha.core.EventType.TxStartedEvent;
 
 import java.lang.invoke.MethodHandles;
 import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.grpc.stub.StreamObserver;
+import io.netty.util.internal.ConcurrentSet;
 
 class GrpcTxEventStreamObserver implements StreamObserver<GrpcTxEvent> {
 
@@ -45,17 +46,15 @@ class GrpcTxEventStreamObserver implements StreamObserver<GrpcTxEvent> {
 
   private final Map<String, Map<String, OmegaCallback>> omegaCallbacks;
 
-  private final Map<StreamObserver<GrpcCompensateCommand>, SimpleImmutableEntry<String, String>> omegaCallbacksReverse;
+  private final Set<SimpleImmutableEntry<String, String>> serviceEntries = new ConcurrentSet<>();
 
   private final TxConsistentService txConsistentService;
 
   private final StreamObserver<GrpcCompensateCommand> responseObserver;
 
   GrpcTxEventStreamObserver(Map<String, Map<String, OmegaCallback>> omegaCallbacks,
-      Map<StreamObserver<GrpcCompensateCommand>, SimpleImmutableEntry<String, String>> omegaCallbacksReverse,
       TxConsistentService txConsistentService, StreamObserver<GrpcCompensateCommand> responseObserver) {
     this.omegaCallbacks = omegaCallbacks;
-    this.omegaCallbacksReverse = omegaCallbacksReverse;
     this.txConsistentService = txConsistentService;
     this.responseObserver = responseObserver;
   }
@@ -69,7 +68,7 @@ class GrpcTxEventStreamObserver implements StreamObserver<GrpcTxEvent> {
       Map<String, OmegaCallback> instanceCallback = omegaCallbacks
           .computeIfAbsent(serviceName, v -> new ConcurrentHashMap<>());
       instanceCallback.computeIfAbsent(instanceId, v -> new GrpcOmegaCallback(responseObserver));
-      omegaCallbacksReverse.computeIfAbsent(responseObserver, v -> new SimpleImmutableEntry<>(serviceName, instanceId));
+      serviceEntries.add(new SimpleImmutableEntry<>(serviceName, instanceId));
     }
 
     // store received event
@@ -102,13 +101,16 @@ class GrpcTxEventStreamObserver implements StreamObserver<GrpcTxEvent> {
   }
 
   private void removeInvalidCallback() {
-    Collection<SimpleImmutableEntry<String, String>> services = omegaCallbacksReverse.values();
-    for (SimpleImmutableEntry<String, String> pair : services) {
-      Map<String, OmegaCallback> instanceCallback = omegaCallbacks.get(pair.getKey());
+    for (SimpleImmutableEntry<String, String> entry : serviceEntries) {
+      Map<String, OmegaCallback> instanceCallback = omegaCallbacks.get(entry.getKey());
       if (instanceCallback != null) {
-        instanceCallback.remove(pair.getValue());
+        instanceCallback.remove(entry.getValue());
       }
     }
-    omegaCallbacksReverse.remove(responseObserver);
+    serviceEntries.clear();
+  }
+
+  Set<SimpleImmutableEntry<String, String>> serviceEntries() {
+    return serviceEntries;
   }
 }

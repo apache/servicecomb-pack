@@ -25,6 +25,7 @@ import static org.apache.servicecomb.saga.alpha.core.EventType.TxEndedEvent;
 import static org.apache.servicecomb.saga.alpha.core.EventType.TxStartedEvent;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -36,7 +37,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.servicecomb.saga.alpha.core.EventType;
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.TxConsistentService;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,14 +46,12 @@ import io.grpc.stub.StreamObserver;
 public class GrpcTxEventStreamObserverTest {
   private final Map<String, Map<String, OmegaCallback>> omegaCallbacks = new ConcurrentHashMap<>();
 
-  private final Map<StreamObserver<GrpcCompensateCommand>, SimpleImmutableEntry<String, String>> omegaCallbacksReverse = new ConcurrentHashMap<>();
-
   private final TxConsistentService txConsistentService = mock(TxConsistentService.class);
 
   private final StreamObserver responseObserver = mock(StreamObserver.class);
 
-  private final GrpcTxEventStreamObserver observer = new GrpcTxEventStreamObserver(omegaCallbacks,
-      omegaCallbacksReverse, txConsistentService, responseObserver);
+  private final GrpcTxEventStreamObserver observer = new GrpcTxEventStreamObserver(omegaCallbacks, txConsistentService,
+      responseObserver);
 
   private final String serviceName = "service a";
 
@@ -68,7 +66,6 @@ public class GrpcTxEventStreamObserverTest {
   @Before
   public void setUp() throws Exception {
     omegaCallbacks.clear();
-    omegaCallbacksReverse.clear();
   }
 
   @Test
@@ -81,10 +78,8 @@ public class GrpcTxEventStreamObserverTest {
     assertThat(callback, is(notNullValue()));
     assertThat(((GrpcOmegaCallback) callback).observer(), is(responseObserver));
 
-    assertThat(omegaCallbacksReverse.size(), is(1));
-    assertThat(omegaCallbacksReverse.getOrDefault(responseObserver, null), is(notNullValue()));
-    assertThat(omegaCallbacksReverse.get(responseObserver).getKey(), is(serviceName));
-    assertThat(omegaCallbacksReverse.get(responseObserver).getValue(), is(instanceId));
+    assertThat(observer.serviceEntries().size(), is(1));
+    assertThat(observer.serviceEntries(), hasItem(new SimpleImmutableEntry<>(serviceName, instanceId)));
   }
 
   @Test
@@ -93,7 +88,7 @@ public class GrpcTxEventStreamObserverTest {
     observer.onNext(startedEvent);
 
     assertThat(omegaCallbacks.size(), is(1));
-    assertThat(omegaCallbacksReverse.size(), is(1));
+    assertThat(observer.serviceEntries().size(), is(1));
   }
 
   @Test
@@ -108,11 +103,11 @@ public class GrpcTxEventStreamObserverTest {
   public void removeOmegaCallbacksOnComplete() {
     observer.onNext(startedEvent);
     assertThat(omegaCallbacks.getOrDefault(serviceName, new HashMap<>()).isEmpty(), is(false));
-    assertThat(omegaCallbacksReverse.size(), is(1));
+    assertThat(observer.serviceEntries().size(), is(1));
 
     observer.onCompleted();
     assertThat(omegaCallbacks.getOrDefault(serviceName, new HashMap<>()).isEmpty(), is(true));
-    assertThat(omegaCallbacksReverse.isEmpty(), is(true));
+    assertThat(observer.serviceEntries().isEmpty(), is(true));
   }
 
   private GrpcTxEvent eventOf(String serviceName, String instanceId, EventType type) {
