@@ -148,8 +148,33 @@ public class AlphaIntegrationTest {
     assertThat(receivedCommands.get(0).getPayloads().toByteArray(), is(payload.getBytes()));
   }
 
+  @Test
+  public void compensateOnlyFailedGlobalTransaction() {
+    StreamObserver<GrpcTxEvent> requestObserver1 = stub.callbackCommand(compensateResponseObserver);
+    requestObserver1.onNext(someGrpcEvent(TxStartedEvent));
+
+    StreamObserver<GrpcTxEvent> requestObserver2 = stub.callbackCommand(compensateResponseObserver);
+    requestObserver2.onNext(someGrpcEvent(TxStartedEvent, UUID.randomUUID().toString()));
+
+    await().atMost(1, SECONDS).until(() -> eventRepo.count() == 2);
+
+    requestObserver1.onNext(someGrpcEvent(TxAbortedEvent));
+    await().atMost(1, SECONDS).until(() -> !receivedCommands.isEmpty());
+
+    assertThat(receivedCommands.size(), is(1));
+    assertThat(receivedCommands.get(0).getGlobalTxId(), is(globalTxId));
+    assertThat(receivedCommands.get(0).getLocalTxId(), is(localTxId));
+    assertThat(receivedCommands.get(0).getParentTxId(), is(parentTxId));
+    assertThat(receivedCommands.get(0).getCompensateMethod(), is(compensationMethod));
+    assertThat(receivedCommands.get(0).getPayloads().toByteArray(), is(payload.getBytes()));
+  }
+
   private GrpcTxEvent someGrpcEvent(EventType type) {
     return eventOf(type, localTxId, parentTxId, payload.getBytes(), getClass().getCanonicalName());
+  }
+
+  private GrpcTxEvent someGrpcEvent(EventType type, String globalTxId) {
+    return eventOf(type, globalTxId, localTxId, parentTxId, payload.getBytes(), getClass().getCanonicalName());
   }
 
   private GrpcTxEvent eventOf(EventType eventType, byte[] payloads, String compensationMethod) {
@@ -157,6 +182,16 @@ public class AlphaIntegrationTest {
   }
 
   private GrpcTxEvent eventOf(EventType eventType, String localTxId, String parentTxId, byte[] payloads, String compensationMethod) {
+    return eventOf(eventType, globalTxId, localTxId, parentTxId, payloads, compensationMethod);
+  }
+
+  private GrpcTxEvent eventOf(EventType eventType,
+      String globalTxId,
+      String localTxId,
+      String parentTxId,
+      byte[] payloads,
+      String compensationMethod) {
+
     return GrpcTxEvent.newBuilder()
         .setServiceName(serviceName)
         .setInstanceId(instanceId)

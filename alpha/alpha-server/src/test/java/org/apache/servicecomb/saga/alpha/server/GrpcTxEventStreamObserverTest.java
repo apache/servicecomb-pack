@@ -20,6 +20,7 @@
 
 package org.apache.servicecomb.saga.alpha.server;
 
+import static java.util.Collections.emptyMap;
 import static org.apache.servicecomb.saga.alpha.core.EventType.TxAbortedEvent;
 import static org.apache.servicecomb.saga.alpha.core.EventType.TxEndedEvent;
 import static org.apache.servicecomb.saga.alpha.core.EventType.TxStartedEvent;
@@ -30,13 +31,13 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.servicecomb.saga.alpha.core.EventType;
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.TxConsistentService;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +49,8 @@ public class GrpcTxEventStreamObserverTest {
 
   private final TxConsistentService txConsistentService = mock(TxConsistentService.class);
 
-  private final StreamObserver responseObserver = mock(StreamObserver.class);
+  @SuppressWarnings("unchecked")
+  private final StreamObserver<GrpcCompensateCommand> responseObserver = mock(StreamObserver.class);
 
   private final GrpcTxEventStreamObserver observer = new GrpcTxEventStreamObserver(omegaCallbacks, txConsistentService,
       responseObserver);
@@ -74,6 +76,7 @@ public class GrpcTxEventStreamObserverTest {
 
     assertThat(omegaCallbacks.size(), is(1));
     assertThat(omegaCallbacks.getOrDefault(serviceName, null), is(notNullValue()));
+
     OmegaCallback callback = omegaCallbacks.get(serviceName).getOrDefault(instanceId, null);
     assertThat(callback, is(notNullValue()));
     assertThat(((GrpcOmegaCallback) callback).observer(), is(responseObserver));
@@ -102,11 +105,22 @@ public class GrpcTxEventStreamObserverTest {
   @Test
   public void removeOmegaCallbacksOnComplete() {
     observer.onNext(startedEvent);
-    assertThat(omegaCallbacks.getOrDefault(serviceName, new HashMap<>()).isEmpty(), is(false));
+    assertThat(omegaCallbacks.getOrDefault(serviceName, emptyMap()).isEmpty(), is(false));
     assertThat(observer.serviceEntries().size(), is(1));
 
     observer.onCompleted();
-    assertThat(omegaCallbacks.getOrDefault(serviceName, new HashMap<>()).isEmpty(), is(true));
+    assertThat(omegaCallbacks.getOrDefault(serviceName, emptyMap()).isEmpty(), is(true));
+    assertThat(observer.serviceEntries().isEmpty(), is(true));
+  }
+
+  @Test
+  public void removeOmegaCallbacksOnError() {
+    observer.onNext(startedEvent);
+    assertThat(omegaCallbacks.getOrDefault(serviceName, emptyMap()).isEmpty(), is(false));
+    assertThat(observer.serviceEntries().size(), is(1));
+
+    observer.onError(new RuntimeException("oops"));
+    assertThat(omegaCallbacks.getOrDefault(serviceName, emptyMap()).isEmpty(), is(true));
     assertThat(observer.serviceEntries().isEmpty(), is(true));
   }
 

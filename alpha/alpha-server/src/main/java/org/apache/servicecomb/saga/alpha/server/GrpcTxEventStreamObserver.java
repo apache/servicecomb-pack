@@ -26,8 +26,10 @@ import java.lang.invoke.MethodHandles;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Date;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.TxConsistentService;
@@ -41,16 +43,18 @@ import io.grpc.stub.StreamObserver;
 import io.netty.util.internal.ConcurrentSet;
 
 class GrpcTxEventStreamObserver implements StreamObserver<GrpcTxEvent> {
-
+  private static final Consumer<GrpcTxEvent> DO_NOTHING_CONSUMER = message -> {};
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final Map<String, Map<String, OmegaCallback>> omegaCallbacks;
 
-  private final Set<SimpleImmutableEntry<String, String>> serviceEntries = new ConcurrentSet<>();
+  private final Set<Entry<String, String>> serviceEntries = new ConcurrentSet<>();
 
   private final TxConsistentService txConsistentService;
 
   private final StreamObserver<GrpcCompensateCommand> responseObserver;
+
+  private volatile Consumer<GrpcTxEvent> consumer = matchOnceConsumer();
 
   GrpcTxEventStreamObserver(Map<String, Map<String, OmegaCallback>> omegaCallbacks,
       TxConsistentService txConsistentService, StreamObserver<GrpcCompensateCommand> responseObserver) {
@@ -64,12 +68,7 @@ class GrpcTxEventStreamObserver implements StreamObserver<GrpcTxEvent> {
     // register a callback on started event
     String serviceName = message.getServiceName();
     String instanceId = message.getInstanceId();
-    if (message.getType().equals(TxStartedEvent.name())) {
-      Map<String, OmegaCallback> instanceCallback = omegaCallbacks
-          .computeIfAbsent(serviceName, v -> new ConcurrentHashMap<>());
-      instanceCallback.computeIfAbsent(instanceId, v -> new GrpcOmegaCallback(responseObserver));
-      serviceEntries.add(new SimpleImmutableEntry<>(serviceName, instanceId));
-    }
+    consumer.accept(message);
 
     // store received event
     txConsistentService.handle(new TxEvent(
@@ -101,7 +100,7 @@ class GrpcTxEventStreamObserver implements StreamObserver<GrpcTxEvent> {
   }
 
   private void removeInvalidCallback() {
-    for (SimpleImmutableEntry<String, String> entry : serviceEntries) {
+    for (Entry<String, String> entry : serviceEntries) {
       Map<String, OmegaCallback> instanceCallback = omegaCallbacks.get(entry.getKey());
       if (instanceCallback != null) {
         instanceCallback.remove(entry.getValue());
@@ -110,7 +109,21 @@ class GrpcTxEventStreamObserver implements StreamObserver<GrpcTxEvent> {
     serviceEntries.clear();
   }
 
-  Set<SimpleImmutableEntry<String, String>> serviceEntries() {
+  Set<Entry<String, String>> serviceEntries() {
     return serviceEntries;
+  }
+
+  private Consumer<GrpcTxEvent> matchOnceConsumer() {
+    return message -> {
+      if (TxStartedEvent.name().equals(message.getType())) {
+        consumer = DO_NOTHING_CONSUMER;
+
+        Map<String, OmegaCallback> instanceCallback = omegaCallbacks
+            .computeIfAbsent(message.getServiceName(), v -> new ConcurrentHashMap<>());
+        instanceCallback.computeIfAbsent(message.getInstanceId(), v -> new GrpcOmegaCallback(responseObserver));
+
+        serviceEntries.add(new SimpleImmutableEntry<>(message.getServiceName(), message.getInstanceId()));
+      }
+    };
   }
 }
