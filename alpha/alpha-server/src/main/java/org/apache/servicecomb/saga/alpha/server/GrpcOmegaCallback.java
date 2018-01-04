@@ -20,8 +20,6 @@
 
 package org.apache.servicecomb.saga.alpha.server;
 
-import java.util.Objects;
-
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
@@ -38,6 +36,10 @@ public class GrpcOmegaCallback implements OmegaCallback {
     this.observer = observer;
   }
 
+  StreamObserver<GrpcCompensateCommand> observer() {
+    return observer;
+  }
+
   @Override
   public void compensate(TxEvent event) {
     GrpcCompensateCommand command = GrpcCompensateCommand.newBuilder()
@@ -48,22 +50,5 @@ public class GrpcOmegaCallback implements OmegaCallback {
         .setPayloads(ByteString.copyFrom(event.payloads()))
         .build();
     observer.onNext(command);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    GrpcOmegaCallback that = (GrpcOmegaCallback) o;
-    return Objects.equals(observer, that.observer);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(observer);
   }
 }

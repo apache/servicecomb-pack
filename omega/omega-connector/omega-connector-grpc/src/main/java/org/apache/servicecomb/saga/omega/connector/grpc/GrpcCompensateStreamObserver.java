@@ -41,7 +41,7 @@ public class GrpcCompensateStreamObserver implements StreamObserver<GrpcCompensa
 
   @Override
   public void onNext(GrpcCompensateCommand command) {
-    LOG.info("receive compensate command, global tx id: {}, local tx id: {}, compensate method: {}",
+    LOG.info("Received compensate command, global tx id: {}, local tx id: {}, compensate method: {}",
         command.getGlobalTxId(), command.getLocalTxId(), command.getCompensateMethod());
     messageHandler.onReceive(
         command.getGlobalTxId(),

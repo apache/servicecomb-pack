@@ -20,6 +20,7 @@
 
 package org.apache.servicecomb.saga.alpha.server;
 
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map;
 
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
@@ -36,11 +37,11 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
 
   private final Map<String, Map<String, OmegaCallback>> omegaCallbacks;
 
-  private final Map<StreamObserver<GrpcCompensateCommand>, Map<String, String>> omegaCallbacksReverse;
+  private final Map<StreamObserver<GrpcCompensateCommand>, SimpleImmutableEntry<String, String>> omegaCallbacksReverse;
 
   GrpcTxEventEndpointImpl(TxConsistentService txConsistentService,
       Map<String, Map<String, OmegaCallback>> omegaCallbacks,
-      Map<StreamObserver<GrpcCompensateCommand>, Map<String, String>> omegaCallbacksReverse) {
+      Map<StreamObserver<GrpcCompensateCommand>, SimpleImmutableEntry<String, String>> omegaCallbacksReverse) {
     this.txConsistentService = txConsistentService;
     this.omegaCallbacks = omegaCallbacks;
     this.omegaCallbacksReverse = omegaCallbacksReverse;
