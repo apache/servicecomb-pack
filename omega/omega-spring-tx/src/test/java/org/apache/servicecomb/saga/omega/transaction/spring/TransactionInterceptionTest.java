@@ -257,7 +257,7 @@ public class TransactionInterceptionTest {
   }
 
   private void waitTillSavedUser(String username) {
-    await().atMost(500, MILLISECONDS).until(() -> userRepository.findByUsername(username) != null);
+    await().atMost(1000, MILLISECONDS).until(() -> userRepository.findByUsername(username) != null);
   }
 
   private static class UserServiceActor extends AbstractLoggingActor {
