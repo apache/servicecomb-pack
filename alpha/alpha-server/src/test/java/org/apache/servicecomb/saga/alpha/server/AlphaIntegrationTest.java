@@ -94,7 +94,7 @@ public class AlphaIntegrationTest {
     // use the asynchronous stub need to wait for some time
     await().atMost(1, SECONDS).until(() -> eventRepo.findByEventGlobalTxId(globalTxId) != null);
 
-    assertThat(receivedCommands.size(), is(0));
+    assertThat(receivedCommands.isEmpty(), is(true));
 
     TxEventEnvelope envelope = eventRepo.findByEventGlobalTxId(globalTxId);
 
@@ -122,8 +122,8 @@ public class AlphaIntegrationTest {
     requestObserver.onNext(eventOf(TxEndedEvent, new byte[0], "method b"));
 
     requestObserver.onNext(someGrpcEvent(TxAbortedEvent));
-
     await().atMost(1, SECONDS).until(() -> receivedCommands.size() > 1);
+
     assertThat(receivedCommands, containsInAnyOrder(
         GrpcCompensateCommand.newBuilder().setGlobalTxId(globalTxId).setLocalTxId(localTxId).setParentTxId(parentTxId)
             .setCompensateMethod("method a").setPayloads(ByteString.copyFrom("service a".getBytes())).build(),
@@ -137,8 +137,10 @@ public class AlphaIntegrationTest {
     StreamObserver<GrpcTxEvent> requestObserver = stub.callbackCommand(compensateResponseObserver);
     requestObserver.onNext(someGrpcEvent(TxStartedEvent));
     await().atMost(1, SECONDS).until(() -> eventRepo.findByEventGlobalTxId(globalTxId) != null);
+
     requestObserver.onNext(someGrpcEvent(TxAbortedEvent));
     await().atMost(1, SECONDS).until(() -> !receivedCommands.isEmpty());
+
     assertThat(receivedCommands.get(0).getGlobalTxId(), is(globalTxId));
     assertThat(receivedCommands.get(0).getLocalTxId(), is(localTxId));
     assertThat(receivedCommands.get(0).getParentTxId(), is(parentTxId));

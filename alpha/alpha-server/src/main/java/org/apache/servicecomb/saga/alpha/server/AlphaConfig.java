@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.saga.alpha.server;
 
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,7 +52,7 @@ class AlphaConfig {
   }
 
   @Bean
-  Map<StreamObserver<GrpcCompensateCommand>, Map<String, String>> omegaCallbacksReverse() {
+  Map<StreamObserver<GrpcCompensateCommand>, SimpleImmutableEntry<String, String>> omegaCallbacksReverse() {
     return new ConcurrentHashMap<>();
   }
 
@@ -70,7 +71,7 @@ class AlphaConfig {
       TxEventRepository eventRepository,
       OmegaCallback omegaCallback,
       Map<String, Map<String, OmegaCallback>> omegaCallbacks,
-      Map<StreamObserver<GrpcCompensateCommand>, Map<String, String>> omegaCallbacksReverse) {
+      Map<StreamObserver<GrpcCompensateCommand>, SimpleImmutableEntry<String, String>> omegaCallbacksReverse) {
 
     TxConsistentService consistentService = new TxConsistentService(eventRepository, omegaCallback);
 
@@ -82,7 +83,7 @@ class AlphaConfig {
 
   private ServerStartable buildGrpc(int port, TxConsistentService txConsistentService,
       Map<String, Map<String, OmegaCallback>> omegaCallbacks,
-      Map<StreamObserver<GrpcCompensateCommand>, Map<String, String>> omegaCallbacksReverse) {
+      Map<StreamObserver<GrpcCompensateCommand>, SimpleImmutableEntry<String, String>> omegaCallbacksReverse) {
     return new GrpcStartable(port,
         new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks, omegaCallbacksReverse));
   }

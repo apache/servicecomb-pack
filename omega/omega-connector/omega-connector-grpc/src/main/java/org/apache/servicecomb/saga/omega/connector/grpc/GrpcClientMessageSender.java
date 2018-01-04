@@ -42,7 +42,7 @@ public class GrpcClientMessageSender implements MessageSender {
   private final MessageSerializer serializer;
   private final ServiceConfig serviceConfig;
 
-  private StreamObserver<GrpcTxEvent> requestObserver;
+  private final StreamObserver<GrpcTxEvent> requestObserver;
 
   public GrpcClientMessageSender(ManagedChannel channel, MessageSerializer serializer, ServiceConfig serviceConfig,
       MessageHandler handler) {

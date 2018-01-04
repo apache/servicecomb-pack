@@ -28,6 +28,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,7 +46,7 @@ import io.grpc.stub.StreamObserver;
 public class GrpcTxEventStreamObserverTest {
   private final Map<String, Map<String, OmegaCallback>> omegaCallbacks = new ConcurrentHashMap<>();
 
-  private final Map<StreamObserver<GrpcCompensateCommand>, Map<String, String>> omegaCallbacksReverse = new ConcurrentHashMap<>();
+  private final Map<StreamObserver<GrpcCompensateCommand>, SimpleImmutableEntry<String, String>> omegaCallbacksReverse = new ConcurrentHashMap<>();
 
   private final TxConsistentService txConsistentService = mock(TxConsistentService.class);
 
@@ -76,12 +77,14 @@ public class GrpcTxEventStreamObserverTest {
 
     assertThat(omegaCallbacks.size(), is(1));
     assertThat(omegaCallbacks.getOrDefault(serviceName, null), is(notNullValue()));
-    assertThat(omegaCallbacks.get(serviceName).getOrDefault(instanceId, null),
-        is(new GrpcOmegaCallback(responseObserver)));
+    OmegaCallback callback = omegaCallbacks.get(serviceName).getOrDefault(instanceId, null);
+    assertThat(callback, is(notNullValue()));
+    assertThat(((GrpcOmegaCallback) callback).observer(), is(responseObserver));
 
     assertThat(omegaCallbacksReverse.size(), is(1));
     assertThat(omegaCallbacksReverse.getOrDefault(responseObserver, null), is(notNullValue()));
-    assertThat(omegaCallbacksReverse.get(responseObserver).getOrDefault(serviceName, null), is(instanceId));
+    assertThat(omegaCallbacksReverse.get(responseObserver).getKey(), is(serviceName));
+    assertThat(omegaCallbacksReverse.get(responseObserver).getValue(), is(instanceId));
   }
 
   @Test

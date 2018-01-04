@@ -23,12 +23,10 @@ package org.apache.servicecomb.saga.alpha.server;
 import static org.apache.servicecomb.saga.alpha.core.EventType.TxStartedEvent;
 
 import java.lang.invoke.MethodHandles;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
@@ -47,14 +45,14 @@ class GrpcTxEventStreamObserver implements StreamObserver<GrpcTxEvent> {
 
   private final Map<String, Map<String, OmegaCallback>> omegaCallbacks;
 
-  private final Map<StreamObserver<GrpcCompensateCommand>, Map<String, String>> omegaCallbacksReverse;
+  private final Map<StreamObserver<GrpcCompensateCommand>, SimpleImmutableEntry<String, String>> omegaCallbacksReverse;
 
   private final TxConsistentService txConsistentService;
 
   private final StreamObserver<GrpcCompensateCommand> responseObserver;
 
   GrpcTxEventStreamObserver(Map<String, Map<String, OmegaCallback>> omegaCallbacks,
-      Map<StreamObserver<GrpcCompensateCommand>, Map<String, String>> omegaCallbacksReverse,
+      Map<StreamObserver<GrpcCompensateCommand>, SimpleImmutableEntry<String, String>> omegaCallbacksReverse,
       TxConsistentService txConsistentService, StreamObserver<GrpcCompensateCommand> responseObserver) {
     this.omegaCallbacks = omegaCallbacks;
     this.omegaCallbacksReverse = omegaCallbacksReverse;
@@ -70,10 +68,8 @@ class GrpcTxEventStreamObserver implements StreamObserver<GrpcTxEvent> {
     if (message.getType().equals(TxStartedEvent.name())) {
       Map<String, OmegaCallback> instanceCallback = omegaCallbacks
           .computeIfAbsent(serviceName, v -> new ConcurrentHashMap<>());
-      instanceCallback.putIfAbsent(instanceId, new GrpcOmegaCallback(responseObserver));
-      Map<String, String> serviceInstanceId = omegaCallbacksReverse
-          .computeIfAbsent(responseObserver, v -> new ConcurrentHashMap<>());
-      serviceInstanceId.putIfAbsent(serviceName, instanceId);
+      instanceCallback.computeIfAbsent(instanceId, v -> new GrpcOmegaCallback(responseObserver));
+      omegaCallbacksReverse.computeIfAbsent(responseObserver, v -> new SimpleImmutableEntry<>(serviceName, instanceId));
     }
 
     // store received event
@@ -106,20 +102,11 @@ class GrpcTxEventStreamObserver implements StreamObserver<GrpcTxEvent> {
   }
 
   private void removeInvalidCallback() {
-    Collection<Map<String, String>> services = omegaCallbacksReverse.values();
-    for (Map<String, String> service : services) {
-      Set<String> removedServices = new HashSet<>();
-      for (Entry<String, String> entry : service.entrySet()) {
-        String serviceName = entry.getKey();
-        String instanceId = entry.getValue();
-        Map<String, OmegaCallback> instanceCallback = omegaCallbacks.get(serviceName);
-        if (instanceCallback != null) {
-          instanceCallback.remove(instanceId);
-          removedServices.add(serviceName);
-        }
-      }
-      for (String removedService : removedServices) {
-        service.remove(removedService);
+    Collection<SimpleImmutableEntry<String, String>> services = omegaCallbacksReverse.values();
+    for (SimpleImmutableEntry<String, String> pair : services) {
+      Map<String, OmegaCallback> instanceCallback = omegaCallbacks.get(pair.getKey());
+      if (instanceCallback != null) {
+        instanceCallback.remove(pair.getValue());
       }
     }
     omegaCallbacksReverse.remove(responseObserver);
