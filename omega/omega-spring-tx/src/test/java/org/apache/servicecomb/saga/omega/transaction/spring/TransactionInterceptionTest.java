@@ -217,6 +217,7 @@ public class TransactionInterceptionTest {
     );
   }
 
+  // TODO: 2018/1/4 reactive is not supported yet, omega context won't be updated on shared threads
   @Test
   public void passesOmegaContextThroughReactiveX() throws Exception {
     Flowable.just(user)
@@ -236,9 +237,9 @@ public class TransactionInterceptionTest {
     );
   }
 
+  // TODO: 2018/1/4 actor system is not supported yet
   @Test
   public void passesOmegaContextAmongActors() throws Exception {
-    // TODO: 2018/1/3 if actor system starts before omega context initialized, this test will fail
     ActorSystem actorSystem = ActorSystem.create();
 
     ActorRef actorRef = actorSystem.actorOf(UserServiceActor.props(userService));

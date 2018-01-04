@@ -131,6 +131,10 @@ class ExecutorFieldCallback implements FieldCallback {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+      return method.invoke(target, augmentRunnablesWithOmegaContext(args));
+    }
+
+    private Object[] augmentRunnablesWithOmegaContext(Object[] args) {
       Object[] augmentedArgs = new Object[args.length];
 
       for (int i = 0; i < args.length; i++) {
@@ -147,7 +151,7 @@ class ExecutorFieldCallback implements FieldCallback {
         }
       }
 
-      return method.invoke(target, augmentedArgs);
+      return augmentedArgs;
     }
 
     private boolean isExecutable(Object arg) {
