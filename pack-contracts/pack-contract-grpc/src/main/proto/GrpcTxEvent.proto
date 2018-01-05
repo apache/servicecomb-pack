@@ -24,6 +24,7 @@ option java_outer_classname = "TxEventProto";
 service TxEventService {
   rpc OnConnected (GrpcServiceConfig) returns (stream GrpcCompensateCommand) {}
   rpc OnTxEvent (GrpcTxEvent) returns (GrpcAck) {}
+  rpc OnDisconnected (GrpcServiceConfig) returns (GrpcAck){}
 }
 
 message GrpcServiceConfig {

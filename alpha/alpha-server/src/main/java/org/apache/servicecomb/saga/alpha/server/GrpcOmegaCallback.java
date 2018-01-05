@@ -28,16 +28,12 @@ import com.google.protobuf.ByteString;
 
 import io.grpc.stub.StreamObserver;
 
-public class GrpcOmegaCallback implements OmegaCallback {
+class GrpcOmegaCallback implements OmegaCallback {
 
   private final StreamObserver<GrpcCompensateCommand> observer;
 
-  public GrpcOmegaCallback(StreamObserver<GrpcCompensateCommand> observer) {
+  GrpcOmegaCallback(StreamObserver<GrpcCompensateCommand> observer) {
     this.observer = observer;
-  }
-
-  StreamObserver<GrpcCompensateCommand> observer() {
-    return observer;
   }
 
   @Override
@@ -50,5 +46,10 @@ public class GrpcOmegaCallback implements OmegaCallback {
         .setPayloads(ByteString.copyFrom(event.payloads()))
         .build();
     observer.onNext(command);
+  }
+
+  @Override
+  public void disconnect() {
+    observer.onCompleted();
   }
 }

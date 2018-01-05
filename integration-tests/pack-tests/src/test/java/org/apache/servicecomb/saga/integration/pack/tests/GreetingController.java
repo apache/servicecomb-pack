@@ -28,6 +28,7 @@ import org.springframework.web.client.RestTemplate;
 @Controller
 @RequestMapping("/")
 public class GreetingController {
+  static final String TRESPASSER = "trespasser";
   private final GreetingService greetingService;
   private final RestTemplate restTemplate;
 
@@ -41,13 +42,25 @@ public class GreetingController {
   @GetMapping("/greet")
   ResponseEntity<String> greet(@RequestParam String name) {
     String greetings = greetingService.greet(name);
-    String bonjour = restTemplate.getForObject("http://localhost:8080/bonjour?name={name}", String.class, name);
 
-    return ResponseEntity.ok(greetings + "; " + bonjour);
+    if (!TRESPASSER.equals(name)) {
+      String bonjour = restTemplate.getForObject("http://localhost:8080/bonjour?name={name}", String.class, name);
+
+      return ResponseEntity.ok(greetings + "; " + bonjour);
+    }
+
+    String rude = restTemplate.getForObject("http://localhost:8080/rude?name={name}", String.class, name);
+
+    return ResponseEntity.ok(greetings + "; " + rude);
   }
 
   @GetMapping("/bonjour")
   ResponseEntity<String> bonjour(@RequestParam String name) {
     return ResponseEntity.ok(greetingService.bonjour(name));
+  }
+
+  @GetMapping("/rude")
+  ResponseEntity<String> rude(@RequestParam String name) {
+    return ResponseEntity.ok(greetingService.beingRude(name));
   }
 }

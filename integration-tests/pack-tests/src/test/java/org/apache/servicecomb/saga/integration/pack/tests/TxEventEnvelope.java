@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.saga.integration.pack.tests;
 
+import java.util.Arrays;
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -63,5 +64,20 @@ class TxEventEnvelope {
 
   public byte[] payloads() {
     return payloads;
+  }
+
+  @Override
+  public String toString() {
+    return "TxEventEnvelope{" +
+        "surrogateId=" + surrogateId +
+        ", serviceName='" + serviceName + '\'' +
+        ", instanceId='" + instanceId + '\'' +
+        ", creationTime=" + creationTime +
+        ", globalTxId='" + globalTxId + '\'' +
+        ", localTxId='" + localTxId + '\'' +
+        ", parentTxId='" + parentTxId + '\'' +
+        ", type='" + type + '\'' +
+        ", payloads=" + Arrays.toString(payloads) +
+        '}';
   }
 }

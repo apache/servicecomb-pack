@@ -17,19 +17,28 @@
 
 package org.apache.servicecomb.saga.integration.pack.tests;
 
-import org.springframework.stereotype.Service;
+import java.util.Queue;
 
 import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
-public class GreetingService {
+class GreetingService {
+  private final Queue<String> compensated;
+
+  @Autowired
+  GreetingService(Queue<String> compensated) {
+    this.compensated = compensated;
+  }
+
   @Compensable(compensationMethod = "goodbye")
   String greet(String name) {
     return "Greetings, " + name;
   }
 
   String goodbye(String name) {
-    return "Goodbye, " + name;
+    return appendMessage("Goodbye, " + name);
   }
 
   @Compensable(compensationMethod = "auRevoir")
@@ -38,6 +47,20 @@ public class GreetingService {
   }
 
   String auRevoir(String name) {
-    return "Au revoir, " + name;
+    return appendMessage("Au revoir, " + name);
+  }
+
+  @Compensable(compensationMethod = "apologize")
+  String beingRude(String name) {
+    throw new IllegalStateException("You know where the door is, " + name);
+  }
+
+  String apologize(String name) {
+    return appendMessage("My bad, please take the window instead, " + name);
+  }
+
+  private String appendMessage(String message) {
+    compensated.add(message);
+    return message;
   }
 }

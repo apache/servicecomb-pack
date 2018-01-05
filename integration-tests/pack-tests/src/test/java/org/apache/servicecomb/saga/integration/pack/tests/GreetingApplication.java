@@ -17,14 +17,23 @@
 
 package org.apache.servicecomb.saga.integration.pack.tests;
 
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import org.apache.servicecomb.saga.omega.spring.EnableOmega;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 @EnableOmega
 @SpringBootApplication
 public class GreetingApplication {
   public static void main(String[] args) {
     SpringApplication.run(GreetingApplication.class, args);
+  }
+
+  @Bean
+  Queue<String> compensated() {
+    return new ConcurrentLinkedQueue<>();
   }
 }

@@ -47,6 +47,7 @@ class OmegaSpringConfig {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final List<ManagedChannel> channels = new ArrayList<>();
+  private final List<MessageSender> senders = new ArrayList<>();
 
   @Bean
   IdGenerator<String> idGenerator() {
@@ -65,6 +66,7 @@ class OmegaSpringConfig {
 
   @PreDestroy
   void close() {
+    senders.forEach(MessageSender::onDisconnected);
     channels.forEach(ManagedChannel::shutdown);
   }
 
@@ -74,8 +76,9 @@ class OmegaSpringConfig {
     // TODO: 2017/12/26 connect to the one with lowest latency
     for (String address : addresses) {
       try {
-        MessageSender sender = new GrpcClientMessageSender(grpcChannel(address), new NativeMessageFormat(), serviceConfig, handler);
+        MessageSender sender = new GrpcClientMessageSender(grpcChannel(address), new NativeMessageFormat(), new NativeMessageFormat(), serviceConfig, handler);
         sender.onConnected();
+        senders.add(sender);
         return sender;
       } catch (Exception e) {
         log.error("Unable to connect to alpha at {}", address, e);
