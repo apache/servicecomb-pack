@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -35,6 +36,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.servicecomb.saga.alpha.core.EventType;
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
+import org.apache.servicecomb.saga.alpha.core.TxConsistentService;
+import org.apache.servicecomb.saga.alpha.core.TxEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
@@ -87,6 +90,9 @@ public class AlphaIntegrationTest {
 
   @Autowired
   private Map<String, Map<String, OmegaCallback>> omegaCallbacks;
+
+  @Autowired
+  private TxConsistentService consistentService;
 
   private static final List<GrpcCompensateCommand> receivedCommands = new CopyOnWriteArrayList<>();
   private final CompensateStreamObserver compensateResponseObserver = new CompensateStreamObserver();
@@ -169,6 +175,18 @@ public class AlphaIntegrationTest {
   }
 
   @Test
+  public void removeCallbackOnClientDown() throws Exception {
+    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+    blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent));
+
+    omegaCallbacks.get(serviceName).get(instanceId).disconnect();
+
+    consistentService.handle(someTxAbortEvent(serviceName, instanceId));
+
+    await().atMost(1, SECONDS).until(() -> omegaCallbacks.get(serviceName).isEmpty());
+  }
+
+  @Test
   public void doNotCompensateDuplicateTxOnFailure() {
     // duplicate events with same content but different timestamp
     asyncStub.onConnected(serviceConfig, compensateResponseObserver);
@@ -236,6 +254,19 @@ public class AlphaIntegrationTest {
         .setServiceName(uniquify("serviceName"))
         .setInstanceId(uniquify("instanceId"))
         .build();
+  }
+
+  private TxEvent someTxAbortEvent(String serviceName, String instanceId) {
+    return new TxEvent(
+        serviceName,
+        instanceId,
+        new Date(),
+        globalTxId,
+        localTxId,
+        parentTxId,
+        TxAbortedEvent.name(),
+        compensationMethod,
+        payload.getBytes());
   }
 
   private GrpcTxEvent someGrpcEvent(EventType type) {

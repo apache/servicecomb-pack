@@ -17,35 +17,38 @@
 
 package org.apache.servicecomb.saga.alpha.core;
 
-import static java.util.Collections.emptyMap;
-
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 
-public class CompositeOmegaCallback implements OmegaCallback {
-  private final Map<String, Map<String, OmegaCallback>> callbacks;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-  public CompositeOmegaCallback(Map<String, Map<String, OmegaCallback>> callbacks) {
+public class SelfCleaningOmegaCallback implements OmegaCallback {
+  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+  private final String instanceId;
+  private final OmegaCallback underlying;
+  private final Map<String, OmegaCallback> callbacks;
+
+  SelfCleaningOmegaCallback(String instanceId, OmegaCallback underlying, Map<String, OmegaCallback> callbacks) {
+    this.instanceId = instanceId;
+    this.underlying = underlying;
     this.callbacks = callbacks;
   }
 
   @Override
   public void compensate(TxEvent event) {
-    Map<String, OmegaCallback> serviceCallbacks = callbacks.getOrDefault(event.serviceName(), emptyMap());
-
-    if (serviceCallbacks.isEmpty()) {
-      throw new AlphaException("No such omega callback found for service " + event.serviceName());
-    }
-
-    OmegaCallback omegaCallback = serviceCallbacks.get(event.instanceId());
-    if (omegaCallback == null) {
-      omegaCallback = serviceCallbacks.values().iterator().next();
-    }
-
     try {
-      omegaCallback.compensate(event);
+      underlying.compensate(event);
     } catch (Exception e) {
-      serviceCallbacks.values().remove(omegaCallback);
+      callbacks.remove(instanceId);
+      log.error("Removed omega callback with instance id [{}] due to connection disruption", instanceId, e);
       throw e;
     }
+  }
+
+  @Override
+  public void disconnect() {
+    underlying.disconnect();
   }
 }
