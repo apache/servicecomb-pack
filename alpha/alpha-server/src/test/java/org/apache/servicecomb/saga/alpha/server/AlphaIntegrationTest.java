@@ -24,14 +24,17 @@ import static org.apache.servicecomb.saga.alpha.core.EventType.TxEndedEvent;
 import static org.apache.servicecomb.saga.alpha.core.EventType.TxStartedEvent;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.servicecomb.saga.alpha.core.EventType;
+import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
@@ -39,6 +42,7 @@ import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc;
 import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceBlockingStub;
 import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceStub;
 import org.hamcrest.core.Is;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
@@ -81,8 +85,11 @@ public class AlphaIntegrationTest {
   @Autowired
   private TxEventEnvelopeRepository eventRepo;
 
+  @Autowired
+  private Map<String, Map<String, OmegaCallback>> omegaCallbacks;
+
   private static final List<GrpcCompensateCommand> receivedCommands = new CopyOnWriteArrayList<>();
-  private final StreamObserver<GrpcCompensateCommand> compensateResponseObserver = new CompensateStreamObserver();
+  private final CompensateStreamObserver compensateResponseObserver = new CompensateStreamObserver();
 
   @AfterClass
   public static void tearDown() throws Exception {
@@ -93,6 +100,11 @@ public class AlphaIntegrationTest {
   public void before() {
     eventRepo.deleteAll();
     receivedCommands.clear();
+  }
+
+  @After
+  public void after() throws Exception {
+    blockingStub.onDisconnected(serviceConfig);
   }
 
   @Test
@@ -114,6 +126,46 @@ public class AlphaIntegrationTest {
     assertThat(envelope.type(), Is.is(TxStartedEvent.name()));
     assertThat(envelope.compensationMethod(), is(compensationMethod));
     assertThat(envelope.payloads(), is(payload.getBytes()));
+  }
+
+  @Test
+  public void closeStreamOnDisconnected() {
+    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+
+    await().atMost(1, SECONDS).until(() -> omegaCallbacks.containsKey(serviceConfig.getServiceName()));
+
+    assertThat(
+        omegaCallbacks.get(serviceConfig.getServiceName()).get(serviceConfig.getInstanceId()),
+        is(notNullValue()));
+
+    blockingStub.onDisconnected(serviceConfig);
+    assertThat(
+        omegaCallbacks.get(serviceConfig.getServiceName()).containsKey(serviceConfig.getInstanceId()),
+        is(false));
+
+    assertThat(compensateResponseObserver.isCompleted(), is(true));
+  }
+
+  @Test
+  public void closeStreamOfDisconnectedClientOnly() {
+    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+    await().atMost(1, SECONDS).until(() -> omegaCallbacks.containsKey(serviceConfig.getServiceName()));
+
+    GrpcServiceConfig anotherServiceConfig = someServiceConfig();
+    CompensateStreamObserver anotherResponseObserver = new CompensateStreamObserver();
+    TxEventServiceGrpc.newStub(clientChannel).onConnected(anotherServiceConfig, anotherResponseObserver);
+
+    await().atMost(1, SECONDS).until(() -> omegaCallbacks.containsKey(anotherServiceConfig.getServiceName()));
+
+    blockingStub.onDisconnected(serviceConfig);
+
+    assertThat(
+        omegaCallbacks.get(anotherServiceConfig.getServiceName()).containsKey(anotherServiceConfig.getInstanceId()),
+        is(true));
+
+    assertThat(anotherResponseObserver.isCompleted(), is(false));
+
+    TxEventServiceGrpc.newBlockingStub(clientChannel).onDisconnected(anotherServiceConfig);
   }
 
   @Test
@@ -161,8 +213,12 @@ public class AlphaIntegrationTest {
     asyncStub.onConnected(serviceConfig, compensateResponseObserver);
     blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent));
 
-    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
-    blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent, UUID.randomUUID().toString()));
+    // simulates connection from another service with different globalTxId
+    GrpcServiceConfig anotherServiceConfig = someServiceConfig();
+    TxEventServiceGrpc.newStub(clientChannel).onConnected(anotherServiceConfig, new CompensateStreamObserver());
+
+    TxEventServiceBlockingStub anotherBlockingStub = TxEventServiceGrpc.newBlockingStub(clientChannel);
+    anotherBlockingStub.onTxEvent(someGrpcEvent(TxStartedEvent, UUID.randomUUID().toString()));
 
     await().atMost(1, SECONDS).until(() -> eventRepo.count() == 2);
 
@@ -171,10 +227,15 @@ public class AlphaIntegrationTest {
 
     assertThat(receivedCommands.size(), is(1));
     assertThat(receivedCommands.get(0).getGlobalTxId(), is(globalTxId));
-    assertThat(receivedCommands.get(0).getLocalTxId(), is(localTxId));
-    assertThat(receivedCommands.get(0).getParentTxId(), is(parentTxId));
-    assertThat(receivedCommands.get(0).getCompensateMethod(), is(compensationMethod));
-    assertThat(receivedCommands.get(0).getPayloads().toByteArray(), is(payload.getBytes()));
+
+    anotherBlockingStub.onDisconnected(anotherServiceConfig);
+  }
+
+  private GrpcServiceConfig someServiceConfig() {
+    return GrpcServiceConfig.newBuilder()
+        .setServiceName(uniquify("serviceName"))
+        .setInstanceId(uniquify("instanceId"))
+        .build();
   }
 
   private GrpcTxEvent someGrpcEvent(EventType type) {
@@ -214,6 +275,8 @@ public class AlphaIntegrationTest {
   }
 
   private static class CompensateStreamObserver implements StreamObserver<GrpcCompensateCommand> {
+    private boolean completed = false;
+
     @Override
     public void onNext(GrpcCompensateCommand command) {
       // intercept received command
@@ -226,6 +289,11 @@ public class AlphaIntegrationTest {
 
     @Override
     public void onCompleted() {
+      completed = true;
+    }
+
+    boolean isCompleted() {
+      return completed;
     }
   }
 }

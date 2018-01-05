@@ -20,6 +20,8 @@
 
 package org.apache.servicecomb.saga.alpha.server;
 
+import static java.util.Collections.emptyMap;
+
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -53,6 +55,20 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
     omegaCallbacks
         .computeIfAbsent(request.getServiceName(), key -> new ConcurrentHashMap<>())
         .computeIfAbsent(request.getInstanceId(), key -> new GrpcOmegaCallback(responseObserver));
+  }
+
+  // TODO: 2018/1/5 connect is async and disconnect is sync, meaning callback may not be registered on disconnected
+  @Override
+  public void onDisconnected(GrpcServiceConfig request, StreamObserver<GrpcAck> responseObserver) {
+    OmegaCallback callback = omegaCallbacks.getOrDefault(request.getServiceName(), emptyMap())
+        .remove(request.getInstanceId());
+
+    if (callback != null) {
+      callback.disconnect();
+    }
+
+    responseObserver.onNext(GrpcAck.newBuilder().build());
+    responseObserver.onCompleted();
   }
 
   @Override

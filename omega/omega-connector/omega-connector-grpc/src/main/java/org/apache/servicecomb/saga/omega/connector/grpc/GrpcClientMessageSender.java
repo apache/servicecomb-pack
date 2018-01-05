@@ -21,6 +21,7 @@
 package org.apache.servicecomb.saga.omega.connector.grpc;
 
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
+import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.MessageSerializer;
@@ -46,19 +47,27 @@ public class GrpcClientMessageSender implements MessageSender {
   private final GrpcCompensateStreamObserver compensateStreamObserver;
   private final GrpcServiceConfig serviceConfig;
 
-  public GrpcClientMessageSender(ManagedChannel channel, MessageSerializer serializer, ServiceConfig serviceConfig,
+  public GrpcClientMessageSender(ManagedChannel channel,
+      MessageSerializer serializer,
+      MessageDeserializer deserializer,
+      ServiceConfig serviceConfig,
       MessageHandler handler) {
     this.asyncEventService = TxEventServiceGrpc.newStub(channel);
     this.blockingEventService = TxEventServiceGrpc.newBlockingStub(channel);
     this.serializer = serializer;
 
-    this.compensateStreamObserver = new GrpcCompensateStreamObserver(handler);
+    this.compensateStreamObserver = new GrpcCompensateStreamObserver(handler, deserializer);
     this.serviceConfig = serviceConfig(serviceConfig.serviceName(), serviceConfig.instanceId());
   }
 
   @Override
   public void onConnected() {
     asyncEventService.onConnected(serviceConfig, compensateStreamObserver);
+  }
+
+  @Override
+  public void onDisconnected() {
+    blockingEventService.onDisconnected(serviceConfig);
   }
 
   @Override
@@ -76,6 +85,7 @@ public class GrpcClientMessageSender implements MessageSender {
         .setGlobalTxId(event.globalTxId())
         .setLocalTxId(event.localTxId())
         .setType(event.type())
+        .setCompensationMethod(event.compensationMethod())
         .setPayloads(payloads);
 
     if (event.parentTxId() != null) {

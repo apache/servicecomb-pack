@@ -22,6 +22,7 @@ package org.apache.servicecomb.saga.omega.connector.grpc;
 
 import java.lang.invoke.MethodHandles;
 
+import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
 import org.slf4j.Logger;
@@ -34,9 +35,11 @@ class GrpcCompensateStreamObserver implements StreamObserver<GrpcCompensateComma
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final MessageHandler messageHandler;
+  private final MessageDeserializer deserializer;
 
-  GrpcCompensateStreamObserver(MessageHandler messageHandler) {
+  GrpcCompensateStreamObserver(MessageHandler messageHandler, MessageDeserializer deserializer) {
     this.messageHandler = messageHandler;
+    this.deserializer = deserializer;
   }
 
   @Override
@@ -49,7 +52,7 @@ class GrpcCompensateStreamObserver implements StreamObserver<GrpcCompensateComma
         command.getLocalTxId(),
         command.getParentTxId().isEmpty() ? null : command.getParentTxId(),
         command.getCompensateMethod(),
-        command.getPayloads());
+        deserializer.deserialize(command.getPayloads().toByteArray()));
   }
 
   @Override
