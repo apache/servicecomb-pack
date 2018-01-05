@@ -18,5 +18,8 @@
 package org.apache.servicecomb.saga.omega.transaction;
 
 public interface MessageSender {
+  default void onConnected() {
+  }
+
   void send(TxEvent event);
 }

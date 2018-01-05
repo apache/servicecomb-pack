@@ -74,7 +74,9 @@ class OmegaSpringConfig {
     // TODO: 2017/12/26 connect to the one with lowest latency
     for (String address : addresses) {
       try {
-        return new GrpcClientMessageSender(grpcChannel(address), new NativeMessageFormat(), serviceConfig, handler);
+        MessageSender sender = new GrpcClientMessageSender(grpcChannel(address), new NativeMessageFormat(), serviceConfig, handler);
+        sender.onConnected();
+        return sender;
       } catch (Exception e) {
         log.error("Unable to connect to alpha at {}", address, e);
       }

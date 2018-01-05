@@ -25,44 +25,53 @@ import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.MessageSerializer;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTxEvent.Builder;
 import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc;
+import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceBlockingStub;
 import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceStub;
 
 import com.google.protobuf.ByteString;
 
 import io.grpc.ManagedChannel;
-import io.grpc.stub.StreamObserver;
 
 public class GrpcClientMessageSender implements MessageSender {
 
-  private final TxEventServiceStub eventService;
+  private final TxEventServiceStub asyncEventService;
 
   private final MessageSerializer serializer;
-  private final ServiceConfig serviceConfig;
 
-  private final StreamObserver<GrpcTxEvent> requestObserver;
+  private final TxEventServiceBlockingStub blockingEventService;
+  private final GrpcCompensateStreamObserver compensateStreamObserver;
+  private final GrpcServiceConfig serviceConfig;
 
   public GrpcClientMessageSender(ManagedChannel channel, MessageSerializer serializer, ServiceConfig serviceConfig,
       MessageHandler handler) {
-    this.eventService = TxEventServiceGrpc.newStub(channel);
+    this.asyncEventService = TxEventServiceGrpc.newStub(channel);
+    this.blockingEventService = TxEventServiceGrpc.newBlockingStub(channel);
     this.serializer = serializer;
-    this.serviceConfig = serviceConfig;
-    this.requestObserver = this.eventService.callbackCommand(new GrpcCompensateStreamObserver(handler));
+
+    this.compensateStreamObserver = new GrpcCompensateStreamObserver(handler);
+    this.serviceConfig = serviceConfig(serviceConfig.serviceName(), serviceConfig.instanceId());
+  }
+
+  @Override
+  public void onConnected() {
+    asyncEventService.onConnected(serviceConfig, compensateStreamObserver);
   }
 
   @Override
   public void send(TxEvent event) {
-    requestObserver.onNext(convertEvent(event));
+    blockingEventService.onTxEvent(convertEvent(event));
   }
 
   private GrpcTxEvent convertEvent(TxEvent event) {
     ByteString payloads = ByteString.copyFrom(serializer.serialize(event.payloads()));
 
     Builder builder = GrpcTxEvent.newBuilder()
-        .setServiceName(serviceConfig.serviceName())
-        .setInstanceId(serviceConfig.instanceId())
+        .setServiceName(serviceConfig.getServiceName())
+        .setInstanceId(serviceConfig.getInstanceId())
         .setTimestamp(event.timestamp())
         .setGlobalTxId(event.globalTxId())
         .setLocalTxId(event.localTxId())
@@ -73,5 +82,12 @@ public class GrpcClientMessageSender implements MessageSender {
       builder.setParentTxId(event.parentTxId());
     }
     return builder.build();
+  }
+
+  private GrpcServiceConfig serviceConfig(String serviceName, String instanceId) {
+    return GrpcServiceConfig.newBuilder()
+        .setServiceName(serviceName)
+        .setInstanceId(instanceId)
+        .build();
   }
 }

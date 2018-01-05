@@ -33,8 +33,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.servicecomb.saga.alpha.core.EventType;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc;
+import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceBlockingStub;
 import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceStub;
 import org.hamcrest.core.Is;
 import org.junit.AfterClass;
@@ -56,10 +58,11 @@ import io.grpc.stub.StreamObserver;
 public class AlphaIntegrationTest {
   private static final int port = 8090;
 
-  private static ManagedChannel clientChannel = ManagedChannelBuilder
+  private static final ManagedChannel clientChannel = ManagedChannelBuilder
       .forAddress("localhost", port).usePlaintext(true).build();
 
-  private TxEventServiceStub stub = TxEventServiceGrpc.newStub(clientChannel);
+  private final TxEventServiceStub asyncStub = TxEventServiceGrpc.newStub(clientChannel);
+  private final TxEventServiceBlockingStub blockingStub = TxEventServiceGrpc.newBlockingStub(clientChannel);
 
   private static final String payload = "hello world";
 
@@ -69,6 +72,11 @@ public class AlphaIntegrationTest {
   private final String compensationMethod = getClass().getCanonicalName();
   private final String serviceName = uniquify("serviceName");
   private final String instanceId = uniquify("instanceId");
+
+  private final GrpcServiceConfig serviceConfig = GrpcServiceConfig.newBuilder()
+      .setServiceName(serviceName)
+      .setInstanceId(instanceId)
+      .build();
 
   @Autowired
   private TxEventEnvelopeRepository eventRepo;
@@ -89,8 +97,8 @@ public class AlphaIntegrationTest {
 
   @Test
   public void persistsEvent() {
-    StreamObserver<GrpcTxEvent> requestObserver = stub.callbackCommand(compensateResponseObserver);
-    requestObserver.onNext(someGrpcEvent(TxStartedEvent));
+    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+    blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent));
     // use the asynchronous stub need to wait for some time
     await().atMost(1, SECONDS).until(() -> eventRepo.findByEventGlobalTxId(globalTxId) != null);
 
@@ -111,17 +119,17 @@ public class AlphaIntegrationTest {
   @Test
   public void doNotCompensateDuplicateTxOnFailure() {
     // duplicate events with same content but different timestamp
-    StreamObserver<GrpcTxEvent> requestObserver = stub.callbackCommand(compensateResponseObserver);
-    requestObserver.onNext(eventOf(TxStartedEvent, localTxId, parentTxId, "service a".getBytes(), "method a"));
-    requestObserver.onNext(eventOf(TxStartedEvent, localTxId, parentTxId, "service a".getBytes(), "method a"));
-    requestObserver.onNext(eventOf(TxEndedEvent, new byte[0], "method a"));
+    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+    blockingStub.onTxEvent(eventOf(TxStartedEvent, localTxId, parentTxId, "service a".getBytes(), "method a"));
+    blockingStub.onTxEvent(eventOf(TxStartedEvent, localTxId, parentTxId, "service a".getBytes(), "method a"));
+    blockingStub.onTxEvent(eventOf(TxEndedEvent, new byte[0], "method a"));
 
     String localTxId1 = UUID.randomUUID().toString();
     String parentTxId1 = UUID.randomUUID().toString();
-    requestObserver.onNext(eventOf(TxStartedEvent, localTxId1, parentTxId1, "service b".getBytes(), "method b"));
-    requestObserver.onNext(eventOf(TxEndedEvent, new byte[0], "method b"));
+    blockingStub.onTxEvent(eventOf(TxStartedEvent, localTxId1, parentTxId1, "service b".getBytes(), "method b"));
+    blockingStub.onTxEvent(eventOf(TxEndedEvent, new byte[0], "method b"));
 
-    requestObserver.onNext(someGrpcEvent(TxAbortedEvent));
+    blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
     await().atMost(1, SECONDS).until(() -> receivedCommands.size() > 1);
 
     assertThat(receivedCommands, containsInAnyOrder(
@@ -134,11 +142,11 @@ public class AlphaIntegrationTest {
 
   @Test
   public void getCompensateCommandOnFailure() {
-    StreamObserver<GrpcTxEvent> requestObserver = stub.callbackCommand(compensateResponseObserver);
-    requestObserver.onNext(someGrpcEvent(TxStartedEvent));
+    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+    blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent));
     await().atMost(1, SECONDS).until(() -> eventRepo.findByEventGlobalTxId(globalTxId) != null);
 
-    requestObserver.onNext(someGrpcEvent(TxAbortedEvent));
+    blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
     await().atMost(1, SECONDS).until(() -> !receivedCommands.isEmpty());
 
     assertThat(receivedCommands.get(0).getGlobalTxId(), is(globalTxId));
@@ -150,15 +158,15 @@ public class AlphaIntegrationTest {
 
   @Test
   public void compensateOnlyFailedGlobalTransaction() {
-    StreamObserver<GrpcTxEvent> requestObserver1 = stub.callbackCommand(compensateResponseObserver);
-    requestObserver1.onNext(someGrpcEvent(TxStartedEvent));
+    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+    blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent));
 
-    StreamObserver<GrpcTxEvent> requestObserver2 = stub.callbackCommand(compensateResponseObserver);
-    requestObserver2.onNext(someGrpcEvent(TxStartedEvent, UUID.randomUUID().toString()));
+    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+    blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent, UUID.randomUUID().toString()));
 
     await().atMost(1, SECONDS).until(() -> eventRepo.count() == 2);
 
-    requestObserver1.onNext(someGrpcEvent(TxAbortedEvent));
+    blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
     await().atMost(1, SECONDS).until(() -> !receivedCommands.isEmpty());
 
     assertThat(receivedCommands.size(), is(1));
