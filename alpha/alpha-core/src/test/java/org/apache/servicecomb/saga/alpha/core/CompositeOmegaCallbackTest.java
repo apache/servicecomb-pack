@@ -19,8 +19,12 @@ package org.apache.servicecomb.saga.alpha.core;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
+import static org.apache.servicecomb.saga.alpha.core.EventType.TxStartedEvent;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -65,7 +69,7 @@ public class CompositeOmegaCallbackTest {
 
   @Test
   public void compensateCorrespondingOmegaInstanceOnly() throws Exception {
-    TxEvent event = eventOf(serviceName2, instanceId2One, EventType.TxStartedEvent);
+    TxEvent event = eventOf(serviceName2, instanceId2One, TxStartedEvent);
 
     compositeOmegaCallback.compensate(event);
 
@@ -73,12 +77,15 @@ public class CompositeOmegaCallbackTest {
     verify(callback1Two, never()).compensate(event);
     verify(callback2One).compensate(event);
     verify(callback2Two, never()).compensate(event);
+
+    assertThat(callbacks.get(serviceName1).values(), containsInAnyOrder(callback1One, callback1Two));
+    assertThat(callbacks.get(serviceName2).values(), containsInAnyOrder(callback2One, callback2Two));
   }
 
   @Test
   public void compensateOtherOmegaInstance_IfTheRequestedIsUnreachable() throws Exception {
     callbacks.get(serviceName2).remove(instanceId2One);
-    TxEvent event = eventOf(serviceName2, instanceId2One, EventType.TxStartedEvent);
+    TxEvent event = eventOf(serviceName2, instanceId2One, TxStartedEvent);
 
     compositeOmegaCallback.compensate(event);
 
@@ -86,12 +93,15 @@ public class CompositeOmegaCallbackTest {
     verify(callback1Two, never()).compensate(event);
     verify(callback2One, never()).compensate(event);
     verify(callback2Two).compensate(event);
+
+    assertThat(callbacks.get(serviceName1).values(), containsInAnyOrder(callback1One, callback1Two));
+    assertThat(callbacks.get(serviceName2).values(), containsInAnyOrder(callback2Two));
   }
 
   @Test
   public void blowsUpIfNoSuchServiceIsReachable() throws Exception {
     callbacks.get(serviceName2).clear();
-    TxEvent event = eventOf(serviceName2, instanceId2One, EventType.TxStartedEvent);
+    TxEvent event = eventOf(serviceName2, instanceId2One, TxStartedEvent);
 
     try {
       compositeOmegaCallback.compensate(event);
@@ -104,6 +114,45 @@ public class CompositeOmegaCallbackTest {
     verify(callback1Two, never()).compensate(event);
     verify(callback2One, never()).compensate(event);
     verify(callback2Two, never()).compensate(event);
+
+    assertThat(callbacks.get(serviceName1).values(), containsInAnyOrder(callback1One, callback1Two));
+    assertThat(callbacks.get(serviceName2).isEmpty(), is(true));
+  }
+
+  @Test
+  public void blowsUpIfNoSuchServiceFound() throws Exception {
+    callbacks.remove(serviceName2);
+    TxEvent event = eventOf(serviceName2, instanceId2One, TxStartedEvent);
+
+    try {
+      compositeOmegaCallback.compensate(event);
+      expectFailing(AlphaException.class);
+    } catch (AlphaException e) {
+      assertThat(e.getMessage(), is("No such omega callback found for service " + serviceName2));
+    }
+
+    verify(callback1One, never()).compensate(event);
+    verify(callback1Two, never()).compensate(event);
+    verify(callback2One, never()).compensate(event);
+    verify(callback2Two, never()).compensate(event);
+
+    assertThat(callbacks.get(serviceName1).values(), containsInAnyOrder(callback1One, callback1Two));
+    assertThat(callbacks.containsKey(serviceName2), is(false));
+  }
+
+  @Test
+  public void removeCallbackOnException() throws Exception {
+    doThrow(RuntimeException.class).when(callback1Two).compensate(any(TxEvent.class));
+    TxEvent event = eventOf(serviceName1, instanceId1Two, TxStartedEvent);
+
+    try {
+      compositeOmegaCallback.compensate(event);
+      expectFailing(RuntimeException.class);
+    } catch (RuntimeException ignored) {
+    }
+
+    assertThat(callbacks.get(serviceName1).values(), containsInAnyOrder(callback1One));
+    assertThat(callbacks.get(serviceName2).values(), containsInAnyOrder(callback2One, callback2Two));
   }
 
   private TxEvent eventOf(String serviceName, String instanceId, EventType eventType) {
