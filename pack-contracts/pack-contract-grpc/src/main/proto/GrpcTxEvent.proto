@@ -22,7 +22,16 @@ option java_package = "org.apache.servicecomb.saga.pack.contract.grpc";
 option java_outer_classname = "TxEventProto";
 
 service TxEventService {
-  rpc CallbackCommand (stream GrpcTxEvent) returns (stream GrpcCompensateCommand) {}
+  rpc OnConnected (GrpcServiceConfig) returns (stream GrpcCompensateCommand) {}
+  rpc OnTxEvent (GrpcTxEvent) returns (GrpcAck) {}
+}
+
+message GrpcServiceConfig {
+  string serviceName = 1;
+  string instanceId = 2;
+}
+
+message GrpcAck {
 }
 
 message GrpcTxEvent {

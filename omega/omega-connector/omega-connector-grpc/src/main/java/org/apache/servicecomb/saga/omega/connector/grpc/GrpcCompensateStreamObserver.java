@@ -29,13 +29,13 @@ import org.slf4j.LoggerFactory;
 
 import io.grpc.stub.StreamObserver;
 
-public class GrpcCompensateStreamObserver implements StreamObserver<GrpcCompensateCommand> {
+class GrpcCompensateStreamObserver implements StreamObserver<GrpcCompensateCommand> {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final MessageHandler messageHandler;
 
-  public GrpcCompensateStreamObserver(MessageHandler messageHandler) {
+  GrpcCompensateStreamObserver(MessageHandler messageHandler) {
     this.messageHandler = messageHandler;
   }
 
@@ -43,6 +43,7 @@ public class GrpcCompensateStreamObserver implements StreamObserver<GrpcCompensa
   public void onNext(GrpcCompensateCommand command) {
     LOG.info("Received compensate command, global tx id: {}, local tx id: {}, compensate method: {}",
         command.getGlobalTxId(), command.getLocalTxId(), command.getCompensateMethod());
+
     messageHandler.onReceive(
         command.getGlobalTxId(),
         command.getLocalTxId(),
