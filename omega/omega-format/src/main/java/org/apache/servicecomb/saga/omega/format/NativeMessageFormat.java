@@ -23,21 +23,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.apache.servicecomb.saga.omega.transaction.TxEvent;
-import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
-import org.apache.servicecomb.saga.omega.transaction.MessageSerializer;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
 
-public class NativeMessageFormat implements MessageSerializer, MessageDeserializer {
-  @Override
-  public byte[] serialize(TxEvent event) {
-    try {
-      return serialize(event.payloads());
-    } catch (OmegaException e) {
-      throw new OmegaException("Unable to serialize event with global tx id " + event.globalTxId(), e);
-    }
-  }
-
+public class NativeMessageFormat implements MessageFormat {
   @Override
   public byte[] serialize(Object[] objects) {
     try {

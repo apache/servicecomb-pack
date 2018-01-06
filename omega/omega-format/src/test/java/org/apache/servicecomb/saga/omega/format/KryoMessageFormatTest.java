@@ -17,19 +17,17 @@
 
 package org.apache.servicecomb.saga.omega.format;
 
-import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
-import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.apache.servicecomb.saga.omega.transaction.OmegaException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class NativeMessageFormatTest extends MessageFormatTestBase {
+public class KryoMessageFormatTest extends MessageFormatTestBase {
 
   @BeforeClass
   public static void setUp() {
-    format = new NativeMessageFormat();
+    format = new KryoMessageFormat();
   }
 
   @Test
@@ -51,12 +49,11 @@ public class NativeMessageFormatTest extends MessageFormatTestBase {
   }
 
   @Test
-  public void blowsUpWhenSerializeEmptyClass() {
-    try {
-      format.serialize(eventOf(new EmptyClass()));
-      expectFailing(OmegaException.class);
-    } catch (OmegaException e) {
-      assertThat(e.getMessage(), startsWith("Unable to serialize event with global tx id"));
-    }
+  public void serializeEmptyClassIntoBytes() {
+    byte[] bytes = format.serialize(eventOf(new EmptyClass()));
+
+    Object[] message = format.deserialize(bytes);
+
+    assertThat(message[0] instanceof EmptyClass, is(true));
   }
 }
