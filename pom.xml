@@ -58,6 +58,7 @@
     <rat.version>0.12</rat.version>
     <maven.failsafe.version>2.19.1</maven.failsafe.version>
     <grpc.version>1.8.0</grpc.version>
+    <kryo.version>4.0.1</kryo.version>
   </properties>
 
   <name>ServiceComb Saga</name>
@@ -332,7 +333,7 @@
       <dependency>
         <groupId>com.esotericsoftware</groupId>
         <artifactId>kryo</artifactId>
-        <version>4.0.1</version>
+        <version>${kryo.version}</version>
       </dependency>
 
       <!-- test dependencies -->

@@ -27,11 +27,15 @@ import static org.junit.Assert.assertThat;
 
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
+import org.junit.Ignore;
+import org.junit.Test;
 
+@Ignore
 public class MessageFormatTestBase {
 
   static MessageFormat format;
 
+  @Test
   public void serializeObjectIntoBytes() throws Exception {
     byte[] bytes = format.serialize(eventOf("hello", "world"));
 
@@ -40,6 +44,7 @@ public class MessageFormatTestBase {
     assertThat(asList(message), contains("hello", "world"));
   }
 
+  @Test
   public void serializeNullIntoBytes() throws Exception {
     byte[] bytes = format.serialize(eventOf((Object[]) null));
 
@@ -48,6 +53,7 @@ public class MessageFormatTestBase {
     assertThat(message, is(nullValue()));
   }
 
+  @Test
   public void blowsUpWhenObjectIsNotDeserializable() throws Exception {
     try {
       format.deserialize(new byte[0]);
