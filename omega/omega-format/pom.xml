@@ -33,6 +33,10 @@
       <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>omega-transaction</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.esotericsoftware</groupId>
+      <artifactId>kryo</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>junit</groupId>
