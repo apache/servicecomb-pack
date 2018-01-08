@@ -25,6 +25,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>coverage-aggregate</artifactId>
+  <name>Apache ServiceComb Saga :: Integration Tests :: Coverage Aggregate</name>
+
 
   <dependencies>
     <dependency>

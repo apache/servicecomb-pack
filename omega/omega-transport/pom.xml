@@ -28,6 +28,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>omega-transport</artifactId>
+  <name>Apache ServiceComb Saga :: Omega :: Transport</name>
+
   <packaging>pom</packaging>
   <modules>
     <module>omega-transport-resttemplate</module>

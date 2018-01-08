@@ -27,7 +27,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>alpha-core</artifactId>
-  <name>Apache ServiceComb Saga Alpha Core</name>
+  <name>Apache ServiceComb Saga :: Alpha :: Core</name>
   
   <dependencies>
     <dependency>

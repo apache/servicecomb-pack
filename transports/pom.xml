@@ -26,6 +26,8 @@
 
   <groupId>org.apache.servicecomb.saga.transports</groupId>
   <artifactId>transports</artifactId>
+  <name>Apache ServiceComb Saga :: Transports</name>
+
   <packaging>pom</packaging>
   <modules>
     <module>transport-httpclient</module>

@@ -25,6 +25,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>conditional-transaction-demo</artifactId>
+  <name>Apache ServiceComb Saga :: Demo :: Conditional Transaction</name>
   <packaging>pom</packaging>
 
   <modules>
