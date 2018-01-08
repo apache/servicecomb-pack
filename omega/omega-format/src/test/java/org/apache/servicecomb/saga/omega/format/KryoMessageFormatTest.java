@@ -17,7 +17,7 @@
 
 package org.apache.servicecomb.saga.omega.format;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
 import org.junit.BeforeClass;
@@ -32,10 +32,10 @@ public class KryoMessageFormatTest extends MessageFormatTestBase {
 
   @Test
   public void serializeEmptyClassIntoBytes() {
-    byte[] bytes = format.serialize(eventOf(new EmptyClass()));
+    byte[] bytes = format.serialize(new Object[]{new EmptyClass()});
 
     Object[] message = format.deserialize(bytes);
 
-    assertThat(message[0] instanceof EmptyClass, is(true));
+    assertThat(message[0], instanceOf(EmptyClass.class));
   }
 }
