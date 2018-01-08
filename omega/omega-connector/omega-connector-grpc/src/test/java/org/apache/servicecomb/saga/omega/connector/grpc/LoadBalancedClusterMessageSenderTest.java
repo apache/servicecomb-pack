@@ -28,6 +28,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -181,6 +182,36 @@ public class LoadBalancedClusterMessageSenderTest {
     messageSender.onDisconnected();
     assertThat(connected.get(8080).isEmpty(), is(true));
     assertThat(connected.get(8090).isEmpty(), is(true));
+  }
+
+  @Test
+  public void swallowException_UntilAllSendersConnected() throws Exception {
+    MessageSender underlying1 = Mockito.mock(MessageSender.class);
+    doThrow(RuntimeException.class).when(underlying1).onConnected();
+
+    MessageSender underlying2 = Mockito.mock(MessageSender.class);
+
+    MessageSender sender = new LoadBalancedClusterMessageSender(underlying1, underlying2);
+
+    sender.onConnected();
+
+    verify(underlying1).onConnected();
+    verify(underlying2).onConnected();
+  }
+
+  @Test
+  public void swallowException_UntilAllSendersDisconnected() throws Exception {
+    MessageSender underlying1 = Mockito.mock(MessageSender.class);
+    doThrow(RuntimeException.class).when(underlying1).onDisconnected();
+
+    MessageSender underlying2 = Mockito.mock(MessageSender.class);
+
+    MessageSender sender = new LoadBalancedClusterMessageSender(underlying1, underlying2);
+
+    sender.onDisconnected();
+
+    verify(underlying1).onDisconnected();
+    verify(underlying2).onDisconnected();
   }
 
   @Test

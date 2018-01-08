@@ -39,6 +39,7 @@ import io.grpc.ManagedChannel;
 
 public class GrpcClientMessageSender implements MessageSender {
 
+  private final String target;
   private final TxEventServiceStub asyncEventService;
 
   private final MessageSerializer serializer;
@@ -47,11 +48,14 @@ public class GrpcClientMessageSender implements MessageSender {
   private final GrpcCompensateStreamObserver compensateStreamObserver;
   private final GrpcServiceConfig serviceConfig;
 
-  public GrpcClientMessageSender(ManagedChannel channel,
+  public GrpcClientMessageSender(
+      String address,
+      ManagedChannel channel,
       MessageSerializer serializer,
       MessageDeserializer deserializer,
       ServiceConfig serviceConfig,
       MessageHandler handler) {
+    this.target = address;
     this.asyncEventService = TxEventServiceGrpc.newStub(channel);
     this.blockingEventService = TxEventServiceGrpc.newBlockingStub(channel);
     this.serializer = serializer;
@@ -68,6 +72,11 @@ public class GrpcClientMessageSender implements MessageSender {
   @Override
   public void onDisconnected() {
     blockingEventService.onDisconnected(serviceConfig);
+  }
+
+  @Override
+  public String target() {
+    return target;
   }
 
   @Override
