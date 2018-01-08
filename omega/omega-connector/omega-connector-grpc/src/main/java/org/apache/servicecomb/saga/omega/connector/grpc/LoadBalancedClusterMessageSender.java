@@ -17,13 +17,16 @@
 
 package org.apache.servicecomb.saga.omega.connector.grpc;
 
+import static java.util.Collections.emptyList;
+
 import java.lang.invoke.MethodHandles;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.function.Consumer;
 
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
@@ -34,51 +37,61 @@ import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.grpc.Attributes;
-import io.grpc.EquivalentAddressGroup;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.NameResolver;
-import io.grpc.NameResolver.Factory;
-import io.grpc.util.RoundRobinLoadBalancerFactory;
 
 public class LoadBalancedClusterMessageSender implements MessageSender {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private final MessageSender messageSender;
+  private final Map<MessageSender, Long> senders = new HashMap<>();
+  private final Collection<ManagedChannel> channels;
 
-  public LoadBalancedClusterMessageSender(String addresses,
+  public LoadBalancedClusterMessageSender(String[] addresses,
       MessageSerializer serializer,
       MessageDeserializer deserializer,
       ServiceConfig serviceConfig,
       MessageHandler handler) {
 
-    this(new GrpcClientMessageSender(clusterDirectAddressChannel(addresses),
-        serializer,
-        deserializer,
-        serviceConfig,
-        handler));
+    if (addresses.length == 0) {
+      throw new IllegalArgumentException("No reachable cluster address provided");
+    }
+
+    channels = new ArrayList<>(addresses.length);
+    for (String address : addresses) {
+      ManagedChannel channel = ManagedChannelBuilder.forTarget(address)
+          .usePlaintext(true)
+          .build();
+
+      channels.add(channel);
+      senders.put(
+          new GrpcClientMessageSender(channel,
+              serializer,
+              deserializer,
+              serviceConfig,
+              handler),
+          0L);
+    }
   }
 
-  LoadBalancedClusterMessageSender(MessageSender messageSender) {
-    this.messageSender = messageSender;
-  }
-
-  private static ManagedChannel clusterDirectAddressChannel(String addresses) {
-    return ManagedChannelBuilder.forTarget(addresses)
-        .nameResolverFactory(new ClusterNameResolverFactory(addresses))
-        .loadBalancerFactory(RoundRobinLoadBalancerFactory.getInstance())
-        .usePlaintext(true)
-        .build();
+  LoadBalancedClusterMessageSender(MessageSender... messageSenders) {
+    for (MessageSender sender : messageSenders) {
+      senders.put(sender, 0L);
+    }
+    channels = emptyList();
   }
 
   @Override
   public void onConnected() {
-    messageSender.onConnected();
+    senders.keySet().forEach(MessageSender::onConnected);
   }
 
   @Override
   public void onDisconnected() {
-    messageSender.onDisconnected();
+    senders.keySet().forEach(MessageSender::onDisconnected);
+  }
+
+  @Override
+  public void close() {
+    channels.forEach(ManagedChannel::shutdownNow);
   }
 
   @Override
@@ -86,54 +99,27 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
     boolean success = false;
     do {
       try {
-        messageSender.send(event);
+        withFastestSender(messageSender -> {
+          // very large latency on exception
+          senders.put(messageSender, Long.MAX_VALUE);
+
+          long startTime = System.nanoTime();
+          messageSender.send(event);
+          senders.put(messageSender, System.nanoTime() - startTime);
+        });
+
         success = true;
       } catch (Exception e) {
         log.error("Retry sending event {} due to failure", event, e);
       }
     } while (!success && !Thread.currentThread().isInterrupted());
-
   }
 
-  private static class ClusterNameResolverFactory extends Factory {
-    private final String addresses;
-
-    private ClusterNameResolverFactory(String addresses) {
-      this.addresses = addresses;
-    }
-
-    @Override
-    public NameResolver newNameResolver(URI targetUri, Attributes params) {
-      return new NameResolver() {
-        @Override
-        public String getServiceAuthority() {
-          return "localhost";
-        }
-
-        @Override
-        public void start(final Listener listener) {
-          List<SocketAddress> socketAddresses = Arrays.stream(addresses.split(","))
-              .map(address -> {
-                String[] split = address.split(":");
-                return new InetSocketAddress(split[0], Integer.parseInt(split[1]));
-              })
-              .collect(Collectors.toList());
-
-          listener.onAddresses(
-              Arrays.asList(new EquivalentAddressGroup(socketAddresses.get(0)),
-                  new EquivalentAddressGroup(socketAddresses.get(1))),
-              Attributes.EMPTY);
-        }
-
-        @Override
-        public void shutdown() {
-        }
-      };
-    }
-
-    @Override
-    public String getDefaultScheme() {
-      return "directaddress";
-    }
+  private void withFastestSender(Consumer<MessageSender> consumer) {
+    senders.entrySet()
+        .stream()
+        .min(Comparator.comparingLong(Entry::getValue))
+        .map(Entry::getKey)
+        .ifPresent(consumer);
   }
 }

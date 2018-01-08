@@ -24,5 +24,8 @@ public interface MessageSender {
   default void onDisconnected() {
   }
 
+  default void close() {
+  }
+
   void send(TxEvent event);
 }

@@ -17,14 +17,7 @@
 
 package org.apache.servicecomb.saga.omega.spring;
 
-import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.annotation.PreDestroy;
-
-import org.apache.servicecomb.saga.omega.connector.grpc.GrpcClientMessageSender;
+import org.apache.servicecomb.saga.omega.connector.grpc.LoadBalancedClusterMessageSender;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
@@ -32,22 +25,13 @@ import org.apache.servicecomb.saga.omega.context.UniqueIdGenerator;
 import org.apache.servicecomb.saga.omega.format.KryoMessageFormat;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-
 @Configuration
 class OmegaSpringConfig {
-  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-  private final List<ManagedChannel> channels = new ArrayList<>();
-  private final List<MessageSender> senders = new ArrayList<>();
 
   @Bean
   IdGenerator<String> idGenerator() {
@@ -64,40 +48,21 @@ class OmegaSpringConfig {
     return new ServiceConfig(serviceName);
   }
 
-  @PreDestroy
-  void close() {
-    senders.forEach(MessageSender::onDisconnected);
-    channels.forEach(ManagedChannel::shutdown);
-  }
-
   @Bean
-  MessageSender grpcMessageSender(@Value("${alpha.cluster.address}") String[] addresses, ServiceConfig serviceConfig,
+  MessageSender grpcMessageSender(
+      @Value("${alpha.cluster.address}") String[] addresses,
+      ServiceConfig serviceConfig,
       @Lazy MessageHandler handler) {
-    // TODO: 2017/12/26 connect to the one with lowest latency
-    for (String address : addresses) {
-      try {
-        MessageSender sender = new GrpcClientMessageSender(grpcChannel(address), new KryoMessageFormat(),
-            new KryoMessageFormat(), serviceConfig, handler);
-        sender.onConnected();
-        senders.add(sender);
-        return sender;
-      } catch (Exception e) {
-        log.error("Unable to connect to alpha at {}", address, e);
-      }
-    }
 
-    throw new IllegalArgumentException(
-        "None of the alpha cluster is reachable: " + Arrays.toString(addresses));
-  }
+        MessageSender sender = new LoadBalancedClusterMessageSender(
+            addresses,
+            new KryoMessageFormat(),
+            new KryoMessageFormat(),
+            serviceConfig,
+            handler);
 
-  private ManagedChannel grpcChannel(String address) {
-    String[] pair = address.split(":");
+        Runtime.getRuntime().addShutdownHook(new Thread(sender::close));
 
-    ManagedChannel channel = ManagedChannelBuilder.forAddress(pair[0], Integer.parseInt(pair[1]))
-        .usePlaintext(true)
-        .build();
-
-    channels.add(channel);
-    return channel;
+    return sender;
   }
 }
