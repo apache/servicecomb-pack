@@ -26,7 +26,6 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
-import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -37,7 +36,7 @@ public class MessageFormatTestBase {
 
   @Test
   public void serializeObjectIntoBytes() throws Exception {
-    byte[] bytes = format.serialize(new String[]{"hello", "world"});
+    byte[] bytes = format.serialize(new Object[]{"hello", "world"});
 
     Object[] message = format.deserialize(bytes);
 
@@ -46,7 +45,7 @@ public class MessageFormatTestBase {
 
   @Test
   public void serializeNullIntoBytes() throws Exception {
-    byte[] bytes = format.serialize(eventOf((Object[]) null));
+    byte[] bytes = format.serialize(null);
 
     Object[] message = format.deserialize(bytes);
 
@@ -61,10 +60,6 @@ public class MessageFormatTestBase {
     } catch (OmegaException e) {
       assertThat(e.getMessage(), startsWith("Unable to deserialize message"));
     }
-  }
-
-  TxEvent eventOf(Object... payloads) {
-    return new TxEvent(null, null, null, null, payloads);
   }
 
   static class EmptyClass {
