@@ -22,8 +22,6 @@ import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -75,7 +73,7 @@ public class LoadBalancedClusterMessageSenderTest {
 
   private static final Map<Integer, Integer> delays = new HashMap<Integer, Integer>() {{
     put(8080, 0);
-    put(8090, 100);
+    put(8090, 500);
   }};
 
   private static final Map<Integer, Set<String>> connected = new HashMap<Integer, Set<String>>() {{
@@ -222,9 +220,10 @@ public class LoadBalancedClusterMessageSenderTest {
     // but now we only send to the one with lowest latency
     messageSender.send(event);
     messageSender.send(event);
+    messageSender.send(event);
 
-    assertThat(eventsOn8080.size(), greaterThanOrEqualTo(2));
-    assertThat(eventsOn8090.size(), lessThanOrEqualTo(1));
+    assertThat(eventsOn8080.size(), is(3));
+    assertThat(eventsOn8090.size(), is(1));
   }
 
   @Test
