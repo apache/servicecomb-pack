@@ -17,10 +17,13 @@
 
 package org.apache.servicecomb.saga.omega.connector.grpc;
 
+import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -48,16 +51,19 @@ import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceImplBase;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.mockito.Mockito;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class LoadBalancedClusterMessageSenderTest {
 
   private static final int[] ports = {8080, 8090};
@@ -65,6 +71,11 @@ public class LoadBalancedClusterMessageSenderTest {
 
   private static final Queue<TxEvent> eventsOn8080 = new ConcurrentLinkedQueue<>();
   private static final Queue<TxEvent> eventsOn8090 = new ConcurrentLinkedQueue<>();
+
+  private static final Map<Integer, Integer> delays = new HashMap<Integer, Integer>() {{
+    put(8080, 0);
+    put(8090, 100);
+  }};
 
   private static final Map<Integer, Set<String>> connected = new HashMap<Integer, Set<String>>() {{
     put(8080, new ConcurrentSkipListSet<>());
@@ -75,8 +86,6 @@ public class LoadBalancedClusterMessageSenderTest {
     put(8080, eventsOn8080);
     put(8090, eventsOn8090);
   }};
-
-  private final String addresses = "localhost:8080,localhost:8090";
 
   private final MessageSerializer serializer = objects -> objects[0].toString().getBytes();
 
@@ -91,18 +100,23 @@ public class LoadBalancedClusterMessageSenderTest {
   private final TxEvent event = new TxEvent(globalTxId, localTxId, parentTxId, compensationMethod, "blah");
 
   private final String serviceName = uniquify("serviceName");
-  private final MessageSender messageSender = new LoadBalancedClusterMessageSender(
-      addresses,
-      serializer,
-      deserializer,
-      new ServiceConfig(serviceName),
-      handler);
+  private final String[] addresses = {"localhost:8080", "localhost:8090"};
+  private final MessageSender messageSender = newMessageSender(addresses);
+
+  private MessageSender newMessageSender(String[] addresses) {
+    return new LoadBalancedClusterMessageSender(
+        addresses,
+        serializer,
+        deserializer,
+        new ServiceConfig(serviceName),
+        handler);
+  }
 
   @BeforeClass
   public static void beforeClass() throws Exception {
     Arrays.stream(ports).forEach(port -> {
       ServerBuilder<?> serverBuilder = ServerBuilder.forPort(port);
-      serverBuilder.addService(new MyTxEventService(connected.get(port), eventsMap.get(port)));
+      serverBuilder.addService(new MyTxEventService(connected.get(port), eventsMap.get(port), delays.get(port)));
       Server server = serverBuilder.build();
 
       try {
@@ -119,8 +133,14 @@ public class LoadBalancedClusterMessageSenderTest {
     servers.forEach(Server::shutdown);
   }
 
+  @After
+  public void after() throws Exception {
+    eventsOn8080.clear();
+    eventsOn8090.clear();
+  }
+
   @Test
-  public void reconnectOnConnectionLoss() throws Exception {
+  public void resendToAnotherServerOnFailure() throws Exception {
     messageSender.send(event);
 
     killServerReceivedMessage();
@@ -150,7 +170,6 @@ public class LoadBalancedClusterMessageSenderTest {
     thread.join();
   }
 
-  @Ignore
   @Test
   public void broadcastConnectionAndDisconnection() throws Exception {
     messageSender.onConnected();
@@ -162,6 +181,29 @@ public class LoadBalancedClusterMessageSenderTest {
     messageSender.onDisconnected();
     assertThat(connected.get(8080).isEmpty(), is(true));
     assertThat(connected.get(8090).isEmpty(), is(true));
+  }
+
+  @Test
+  public void considerFasterServerFirst() throws Exception {
+    // we don't know which server is selected at first
+    messageSender.send(event);
+
+    // but now we only send to the one with lowest latency
+    messageSender.send(event);
+    messageSender.send(event);
+
+    assertThat(eventsOn8080.size(), greaterThanOrEqualTo(2));
+    assertThat(eventsOn8090.size(), lessThanOrEqualTo(1));
+  }
+
+  @Test
+  public void blowsUpWhenNoServerAddressProvided() throws Exception {
+    try {
+      newMessageSender(new String[0]);
+      expectFailing(IllegalArgumentException.class);
+    } catch (IllegalArgumentException e) {
+      assertThat(e.getMessage(), is("No reachable cluster address provided"));
+    }
   }
 
   private void killServerReceivedMessage() {
@@ -177,15 +219,17 @@ public class LoadBalancedClusterMessageSenderTest {
   private static class MyTxEventService extends TxEventServiceImplBase {
     private final Set<String> connected;
     private final Queue<TxEvent> events;
+    private final int delay;
 
-    private MyTxEventService(Set<String> connected, Queue<TxEvent> events) {
+    private MyTxEventService(Set<String> connected, Queue<TxEvent> events, int delay) {
       this.connected = connected;
       this.events = events;
+      this.delay = delay;
     }
 
     @Override
     public void onConnected(GrpcServiceConfig request, StreamObserver<GrpcCompensateCommand> responseObserver) {
-      connected.add(request.getInstanceId());
+      connected.add(request.getServiceName());
     }
 
     @Override
@@ -197,13 +241,23 @@ public class LoadBalancedClusterMessageSenderTest {
           request.getCompensationMethod(),
           new String(request.getPayloads().toByteArray())));
 
+      sleep();
+
       responseObserver.onNext(GrpcAck.newBuilder().build());
       responseObserver.onCompleted();
     }
 
+    private void sleep() {
+      try {
+        Thread.sleep(delay);
+      } catch (InterruptedException e) {
+        fail(e.getMessage());
+      }
+    }
+
     @Override
     public void onDisconnected(GrpcServiceConfig request, StreamObserver<GrpcAck> responseObserver) {
-      connected.remove(request.getInstanceId());
+      connected.remove(request.getServiceName());
       responseObserver.onNext(GrpcAck.newBuilder().build());
       responseObserver.onCompleted();
     }
