@@ -70,7 +70,7 @@ public class PackIT {
     repository.deleteAll();
   }
 
-  @Test
+  @Test(timeout = 5000)
   public void updatesTxStateToAlpha() throws Exception {
     HttpHeaders headers = new HttpHeaders();
 
@@ -116,7 +116,7 @@ public class PackIT {
     assertThat(compensatedMessages.isEmpty(), is(true));
   }
 
-  @Test
+  @Test(timeout = 5000)
   public void compensatesFailedGlobalTransaction() throws Exception {
     HttpHeaders headers = new HttpHeaders();
 
