@@ -19,16 +19,6 @@ package org.apache.servicecomb.saga.omega.format;
 
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.saga.omega.transaction.MessageSerializer;
-import org.apache.servicecomb.saga.omega.transaction.OmegaException;
-import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 
-interface MessageFormat extends MessageSerializer, MessageDeserializer {
-  @Override
-  default byte[] serialize(TxEvent event) {
-    try {
-      return serialize(event.payloads());
-    } catch (OmegaException e) {
-      throw new OmegaException("Unable to serialize event with global tx id " + event.globalTxId(), e);
-    }
-  }
+public interface MessageFormat extends MessageSerializer, MessageDeserializer {
 }

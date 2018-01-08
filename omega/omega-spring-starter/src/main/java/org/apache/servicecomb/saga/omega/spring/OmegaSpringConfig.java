@@ -23,6 +23,7 @@ import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.context.UniqueIdGenerator;
 import org.apache.servicecomb.saga.omega.format.KryoMessageFormat;
+import org.apache.servicecomb.saga.omega.format.MessageFormat;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,14 +55,15 @@ class OmegaSpringConfig {
       ServiceConfig serviceConfig,
       @Lazy MessageHandler handler) {
 
-        MessageSender sender = new LoadBalancedClusterMessageSender(
-            addresses,
-            new KryoMessageFormat(),
-            new KryoMessageFormat(),
-            serviceConfig,
-            handler);
+    MessageFormat messageFormat = new KryoMessageFormat();
+    MessageSender sender = new LoadBalancedClusterMessageSender(
+        addresses,
+        messageFormat,
+        messageFormat,
+        serviceConfig,
+        handler);
 
-        Runtime.getRuntime().addShutdownHook(new Thread(sender::close));
+    Runtime.getRuntime().addShutdownHook(new Thread(sender::close));
 
     return sender;
   }
