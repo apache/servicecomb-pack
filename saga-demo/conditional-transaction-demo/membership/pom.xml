@@ -25,6 +25,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>membership</artifactId>
+  <name>Apache ServiceComb Saga Demo Conditional Transaction Demo Membership</name>
+
 
   <dependencies>
     <dependency>

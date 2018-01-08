@@ -25,6 +25,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>payment</artifactId>
+  <name>Apache ServiceComb Saga Demo Conditional Transaction Demo Payment</name>
+
 
   <dependencies>
     <dependency>

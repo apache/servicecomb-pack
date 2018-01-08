@@ -27,6 +27,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>omega-context</artifactId>
+  <name>Apache ServiceComb Saga Omega context</name>
+  
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>

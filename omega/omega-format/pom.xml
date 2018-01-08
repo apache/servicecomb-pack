@@ -27,6 +27,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>omega-format</artifactId>
+  <name>Apache ServiceComb Saga Omega Format</name>
 
   <dependencies>
     <dependency>

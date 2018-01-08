@@ -25,6 +25,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>car-rental-service</artifactId>
+  <name>Apache ServiceComb Saga Demo Dependency Free Transaction Demo Car Rental Service</name>
+
 
   <dependencies>
     <dependency>

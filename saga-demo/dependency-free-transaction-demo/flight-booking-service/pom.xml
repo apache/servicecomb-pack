@@ -25,6 +25,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>flight-booking-service</artifactId>
+  <name>Apache ServiceComb Saga Demo Dependency Free Transaction Demo Flight Booking Service</name>
+
 
   <dependencies>
     <dependency>
