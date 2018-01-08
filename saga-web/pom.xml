@@ -27,7 +27,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>saga-web</artifactId>
-  <name>Apache ServiceComb Saga :: Web</name>
+  <name>Saga::Web</name>
 
   <dependencyManagement>
     <dependencies>

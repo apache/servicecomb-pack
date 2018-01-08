@@ -25,7 +25,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>transport-httpclient-spring</artifactId>
-  <name>Apache ServiceComb Saga :: Transports :: HttpClient Spring</name>
+  <name>Saga::Transports::HttpClient Spring</name>
 
   <dependencyManagement>
     <dependencies>

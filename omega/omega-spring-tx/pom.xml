@@ -27,7 +27,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>omega-spring-tx</artifactId>
-  <name>Apache ServiceComb Saga :: Omega :: Spring TX</name>
+  <name>Saga::Omega::Spring TX</name>
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>

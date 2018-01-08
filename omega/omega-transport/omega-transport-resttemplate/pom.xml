@@ -28,7 +28,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>omega-transport-resttemplate</artifactId>
-  <name>Apache ServiceComb Saga :: Omega :: Transport :: Rest Template</name>
+  <name>Saga::Omega::Transport::Rest Template</name>
 
   <dependencies>
     <dependency>

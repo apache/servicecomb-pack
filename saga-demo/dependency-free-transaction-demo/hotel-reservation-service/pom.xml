@@ -25,7 +25,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>hotel-reservation-service</artifactId>
-  <name>Apache ServiceComb Saga :: Demo :: Dependency Free Transaction :: Hotel Reservation Service</name>
+  <name>Saga::Demo::Dependency Free Transaction::Hotel Reservation Service</name>
 
 
   <dependencies>

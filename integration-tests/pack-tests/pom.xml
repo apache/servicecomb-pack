@@ -27,7 +27,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>pack-tests</artifactId>
-  <name>Apache ServiceComb Saga :: Integration Tests :: Pack Tests</name>
+  <name>Saga::Integration Tests::Pack Tests</name>
 
 
   <dependencyManagement>
