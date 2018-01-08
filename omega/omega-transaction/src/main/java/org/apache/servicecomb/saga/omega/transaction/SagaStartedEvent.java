@@ -15,16 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.integration.pack.tests;
+package org.apache.servicecomb.saga.omega.transaction;
 
-import java.util.List;
+public class SagaStartedEvent extends TxEvent {
 
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
-
-interface TxEventEnvelopeRepository extends CrudRepository<TxEventEnvelope, Long> {
-  List<TxEventEnvelope> findByGlobalTxIdOrderByCreationTime(String globalTxId);
-
-  @Query("SELECT DISTINCT(e.globalTxId) from TxEventEnvelope e")
-  List<String> findDistinctGlobalTxId();
+  public SagaStartedEvent(String globalTxId, String localTxId) {
+    // use "" instead of null as compensationMethod requires not null in sql
+    super(globalTxId, localTxId, null, "");
+  }
 }

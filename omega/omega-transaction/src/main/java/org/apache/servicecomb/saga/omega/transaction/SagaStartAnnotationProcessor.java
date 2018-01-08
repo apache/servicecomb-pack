@@ -15,16 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.integration.pack.tests;
+package org.apache.servicecomb.saga.omega.transaction;
 
-import java.util.List;
+import org.apache.servicecomb.saga.omega.context.OmegaContext;
 
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+public class SagaStartAnnotationProcessor {
 
-interface TxEventEnvelopeRepository extends CrudRepository<TxEventEnvelope, Long> {
-  List<TxEventEnvelope> findByGlobalTxIdOrderByCreationTime(String globalTxId);
+  private final OmegaContext omegaContext;
 
-  @Query("SELECT DISTINCT(e.globalTxId) from TxEventEnvelope e")
-  List<String> findDistinctGlobalTxId();
+  private final MessageSender sender;
+
+  SagaStartAnnotationProcessor(OmegaContext omegaContext, MessageSender sender) {
+    this.omegaContext = omegaContext;
+    this.sender = sender;
+  }
+
+  void intercept() {
+    sender.send(new SagaStartedEvent(omegaContext.newGlobalTxId(), omegaContext.newLocalTxId()));
+  }
 }
