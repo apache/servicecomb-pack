@@ -84,13 +84,11 @@ public class GrpcClientMessageSender implements MessageSender {
         .setTimestamp(event.timestamp())
         .setGlobalTxId(event.globalTxId())
         .setLocalTxId(event.localTxId())
+        .setParentTxId(event.parentTxId() == null ? "" : event.parentTxId())
         .setType(event.type())
         .setCompensationMethod(event.compensationMethod())
         .setPayloads(payloads);
 
-    if (event.parentTxId() != null) {
-      builder.setParentTxId(event.parentTxId());
-    }
     return builder.build();
   }
 

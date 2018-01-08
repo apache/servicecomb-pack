@@ -15,16 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.integration.pack.tests;
+package org.apache.servicecomb.saga.omega.context.annotations;
 
-import java.util.List;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-interface TxEventEnvelopeRepository extends CrudRepository<TxEventEnvelope, Long> {
-  List<TxEventEnvelope> findByGlobalTxIdOrderByCreationTime(String globalTxId);
-
-  @Query("SELECT DISTINCT(e.globalTxId) from TxEventEnvelope e")
-  List<String> findDistinctGlobalTxId();
+@Retention(RUNTIME)
+@Target(METHOD)
+public @interface SagaStart {
 }

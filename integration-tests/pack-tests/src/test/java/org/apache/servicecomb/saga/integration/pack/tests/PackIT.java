@@ -25,7 +25,6 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -41,8 +40,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -72,90 +69,92 @@ public class PackIT {
 
   @Test
   public void updatesTxStateToAlpha() throws Exception {
-    HttpHeaders headers = new HttpHeaders();
-
-    headers.set(OmegaContext.GLOBAL_TX_ID_KEY, globalTxId);
-
-    ResponseEntity<String> entity = restTemplate.exchange("/greet?name={name}",
-        GET,
-        new HttpEntity<>(headers),
+    ResponseEntity<String> entity = restTemplate.getForEntity("/greet?name={name}",
         String.class,
         "mike");
 
     assertThat(entity.getStatusCode(), is(OK));
     assertThat(entity.getBody(), is("Greetings, mike; Bonjour, mike"));
 
+    List<String> distinctGlobalTxIds = repository.findDistinctGlobalTxId();
+    assertThat(distinctGlobalTxIds.size(), is(1));
+
+    String globalTxId = distinctGlobalTxIds.get(0);
     List<TxEventEnvelope> envelopes = repository.findByGlobalTxIdOrderByCreationTime(globalTxId);
 
-    assertThat(envelopes.size(), is(4));
-    assertThat(envelopes.get(0).type(), is("TxStartedEvent"));
+    assertThat(envelopes.size(), is(5));
+    assertThat(envelopes.get(0).type(), is("SagaStartedEvent"));
     assertThat(envelopes.get(0).localTxId(), is(notNullValue()));
     assertThat(envelopes.get(0).parentTxId(), is(nullValue()));
     assertThat(envelopes.get(0).serviceName(), is(serviceName));
     assertThat(envelopes.get(0).instanceId(), is(notNullValue()));
 
-    assertThat(envelopes.get(1).type(), is("TxEndedEvent"));
+    assertThat(envelopes.get(1).type(), is("TxStartedEvent"));
     assertThat(envelopes.get(1).localTxId(), is(envelopes.get(0).localTxId()));
     assertThat(envelopes.get(1).parentTxId(), is(nullValue()));
     assertThat(envelopes.get(1).serviceName(), is(serviceName));
     assertThat(envelopes.get(1).instanceId(), is(envelopes.get(0).instanceId()));
 
-
-    assertThat(envelopes.get(2).type(), is("TxStartedEvent"));
-    assertThat(envelopes.get(2).localTxId(), is(notNullValue()));
-    assertThat(envelopes.get(2).parentTxId(), is(envelopes.get(0).localTxId()));
+    assertThat(envelopes.get(2).type(), is("TxEndedEvent"));
+    assertThat(envelopes.get(2).localTxId(), is(envelopes.get(0).localTxId()));
+    assertThat(envelopes.get(2).parentTxId(), is(nullValue()));
     assertThat(envelopes.get(2).serviceName(), is(serviceName));
-    assertThat(envelopes.get(2).instanceId(), is(notNullValue()));
+    assertThat(envelopes.get(2).instanceId(), is(envelopes.get(0).instanceId()));
 
-    assertThat(envelopes.get(3).type(), is("TxEndedEvent"));
-    assertThat(envelopes.get(3).localTxId(), is(envelopes.get(2).localTxId()));
+    assertThat(envelopes.get(3).type(), is("TxStartedEvent"));
+    assertThat(envelopes.get(3).localTxId(), is(notNullValue()));
     assertThat(envelopes.get(3).parentTxId(), is(envelopes.get(0).localTxId()));
     assertThat(envelopes.get(3).serviceName(), is(serviceName));
-    assertThat(envelopes.get(3).instanceId(), is(envelopes.get(2).instanceId()));
+    assertThat(envelopes.get(3).instanceId(), is(notNullValue()));
+
+    assertThat(envelopes.get(4).type(), is("TxEndedEvent"));
+    assertThat(envelopes.get(4).localTxId(), is(envelopes.get(3).localTxId()));
+    assertThat(envelopes.get(4).parentTxId(), is(envelopes.get(0).localTxId()));
+    assertThat(envelopes.get(4).serviceName(), is(serviceName));
+    assertThat(envelopes.get(4).instanceId(), is(envelopes.get(3).instanceId()));
 
     assertThat(compensatedMessages.isEmpty(), is(true));
   }
 
   @Test
   public void compensatesFailedGlobalTransaction() throws Exception {
-    HttpHeaders headers = new HttpHeaders();
-
-    headers.set(OmegaContext.GLOBAL_TX_ID_KEY, globalTxId);
-
-    ResponseEntity<String> entity = restTemplate.exchange("/greet?name={name}",
-        GET,
-        new HttpEntity<>(headers),
+    ResponseEntity<String> entity = restTemplate.getForEntity("/greet?name={name}",
         String.class,
         TRESPASSER);
 
     assertThat(entity.getStatusCode(), is(INTERNAL_SERVER_ERROR));
 
-    await().atMost(2, SECONDS).until(() -> repository.count() == 6);
+    await().atMost(2, SECONDS).until(() -> repository.count() == 7);
 
+    List<String> distinctGlobalTxIds = repository.findDistinctGlobalTxId();
+    assertThat(distinctGlobalTxIds.size(), is(1));
+
+    String globalTxId = distinctGlobalTxIds.get(0);
     List<TxEventEnvelope> envelopes = repository.findByGlobalTxIdOrderByCreationTime(globalTxId);
-    assertThat(envelopes.size(), is(6));
+    assertThat(envelopes.size(), is(7));
 
-    assertThat(envelopes.get(0).type(), is("TxStartedEvent"));
-    assertThat(envelopes.get(1).type(), is("TxEndedEvent"));
-    assertThat(envelopes.get(2).type(), is("TxStartedEvent"));
+    assertThat(envelopes.get(0).type(), is("SagaStartedEvent"));
+    assertThat(envelopes.get(1).type(), is("TxStartedEvent"));
+    assertThat(envelopes.get(2).type(), is("TxEndedEvent"));
+    assertThat(envelopes.get(3).type(), is("TxStartedEvent"));
 
-    assertThat(envelopes.get(3).type(), is("TxAbortedEvent"));
-    assertThat(envelopes.get(3).localTxId(), is(envelopes.get(2).localTxId()));
-    assertThat(envelopes.get(3).parentTxId(), is(envelopes.get(0).localTxId()));
-    assertThat(envelopes.get(3).serviceName(), is(serviceName));
-    assertThat(envelopes.get(3).instanceId(), is(envelopes.get(2).instanceId()));
-
-    assertThat(envelopes.get(4).type(), is("TxCompensatedEvent"));
-    assertThat(envelopes.get(4).localTxId(), is(envelopes.get(0).localTxId()));
-    assertThat(envelopes.get(4).parentTxId(), is(nullValue()));
+    assertThat(envelopes.get(4).type(), is("TxAbortedEvent"));
+    assertThat(envelopes.get(4).localTxId(), is(envelopes.get(3).localTxId()));
+    assertThat(envelopes.get(4).parentTxId(), is(envelopes.get(1).localTxId()));
     assertThat(envelopes.get(4).serviceName(), is(serviceName));
-    assertThat(envelopes.get(4).instanceId(), is(envelopes.get(0).instanceId()));
+    assertThat(envelopes.get(4).instanceId(), is(envelopes.get(3).instanceId()));
 
     assertThat(envelopes.get(5).type(), is("TxCompensatedEvent"));
-    assertThat(envelopes.get(5).localTxId(), is(envelopes.get(2).localTxId()));
-    assertThat(envelopes.get(5).parentTxId(), is(envelopes.get(0).localTxId()));
+    assertThat(envelopes.get(5).localTxId(), is(envelopes.get(1).localTxId()));
+    assertThat(envelopes.get(5).parentTxId(), is(nullValue()));
     assertThat(envelopes.get(5).serviceName(), is(serviceName));
-    assertThat(envelopes.get(5).instanceId(), is(envelopes.get(2).instanceId()));
+    assertThat(envelopes.get(5).instanceId(), is(envelopes.get(1).instanceId()));
+
+    assertThat(envelopes.get(6).type(), is("TxCompensatedEvent"));
+    assertThat(envelopes.get(6).localTxId(), is(envelopes.get(3).localTxId()));
+    assertThat(envelopes.get(6).parentTxId(), is(envelopes.get(1).localTxId()));
+    assertThat(envelopes.get(6).serviceName(), is(serviceName));
+    assertThat(envelopes.get(6).instanceId(), is(envelopes.get(3).instanceId()));
 
     assertThat(compensatedMessages, contains(
         "Goodbye, " + TRESPASSER,

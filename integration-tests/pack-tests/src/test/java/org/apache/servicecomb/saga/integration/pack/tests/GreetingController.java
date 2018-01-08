@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.saga.integration.pack.tests;
 
+import org.apache.servicecomb.saga.omega.context.annotations.SagaStart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -39,6 +40,7 @@ public class GreetingController {
   }
 
 
+  @SagaStart
   @GetMapping("/greet")
   ResponseEntity<String> greet(@RequestParam String name) {
     String greetings = greetingService.greet(name);

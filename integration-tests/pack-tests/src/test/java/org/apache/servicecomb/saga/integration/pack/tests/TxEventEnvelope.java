@@ -50,6 +50,10 @@ class TxEventEnvelope {
     return instanceId;
   }
 
+  String globalTxId() {
+    return globalTxId;
+  }
+
   String localTxId() {
     return localTxId;
   }

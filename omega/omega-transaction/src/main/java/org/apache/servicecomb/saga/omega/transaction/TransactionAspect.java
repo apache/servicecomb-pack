@@ -20,6 +20,8 @@ package org.apache.servicecomb.saga.omega.transaction;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 
+import org.apache.servicecomb.saga.omega.context.OmegaContext;
+import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -27,22 +29,24 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.servicecomb.saga.omega.context.OmegaContext;
-import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
-
 @Aspect
 public class TransactionAspect {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final PreTransactionInterceptor preTransactionInterceptor;
   private final PostTransactionInterceptor postTransactionInterceptor;
   private final FailedTransactionInterceptor failedTransactionInterceptor;
+
+  private final SagaStartAnnotationProcessor sagaStartAnnotationProcessor;
   private final OmegaContext context;
 
-  public TransactionAspect(MessageSender sender, OmegaContext context) {
+  public TransactionAspect(MessageSender sender,
+      OmegaContext context) {
     this.context = context;
     this.preTransactionInterceptor = new PreTransactionInterceptor(sender);
     this.postTransactionInterceptor = new PostTransactionInterceptor(sender);
     this.failedTransactionInterceptor = new FailedTransactionInterceptor(sender);
+    this.sagaStartAnnotationProcessor = new SagaStartAnnotationProcessor(this.context, sender);
+
   }
 
   @Around("execution(@org.apache.servicecomb.saga.omega.transaction.annotations.Compensable * *(..)) && @annotation(compensable)")
@@ -61,6 +65,21 @@ public class TransactionAspect {
       return result;
     } catch (Throwable throwable) {
       interceptException(signature, throwable);
+      throw throwable;
+    }
+  }
+
+  @Around("execution(@org.apache.servicecomb.saga.omega.context.annotations.SagaStart * *(..))")
+  Object advise(ProceedingJoinPoint joinPoint) throws Throwable {
+    Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+
+    LOG.debug("Initializing global tx id before execution of method {}", method.toString());
+    sagaStartAnnotationProcessor.intercept();
+
+    try {
+      return joinPoint.proceed();
+    } catch (Throwable throwable) {
+      LOG.error("Failed to process SagaStart method: {}", method.toString());
       throw throwable;
     }
   }
