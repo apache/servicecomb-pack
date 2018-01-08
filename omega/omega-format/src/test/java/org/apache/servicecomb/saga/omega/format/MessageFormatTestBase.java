@@ -37,7 +37,7 @@ public class MessageFormatTestBase {
 
   @Test
   public void serializeObjectIntoBytes() throws Exception {
-    byte[] bytes = format.serialize(eventOf("hello", "world"));
+    byte[] bytes = format.serialize(new String[]{"hello", "world"});
 
     Object[] message = format.deserialize(bytes);
 
