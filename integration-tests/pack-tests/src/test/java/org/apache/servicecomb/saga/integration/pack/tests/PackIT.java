@@ -67,7 +67,7 @@ public class PackIT {
     repository.deleteAll();
   }
 
-  @Test
+  @Test(timeout = 5000)
   public void updatesTxStateToAlpha() throws Exception {
     ResponseEntity<String> entity = restTemplate.getForEntity("/greet?name={name}",
         String.class,
@@ -129,7 +129,7 @@ public class PackIT {
     assertThat(compensatedMessages.isEmpty(), is(true));
   }
 
-  @Test
+  @Test(timeout = 5000)
   public void compensatesFailedGlobalTransaction() throws Exception {
     ResponseEntity<String> entity = restTemplate.getForEntity("/greet?name={name}",
         String.class,

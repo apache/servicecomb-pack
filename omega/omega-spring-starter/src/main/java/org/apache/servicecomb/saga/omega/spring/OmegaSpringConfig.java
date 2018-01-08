@@ -63,7 +63,11 @@ class OmegaSpringConfig {
         serviceConfig,
         handler);
 
-    Runtime.getRuntime().addShutdownHook(new Thread(sender::close));
+    sender.onConnected();
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      sender.onDisconnected();
+      sender.close();
+    }));
 
     return sender;
   }
