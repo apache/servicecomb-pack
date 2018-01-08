@@ -27,5 +27,9 @@ public interface MessageSender {
   default void close() {
   }
 
+  default String target() {
+    return "UNKNOWN";
+  }
+
   void send(TxEvent event);
 }

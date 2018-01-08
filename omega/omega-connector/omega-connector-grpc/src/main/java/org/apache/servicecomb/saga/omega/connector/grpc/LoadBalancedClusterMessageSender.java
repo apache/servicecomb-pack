@@ -63,7 +63,9 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
 
       channels.add(channel);
       senders.put(
-          new GrpcClientMessageSender(channel,
+          new GrpcClientMessageSender(
+              address,
+              channel,
               serializer,
               deserializer,
               serviceConfig,
@@ -81,12 +83,25 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
 
   @Override
   public void onConnected() {
-    senders.keySet().forEach(MessageSender::onConnected);
+    senders.keySet().forEach(sender -> {
+      try {
+        sender.onConnected();
+      } catch (Exception e) {
+        log.error("Failed connecting to alpha at {}", sender.target(), e);
+      }
+    });
   }
 
   @Override
   public void onDisconnected() {
-    senders.keySet().forEach(MessageSender::onDisconnected);
+    senders.keySet().forEach(sender -> {
+      try {
+        sender.onDisconnected();
+      } catch (Exception e) {
+        log.error("Failed disconnecting from alpha at {}", sender.target(), e);
+      }
+    });
+
   }
 
   @Override
