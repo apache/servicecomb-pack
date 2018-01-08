@@ -25,6 +25,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>inventory</artifactId>
+  <name>Apache ServiceComb Saga Demo Conditional Transaction Demo Inventory</name>
+  
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
