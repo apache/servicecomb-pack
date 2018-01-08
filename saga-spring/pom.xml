@@ -25,7 +25,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>saga-spring</artifactId>
-  <name>Apache ServiceComb Saga Spring</name>
+  <name>Apache ServiceComb Saga :: Spring</name>
 
   <dependencyManagement>
     <dependencies>

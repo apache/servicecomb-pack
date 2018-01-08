@@ -26,6 +26,8 @@
 
   <groupId>org.apache.servicecomb.saga.discovery</groupId>
   <artifactId>saga-discovery</artifactId>
+  <name>Apache ServiceComb Saga :: Discovery </name>
+
   <packaging>pom</packaging>
   <modules>
     <module>saga-discovery-servicecenter</module>

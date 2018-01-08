@@ -25,7 +25,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>saga-format</artifactId>
-  <name>Apache ServiceComb Saga Format</name>
+  <name>Apache ServiceComb Saga :: Format</name>
 
   <dependencies>
     <dependency>

@@ -27,7 +27,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>omega-spring-starter</artifactId>
-  <name>Apache ServiceComb Saga Omega Spring Starter</name>
+  <name>Apache ServiceComb Saga :: Omega :: Spring Starter</name>
 
   <dependencies>
     <dependency>

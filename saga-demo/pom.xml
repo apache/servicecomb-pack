@@ -26,6 +26,8 @@
 
   <groupId>org.apache.servicecomb.saga.demo</groupId>
   <artifactId>saga-demo</artifactId>
+  <name>Apache ServiceComb Saga :: Demo</name>
+
   <packaging>pom</packaging>
   <modules>
     <module>dependency-free-transaction-demo</module>

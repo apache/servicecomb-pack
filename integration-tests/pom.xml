@@ -26,6 +26,8 @@
 
   <groupId>org.apache.servicecomb.saga.tests</groupId>
   <artifactId>integration-tests</artifactId>
+  <name>Apache ServiceComb Saga :: Integration Tests</name>
+
   <packaging>pom</packaging>
   <modules>
     <module>coverage-aggregate</module>

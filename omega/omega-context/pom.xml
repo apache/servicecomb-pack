@@ -27,7 +27,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>omega-context</artifactId>
-  <name>Apache ServiceComb Saga Omega context</name>
+  <name>Apache ServiceComb Saga :: Omega :: Context</name>
   
   <dependencies>
     <dependency>
