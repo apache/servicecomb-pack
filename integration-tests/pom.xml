@@ -26,7 +26,7 @@
 
   <groupId>org.apache.servicecomb.saga.tests</groupId>
   <artifactId>integration-tests</artifactId>
-  <name>Apache ServiceComb Saga :: Integration Tests</name>
+  <name>Saga::Integration Tests</name>
 
   <packaging>pom</packaging>
   <modules>
