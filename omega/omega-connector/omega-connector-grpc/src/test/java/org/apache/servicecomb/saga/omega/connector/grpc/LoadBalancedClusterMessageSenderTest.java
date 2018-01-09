@@ -29,15 +29,11 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
@@ -53,37 +49,31 @@ import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEvent
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 import org.mockito.Mockito;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class LoadBalancedClusterMessageSenderTest {
 
   private static final int[] ports = {8080, 8090};
-  private static final List<Server> servers = new ArrayList<>();
-
-  private static final Queue<TxEvent> eventsOn8080 = new ConcurrentLinkedQueue<>();
-  private static final Queue<TxEvent> eventsOn8090 = new ConcurrentLinkedQueue<>();
+  private static final Map<Integer, Server> servers = new HashMap<>();
 
   private static final Map<Integer, Integer> delays = new HashMap<Integer, Integer>() {{
     put(8080, 0);
     put(8090, 500);
   }};
 
-  private static final Map<Integer, Set<String>> connected = new HashMap<Integer, Set<String>>() {{
-    put(8080, new ConcurrentSkipListSet<>());
-    put(8090, new ConcurrentSkipListSet<>());
+  private static final Map<Integer, Queue<String>> connected = new HashMap<Integer, Queue<String>>() {{
+    put(8080, new ConcurrentLinkedQueue<>());
+    put(8090, new ConcurrentLinkedQueue<>());
   }};
 
   private static final Map<Integer, Queue<TxEvent>> eventsMap = new HashMap<Integer, Queue<TxEvent>>() {{
-    put(8080, eventsOn8080);
-    put(8090, eventsOn8090);
+    put(8080, new ConcurrentLinkedQueue<>());
+    put(8090, new ConcurrentLinkedQueue<>());
   }};
 
   private final MessageSerializer serializer = objects -> objects[0].toString().getBytes();
@@ -108,49 +98,74 @@ public class LoadBalancedClusterMessageSenderTest {
         serializer,
         deserializer,
         new ServiceConfig(serviceName),
-        handler);
+        handler,
+        100);
   }
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    Arrays.stream(ports).forEach(port -> {
-      ServerBuilder<?> serverBuilder = ServerBuilder.forPort(port);
-      serverBuilder.addService(new MyTxEventService(connected.get(port), eventsMap.get(port), delays.get(port)));
-      Server server = serverBuilder.build();
+    Arrays.stream(ports).forEach(LoadBalancedClusterMessageSenderTest::startServerOnPort);
+  }
 
-      try {
-        server.start();
-        servers.add(server);
-      } catch (IOException e) {
-        fail(e.getMessage());
-      }
-    });
+  private static void startServerOnPort(int port) {
+    ServerBuilder<?> serverBuilder = ServerBuilder.forPort(port);
+    serverBuilder.addService(new MyTxEventService(connected.get(port), eventsMap.get(port), delays.get(port)));
+    Server server = serverBuilder.build();
+
+    try {
+      server.start();
+      servers.put(port, server);
+    } catch (IOException e) {
+      fail(e.getMessage());
+    }
   }
 
   @AfterClass
   public static void tearDown() throws Exception {
-    servers.forEach(Server::shutdown);
+    servers.values().forEach(Server::shutdown);
   }
 
   @After
   public void after() throws Exception {
-    eventsOn8080.clear();
-    eventsOn8090.clear();
+    eventsMap.values().forEach(Queue::clear);
+    connected.values().forEach(Queue::clear);
   }
 
   @Test
   public void resendToAnotherServerOnFailure() throws Exception {
     messageSender.send(event);
 
-    killServerReceivedMessage();
+    int deadPort = killServerReceivedMessage();
 
     messageSender.send(event);
+    messageSender.send(event);
 
-    assertThat(eventsOn8080.size(), is(1));
-    assertThat(eventsOn8080.peek().toString(), is(event.toString()));
+    assertThat(eventsMap.get(deadPort).size(), is(1));
+    assertThat(eventsMap.get(deadPort).peek().toString(), is(event.toString()));
 
-    assertThat(eventsOn8090.size(), is(1));
-    assertThat(eventsOn8090.peek().toString(), is(event.toString()));
+    int livePort = deadPort == 8080? 8090 : 8080;
+    assertThat(eventsMap.get(livePort).size(), is(2));
+    assertThat(eventsMap.get(livePort).peek().toString(), is(event.toString()));
+
+    // restart killed server in order not to affect other tests
+    startServerOnPort(deadPort);
+  }
+
+  @Test
+  public void resetLatencyOnReconnection() throws Exception {
+    messageSender.onConnected();
+    messageSender.send(event);
+
+    int deadPort = killServerReceivedMessage();
+
+    startServerOnPort(deadPort);
+    await().atMost(1, SECONDS).until(() -> connected.get(deadPort).size() == 3);
+
+    messageSender.send(event);
+    messageSender.send(event);
+
+    // restarted server gets priority, since it had no traffic
+    assertThat(eventsMap.get(deadPort).size(), is(2));
   }
 
   @Test (timeout = 1000)
@@ -174,12 +189,12 @@ public class LoadBalancedClusterMessageSenderTest {
     messageSender.onConnected();
     await().atMost(1, SECONDS).until(() -> !connected.get(8080).isEmpty() && !connected.get(8090).isEmpty());
 
-    assertThat(connected.get(8080), contains(serviceName));
-    assertThat(connected.get(8090), contains(serviceName));
+    assertThat(connected.get(8080), contains("Connected " + serviceName));
+    assertThat(connected.get(8090), contains("Connected " + serviceName));
 
     messageSender.onDisconnected();
-    assertThat(connected.get(8080).isEmpty(), is(true));
-    assertThat(connected.get(8090).isEmpty(), is(true));
+    assertThat(connected.get(8080), contains("Connected " + serviceName, "Disconnected " + serviceName));
+    assertThat(connected.get(8090), contains("Connected " + serviceName, "Disconnected " + serviceName));
   }
 
   @Test
@@ -222,8 +237,8 @@ public class LoadBalancedClusterMessageSenderTest {
     messageSender.send(event);
     messageSender.send(event);
 
-    assertThat(eventsOn8080.size(), is(3));
-    assertThat(eventsOn8090.size(), is(1));
+    assertThat(eventsMap.get(8080).size(), is(3));
+    assertThat(eventsMap.get(8090).size(), is(1));
   }
 
   @Test
@@ -236,22 +251,23 @@ public class LoadBalancedClusterMessageSenderTest {
     }
   }
 
-  private void killServerReceivedMessage() {
-    int index = 0;
+  private int killServerReceivedMessage() {
     for (int port : eventsMap.keySet()) {
       if (!eventsMap.get(port).isEmpty()) {
-        servers.get(index).shutdownNow();
+        Server serverToKill = servers.get(port);
+        serverToKill.shutdownNow();
+        return port;
       }
-      index++;
     }
+    throw new IllegalStateException("None of the servers received any message");
   }
 
   private static class MyTxEventService extends TxEventServiceImplBase {
-    private final Set<String> connected;
+    private final Queue<String> connected;
     private final Queue<TxEvent> events;
     private final int delay;
 
-    private MyTxEventService(Set<String> connected, Queue<TxEvent> events, int delay) {
+    private MyTxEventService(Queue<String> connected, Queue<TxEvent> events, int delay) {
       this.connected = connected;
       this.events = events;
       this.delay = delay;
@@ -259,7 +275,7 @@ public class LoadBalancedClusterMessageSenderTest {
 
     @Override
     public void onConnected(GrpcServiceConfig request, StreamObserver<GrpcCompensateCommand> responseObserver) {
-      connected.add(request.getServiceName());
+      connected.add("Connected " + request.getServiceName());
     }
 
     @Override
@@ -287,7 +303,7 @@ public class LoadBalancedClusterMessageSenderTest {
 
     @Override
     public void onDisconnected(GrpcServiceConfig request, StreamObserver<GrpcAck> responseObserver) {
-      connected.remove(request.getServiceName());
+      connected.add("Disconnected " + request.getServiceName());
       responseObserver.onNext(GrpcAck.newBuilder().build());
       responseObserver.onCompleted();
     }

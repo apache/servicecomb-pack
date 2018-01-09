@@ -18,6 +18,7 @@
 package org.apache.servicecomb.saga.omega.connector.grpc;
 
 import static java.util.Collections.emptyList;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
@@ -26,7 +27,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.function.Consumer;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Function;
 
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
@@ -45,11 +50,15 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
   private final Map<MessageSender, Long> senders = new HashMap<>();
   private final Collection<ManagedChannel> channels;
 
+  private final BlockingQueue<Runnable> pendingTasks = new LinkedBlockingQueue<>();
+  private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
   public LoadBalancedClusterMessageSender(String[] addresses,
       MessageSerializer serializer,
       MessageDeserializer deserializer,
       ServiceConfig serviceConfig,
-      MessageHandler handler) {
+      MessageHandler handler,
+      int reconnectDelay) {
 
     if (addresses.length == 0) {
       throw new IllegalArgumentException("No reachable cluster address provided");
@@ -69,11 +78,15 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
               serializer,
               deserializer,
               serviceConfig,
+              errorHandlerFactory(),
               handler),
           0L);
     }
+
+    scheduleReconnectTask(reconnectDelay);
   }
 
+  // this is for test only
   LoadBalancedClusterMessageSender(MessageSender... messageSenders) {
     for (MessageSender sender : messageSenders) {
       senders.put(sender, 0L);
@@ -106,6 +119,7 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
 
   @Override
   public void close() {
+    scheduler.shutdown();
     channels.forEach(ManagedChannel::shutdownNow);
   }
 
@@ -113,28 +127,45 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
   public void send(TxEvent event) {
     boolean success = false;
     do {
-      try {
-        withFastestSender(messageSender -> {
-          // very large latency on exception
-          senders.put(messageSender, Long.MAX_VALUE);
+      MessageSender messageSender = fastestSender();
 
-          long startTime = System.nanoTime();
-          messageSender.send(event);
-          senders.put(messageSender, System.nanoTime() - startTime);
-        });
+      try {
+        long startTime = System.nanoTime();
+        messageSender.send(event);
+        senders.put(messageSender, System.nanoTime() - startTime);
 
         success = true;
       } catch (Exception e) {
         log.error("Retry sending event {} due to failure", event, e);
+
+        // very large latency on exception
+        senders.put(messageSender, Long.MAX_VALUE);
       }
     } while (!success && !Thread.currentThread().isInterrupted());
   }
 
-  private void withFastestSender(Consumer<MessageSender> consumer) {
-    senders.entrySet()
+  private MessageSender fastestSender() {
+    return senders.entrySet()
         .stream()
         .min(Comparator.comparingLong(Entry::getValue))
         .map(Entry::getKey)
-        .ifPresent(consumer);
+        .orElse(NO_OP_SENDER);
+  }
+
+  private void scheduleReconnectTask(int reconnectDelay) {
+    scheduler.scheduleWithFixedDelay(() -> {
+      try {
+        pendingTasks.take().run();
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+    }, 0, reconnectDelay, MILLISECONDS);
+  }
+
+  private Function<MessageSender, Runnable> errorHandlerFactory() {
+    return messageSender -> {
+      Runnable runnable = new PushBackReconnectRunnable(messageSender, senders, pendingTasks);
+      return () -> pendingTasks.offer(runnable);
+    };
   }
 }
