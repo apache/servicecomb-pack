@@ -19,19 +19,14 @@
 package org.apache.servicecomb.saga.omega.transport.resttemplate;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
 class TransactionClientHttpRequestInterceptor implements ClientHttpRequestInterceptor {
-
-  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final OmegaContext omegaContext;
 
@@ -43,26 +38,10 @@ class TransactionClientHttpRequestInterceptor implements ClientHttpRequestInterc
   public ClientHttpResponse intercept(HttpRequest request, byte[] body,
       ClientHttpRequestExecution execution) throws IOException {
 
-    request.getHeaders().add(OmegaContext.GLOBAL_TX_ID_KEY, globalTxId());
-    request.getHeaders().add(OmegaContext.LOCAL_TX_ID_KEY, localTxId());
+    if (omegaContext.globalTxId() != null) {
+      request.getHeaders().add(OmegaContext.GLOBAL_TX_ID_KEY, omegaContext.globalTxId());
+      request.getHeaders().add(OmegaContext.LOCAL_TX_ID_KEY, omegaContext.localTxId());
+    }
     return execution.execute(request, body);
-  }
-
-  private String globalTxId() {
-    String globalTxId = omegaContext.globalTxId();
-
-    if (globalTxId == null) {
-      LOG.error("Global tx id should not be null.");
-    }
-    return globalTxId;
-  }
-
-  private String localTxId() {
-    String localTxId = omegaContext.localTxId();
-
-    if (localTxId == null) {
-      LOG.error("Local tx id should not be null of global tx {}.", omegaContext.globalTxId());
-    }
-    return localTxId;
   }
 }

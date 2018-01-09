@@ -31,7 +31,7 @@ public class SagaStartAnnotationProcessor {
   }
 
   void preIntercept() {
-    String globalTxId = initChildContext();
+    String globalTxId = omegaContext.newGlobalTxId();
     // reuse the globalTxId as localTxId to differ localTxId in SagaStartedEvent and the first TxStartedEvent
     sender.send(new SagaStartedEvent(globalTxId, globalTxId));
   }
@@ -39,12 +39,5 @@ public class SagaStartAnnotationProcessor {
   void postIntercept() {
     String globalTxId = omegaContext.globalTxId();
     sender.send(new SagaEndedEvent(globalTxId, globalTxId));
-  }
-
-  private String initChildContext() {
-    String globalTxId = omegaContext.newGlobalTxId();
-    omegaContext.newLocalTxId();
-    omegaContext.setParentTxId(globalTxId);
-    return globalTxId;
   }
 }

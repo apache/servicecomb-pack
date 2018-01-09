@@ -21,12 +21,11 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
+import org.apache.servicecomb.saga.omega.transaction.OmegaException;
+import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ReflectionUtils.MethodCallback;
-
-import org.apache.servicecomb.saga.omega.transaction.OmegaException;
-import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
 
 class CompensableMethodCheckingCallback implements MethodCallback {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -40,7 +39,7 @@ class CompensableMethodCheckingCallback implements MethodCallback {
   }
 
   @Override
-  public void doWith(Method method) throws IllegalArgumentException, IllegalAccessException {
+  public void doWith(Method method) throws IllegalArgumentException {
     if (!method.isAnnotationPresent(Compensable.class)) {
       return;
     }
