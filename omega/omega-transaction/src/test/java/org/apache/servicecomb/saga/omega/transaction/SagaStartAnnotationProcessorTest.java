@@ -56,8 +56,8 @@ public class SagaStartAnnotationProcessorTest {
     sagaStartAnnotationProcessor.preIntercept();
 
     assertThat(context.globalTxId(), is(globalTxId));
-    assertThat(context.localTxId(), is(localTxId));
-    assertThat(context.parentTxId(), is(globalTxId));
+    assertThat(context.localTxId(), is(nullValue()));
+    assertThat(context.parentTxId(), is(nullValue()));
 
     TxEvent event = messages.get(0);
 

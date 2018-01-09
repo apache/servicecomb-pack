@@ -95,6 +95,9 @@ public class TransactionAspect {
   }
 
   private void preIntercept(ProceedingJoinPoint joinPoint, String signature) {
+    // context without a parent should be the first TxStartedEvent
+    initFirstOmegaContext();
+
     preTransactionInterceptor.intercept(
         context.globalTxId(),
         context.localTxId(),
@@ -118,5 +121,15 @@ public class TransactionAspect {
         context.parentTxId(),
         signature,
         throwable);
+  }
+
+  private void initFirstOmegaContext() {
+    if (context.parentTxId() != null) {
+      return;
+    }
+    if (context.localTxId() == null) {
+      context.newLocalTxId();
+    }
+    context.setParentTxId(context.globalTxId());
   }
 }
