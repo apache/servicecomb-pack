@@ -52,6 +52,7 @@ class OmegaSpringConfig {
   @Bean
   MessageSender grpcMessageSender(
       @Value("${alpha.cluster.address}") String[] addresses,
+      @Value("${omega.connection.reconnectDelay:3000}") int reconnectDelay,
       ServiceConfig serviceConfig,
       @Lazy MessageHandler handler) {
 
@@ -61,7 +62,8 @@ class OmegaSpringConfig {
         messageFormat,
         messageFormat,
         serviceConfig,
-        handler);
+        handler,
+        reconnectDelay);
 
     sender.onConnected();
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {

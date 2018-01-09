@@ -18,6 +18,9 @@
 package org.apache.servicecomb.saga.omega.transaction;
 
 public interface MessageSender {
+  MessageSender NO_OP_SENDER = event -> {
+  };
+
   default void onConnected() {
   }
 
