@@ -67,7 +67,7 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
       callback.disconnect();
     }
 
-    responseObserver.onNext(GrpcAck.newBuilder().build());
+    responseObserver.onNext(ACK);
     responseObserver.onCompleted();
   }
 
