@@ -29,8 +29,10 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -40,6 +42,7 @@ import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.MessageSerializer;
+import org.apache.servicecomb.saga.omega.transaction.TxAbortedEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
@@ -79,7 +82,10 @@ public class LoadBalancedClusterMessageSenderTest {
   private final MessageSerializer serializer = objects -> objects[0].toString().getBytes();
 
   private final MessageDeserializer deserializer = message -> new Object[] {new String(message)};
+
+  private final List<String> compensated = new ArrayList<>();
   private final MessageHandler handler = (globalTxId, localTxId, parentTxId, compensationMethod, payloads) -> {
+    compensated.add(globalTxId);
   };
 
   private final String globalTxId = uniquify("globalTxId");
@@ -158,14 +164,21 @@ public class LoadBalancedClusterMessageSenderTest {
 
     int deadPort = killServerReceivedMessage();
 
+    // ensure live message sender has latency greater than 0
+    messageSender.send(event);
+
     startServerOnPort(deadPort);
     await().atMost(1, SECONDS).until(() -> connected.get(deadPort).size() == 3);
 
-    messageSender.send(event);
-    messageSender.send(event);
+    TxEvent abortedEvent = new TxAbortedEvent(globalTxId, localTxId, parentTxId, compensationMethod, new RuntimeException("oops"));
+    messageSender.send(abortedEvent);
 
     // restarted server gets priority, since it had no traffic
     assertThat(eventsMap.get(deadPort).size(), is(2));
+    assertThat(eventsMap.get(deadPort).poll().toString(), is(event.toString()));
+    assertThat(eventsMap.get(deadPort).poll().toString(), is(abortedEvent.toString()));
+
+    await().atMost(1, SECONDS).until(() -> compensated.contains(globalTxId));
   }
 
   @Test (timeout = 1000)
@@ -266,6 +279,7 @@ public class LoadBalancedClusterMessageSenderTest {
     private final Queue<String> connected;
     private final Queue<TxEvent> events;
     private final int delay;
+    private StreamObserver<GrpcCompensateCommand> responseObserver;
 
     private MyTxEventService(Queue<String> connected, Queue<TxEvent> events, int delay) {
       this.connected = connected;
@@ -275,6 +289,7 @@ public class LoadBalancedClusterMessageSenderTest {
 
     @Override
     public void onConnected(GrpcServiceConfig request, StreamObserver<GrpcCompensateCommand> responseObserver) {
+      this.responseObserver = responseObserver;
       connected.add("Connected " + request.getServiceName());
     }
 
@@ -288,6 +303,13 @@ public class LoadBalancedClusterMessageSenderTest {
           new String(request.getPayloads().toByteArray())));
 
       sleep();
+
+      if ("TxAbortedEvent".equals(request.getType())) {
+        this.responseObserver.onNext(GrpcCompensateCommand
+            .newBuilder()
+            .setGlobalTxId(request.getGlobalTxId())
+            .build());
+      }
 
       responseObserver.onNext(GrpcAck.newBuilder().build());
       responseObserver.onCompleted();
