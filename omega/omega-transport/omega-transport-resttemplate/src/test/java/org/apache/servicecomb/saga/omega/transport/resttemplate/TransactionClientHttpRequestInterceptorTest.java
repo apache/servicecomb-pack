@@ -20,6 +20,7 @@ package org.apache.servicecomb.saga.omega.transport.resttemplate;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -65,18 +66,18 @@ public class TransactionClientHttpRequestInterceptorTest {
   }
 
   @Test
-  public void newTransactionIdInHeaderIfNonExists() throws IOException {
+  public void transactionIdInHeaderIsNullIfNonExists() throws IOException {
     when(request.getHeaders()).thenReturn(new HttpHeaders());
 
     when(execution.execute(request, null)).thenReturn(response);
 
     clientHttpRequestInterceptor.intercept(request, null, execution);
 
-    assertThat(request.getHeaders().get(OmegaContext.GLOBAL_TX_ID_KEY), contains(globalTxId));
-    assertThat(request.getHeaders().get(OmegaContext.LOCAL_TX_ID_KEY), contains(localTxId));
+    assertThat(request.getHeaders().get(OmegaContext.GLOBAL_TX_ID_KEY), contains(nullValue()));
+    assertThat(request.getHeaders().get(OmegaContext.LOCAL_TX_ID_KEY), contains(nullValue()));
 
-    assertThat(omegaContext.globalTxId(), is(globalTxId));
-    assertThat(omegaContext.localTxId(), is(localTxId));
+    assertThat(omegaContext.globalTxId(), is(nullValue()));
+    assertThat(omegaContext.localTxId(), is(nullValue()));
   }
 
   @Test

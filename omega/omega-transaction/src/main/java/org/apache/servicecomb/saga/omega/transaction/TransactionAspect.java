@@ -39,14 +39,12 @@ public class TransactionAspect {
   private final SagaStartAnnotationProcessor sagaStartAnnotationProcessor;
   private final OmegaContext context;
 
-  public TransactionAspect(MessageSender sender,
-      OmegaContext context) {
+  public TransactionAspect(MessageSender sender, OmegaContext context) {
     this.context = context;
     this.preTransactionInterceptor = new PreTransactionInterceptor(sender);
     this.postTransactionInterceptor = new PostTransactionInterceptor(sender);
     this.failedTransactionInterceptor = new FailedTransactionInterceptor(sender);
     this.sagaStartAnnotationProcessor = new SagaStartAnnotationProcessor(this.context, sender);
-
   }
 
   @Around("execution(@org.apache.servicecomb.saga.omega.transaction.annotations.Compensable * *(..)) && @annotation(compensable)")

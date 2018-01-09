@@ -19,14 +19,19 @@
 package org.apache.servicecomb.saga.omega.transport.resttemplate;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
 class TransactionClientHttpRequestInterceptor implements ClientHttpRequestInterceptor {
+
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final OmegaContext omegaContext;
 
@@ -47,7 +52,7 @@ class TransactionClientHttpRequestInterceptor implements ClientHttpRequestInterc
     String globalTxId = omegaContext.globalTxId();
 
     if (globalTxId == null) {
-      return omegaContext.newGlobalTxId();
+      LOG.error("Global tx id should not be null.");
     }
     return globalTxId;
   }
@@ -56,7 +61,7 @@ class TransactionClientHttpRequestInterceptor implements ClientHttpRequestInterc
     String localTxId = omegaContext.localTxId();
 
     if (localTxId == null) {
-      return omegaContext.newLocalTxId();
+      LOG.error("Local tx id should not be null of global tx {}.", omegaContext.globalTxId());
     }
     return localTxId;
   }
