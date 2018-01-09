@@ -31,10 +31,20 @@ public class SagaStartAnnotationProcessor {
   }
 
   void preIntercept() {
-    sender.send(new SagaStartedEvent(omegaContext.newGlobalTxId(), omegaContext.newLocalTxId()));
+    String globalTxId = initChildContext();
+    // reuse the globalTxId as localTxId to differ localTxId in SagaStartedEvent and the first TxStartedEvent
+    sender.send(new SagaStartedEvent(globalTxId, globalTxId));
   }
 
   void postIntercept() {
-    sender.send(new SagaEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
+    String globalTxId = omegaContext.globalTxId();
+    sender.send(new SagaEndedEvent(globalTxId, globalTxId));
+  }
+
+  private String initChildContext() {
+    String globalTxId = omegaContext.newGlobalTxId();
+    omegaContext.newLocalTxId();
+    omegaContext.setParentTxId(globalTxId);
+    return globalTxId;
   }
 }

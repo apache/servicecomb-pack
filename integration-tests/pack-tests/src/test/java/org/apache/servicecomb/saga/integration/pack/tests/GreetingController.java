@@ -39,7 +39,6 @@ public class GreetingController {
     this.restTemplate = restTemplate;
   }
 
-
   @SagaStart
   @GetMapping("/greet")
   ResponseEntity<String> greet(@RequestParam String name) {
