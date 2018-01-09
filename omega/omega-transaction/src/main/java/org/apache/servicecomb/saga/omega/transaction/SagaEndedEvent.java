@@ -17,24 +17,9 @@
 
 package org.apache.servicecomb.saga.omega.transaction;
 
-import org.apache.servicecomb.saga.omega.context.OmegaContext;
+public class SagaEndedEvent extends TxEvent {
 
-public class SagaStartAnnotationProcessor {
-
-  private final OmegaContext omegaContext;
-
-  private final MessageSender sender;
-
-  SagaStartAnnotationProcessor(OmegaContext omegaContext, MessageSender sender) {
-    this.omegaContext = omegaContext;
-    this.sender = sender;
-  }
-
-  void preIntercept() {
-    sender.send(new SagaStartedEvent(omegaContext.newGlobalTxId(), omegaContext.newLocalTxId()));
-  }
-
-  void postIntercept() {
-    sender.send(new SagaEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
+  public SagaEndedEvent(String globalTxId, String localTxId) {
+    super(globalTxId, localTxId, null, "");
   }
 }

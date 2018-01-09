@@ -74,13 +74,16 @@ public class TransactionAspect {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
 
     LOG.debug("Initializing global tx id before execution of method {}", method.toString());
-    sagaStartAnnotationProcessor.intercept();
+    sagaStartAnnotationProcessor.preIntercept();
 
     try {
       return joinPoint.proceed();
     } catch (Throwable throwable) {
       LOG.error("Failed to process SagaStart method: {}", method.toString());
       throw throwable;
+    } finally {
+      LOG.debug("Transaction {} has finished.", context.globalTxId());
+      sagaStartAnnotationProcessor.postIntercept();
     }
   }
 

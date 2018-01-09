@@ -54,7 +54,7 @@ public class SagaStartAnnotationProcessorTest {
   public void sendsSagaStartedEvent() {
     when(generator.nextId()).thenReturn(globalTxId, localTxId);
 
-    sagaStartAnnotationProcessor.intercept();
+    sagaStartAnnotationProcessor.preIntercept();
 
     assertThat(context.globalTxId(), is(globalTxId));
     assertThat(context.localTxId(), is(localTxId));
@@ -66,6 +66,24 @@ public class SagaStartAnnotationProcessorTest {
     assertThat(event.parentTxId(), is(nullValue()));
     assertThat(event.compensationMethod().isEmpty(), is(true));
     assertThat(event.type(), is("SagaStartedEvent"));
+    assertThat(event.payloads().length, is(0));
+  }
+
+  @Test
+  public void sendsSagaEndedEvent() {
+    context.clear();
+    context.setGlobalTxId(globalTxId);
+    context.setLocalTxId(localTxId);
+
+    sagaStartAnnotationProcessor.postIntercept();
+
+    TxEvent event = messages.get(0);
+
+    assertThat(event.globalTxId(), is(globalTxId));
+    assertThat(event.localTxId(), is(localTxId));
     assertThat(event.parentTxId(), is(nullValue()));
+    assertThat(event.compensationMethod().isEmpty(), is(true));
+    assertThat(event.type(), is("SagaEndedEvent"));
+    assertThat(event.payloads().length, is(0));
   }
 }
