@@ -149,7 +149,7 @@ public class AlphaIntegrationTest {
         omegaCallbacks.get(serviceConfig.getServiceName()).containsKey(serviceConfig.getInstanceId()),
         is(false));
 
-    assertThat(compensateResponseObserver.isCompleted(), is(true));
+    await().atMost(1, SECONDS).until(compensateResponseObserver::isCompleted);
   }
 
   @Test

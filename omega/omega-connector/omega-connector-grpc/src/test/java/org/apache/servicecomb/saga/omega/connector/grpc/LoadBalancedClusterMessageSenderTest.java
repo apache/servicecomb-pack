@@ -250,7 +250,7 @@ public class LoadBalancedClusterMessageSenderTest {
     messageSender.send(event);
     messageSender.send(event);
 
-    assertThat(eventsMap.get(8080).size(), is(3));
+    await().atMost(1, SECONDS).until(() -> eventsMap.get(8080).size() == 3);
     assertThat(eventsMap.get(8090).size(), is(1));
   }
 
