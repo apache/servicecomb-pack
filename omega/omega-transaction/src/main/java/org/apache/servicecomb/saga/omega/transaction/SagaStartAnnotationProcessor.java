@@ -19,10 +19,9 @@ package org.apache.servicecomb.saga.omega.transaction;
 
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 
-public class SagaStartAnnotationProcessor {
+class SagaStartAnnotationProcessor {
 
   private final OmegaContext omegaContext;
-
   private final MessageSender sender;
 
   SagaStartAnnotationProcessor(OmegaContext omegaContext, MessageSender sender) {
@@ -31,7 +30,7 @@ public class SagaStartAnnotationProcessor {
   }
 
   void preIntercept() {
-    String globalTxId = omegaContext.newGlobalTxId();
+    String globalTxId = globalTxId();
     // reuse the globalTxId as localTxId to differ localTxId in SagaStartedEvent and the first TxStartedEvent
     sender.send(new SagaStartedEvent(globalTxId, globalTxId));
   }
@@ -39,5 +38,12 @@ public class SagaStartAnnotationProcessor {
   void postIntercept() {
     String globalTxId = omegaContext.globalTxId();
     sender.send(new SagaEndedEvent(globalTxId, globalTxId));
+    omegaContext.clear();
+  }
+
+  private String globalTxId() {
+    String globalTxId = omegaContext.newGlobalTxId();
+    omegaContext.setLocalTxId(globalTxId);
+    return globalTxId;
   }
 }

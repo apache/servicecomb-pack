@@ -41,9 +41,9 @@ public class SagaStartAnnotationProcessorTest {
 
   private final String localTxId = UUID.randomUUID().toString();
 
-  private final IdGenerator generator = mock(IdGenerator.class);
-
   @SuppressWarnings("unchecked")
+  private final IdGenerator<String> generator = mock(IdGenerator.class);
+
   private final OmegaContext context = new OmegaContext(generator);
 
   private final SagaStartAnnotationProcessor sagaStartAnnotationProcessor = new SagaStartAnnotationProcessor(context,
@@ -56,7 +56,7 @@ public class SagaStartAnnotationProcessorTest {
     sagaStartAnnotationProcessor.preIntercept();
 
     assertThat(context.globalTxId(), is(globalTxId));
-    assertThat(context.localTxId(), is(nullValue()));
+    assertThat(context.localTxId(), is(globalTxId));
     assertThat(context.parentTxId(), is(nullValue()));
 
     TxEvent event = messages.get(0);
@@ -73,7 +73,6 @@ public class SagaStartAnnotationProcessorTest {
   public void sendsSagaEndedEvent() {
     context.clear();
     context.setGlobalTxId(globalTxId);
-    context.setLocalTxId(localTxId);
 
     sagaStartAnnotationProcessor.postIntercept();
 
@@ -85,5 +84,9 @@ public class SagaStartAnnotationProcessorTest {
     assertThat(event.compensationMethod().isEmpty(), is(true));
     assertThat(event.type(), is("SagaEndedEvent"));
     assertThat(event.payloads().length, is(0));
+
+    assertThat(context.globalTxId(), is(nullValue()));
+    assertThat(context.localTxId(), is(nullValue()));
+    assertThat(context.parentTxId(), is(nullValue()));
   }
 }

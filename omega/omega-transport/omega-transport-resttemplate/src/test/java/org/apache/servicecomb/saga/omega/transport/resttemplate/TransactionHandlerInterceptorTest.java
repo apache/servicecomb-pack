@@ -51,9 +51,7 @@ public class TransactionHandlerInterceptorTest {
 
   @Before
   public void setUp() {
-    omegaContext.setGlobalTxId(null);
-    omegaContext.setLocalTxId(null);
-    omegaContext.setParentTxId(null);
+    omegaContext.clear();
   }
 
   @Test
@@ -64,8 +62,8 @@ public class TransactionHandlerInterceptorTest {
     requestInterceptor.preHandle(request, response, null);
 
     assertThat(omegaContext.globalTxId(), is(globalTxId));
-    assertThat(omegaContext.localTxId(), is(notNullValue()));
-    assertThat(omegaContext.parentTxId(), is(localTxId));
+    assertThat(omegaContext.localTxId(), is(localTxId));
+    assertThat(omegaContext.parentTxId(), is(nullValue()));
   }
 
   @Test

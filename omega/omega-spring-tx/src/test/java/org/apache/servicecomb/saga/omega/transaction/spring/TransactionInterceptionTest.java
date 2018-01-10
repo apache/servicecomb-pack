@@ -28,6 +28,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +36,9 @@ import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.servicecomb.saga.omega.context.CompensationContext;
+import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
-import org.apache.servicecomb.saga.omega.context.UniqueIdGenerator;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.TxAbortedEvent;
@@ -50,6 +52,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -68,9 +71,11 @@ import akka.actor.Props;
 @SpringBootTest(classes = {TransactionTestMain.class, MessageConfig.class})
 @AutoConfigureMockMvc
 public class TransactionInterceptionTest {
+  @SuppressWarnings("unchecked")
+  private static final IdGenerator<String> idGenerator = Mockito.mock(IdGenerator.class);
   private static final String globalTxId = UUID.randomUUID().toString();
-  private final String localTxId = UUID.randomUUID().toString();
-  private final String parentTxId = UUID.randomUUID().toString();
+  private final String newLocalTxId = UUID.randomUUID().toString();
+  private final String anotherLocalTxId = UUID.randomUUID().toString();
   private final String username = uniquify("username");
   private final String email = uniquify("email");
 
@@ -102,9 +107,9 @@ public class TransactionInterceptionTest {
 
   @Before
   public void setUp() throws Exception {
+    when(idGenerator.nextId()).thenReturn(newLocalTxId, anotherLocalTxId);
     omegaContext.setGlobalTxId(globalTxId);
-    omegaContext.setLocalTxId(localTxId);
-    omegaContext.setParentTxId(parentTxId);
+    omegaContext.setLocalTxId(globalTxId);
     compensationMethod = TransactionalUserService.class.getDeclaredMethod("delete", User.class).toString();
   }
 
@@ -125,8 +130,8 @@ public class TransactionInterceptionTest {
 
     assertArrayEquals(
         new String[]{
-            new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, user).toString(),
-            new TxEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod).toString()},
+            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, user).toString(),
+            new TxEndedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod).toString()},
         toArray(messages)
     );
 
@@ -146,8 +151,8 @@ public class TransactionInterceptionTest {
 
     assertArrayEquals(
         new String[]{
-            new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, illegalUser).toString(),
-            new TxAbortedEvent(globalTxId, localTxId, parentTxId, compensationMethod, throwable).toString()},
+            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, illegalUser).toString(),
+            new TxAbortedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, throwable).toString()},
         toArray(messages)
     );
   }
@@ -160,20 +165,20 @@ public class TransactionInterceptionTest {
     String localTxId = omegaContext.newLocalTxId();
     User anotherUser = userService.add(jack);
 
-    messageHandler.onReceive(globalTxId, this.localTxId, parentTxId, compensationMethod, user);
-    messageHandler.onReceive(globalTxId, localTxId, parentTxId, compensationMethod, anotherUser);
+    messageHandler.onReceive(globalTxId, newLocalTxId, globalTxId, compensationMethod, user);
+    messageHandler.onReceive(globalTxId, anotherLocalTxId, localTxId, compensationMethod, anotherUser);
 
     assertThat(userRepository.findOne(user.id()), is(nullValue()));
     assertThat(userRepository.findOne(anotherUser.id()), is(nullValue()));
 
     assertArrayEquals(
         new String[]{
-            new TxStartedEvent(globalTxId, this.localTxId, parentTxId, compensationMethod, user).toString(),
-            new TxEndedEvent(globalTxId, this.localTxId, parentTxId, compensationMethod).toString(),
-            new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, anotherUser).toString(),
-            new TxEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod).toString(),
-            new TxCompensatedEvent(globalTxId, this.localTxId, parentTxId, compensationMethod).toString(),
-            new TxCompensatedEvent(globalTxId, localTxId, parentTxId, compensationMethod).toString()
+            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, user).toString(),
+            new TxEndedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod).toString(),
+            new TxStartedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod, anotherUser).toString(),
+            new TxEndedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod).toString(),
+            new TxCompensatedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod).toString(),
+            new TxCompensatedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod).toString()
         },
         toArray(messages)
     );
@@ -184,16 +189,16 @@ public class TransactionInterceptionTest {
     new Thread(() -> userService.add(user)).start();
     waitTillSavedUser(username);
 
-    String newLocalTxId = omegaContext.newLocalTxId();
+    String localTxId = omegaContext.newLocalTxId();
     new Thread(() -> userService.add(jack)).start();
     waitTillSavedUser(usernameJack);
 
     assertArrayEquals(
         new String[]{
-            new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, user).toString(),
-            new TxEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod).toString(),
-            new TxStartedEvent(globalTxId, newLocalTxId, parentTxId, compensationMethod, jack).toString(),
-            new TxEndedEvent(globalTxId, newLocalTxId, parentTxId, compensationMethod).toString()},
+            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, user).toString(),
+            new TxEndedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod).toString(),
+            new TxStartedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod, jack).toString(),
+            new TxEndedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod).toString()},
         toArray(messages)
     );
   }
@@ -203,16 +208,16 @@ public class TransactionInterceptionTest {
     executor.schedule(() -> userService.add(user), 0, MILLISECONDS);
     waitTillSavedUser(username);
 
-    String newLocalTxId = omegaContext.newLocalTxId();
+    String localTxId = omegaContext.newLocalTxId();
     executor.invokeAll(singletonList(() -> userService.add(jack)));
     waitTillSavedUser(usernameJack);
 
     assertArrayEquals(
         new String[]{
-            new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, user).toString(),
-            new TxEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod).toString(),
-            new TxStartedEvent(globalTxId, newLocalTxId, parentTxId, compensationMethod, jack).toString(),
-            new TxEndedEvent(globalTxId, newLocalTxId, parentTxId, compensationMethod).toString()},
+            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, user).toString(),
+            new TxEndedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod).toString(),
+            new TxStartedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod, jack).toString(),
+            new TxEndedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod).toString()},
         toArray(messages)
     );
   }
@@ -231,8 +236,8 @@ public class TransactionInterceptionTest {
 
     assertArrayEquals(
         new String[]{
-            new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, user).toString(),
-            new TxEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod).toString()},
+            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, user).toString(),
+            new TxEndedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod).toString()},
         toArray(messages)
     );
   }
@@ -249,8 +254,8 @@ public class TransactionInterceptionTest {
 
     assertArrayEquals(
         new String[] {
-            new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, user).toString(),
-            new TxEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod).toString()},
+            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, user).toString(),
+            new TxEndedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod).toString()},
         toArray(messages)
     );
 
@@ -289,8 +294,13 @@ public class TransactionInterceptionTest {
     private final List<String> messages = new ArrayList<>();
 
     @Bean
+    CompensationContext compensationContext() {
+      return new CompensationContext();
+    }
+
+    @Bean
     OmegaContext omegaContext() {
-      return new OmegaContext(new UniqueIdGenerator());
+      return new OmegaContext(idGenerator);
     }
 
     @Bean

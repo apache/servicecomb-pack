@@ -48,7 +48,6 @@ import org.springframework.test.context.junit4.SpringRunner;
     properties = {"server.port=8080", "spring.application.name=greeting-service"})
 public class PackIT {
   private static final String serviceName = "greeting-service";
-  private final String globalTxId = UUID.randomUUID().toString();
 
   @Autowired
   private TestRestTemplate restTemplate;
@@ -84,47 +83,47 @@ public class PackIT {
 
     assertThat(envelopes.size(), is(6));
 
-    TxEventEnvelope sagaStartedEventEnvelope = envelopes.get(0);
-    assertThat(sagaStartedEventEnvelope.type(), is("SagaStartedEvent"));
-    assertThat(sagaStartedEventEnvelope.localTxId(), is(notNullValue()));
-    assertThat(sagaStartedEventEnvelope.parentTxId(), is(nullValue()));
-    assertThat(sagaStartedEventEnvelope.serviceName(), is(serviceName));
-    assertThat(sagaStartedEventEnvelope.instanceId(), is(notNullValue()));
+    TxEventEnvelope sagaStartedEvent = envelopes.get(0);
+    assertThat(sagaStartedEvent.type(), is("SagaStartedEvent"));
+    assertThat(sagaStartedEvent.localTxId(), is(globalTxId));
+    assertThat(sagaStartedEvent.parentTxId(), is(nullValue()));
+    assertThat(sagaStartedEvent.serviceName(), is(serviceName));
+    assertThat(sagaStartedEvent.instanceId(), is(notNullValue()));
 
-    TxEventEnvelope txStartedEventEnvelope1 = envelopes.get(1);
-    assertThat(txStartedEventEnvelope1.type(), is("TxStartedEvent"));
-    assertThat(txStartedEventEnvelope1.localTxId(), is(notNullValue()));
-    assertThat(txStartedEventEnvelope1.parentTxId(), is(sagaStartedEventEnvelope.localTxId()));
-    assertThat(txStartedEventEnvelope1.serviceName(), is(serviceName));
-    assertThat(txStartedEventEnvelope1.instanceId(), is(sagaStartedEventEnvelope.instanceId()));
+    TxEventEnvelope txStartedEvent1 = envelopes.get(1);
+    assertThat(txStartedEvent1.type(), is("TxStartedEvent"));
+    assertThat(txStartedEvent1.localTxId(), is(notNullValue()));
+    assertThat(txStartedEvent1.parentTxId(), is(globalTxId));
+    assertThat(txStartedEvent1.serviceName(), is(serviceName));
+    assertThat(txStartedEvent1.instanceId(), is(sagaStartedEvent.instanceId()));
 
-    TxEventEnvelope txEndedEventEnvelope1 = envelopes.get(2);
-    assertThat(txEndedEventEnvelope1.type(), is("TxEndedEvent"));
-    assertThat(txEndedEventEnvelope1.localTxId(), is(txStartedEventEnvelope1.localTxId()));
-    assertThat(txEndedEventEnvelope1.parentTxId(), is(sagaStartedEventEnvelope.localTxId()));
-    assertThat(txEndedEventEnvelope1.serviceName(), is(serviceName));
-    assertThat(txEndedEventEnvelope1.instanceId(), is(txStartedEventEnvelope1.instanceId()));
+    TxEventEnvelope txEndedEvent1 = envelopes.get(2);
+    assertThat(txEndedEvent1.type(), is("TxEndedEvent"));
+    assertThat(txEndedEvent1.localTxId(), is(txStartedEvent1.localTxId()));
+    assertThat(txEndedEvent1.parentTxId(), is(globalTxId));
+    assertThat(txEndedEvent1.serviceName(), is(serviceName));
+    assertThat(txEndedEvent1.instanceId(), is(txStartedEvent1.instanceId()));
 
-    TxEventEnvelope txStartedEventEnvelope2 = envelopes.get(3);
-    assertThat(txStartedEventEnvelope2.type(), is("TxStartedEvent"));
-    assertThat(txStartedEventEnvelope2.localTxId(), is(notNullValue()));
-    assertThat(txStartedEventEnvelope2.parentTxId(), is(txStartedEventEnvelope1.localTxId()));
-    assertThat(txStartedEventEnvelope2.serviceName(), is(serviceName));
-    assertThat(txStartedEventEnvelope2.instanceId(), is(notNullValue()));
+    TxEventEnvelope txStartedEvent2 = envelopes.get(3);
+    assertThat(txStartedEvent2.type(), is("TxStartedEvent"));
+    assertThat(txStartedEvent2.localTxId(), is(notNullValue()));
+    assertThat(txStartedEvent2.parentTxId(), is(globalTxId));
+    assertThat(txStartedEvent2.serviceName(), is(serviceName));
+    assertThat(txStartedEvent2.instanceId(), is(notNullValue()));
 
-    TxEventEnvelope txEndedEventEnvelope2 = envelopes.get(4);
-    assertThat(txEndedEventEnvelope2.type(), is("TxEndedEvent"));
-    assertThat(txEndedEventEnvelope2.localTxId(), is(txStartedEventEnvelope2.localTxId()));
-    assertThat(txEndedEventEnvelope2.parentTxId(), is(txStartedEventEnvelope1.localTxId()));
-    assertThat(txEndedEventEnvelope2.serviceName(), is(serviceName));
-    assertThat(txEndedEventEnvelope2.instanceId(), is(txStartedEventEnvelope2.instanceId()));
+    TxEventEnvelope txEndedEvent2 = envelopes.get(4);
+    assertThat(txEndedEvent2.type(), is("TxEndedEvent"));
+    assertThat(txEndedEvent2.localTxId(), is(txStartedEvent2.localTxId()));
+    assertThat(txEndedEvent2.parentTxId(), is(globalTxId));
+    assertThat(txEndedEvent2.serviceName(), is(serviceName));
+    assertThat(txEndedEvent2.instanceId(), is(txStartedEvent2.instanceId()));
 
-    TxEventEnvelope sagaEndedEventEnvelope = envelopes.get(5);
-    assertThat(sagaEndedEventEnvelope.type(), is("SagaEndedEvent"));
-    assertThat(sagaEndedEventEnvelope.localTxId(), is(sagaStartedEventEnvelope.localTxId()));
-    assertThat(sagaEndedEventEnvelope.parentTxId(), is(nullValue()));
-    assertThat(sagaEndedEventEnvelope.serviceName(), is(serviceName));
-    assertThat(sagaEndedEventEnvelope.instanceId(), is(notNullValue()));
+    TxEventEnvelope sagaEndedEvent = envelopes.get(5);
+    assertThat(sagaEndedEvent.type(), is("SagaEndedEvent"));
+    assertThat(sagaEndedEvent.localTxId(), is(globalTxId));
+    assertThat(sagaEndedEvent.parentTxId(), is(nullValue()));
+    assertThat(sagaEndedEvent.serviceName(), is(serviceName));
+    assertThat(sagaEndedEvent.instanceId(), is(notNullValue()));
 
     assertThat(compensatedMessages.isEmpty(), is(true));
   }
@@ -146,41 +145,88 @@ public class PackIT {
     List<TxEventEnvelope> envelopes = repository.findByGlobalTxIdOrderByCreationTime(globalTxId);
     assertThat(envelopes.size(), is(8));
 
-    TxEventEnvelope sagaStartedEventEnvelope = envelopes.get(0);
-    assertThat(sagaStartedEventEnvelope.type(), is("SagaStartedEvent"));
+    TxEventEnvelope sagaStartedEvent = envelopes.get(0);
+    assertThat(sagaStartedEvent.type(), is("SagaStartedEvent"));
 
-    TxEventEnvelope txStartedEventEnvelope1 = envelopes.get(1);
-    assertThat(txStartedEventEnvelope1.type(), is("TxStartedEvent"));
+    TxEventEnvelope txStartedEvent1 = envelopes.get(1);
+    assertThat(txStartedEvent1.type(), is("TxStartedEvent"));
     assertThat(envelopes.get(2).type(), is("TxEndedEvent"));
 
-    TxEventEnvelope txStartedEventEnvelope2 = envelopes.get(3);
-    assertThat(txStartedEventEnvelope2.type(), is("TxStartedEvent"));
+    TxEventEnvelope txStartedEvent2 = envelopes.get(3);
+    assertThat(txStartedEvent2.type(), is("TxStartedEvent"));
 
-    TxEventEnvelope txAbortedEventEnvelope = envelopes.get(4);
-    assertThat(txAbortedEventEnvelope.type(), is("TxAbortedEvent"));
-    assertThat(txAbortedEventEnvelope.localTxId(), is(txStartedEventEnvelope2.localTxId()));
-    assertThat(txAbortedEventEnvelope.parentTxId(), is(txStartedEventEnvelope1.localTxId()));
-    assertThat(txAbortedEventEnvelope.serviceName(), is(serviceName));
-    assertThat(txAbortedEventEnvelope.instanceId(), is(txStartedEventEnvelope2.instanceId()));
+    TxEventEnvelope txAbortedEvent = envelopes.get(4);
+    assertThat(txAbortedEvent.type(), is("TxAbortedEvent"));
+    assertThat(txAbortedEvent.localTxId(), is(txStartedEvent2.localTxId()));
+    assertThat(txAbortedEvent.parentTxId(), is(globalTxId));
+    assertThat(txAbortedEvent.serviceName(), is(serviceName));
+    assertThat(txAbortedEvent.instanceId(), is(txStartedEvent2.instanceId()));
 
-    TxEventEnvelope txCompensatedEventEnvelope1 = envelopes.get(5);
-    assertThat(txCompensatedEventEnvelope1.type(), is("TxCompensatedEvent"));
-    assertThat(txCompensatedEventEnvelope1.localTxId(), is(txStartedEventEnvelope1.localTxId()));
-    assertThat(txCompensatedEventEnvelope1.parentTxId(), is(sagaStartedEventEnvelope.localTxId()));
-    assertThat(txCompensatedEventEnvelope1.serviceName(), is(serviceName));
-    assertThat(txCompensatedEventEnvelope1.instanceId(), is(txStartedEventEnvelope1.instanceId()));
+    // TODO: 2018/1/9 compensation shall be done in reverse order
+    TxEventEnvelope txCompensatedEvent1 = envelopes.get(5);
+    assertThat(txCompensatedEvent1.type(), is("TxCompensatedEvent"));
+    assertThat(txCompensatedEvent1.localTxId(), is(txStartedEvent1.localTxId()));
+    assertThat(txCompensatedEvent1.parentTxId(), is(globalTxId));
+    assertThat(txCompensatedEvent1.serviceName(), is(serviceName));
+    assertThat(txCompensatedEvent1.instanceId(), is(txStartedEvent1.instanceId()));
 
-    TxEventEnvelope txCompensatedEventEnvelope2 = envelopes.get(6);
-    assertThat(txCompensatedEventEnvelope2.type(), is("TxCompensatedEvent"));
-    assertThat(txCompensatedEventEnvelope2.localTxId(), is(txStartedEventEnvelope2.localTxId()));
-    assertThat(txCompensatedEventEnvelope2.parentTxId(), is(txStartedEventEnvelope1.localTxId()));
-    assertThat(txCompensatedEventEnvelope2.serviceName(), is(serviceName));
-    assertThat(txCompensatedEventEnvelope2.instanceId(), is(txStartedEventEnvelope2.instanceId()));
+    TxEventEnvelope txCompensatedEvent2 = envelopes.get(6);
+    assertThat(txCompensatedEvent2.type(), is("TxCompensatedEvent"));
+    assertThat(txCompensatedEvent2.localTxId(), is(txStartedEvent2.localTxId()));
+    assertThat(txCompensatedEvent2.parentTxId(), is(globalTxId));
+    assertThat(txCompensatedEvent2.serviceName(), is(serviceName));
+    assertThat(txCompensatedEvent2.instanceId(), is(txStartedEvent2.instanceId()));
 
     assertThat(envelopes.get(7).type(), is("SagaEndedEvent"));
 
     assertThat(compensatedMessages, contains(
         "Goodbye, " + TRESPASSER,
         "My bad, please take the window instead, " + TRESPASSER));
+  }
+
+  @Test(timeout = 5000)
+  public void updatesEmbeddedTxStateToAlpha() throws Exception {
+    ResponseEntity<String> entity = restTemplate.getForEntity("/goodMorning?name={name}",
+        String.class,
+        "mike");
+
+    assertThat(entity.getStatusCode(), is(OK));
+    assertThat(entity.getBody(), is("Good morning, Bonjour, mike"));
+
+    List<String> distinctGlobalTxIds = repository.findDistinctGlobalTxId();
+    assertThat(distinctGlobalTxIds.size(), is(1));
+
+    String globalTxId = distinctGlobalTxIds.get(0);
+    List<TxEventEnvelope> envelopes = repository.findByGlobalTxIdOrderByCreationTime(globalTxId);
+
+    assertThat(envelopes.size(), is(6));
+
+    TxEventEnvelope sagaStartedEvent = envelopes.get(0);
+    assertThat(sagaStartedEvent.type(), is("SagaStartedEvent"));
+
+    TxEventEnvelope txStartedEvent1 = envelopes.get(1);
+    assertThat(txStartedEvent1.type(), is("TxStartedEvent"));
+    assertThat(txStartedEvent1.localTxId(), is(notNullValue()));
+    assertThat(txStartedEvent1.parentTxId(), is(globalTxId));
+
+    TxEventEnvelope txStartedEvent2 = envelopes.get(2);
+    assertThat(txStartedEvent2.type(), is("TxStartedEvent"));
+    assertThat(txStartedEvent2.localTxId(), is(notNullValue()));
+    assertThat(txStartedEvent2.parentTxId(), is(txStartedEvent1.localTxId()));
+
+    TxEventEnvelope txEndedEvent2 = envelopes.get(3);
+    assertThat(txEndedEvent2.type(), is("TxEndedEvent"));
+    assertThat(txEndedEvent2.localTxId(), is(txStartedEvent2.localTxId()));
+    assertThat(txEndedEvent2.parentTxId(), is(txStartedEvent1.localTxId()));
+
+    TxEventEnvelope txEndedEvent1 = envelopes.get(4);
+    assertThat(txEndedEvent1.type(), is("TxEndedEvent"));
+    assertThat(txEndedEvent1.localTxId(), is(txStartedEvent1.localTxId()));
+    assertThat(txEndedEvent1.parentTxId(), is(globalTxId));
+
+    TxEventEnvelope sagaEndedEvent = envelopes.get(5);
+    assertThat(sagaEndedEvent.type(), is("SagaEndedEvent"));
+
+    assertThat(compensatedMessages.isEmpty(), is(true));
   }
 }
