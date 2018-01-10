@@ -27,7 +27,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.servicecomb.saga.omega.context.IdGenerator;
+import org.apache.servicecomb.saga.omega.context.OmegaContext;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class CompensableInterceptorTest {
 
@@ -41,11 +45,20 @@ public class CompensableInterceptorTest {
   private final String message = uniquify("message");
   private final String compensationMethod = getClass().getCanonicalName();
 
-  private final CompensableInterceptor interceptor = new CompensableInterceptor(sender);
+  @SuppressWarnings("unchecked")
+  private final IdGenerator<String> idGenerator = Mockito.mock(IdGenerator.class);
+  private final OmegaContext context = new OmegaContext(idGenerator);
+  private final CompensableInterceptor interceptor = new CompensableInterceptor(context, sender);
+
+  @Before
+  public void setUp() throws Exception {
+    context.setGlobalTxId(globalTxId);
+    context.setLocalTxId(localTxId);
+  }
 
   @Test
   public void sendsTxStartedEventBefore() throws Exception {
-    interceptor.preIntercept(globalTxId, localTxId, parentTxId, compensationMethod, message);
+    interceptor.preIntercept(parentTxId, compensationMethod, message);
 
     TxEvent event = messages.get(0);
 
@@ -59,7 +72,7 @@ public class CompensableInterceptorTest {
 
   @Test
   public void sendsTxEndedEventAfter() throws Exception {
-    interceptor.postIntercept(globalTxId, localTxId, parentTxId, compensationMethod);
+    interceptor.postIntercept(parentTxId, compensationMethod);
 
     TxEvent event = messages.get(0);
 
@@ -73,7 +86,7 @@ public class CompensableInterceptorTest {
 
   @Test
   public void sendsTxAbortedEventOnError() throws Exception {
-    interceptor.onError(globalTxId, localTxId, parentTxId, compensationMethod, new RuntimeException("oops"));
+    interceptor.onError(parentTxId, compensationMethod, new RuntimeException("oops"));
 
     TxEvent event = messages.get(0);
 
