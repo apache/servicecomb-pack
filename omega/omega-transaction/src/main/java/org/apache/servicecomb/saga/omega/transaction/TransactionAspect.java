@@ -17,8 +17,12 @@
 
 package org.apache.servicecomb.saga.omega.transaction;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
@@ -34,11 +38,12 @@ public class TransactionAspect {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final OmegaContext context;
-  private final EventAwareInterceptor interceptor;
+  private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+  private final CompensableInterceptor interceptor;
 
   public TransactionAspect(MessageSender sender, OmegaContext context) {
     this.context = context;
-    this.interceptor = new CompensableInterceptor(sender);
+    this.interceptor = new CompensableInterceptor(context, sender);
   }
 
   @Around("execution(@org.apache.servicecomb.saga.omega.transaction.annotations.Compensable * *(..)) && @annotation(compensable)")
@@ -49,17 +54,22 @@ public class TransactionAspect {
     String signature = compensationMethodSignature(joinPoint, compensable, method);
 
     String localTxId = context.localTxId();
+    context.newLocalTxId();
 
-    preIntercept(joinPoint, signature, localTxId);
+    TimeAwareInterceptor interceptor = new TimeAwareInterceptor(this.interceptor);
+    interceptor.preIntercept(localTxId, signature, joinPoint.getArgs());
     LOG.debug("Updated context {} for compensable method {} ", context, method.toString());
+    if (compensable.timeout() > 0) {
+      executor.schedule(() -> interceptor.onTimeout(signature, localTxId), compensable.timeout(), MILLISECONDS);
+    }
 
     try {
       Object result = joinPoint.proceed();
-      postIntercept(signature, localTxId);
+      interceptor.postIntercept(localTxId, signature);
 
       return result;
     } catch (Throwable throwable) {
-      interceptException(signature, throwable, localTxId);
+      interceptor.onError(localTxId, signature, throwable);
       throw throwable;
     } finally {
       context.setLocalTxId(localTxId);
@@ -74,31 +84,5 @@ public class TransactionAspect {
         .getClass()
         .getDeclaredMethod(compensable.compensationMethod(), method.getParameterTypes())
         .toString();
-  }
-
-  private void preIntercept(ProceedingJoinPoint joinPoint, String signature, String parentTxId) {
-    interceptor.preIntercept(
-        context.globalTxId(),
-        context.newLocalTxId(),
-        parentTxId,
-        signature,
-        joinPoint.getArgs());
-  }
-
-  private void postIntercept(String signature, String parentTxId) {
-    interceptor.postIntercept(
-        context.globalTxId(),
-        context.localTxId(),
-        parentTxId,
-        signature);
-  }
-
-  private void interceptException(String signature, Throwable throwable, String parentTxId) {
-    interceptor.onError(
-        context.globalTxId(),
-        context.localTxId(),
-        parentTxId,
-        signature,
-        throwable);
   }
 }

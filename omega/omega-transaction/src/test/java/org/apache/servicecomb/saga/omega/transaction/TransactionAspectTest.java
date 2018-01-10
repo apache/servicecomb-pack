@@ -18,13 +18,18 @@
 package org.apache.servicecomb.saga.omega.transaction;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
@@ -55,6 +60,7 @@ public class TransactionAspectTest {
 
   @Before
   public void setUp() throws Exception {
+    when(idGenerator.nextId()).thenReturn(newLocalTxId);
     when(joinPoint.getSignature()).thenReturn(methodSignature);
     when(joinPoint.getTarget()).thenReturn(this);
 
@@ -67,8 +73,6 @@ public class TransactionAspectTest {
 
   @Test
   public void newLocalTxIdInCompensable() throws Throwable {
-    when(idGenerator.nextId()).thenReturn(newLocalTxId);
-
     aspect.advise(joinPoint, compensable);
 
     TxEvent startedEvent = messages.get(0);
@@ -91,7 +95,6 @@ public class TransactionAspectTest {
 
   @Test
   public void restoreContextOnCompensableError() throws Throwable {
-    when(idGenerator.nextId()).thenReturn(newLocalTxId);
     RuntimeException oops = new RuntimeException("oops");
 
     when(joinPoint.proceed()).thenThrow(oops);
@@ -112,6 +115,41 @@ public class TransactionAspectTest {
 
     assertThat(omegaContext.globalTxId(), is(globalTxId));
     assertThat(omegaContext.localTxId(), is(localTxId));
+  }
+
+  @Test
+  public void sendsAbortEventOnTimeout() throws Throwable {
+    CountDownLatch latch = new CountDownLatch(1);
+    when(compensable.timeout()).thenReturn(100);
+    when(joinPoint.proceed()).thenAnswer(invocationOnMock -> {
+      latch.await();
+      assertThat(omegaContext.localTxId(), is(newLocalTxId));
+      return null;
+    });
+
+    CompletableFuture.runAsync(() -> {
+      try {
+        aspect.advise(joinPoint, compensable);
+      } catch (Throwable throwable) {
+        fail(throwable.getMessage());
+      }
+    });
+
+    await().atMost(1, SECONDS).until(() -> messages.size() == 2);
+
+    TxEvent event = messages.get(1);
+
+    assertThat(event.globalTxId(), is(globalTxId));
+    assertThat(event.localTxId(), is(newLocalTxId));
+    assertThat(event.parentTxId(), is(localTxId));
+    assertThat(event.type(), is("TxAbortedEvent"));
+
+    latch.countDown();
+
+    await().atMost(1, SECONDS).until(() -> localTxId.equals(omegaContext.localTxId()));
+
+    // no redundant ended message received
+    assertThat(messages.size(), is(2));
   }
 
   private String doNothing() {

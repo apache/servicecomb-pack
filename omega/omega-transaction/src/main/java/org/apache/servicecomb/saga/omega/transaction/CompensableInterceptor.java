@@ -17,26 +17,31 @@
 
 package org.apache.servicecomb.saga.omega.transaction;
 
+import org.apache.servicecomb.saga.omega.context.OmegaContext;
+
 class CompensableInterceptor implements EventAwareInterceptor {
+  private final OmegaContext context;
   private final MessageSender sender;
 
-  CompensableInterceptor(MessageSender sender) {
+  CompensableInterceptor(OmegaContext context, MessageSender sender) {
+    this.context = context;
     this.sender = sender;
   }
 
   @Override
-  public void preIntercept(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Object... message) {
-    sender.send(new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, message));
+  public void preIntercept(String parentTxId, String compensationMethod, Object... message) {
+    sender.send(new TxStartedEvent(context.globalTxId(), context.localTxId(), parentTxId, compensationMethod, message));
   }
 
   @Override
-  public void postIntercept(String globalTxId, String localTxId, String parentTxId, String compensationMethod) {
-    sender.send(new TxEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod));
+  public void postIntercept(String parentTxId, String compensationMethod) {
+    sender.send(new TxEndedEvent(context.globalTxId(), context.localTxId(), parentTxId, compensationMethod));
 
   }
 
   @Override
-  public void onError(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Throwable throwable) {
-    sender.send(new TxAbortedEvent(globalTxId, localTxId, parentTxId, compensationMethod, throwable));
+  public void onError(String parentTxId, String compensationMethod, Throwable throwable) {
+    sender.send(
+        new TxAbortedEvent(context.globalTxId(), context.localTxId(), parentTxId, compensationMethod, throwable));
   }
 }

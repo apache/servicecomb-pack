@@ -17,24 +17,8 @@
 
 package org.apache.servicecomb.saga.omega.transaction;
 
-public interface EventAwareInterceptor {
-  EventAwareInterceptor NO_OP_INTERCEPTOR = new EventAwareInterceptor() {
-    @Override
-    public void preIntercept(String parentTxId, String compensationMethod, Object... message) {
-    }
+import static org.junit.Assert.*;
 
-    @Override
-    public void postIntercept(String parentTxId, String compensationMethod) {
-    }
+public class TimeAwareInterceptorTest {
 
-    @Override
-    public void onError(String parentTxId, String compensationMethod, Throwable throwable) {
-    }
-  };
-
-  void preIntercept(String parentTxId, String compensationMethod, Object... message);
-
-  void postIntercept(String parentTxId, String compensationMethod);
-
-  void onError(String parentTxId, String compensationMethod, Throwable throwable);
 }
