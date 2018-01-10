@@ -19,6 +19,12 @@ package org.apache.servicecomb.saga.alpha.core;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.servicecomb.saga.alpha.core.EventType.SagaEndedEvent;
+import static org.apache.servicecomb.saga.alpha.core.EventType.SagaStartedEvent;
+import static org.apache.servicecomb.saga.alpha.core.EventType.TxAbortedEvent;
+import static org.apache.servicecomb.saga.alpha.core.EventType.TxCompensatedEvent;
+import static org.apache.servicecomb.saga.alpha.core.EventType.TxEndedEvent;
+import static org.apache.servicecomb.saga.alpha.core.EventType.TxStartedEvent;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -68,11 +74,11 @@ public class TxConsistentServiceTest {
   @Test
   public void persistEventOnArrival() throws Exception {
     TxEvent[] events = {
-        newEvent(EventType.SagaStartedEvent),
-        newEvent(EventType.TxStartedEvent),
-        newEvent(EventType.TxEndedEvent),
-        newEvent(EventType.TxCompensatedEvent),
-        newEvent(EventType.SagaEndedEvent)};
+        newEvent(SagaStartedEvent),
+        newEvent(TxStartedEvent),
+        newEvent(TxEndedEvent),
+        newEvent(TxCompensatedEvent),
+        newEvent(SagaEndedEvent)};
 
     for (TxEvent event : events) {
       consistentService.handle(event);
@@ -85,14 +91,14 @@ public class TxConsistentServiceTest {
   @Test
   public void compensateGlobalTx_OnAnyLocalTxFailure() throws Exception {
     String localTxId1 = UUID.randomUUID().toString();
-    events.add(eventOf(EventType.TxStartedEvent, "service a".getBytes(), localTxId1, "method a"));
-    events.add(eventOf(EventType.TxEndedEvent, new byte[0], localTxId1, "method a"));
+    events.add(eventOf(TxStartedEvent, "service a".getBytes(), localTxId1, "method a"));
+    events.add(eventOf(TxEndedEvent, new byte[0], localTxId1, "method a"));
 
     String localTxId2 = UUID.randomUUID().toString();
-    events.add(eventOf(EventType.TxStartedEvent, "service b".getBytes(), localTxId2, "method b"));
-    events.add(eventOf(EventType.TxEndedEvent, new byte[0], localTxId2, "method b"));
+    events.add(eventOf(TxStartedEvent, "service b".getBytes(), localTxId2, "method b"));
+    events.add(eventOf(TxEndedEvent, new byte[0], localTxId2, "method b"));
 
-    TxEvent abortEvent = newEvent(EventType.TxAbortedEvent);
+    TxEvent abortEvent = newEvent(TxAbortedEvent);
 
     consistentService.handle(abortEvent);
 
@@ -101,6 +107,15 @@ public class TxConsistentServiceTest {
         new CompensationContext(globalTxId, localTxId1, "method a", "service a".getBytes()),
         new CompensationContext(globalTxId, localTxId2, "method b", "service b".getBytes())
     ));
+
+    TxEvent compensateEvent2 = eventOf(TxCompensatedEvent, "service b".getBytes(), localTxId2, "method b");
+    consistentService.handle(compensateEvent2);
+
+    TxEvent compensateEvent1 = eventOf(TxCompensatedEvent, "service a".getBytes(), localTxId1, "method a");
+    consistentService.handle(compensateEvent1);
+
+    assertThat(events.size(), is(8));
+    assertThat(events.get(events.size() - 1).type(), is(SagaEndedEvent.name()));
   }
 
   private TxEvent newEvent(EventType eventType) {

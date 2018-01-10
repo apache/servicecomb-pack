@@ -75,13 +75,15 @@ public class TransactionAspect {
     sagaStartAnnotationProcessor.preIntercept();
 
     try {
-      return joinPoint.proceed();
-    } catch (Throwable throwable) {
-      LOG.error("Failed to process SagaStart method: {}", method.toString());
-      throw throwable;
-    } finally {
-      LOG.debug("Transaction {} has finished.", context.globalTxId());
+      Object result = joinPoint.proceed();
+
+      LOG.info("Transaction {} succeeded.", context.globalTxId());
       sagaStartAnnotationProcessor.postIntercept();
+
+      return result;
+    } catch (Throwable throwable) {
+      LOG.error("Transaction {} failed.", context.globalTxId());
+      throw throwable;
     }
   }
 
