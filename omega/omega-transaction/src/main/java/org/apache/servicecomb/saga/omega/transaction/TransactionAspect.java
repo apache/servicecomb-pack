@@ -32,17 +32,13 @@ import org.slf4j.LoggerFactory;
 @Aspect
 public class TransactionAspect {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private final PreTransactionInterceptor preTransactionInterceptor;
-  private final PostTransactionInterceptor postTransactionInterceptor;
-  private final FailedTransactionInterceptor failedTransactionInterceptor;
 
   private final OmegaContext context;
+  private final EventAwareInterceptor interceptor;
 
   public TransactionAspect(MessageSender sender, OmegaContext context) {
     this.context = context;
-    this.preTransactionInterceptor = new PreTransactionInterceptor(sender);
-    this.postTransactionInterceptor = new PostTransactionInterceptor(sender);
-    this.failedTransactionInterceptor = new FailedTransactionInterceptor(sender);
+    this.interceptor = new CompensableInterceptor(sender);
   }
 
   @Around("execution(@org.apache.servicecomb.saga.omega.transaction.annotations.Compensable * *(..)) && @annotation(compensable)")
@@ -81,7 +77,7 @@ public class TransactionAspect {
   }
 
   private void preIntercept(ProceedingJoinPoint joinPoint, String signature, String parentTxId) {
-    preTransactionInterceptor.intercept(
+    interceptor.preIntercept(
         context.globalTxId(),
         context.newLocalTxId(),
         parentTxId,
@@ -90,7 +86,7 @@ public class TransactionAspect {
   }
 
   private void postIntercept(String signature, String parentTxId) {
-    postTransactionInterceptor.intercept(
+    interceptor.postIntercept(
         context.globalTxId(),
         context.localTxId(),
         parentTxId,
@@ -98,7 +94,7 @@ public class TransactionAspect {
   }
 
   private void interceptException(String signature, Throwable throwable, String parentTxId) {
-    failedTransactionInterceptor.intercept(
+    interceptor.onError(
         context.globalTxId(),
         context.localTxId(),
         parentTxId,

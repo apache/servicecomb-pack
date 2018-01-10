@@ -17,14 +17,26 @@
 
 package org.apache.servicecomb.saga.omega.transaction;
 
-class PostTransactionInterceptor {
+class CompensableInterceptor implements EventAwareInterceptor {
   private final MessageSender sender;
 
-  PostTransactionInterceptor(MessageSender sender) {
+  CompensableInterceptor(MessageSender sender) {
     this.sender = sender;
   }
 
-  void intercept(String globalTxId, String localTxId, String parentTxId, String compensationMethod) {
+  @Override
+  public void preIntercept(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Object... message) {
+    sender.send(new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, message));
+  }
+
+  @Override
+  public void postIntercept(String globalTxId, String localTxId, String parentTxId, String compensationMethod) {
     sender.send(new TxEndedEvent(globalTxId, localTxId, parentTxId, compensationMethod));
+
+  }
+
+  @Override
+  public void onError(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Throwable throwable) {
+    sender.send(new TxAbortedEvent(globalTxId, localTxId, parentTxId, compensationMethod, throwable));
   }
 }

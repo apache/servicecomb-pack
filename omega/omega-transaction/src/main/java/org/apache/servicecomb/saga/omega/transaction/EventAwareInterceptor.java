@@ -17,14 +17,10 @@
 
 package org.apache.servicecomb.saga.omega.transaction;
 
-class PreTransactionInterceptor {
-  private final MessageSender sender;
+public interface EventAwareInterceptor {
+  void preIntercept(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Object... message);
 
-  PreTransactionInterceptor(MessageSender sender) {
-    this.sender = sender;
-  }
+  void postIntercept(String globalTxId, String localTxId, String parentTxId, String compensationMethod);
 
-  void intercept(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Object... message) {
-    sender.send(new TxStartedEvent(globalTxId, localTxId, parentTxId, compensationMethod, message));
-  }
+  void onError(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Throwable throwable);
 }

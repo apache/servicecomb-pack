@@ -39,7 +39,6 @@ public class TransactionAspectTest {
   private final List<TxEvent> messages = new ArrayList<>();
   private final String globalTxId = UUID.randomUUID().toString();
   private final String localTxId = UUID.randomUUID().toString();
-  private final String parentTxId = UUID.randomUUID().toString();
 
   private final String newLocalTxId = UUID.randomUUID().toString();
 
