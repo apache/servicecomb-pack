@@ -64,7 +64,6 @@ public class TransactionAspectTest {
 
     omegaContext.setGlobalTxId(globalTxId);
     omegaContext.setLocalTxId(localTxId);
-    omegaContext.setParentTxId(parentTxId);
   }
 
   @Test
@@ -89,7 +88,6 @@ public class TransactionAspectTest {
 
     assertThat(omegaContext.globalTxId(), is(globalTxId));
     assertThat(omegaContext.localTxId(), is(localTxId));
-    assertThat(omegaContext.parentTxId(), is(parentTxId));
   }
 
   @Test
@@ -115,7 +113,6 @@ public class TransactionAspectTest {
 
     assertThat(omegaContext.globalTxId(), is(globalTxId));
     assertThat(omegaContext.localTxId(), is(localTxId));
-    assertThat(omegaContext.parentTxId(), is(parentTxId));
   }
 
   private String doNothing() {

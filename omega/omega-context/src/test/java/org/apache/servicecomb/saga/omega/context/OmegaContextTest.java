@@ -67,24 +67,6 @@ public class OmegaContextTest {
     CompletableFuture.allOf(future1, future2).join();
   }
 
-  @Test
-  public void eachThreadGetsDifferentParentTxId() throws Exception {
-    CyclicBarrier barrier = new CyclicBarrier(2);
-
-    Runnable runnable = exceptionalRunnable(() -> {
-      String parentId = UUID.randomUUID().toString();
-      omegaContext.setParentTxId(parentId);
-      barrier.await();
-
-      assertThat(omegaContext.parentTxId(), is(parentId));
-    });
-
-    CompletableFuture<Void> future1 = CompletableFuture.runAsync(runnable);
-    CompletableFuture<Void> future2 = CompletableFuture.runAsync(runnable);
-
-    CompletableFuture.allOf(future1, future2).join();
-  }
-
   private Runnable exceptionalRunnable(ExceptionalRunnable runnable) {
     return () -> {
       try {
