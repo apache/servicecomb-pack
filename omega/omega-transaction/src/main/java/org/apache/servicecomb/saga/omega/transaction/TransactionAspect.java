@@ -53,23 +53,20 @@ public class TransactionAspect {
     String signature = compensationMethodSignature(joinPoint, compensable, method);
 
     String localTxId = context.localTxId();
-    String parentTxId = context.parentTxId();
-    context.setParentTxId(localTxId);
 
-    preIntercept(joinPoint, signature);
+    preIntercept(joinPoint, signature, localTxId);
     LOG.debug("Updated context {} for compensable method {} ", context, method.toString());
 
     try {
       Object result = joinPoint.proceed();
-      postIntercept(signature);
+      postIntercept(signature, localTxId);
 
       return result;
     } catch (Throwable throwable) {
-      interceptException(signature, throwable);
+      interceptException(signature, throwable, localTxId);
       throw throwable;
     } finally {
       context.setLocalTxId(localTxId);
-      context.setParentTxId(parentTxId);
       LOG.debug("Restored context back to {}", context);
     }
   }
@@ -83,28 +80,28 @@ public class TransactionAspect {
         .toString();
   }
 
-  private void preIntercept(ProceedingJoinPoint joinPoint, String signature) {
+  private void preIntercept(ProceedingJoinPoint joinPoint, String signature, String parentTxId) {
     preTransactionInterceptor.intercept(
         context.globalTxId(),
         context.newLocalTxId(),
-        context.parentTxId(),
+        parentTxId,
         signature,
         joinPoint.getArgs());
   }
 
-  private void postIntercept(String signature) {
+  private void postIntercept(String signature, String parentTxId) {
     postTransactionInterceptor.intercept(
         context.globalTxId(),
         context.localTxId(),
-        context.parentTxId(),
+        parentTxId,
         signature);
   }
 
-  private void interceptException(String signature, Throwable throwable) {
+  private void interceptException(String signature, Throwable throwable, String parentTxId) {
     failedTransactionInterceptor.intercept(
         context.globalTxId(),
         context.localTxId(),
-        context.parentTxId(),
+        parentTxId,
         signature,
         throwable);
   }

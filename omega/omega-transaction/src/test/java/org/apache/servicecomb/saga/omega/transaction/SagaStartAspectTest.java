@@ -63,7 +63,6 @@ public class SagaStartAspectTest {
 
     omegaContext.setGlobalTxId(globalTxId);
     omegaContext.setLocalTxId(localTxId);
-    omegaContext.setParentTxId(parentTxId);
   }
 
   @Test
@@ -89,7 +88,6 @@ public class SagaStartAspectTest {
 
     assertThat(omegaContext.globalTxId(), is(nullValue()));
     assertThat(omegaContext.localTxId(), is(nullValue()));
-    assertThat(omegaContext.parentTxId(), is(nullValue()));
   }
 
   @Test
@@ -115,7 +113,6 @@ public class SagaStartAspectTest {
 
     assertThat(omegaContext.globalTxId(), is(nullValue()));
     assertThat(omegaContext.localTxId(), is(nullValue()));
-    assertThat(omegaContext.parentTxId(), is(nullValue()));
   }
 
   private String doNothing() {

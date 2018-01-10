@@ -68,7 +68,6 @@ class ExecutorFieldCallback implements FieldCallback {
 
     private final String globalTxId;
     private final String localTxId;
-    private final String parentTxId;
     private final Object runnable;
     private final OmegaContext omegaContext;
 
@@ -84,29 +83,25 @@ class ExecutorFieldCallback implements FieldCallback {
       this.omegaContext = omegaContext;
       this.globalTxId = omegaContext.globalTxId();
       this.localTxId = omegaContext.localTxId();
-      this.parentTxId = omegaContext.parentTxId();
       this.runnable = runnable;
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
       try {
-        LOG.debug("Setting OmegaContext with globalTxId [{}], localTxId [{}], & parentTxId [{}]",
+        LOG.debug("Setting OmegaContext with globalTxId [{}] & localTxId [{}]",
             globalTxId,
-            localTxId,
-            parentTxId);
+            localTxId);
 
         omegaContext.setGlobalTxId(globalTxId);
         omegaContext.setLocalTxId(localTxId);
-        omegaContext.setParentTxId(parentTxId);
 
         return method.invoke(runnable, args);
       } finally {
         omegaContext.clear();
-        LOG.debug("Cleared OmegaContext with globalTxId [{}], localTxId [{}], & parentTxId [{}]",
+        LOG.debug("Cleared OmegaContext with globalTxId [{}] & localTxId [{}]",
             globalTxId,
-            localTxId,
-            parentTxId);
+            localTxId);
       }
     }
   }

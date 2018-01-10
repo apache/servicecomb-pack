@@ -23,7 +23,6 @@ public class OmegaContext {
 
   private final ThreadLocal<String> globalTxId = new InheritableThreadLocal<>();
   private final ThreadLocal<String> localTxId = new InheritableThreadLocal<>();
-  private final ThreadLocal<String> parentTxId = new InheritableThreadLocal<>();
   private final IdGenerator<String> idGenerator;
 
   public OmegaContext(IdGenerator<String> idGenerator) {
@@ -58,18 +57,9 @@ public class OmegaContext {
     return localTxId.get();
   }
 
-  public String parentTxId() {
-    return parentTxId.get();
-  }
-
-  public void setParentTxId(String parentTxId) {
-    this.parentTxId.set(parentTxId);
-  }
-
   public void clear() {
     globalTxId.remove();
     localTxId.remove();
-    parentTxId.remove();
   }
 
   @Override
@@ -77,7 +67,6 @@ public class OmegaContext {
     return "OmegaContext{" +
         "globalTxId=" + globalTxId.get() +
         ", localTxId=" + localTxId.get() +
-        ", parentTxId=" + parentTxId.get() +
         '}';
   }
 }
