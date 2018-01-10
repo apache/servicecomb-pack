@@ -114,7 +114,7 @@ public class TxConsistentServiceTest {
     TxEvent compensateEvent1 = eventOf(TxCompensatedEvent, "service a".getBytes(), localTxId1, "method a");
     consistentService.handle(compensateEvent1);
 
-    assertThat(events.size(), is(8));
+    await().atMost(1, SECONDS).until(() -> events.size() == 8);
     assertThat(events.get(events.size() - 1).type(), is(SagaEndedEvent.name()));
   }
 
