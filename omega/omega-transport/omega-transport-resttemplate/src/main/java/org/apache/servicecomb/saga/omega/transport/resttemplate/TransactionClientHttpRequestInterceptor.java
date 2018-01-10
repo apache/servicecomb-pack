@@ -18,16 +18,22 @@
 
 package org.apache.servicecomb.saga.omega.transport.resttemplate;
 
+import static org.apache.servicecomb.saga.omega.context.OmegaContext.GLOBAL_TX_ID_KEY;
+import static org.apache.servicecomb.saga.omega.context.OmegaContext.LOCAL_TX_ID_KEY;
+
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
 class TransactionClientHttpRequestInterceptor implements ClientHttpRequestInterceptor {
-
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final OmegaContext omegaContext;
 
   TransactionClientHttpRequestInterceptor(OmegaContext omegaContext) {
@@ -39,8 +45,14 @@ class TransactionClientHttpRequestInterceptor implements ClientHttpRequestInterc
       ClientHttpRequestExecution execution) throws IOException {
 
     if (omegaContext.globalTxId() != null) {
-      request.getHeaders().add(OmegaContext.GLOBAL_TX_ID_KEY, omegaContext.globalTxId());
-      request.getHeaders().add(OmegaContext.LOCAL_TX_ID_KEY, omegaContext.localTxId());
+      request.getHeaders().add(GLOBAL_TX_ID_KEY, omegaContext.globalTxId());
+      request.getHeaders().add(LOCAL_TX_ID_KEY, omegaContext.localTxId());
+
+      LOG.debug("Added {} {} and {} {} to request header",
+          GLOBAL_TX_ID_KEY,
+          omegaContext.globalTxId(),
+          LOCAL_TX_ID_KEY,
+          omegaContext.localTxId());
     }
     return execution.execute(request, body);
   }
