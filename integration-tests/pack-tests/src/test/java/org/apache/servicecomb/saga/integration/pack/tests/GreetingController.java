@@ -18,6 +18,7 @@
 package org.apache.servicecomb.saga.integration.pack.tests;
 
 import org.apache.servicecomb.saga.omega.context.annotations.SagaStart;
+import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -63,5 +64,17 @@ public class GreetingController {
   @GetMapping("/rude")
   ResponseEntity<String> rude(@RequestParam String name) {
     return ResponseEntity.ok(greetingService.beingRude(name));
+  }
+
+  @SagaStart
+  @Compensable(compensationMethod = "goodNight")
+  @GetMapping("/goodMorning")
+  ResponseEntity<String> goodMorning(@RequestParam String name) {
+    String bonjour = restTemplate.getForObject("http://localhost:8080/bonjour?name={name}", String.class, name);
+    return ResponseEntity.ok("Good morning, " + bonjour);
+  }
+
+  ResponseEntity<String> goodNight(@RequestParam String name) {
+    return ResponseEntity.ok("Good night, " + name);
   }
 }

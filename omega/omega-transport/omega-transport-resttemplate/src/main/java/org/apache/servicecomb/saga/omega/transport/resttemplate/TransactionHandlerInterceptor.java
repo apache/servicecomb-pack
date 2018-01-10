@@ -20,6 +20,9 @@
 
 package org.apache.servicecomb.saga.omega.transport.resttemplate;
 
+import static org.apache.servicecomb.saga.omega.context.OmegaContext.GLOBAL_TX_ID_KEY;
+import static org.apache.servicecomb.saga.omega.context.OmegaContext.LOCAL_TX_ID_KEY;
+
 import java.lang.invoke.MethodHandles;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,24 +46,21 @@ class TransactionHandlerInterceptor implements HandlerInterceptor {
 
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-    String globalTxId = request.getHeader(OmegaContext.GLOBAL_TX_ID_KEY);
+    String globalTxId = request.getHeader(GLOBAL_TX_ID_KEY);
     if (globalTxId == null) {
-      LOG.debug("no such header: {}", OmegaContext.GLOBAL_TX_ID_KEY);
+      LOG.debug("no such header: {}", GLOBAL_TX_ID_KEY);
     } else {
       omegaContext.setGlobalTxId(globalTxId);
-      omegaContext.newLocalTxId();
-      omegaContext.setParentTxId(request.getHeader(OmegaContext.LOCAL_TX_ID_KEY));
+      omegaContext.setLocalTxId(request.getHeader(LOCAL_TX_ID_KEY));
     }
     return true;
   }
 
   @Override
-  public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o,
-      ModelAndView modelAndView) {
+  public void postHandle(HttpServletRequest request, HttpServletResponse response, Object o, ModelAndView mv) {
   }
 
   @Override
-  public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object o,
-      Exception e) {
+  public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object o, Exception e) {
   }
 }

@@ -36,7 +36,6 @@ public class TransactionAspect {
   private final PostTransactionInterceptor postTransactionInterceptor;
   private final FailedTransactionInterceptor failedTransactionInterceptor;
 
-  private final SagaStartAnnotationProcessor sagaStartAnnotationProcessor;
   private final OmegaContext context;
 
   public TransactionAspect(MessageSender sender, OmegaContext context) {
@@ -44,7 +43,6 @@ public class TransactionAspect {
     this.preTransactionInterceptor = new PreTransactionInterceptor(sender);
     this.postTransactionInterceptor = new PostTransactionInterceptor(sender);
     this.failedTransactionInterceptor = new FailedTransactionInterceptor(sender);
-    this.sagaStartAnnotationProcessor = new SagaStartAnnotationProcessor(context, sender);
   }
 
   @Around("execution(@org.apache.servicecomb.saga.omega.transaction.annotations.Compensable * *(..)) && @annotation(compensable)")
@@ -54,7 +52,12 @@ public class TransactionAspect {
 
     String signature = compensationMethodSignature(joinPoint, compensable, method);
 
+    String localTxId = context.localTxId();
+    String parentTxId = context.parentTxId();
+    context.setParentTxId(localTxId);
+
     preIntercept(joinPoint, signature);
+    LOG.debug("Updated context {} for compensable method {} ", context, method.toString());
 
     try {
       Object result = joinPoint.proceed();
@@ -64,26 +67,10 @@ public class TransactionAspect {
     } catch (Throwable throwable) {
       interceptException(signature, throwable);
       throw throwable;
-    }
-  }
-
-  @Around("execution(@org.apache.servicecomb.saga.omega.context.annotations.SagaStart * *(..))")
-  Object advise(ProceedingJoinPoint joinPoint) throws Throwable {
-    Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
-
-    LOG.debug("Initializing global tx id before execution of method {}", method.toString());
-    sagaStartAnnotationProcessor.preIntercept();
-
-    try {
-      Object result = joinPoint.proceed();
-
-      LOG.info("Transaction {} succeeded.", context.globalTxId());
-      sagaStartAnnotationProcessor.postIntercept();
-
-      return result;
-    } catch (Throwable throwable) {
-      LOG.error("Transaction {} failed.", context.globalTxId());
-      throw throwable;
+    } finally {
+      context.setLocalTxId(localTxId);
+      context.setParentTxId(parentTxId);
+      LOG.debug("Restored context back to {}", context);
     }
   }
 
@@ -97,12 +84,9 @@ public class TransactionAspect {
   }
 
   private void preIntercept(ProceedingJoinPoint joinPoint, String signature) {
-    // context without a parent should be the first TxStartedEvent
-    initFirstOmegaContext();
-
     preTransactionInterceptor.intercept(
         context.globalTxId(),
-        context.localTxId(),
+        context.newLocalTxId(),
         context.parentTxId(),
         signature,
         joinPoint.getArgs());
@@ -123,15 +107,5 @@ public class TransactionAspect {
         context.parentTxId(),
         signature,
         throwable);
-  }
-
-  private void initFirstOmegaContext() {
-    if (context.parentTxId() != null) {
-      return;
-    }
-    if (context.localTxId() == null) {
-      context.newLocalTxId();
-    }
-    context.setParentTxId(context.globalTxId());
   }
 }

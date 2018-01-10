@@ -22,10 +22,12 @@ import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.CompensationMessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
+import org.apache.servicecomb.saga.omega.transaction.SagaStartAspect;
 import org.apache.servicecomb.saga.omega.transaction.TransactionAspect;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.core.annotation.Order;
 
 @Configuration
 @EnableAspectJAutoProxy
@@ -36,6 +38,13 @@ public class TransactionAspectConfig {
     return new CompensationMessageHandler(sender, context);
   }
 
+  @Order(0)
+  @Bean
+  SagaStartAspect sagaStartAspect(MessageSender sender, OmegaContext context) {
+    return new SagaStartAspect(sender, context);
+  }
+
+  @Order(1)
   @Bean
   TransactionAspect transactionAspect(MessageSender sender, OmegaContext context) {
     return new TransactionAspect(sender, context);
