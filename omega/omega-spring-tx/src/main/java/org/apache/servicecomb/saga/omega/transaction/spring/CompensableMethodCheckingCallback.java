@@ -20,7 +20,7 @@ package org.apache.servicecomb.saga.omega.transaction.spring;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 
-import org.apache.servicecomb.saga.omega.context.OmegaContext;
+import org.apache.servicecomb.saga.omega.context.CompensationContext;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
 import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
 import org.slf4j.Logger;
@@ -31,11 +31,11 @@ class CompensableMethodCheckingCallback implements MethodCallback {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final Object bean;
-  private final OmegaContext omegaContext;
+  private final CompensationContext compensationContext;
 
-  CompensableMethodCheckingCallback(Object bean, OmegaContext omegaContext) {
+  CompensableMethodCheckingCallback(Object bean, CompensationContext compensationContext) {
     this.bean = bean;
-    this.omegaContext = omegaContext;
+    this.compensationContext = compensationContext;
   }
 
   @Override
@@ -48,7 +48,7 @@ class CompensableMethodCheckingCallback implements MethodCallback {
 
     try {
       Method signature = bean.getClass().getDeclaredMethod(compensationMethod, method.getParameterTypes());
-      omegaContext.addCompensationContext(signature, bean);
+      compensationContext.addCompensationContext(signature, bean);
       LOG.debug("Found compensation method [{}] in {}", compensationMethod, bean.getClass().getCanonicalName());
     } catch (NoSuchMethodException e) {
       throw new OmegaException(

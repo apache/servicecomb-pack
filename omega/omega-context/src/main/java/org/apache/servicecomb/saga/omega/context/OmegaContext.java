@@ -17,17 +17,7 @@
 
 package org.apache.servicecomb.saga.omega.context;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class OmegaContext {
-  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   public static final String GLOBAL_TX_ID_KEY = "X-Pack-Global-Transaction-Id";
   public static final String LOCAL_TX_ID_KEY = "X-Pack-Local-Transaction-Id";
 
@@ -35,7 +25,6 @@ public class OmegaContext {
   private final ThreadLocal<String> localTxId = new InheritableThreadLocal<>();
   private final ThreadLocal<String> parentTxId = new InheritableThreadLocal<>();
   private final IdGenerator<String> idGenerator;
-  private final Map<String, CompensationContext> compensationContexts = new HashMap<>();
 
   public OmegaContext(IdGenerator<String> idGenerator) {
     this.idGenerator = idGenerator;
@@ -83,25 +72,6 @@ public class OmegaContext {
     parentTxId.remove();
   }
 
-  public void addCompensationContext(Method compensationMethod, Object target) {
-    compensationMethod.setAccessible(true);
-    compensationContexts.put(compensationMethod.toString(), new CompensationContext(target, compensationMethod));
-  }
-
-  public void compensate(String globalTxId, String localTxId, String compensationMethod, Object... payloads) {
-    CompensationContext compensationContext = compensationContexts.get(compensationMethod);
-
-    try {
-      compensationContext.compensationMethod.invoke(compensationContext.target, payloads);
-      LOG.info("Compensated transaction with global tx id [{}], local tx id [{}]", globalTxId, localTxId);
-    } catch (IllegalAccessException | InvocationTargetException e) {
-      LOG.error(
-          "Pre-checking for compensate method " + compensationContext.compensationMethod.toString()
-              + " was somehow skipped, did you forget to configure compensable method checking on service startup?",
-          e);
-    }
-  }
-
   @Override
   public String toString() {
     return "OmegaContext{" +
@@ -109,15 +79,5 @@ public class OmegaContext {
         ", localTxId=" + localTxId.get() +
         ", parentTxId=" + parentTxId.get() +
         '}';
-  }
-
-  private static final class CompensationContext {
-    private final Object target;
-    private final Method compensationMethod;
-
-    private CompensationContext(Object target, Method compensationMethod) {
-      this.target = target;
-      this.compensationMethod = compensationMethod;
-    }
   }
 }

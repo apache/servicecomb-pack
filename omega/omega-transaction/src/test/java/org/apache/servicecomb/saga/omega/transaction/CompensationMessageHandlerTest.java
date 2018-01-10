@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verify;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.servicecomb.saga.omega.context.OmegaContext;
+import org.apache.servicecomb.saga.omega.context.CompensationContext;
 import org.junit.Test;
 
 public class CompensationMessageHandlerTest {
@@ -40,8 +40,8 @@ public class CompensationMessageHandlerTest {
   private final String compensationMethod = getClass().getCanonicalName();
   private final String payload = uniquify("blah");
 
-  private final OmegaContext omegaContext = mock(OmegaContext.class);
-  private final CompensationMessageHandler handler = new CompensationMessageHandler(sender, omegaContext);
+  private final CompensationContext context = mock(CompensationContext.class);
+  private final CompensationMessageHandler handler = new CompensationMessageHandler(sender, context);
 
   @Test
   public void sendsEventOnCompensationCompleted() throws Exception {
@@ -57,6 +57,6 @@ public class CompensationMessageHandlerTest {
     assertThat(event.compensationMethod(), is(getClass().getCanonicalName()));
     assertThat(event.payloads().length, is(0));
 
-    verify(omegaContext).compensate(globalTxId, localTxId, compensationMethod, payload);
+    verify(context).compensate(globalTxId, localTxId, compensationMethod, payload);
   }
 }

@@ -18,6 +18,7 @@
 package org.apache.servicecomb.saga.omega.spring;
 
 import org.apache.servicecomb.saga.omega.connector.grpc.LoadBalancedClusterMessageSender;
+import org.apache.servicecomb.saga.omega.context.CompensationContext;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
@@ -42,6 +43,11 @@ class OmegaSpringConfig {
   @Bean
   OmegaContext omegaContext(IdGenerator<String> idGenerator) {
     return new OmegaContext(idGenerator);
+  }
+
+  @Bean
+  CompensationContext compensationContext() {
+    return new CompensationContext();
   }
 
   @Bean

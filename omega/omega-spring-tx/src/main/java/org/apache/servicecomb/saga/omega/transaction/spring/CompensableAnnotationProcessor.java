@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.saga.omega.transaction.spring;
 
+import org.apache.servicecomb.saga.omega.context.CompensationContext;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -25,9 +26,11 @@ import org.springframework.util.ReflectionUtils;
 class CompensableAnnotationProcessor implements BeanPostProcessor {
 
   private final OmegaContext omegaContext;
+  private final CompensationContext compensationContext;
 
-  CompensableAnnotationProcessor(OmegaContext omegaContext) {
+  CompensableAnnotationProcessor(OmegaContext omegaContext, CompensationContext compensationContext) {
     this.omegaContext = omegaContext;
+    this.compensationContext = compensationContext;
   }
 
   @Override
@@ -43,7 +46,9 @@ class CompensableAnnotationProcessor implements BeanPostProcessor {
   }
 
   private void checkMethod(Object bean) {
-    ReflectionUtils.doWithMethods(bean.getClass(), new CompensableMethodCheckingCallback(bean, omegaContext));
+    ReflectionUtils.doWithMethods(
+        bean.getClass(),
+        new CompensableMethodCheckingCallback(bean, compensationContext));
   }
 
   private void checkFields(Object bean) {

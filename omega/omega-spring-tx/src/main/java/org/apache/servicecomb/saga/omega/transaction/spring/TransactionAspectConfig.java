@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.saga.omega.transaction.spring;
 
+import org.apache.servicecomb.saga.omega.context.CompensationContext;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.CompensationMessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
@@ -31,7 +32,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 public class TransactionAspectConfig {
 
   @Bean
-  MessageHandler messageHandler(MessageSender sender, OmegaContext context) {
+  MessageHandler messageHandler(MessageSender sender, CompensationContext context) {
     return new CompensationMessageHandler(sender, context);
   }
 
@@ -41,7 +42,7 @@ public class TransactionAspectConfig {
   }
 
   @Bean
-  CompensableAnnotationProcessor compensableAnnotationProcessor(OmegaContext omegaContext) {
-    return new CompensableAnnotationProcessor(omegaContext);
+  CompensableAnnotationProcessor compensableAnnotationProcessor(OmegaContext omegaContext, CompensationContext compensationContext) {
+    return new CompensableAnnotationProcessor(omegaContext, compensationContext);
   }
 }

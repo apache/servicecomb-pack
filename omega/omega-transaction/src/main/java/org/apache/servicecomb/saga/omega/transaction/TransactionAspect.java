@@ -44,7 +44,7 @@ public class TransactionAspect {
     this.preTransactionInterceptor = new PreTransactionInterceptor(sender);
     this.postTransactionInterceptor = new PostTransactionInterceptor(sender);
     this.failedTransactionInterceptor = new FailedTransactionInterceptor(sender);
-    this.sagaStartAnnotationProcessor = new SagaStartAnnotationProcessor(this.context, sender);
+    this.sagaStartAnnotationProcessor = new SagaStartAnnotationProcessor(context, sender);
   }
 
   @Around("execution(@org.apache.servicecomb.saga.omega.transaction.annotations.Compensable * *(..)) && @annotation(compensable)")

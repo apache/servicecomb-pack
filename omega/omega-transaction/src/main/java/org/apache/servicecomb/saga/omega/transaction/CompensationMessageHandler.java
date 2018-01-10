@@ -17,20 +17,20 @@
 
 package org.apache.servicecomb.saga.omega.transaction;
 
-import org.apache.servicecomb.saga.omega.context.OmegaContext;
+import org.apache.servicecomb.saga.omega.context.CompensationContext;
 
 public class CompensationMessageHandler implements MessageHandler {
   private final MessageSender sender;
-  private final OmegaContext omegaContext;
+  private final CompensationContext context;
 
-  public CompensationMessageHandler(MessageSender sender, OmegaContext omegaContext) {
+  public CompensationMessageHandler(MessageSender sender, CompensationContext context) {
     this.sender = sender;
-    this.omegaContext = omegaContext;
+    this.context = context;
   }
 
   @Override
   public void onReceive(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Object... payloads) {
-    omegaContext.compensate(globalTxId, localTxId, compensationMethod, payloads);
+    context.compensate(globalTxId, localTxId, compensationMethod, payloads);
     sender.send(new TxCompensatedEvent(globalTxId, localTxId, parentTxId, compensationMethod));
   }
 }
