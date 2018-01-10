@@ -23,6 +23,7 @@ language: java
 jdk:
 - oraclejdk8
 script:
+- set -e
 - mvn clean install -Pjacoco -Pdocker coveralls:report
 - mvn clean verify -f saga-demo -Pdemo -Pdocker -Ddocker.useColor=false -Ddocker.showLogs
 after_success:
