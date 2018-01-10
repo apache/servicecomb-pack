@@ -17,17 +17,15 @@
 
 package org.apache.servicecomb.saga.omega.transaction;
 
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 class TimeAwareInterceptor implements EventAwareInterceptor {
   private final EventAwareInterceptor interceptor;
-  private final BlockingDeque<EventAwareInterceptor> interceptors = new LinkedBlockingDeque<>(2);
+  private final AtomicReference<EventAwareInterceptor> interceptorRef;
 
   TimeAwareInterceptor(EventAwareInterceptor interceptor) {
     this.interceptor = interceptor;
-    this.interceptors.offer(interceptor);
+    this.interceptorRef = new AtomicReference<>(interceptor);
   }
 
   @Override
@@ -37,18 +35,21 @@ class TimeAwareInterceptor implements EventAwareInterceptor {
 
   @Override
   public void postIntercept(String localTxId, String signature) {
-    interceptors.offerLast(NO_OP_INTERCEPTOR);
-    interceptors.pollFirst().postIntercept(localTxId, signature);
+    if (interceptorRef.compareAndSet(interceptor, NO_OP_INTERCEPTOR)) {
+      interceptor.postIntercept(localTxId, signature);
+    }
   }
 
   @Override
   public void onError(String localTxId, String signature, Throwable throwable) {
-    interceptors.offerLast(NO_OP_INTERCEPTOR);
-    interceptors.pollFirst().onError(localTxId, signature, throwable);
+    if (interceptorRef.compareAndSet(interceptor, NO_OP_INTERCEPTOR)) {
+      interceptor.onError(localTxId, signature, throwable);
+    }
   }
 
-  void onTimeout(String signature, String localTxId) {
-    interceptors.offerFirst(NO_OP_INTERCEPTOR);
-    interceptors.pollLast().onError(localTxId, signature, new TimeoutException());
+  void onTimeout(String localTxId, String signature, Throwable throwable) {
+    if (interceptorRef.compareAndSet(interceptor, NO_OP_INTERCEPTOR)) {
+      interceptor.onError(localTxId, signature, throwable);
+    }
   }
 }

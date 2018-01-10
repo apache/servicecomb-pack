@@ -59,9 +59,8 @@ public class TransactionAspect {
     TimeAwareInterceptor interceptor = new TimeAwareInterceptor(this.interceptor);
     interceptor.preIntercept(localTxId, signature, joinPoint.getArgs());
     LOG.debug("Updated context {} for compensable method {} ", context, method.toString());
-    if (compensable.timeout() > 0) {
-      executor.schedule(() -> interceptor.onTimeout(signature, localTxId), compensable.timeout(), MILLISECONDS);
-    }
+
+    scheduleTimeoutTask(interceptor, localTxId, signature, method, compensable.timeout());
 
     try {
       Object result = joinPoint.proceed();
@@ -74,6 +73,24 @@ public class TransactionAspect {
     } finally {
       context.setLocalTxId(localTxId);
       LOG.debug("Restored context back to {}", context);
+    }
+  }
+
+  private void scheduleTimeoutTask(
+      TimeAwareInterceptor interceptor,
+      String localTxId,
+      String signature,
+      Method method,
+      int timeout) {
+
+    if (timeout > 0) {
+      executor.schedule(
+          () -> interceptor.onTimeout(
+              localTxId,
+              signature,
+              new OmegaTxTimeoutException("Transaction " + method.toString() + " timed out")),
+          timeout,
+          MILLISECONDS);
     }
   }
 
