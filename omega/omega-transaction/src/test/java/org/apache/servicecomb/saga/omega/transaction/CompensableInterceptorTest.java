@@ -29,7 +29,8 @@ import java.util.UUID;
 
 import org.junit.Test;
 
-public class PreTransactionInterceptorTest {
+public class CompensableInterceptorTest {
+
   private final List<TxEvent> messages = new ArrayList<>();
   private final String globalTxId = UUID.randomUUID().toString();
   private final String localTxId = UUID.randomUUID().toString();
@@ -38,11 +39,13 @@ public class PreTransactionInterceptorTest {
   private final MessageSender sender = messages::add;
 
   private final String message = uniquify("message");
-  private final PreTransactionInterceptor interceptor = new PreTransactionInterceptor(sender);
+  private final String compensationMethod = getClass().getCanonicalName();
+
+  private final CompensableInterceptor interceptor = new CompensableInterceptor(sender);
 
   @Test
-  public void sendsTxStartedEvent() throws Exception {
-    interceptor.intercept(globalTxId, localTxId, parentTxId, getClass().getCanonicalName(), message);
+  public void sendsTxStartedEventBefore() throws Exception {
+    interceptor.preIntercept(globalTxId, localTxId, parentTxId, compensationMethod, message);
 
     TxEvent event = messages.get(0);
 
@@ -50,7 +53,34 @@ public class PreTransactionInterceptorTest {
     assertThat(event.localTxId(), is(localTxId));
     assertThat(event.parentTxId(), is(parentTxId));
     assertThat(event.type(), is("TxStartedEvent"));
-    assertThat(event.compensationMethod(), is(getClass().getCanonicalName()));
+    assertThat(event.compensationMethod(), is(compensationMethod));
     assertThat(asList(event.payloads()), contains(message));
+  }
+
+  @Test
+  public void sendsTxEndedEventAfter() throws Exception {
+    interceptor.postIntercept(globalTxId, localTxId, parentTxId, compensationMethod);
+
+    TxEvent event = messages.get(0);
+
+    assertThat(event.globalTxId(), is(globalTxId));
+    assertThat(event.localTxId(), is(localTxId));
+    assertThat(event.parentTxId(), is(parentTxId));
+    assertThat(event.type(), is("TxEndedEvent"));
+    assertThat(event.compensationMethod(), is(compensationMethod));
+    assertThat(event.payloads().length, is(0));
+  }
+
+  @Test
+  public void sendsTxAbortedEventOnError() throws Exception {
+    interceptor.onError(globalTxId, localTxId, parentTxId, compensationMethod, new RuntimeException("oops"));
+
+    TxEvent event = messages.get(0);
+
+    assertThat(event.globalTxId(), is(globalTxId));
+    assertThat(event.localTxId(), is(localTxId));
+    assertThat(event.parentTxId(), is(parentTxId));
+    assertThat(event.type(), is("TxAbortedEvent"));
+    assertThat(event.compensationMethod(), is(compensationMethod));
   }
 }
