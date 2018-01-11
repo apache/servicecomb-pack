@@ -70,8 +70,8 @@ public class SagaStartAnnotationProcessorTest {
 
   @Test
   public void sendsSagaEndedEvent() {
-    context.clear();
     context.setGlobalTxId(globalTxId);
+    context.setLocalTxId(globalTxId);
 
     sagaStartAnnotationProcessor.postIntercept(null, null);
 

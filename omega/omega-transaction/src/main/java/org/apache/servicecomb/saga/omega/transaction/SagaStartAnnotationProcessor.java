@@ -31,15 +31,13 @@ class SagaStartAnnotationProcessor implements EventAwareInterceptor {
 
   @Override
   public void preIntercept(String parentTxId, String compensationMethod, Object... message) {
-    String globalTxId = globalTxId();
-    // reuse the globalTxId as localTxId to differ localTxId in SagaStartedEvent and the first TxStartedEvent
-    sender.send(new SagaStartedEvent(globalTxId, globalTxId));
+    initializeOmegaContext();
+    sender.send(new SagaStartedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
   }
 
   @Override
   public void postIntercept(String parentTxId, String compensationMethod) {
-    String globalTxId = omegaContext.globalTxId();
-    sender.send(new SagaEndedEvent(globalTxId, globalTxId));
+    sender.send(new SagaEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
     omegaContext.clear();
   }
 
@@ -50,9 +48,7 @@ class SagaStartAnnotationProcessor implements EventAwareInterceptor {
     omegaContext.clear();
   }
 
-  private String globalTxId() {
-    String globalTxId = omegaContext.newGlobalTxId();
-    omegaContext.setLocalTxId(globalTxId);
-    return globalTxId;
+  private void initializeOmegaContext() {
+    omegaContext.setLocalTxId(omegaContext.newGlobalTxId());
   }
 }
