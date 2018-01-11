@@ -20,6 +20,8 @@ package org.apache.servicecomb.saga.omega.connector.grpc;
 import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.slf4j.Logger;
@@ -31,26 +33,39 @@ class PushBackReconnectRunnable implements Runnable {
   private final Map<MessageSender, Long> senders;
   private final BlockingQueue<Runnable> pendingTasks;
 
+  private final ReentrantLock lock;
+
+  private final Condition condition;
+
   PushBackReconnectRunnable(
       MessageSender messageSender,
       Map<MessageSender, Long> senders,
-      BlockingQueue<Runnable> pendingTasks) {
+      BlockingQueue<Runnable> pendingTasks,
+      ReentrantLock lock,
+      Condition condition) {
     this.messageSender = messageSender;
     this.senders = senders;
     this.pendingTasks = pendingTasks;
+    this.lock = lock;
+    this.condition = condition;
   }
 
   @Override
   public void run() {
+    lock.lock();
     try {
       log.info("Retry connecting to alpha at {}", messageSender.target());
       messageSender.onDisconnected();
       messageSender.onConnected();
       senders.put(messageSender, 0L);
       log.info("Retry connecting to alpha at {} is successful", messageSender.target());
+
+      condition.signal();
     } catch (Exception e) {
       log.error("Failed to reconnect to alpha at {}", messageSender.target(), e);
       pendingTasks.offer(this);
+    } finally {
+      lock.unlock();
     }
   }
 }

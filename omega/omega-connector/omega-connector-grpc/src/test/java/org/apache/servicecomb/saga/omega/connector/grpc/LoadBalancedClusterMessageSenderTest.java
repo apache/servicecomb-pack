@@ -26,6 +26,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
@@ -84,9 +85,9 @@ public class LoadBalancedClusterMessageSenderTest {
   private final MessageDeserializer deserializer = message -> new Object[] {new String(message)};
 
   private final List<String> compensated = new ArrayList<>();
-  private final MessageHandler handler = (globalTxId, localTxId, parentTxId, compensationMethod, payloads) -> {
-    compensated.add(globalTxId);
-  };
+
+  private final MessageHandler handler = (globalTxId, localTxId, parentTxId, compensationMethod, payloads) ->
+      compensated.add(globalTxId);
 
   private final String globalTxId = uniquify("globalTxId");
   private final String localTxId = uniquify("localTxId");
@@ -195,6 +196,9 @@ public class LoadBalancedClusterMessageSenderTest {
 
     Thread.sleep(300);
 
+    // stop trying to send message out on exception
+    verify(underlying, times(1)).send(event);
+
     thread.interrupt();
     thread.join();
   }
@@ -264,6 +268,31 @@ public class LoadBalancedClusterMessageSenderTest {
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("No reachable cluster address provided"));
     }
+  }
+
+  @Test
+  public void deliverMessageWhenConnectionAvailable() throws Exception {
+    servers.values().forEach(Server::shutdownNow);
+
+    Thread thread = new Thread(() -> messageSender.send(event));
+    thread.start();
+
+    int testPort = ports[0];
+    assertThat(eventsMap.get(testPort).isEmpty(), is(true));
+
+    startServerOnPort(testPort);
+
+    await().atMost(1, SECONDS).until(() -> eventsMap.get(testPort).size() != 0);
+    TxEvent receivedEvent = eventsMap.get(testPort).poll();
+    assertThat(receivedEvent.globalTxId(), is(globalTxId));
+    assertThat(receivedEvent.localTxId(), is(localTxId));
+    assertThat(receivedEvent.parentTxId(), is(parentTxId));
+    assertThat(receivedEvent.compensationMethod(), is(compensationMethod));
+
+    thread.interrupt();
+    thread.join();
+
+    startServerOnPort(ports[1]);
   }
 
   private int killServerReceivedMessage() {
