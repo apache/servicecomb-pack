@@ -28,9 +28,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 public class TxConsistentService {
@@ -46,6 +47,7 @@ public class TxConsistentService {
   }};
 
   private final Map<String, Set<String>> eventsToCompensate = new ConcurrentHashMap<>();
+  private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
   public TxConsistentService(TxEventRepository eventRepository, OmegaCallback omegaCallback) {
     this.eventRepository = eventRepository;
@@ -55,7 +57,7 @@ public class TxConsistentService {
   public void handle(TxEvent event) {
     eventRepository.save(event);
 
-    CompletableFuture.runAsync(() -> {
+    executor.execute(() -> {
       if (isTxEndedEvent(event) && isGlobalTxAborted(event)) {
         omegaCallback.compensate(event);
       }
@@ -66,12 +68,12 @@ public class TxConsistentService {
 
   private void compensate(TxEvent event) {
     List<TxEvent> events = eventRepository.findTransactions(event.globalTxId(), TxStartedEvent.name());
-    events.forEach(omegaCallback::compensate);
     eventsToCompensate.computeIfAbsent(event.globalTxId(), (v) -> {
       Set<String> eventSet = new ConcurrentSkipListSet<>();
       events.forEach(e -> eventSet.add(e.localTxId()));
       return eventSet;
     });
+    events.forEach(omegaCallback::compensate);
   }
 
   private void updateCompensateStatus(TxEvent event) {
