@@ -73,6 +73,7 @@ public class TxConsistentService {
       events.remove(event.localTxId());
       if (events.isEmpty()) {
         markGlobalTxEnd(event);
+        eventsToCompensate.remove(event.globalTxId());
       }
     }
   }
