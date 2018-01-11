@@ -100,12 +100,13 @@ public class SagaStartAspectTest {
       assertThat(e, is(oops));
     }
 
-    TxEvent event = messages.get(1);
+    assertThat(messages.size(), is(1));
+    TxEvent event = messages.get(0);
 
     assertThat(event.globalTxId(), is(globalTxId));
     assertThat(event.localTxId(), is(globalTxId));
     assertThat(event.parentTxId(), is(nullValue()));
-    assertThat(event.type(), is("SagaEndedEvent"));
+    assertThat(event.type(), is("SagaStartedEvent"));
 
     assertThat(omegaContext.globalTxId(), is(nullValue()));
     assertThat(omegaContext.localTxId(), is(nullValue()));

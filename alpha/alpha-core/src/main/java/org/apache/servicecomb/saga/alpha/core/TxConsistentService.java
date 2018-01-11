@@ -20,16 +20,17 @@ package org.apache.servicecomb.saga.alpha.core;
 import static org.apache.servicecomb.saga.alpha.core.EventType.SagaEndedEvent;
 import static org.apache.servicecomb.saga.alpha.core.EventType.TxAbortedEvent;
 import static org.apache.servicecomb.saga.alpha.core.EventType.TxCompensatedEvent;
+import static org.apache.servicecomb.saga.alpha.core.EventType.TxEndedEvent;
 import static org.apache.servicecomb.saga.alpha.core.EventType.TxStartedEvent;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Consumer;
 
 public class TxConsistentService {
@@ -67,7 +68,7 @@ public class TxConsistentService {
     List<TxEvent> events = eventRepository.findTransactions(event.globalTxId(), TxStartedEvent.name());
     events.forEach(omegaCallback::compensate);
     eventsToCompensate.computeIfAbsent(event.globalTxId(), (v) -> {
-      Set<String> eventSet = new HashSet<>(events.size());
+      Set<String> eventSet = new ConcurrentSkipListSet<>();
       events.forEach(e -> eventSet.add(e.localTxId()));
       return eventSet;
     });

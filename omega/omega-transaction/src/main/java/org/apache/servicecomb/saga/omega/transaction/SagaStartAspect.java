@@ -48,6 +48,7 @@ public class SagaStartAspect {
 
   @Around("execution(@org.apache.servicecomb.saga.omega.context.annotations.SagaStart * *(..)) && @annotation(sagaStart)")
   Object advise(ProceedingJoinPoint joinPoint, SagaStart sagaStart) throws Throwable {
+    initializeOmegaContext();
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
 
     TimeAwareInterceptor interceptor = new TimeAwareInterceptor(sagaStartAnnotationProcessor);
@@ -56,14 +57,22 @@ public class SagaStartAspect {
 
     scheduleTimeoutTask(interceptor, method, sagaStart.timeout());
     try {
-      return joinPoint.proceed();
+      Object result = joinPoint.proceed();
+
+      interceptor.postIntercept(context.globalTxId(), method.toString());
+      LOG.debug("Transaction with context {} has finished.", context);
+
+      return result;
     } catch (Throwable throwable) {
-      LOG.error("Failed to process SagaStart method: {}", method.toString());
+      LOG.error("Transaction {} failed.", context.globalTxId());
       throw throwable;
     } finally {
-      LOG.debug("Transaction with context {} has finished.", context);
-      interceptor.postIntercept(context.globalTxId(), method.toString());
+      context.clear();
     }
+  }
+
+  private void initializeOmegaContext() {
+    context.setLocalTxId(context.newGlobalTxId());
   }
 
   private void scheduleTimeoutTask(
