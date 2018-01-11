@@ -66,7 +66,7 @@ public class LoadBalancedClusterMessageSenderTest {
 
   private static final Map<Integer, Integer> delays = new HashMap<Integer, Integer>() {{
     put(8080, 0);
-    put(8090, 500);
+    put(8090, 800);
   }};
 
   private static final Map<Integer, Queue<String>> connected = new HashMap<Integer, Queue<String>>() {{
