@@ -24,12 +24,12 @@ import static org.apache.servicecomb.saga.alpha.core.EventType.TxStartedEvent;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Consumer;
 
 public class TxConsistentService {
@@ -61,8 +61,8 @@ public class TxConsistentService {
     List<TxEvent> events = eventRepository.findStartedTransactions(event.globalTxId(), TxStartedEvent.name());
     events.forEach(omegaCallback::compensate);
     eventsToCompensate.computeIfAbsent(event.globalTxId(), (v) -> {
-      CopyOnWriteArraySet<String> eventSet = new CopyOnWriteArraySet<>();
-      events.forEach(e -> eventSet.add(getUniqueEventId(e)));
+      Set<String> eventSet = new HashSet<>(events.size());
+      events.forEach(e -> eventSet.add(e.localTxId()));
       return eventSet;
     });
   }
@@ -70,15 +70,11 @@ public class TxConsistentService {
   private void updateCompensateStatus(TxEvent event) {
     Set<String> events = eventsToCompensate.get(event.globalTxId());
     if (events != null) {
-      events.remove(getUniqueEventId(event));
+      events.remove(event.localTxId());
       if (events.isEmpty()) {
         markGlobalTxEnd(event);
       }
     }
-  }
-
-  private String getUniqueEventId(TxEvent event) {
-    return event.globalTxId() + "_" + event.localTxId();
   }
 
   private void markGlobalTxEnd(TxEvent event) {
