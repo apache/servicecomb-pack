@@ -19,8 +19,9 @@ package org.apache.servicecomb.saga.omega.connector.grpc;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -28,20 +29,27 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 public class PushBackReconnectRunnableTest {
   private static final Runnable NO_OP_RUNNABLE = () -> {
   };
 
-  private final MessageSender sender = Mockito.mock(MessageSender.class);
+  private final MessageSender sender = mock(MessageSender.class);
   private final BlockingQueue<Runnable> runnables = new LinkedBlockingQueue<>();
   private final Map<MessageSender, Long> senders = new HashMap<>();
-  private final PushBackReconnectRunnable pushBack = new PushBackReconnectRunnable(sender, senders, runnables);
+
+  private final ReentrantLock lock = new ReentrantLock();
+
+  private final Condition condition = lock.newCondition();
+
+  private final PushBackReconnectRunnable pushBack = new PushBackReconnectRunnable(sender, senders, runnables, lock,
+      condition);
 
   @Before
   public void setUp() throws Exception {

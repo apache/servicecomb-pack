@@ -31,6 +31,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
@@ -49,6 +51,10 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final Map<MessageSender, Long> senders = new HashMap<>();
   private final Collection<ManagedChannel> channels;
+
+  private final ReentrantLock lock = new ReentrantLock();
+
+  private final Condition condition = lock.newCondition();
 
   private final BlockingQueue<Runnable> pendingTasks = new LinkedBlockingQueue<>();
   private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -139,8 +145,25 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
 
         // very large latency on exception
         senders.put(messageSender, Long.MAX_VALUE);
+
+        waitTillAnyConnectionAvailable();
       }
     } while (!success && !Thread.currentThread().isInterrupted());
+  }
+
+  private void waitTillAnyConnectionAvailable() {
+    MessageSender sender = fastestSender();
+    // no connection available
+    if (senders.get(sender) == Long.MAX_VALUE) {
+      lock.lock();
+      try {
+        condition.await();
+      } catch (InterruptedException ignored) {
+        Thread.currentThread().interrupt();
+      } finally {
+        lock.unlock();
+      }
+    }
   }
 
   private MessageSender fastestSender() {
@@ -163,7 +186,7 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
 
   private Function<MessageSender, Runnable> errorHandlerFactory() {
     return messageSender -> {
-      Runnable runnable = new PushBackReconnectRunnable(messageSender, senders, pendingTasks);
+      Runnable runnable = new PushBackReconnectRunnable(messageSender, senders, pendingTasks, lock, condition);
       return () -> pendingTasks.offer(runnable);
     };
   }
