@@ -99,6 +99,7 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
     senders.keySet().forEach(sender -> {
       try {
         sender.onConnected();
+        senders.put(sender, 0L);
       } catch (Exception e) {
         log.error("Failed connecting to alpha at {}", sender.target(), e);
       }
@@ -110,6 +111,7 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
     senders.keySet().forEach(sender -> {
       try {
         sender.onDisconnected();
+        senders.put(sender, Long.MAX_VALUE);
       } catch (Exception e) {
         log.error("Failed disconnecting from alpha at {}", sender.target(), e);
       }

@@ -242,6 +242,7 @@ public class LoadBalancedClusterMessageSenderTest {
 
   @Test
   public void considerFasterServerFirst() throws Exception {
+    messageSender.onConnected();
     // we don't know which server is selected at first
     messageSender.send(event);
 
@@ -250,7 +251,7 @@ public class LoadBalancedClusterMessageSenderTest {
     messageSender.send(event);
     messageSender.send(event);
 
-    await().atMost(1, SECONDS).until(() -> eventsMap.get(8080).size() == 3);
+    assertThat(eventsMap.get(8080).size(), is(3));
     assertThat(eventsMap.get(8090).size(), is(1));
   }
 
