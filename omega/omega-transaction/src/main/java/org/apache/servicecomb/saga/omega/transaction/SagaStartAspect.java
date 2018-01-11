@@ -17,10 +17,15 @@
 
 package org.apache.servicecomb.saga.omega.transaction;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
+import org.apache.servicecomb.saga.omega.context.annotations.SagaStart;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -33,6 +38,7 @@ public class SagaStartAspect {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final SagaStartAnnotationProcessor sagaStartAnnotationProcessor;
+  private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   private final OmegaContext context;
 
   public SagaStartAspect(MessageSender sender, OmegaContext context) {
@@ -40,13 +46,15 @@ public class SagaStartAspect {
     this.sagaStartAnnotationProcessor = new SagaStartAnnotationProcessor(context, sender);
   }
 
-  @Around("execution(@org.apache.servicecomb.saga.omega.context.annotations.SagaStart * *(..))")
-  Object advise(ProceedingJoinPoint joinPoint) throws Throwable {
+  @Around("execution(@org.apache.servicecomb.saga.omega.context.annotations.SagaStart * *(..)) && @annotation(sagaStart)")
+  Object advise(ProceedingJoinPoint joinPoint, SagaStart sagaStart) throws Throwable {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
 
-    sagaStartAnnotationProcessor.preIntercept();
+    TimeAwareInterceptor interceptor = new TimeAwareInterceptor(sagaStartAnnotationProcessor);
+    interceptor.preIntercept(context.globalTxId(), method.toString());
     LOG.debug("Initialized context {} before execution of method {}", context, method.toString());
 
+    scheduleTimeoutTask(interceptor, method, sagaStart.timeout());
     try {
       return joinPoint.proceed();
     } catch (Throwable throwable) {
@@ -54,7 +62,23 @@ public class SagaStartAspect {
       throw throwable;
     } finally {
       LOG.debug("Transaction with context {} has finished.", context);
-      sagaStartAnnotationProcessor.postIntercept();
+      interceptor.postIntercept(context.globalTxId(), method.toString());
+    }
+  }
+
+  private void scheduleTimeoutTask(
+      TimeAwareInterceptor interceptor,
+      Method method,
+      int timeout) {
+
+    if (timeout > 0) {
+      executor.schedule(
+          () -> interceptor.onTimeout(
+              context.globalTxId(),
+              method.toString(),
+              new OmegaTxTimeoutException("Saga " + method.toString() + " timed out")),
+          timeout,
+          MILLISECONDS);
     }
   }
 }

@@ -18,18 +18,23 @@
 package org.apache.servicecomb.saga.omega.transaction;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
-import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
+import org.apache.servicecomb.saga.omega.context.annotations.SagaStart;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.Before;
@@ -40,7 +45,6 @@ public class SagaStartAspectTest {
   private final List<TxEvent> messages = new ArrayList<>();
   private final String globalTxId = UUID.randomUUID().toString();
   private final String localTxId = UUID.randomUUID().toString();
-  private final String parentTxId = UUID.randomUUID().toString();
 
   private final MessageSender sender = messages::add;
   private final ProceedingJoinPoint joinPoint = Mockito.mock(ProceedingJoinPoint.class);
@@ -48,29 +52,24 @@ public class SagaStartAspectTest {
 
   @SuppressWarnings("unchecked")
   private final IdGenerator<String> idGenerator = Mockito.mock(IdGenerator.class);
-  private final Compensable compensable = Mockito.mock(Compensable.class);
+  private final SagaStart sagaStart = Mockito.mock(SagaStart.class);
 
   private final OmegaContext omegaContext = new OmegaContext(idGenerator);
   private final SagaStartAspect aspect = new SagaStartAspect(sender, omegaContext);
 
   @Before
   public void setUp() throws Exception {
+    when(idGenerator.nextId()).thenReturn(globalTxId);
     when(joinPoint.getSignature()).thenReturn(methodSignature);
     when(joinPoint.getTarget()).thenReturn(this);
 
     when(methodSignature.getMethod()).thenReturn(this.getClass().getDeclaredMethod("doNothing"));
-    when(compensable.compensationMethod()).thenReturn("doNothing");
-
-    omegaContext.setGlobalTxId(globalTxId);
-    omegaContext.setLocalTxId(localTxId);
+    omegaContext.clear();
   }
 
   @Test
   public void newGlobalTxIdInSagaStart() throws Throwable {
-    omegaContext.clear();
-    when(idGenerator.nextId()).thenReturn(globalTxId);
-
-    aspect.advise(joinPoint);
+    aspect.advise(joinPoint, sagaStart);
 
     TxEvent startedEvent = messages.get(0);
 
@@ -92,13 +91,12 @@ public class SagaStartAspectTest {
 
   @Test
   public void clearContextOnSagaStartError() throws Throwable {
-    when(idGenerator.nextId()).thenReturn(globalTxId);
     RuntimeException oops = new RuntimeException("oops");
 
     when(joinPoint.proceed()).thenThrow(oops);
 
     try {
-      aspect.advise(joinPoint);
+      aspect.advise(joinPoint, sagaStart);
       expectFailing(RuntimeException.class);
     } catch (RuntimeException e) {
       assertThat(e, is(oops));
@@ -113,6 +111,41 @@ public class SagaStartAspectTest {
 
     assertThat(omegaContext.globalTxId(), is(nullValue()));
     assertThat(omegaContext.localTxId(), is(nullValue()));
+  }
+
+  @Test
+  public void sendsAbortEventOnTimeout() throws Throwable {
+    CountDownLatch latch = new CountDownLatch(1);
+    when(sagaStart.timeout()).thenReturn(100);
+    when(joinPoint.proceed()).thenAnswer(invocationOnMock -> {
+      latch.await();
+      assertThat(omegaContext.localTxId(), is(globalTxId));
+      return null;
+    });
+
+    CompletableFuture.runAsync(() -> {
+      try {
+        aspect.advise(joinPoint, sagaStart);
+      } catch (Throwable throwable) {
+        fail(throwable.getMessage());
+      }
+    });
+
+    await().atMost(1, SECONDS).until(() -> messages.size() == 2);
+
+    TxEvent event = messages.get(1);
+
+    assertThat(event.globalTxId(), is(globalTxId));
+    assertThat(event.localTxId(), is(globalTxId));
+    assertThat(event.parentTxId(), is(nullValue()));
+    assertThat(event.type(), is("TxAbortedEvent"));
+
+    latch.countDown();
+
+    await().atMost(1, SECONDS).until(() -> omegaContext.localTxId() == null);
+
+    // no redundant ended message received
+    assertThat(messages.size(), is(2));
   }
 
   private String doNothing() {
