@@ -44,7 +44,6 @@ import org.mockito.Mockito;
 public class SagaStartAspectTest {
   private final List<TxEvent> messages = new ArrayList<>();
   private final String globalTxId = UUID.randomUUID().toString();
-  private final String localTxId = UUID.randomUUID().toString();
 
   private final MessageSender sender = messages::add;
   private final ProceedingJoinPoint joinPoint = Mockito.mock(ProceedingJoinPoint.class);
@@ -61,7 +60,6 @@ public class SagaStartAspectTest {
   public void setUp() throws Exception {
     when(idGenerator.nextId()).thenReturn(globalTxId);
     when(joinPoint.getSignature()).thenReturn(methodSignature);
-    when(joinPoint.getTarget()).thenReturn(this);
 
     when(methodSignature.getMethod()).thenReturn(this.getClass().getDeclaredMethod("doNothing"));
     omegaContext.clear();
