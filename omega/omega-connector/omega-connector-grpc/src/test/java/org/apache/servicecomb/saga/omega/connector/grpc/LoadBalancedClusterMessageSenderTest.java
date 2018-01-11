@@ -133,6 +133,8 @@ public class LoadBalancedClusterMessageSenderTest {
 
   @After
   public void after() throws Exception {
+    messageSender.onDisconnected();
+    messageSender.close();
     eventsMap.values().forEach(Queue::clear);
     connected.values().forEach(Queue::clear);
   }
@@ -242,7 +244,6 @@ public class LoadBalancedClusterMessageSenderTest {
 
   @Test
   public void considerFasterServerFirst() throws Exception {
-    messageSender.onConnected();
     // we don't know which server is selected at first
     messageSender.send(event);
 
