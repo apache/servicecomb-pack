@@ -22,5 +22,5 @@ import java.util.List;
 public interface TxEventRepository {
   void save(TxEvent event);
 
-  List<TxEvent> findStartedTransactions(String globalTxId, String type);
+  List<TxEvent> findTransactions(String globalTxId, String type);
 }
