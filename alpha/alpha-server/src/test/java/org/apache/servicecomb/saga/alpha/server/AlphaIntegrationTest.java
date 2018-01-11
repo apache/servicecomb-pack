@@ -29,10 +29,10 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.servicecomb.saga.alpha.core.EventType;
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
@@ -94,7 +94,7 @@ public class AlphaIntegrationTest {
   @Autowired
   private TxConsistentService consistentService;
 
-  private static final List<GrpcCompensateCommand> receivedCommands = new CopyOnWriteArrayList<>();
+  private static final Queue<GrpcCompensateCommand> receivedCommands = new ConcurrentLinkedQueue<>();
   private final CompensateStreamObserver compensateResponseObserver = new CompensateStreamObserver();
 
   @AfterClass
@@ -219,11 +219,12 @@ public class AlphaIntegrationTest {
     blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
     await().atMost(1, SECONDS).until(() -> !receivedCommands.isEmpty());
 
-    assertThat(receivedCommands.get(0).getGlobalTxId(), is(globalTxId));
-    assertThat(receivedCommands.get(0).getLocalTxId(), is(localTxId));
-    assertThat(receivedCommands.get(0).getParentTxId(), is(parentTxId));
-    assertThat(receivedCommands.get(0).getCompensateMethod(), is(compensationMethod));
-    assertThat(receivedCommands.get(0).getPayloads().toByteArray(), is(payload.getBytes()));
+    GrpcCompensateCommand command = receivedCommands.poll();
+    assertThat(command.getGlobalTxId(), is(globalTxId));
+    assertThat(command.getLocalTxId(), is(localTxId));
+    assertThat(command.getParentTxId(), is(parentTxId));
+    assertThat(command.getCompensateMethod(), is(compensationMethod));
+    assertThat(command.getPayloads().toByteArray(), is(payload.getBytes()));
   }
 
   @Test
@@ -244,7 +245,7 @@ public class AlphaIntegrationTest {
     await().atMost(1, SECONDS).until(() -> !receivedCommands.isEmpty());
 
     assertThat(receivedCommands.size(), is(1));
-    assertThat(receivedCommands.get(0).getGlobalTxId(), is(globalTxId));
+    assertThat(receivedCommands.poll().getGlobalTxId(), is(globalTxId));
 
     anotherBlockingStub.onDisconnected(anotherServiceConfig);
   }
