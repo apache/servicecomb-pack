@@ -50,7 +50,7 @@ public class TxConsistentServiceTest {
     }
 
     @Override
-    public List<TxEvent> findStartedTransactions(String globalTxId, String type) {
+    public List<TxEvent> findTransactions(String globalTxId, String type) {
       return events.stream()
           .filter(event -> globalTxId.equals(event.globalTxId()) && type.equals(event.type()))
           .collect(Collectors.toList());
@@ -116,6 +116,22 @@ public class TxConsistentServiceTest {
 
     await().atMost(1, SECONDS).until(() -> events.size() == 8);
     assertThat(events.get(events.size() - 1).type(), is(SagaEndedEvent.name()));
+  }
+
+  @Test
+  public void compensateTxEndedEventImmediately_IfGlobalTxAlreadyFailed() throws Exception {
+    String localTxId1 = UUID.randomUUID().toString();
+    events.add(newEvent(TxStartedEvent));
+    events.add(newEvent(TxAbortedEvent));
+
+    TxEvent event = eventOf(TxEndedEvent, "service x".getBytes(), localTxId1, "method x");
+
+    consistentService.handle(event);
+
+    await().atMost(1, SECONDS).until(() -> compensationContexts.size() > 0);
+    assertThat(compensationContexts, containsInAnyOrder(
+        new CompensationContext(globalTxId, localTxId1, "method x", "service x".getBytes())
+    ));
   }
 
   private TxEvent newEvent(EventType eventType) {

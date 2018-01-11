@@ -40,7 +40,6 @@ public class TxConsistentService {
   private final TxEventRepository eventRepository;
   private final OmegaCallback omegaCallback;
   private final Map<String, Consumer<TxEvent>> eventCallbacks = new HashMap<String, Consumer<TxEvent>>() {{
-    put(TxStartedEvent.name(), DO_NOTHING_CONSUMER);
     put(TxAbortedEvent.name(), (event) -> compensate(event));
     put(TxCompensatedEvent.name(), (event) -> updateCompensateStatus(event));
   }};
@@ -54,11 +53,18 @@ public class TxConsistentService {
 
   public void handle(TxEvent event) {
     eventRepository.save(event);
-    CompletableFuture.runAsync(() -> eventCallbacks.getOrDefault(event.type(), DO_NOTHING_CONSUMER).accept(event));
+
+    CompletableFuture.runAsync(() -> {
+      if (isTxEndedEvent(event) && isGlobalTxAborted(event)) {
+        omegaCallback.compensate(event);
+      }
+
+      eventCallbacks.getOrDefault(event.type(), DO_NOTHING_CONSUMER).accept(event);
+    });
   }
 
   private void compensate(TxEvent event) {
-    List<TxEvent> events = eventRepository.findStartedTransactions(event.globalTxId(), TxStartedEvent.name());
+    List<TxEvent> events = eventRepository.findTransactions(event.globalTxId(), TxStartedEvent.name());
     events.forEach(omegaCallback::compensate);
     eventsToCompensate.computeIfAbsent(event.globalTxId(), (v) -> {
       Set<String> eventSet = new HashSet<>(events.size());
@@ -82,5 +88,13 @@ public class TxConsistentService {
     eventRepository.save(new TxEvent(
         event.serviceName(), event.instanceId(), new Date(), event.globalTxId(), event.globalTxId(),
         null, SagaEndedEvent.name(), "", EMPTY_PAYLOAD));
+  }
+
+  private boolean isGlobalTxAborted(TxEvent event) {
+    return !eventRepository.findTransactions(event.globalTxId(), TxAbortedEvent.name()).isEmpty();
+  }
+
+  private boolean isTxEndedEvent(TxEvent event) {
+    return TxEndedEvent.name().equals(event.type());
   }
 }
