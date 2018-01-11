@@ -19,7 +19,7 @@ package org.apache.servicecomb.saga.omega.transaction;
 
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 
-class SagaStartAnnotationProcessor {
+class SagaStartAnnotationProcessor implements EventAwareInterceptor {
 
   private final OmegaContext omegaContext;
   private final MessageSender sender;
@@ -29,15 +29,24 @@ class SagaStartAnnotationProcessor {
     this.sender = sender;
   }
 
-  void preIntercept() {
+  @Override
+  public void preIntercept(String parentTxId, String compensationMethod, Object... message) {
     String globalTxId = globalTxId();
     // reuse the globalTxId as localTxId to differ localTxId in SagaStartedEvent and the first TxStartedEvent
     sender.send(new SagaStartedEvent(globalTxId, globalTxId));
   }
 
-  void postIntercept() {
+  @Override
+  public void postIntercept(String parentTxId, String compensationMethod) {
     String globalTxId = omegaContext.globalTxId();
     sender.send(new SagaEndedEvent(globalTxId, globalTxId));
+    omegaContext.clear();
+  }
+
+  @Override
+  public void onError(String parentTxId, String compensationMethod, Throwable throwable) {
+    String globalTxId = omegaContext.globalTxId();
+    sender.send(new TxAbortedEvent(globalTxId, globalTxId, null, compensationMethod, throwable));
     omegaContext.clear();
   }
 

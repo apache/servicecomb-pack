@@ -53,7 +53,7 @@ public class SagaStartAnnotationProcessorTest {
   public void sendsSagaStartedEvent() {
     when(generator.nextId()).thenReturn(globalTxId, localTxId);
 
-    sagaStartAnnotationProcessor.preIntercept();
+    sagaStartAnnotationProcessor.preIntercept(null, null);
 
     assertThat(context.globalTxId(), is(globalTxId));
     assertThat(context.localTxId(), is(globalTxId));
@@ -73,7 +73,7 @@ public class SagaStartAnnotationProcessorTest {
     context.clear();
     context.setGlobalTxId(globalTxId);
 
-    sagaStartAnnotationProcessor.postIntercept();
+    sagaStartAnnotationProcessor.postIntercept(null, null);
 
     TxEvent event = messages.get(0);
 

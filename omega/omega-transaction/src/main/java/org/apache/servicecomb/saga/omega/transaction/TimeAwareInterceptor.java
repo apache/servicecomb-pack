@@ -29,27 +29,27 @@ class TimeAwareInterceptor implements EventAwareInterceptor {
   }
 
   @Override
-  public void preIntercept(String localTxId, String signature, Object... args) {
-    interceptor.preIntercept(localTxId, signature, args);
+  public void preIntercept(String parentTxId, String signature, Object... args) {
+    interceptor.preIntercept(parentTxId, signature, args);
   }
 
   @Override
-  public void postIntercept(String localTxId, String signature) {
+  public void postIntercept(String parentTxId, String signature) {
     if (interceptorRef.compareAndSet(interceptor, NO_OP_INTERCEPTOR)) {
-      interceptor.postIntercept(localTxId, signature);
+      interceptor.postIntercept(parentTxId, signature);
     }
   }
 
   @Override
-  public void onError(String localTxId, String signature, Throwable throwable) {
+  public void onError(String parentTxId, String signature, Throwable throwable) {
     if (interceptorRef.compareAndSet(interceptor, NO_OP_INTERCEPTOR)) {
-      interceptor.onError(localTxId, signature, throwable);
+      interceptor.onError(parentTxId, signature, throwable);
     }
   }
 
-  void onTimeout(String localTxId, String signature, Throwable throwable) {
+  void onTimeout(String parentTxId, String signature, Throwable throwable) {
     if (interceptorRef.compareAndSet(interceptor, NO_OP_INTERCEPTOR)) {
-      interceptor.onError(localTxId, signature, throwable);
+      interceptor.onError(parentTxId, signature, throwable);
     }
   }
 }
