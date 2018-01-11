@@ -21,7 +21,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +28,7 @@ import java.util.UUID;
 
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
+import org.junit.Before;
 import org.junit.Test;
 
 public class SagaStartAnnotationProcessorTest {
@@ -49,14 +49,15 @@ public class SagaStartAnnotationProcessorTest {
   private final SagaStartAnnotationProcessor sagaStartAnnotationProcessor = new SagaStartAnnotationProcessor(context,
       sender);
 
+  @Before
+  public void setUp() throws Exception {
+    context.setGlobalTxId(globalTxId);
+    context.setLocalTxId(globalTxId);
+  }
+
   @Test
   public void sendsSagaStartedEvent() {
-    when(generator.nextId()).thenReturn(globalTxId, localTxId);
-
     sagaStartAnnotationProcessor.preIntercept(null, null);
-
-    assertThat(context.globalTxId(), is(globalTxId));
-    assertThat(context.localTxId(), is(globalTxId));
 
     TxEvent event = messages.get(0);
 
@@ -70,9 +71,6 @@ public class SagaStartAnnotationProcessorTest {
 
   @Test
   public void sendsSagaEndedEvent() {
-    context.setGlobalTxId(globalTxId);
-    context.setLocalTxId(globalTxId);
-
     sagaStartAnnotationProcessor.postIntercept(null, null);
 
     TxEvent event = messages.get(0);
@@ -83,8 +81,5 @@ public class SagaStartAnnotationProcessorTest {
     assertThat(event.compensationMethod().isEmpty(), is(true));
     assertThat(event.type(), is("SagaEndedEvent"));
     assertThat(event.payloads().length, is(0));
-
-    assertThat(context.globalTxId(), is(nullValue()));
-    assertThat(context.localTxId(), is(nullValue()));
   }
 }

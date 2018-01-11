@@ -31,24 +31,17 @@ class SagaStartAnnotationProcessor implements EventAwareInterceptor {
 
   @Override
   public void preIntercept(String parentTxId, String compensationMethod, Object... message) {
-    initializeOmegaContext();
     sender.send(new SagaStartedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
   }
 
   @Override
   public void postIntercept(String parentTxId, String compensationMethod) {
     sender.send(new SagaEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
-    omegaContext.clear();
   }
 
   @Override
   public void onError(String parentTxId, String compensationMethod, Throwable throwable) {
     String globalTxId = omegaContext.globalTxId();
     sender.send(new TxAbortedEvent(globalTxId, globalTxId, null, compensationMethod, throwable));
-    omegaContext.clear();
-  }
-
-  private void initializeOmegaContext() {
-    omegaContext.setLocalTxId(omegaContext.newGlobalTxId());
   }
 }
