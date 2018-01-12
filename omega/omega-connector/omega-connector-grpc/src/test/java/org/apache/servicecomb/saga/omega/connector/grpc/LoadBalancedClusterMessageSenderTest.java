@@ -296,6 +296,8 @@ public class LoadBalancedClusterMessageSenderTest {
   }
 
   private int killServerReceivedMessage() {
+    await().atMost(1, SECONDS).until(this::hasAnyReceivedEvents);
+
     for (int port : eventsMap.keySet()) {
       if (!eventsMap.get(port).isEmpty()) {
         Server serverToKill = servers.get(port);
@@ -304,6 +306,14 @@ public class LoadBalancedClusterMessageSenderTest {
       }
     }
     throw new IllegalStateException("None of the servers received any message");
+  }
+
+  private boolean hasAnyReceivedEvents() {
+    boolean result = false;
+    for (int port : ports) {
+      result |= eventsMap.get(port).isEmpty();
+    }
+    return result;
   }
 
   private static class MyTxEventService extends TxEventServiceImplBase {

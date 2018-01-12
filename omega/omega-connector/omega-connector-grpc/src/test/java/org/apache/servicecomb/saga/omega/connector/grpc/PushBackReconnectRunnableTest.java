@@ -45,7 +45,6 @@ public class PushBackReconnectRunnableTest {
   private final Map<MessageSender, Long> senders = new HashMap<>();
 
   private final ReentrantLock lock = new ReentrantLock();
-
   private final Condition condition = lock.newCondition();
 
   private final PushBackReconnectRunnable pushBack = new PushBackReconnectRunnable(sender, senders, runnables, lock,
