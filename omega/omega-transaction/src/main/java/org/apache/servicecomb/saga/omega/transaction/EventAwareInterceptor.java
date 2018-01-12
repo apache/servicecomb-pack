@@ -20,7 +20,8 @@ package org.apache.servicecomb.saga.omega.transaction;
 public interface EventAwareInterceptor {
   EventAwareInterceptor NO_OP_INTERCEPTOR = new EventAwareInterceptor() {
     @Override
-    public void preIntercept(String parentTxId, String compensationMethod, Object... message) {
+    public boolean preIntercept(String parentTxId, String compensationMethod, Object... message) {
+      return true;
     }
 
     @Override
@@ -32,7 +33,7 @@ public interface EventAwareInterceptor {
     }
   };
 
-  void preIntercept(String parentTxId, String compensationMethod, Object... message);
+  boolean preIntercept(String parentTxId, String compensationMethod, Object... message);
 
   void postIntercept(String parentTxId, String compensationMethod);
 

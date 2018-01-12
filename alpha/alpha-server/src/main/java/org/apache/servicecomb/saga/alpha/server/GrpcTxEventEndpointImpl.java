@@ -39,7 +39,9 @@ import io.grpc.stub.StreamObserver;
 
 class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
 
-  private static final GrpcAck ACK = GrpcAck.newBuilder().build();
+  private static final GrpcAck ALLOW = GrpcAck.newBuilder().setValid(true).build();
+  private static final GrpcAck REJECT = GrpcAck.newBuilder().setValid(false).build();
+
   private final TxConsistentService txConsistentService;
 
   private final Map<String, Map<String, OmegaCallback>> omegaCallbacks;
@@ -67,13 +69,13 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
       callback.disconnect();
     }
 
-    responseObserver.onNext(ACK);
+    responseObserver.onNext(ALLOW);
     responseObserver.onCompleted();
   }
 
   @Override
   public void onTxEvent(GrpcTxEvent message, StreamObserver<GrpcAck> responseObserver) {
-    txConsistentService.handle(new TxEvent(
+    boolean ok = txConsistentService.handle(new TxEvent(
         message.getServiceName(),
         message.getInstanceId(),
         new Date(message.getTimestamp()),
@@ -85,7 +87,12 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
         message.getPayloads().toByteArray()
     ));
 
-    responseObserver.onNext(ACK);
+    if (ok) {
+      responseObserver.onNext(ALLOW);
+    } else {
+      responseObserver.onNext(REJECT);
+    }
+
     responseObserver.onCompleted();
   }
 }

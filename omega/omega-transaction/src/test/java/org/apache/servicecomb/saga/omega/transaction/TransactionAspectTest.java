@@ -23,6 +23,10 @@ import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -40,7 +44,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 public class TransactionAspectTest {
   private final List<TxEvent> messages = new ArrayList<>();
@@ -50,12 +53,12 @@ public class TransactionAspectTest {
   private final String newLocalTxId = UUID.randomUUID().toString();
 
   private final MessageSender sender = messages::add;
-  private final ProceedingJoinPoint joinPoint = Mockito.mock(ProceedingJoinPoint.class);
-  private final MethodSignature methodSignature = Mockito.mock(MethodSignature.class);
+  private final ProceedingJoinPoint joinPoint = mock(ProceedingJoinPoint.class);
+  private final MethodSignature methodSignature = mock(MethodSignature.class);
 
   @SuppressWarnings("unchecked")
-  private final IdGenerator<String> idGenerator = Mockito.mock(IdGenerator.class);
-  private final Compensable compensable = Mockito.mock(Compensable.class);
+  private final IdGenerator<String> idGenerator = mock(IdGenerator.class);
+  private final Compensable compensable = mock(Compensable.class);
 
   private final OmegaContext omegaContext = new OmegaContext(idGenerator);
   private final TransactionAspect aspect = new TransactionAspect(sender, omegaContext);
@@ -158,6 +161,21 @@ public class TransactionAspectTest {
 
     // no redundant ended message received
     assertThat(messages.size(), is(2));
+  }
+
+  @Test
+  public void returnImmediatelyWhenReceivedRejectResponse() {
+    MessageSender sender = mock(MessageSender.class);
+    when(sender.send(any())).thenReturn(false);
+
+    TransactionAspect aspect = new TransactionAspect(sender, omegaContext);
+    try {
+      aspect.advise(joinPoint, compensable);
+    } catch (Throwable throwable) {
+      fail("Unexpected exception: " + throwable.getMessage());
+    }
+
+    verify(sender, times(1)).send(any());
   }
 
   private String doNothing() {

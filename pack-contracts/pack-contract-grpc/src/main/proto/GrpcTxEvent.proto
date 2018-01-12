@@ -33,6 +33,7 @@ message GrpcServiceConfig {
 }
 
 message GrpcAck {
+  bool valid = 1;
 }
 
 message GrpcTxEvent {

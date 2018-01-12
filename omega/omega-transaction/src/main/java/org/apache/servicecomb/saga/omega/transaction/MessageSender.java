@@ -18,8 +18,7 @@
 package org.apache.servicecomb.saga.omega.transaction;
 
 public interface MessageSender {
-  MessageSender NO_OP_SENDER = event -> {
-  };
+  MessageSender NO_OP_SENDER = event -> true;
 
   default void onConnected() {
   }
@@ -34,5 +33,5 @@ public interface MessageSender {
     return "UNKNOWN";
   }
 
-  void send(TxEvent event);
+  boolean send(TxEvent event);
 }
