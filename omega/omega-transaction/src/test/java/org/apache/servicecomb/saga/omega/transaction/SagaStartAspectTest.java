@@ -29,8 +29,9 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
@@ -55,6 +56,8 @@ public class SagaStartAspectTest {
 
   private final OmegaContext omegaContext = new OmegaContext(idGenerator);
   private final SagaStartAspect aspect = new SagaStartAspect(sender, omegaContext);
+
+  private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
   @Before
   public void setUp() throws Exception {
@@ -122,7 +125,7 @@ public class SagaStartAspectTest {
       return null;
     });
 
-    CompletableFuture.runAsync(() -> {
+    executor.execute(() -> {
       try {
         aspect.advise(joinPoint, sagaStart);
       } catch (Throwable throwable) {

@@ -28,8 +28,9 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
@@ -57,6 +58,8 @@ public class TransactionAspectTest {
 
   private final OmegaContext omegaContext = new OmegaContext(idGenerator);
   private final TransactionAspect aspect = new TransactionAspect(sender, omegaContext);
+
+  private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
   @Before
   public void setUp() throws Exception {
@@ -127,7 +130,7 @@ public class TransactionAspectTest {
       return null;
     });
 
-    CompletableFuture.runAsync(() -> {
+    executor.execute(() -> {
       try {
         // need to setup the thread local for it
         omegaContext.setGlobalTxId(globalTxId);
