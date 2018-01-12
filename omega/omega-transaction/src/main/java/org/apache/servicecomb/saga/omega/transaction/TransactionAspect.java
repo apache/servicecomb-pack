@@ -57,7 +57,12 @@ public class TransactionAspect {
     context.newLocalTxId();
 
     TimeAwareInterceptor interceptor = new TimeAwareInterceptor(this.interceptor);
-    interceptor.preIntercept(localTxId, signature, joinPoint.getArgs());
+    boolean ok = interceptor.preIntercept(localTxId, signature, joinPoint.getArgs());
+    if (!ok) {
+      LOG.info("Skipped transaction {} due to abort.", context.globalTxId());
+      context.setLocalTxId(localTxId);
+      return null;
+    }
     LOG.debug("Updated context {} for compensable method {} ", context, method.toString());
 
     scheduleTimeoutTask(interceptor, localTxId, signature, method, compensable.timeout());

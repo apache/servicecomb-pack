@@ -54,7 +54,11 @@ public class TxConsistentService {
     this.omegaCallback = omegaCallback;
   }
 
-  public void handle(TxEvent event) {
+  public boolean handle(TxEvent event) {
+    if (isInvalidTxStarted(event)) {
+      return false;
+    }
+
     eventRepository.save(event);
 
     executor.execute(() -> {
@@ -64,6 +68,8 @@ public class TxConsistentService {
 
       eventCallbacks.getOrDefault(event.type(), DO_NOTHING_CONSUMER).accept(event);
     });
+
+    return true;
   }
 
   private void compensate(TxEvent event) {
@@ -99,5 +105,9 @@ public class TxConsistentService {
 
   private boolean isTxEndedEvent(TxEvent event) {
     return TxEndedEvent.name().equals(event.type());
+  }
+
+  private boolean isInvalidTxStarted(TxEvent event) {
+    return TxStartedEvent.name().equals(event.type()) && isGlobalTxAborted(event);
   }
 }

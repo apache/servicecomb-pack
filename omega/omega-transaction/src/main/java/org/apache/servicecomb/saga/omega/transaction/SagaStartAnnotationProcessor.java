@@ -30,8 +30,8 @@ class SagaStartAnnotationProcessor implements EventAwareInterceptor {
   }
 
   @Override
-  public void preIntercept(String parentTxId, String compensationMethod, Object... message) {
-    sender.send(new SagaStartedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
+  public boolean preIntercept(String parentTxId, String compensationMethod, Object... message) {
+    return sender.send(new SagaStartedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
   }
 
   @Override

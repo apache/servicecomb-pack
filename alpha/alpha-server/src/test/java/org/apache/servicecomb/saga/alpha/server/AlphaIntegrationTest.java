@@ -38,6 +38,7 @@ import org.apache.servicecomb.saga.common.EventType;
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.TxConsistentService;
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
@@ -248,6 +249,24 @@ public class AlphaIntegrationTest {
     assertThat(receivedCommands.poll().getGlobalTxId(), is(globalTxId));
 
     anotherBlockingStub.onDisconnected(anotherServiceConfig);
+  }
+
+  @Test
+  public void doNotStartSubTxOnFailure() {
+    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+
+    blockingStub.onTxEvent(eventOf(TxStartedEvent, localTxId, parentTxId, "service a".getBytes(), "method a"));
+
+    blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
+
+    await().atMost(1, SECONDS).until(() -> receivedCommands.size() == 1);
+
+    String localTxId1 = UUID.randomUUID().toString();
+    String parentTxId1 = UUID.randomUUID().toString();
+    GrpcAck result = blockingStub
+        .onTxEvent(eventOf(TxStartedEvent, localTxId1, parentTxId1, "service b".getBytes(), "method b"));
+
+    assertThat(result.getValid(), is(false));
   }
 
   private GrpcServiceConfig someServiceConfig() {

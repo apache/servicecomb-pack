@@ -29,8 +29,9 @@ class CompensableInterceptor implements EventAwareInterceptor {
   }
 
   @Override
-  public void preIntercept(String parentTxId, String compensationMethod, Object... message) {
-    sender.send(new TxStartedEvent(context.globalTxId(), context.localTxId(), parentTxId, compensationMethod, message));
+  public boolean preIntercept(String parentTxId, String compensationMethod, Object... message) {
+    return sender
+        .send(new TxStartedEvent(context.globalTxId(), context.localTxId(), parentTxId, compensationMethod, message));
   }
 
   @Override

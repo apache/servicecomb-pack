@@ -124,14 +124,15 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
   }
 
   @Override
-  public void send(TxEvent event) {
+  public boolean send(TxEvent event) {
+    boolean result = false;
     boolean success = false;
     do {
       MessageSender messageSender = fastestSender();
 
       try {
         long startTime = System.nanoTime();
-        messageSender.send(event);
+        result = messageSender.send(event);
         senders.put(messageSender, System.nanoTime() - startTime);
 
         success = true;
@@ -142,6 +143,8 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
         senders.put(messageSender, Long.MAX_VALUE);
       }
     } while (!success && !Thread.currentThread().isInterrupted());
+
+    return result;
   }
 
   private MessageSender fastestSender() {

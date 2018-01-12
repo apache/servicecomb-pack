@@ -47,6 +47,7 @@ import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.MessageSerializer;
 import org.apache.servicecomb.saga.omega.transaction.TxAbortedEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
+import org.apache.servicecomb.saga.omega.transaction.TxStartedEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
@@ -293,6 +294,14 @@ public class LoadBalancedClusterMessageSenderTest {
     await().atMost(2, SECONDS).until(() -> eventsMap.get(8080).size() == 1 || eventsMap.get(8090).size() == 1);
   }
 
+  @Test
+  public void forwardSendResult() {
+    assertThat(messageSender.send(event), is(true));
+
+    TxEvent rejectEvent = new TxStartedEvent(globalTxId, localTxId, parentTxId, "reject", "blah");
+    assertThat(messageSender.send(rejectEvent), is(false));
+  }
+
   private int killServerReceivedMessage() {
     for (int port : eventsMap.keySet()) {
       if (!eventsMap.get(port).isEmpty()) {
@@ -341,7 +350,12 @@ public class LoadBalancedClusterMessageSenderTest {
             .build());
       }
 
-      responseObserver.onNext(GrpcAck.newBuilder().build());
+      if ("TxStartedEvent".equals(request.getType()) && request.getCompensationMethod().equals("reject")) {
+        responseObserver.onNext(GrpcAck.newBuilder().setValid(false).build());
+      } else {
+        responseObserver.onNext(GrpcAck.newBuilder().setValid(true).build());
+      }
+
       responseObserver.onCompleted();
     }
 
