@@ -136,14 +136,14 @@ public class PackIT {
 
     assertThat(entity.getStatusCode(), is(INTERNAL_SERVER_ERROR));
 
-    await().atMost(2, SECONDS).until(() -> repository.count() == 8);
+    await().atMost(2, SECONDS).until(() -> repository.count() == 7);
 
     List<String> distinctGlobalTxIds = repository.findDistinctGlobalTxId();
     assertThat(distinctGlobalTxIds.size(), is(1));
 
     String globalTxId = distinctGlobalTxIds.get(0);
     List<TxEventEnvelope> envelopes = repository.findByGlobalTxIdOrderByCreationTime(globalTxId);
-    assertThat(envelopes.size(), is(8));
+    assertThat(envelopes.size(), is(7));
 
     TxEventEnvelope sagaStartedEvent = envelopes.get(0);
     assertThat(sagaStartedEvent.type(), is("SagaStartedEvent"));
@@ -170,18 +170,9 @@ public class PackIT {
     assertThat(txCompensatedEvent1.serviceName(), is(serviceName));
     assertThat(txCompensatedEvent1.instanceId(), is(txStartedEvent1.instanceId()));
 
-    TxEventEnvelope txCompensatedEvent2 = envelopes.get(6);
-    assertThat(txCompensatedEvent2.type(), is("TxCompensatedEvent"));
-    assertThat(txCompensatedEvent2.localTxId(), is(txStartedEvent2.localTxId()));
-    assertThat(txCompensatedEvent2.parentTxId(), is(globalTxId));
-    assertThat(txCompensatedEvent2.serviceName(), is(serviceName));
-    assertThat(txCompensatedEvent2.instanceId(), is(txStartedEvent2.instanceId()));
+    assertThat(envelopes.get(6).type(), is("SagaEndedEvent"));
 
-    assertThat(envelopes.get(7).type(), is("SagaEndedEvent"));
-
-    assertThat(compensatedMessages, contains(
-        "Goodbye, " + TRESPASSER,
-        "My bad, please take the window instead, " + TRESPASSER));
+    assertThat(compensatedMessages, contains("Goodbye, " + TRESPASSER));
   }
 
   @Test(timeout = 5000)
