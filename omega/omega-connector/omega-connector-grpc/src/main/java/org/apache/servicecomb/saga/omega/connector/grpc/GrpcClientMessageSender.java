@@ -97,7 +97,7 @@ public class GrpcClientMessageSender implements MessageSender {
         .setGlobalTxId(event.globalTxId())
         .setLocalTxId(event.localTxId())
         .setParentTxId(event.parentTxId() == null ? "" : event.parentTxId())
-        .setType(event.type())
+        .setType(event.type().name())
         .setCompensationMethod(event.compensationMethod())
         .setPayloads(payloads);
 

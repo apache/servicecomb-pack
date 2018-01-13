@@ -20,6 +20,6 @@ package org.apache.servicecomb.saga.omega.transaction;
 public class SagaEndedEvent extends TxEvent {
 
   public SagaEndedEvent(String globalTxId, String localTxId) {
-    super(globalTxId, localTxId, null, "");
+    super(EventType.SagaEndedEvent, globalTxId, localTxId, null, "");
   }
 }
