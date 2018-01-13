@@ -65,7 +65,7 @@ public class CompensableInterceptorTest {
     assertThat(event.globalTxId(), is(globalTxId));
     assertThat(event.localTxId(), is(localTxId));
     assertThat(event.parentTxId(), is(parentTxId));
-    assertThat(event.type(), is("TxStartedEvent"));
+    assertThat(event.type(), is(TxEvent.EventType.TxStartedEvent));
     assertThat(event.compensationMethod(), is(compensationMethod));
     assertThat(asList(event.payloads()), contains(message));
   }
@@ -79,7 +79,7 @@ public class CompensableInterceptorTest {
     assertThat(event.globalTxId(), is(globalTxId));
     assertThat(event.localTxId(), is(localTxId));
     assertThat(event.parentTxId(), is(parentTxId));
-    assertThat(event.type(), is("TxEndedEvent"));
+    assertThat(event.type(), is(TxEvent.EventType.TxEndedEvent));
     assertThat(event.compensationMethod(), is(compensationMethod));
     assertThat(event.payloads().length, is(0));
   }
@@ -93,7 +93,7 @@ public class CompensableInterceptorTest {
     assertThat(event.globalTxId(), is(globalTxId));
     assertThat(event.localTxId(), is(localTxId));
     assertThat(event.parentTxId(), is(parentTxId));
-    assertThat(event.type(), is("TxAbortedEvent"));
+    assertThat(event.type(), is(TxEvent.EventType.TxAbortedEvent));
     assertThat(event.compensationMethod(), is(compensationMethod));
   }
 }

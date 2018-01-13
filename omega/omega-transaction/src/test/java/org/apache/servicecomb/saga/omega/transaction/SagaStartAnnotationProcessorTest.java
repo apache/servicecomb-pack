@@ -65,7 +65,7 @@ public class SagaStartAnnotationProcessorTest {
     assertThat(event.localTxId(), is(globalTxId));
     assertThat(event.parentTxId(), is(nullValue()));
     assertThat(event.compensationMethod().isEmpty(), is(true));
-    assertThat(event.type(), is("SagaStartedEvent"));
+    assertThat(event.type(), is(TxEvent.EventType.SagaStartedEvent));
     assertThat(event.payloads().length, is(0));
   }
 
@@ -79,7 +79,7 @@ public class SagaStartAnnotationProcessorTest {
     assertThat(event.localTxId(), is(globalTxId));
     assertThat(event.parentTxId(), is(nullValue()));
     assertThat(event.compensationMethod().isEmpty(), is(true));
-    assertThat(event.type(), is("SagaEndedEvent"));
+    assertThat(event.type(), is(TxEvent.EventType.SagaEndedEvent));
     assertThat(event.payloads().length, is(0));
   }
 }

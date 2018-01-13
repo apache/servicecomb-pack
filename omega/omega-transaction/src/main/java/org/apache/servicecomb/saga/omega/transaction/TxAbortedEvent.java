@@ -22,7 +22,7 @@ import java.io.StringWriter;
 
 public class TxAbortedEvent extends TxEvent {
   public TxAbortedEvent(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Throwable throwable) {
-    super(globalTxId, localTxId, parentTxId, compensationMethod, stackTrace(throwable));
+    super(EventType.TxAbortedEvent, globalTxId, localTxId, parentTxId, compensationMethod, stackTrace(throwable));
   }
 
   private static String stackTrace(Throwable e) {

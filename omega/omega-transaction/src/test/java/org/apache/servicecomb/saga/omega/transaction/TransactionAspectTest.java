@@ -80,14 +80,14 @@ public class TransactionAspectTest {
     assertThat(startedEvent.globalTxId(), is(globalTxId));
     assertThat(startedEvent.localTxId(), is(newLocalTxId));
     assertThat(startedEvent.parentTxId(), is(localTxId));
-    assertThat(startedEvent.type(), is("TxStartedEvent"));
+    assertThat(startedEvent.type(), is(TxEvent.EventType.TxStartedEvent));
 
     TxEvent endedEvent = messages.get(1);
 
     assertThat(endedEvent.globalTxId(), is(globalTxId));
     assertThat(endedEvent.localTxId(), is(newLocalTxId));
     assertThat(endedEvent.parentTxId(), is(localTxId));
-    assertThat(endedEvent.type(), is("TxEndedEvent"));
+    assertThat(endedEvent.type(), is(TxEvent.EventType.TxEndedEvent));
 
     assertThat(omegaContext.globalTxId(), is(globalTxId));
     assertThat(omegaContext.localTxId(), is(localTxId));
@@ -111,7 +111,7 @@ public class TransactionAspectTest {
     assertThat(event.globalTxId(), is(globalTxId));
     assertThat(event.localTxId(), is(newLocalTxId));
     assertThat(event.parentTxId(), is(localTxId));
-    assertThat(event.type(), is("TxAbortedEvent"));
+    assertThat(event.type(), is(TxEvent.EventType.TxAbortedEvent));
 
     assertThat(omegaContext.globalTxId(), is(globalTxId));
     assertThat(omegaContext.localTxId(), is(localTxId));
@@ -142,7 +142,7 @@ public class TransactionAspectTest {
     assertThat(event.globalTxId(), is(globalTxId));
     assertThat(event.localTxId(), is(newLocalTxId));
     assertThat(event.parentTxId(), is(localTxId));
-    assertThat(event.type(), is("TxAbortedEvent"));
+    assertThat(event.type(), is(TxEvent.EventType.TxAbortedEvent));
 
     latch.countDown();
 

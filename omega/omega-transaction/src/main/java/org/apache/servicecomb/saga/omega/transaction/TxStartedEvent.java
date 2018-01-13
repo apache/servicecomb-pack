@@ -20,6 +20,6 @@ package org.apache.servicecomb.saga.omega.transaction;
 public class TxStartedEvent extends TxEvent {
 
   public TxStartedEvent(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Object... payloads) {
-    super(globalTxId, localTxId, parentTxId, compensationMethod, payloads);
+    super(EventType.TxStartedEvent, globalTxId, localTxId, parentTxId, compensationMethod, payloads);
   }
 }

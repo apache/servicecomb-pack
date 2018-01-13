@@ -19,6 +19,6 @@ package org.apache.servicecomb.saga.omega.transaction;
 
 public class TxEndedEvent extends TxEvent {
   public TxEndedEvent(String globalTxId, String localTxId, String parentTxId, String compensationMethod) {
-    super(globalTxId, localTxId, parentTxId, compensationMethod);
+    super(EventType.TxEndedEvent, globalTxId, localTxId, parentTxId, compensationMethod);
   }
 }
