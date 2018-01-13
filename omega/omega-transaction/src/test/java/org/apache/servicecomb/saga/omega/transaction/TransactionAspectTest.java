@@ -129,6 +129,10 @@ public class TransactionAspectTest {
 
     CompletableFuture.runAsync(() -> {
       try {
+        // need to setup the thread local for it
+        omegaContext.setGlobalTxId(globalTxId);
+        omegaContext.setLocalTxId(localTxId);
+
         aspect.advise(joinPoint, compensable);
       } catch (Throwable throwable) {
         fail(throwable.getMessage());
