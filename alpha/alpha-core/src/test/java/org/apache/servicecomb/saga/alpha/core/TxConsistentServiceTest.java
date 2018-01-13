@@ -56,6 +56,40 @@ public class TxConsistentServiceTest {
           .filter(event -> globalTxId.equals(event.globalTxId()) && type.equals(event.type()))
           .collect(Collectors.toList());
     }
+
+    @Override
+    public TxEvent findFirstTransaction(String globalTxId, String localTxId, String type) {
+      return events.stream()
+          .filter(event -> globalTxId.equals(event.globalTxId()) && localTxId.equals(event.localTxId()) && type.equals(event.type()))
+          .findFirst()
+          .get();
+    }
+
+    @Override
+    public List<TxEvent> findTransactionsToCompensate(String globalTxId) {
+      return events.stream()
+          .filter(event -> globalTxId.equals(event.globalTxId())
+              && event.type().equals(TxStartedEvent.name())
+              && isCompleted(globalTxId, event)
+              && !isCompensated(globalTxId, event))
+          .collect(Collectors.toList());
+    }
+
+    private boolean isCompleted(String globalTxId, TxEvent event) {
+      return events.stream()
+          .filter(e -> globalTxId.equals(e.globalTxId())
+              && e.localTxId().equals(event.localTxId())
+              && e.type().equals(TxEndedEvent.name()))
+          .count() > 0;
+    }
+
+    private boolean isCompensated(String globalTxId, TxEvent event) {
+      return events.stream()
+          .filter(e -> globalTxId.equals(e.globalTxId())
+              && e.localTxId().equals(event.localTxId())
+              && e.type().equals(TxCompensatedEvent.name()))
+          .count() > 0;
+    }
   };
 
   private final String globalTxId = UUID.randomUUID().toString();
@@ -121,17 +155,16 @@ public class TxConsistentServiceTest {
 
   @Test
   public void compensateTxEndedEventImmediately_IfGlobalTxAlreadyFailed() throws Exception {
-    String localTxId1 = UUID.randomUUID().toString();
     events.add(newEvent(TxStartedEvent));
     events.add(newEvent(TxAbortedEvent));
 
-    TxEvent event = eventOf(TxEndedEvent, "service x".getBytes(), localTxId1, "method x");
+    TxEvent event = eventOf(TxEndedEvent, new byte[0], localTxId, compensationMethod);
 
     consistentService.handle(event);
 
     await().atMost(1, SECONDS).until(() -> compensationContexts.size() > 0);
     assertThat(compensationContexts, containsInAnyOrder(
-        new CompensationContext(globalTxId, localTxId1, "method x", "service x".getBytes())
+        new CompensationContext(globalTxId, localTxId, compensationMethod, "yeah".getBytes())
     ));
   }
 

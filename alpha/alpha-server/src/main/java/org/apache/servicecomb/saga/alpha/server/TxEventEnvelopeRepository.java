@@ -19,15 +19,33 @@ package org.apache.servicecomb.saga.alpha.server;
 
 import java.util.List;
 
+import org.apache.servicecomb.saga.alpha.core.TxEvent;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 interface TxEventEnvelopeRepository extends CrudRepository<TxEventEnvelope, Long> {
-  TxEventEnvelope findByEventGlobalTxId(String globalTxId);
+  List<TxEventEnvelope> findByEventGlobalTxId(String globalTxId);
 
-  @Query("SELECT DISTINCT new org.apache.servicecomb.saga.alpha.server.TxEventEnvelope("
+  @Query("SELECT DISTINCT new org.apache.servicecomb.saga.alpha.core.TxEvent("
       + "t.event.serviceName, t.event.instanceId, t.event.globalTxId, t.event.localTxId, t.event.parentTxId, t.event.type, t.event.compensationMethod, t.event.payloads"
       + ") FROM TxEventEnvelope t "
       + "WHERE t.event.globalTxId = ?1 AND t.event.type = ?2")
-  List<TxEventEnvelope> findByEventGlobalTxIdAndEventType(String globalTxId, String type);
+  List<TxEvent> findByEventGlobalTxIdAndEventType(String globalTxId, String type);
+
+  TxEventEnvelope findFirstByEventGlobalTxIdAndEventLocalTxIdAndEventType(String globalTxId, String localTxId, String type);
+
+  @Query("SELECT DISTINCT new org.apache.servicecomb.saga.alpha.core.TxEvent("
+      + "t.event.serviceName, t.event.instanceId, t.event.globalTxId, t.event.localTxId, t.event.parentTxId, t.event.type, t.event.compensationMethod, t.event.payloads"
+      + ") FROM TxEventEnvelope t "
+      + "WHERE t.event.globalTxId = ?1 AND t.event.type = 'TxStartedEvent' AND EXISTS ( "
+      + "  FROM TxEventEnvelope t1 "
+      + "  WHERE t1.event.globalTxId = ?1 "
+      + "  AND t1.event.localTxId = t.event.localTxId "
+      + "  AND t1.event.type = 'TxEndedEvent'"
+      + ") AND NOT EXISTS ( "
+      + "  FROM TxEventEnvelope t2 "
+      + "  WHERE t2.event.globalTxId = ?1 "
+      + "  AND t2.event.localTxId = t.event.localTxId "
+      + "  AND t2.event.type = 'TxCompensatedEvent')")
+  List<TxEvent> findStartedEventsWithMatchingEndedButNotCompensatedEvents(String globalTxId);
 }

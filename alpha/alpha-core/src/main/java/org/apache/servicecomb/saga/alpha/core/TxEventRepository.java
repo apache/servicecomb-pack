@@ -23,4 +23,8 @@ public interface TxEventRepository {
   void save(TxEvent event);
 
   List<TxEvent> findTransactions(String globalTxId, String type);
+
+  TxEvent findFirstTransaction(String globalTxId, String localTxId, String type);
+
+  List<TxEvent> findTransactionsToCompensate(String globalTxId);
 }

@@ -18,7 +18,6 @@
 package org.apache.servicecomb.saga.alpha.server;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
 import org.apache.servicecomb.saga.alpha.core.TxEventRepository;
@@ -37,9 +36,16 @@ class SpringTxEventRepository implements TxEventRepository {
 
   @Override
   public List<TxEvent> findTransactions(String globalTxId, String type) {
-    return eventRepo.findByEventGlobalTxIdAndEventType(globalTxId, type)
-        .stream()
-        .map(TxEventEnvelope::event)
-        .collect(Collectors.toList());
+    return eventRepo.findByEventGlobalTxIdAndEventType(globalTxId, type);
+  }
+
+  @Override
+  public TxEvent findFirstTransaction(String globalTxId, String localTxId, String type) {
+    return eventRepo.findFirstByEventGlobalTxIdAndEventLocalTxIdAndEventType(globalTxId, localTxId, type).event();
+  }
+
+  @Override
+  public List<TxEvent> findTransactionsToCompensate(String globalTxId) {
+    return eventRepo.findStartedEventsWithMatchingEndedButNotCompensatedEvents(globalTxId);
   }
 }

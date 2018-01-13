@@ -36,6 +36,18 @@ public class TxEvent {
   public TxEvent(
       String serviceName,
       String instanceId,
+      String globalTxId,
+      String localTxId,
+      String parentTxId,
+      String type,
+      String compensationMethod,
+      byte[] payloads) {
+    this(serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type, compensationMethod, payloads);
+  }
+
+  public TxEvent(
+      String serviceName,
+      String instanceId,
       Date creationTime,
       String globalTxId,
       String localTxId,
