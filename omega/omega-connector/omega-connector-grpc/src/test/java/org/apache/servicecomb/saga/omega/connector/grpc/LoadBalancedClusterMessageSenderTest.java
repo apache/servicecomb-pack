@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.apache.servicecomb.saga.common.EventType;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
@@ -94,7 +95,7 @@ public class LoadBalancedClusterMessageSenderTest {
   private final String localTxId = uniquify("localTxId");
   private final String parentTxId = uniquify("parentTxId");
   private final String compensationMethod = getClass().getCanonicalName();
-  private final TxEvent event = new TxEvent(TxEvent.EventType.TxStartedEvent, globalTxId, localTxId, parentTxId, compensationMethod, "blah");
+  private final TxEvent event = new TxEvent(EventType.TxStartedEvent, globalTxId, localTxId, parentTxId, compensationMethod, "blah");
 
   private final String serviceName = uniquify("serviceName");
   private final String[] addresses = {"localhost:8080", "localhost:8090"};
@@ -324,7 +325,7 @@ public class LoadBalancedClusterMessageSenderTest {
     @Override
     public void onTxEvent(GrpcTxEvent request, StreamObserver<GrpcAck> responseObserver) {
       events.offer(new TxEvent(
-          TxEvent.EventType.valueOf(request.getType()),
+          EventType.valueOf(request.getType()),
           request.getGlobalTxId(),
           request.getLocalTxId(),
           request.getParentTxId(),
@@ -333,7 +334,7 @@ public class LoadBalancedClusterMessageSenderTest {
 
       sleep();
 
-      if (TxEvent.EventType.TxAbortedEvent.name().equals(request.getType())) {
+      if (EventType.TxAbortedEvent.name().equals(request.getType())) {
         this.responseObserver.onNext(GrpcCompensateCommand
             .newBuilder()
             .setGlobalTxId(request.getGlobalTxId())

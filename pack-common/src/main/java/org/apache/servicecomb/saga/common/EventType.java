@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.core;
+package org.apache.servicecomb.saga.common;
 
 public enum EventType {
   SagaStartedEvent,

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.servicecomb.saga.common.EventType;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.junit.Before;
@@ -65,7 +66,7 @@ public class CompensableInterceptorTest {
     assertThat(event.globalTxId(), is(globalTxId));
     assertThat(event.localTxId(), is(localTxId));
     assertThat(event.parentTxId(), is(parentTxId));
-    assertThat(event.type(), is(TxEvent.EventType.TxStartedEvent));
+    assertThat(event.type(), is(EventType.TxStartedEvent));
     assertThat(event.compensationMethod(), is(compensationMethod));
     assertThat(asList(event.payloads()), contains(message));
   }
@@ -79,7 +80,7 @@ public class CompensableInterceptorTest {
     assertThat(event.globalTxId(), is(globalTxId));
     assertThat(event.localTxId(), is(localTxId));
     assertThat(event.parentTxId(), is(parentTxId));
-    assertThat(event.type(), is(TxEvent.EventType.TxEndedEvent));
+    assertThat(event.type(), is(EventType.TxEndedEvent));
     assertThat(event.compensationMethod(), is(compensationMethod));
     assertThat(event.payloads().length, is(0));
   }
@@ -93,7 +94,7 @@ public class CompensableInterceptorTest {
     assertThat(event.globalTxId(), is(globalTxId));
     assertThat(event.localTxId(), is(localTxId));
     assertThat(event.parentTxId(), is(parentTxId));
-    assertThat(event.type(), is(TxEvent.EventType.TxAbortedEvent));
+    assertThat(event.type(), is(EventType.TxAbortedEvent));
     assertThat(event.compensationMethod(), is(compensationMethod));
   }
 }

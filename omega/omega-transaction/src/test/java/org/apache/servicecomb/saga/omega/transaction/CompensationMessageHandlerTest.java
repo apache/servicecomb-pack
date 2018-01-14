@@ -26,6 +26,7 @@ import static org.mockito.Mockito.verify;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.servicecomb.saga.common.EventType;
 import org.apache.servicecomb.saga.omega.context.CompensationContext;
 import org.junit.Test;
 
@@ -53,7 +54,7 @@ public class CompensationMessageHandlerTest {
     assertThat(event.globalTxId(), is(globalTxId));
     assertThat(event.localTxId(), is(localTxId));
     assertThat(event.parentTxId(), is(parentTxId));
-    assertThat(event.type(), is(TxEvent.EventType.TxCompensatedEvent));
+    assertThat(event.type(), is(EventType.TxCompensatedEvent));
     assertThat(event.compensationMethod(), is(getClass().getCanonicalName()));
     assertThat(event.payloads().length, is(0));
 

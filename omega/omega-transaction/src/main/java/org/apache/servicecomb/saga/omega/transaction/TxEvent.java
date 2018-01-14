@@ -17,17 +17,11 @@
 
 package org.apache.servicecomb.saga.omega.transaction;
 
+import org.apache.servicecomb.saga.common.EventType;
+
 import java.util.Arrays;
 
 public class TxEvent {
-  public enum EventType {
-    SagaStartedEvent,
-    SagaEndedEvent,
-    TxStartedEvent,
-    TxEndedEvent,
-    TxAbortedEvent,
-    TxCompensatedEvent
-  };
 
   private final long timestamp;
   private final EventType type;

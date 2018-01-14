@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.servicecomb.saga.common.EventType;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.junit.Before;
@@ -65,7 +66,7 @@ public class SagaStartAnnotationProcessorTest {
     assertThat(event.localTxId(), is(globalTxId));
     assertThat(event.parentTxId(), is(nullValue()));
     assertThat(event.compensationMethod().isEmpty(), is(true));
-    assertThat(event.type(), is(TxEvent.EventType.SagaStartedEvent));
+    assertThat(event.type(), is(EventType.SagaStartedEvent));
     assertThat(event.payloads().length, is(0));
   }
 
@@ -79,7 +80,7 @@ public class SagaStartAnnotationProcessorTest {
     assertThat(event.localTxId(), is(globalTxId));
     assertThat(event.parentTxId(), is(nullValue()));
     assertThat(event.compensationMethod().isEmpty(), is(true));
-    assertThat(event.type(), is(TxEvent.EventType.SagaEndedEvent));
+    assertThat(event.type(), is(EventType.SagaEndedEvent));
     assertThat(event.payloads().length, is(0));
   }
 }
