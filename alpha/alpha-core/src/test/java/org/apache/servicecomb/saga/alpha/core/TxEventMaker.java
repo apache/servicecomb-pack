@@ -15,7 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.core;import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
+package org.apache.servicecomb.saga.alpha.core;
+
+import org.apache.servicecomb.saga.common.EventType;
+
+import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 
 import java.util.Date;
 import java.util.UUID;

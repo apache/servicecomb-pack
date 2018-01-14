@@ -19,7 +19,7 @@ package org.apache.servicecomb.saga.alpha.core;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
-import static org.apache.servicecomb.saga.alpha.core.EventType.TxStartedEvent;
+import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.servicecomb.saga.common.EventType;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

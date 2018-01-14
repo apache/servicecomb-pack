@@ -33,6 +33,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.servicecomb.saga.common.EventType;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.context.annotations.SagaStart;
@@ -77,14 +78,14 @@ public class SagaStartAspectTest {
     assertThat(startedEvent.globalTxId(), is(globalTxId));
     assertThat(startedEvent.localTxId(), is(globalTxId));
     assertThat(startedEvent.parentTxId(), is(nullValue()));
-    assertThat(startedEvent.type(), is(TxEvent.EventType.SagaStartedEvent));
+    assertThat(startedEvent.type(), is(EventType.SagaStartedEvent));
 
     TxEvent endedEvent = messages.get(1);
 
     assertThat(endedEvent.globalTxId(), is(globalTxId));
     assertThat(endedEvent.localTxId(), is(globalTxId));
     assertThat(endedEvent.parentTxId(), is(nullValue()));
-    assertThat(endedEvent.type(), is(TxEvent.EventType.SagaEndedEvent));
+    assertThat(endedEvent.type(), is(EventType.SagaEndedEvent));
 
     assertThat(omegaContext.globalTxId(), is(nullValue()));
     assertThat(omegaContext.localTxId(), is(nullValue()));
@@ -109,7 +110,7 @@ public class SagaStartAspectTest {
     assertThat(event.globalTxId(), is(globalTxId));
     assertThat(event.localTxId(), is(globalTxId));
     assertThat(event.parentTxId(), is(nullValue()));
-    assertThat(event.type(), is(TxEvent.EventType.SagaStartedEvent));
+    assertThat(event.type(), is(EventType.SagaStartedEvent));
 
     assertThat(omegaContext.globalTxId(), is(nullValue()));
     assertThat(omegaContext.localTxId(), is(nullValue()));
@@ -140,7 +141,7 @@ public class SagaStartAspectTest {
     assertThat(event.globalTxId(), is(globalTxId));
     assertThat(event.localTxId(), is(globalTxId));
     assertThat(event.parentTxId(), is(nullValue()));
-    assertThat(event.type(), is(TxEvent.EventType.TxAbortedEvent));
+    assertThat(event.type(), is(EventType.TxAbortedEvent));
 
     latch.countDown();
 

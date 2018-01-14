@@ -17,11 +17,11 @@
 
 package org.apache.servicecomb.saga.alpha.core;
 
-import static org.apache.servicecomb.saga.alpha.core.EventType.SagaEndedEvent;
-import static org.apache.servicecomb.saga.alpha.core.EventType.TxAbortedEvent;
-import static org.apache.servicecomb.saga.alpha.core.EventType.TxCompensatedEvent;
-import static org.apache.servicecomb.saga.alpha.core.EventType.TxEndedEvent;
-import static org.apache.servicecomb.saga.alpha.core.EventType.TxStartedEvent;
+import static org.apache.servicecomb.saga.common.EventType.SagaEndedEvent;
+import static org.apache.servicecomb.saga.common.EventType.TxAbortedEvent;
+import static org.apache.servicecomb.saga.common.EventType.TxCompensatedEvent;
+import static org.apache.servicecomb.saga.common.EventType.TxEndedEvent;
+import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
 
 import java.util.Date;
 import java.util.HashMap;

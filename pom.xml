@@ -41,6 +41,7 @@
     <module>omega</module>
     <module>alpha</module>
     <module>pack-contracts</module>
+    <module>pack-common</module>
     <module>integration-tests</module>
   </modules>
 
@@ -199,6 +200,11 @@
       <dependency>
         <groupId>org.apache.servicecomb.saga</groupId>
         <artifactId>pack-contract-grpc</artifactId>
+        <version>0.0.3-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.servicecomb.saga</groupId>
+        <artifactId>pack-common</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>

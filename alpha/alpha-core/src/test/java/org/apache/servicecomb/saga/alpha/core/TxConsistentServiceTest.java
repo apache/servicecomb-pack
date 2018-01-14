@@ -19,12 +19,12 @@ package org.apache.servicecomb.saga.alpha.core;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.servicecomb.saga.alpha.core.EventType.SagaEndedEvent;
-import static org.apache.servicecomb.saga.alpha.core.EventType.SagaStartedEvent;
-import static org.apache.servicecomb.saga.alpha.core.EventType.TxAbortedEvent;
-import static org.apache.servicecomb.saga.alpha.core.EventType.TxCompensatedEvent;
-import static org.apache.servicecomb.saga.alpha.core.EventType.TxEndedEvent;
-import static org.apache.servicecomb.saga.alpha.core.EventType.TxStartedEvent;
+import static org.apache.servicecomb.saga.common.EventType.SagaEndedEvent;
+import static org.apache.servicecomb.saga.common.EventType.SagaStartedEvent;
+import static org.apache.servicecomb.saga.common.EventType.TxAbortedEvent;
+import static org.apache.servicecomb.saga.common.EventType.TxCompensatedEvent;
+import static org.apache.servicecomb.saga.common.EventType.TxEndedEvent;
+import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -39,6 +39,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.servicecomb.saga.common.EventType;
 import org.junit.Test;
 
 public class TxConsistentServiceTest {
