@@ -17,16 +17,12 @@
 
 package org.apache.servicecomb.saga.alpha.core;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
 import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
 
 @Entity
 @Table(name = "TxEvent")
@@ -209,6 +205,7 @@ public class TxEvent {
         ", expiryTime='" + expiryTime + '\'' +
         '}';
   }
+
   public int retries() {
     return retries;
   }
