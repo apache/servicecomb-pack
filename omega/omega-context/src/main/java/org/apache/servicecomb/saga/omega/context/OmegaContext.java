@@ -17,6 +17,8 @@
 
 package org.apache.servicecomb.saga.omega.context;
 
+import java.util.Map;
+
 public class OmegaContext {
   public static final String GLOBAL_TX_ID_KEY = "X-Pack-Global-Transaction-Id";
   public static final String LOCAL_TX_ID_KEY = "X-Pack-Local-Transaction-Id";
