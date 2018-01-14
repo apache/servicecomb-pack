@@ -28,15 +28,20 @@ import org.slf4j.LoggerFactory;
 
 public class CompensationContext {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private final Map<String, CompensationContextInternal> contexts = new HashMap<>();
+
+  private final Map<String, TransactionContextInternal> contexts = new HashMap<>();
+
+  public CompensationContext() {
+  }
 
   public void addCompensationContext(Method compensationMethod, Object target) {
     compensationMethod.setAccessible(true);
-    contexts.put(compensationMethod.toString(), new CompensationContextInternal(target, compensationMethod));
+    contexts.put(compensationMethod.toString(),
+        new TransactionContextInternal(target, compensationMethod));
   }
 
   public void compensate(String globalTxId, String localTxId, String compensationMethod, Object... payloads) {
-    CompensationContextInternal contextInternal = contexts.get(compensationMethod);
+    TransactionContextInternal contextInternal = contexts.get(compensationMethod);
 
     try {
       contextInternal.compensationMethod.invoke(contextInternal.target, payloads);
@@ -49,11 +54,12 @@ public class CompensationContext {
     }
   }
 
-  private static final class CompensationContextInternal {
+  private static final class TransactionContextInternal {
     private final Object target;
+
     private final Method compensationMethod;
 
-    private CompensationContextInternal(Object target, Method compensationMethod) {
+    private TransactionContextInternal(Object target, Method compensationMethod) {
       this.target = target;
       this.compensationMethod = compensationMethod;
     }

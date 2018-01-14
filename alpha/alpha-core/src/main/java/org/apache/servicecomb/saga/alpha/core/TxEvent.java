@@ -82,7 +82,8 @@ public class TxEvent {
 
   public TxEvent(String serviceName, String instanceId, Date creationTime, String globalTxId, String localTxId,
       String parentTxId, String type, String compensationMethod, byte[] payloads) {
-    this(-1L,
+    this(
+        -1L,
         serviceName,
         instanceId,
         creationTime,
@@ -91,12 +92,14 @@ public class TxEvent {
         parentTxId,
         type,
         compensationMethod,
+        0, "",
         payloads);
   }
 
   public TxEvent(long id, String serviceName, String instanceId, String globalTxId, String localTxId, String parentTxId,
       String type, String compensationMethod, byte[] payloads) {
-    this(id,
+    this(
+        id,
         serviceName,
         instanceId,
         new Date(),
@@ -105,11 +108,13 @@ public class TxEvent {
         parentTxId,
         type,
         compensationMethod,
+        0, "",
         payloads);
   }
 
   TxEvent(Long surrogateId, String serviceName, String instanceId, Date creationTime, String globalTxId,
-      String localTxId, String parentTxId, String type, String compensationMethod, byte[] payloads) {
+      String localTxId, String parentTxId, String type, String compensationMethod, int retries, String retriesMethod,
+      byte[] payloads) {
     this.surrogateId = surrogateId;
     this.serviceName = serviceName;
     this.instanceId = instanceId;
@@ -119,6 +124,25 @@ public class TxEvent {
     this.parentTxId = parentTxId;
     this.type = type;
     this.compensationMethod = compensationMethod;
+    this.retriesMethod = retriesMethod;
+    this.retries = retries;
+    this.payloads = payloads;
+  }
+
+
+  public TxEvent(String serviceName, String instanceId, Date creationTime, String globalTxId,
+      String localTxId, String parentTxId, String type, String compensationMethod, String retriesMethod, int retries,
+      byte[] payloads) {
+    this.serviceName = serviceName;
+    this.instanceId = instanceId;
+    this.creationTime = creationTime;
+    this.globalTxId = globalTxId;
+    this.localTxId = localTxId;
+    this.parentTxId = parentTxId;
+    this.type = type;
+    this.compensationMethod = compensationMethod;
+    this.retriesMethod = retriesMethod;
+    this.retries = retries;
     this.payloads = payloads;
   }
 

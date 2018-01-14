@@ -25,7 +25,6 @@ import java.lang.invoke.MethodHandles;
 import static org.apache.servicecomb.saga.common.EventType.TxAbortedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
 
-
 public class TxConsistentService {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 

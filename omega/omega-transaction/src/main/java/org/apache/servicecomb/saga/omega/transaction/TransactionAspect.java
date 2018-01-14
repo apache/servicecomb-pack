@@ -40,12 +40,12 @@ public class TransactionAspect {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final OmegaContext context;
+  private final EventAwareInterceptor interceptor;
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-  private final CompensableInterceptor interceptor;
 
-  public TransactionAspect(MessageSender sender, OmegaContext context) {
+  public TransactionAspect(MessageSender messageSender, OmegaContext context) {
     this.context = context;
-    this.interceptor = new CompensableInterceptor(context, sender);
+    this.interceptor = new CompensableInterceptor(context,messageSender);
   }
 
   @Around("execution(@org.apache.servicecomb.saga.omega.transaction.annotations.Compensable * *(..)) && @annotation(compensable)")
@@ -89,7 +89,7 @@ public class TransactionAspect {
 
   private void scheduleTimeoutTask(
       TimeAwareInterceptor interceptor,
-      String localTxId,
+      String parentTxId,
       String signature,
       Method method,
       int timeout) {
@@ -97,7 +97,7 @@ public class TransactionAspect {
     if (timeout > 0) {
       executor.schedule(
           () -> interceptor.onTimeout(
-              localTxId,
+              parentTxId,
               signature,
               new OmegaTxTimeoutException("Transaction " + method.toString() + " timed out")),
           timeout,
