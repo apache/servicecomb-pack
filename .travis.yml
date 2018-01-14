@@ -27,7 +27,7 @@ script:
 - mvn clean install -Pjacoco -Pdocker coveralls:report
 - mvn clean verify -f saga-demo -Pdemo -Pdocker -Ddocker.useColor=false -Ddocker.showLogs
 after_success:
-- mvn deploy -DskipTests --settings .travis.settings.xml
+- if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn deploy -DskipTests --settings .travis.settings.xml; fi
 env:
   global:
   - secure: ATr3sieeGmvFw1CMvNio1WnPlXIxHF86pl4k/YiP0hVAUArd13d4fTM5bnYHl470hv7HzmKNUUHGDvQKQggM0V3tTb3Dox8U4vE/GXHIE59AxLlaurzT1N/7BLM8uOJYE8vyg0g7qL5BOKr562JSeZSk0po5Zbi0pcRQ1ZifFE/PXHYpBeU7vHOh9eKtS/I0y+5VDYeJnZO/QuUNj/crn7SsZIRClhbOVh85b5ZJmlqvvwjcllv9Bc3oBm+4irCKCk2FvOZ6T6GoO5gZuCrBkC5U9fTWdBjvUON5oEJM+IHFzYaDuJkrRncu496v4RB69/25k5Q4a3MKYJhyFPcLJaHUzO4ZmdTIp3QDwueJGbBdzsf9NZPT5QHviftKgEKEMzLuaztA4zgM3vvFWq+aMwChKC1wFwOBPu5zrAFzm2hVXItb66OD0Zhv7bmsDLILVz0ShZEn/TxYCQVfPdO99xrg2VBdfAlA8dDeyyraUhG1iBOvZumy6U9/pIRVGfRgh5ZLMYwzmUXzgEqr+i0CH4FM/teuL0ToOGCM2StYxXOvCSnXzQLF8MM0Cmri6glmQgGgolCO40DX0WLYNFFdYnuZyUlWnA6IOI17E/8d66UiGBZmNzEG2yqjj6fDeWQ01pLcg4RbxFNMN7LxLEOcdrfAHMJk33xWiszMooXsvSc=
