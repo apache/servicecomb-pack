@@ -17,9 +17,9 @@
 
 package org.apache.servicecomb.saga.alpha.core;
 
+import static java.util.Collections.emptyMap;
+
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 
 public class CompositeOmegaCallback implements OmegaCallback {
   private final Map<String, Map<String, OmegaCallback>> callbacks;
@@ -29,44 +29,23 @@ public class CompositeOmegaCallback implements OmegaCallback {
   }
 
   @Override
-  public void retries(TxEvent event) {
-    OmegaCallback omegaCallback = callbackFor(event);
-
-    try {
-      omegaCallback.retries(event);
-    } catch (Exception e) {
-      removeEventCallback(event, omegaCallback);
-      throw e;
-    }
-  }
-
-  @Override
   public void compensate(TxEvent event) {
-    OmegaCallback omegaCallback = callbackFor(event);
+    Map<String, OmegaCallback> serviceCallbacks = callbacks.getOrDefault(event.serviceName(), emptyMap());
+
+    if (serviceCallbacks.isEmpty()) {
+      throw new AlphaException("No such omega callback found for service " + event.serviceName());
+    }
+
+    OmegaCallback omegaCallback = serviceCallbacks.get(event.instanceId());
+    if (omegaCallback == null) {
+      omegaCallback = serviceCallbacks.values().iterator().next();
+    }
 
     try {
       omegaCallback.compensate(event);
     } catch (Exception e) {
-      removeEventCallback(event, omegaCallback);
+      serviceCallbacks.values().remove(omegaCallback);
       throw e;
     }
-  }
-
-  private OmegaCallback callbackFor(String instanceId, Map<String, OmegaCallback> serviceCallbacks) {
-    OmegaCallback omegaCallback = serviceCallbacks.get(instanceId);
-    if (Objects.isNull(omegaCallback)) {
-      return serviceCallbacks.values().iterator().next();
-    }
-    return omegaCallback;
-  }
-
-  private OmegaCallback callbackFor(TxEvent event) {
-    return Optional.ofNullable(callbacks.get(event.serviceName())).filter(callbacks -> !callbacks.isEmpty())
-        .map(serviceCallbacks -> callbackFor(event.instanceId(), serviceCallbacks))
-        .orElseThrow(() -> new AlphaException("No such omega callback found for service " + event.serviceName()));
-  }
-
-  private void removeEventCallback(TxEvent event, OmegaCallback omegaCallback) {
-    callbacks.get(event.serviceName()).values().remove(omegaCallback);
   }
 }

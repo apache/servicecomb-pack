@@ -87,7 +87,7 @@ public class TxEvent {
       int timeout,
       byte[] payloads) {
     this(-1L, serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type, compensationMethod, timeout,
-        payloads);
+        "", 0, payloads);
   }
 
   public TxEvent(
@@ -102,7 +102,7 @@ public class TxEvent {
       int timeout,
       byte[] payloads) {
     this(-1L, serviceName, instanceId, creationTime, globalTxId, localTxId, parentTxId, type, compensationMethod,
-        timeout, payloads);
+        timeout, "", 0, payloads);
   }
 
   TxEvent(Long surrogateId,
@@ -132,6 +132,8 @@ public class TxEvent {
       String type,
       String compensationMethod,
       Date expiryTime,
+      String retriesMethod,
+      int retries,
       byte[] payloads) {
     this.surrogateId = surrogateId;
     this.serviceName = serviceName;
@@ -143,6 +145,8 @@ public class TxEvent {
     this.type = type;
     this.compensationMethod = compensationMethod;
     this.expiryTime = expiryTime;
+    this.retriesMethod = retriesMethod;
+    this.retries = retries;
     this.payloads = payloads;
   }
 

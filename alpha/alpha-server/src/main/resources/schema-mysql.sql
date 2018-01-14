@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS TxEvent (
   type varchar(50) NOT NULL,
   compensationMethod varchar(256) NOT NULL,
   expiryTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  retries_method varchar(256) NOT NULL,
+  retries int NOT NULL,
   payloads varbinary(10240),
   PRIMARY KEY (surrogateId),
   INDEX saga_events_index (surrogateId, globalTxId, localTxId, type, expiryTime)
