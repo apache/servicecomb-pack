@@ -36,6 +36,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.transaction.InvalidTransactionException;
+
 import org.apache.servicecomb.saga.common.EventType;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
@@ -174,8 +176,8 @@ public class TransactionAspectTest {
     TransactionAspect aspect = new TransactionAspect(sender, omegaContext);
     try {
       aspect.advise(joinPoint, compensable);
-      expectFailing(OmegaTxAbortedException.class);
-    } catch (OmegaTxAbortedException e) {
+      expectFailing(InvalidTransactionException.class);
+    } catch (InvalidTransactionException e) {
       assertThat(e.getMessage().contains("Abort local sub transaction"), is(true));
     }
 

@@ -24,6 +24,8 @@ import java.lang.reflect.Method;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import javax.transaction.InvalidTransactionException;
+
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -61,7 +63,7 @@ public class TransactionAspect {
     if (response.aborted()) {
       String abortedLocalTxId = context.localTxId();
       context.setLocalTxId(localTxId);
-      throw new OmegaTxAbortedException("Abort local sub transaction " + abortedLocalTxId +
+      throw new InvalidTransactionException("Abort local sub transaction " + abortedLocalTxId +
           " due to global transaction " + context.globalTxId() + " has already aborted.");
     }
     LOG.debug("Updated context {} for compensable method {} ", context, method.toString());
