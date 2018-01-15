@@ -296,10 +296,10 @@ public class LoadBalancedClusterMessageSenderTest {
 
   @Test
   public void forwardSendResult() {
-    assertThat(messageSender.send(event), is(true));
+    assertThat(messageSender.send(event).aborted(), is(false));
 
     TxEvent rejectEvent = new TxStartedEvent(globalTxId, localTxId, parentTxId, "reject", "blah");
-    assertThat(messageSender.send(rejectEvent), is(false));
+    assertThat(messageSender.send(rejectEvent).aborted(), is(true));
   }
 
   private int killServerReceivedMessage() {
@@ -351,9 +351,9 @@ public class LoadBalancedClusterMessageSenderTest {
       }
 
       if ("TxStartedEvent".equals(request.getType()) && request.getCompensationMethod().equals("reject")) {
-        responseObserver.onNext(GrpcAck.newBuilder().setValid(false).build());
+        responseObserver.onNext(GrpcAck.newBuilder().setAborted(true).build());
       } else {
-        responseObserver.onNext(GrpcAck.newBuilder().setValid(true).build());
+        responseObserver.onNext(GrpcAck.newBuilder().setAborted(false).build());
       }
 
       responseObserver.onCompleted();

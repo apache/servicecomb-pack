@@ -34,6 +34,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
 
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
+import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
@@ -124,15 +125,15 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
   }
 
   @Override
-  public boolean send(TxEvent event) {
-    boolean result = false;
+  public AlphaResponse send(TxEvent event) {
+    AlphaResponse response = new AlphaResponse(false);
     boolean success = false;
     do {
       MessageSender messageSender = fastestSender();
 
       try {
         long startTime = System.nanoTime();
-        result = messageSender.send(event);
+        response = messageSender.send(event);
         senders.put(messageSender, System.nanoTime() - startTime);
 
         success = true;
@@ -144,7 +145,7 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
       }
     } while (!success && !Thread.currentThread().isInterrupted());
 
-    return result;
+    return response;
   }
 
   private MessageSender fastestSender() {

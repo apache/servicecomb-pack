@@ -36,7 +36,10 @@ public class SagaStartAnnotationProcessorTest {
 
   private final List<TxEvent> messages = new ArrayList<>();
 
-  private final MessageSender sender = messages::add;
+  private final MessageSender sender = e -> {
+    messages.add(e);
+    return new AlphaResponse(false);
+  };
 
   private final String globalTxId = UUID.randomUUID().toString();
 

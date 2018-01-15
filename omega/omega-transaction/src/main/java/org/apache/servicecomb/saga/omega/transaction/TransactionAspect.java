@@ -57,11 +57,12 @@ public class TransactionAspect {
     context.newLocalTxId();
 
     TimeAwareInterceptor interceptor = new TimeAwareInterceptor(this.interceptor);
-    boolean ok = interceptor.preIntercept(localTxId, signature, joinPoint.getArgs());
-    if (!ok) {
-      LOG.info("Skipped transaction {} due to abort.", context.globalTxId());
+    AlphaResponse response = interceptor.preIntercept(localTxId, signature, joinPoint.getArgs());
+    if (response.aborted()) {
+      String abortedLocalTxId = context.localTxId();
       context.setLocalTxId(localTxId);
-      return null;
+      throw new IllegalStateException("Abort local sub transaction " + abortedLocalTxId +
+          " due to global transaction " + context.globalTxId() + " has already aborted.");
     }
     LOG.debug("Updated context {} for compensable method {} ", context, method.toString());
 

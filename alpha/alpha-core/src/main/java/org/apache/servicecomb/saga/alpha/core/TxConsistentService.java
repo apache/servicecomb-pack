@@ -55,7 +55,7 @@ public class TxConsistentService {
   }
 
   public boolean handle(TxEvent event) {
-    if (isInvalidTxStarted(event)) {
+    if (TxStartedEvent.name().equals(event.type()) && isGlobalTxAborted(event)) {
       return false;
     }
 
@@ -105,9 +105,5 @@ public class TxConsistentService {
 
   private boolean isTxEndedEvent(TxEvent event) {
     return TxEndedEvent.name().equals(event.type());
-  }
-
-  private boolean isInvalidTxStarted(TxEvent event) {
-    return TxStartedEvent.name().equals(event.type()) && isGlobalTxAborted(event);
   }
 }

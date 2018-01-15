@@ -41,7 +41,10 @@ public class CompensableInterceptorTest {
   private final String localTxId = UUID.randomUUID().toString();
   private final String parentTxId = UUID.randomUUID().toString();
 
-  private final MessageSender sender = messages::add;
+  private final MessageSender sender = e -> {
+    messages.add(e);
+    return new AlphaResponse(false);
+  };
 
   private final String message = uniquify("message");
   private final String compensationMethod = getClass().getCanonicalName();

@@ -45,8 +45,8 @@ public class TimeAwareInterceptorTest {
 
   private final EventAwareInterceptor underlying = new EventAwareInterceptor() {
     @Override
-    public boolean preIntercept(String parentTxId, String compensationMethod, Object... message) {
-      return true;
+    public AlphaResponse preIntercept(String parentTxId, String compensationMethod, Object... message) {
+      return new AlphaResponse(false);
     }
 
     @Override

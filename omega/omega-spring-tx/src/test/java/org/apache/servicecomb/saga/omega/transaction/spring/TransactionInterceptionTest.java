@@ -39,6 +39,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.apache.servicecomb.saga.omega.context.CompensationContext;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
+import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.TxAbortedEvent;
@@ -310,7 +311,10 @@ public class TransactionInterceptionTest {
 
     @Bean
     MessageSender sender() {
-      return (event) -> messages.add(event.toString());
+      return (event) -> {
+        messages.add(event.toString());
+        return new AlphaResponse(false);
+      };
     }
   }
 }

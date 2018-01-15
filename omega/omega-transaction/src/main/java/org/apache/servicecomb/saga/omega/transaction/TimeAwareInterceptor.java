@@ -29,7 +29,7 @@ class TimeAwareInterceptor implements EventAwareInterceptor {
   }
 
   @Override
-  public boolean preIntercept(String parentTxId, String signature, Object... args) {
+  public AlphaResponse preIntercept(String parentTxId, String signature, Object... args) {
     return interceptor.preIntercept(parentTxId, signature, args);
   }
 

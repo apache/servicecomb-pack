@@ -47,7 +47,10 @@ public class SagaStartAspectTest {
   private final List<TxEvent> messages = new ArrayList<>();
   private final String globalTxId = UUID.randomUUID().toString();
 
-  private final MessageSender sender = messages::add;
+  private final MessageSender sender = e -> {
+    messages.add(e);
+    return new AlphaResponse(false);
+  };
   private final ProceedingJoinPoint joinPoint = Mockito.mock(ProceedingJoinPoint.class);
   private final MethodSignature methodSignature = Mockito.mock(MethodSignature.class);
 

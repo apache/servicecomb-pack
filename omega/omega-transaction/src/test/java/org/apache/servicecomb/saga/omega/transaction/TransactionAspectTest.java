@@ -52,7 +52,10 @@ public class TransactionAspectTest {
 
   private final String newLocalTxId = UUID.randomUUID().toString();
 
-  private final MessageSender sender = messages::add;
+  private final MessageSender sender = e -> {
+    messages.add(e);
+    return new AlphaResponse(false);
+  };
   private final ProceedingJoinPoint joinPoint = mock(ProceedingJoinPoint.class);
   private final MethodSignature methodSignature = mock(MethodSignature.class);
 
@@ -166,13 +169,16 @@ public class TransactionAspectTest {
   @Test
   public void returnImmediatelyWhenReceivedRejectResponse() {
     MessageSender sender = mock(MessageSender.class);
-    when(sender.send(any())).thenReturn(false);
+    when(sender.send(any())).thenReturn(new AlphaResponse(true));
 
     TransactionAspect aspect = new TransactionAspect(sender, omegaContext);
     try {
       aspect.advise(joinPoint, compensable);
+      expectFailing(IllegalStateException.class);
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage().contains("Abort local sub transaction"), is(true));
     } catch (Throwable throwable) {
-      fail("Unexpected exception: " + throwable.getMessage());
+      expectFailing(IllegalStateException.class);
     }
 
     verify(sender, times(1)).send(any());
