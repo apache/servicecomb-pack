@@ -39,6 +39,7 @@ import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.MessageSerializer;
+import org.apache.servicecomb.saga.omega.transaction.OmegaException;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,26 +127,24 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
 
   @Override
   public AlphaResponse send(TxEvent event) {
-    AlphaResponse response = null;
-    boolean success = false;
     do {
       MessageSender messageSender = fastestSender();
 
       try {
         long startTime = System.nanoTime();
-        response = messageSender.send(event);
+        AlphaResponse response = messageSender.send(event);
         senders.put(messageSender, System.nanoTime() - startTime);
 
-        success = true;
+        return response;
       } catch (Exception e) {
         log.error("Retry sending event {} due to failure", event, e);
 
         // very large latency on exception
         senders.put(messageSender, Long.MAX_VALUE);
       }
-    } while (!success && !Thread.currentThread().isInterrupted());
+    } while (!Thread.currentThread().isInterrupted());
 
-    return response;
+    throw new OmegaException("Failed to send event " + event + " due to interruption");
   }
 
   private MessageSender fastestSender() {
@@ -154,14 +153,14 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
         .filter(entry -> entry.getValue() < Long.MAX_VALUE)
         .min(Comparator.comparingLong(Entry::getValue))
         .map(Entry::getKey)
-        .orElse((event -> {
+        .orElse(event -> {
           try {
             return availableMessageSenders.take().send(event);
-          } catch (InterruptedException e) {
+          } catch (InterruptedException ignored) {
             Thread.currentThread().interrupt();
           }
-          return new AlphaResponse(true);
-        }));
+          throw new OmegaException("Failed to send event " + event + " due to interruption");
+        });
   }
 
   private void scheduleReconnectTask(int reconnectDelay) {

@@ -167,7 +167,7 @@ public class TransactionAspectTest {
   }
 
   @Test
-  public void returnImmediatelyWhenReceivedRejectResponse() {
+  public void returnImmediatelyWhenReceivedRejectResponse() throws Throwable {
     MessageSender sender = mock(MessageSender.class);
     when(sender.send(any())).thenReturn(new AlphaResponse(true));
 
@@ -177,8 +177,6 @@ public class TransactionAspectTest {
       expectFailing(OmegaTxAbortedException.class);
     } catch (OmegaTxAbortedException e) {
       assertThat(e.getMessage().contains("Abort local sub transaction"), is(true));
-    } catch (Throwable throwable) {
-      expectFailing(OmegaTxAbortedException.class);
     }
 
     verify(sender, times(1)).send(any());
