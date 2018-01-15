@@ -126,7 +126,7 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
 
   @Override
   public AlphaResponse send(TxEvent event) {
-    AlphaResponse response = new AlphaResponse(false);
+    AlphaResponse response = null;
     boolean success = false;
     do {
       MessageSender messageSender = fastestSender();
@@ -156,10 +156,11 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
         .map(Entry::getKey)
         .orElse((event -> {
           try {
-            availableMessageSenders.take().send(event);
+            return availableMessageSenders.take().send(event);
           } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
           }
+          return new AlphaResponse(true);
         }));
   }
 
