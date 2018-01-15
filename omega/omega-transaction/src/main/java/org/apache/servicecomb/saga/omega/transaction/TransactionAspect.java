@@ -63,8 +63,8 @@ public class TransactionAspect {
     if (response.aborted()) {
       String abortedLocalTxId = context.localTxId();
       context.setLocalTxId(localTxId);
-      throw new InvalidTransactionException("Abort local sub transaction " + abortedLocalTxId +
-          " due to global transaction " + context.globalTxId() + " has already aborted.");
+      throw new InvalidTransactionException("Abort sub transaction " + abortedLocalTxId +
+          " because global transaction " + context.globalTxId() + " has already aborted.");
     }
     LOG.debug("Updated context {} for compensable method {} ", context, method.toString());
 

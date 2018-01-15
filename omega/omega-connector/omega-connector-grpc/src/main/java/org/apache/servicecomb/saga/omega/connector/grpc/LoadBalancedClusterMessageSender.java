@@ -136,6 +136,8 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
         senders.put(messageSender, System.nanoTime() - startTime);
 
         return response;
+      } catch (OmegaException e) {
+        throw e;
       } catch (Exception e) {
         log.error("Retry sending event {} due to failure", event, e);
 
@@ -156,10 +158,9 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
         .orElse(event -> {
           try {
             return availableMessageSenders.take().send(event);
-          } catch (InterruptedException ignored) {
-            Thread.currentThread().interrupt();
+          } catch (InterruptedException e) {
+            throw new OmegaException("Failed to send event " + event + " due to interruption", e);
           }
-          throw new OmegaException("Failed to send event " + event + " due to interruption");
         });
   }
 
