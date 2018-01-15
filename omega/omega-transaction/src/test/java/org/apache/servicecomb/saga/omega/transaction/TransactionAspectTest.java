@@ -178,7 +178,8 @@ public class TransactionAspectTest {
       aspect.advise(joinPoint, compensable);
       expectFailing(InvalidTransactionException.class);
     } catch (InvalidTransactionException e) {
-      assertThat(e.getMessage().contains("Abort local sub transaction"), is(true));
+      System.out.println(e.getMessage());
+      assertThat(e.getMessage().contains("Abort sub transaction"), is(true));
     }
 
     verify(sender, times(1)).send(any());

@@ -304,7 +304,7 @@ public class LoadBalancedClusterMessageSenderTest {
   }
 
   @Test
-  public void blowsUpWhenServerIsInterrupted() {
+  public void blowsUpWhenServerIsInterrupted() throws InterruptedException {
     Thread thread = new Thread(() -> {
       try {
         messageSender.send(event);
@@ -313,8 +313,10 @@ public class LoadBalancedClusterMessageSenderTest {
         assertThat(e.getMessage().endsWith("interruption"), is(true));
       }
     });
+
     thread.start();
     thread.interrupt();
+    thread.join();
   }
 
   private int killServerReceivedMessage() {
