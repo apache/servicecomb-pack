@@ -19,6 +19,7 @@ package org.apache.servicecomb.saga.omega.connector.grpc;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
+import static java.lang.Thread.State.WAITING;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.contains;
@@ -171,7 +172,7 @@ public class LoadBalancedClusterMessageSenderTest {
     messageSender.send(event);
 
     startServerOnPort(deadPort);
-    await().atMost(1, SECONDS).until(() -> connected.get(deadPort).size() == 3);
+    await().atMost(2, SECONDS).until(() -> connected.get(deadPort).size() == 3);
 
     TxEvent abortedEvent = new TxAbortedEvent(globalTxId, localTxId, parentTxId, compensationMethod, new RuntimeException("oops"));
     messageSender.send(abortedEvent);
@@ -271,33 +272,27 @@ public class LoadBalancedClusterMessageSenderTest {
   }
 
   @Test
-  public void deliverMessageWhenConnectionAvailable() throws Exception {
+  public void stopSendingWhenClusterIsDown() throws Exception {
     servers.values().forEach(Server::shutdownNow);
+    messageSender.onConnected();
 
     Thread thread = new Thread(() -> messageSender.send(event));
     thread.start();
 
-    int testPort = ports[0];
-    assertThat(eventsMap.get(testPort).isEmpty(), is(true));
+    // we don't want to keep sending on cluster down
+    await().atMost(2, SECONDS).until(() -> thread.isAlive() && thread.getState().equals(WAITING));
 
-    startServerOnPort(testPort);
+    assertThat(eventsMap.get(8080).isEmpty(), is(true));
+    assertThat(eventsMap.get(8090).isEmpty(), is(true));
 
-    await().atMost(1, SECONDS).until(() -> eventsMap.get(testPort).size() != 0);
-    TxEvent receivedEvent = eventsMap.get(testPort).poll();
-    assertThat(receivedEvent.globalTxId(), is(globalTxId));
-    assertThat(receivedEvent.localTxId(), is(localTxId));
-    assertThat(receivedEvent.parentTxId(), is(parentTxId));
-    assertThat(receivedEvent.compensationMethod(), is(compensationMethod));
+    startServerOnPort(8080);
+    startServerOnPort(8090);
 
-    thread.interrupt();
-    thread.join();
-
-    startServerOnPort(ports[1]);
+    await().atMost(2, SECONDS).until(() -> connected.get(8080).size() == 2 || connected.get(8090).size() == 2);
+    await().atMost(2, SECONDS).until(() -> eventsMap.get(8080).size() == 1 || eventsMap.get(8090).size() == 1);
   }
 
   private int killServerReceivedMessage() {
-    await().atMost(1, SECONDS).until(this::hasAnyReceivedEvents);
-
     for (int port : eventsMap.keySet()) {
       if (!eventsMap.get(port).isEmpty()) {
         Server serverToKill = servers.get(port);
@@ -306,14 +301,6 @@ public class LoadBalancedClusterMessageSenderTest {
       }
     }
     throw new IllegalStateException("None of the servers received any message");
-  }
-
-  private boolean hasAnyReceivedEvents() {
-    boolean result = false;
-    for (int port : ports) {
-      result |= eventsMap.get(port).isEmpty();
-    }
-    return result;
   }
 
   private static class MyTxEventService extends TxEventServiceImplBase {

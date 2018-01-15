@@ -29,8 +29,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.junit.Before;
@@ -42,13 +40,10 @@ public class PushBackReconnectRunnableTest {
 
   private final MessageSender sender = mock(MessageSender.class);
   private final BlockingQueue<Runnable> runnables = new LinkedBlockingQueue<>();
+  private final BlockingQueue<MessageSender> connectedSenders = new LinkedBlockingQueue<>();
   private final Map<MessageSender, Long> senders = new HashMap<>();
 
-  private final ReentrantLock lock = new ReentrantLock();
-  private final Condition condition = lock.newCondition();
-
-  private final PushBackReconnectRunnable pushBack = new PushBackReconnectRunnable(sender, senders, runnables, lock,
-      condition);
+  private final PushBackReconnectRunnable pushBack = new PushBackReconnectRunnable(sender, senders, runnables, connectedSenders);
 
   @Before
   public void setUp() throws Exception {
@@ -75,6 +70,7 @@ public class PushBackReconnectRunnableTest {
 
     assertThat(runnables.isEmpty(), is(true));
     assertThat(senders.get(sender), is(0L));
+    assertThat(connectedSenders, contains(sender));
 
     verify(sender, times(3)).onDisconnected();
     verify(sender, times(1)).onConnected();
