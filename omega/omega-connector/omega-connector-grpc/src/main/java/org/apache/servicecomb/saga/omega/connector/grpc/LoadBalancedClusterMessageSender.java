@@ -24,15 +24,13 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
@@ -49,14 +47,11 @@ import io.grpc.ManagedChannelBuilder;
 
 public class LoadBalancedClusterMessageSender implements MessageSender {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private final Map<MessageSender, Long> senders = new HashMap<>();
+  private final Map<MessageSender, Long> senders = new ConcurrentHashMap<>();
   private final Collection<ManagedChannel> channels;
 
-  private final ReentrantLock lock = new ReentrantLock();
-
-  private final Condition condition = lock.newCondition();
-
   private final BlockingQueue<Runnable> pendingTasks = new LinkedBlockingQueue<>();
+  private final BlockingQueue<MessageSender> availableMessageSenders = new LinkedBlockingQueue<>();
   private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
   public LoadBalancedClusterMessageSender(String[] addresses,
@@ -145,33 +140,23 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
 
         // very large latency on exception
         senders.put(messageSender, Long.MAX_VALUE);
-
-        waitTillAnyConnectionAvailable();
       }
     } while (!success && !Thread.currentThread().isInterrupted());
-  }
-
-  private void waitTillAnyConnectionAvailable() {
-    MessageSender sender = fastestSender();
-    // no connection available
-    if (senders.get(sender) == Long.MAX_VALUE) {
-      lock.lock();
-      try {
-        condition.await();
-      } catch (InterruptedException ignored) {
-        Thread.currentThread().interrupt();
-      } finally {
-        lock.unlock();
-      }
-    }
   }
 
   private MessageSender fastestSender() {
     return senders.entrySet()
         .stream()
+        .filter(entry -> entry.getValue() < Long.MAX_VALUE)
         .min(Comparator.comparingLong(Entry::getValue))
         .map(Entry::getKey)
-        .orElse(NO_OP_SENDER);
+        .orElse((event -> {
+          try {
+            availableMessageSenders.take().send(event);
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+          }
+        }));
   }
 
   private void scheduleReconnectTask(int reconnectDelay) {
@@ -186,7 +171,7 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
 
   private Function<MessageSender, Runnable> errorHandlerFactory() {
     return messageSender -> {
-      Runnable runnable = new PushBackReconnectRunnable(messageSender, senders, pendingTasks, lock, condition);
+      Runnable runnable = new PushBackReconnectRunnable(messageSender, senders, pendingTasks, availableMessageSenders);
       return () -> pendingTasks.offer(runnable);
     };
   }
