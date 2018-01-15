@@ -174,11 +174,11 @@ public class TransactionAspectTest {
     TransactionAspect aspect = new TransactionAspect(sender, omegaContext);
     try {
       aspect.advise(joinPoint, compensable);
-      expectFailing(IllegalStateException.class);
-    } catch (IllegalStateException e) {
+      expectFailing(OmegaTxAbortedException.class);
+    } catch (OmegaTxAbortedException e) {
       assertThat(e.getMessage().contains("Abort local sub transaction"), is(true));
     } catch (Throwable throwable) {
-      expectFailing(IllegalStateException.class);
+      expectFailing(OmegaTxAbortedException.class);
     }
 
     verify(sender, times(1)).send(any());
