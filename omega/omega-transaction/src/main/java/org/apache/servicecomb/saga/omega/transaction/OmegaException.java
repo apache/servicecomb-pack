@@ -18,6 +18,9 @@
 package org.apache.servicecomb.saga.omega.transaction;
 
 public class OmegaException extends RuntimeException {
+  public OmegaException(String message) {
+    super(message);
+  }
 
   public OmegaException(String cause, Throwable throwable) {
     super(cause, throwable);

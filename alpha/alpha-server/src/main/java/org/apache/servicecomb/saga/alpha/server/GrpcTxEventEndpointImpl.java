@@ -87,12 +87,7 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
         message.getPayloads().toByteArray()
     ));
 
-    if (ok) {
-      responseObserver.onNext(ALLOW);
-    } else {
-      responseObserver.onNext(REJECT);
-    }
-
+    responseObserver.onNext(ok ? ALLOW : REJECT);
     responseObserver.onCompleted();
   }
 }

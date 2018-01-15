@@ -45,6 +45,7 @@ import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.MessageSerializer;
+import org.apache.servicecomb.saga.omega.transaction.OmegaException;
 import org.apache.servicecomb.saga.omega.transaction.TxAbortedEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxStartedEvent;
@@ -300,6 +301,20 @@ public class LoadBalancedClusterMessageSenderTest {
 
     TxEvent rejectEvent = new TxStartedEvent(globalTxId, localTxId, parentTxId, "reject", "blah");
     assertThat(messageSender.send(rejectEvent).aborted(), is(true));
+  }
+
+  @Test
+  public void blowsUpWhenServerIsInterrupted() {
+    Thread thread = new Thread(() -> {
+      try {
+        messageSender.send(event);
+        expectFailing(OmegaException.class);
+      } catch (OmegaException e) {
+        assertThat(e.getMessage().endsWith("interruption"), is(true));
+      }
+    });
+    thread.start();
+    thread.interrupt();
   }
 
   private int killServerReceivedMessage() {
