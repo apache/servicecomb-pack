@@ -266,7 +266,7 @@ public class AlphaIntegrationTest {
     GrpcAck result = blockingStub
         .onTxEvent(eventOf(TxStartedEvent, localTxId1, parentTxId1, "service b".getBytes(), "method b"));
 
-    assertThat(result.getValid(), is(false));
+    assertThat(result.getAborted(), is(true));
   }
 
   private GrpcServiceConfig someServiceConfig() {

@@ -23,6 +23,7 @@ package org.apache.servicecomb.saga.omega.connector.grpc;
 import java.util.function.Function;
 
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
+import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
@@ -84,9 +85,9 @@ public class GrpcClientMessageSender implements MessageSender {
   }
 
   @Override
-  public boolean send(TxEvent event) {
+  public AlphaResponse send(TxEvent event) {
     GrpcAck grpcAck = blockingEventService.onTxEvent(convertEvent(event));
-    return grpcAck.getValid();
+    return new AlphaResponse(grpcAck.getAborted());
   }
 
   private GrpcTxEvent convertEvent(TxEvent event) {

@@ -33,7 +33,10 @@ import org.junit.Test;
 public class CompensationMessageHandlerTest {
 
   private final List<TxEvent> events = new ArrayList<>();
-  private final MessageSender sender = events::add;
+  private final MessageSender sender = e -> {
+    events.add(e);
+    return new AlphaResponse(false);
+  };
 
   private final String globalTxId = uniquify("globalTxId");
   private final String localTxId = uniquify("localTxId");

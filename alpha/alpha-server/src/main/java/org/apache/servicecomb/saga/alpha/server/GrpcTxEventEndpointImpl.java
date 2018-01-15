@@ -39,8 +39,8 @@ import io.grpc.stub.StreamObserver;
 
 class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
 
-  private static final GrpcAck ALLOW = GrpcAck.newBuilder().setValid(true).build();
-  private static final GrpcAck REJECT = GrpcAck.newBuilder().setValid(false).build();
+  private static final GrpcAck ALLOW = GrpcAck.newBuilder().setAborted(false).build();
+  private static final GrpcAck REJECT = GrpcAck.newBuilder().setAborted(true).build();
 
   private final TxConsistentService txConsistentService;
 
