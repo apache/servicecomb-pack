@@ -19,6 +19,7 @@ package org.apache.servicecomb.saga.alpha.core;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.servicecomb.saga.alpha.core.CommandStatus.DONE;
 import static org.apache.servicecomb.saga.common.EventType.SagaEndedEvent;
 import static org.apache.servicecomb.saga.common.EventType.SagaStartedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxAbortedEvent;
@@ -34,16 +35,20 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
 
 import org.apache.servicecomb.saga.common.EventType;
 import org.junit.Test;
 
 public class TxConsistentServiceTest {
-  private final List<TxEvent> events = new ArrayList<>();
+  private final Deque<TxEvent> events = new ConcurrentLinkedDeque<>();
   private final TxEventRepository eventRepository = new TxEventRepository() {
     @Override
     public void save(TxEvent event) {
@@ -92,6 +97,51 @@ public class TxConsistentServiceTest {
     }
   };
 
+  private final List<Command> commands = new ArrayList<>();
+  private final CommandRepository commandRepository = new CommandRepository() {
+    @Override
+    public boolean exists(String globalTxId, String localTxId) {
+      return commands.stream()
+          .anyMatch(command -> globalTxId.equals(command.globalTxId()) && localTxId.equals(command.localTxId()));
+    }
+
+    @Override
+    public void saveCompensationCommand(String globalTxId, String localTxId) {
+      TxEvent event = eventRepository.findFirstTransaction(globalTxId, localTxId, TxStartedEvent.name());
+      commands.add(new Command(event));
+    }
+
+    @Override
+    public void saveCompensationCommands(String globalTxId) {
+      List<TxEvent> events = eventRepository.findTransactionsToCompensate(globalTxId);
+
+      Map<String, Command> commandMap = new HashMap<>();
+
+      for (TxEvent event : events) {
+        commandMap.computeIfAbsent(event.localTxId(), k -> new Command(event));
+      }
+
+      commands.addAll(commandMap.values());
+    }
+
+    @Override
+    public void markCommandAsDone(String globalTxId, String localTxId) {
+      for (int i = 0; i < commands.size(); i++) {
+        Command command = commands.get(i);
+        if (globalTxId.equals(command.globalTxId()) && localTxId.equals(command.localTxId())) {
+          commands.set(i, new Command(command, DONE));
+        }
+      }
+    }
+
+    @Override
+    public List<Command> findUncompletedCommands(String globalTxId) {
+      return commands.stream()
+          .filter(command -> command.globalTxId().equals(globalTxId) && !DONE.name().equals(command.status()))
+          .collect(Collectors.toList());
+    }
+  };
+
   private final String globalTxId = UUID.randomUUID().toString();
   private final String localTxId = UUID.randomUUID().toString();
   private final String parentTxId = UUID.randomUUID().toString();
@@ -104,7 +154,7 @@ public class TxConsistentServiceTest {
   private final OmegaCallback omegaCallback = event ->
       compensationContexts.add(new CompensationContext(event.globalTxId(), event.localTxId(), event.compensationMethod(), event.payloads()));
 
-  private final TxConsistentService consistentService = new TxConsistentService(eventRepository, omegaCallback);
+  private final TxConsistentService consistentService = new TxConsistentService(eventRepository, commandRepository, omegaCallback);
 
   @Test
   public void persistEventOnArrival() throws Exception {
@@ -150,7 +200,7 @@ public class TxConsistentServiceTest {
     consistentService.handle(compensateEvent1);
 
     await().atMost(1, SECONDS).until(() -> events.size() == 8);
-    assertThat(events.get(events.size() - 1).type(), is(SagaEndedEvent.name()));
+    assertThat(events.pollLast().type(), is(SagaEndedEvent.name()));
   }
 
   @Test

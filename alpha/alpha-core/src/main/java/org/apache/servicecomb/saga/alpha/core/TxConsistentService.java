@@ -17,7 +17,6 @@
 
 package org.apache.servicecomb.saga.alpha.core;
 
-import static java.util.Collections.emptySet;
 import static org.apache.servicecomb.saga.common.EventType.SagaEndedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxAbortedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxCompensatedEvent;
@@ -26,10 +25,8 @@ import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -40,6 +37,7 @@ public class TxConsistentService {
   private static final byte[] EMPTY_PAYLOAD = new byte[0];
 
   private final TxEventRepository eventRepository;
+  private final CommandRepository commandRepository;
   private final OmegaCallback omegaCallback;
   private final Map<String, Consumer<TxEvent>> eventCallbacks = new HashMap<String, Consumer<TxEvent>>() {{
     put(TxEndedEvent.name(), (event) -> compensateIfAlreadyAborted(event));
@@ -47,11 +45,13 @@ public class TxConsistentService {
     put(TxCompensatedEvent.name(), (event) -> updateCompensateStatus(event));
   }};
 
-  private final Map<String, Set<String>> eventsToCompensate = new HashMap<>();
   private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-  public TxConsistentService(TxEventRepository eventRepository, OmegaCallback omegaCallback) {
+  public TxConsistentService(TxEventRepository eventRepository,
+      CommandRepository commandRepository,
+      OmegaCallback omegaCallback) {
     this.eventRepository = eventRepository;
+    this.commandRepository = commandRepository;
     this.omegaCallback = omegaCallback;
   }
 
@@ -68,7 +68,7 @@ public class TxConsistentService {
 
   private void compensateIfAlreadyAborted(TxEvent event) {
     if (!isCompensationScheduled(event) && isGlobalTxAborted(event)) {
-      eventsToCompensate.computeIfAbsent(event.globalTxId(), k -> new HashSet<>()).add(event.localTxId());
+      commandRepository.saveCompensationCommand(event.globalTxId(), event.localTxId());
       TxEvent correspondingStartedEvent = eventRepository
           .findFirstTransaction(event.globalTxId(), event.localTxId(), TxStartedEvent.name());
 
@@ -77,7 +77,7 @@ public class TxConsistentService {
   }
 
   private boolean isCompensationScheduled(TxEvent event) {
-    return eventsToCompensate.getOrDefault(event.globalTxId(), emptySet()).contains(event.localTxId());
+    return commandRepository.exists(event.globalTxId(), event.localTxId());
   }
 
   private void compensate(TxEvent event) {
@@ -85,8 +85,7 @@ public class TxConsistentService {
 
     events.removeIf(this::isCompensationScheduled);
 
-    Set<String> localTxIds = eventsToCompensate.computeIfAbsent(event.globalTxId(), k -> new HashSet<>());
-    events.forEach(e -> localTxIds.add(e.localTxId()));
+    commandRepository.saveCompensationCommands(event.globalTxId());
 
     events.forEach(omegaCallback::compensate);
   }
@@ -94,13 +93,10 @@ public class TxConsistentService {
   // TODO: 2018/1/13 SagaEndedEvent may still not be the last, because some omegas may have slow network and its TxEndedEvent reached late,
   // unless we ask user to specify a name for each participant in the global TX in @Compensable
   private void updateCompensateStatus(TxEvent event) {
-    Set<String> events = eventsToCompensate.get(event.globalTxId());
-    if (events != null) {
-      events.remove(event.localTxId());
-      if (events.isEmpty()) {
-        markGlobalTxEnd(event);
-        eventsToCompensate.remove(event.globalTxId());
-      }
+    commandRepository.markCommandAsDone(event.globalTxId(), event.localTxId());
+    if (eventRepository.findTransactions(event.globalTxId(), SagaEndedEvent.name()).isEmpty()
+        && commandRepository.findUncompletedCommands(event.globalTxId()).isEmpty()) {
+      markGlobalTxEnd(event);
     }
   }
 
