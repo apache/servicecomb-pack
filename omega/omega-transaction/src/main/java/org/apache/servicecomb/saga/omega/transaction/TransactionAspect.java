@@ -68,6 +68,7 @@ public class TransactionAspect {
     }
     LOG.debug("Updated context {} for compensable method {} ", context, method.toString());
 
+    // TODO: 2018/1/15 omega shall be stateless, all states shall be on alpha
     scheduleTimeoutTask(interceptor, localTxId, signature, method, compensable.timeout());
 
     try {

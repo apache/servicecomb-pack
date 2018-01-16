@@ -111,4 +111,18 @@ public class TxEvent {
   public byte[] payloads() {
     return payloads;
   }
+
+  @Override
+  public String toString() {
+    return "TxEvent{" +
+        "serviceName='" + serviceName + '\'' +
+        ", instanceId='" + instanceId + '\'' +
+        ", creationTime=" + creationTime +
+        ", globalTxId='" + globalTxId + '\'' +
+        ", localTxId='" + localTxId + '\'' +
+        ", parentTxId='" + parentTxId + '\'' +
+        ", type='" + type + '\'' +
+        ", compensationMethod='" + compensationMethod + '\'' +
+        '}';
+  }
 }
