@@ -63,6 +63,7 @@ public class TxConsistentService {
     eventRepository.save(event);
 
     executor.execute(() -> eventCallbacks.getOrDefault(event.type(), DO_NOTHING_CONSUMER).accept(event));
+    return true;
   }
 
   private void compensateIfAlreadyAborted(TxEvent event) {
@@ -77,8 +78,6 @@ public class TxConsistentService {
 
   private boolean isCompensationScheduled(TxEvent event) {
     return eventsToCompensate.getOrDefault(event.globalTxId(), emptySet()).contains(event.localTxId());
-
-    return true;
   }
 
   private void compensate(TxEvent event) {
