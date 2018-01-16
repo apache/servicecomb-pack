@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.apache.servicecomb.saga.common.EventType;
@@ -140,6 +141,17 @@ public class TxConsistentServiceTest {
           .filter(command -> command.globalTxId().equals(globalTxId) && !DONE.name().equals(command.status()))
           .collect(Collectors.toList());
     }
+
+    @Override
+    public List<Command> findFirstCommandToCompensate() {
+      List<Command> results = new ArrayList<>(1);
+      commands.stream()
+          .filter(command -> !DONE.name().equals(command.status()))
+          .findFirst()
+          .ifPresent(results::add);
+
+      return results;
+    }
   };
 
   private final String globalTxId = UUID.randomUUID().toString();
@@ -151,10 +163,18 @@ public class TxConsistentServiceTest {
   private final String compensationMethod = getClass().getCanonicalName();
   private final List<CompensationContext> compensationContexts = new ArrayList<>();
 
-  private final OmegaCallback omegaCallback = event ->
-      compensationContexts.add(new CompensationContext(event.globalTxId(), event.localTxId(), event.compensationMethod(), event.payloads()));
+  private Consumer<TxEvent> eventConsumer = event -> {};
+  private final OmegaCallback omegaCallback = event -> {
+    eventConsumer.accept(event);
+    compensationContexts.add(
+        new CompensationContext(event.globalTxId(), event.localTxId(), event.compensationMethod(), event.payloads()));
+  };
 
-  private final TxConsistentService consistentService = new TxConsistentService(eventRepository, commandRepository, omegaCallback);
+  private final TxConsistentService consistentService = new TxConsistentService(
+      eventRepository,
+      commandRepository,
+      omegaCallback,
+      300);
 
   @Test
   public void persistEventOnArrival() throws Exception {
@@ -175,6 +195,9 @@ public class TxConsistentServiceTest {
 
   @Test
   public void compensateGlobalTx_OnAnyLocalTxFailure() throws Exception {
+    eventConsumer = event -> consistentService
+        .handle(eventOf(TxCompensatedEvent, new byte[0], event.localTxId(), event.compensationMethod()));
+
     String localTxId1 = UUID.randomUUID().toString();
     events.add(eventOf(TxStartedEvent, "service a".getBytes(), localTxId1, "method a"));
     events.add(eventOf(TxEndedEvent, new byte[0], localTxId1, "method a"));
@@ -192,12 +215,6 @@ public class TxConsistentServiceTest {
         new CompensationContext(globalTxId, localTxId1, "method a", "service a".getBytes()),
         new CompensationContext(globalTxId, localTxId2, "method b", "service b".getBytes())
     ));
-
-    TxEvent compensateEvent2 = eventOf(TxCompensatedEvent, "service b".getBytes(), localTxId2, "method b");
-    consistentService.handle(compensateEvent2);
-
-    TxEvent compensateEvent1 = eventOf(TxCompensatedEvent, "service a".getBytes(), localTxId1, "method a");
-    consistentService.handle(compensateEvent1);
 
     await().atMost(1, SECONDS).until(() -> events.size() == 8);
     assertThat(events.pollLast().type(), is(SagaEndedEvent.name()));

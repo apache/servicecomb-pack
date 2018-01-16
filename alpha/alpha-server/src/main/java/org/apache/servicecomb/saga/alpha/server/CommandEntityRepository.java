@@ -20,7 +20,9 @@ package org.apache.servicecomb.saga.alpha.server;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.servicecomb.saga.alpha.core.Command;
+import javax.transaction.Transactional;
+
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -29,6 +31,7 @@ import org.springframework.data.repository.query.Param;
 public interface CommandEntityRepository extends CrudRepository<CommandEntity, Long> {
   Optional<CommandEntity> findByCommandGlobalTxIdAndCommandLocalTxId(String globalTxId, String localTxId);
 
+  @Transactional
   @Modifying
   @Query("UPDATE org.apache.servicecomb.saga.alpha.server.CommandEntity c "
       + "SET c.command.status = :status "
@@ -39,5 +42,12 @@ public interface CommandEntityRepository extends CrudRepository<CommandEntity, L
       @Param("globalTxId") String globalTxId,
       @Param("localTxId") String localTxId);
 
-  List<Command> findByCommandGlobalTxIdAndCommandStatus(String globalTxId, String status);
+  List<CommandEntity> findByCommandGlobalTxIdAndCommandStatus(String globalTxId, String status);
+
+  @Query("FROM CommandEntity c "
+      + "WHERE id IN ("
+      + " SELECT MAX(id) FROM CommandEntity c1 WHERE c1.command.status <> 'DONE' GROUP BY c1.command.globalTxId"
+      + ") "
+      + "ORDER BY c.id ASC")
+  List<CommandEntity> findFirstGroupByCommandGlobalTxIdOrderByIdDesc(Pageable pageable);
 }

@@ -24,7 +24,7 @@ import static org.apache.servicecomb.saga.common.EventType.TxCompensatedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxEndedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
 import static org.awaitility.Awaitility.await;
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -34,11 +34,12 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
 
-import org.apache.servicecomb.saga.common.EventType;
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.TxConsistentService;
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
+import org.apache.servicecomb.saga.common.EventType;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
@@ -63,7 +64,8 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {AlphaApplication.class, AlphaConfig.class}, properties = "alpha.server.port=8090")
+@SpringBootTest(classes = {AlphaApplication.class, AlphaConfig.class},
+    properties = {"alpha.server.port=8090", "alpha.command.pollingInterval=300"})
 public class AlphaIntegrationTest {
   private static final int port = 8090;
 
@@ -97,7 +99,7 @@ public class AlphaIntegrationTest {
   private TxConsistentService consistentService;
 
   private static final Queue<GrpcCompensateCommand> receivedCommands = new ConcurrentLinkedQueue<>();
-  private final CompensateStreamObserver compensateResponseObserver = new CompensateStreamObserver();
+  private final CompensateStreamObserver compensateResponseObserver = new CompensateStreamObserver(this::onCompensation);
 
   @AfterClass
   public static void tearDown() throws Exception {
@@ -222,11 +224,11 @@ public class AlphaIntegrationTest {
     blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
     await().atMost(1, SECONDS).until(() -> receivedCommands.size() > 1);
 
-    assertThat(receivedCommands, containsInAnyOrder(
-        GrpcCompensateCommand.newBuilder().setGlobalTxId(globalTxId).setLocalTxId(localTxId).setParentTxId(parentTxId)
-            .setCompensateMethod("method a").setPayloads(ByteString.copyFrom("service a".getBytes())).build(),
+    assertThat(receivedCommands, contains(
         GrpcCompensateCommand.newBuilder().setGlobalTxId(globalTxId).setLocalTxId(localTxId1).setParentTxId(parentTxId1)
-            .setCompensateMethod("method b").setPayloads(ByteString.copyFrom("service b".getBytes())).build()
+            .setCompensateMethod("method b").setPayloads(ByteString.copyFrom("service b".getBytes())).build(),
+        GrpcCompensateCommand.newBuilder().setGlobalTxId(globalTxId).setLocalTxId(localTxId).setParentTxId(parentTxId)
+            .setCompensateMethod("method a").setPayloads(ByteString.copyFrom("service a".getBytes())).build()
     ));
   }
 
@@ -305,13 +307,22 @@ public class AlphaIntegrationTest {
     String anotherLocalTxId2 = UUID.randomUUID().toString();
     blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent, globalTxId, anotherLocalTxId2));
 
-    await().atMost(1, SECONDS).until(() -> eventRepo.count() == 6);
+    await().atMost(1, SECONDS).until(() -> eventRepo.count() == 7);
 
     blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent, globalTxId, anotherLocalTxId2));
     await().atMost(1, SECONDS).until(() -> !receivedCommands.isEmpty());
 
     assertThat(receivedCommands.size(), is(1));
     assertThat(receivedCommands.poll().getGlobalTxId(), is(globalTxId));
+  }
+
+  private GrpcAck onCompensation(GrpcCompensateCommand command) {
+    return blockingStub.onTxEvent(
+        eventOf(TxCompensatedEvent,
+            command.getLocalTxId(),
+            command.getParentTxId(),
+            new byte[0],
+            command.getCompensateMethod()));
   }
 
   private GrpcServiceConfig someServiceConfig() {
@@ -371,11 +382,21 @@ public class AlphaIntegrationTest {
   }
 
   private static class CompensateStreamObserver implements StreamObserver<GrpcCompensateCommand> {
+    private final Consumer<GrpcCompensateCommand> consumer;
     private boolean completed = false;
+
+    private CompensateStreamObserver() {
+      this(command -> {});
+    }
+
+    private CompensateStreamObserver(Consumer<GrpcCompensateCommand> consumer) {
+      this.consumer = consumer;
+    }
 
     @Override
     public void onNext(GrpcCompensateCommand command) {
       // intercept received command
+      consumer.accept(command);
       receivedCommands.add(command);
     }
 
