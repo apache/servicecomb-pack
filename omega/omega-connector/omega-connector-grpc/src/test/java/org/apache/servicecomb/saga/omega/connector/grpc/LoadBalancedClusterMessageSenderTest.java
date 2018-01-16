@@ -37,9 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.servicecomb.saga.common.EventType;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
@@ -103,8 +101,6 @@ public class LoadBalancedClusterMessageSenderTest {
 
   private final String serviceName = uniquify("serviceName");
   private final String[] addresses = {"localhost:8080", "localhost:8090"};
-  private final BlockingQueue<MessageSender> availableMessageSenders = new LinkedBlockingQueue<>();
-  private final MessageSender retryableMessageSender = new RetryableMessageSender(availableMessageSenders);
   private final MessageSender messageSender = newMessageSender(addresses);
 
   private MessageSender newMessageSender(String[] addresses) {
@@ -114,9 +110,7 @@ public class LoadBalancedClusterMessageSenderTest {
         deserializer,
         new ServiceConfig(serviceName),
         handler,
-        100,
-        availableMessageSenders,
-        retryableMessageSender);
+        100);
   }
 
   @BeforeClass

@@ -17,14 +17,20 @@
 
 package org.apache.servicecomb.saga.omega.transaction;
 
+import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import javax.transaction.TransactionalException;
 
 import org.apache.servicecomb.saga.common.EventType;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
@@ -43,12 +49,10 @@ public class SagaStartAnnotationProcessorTest {
 
   private final String globalTxId = UUID.randomUUID().toString();
 
-  private final String localTxId = UUID.randomUUID().toString();
-
   @SuppressWarnings("unchecked")
   private final IdGenerator<String> generator = mock(IdGenerator.class);
-
   private final OmegaContext context = new OmegaContext(generator);
+  private final OmegaException exception = new OmegaException("exception", new RuntimeException("runtime exception"));
 
   private final SagaStartAnnotationProcessor sagaStartAnnotationProcessor = new SagaStartAnnotationProcessor(context,
       sender);
@@ -85,5 +89,22 @@ public class SagaStartAnnotationProcessorTest {
     assertThat(event.compensationMethod().isEmpty(), is(true));
     assertThat(event.type(), is(EventType.SagaEndedEvent));
     assertThat(event.payloads().length, is(0));
+  }
+
+  @Test
+  public void transformInterceptedException() {
+    MessageSender sender = mock(MessageSender.class);
+    SagaStartAnnotationProcessor sagaStartAnnotationProcessor = new SagaStartAnnotationProcessor(context, sender);
+
+    doThrow(exception).when(sender).send(any());
+
+    try {
+      sagaStartAnnotationProcessor.preIntercept(null, null);
+      expectFailing(TransactionalException.class);
+    } catch (TransactionalException e) {
+      assertThat(e.getMessage(), is("exception"));
+      assertThat(e.getCause(), instanceOf(RuntimeException.class));
+      assertThat(e.getCause().getMessage(), is("runtime exception"));
+    }
   }
 }

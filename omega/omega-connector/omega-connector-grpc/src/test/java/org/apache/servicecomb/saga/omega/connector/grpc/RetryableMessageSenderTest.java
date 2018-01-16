@@ -24,9 +24,9 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
@@ -37,7 +37,7 @@ import org.junit.Test;
 
 public class RetryableMessageSenderTest {
   @SuppressWarnings("unchecked")
-  private final BlockingQueue<MessageSender> availableMessageSenders = mock(BlockingQueue.class);
+  private final BlockingQueue<MessageSender> availableMessageSenders = new LinkedBlockingQueue<>();
   private final MessageSender messageSender = new RetryableMessageSender(availableMessageSenders);
 
   private final String globalTxId = uniquify("globalTxId");
@@ -45,9 +45,9 @@ public class RetryableMessageSenderTest {
   private final TxStartedEvent event = new TxStartedEvent(globalTxId, localTxId, null, "method x");
 
   @Test
-  public void sendEventWhenSenderIsAvailable() throws InterruptedException {
+  public void sendEventWhenSenderIsAvailable() {
     MessageSender sender = mock(MessageSender.class);
-    when(availableMessageSenders.take()).thenReturn(sender);
+    availableMessageSenders.add(sender);
 
     messageSender.send(event);
 

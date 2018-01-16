@@ -53,8 +53,8 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
   private final Collection<ManagedChannel> channels;
 
   private final BlockingQueue<Runnable> pendingTasks = new LinkedBlockingQueue<>();
-  private final BlockingQueue<MessageSender> availableMessageSenders;
-  private final MessageSender retryableMessageSender;
+  private final BlockingQueue<MessageSender> availableMessageSenders = new LinkedBlockingQueue<>();
+  private final MessageSender retryableMessageSender = new RetryableMessageSender(availableMessageSenders);
   private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
   public LoadBalancedClusterMessageSender(String[] addresses,
@@ -62,16 +62,11 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
       MessageDeserializer deserializer,
       ServiceConfig serviceConfig,
       MessageHandler handler,
-      int reconnectDelay,
-      BlockingQueue<MessageSender> availableMessageSenders,
-      MessageSender retryableMessageSender) {
+      int reconnectDelay) {
 
     if (addresses.length == 0) {
       throw new IllegalArgumentException("No reachable cluster address provided");
     }
-
-    this.availableMessageSenders = availableMessageSenders;
-    this.retryableMessageSender = retryableMessageSender;
 
     channels = new ArrayList<>(addresses.length);
     for (String address : addresses) {
@@ -101,8 +96,6 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
       senders.put(sender, 0L);
     }
     channels = emptyList();
-    availableMessageSenders = new LinkedBlockingQueue<>();
-    retryableMessageSender = new RetryableMessageSender(availableMessageSenders);
   }
 
   @Override
