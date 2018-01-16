@@ -53,7 +53,8 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
   private final Collection<ManagedChannel> channels;
 
   private final BlockingQueue<Runnable> pendingTasks = new LinkedBlockingQueue<>();
-  private final BlockingQueue<MessageSender> availableMessageSenders = new LinkedBlockingQueue<>();
+  private final BlockingQueue<MessageSender> availableMessageSenders;
+  private final MessageSender retryableMessageSender;
   private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
   public LoadBalancedClusterMessageSender(String[] addresses,
@@ -61,11 +62,16 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
       MessageDeserializer deserializer,
       ServiceConfig serviceConfig,
       MessageHandler handler,
-      int reconnectDelay) {
+      int reconnectDelay,
+      BlockingQueue<MessageSender> availableMessageSenders,
+      MessageSender retryableMessageSender) {
 
     if (addresses.length == 0) {
       throw new IllegalArgumentException("No reachable cluster address provided");
     }
+
+    this.availableMessageSenders = availableMessageSenders;
+    this.retryableMessageSender = retryableMessageSender;
 
     channels = new ArrayList<>(addresses.length);
     for (String address : addresses) {
@@ -95,6 +101,8 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
       senders.put(sender, 0L);
     }
     channels = emptyList();
+    availableMessageSenders = new LinkedBlockingQueue<>();
+    retryableMessageSender = new RetryableMessageSender(availableMessageSenders);
   }
 
   @Override
@@ -155,13 +163,7 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
         .filter(entry -> entry.getValue() < Long.MAX_VALUE)
         .min(Comparator.comparingLong(Entry::getValue))
         .map(Entry::getKey)
-        .orElse(event -> {
-          try {
-            return availableMessageSenders.take().send(event);
-          } catch (InterruptedException e) {
-            throw new OmegaException("Failed to send event " + event + " due to interruption", e);
-          }
-        });
+        .orElse(retryableMessageSender);
   }
 
   private void scheduleReconnectTask(int reconnectDelay) {

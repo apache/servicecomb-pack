@@ -17,7 +17,11 @@
 
 package org.apache.servicecomb.saga.omega.spring;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import org.apache.servicecomb.saga.omega.connector.grpc.LoadBalancedClusterMessageSender;
+import org.apache.servicecomb.saga.omega.connector.grpc.RetryableMessageSender;
 import org.apache.servicecomb.saga.omega.context.CompensationContext;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
@@ -63,13 +67,17 @@ class OmegaSpringConfig {
       @Lazy MessageHandler handler) {
 
     MessageFormat messageFormat = new KryoMessageFormat();
+    BlockingQueue<MessageSender> availableMessageSenders = new LinkedBlockingQueue<>();
+    MessageSender retryableMessageSender = new RetryableMessageSender(availableMessageSenders);
     MessageSender sender = new LoadBalancedClusterMessageSender(
         addresses,
         messageFormat,
         messageFormat,
         serviceConfig,
         handler,
-        reconnectDelay);
+        reconnectDelay,
+        availableMessageSenders,
+        retryableMessageSender);
 
     sender.onConnected();
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
