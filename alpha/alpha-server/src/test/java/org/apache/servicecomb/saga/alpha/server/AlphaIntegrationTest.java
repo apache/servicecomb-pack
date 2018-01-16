@@ -277,6 +277,7 @@ public class AlphaIntegrationTest {
     asyncStub.onConnected(serviceConfig, compensateResponseObserver);
 
     blockingStub.onTxEvent(eventOf(TxStartedEvent, localTxId, parentTxId, "service a".getBytes(), "method a"));
+    blockingStub.onTxEvent(someGrpcEvent(TxEndedEvent));
 
     blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
 
