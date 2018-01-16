@@ -63,6 +63,7 @@ interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
       + "  FROM TxEventEnvelope t2 "
       + "  WHERE t2.event.globalTxId = ?1 "
       + "  AND t2.event.localTxId = t.event.localTxId "
-      + "  AND t2.event.type = 'TxCompensatedEvent')")
+      + "  AND t2.event.type = 'TxCompensatedEvent')"
+      + "ORDER BY t.id ASC ")
   List<TxEventEnvelope> findStartedEventEnvelopesWithMatchingEndedButNotCompensatedEvents(String globalTxId);
 }

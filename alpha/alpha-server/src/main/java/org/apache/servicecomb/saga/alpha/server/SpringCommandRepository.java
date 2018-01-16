@@ -24,11 +24,15 @@ import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.servicecomb.saga.alpha.core.Command;
 import org.apache.servicecomb.saga.alpha.core.CommandRepository;
+import org.springframework.data.domain.PageRequest;
 
 public class SpringCommandRepository implements CommandRepository {
+  private static final PageRequest SINGLE_COMMAND_REQUEST = new PageRequest(0, 1);
+
   private final TxEventEnvelopeRepository eventRepository;
   private final CommandEntityRepository commandRepository;
 
@@ -44,7 +48,7 @@ public class SpringCommandRepository implements CommandRepository {
 
   @Override
   public void saveCompensationCommand(String globalTxId, String localTxId) {
-    TxEventEnvelope startedEvent = eventRepository.findFirstByEventGlobalTxIdAndEventLocalTxIdAndEventType(
+    TxEventEnvelope startedEvent = eventRepository.findFirstByEventGlobalTxIdAndEventLocalTxIdAndEventTypeOrderByIdAsc(
         globalTxId,
         localTxId,
         TxStartedEvent.name());
@@ -73,6 +77,18 @@ public class SpringCommandRepository implements CommandRepository {
 
   @Override
   public List<Command> findUncompletedCommands(String globalTxId) {
-    return commandRepository.findByCommandGlobalTxIdAndCommandStatus(globalTxId, NEW.name());
+    return commandRepository.findByCommandGlobalTxIdAndCommandStatus(globalTxId, NEW.name())
+        .stream()
+        .map(CommandEntity::command)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<Command> findFirstCommandToCompensate() {
+    return commandRepository
+        .findFirstGroupByCommandGlobalTxIdOrderByIdDesc(SINGLE_COMMAND_REQUEST)
+        .stream()
+        .map(CommandEntity::command)
+        .collect(Collectors.toList());
   }
 }

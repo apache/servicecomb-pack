@@ -66,12 +66,17 @@ class AlphaConfig {
 
   @Bean
   TxConsistentService txConsistentService(@Value("${alpha.server.port:8080}") int port,
+      @Value("${alpha.command.pollingInterval:3000}") int commandPollingInterval,
       TxEventRepository eventRepository,
       CommandRepository commandRepository,
       OmegaCallback omegaCallback,
       Map<String, Map<String, OmegaCallback>> omegaCallbacks) {
 
-    TxConsistentService consistentService = new TxConsistentService(eventRepository, commandRepository, omegaCallback);
+    TxConsistentService consistentService = new TxConsistentService(
+        eventRepository,
+        commandRepository,
+        omegaCallback,
+        commandPollingInterval);
 
     ServerStartable startable = buildGrpc(port, consistentService, omegaCallbacks);
     new Thread(startable::start).start();

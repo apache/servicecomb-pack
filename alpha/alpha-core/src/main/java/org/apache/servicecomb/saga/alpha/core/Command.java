@@ -83,12 +83,32 @@ public class Command {
         event.payloads());
   }
 
+  String serviceName() {
+    return serviceName;
+  }
+
+  String instanceId() {
+    return instanceId;
+  }
+
   String globalTxId() {
     return globalTxId;
   }
 
   String localTxId() {
     return localTxId;
+  }
+
+  String parentTxId() {
+    return parentTxId;
+  }
+
+  String compensationMethod() {
+    return compensationMethod;
+  }
+
+  byte[] payloads() {
+    return payloads;
   }
 
   String status() {

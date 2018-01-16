@@ -21,7 +21,6 @@ import java.util.Date;
 
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Version;
 
@@ -31,7 +30,6 @@ import org.apache.servicecomb.saga.alpha.core.TxEvent;
 @Entity
 class CommandEntity {
   @Id
-  @GeneratedValue
   private long surrogateId;
 
   @Embedded
@@ -49,5 +47,9 @@ class CommandEntity {
     surrogateId = id;
     lastModified = new Date();
     command = new Command(event);
+  }
+
+  Command command() {
+    return command;
   }
 }
