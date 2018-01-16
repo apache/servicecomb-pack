@@ -17,6 +17,8 @@
 
 package org.apache.servicecomb.saga.omega.transaction;
 
+import javax.transaction.TransactionalException;
+
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 
 class SagaStartAnnotationProcessor implements EventAwareInterceptor {
@@ -31,7 +33,11 @@ class SagaStartAnnotationProcessor implements EventAwareInterceptor {
 
   @Override
   public AlphaResponse preIntercept(String parentTxId, String compensationMethod, Object... message) {
-    return sender.send(new SagaStartedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
+    try {
+      return sender.send(new SagaStartedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
+    } catch (OmegaException e) {
+      throw new TransactionalException(e.getMessage(), e.getCause());
+    }
   }
 
   @Override

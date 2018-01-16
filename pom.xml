@@ -60,6 +60,7 @@
     <maven.failsafe.version>2.19.1</maven.failsafe.version>
     <grpc.version>1.8.0</grpc.version>
     <kryo.version>4.0.1</kryo.version>
+    <javax.transaction.version>1.2</javax.transaction.version>
   </properties>
 
   <name>ServiceComb Saga</name>
@@ -346,6 +347,11 @@
         <groupId>com.esotericsoftware</groupId>
         <artifactId>kryo</artifactId>
         <version>${kryo.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.transaction</groupId>
+        <artifactId>javax.transaction-api</artifactId>
+        <version>${javax.transaction.version}</version>
       </dependency>
 
       <!-- test dependencies -->
