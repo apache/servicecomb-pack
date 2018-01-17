@@ -48,6 +48,8 @@ public class TxEvent {
   private String compensationMethod;
   private Date expiryTime;
   private byte[] payloads;
+  private int retries;
+  private String retriesMethod;
 
   private TxEvent() {
   }
@@ -206,5 +208,16 @@ public class TxEvent {
         ", compensationMethod='" + compensationMethod + '\'' +
         ", expiryTime='" + expiryTime + '\'' +
         '}';
+  }
+  public int retries() {
+    return retries;
+  }
+
+  public String retriesMethod() {
+    return retriesMethod;
+  }
+
+  public boolean containChildren(TxEvent event) {
+    return this.localTxId.equals(event.parentTxId);
   }
 }
