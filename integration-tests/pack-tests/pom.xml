@@ -45,6 +45,10 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.servicecomb.saga</groupId>
+      <artifactId>pack-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>alpha-core</artifactId>
     </dependency>
     <dependency>
@@ -81,17 +85,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-jpa</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.hibernate</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>javax.persistence</groupId>
       <artifactId>javax.persistence-api</artifactId>
       <scope>test</scope>
@@ -102,8 +95,9 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.eclipse.persistence</groupId>
-      <artifactId>org.eclipse.persistence.jpa</artifactId>
+      <groupId>org.apache.servicecomb.saga</groupId>
+      <artifactId>saga-persistence-jpa</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>

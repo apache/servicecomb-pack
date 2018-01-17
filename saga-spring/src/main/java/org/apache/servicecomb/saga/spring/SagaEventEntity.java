@@ -21,13 +21,14 @@ import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
 public class SagaEventEntity {
   @Id
-  @GeneratedValue
-  private long id;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
   private String sagaId;
   private Date creationTime;
   private String type;

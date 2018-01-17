@@ -1,12 +1,12 @@
-DROP TABLE IF EXISTS saga_event_entity;
+DROP TABLE IF EXISTS SagaEventEntity;
 
-CREATE TABLE `saga_event_entity` (
+CREATE TABLE `SagaEventEntity` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `saga_id` varchar(36) NOT NULL,
-  `creation_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `sagaId` varchar(36) NOT NULL,
+  `creationTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `type` varchar(50) NOT NULL,
-  `content_json` clob NOT NULL DEFAULT '{}',
+  `contentJson` clob NOT NULL DEFAULT '{}',
   PRIMARY KEY (`id`)
 ) DEFAULT CHARSET=utf8;
 
- CREATE INDEX running_sagas_index ON saga_event_entity(saga_id, type);
+ CREATE INDEX running_sagas_index ON sagaEventEntity(sagaId, type);

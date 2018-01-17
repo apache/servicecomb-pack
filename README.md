@@ -20,7 +20,7 @@ You will need:
 1. [Oracle JDK 1.8+][jdk]
 2. [Maven 3.x][maven]
 3. [Docker][docker]
-4. [MySQL][mysql]
+4. [PostgreSQL][postgres]
 5. [Service Center(optional)][service_center]
 6. [Docker compose(optional)][docker_compose]
 7. [Docker machine(optional)][docker_machine]
@@ -29,7 +29,7 @@ You will need:
 [jdk]: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
 [maven]: https://maven.apache.org/install.html
 [docker]: https://www.docker.com/get-docker
-[mysql]: https://dev.mysql.com/downloads/
+[postgres]: https://www.postgresql.org/download/
 [service_center]: https://github.com/apache/incubator-servicecomb-service-center
 [docker_compose]: https://docs.docker.com/compose/install/
 [docker_machine]: https://docs.docker.com/machine/install-machine/

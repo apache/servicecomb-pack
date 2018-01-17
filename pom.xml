@@ -43,6 +43,7 @@
     <module>pack-contracts</module>
     <module>pack-common</module>
     <module>integration-tests</module>
+    <module>saga-persistence</module>
   </modules>
 
   <properties>
@@ -207,6 +208,11 @@
       <dependency>
         <groupId>org.apache.servicecomb.saga</groupId>
         <artifactId>pack-common</artifactId>
+        <version>0.0.3-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.servicecomb.saga</groupId>
+        <artifactId>saga-persistence-jpa</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
