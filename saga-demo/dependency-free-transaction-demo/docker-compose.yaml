@@ -24,18 +24,17 @@ services:
     ports:
       - "30100:30100"
 
-  mysql:
-    image: "mysql/mysql-server:5.7"
-    hostname: mysql
+  postgres:
+    image: "postgres"
+    hostname: postgres
     environment:
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_DATABASE=saga
-      - MYSQL_USER=saga
-      - MYSQL_PASSWORD=password
+      - POSTGRES_DB=saga
+      - POSTGRES_USER=saga
+      - POSTGRES_PASSWORD=password
     ports:
-      - "3306:3306"
+      - "5432:5432"
     healthcheck:
-        test: ["CMD-SHELL", "nc -z localhost 3306 &> /dev/null; echo $$?"]
+        test: ["CMD-SHELL", "nc -z localhost 5432 &> /dev/null; echo $$?"]
         interval: 30s
         timeout: 10s
         retries: 5
@@ -76,7 +75,7 @@ services:
     image: "saga-spring:0.0.3-SNAPSHOT"
     hostname: saga
     links:
-      - "mysql:mysql.servicecomb.io"
+      - "postgres:postgres.servicecomb.io"
       - "service-center:sc.servicecomb.io"
       - "car-rental-service:car.servicecomb.io"
       - "flight-booking-service:flight.servicecomb.io"
@@ -87,7 +86,7 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
 
   web:

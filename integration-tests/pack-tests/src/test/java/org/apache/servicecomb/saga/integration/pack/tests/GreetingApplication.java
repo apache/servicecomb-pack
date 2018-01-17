@@ -23,10 +23,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.servicecomb.saga.omega.spring.EnableOmega;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 
 @EnableOmega
 @SpringBootApplication
+@EntityScan(basePackages = "org.apache.servicecomb.saga.alpha")
 public class GreetingApplication {
   public static void main(String[] args) {
     SpringApplication.run(GreetingApplication.class, args);

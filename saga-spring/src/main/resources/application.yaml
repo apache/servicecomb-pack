@@ -19,16 +19,9 @@ spring:
   datasource:
     username: saga
     password: password
-    driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://mysql.servicecomb.io:3306/saga?useSSL=false
-    platform: mysql
-    continue-on-error: true
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL5Dialect
-    hibernate:
-      ddl-auto: none
+    url: jdbc:postgresql://postgres.servicecomb.io:5432/saga?useSSL=false
+    platform: postgresql
+#    continue-on-error: true
 
 saga:
   thread:

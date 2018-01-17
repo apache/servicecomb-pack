@@ -14,41 +14,5 @@
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
 ## ---------------------------------------------------------------------------
-
-version: '2.1'
-
-services:
-  service-center:
-      image: "servicecomb/service-center"
-      hostname: service-center
-      ports:
-        - "30100:30100"
-
-  postgres:
-    image: "postgres"
-    hostname: postgres
-    environment:
-      - POSTGRES_DB=saga
-      - POSTGRES_USER=saga
-      - POSTGRES_PASSWORD=password
-    ports:
-      - "5432:5432"
-    healthcheck:
-        test: ["CMD-SHELL", "nc -z localhost 5432 &> /dev/null; echo $$?"]
-        interval: 30s
-        timeout: 10s
-        retries: 5
-
-  saga:
-    image: "saga-spring:0.0.2-SNAPSHOT"
-    hostname: saga
-    links:
-      - "postgres:postgres.servicecomb.io"
-      - "service-center:sc.servicecomb.io"
-    environment:
-      - JAVA_OPTS=-Dspring.profiles.active=prd,servicecomb -Dcse.service.registry.address=http://sc.servicecomb.io:30100
-    ports:
-      - "8083:8080"
-    depends_on:
-      postgres:
-        condition: service_healthy
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  org.apache.servicecomb.saga.persistence.jpa.EclipseLinkJpaConfiguration

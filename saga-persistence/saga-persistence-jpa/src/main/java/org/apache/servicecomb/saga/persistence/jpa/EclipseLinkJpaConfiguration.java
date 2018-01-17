@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.server;
+package org.apache.servicecomb.saga.persistence.jpa;
 
 import java.util.Collections;
 import java.util.Map;
@@ -31,7 +31,7 @@ import org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter;
 import org.springframework.transaction.jta.JtaTransactionManager;
 
 @Configuration
-class EclipseLinkJpaConfiguration extends JpaBaseConfiguration {
+public class EclipseLinkJpaConfiguration extends JpaBaseConfiguration {
   EclipseLinkJpaConfiguration(DataSource dataSource,
       JpaProperties properties,
       ObjectProvider<JtaTransactionManager> jtaTransactionManagerProvider) {

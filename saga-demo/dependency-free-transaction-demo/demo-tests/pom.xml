@@ -82,26 +82,25 @@
               </run>
             </image>
             <image>
-              <name>mysql/mysql-server:5.7</name>
-              <alias>mysql</alias>
+              <name>postgres</name>
+              <alias>postgres</alias>
               <run>
                 <env>
-                  <MYSQL_ROOT_PASSWORD>password</MYSQL_ROOT_PASSWORD>
-                  <MYSQL_DATABASE>saga</MYSQL_DATABASE>
-                  <MYSQL_USER>saga</MYSQL_USER>
-                  <MYSQL_PASSWORD>password</MYSQL_PASSWORD>
+                  <POSTGRES_DB>saga</POSTGRES_DB>
+                  <POSTGRES_USER>saga</POSTGRES_USER>
+                  <POSTGRES_PASSWORD>password</POSTGRES_PASSWORD>
                 </env>
                 <wait>
-                  <log>Starting MySQL 5.7</log>
+                  <log>database system is ready to accept connections</log>
                   <tcp>
                     <ports>
-                      <port>3306</port>
+                      <port>5432</port>
                     </ports>
                   </tcp>
                   <time>60000</time>
                 </wait>
                 <ports>
-                  <port>mysql.port:3306</port>
+                  <port>postgres.port:5432</port>
                 </ports>
               </run>
             </image>
@@ -213,7 +212,7 @@
                 </env>
                 <links>
                   <link>service-center:sc.servicecomb.io</link>
-                  <link>mysql:mysql.servicecomb.io</link>
+                  <link>postgres:postgres.servicecomb.io</link>
                   <link>car:car.servicecomb.io</link>
                   <link>flight:flight.servicecomb.io</link>
                   <link>hotel:hotel.servicecomb.io</link>
@@ -232,7 +231,7 @@
                   <port>saga.port:8080</port>
                 </ports>
                 <dependsOn>
-                  <dependsOn>mysql</dependsOn>
+                  <dependsOn>postgres</dependsOn>
                 </dependsOn>
               </run>
             </image>
