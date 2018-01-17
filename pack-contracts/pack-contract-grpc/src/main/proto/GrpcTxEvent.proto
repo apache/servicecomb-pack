@@ -47,6 +47,8 @@ message GrpcTxEvent {
   string serviceName = 8;
   string instanceId = 9;
   int32 timeout = 10;
+  int32 retries = 11;
+  string retriesMethod = 12;
 }
 
 message GrpcCompensateCommand {

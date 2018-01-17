@@ -35,6 +35,16 @@ public class PushBackOmegaCallback implements OmegaCallback {
   }
 
   @Override
+  public void retries(TxEvent event) {
+    try {
+      underlying.compensate(event);
+    } catch (Exception e) {
+      logError(event, e);
+      pendingCompensations.offer(() -> compensate(event));
+    }
+  }
+
+  @Override
   public void compensate(TxEvent event) {
     try {
       underlying.compensate(event);
