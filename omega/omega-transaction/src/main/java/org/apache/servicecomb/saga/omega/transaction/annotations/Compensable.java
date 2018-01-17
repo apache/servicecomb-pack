@@ -25,6 +25,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Compensable {
+  int retries() default 0;
+
   String compensationMethod();
 
   int timeout() default 0;

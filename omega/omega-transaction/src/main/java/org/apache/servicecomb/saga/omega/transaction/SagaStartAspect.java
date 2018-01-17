@@ -52,7 +52,7 @@ public class SagaStartAspect {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
 
     TimeAwareInterceptor interceptor = new TimeAwareInterceptor(sagaStartAnnotationProcessor);
-    interceptor.preIntercept(context.globalTxId(), method.toString());
+    interceptor.preIntercept(context.globalTxId(), null, method.toString(), 0);
     LOG.debug("Initialized context {} before execution of method {}", context, method.toString());
 
     scheduleTimeoutTask(interceptor, method, sagaStart.timeout());
