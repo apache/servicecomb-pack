@@ -31,7 +31,7 @@ class SpringTxEventRepository implements TxEventRepository {
 
   @Override
   public void save(TxEvent event) {
-    eventRepo.save(new TxEventEnvelope(event));
+    eventRepo.save(event);
   }
 
   @Override
@@ -41,7 +41,7 @@ class SpringTxEventRepository implements TxEventRepository {
 
   @Override
   public TxEvent findFirstTransaction(String globalTxId, String localTxId, String type) {
-    return eventRepo.findFirstByEventGlobalTxIdAndEventLocalTxIdAndEventType(globalTxId, localTxId, type).event();
+    return eventRepo.findFirstByGlobalTxIdAndLocalTxIdAndType(globalTxId, localTxId, type);
   }
 
   @Override
