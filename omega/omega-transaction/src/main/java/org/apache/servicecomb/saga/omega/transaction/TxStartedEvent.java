@@ -22,7 +22,7 @@ import org.apache.servicecomb.saga.common.EventType;
 public class TxStartedEvent extends TxEvent {
 
   public TxStartedEvent(String globalTxId, String localTxId, String parentTxId,
-      String compensationMethod, int timeout, Object... payloads) {
-    super(EventType.TxStartedEvent, globalTxId, localTxId, parentTxId, compensationMethod, timeout, payloads);
+      String compensationMethod, int timeout, String retriesMethod, int retries, Object... payloads) {
+    super(EventType.TxStartedEvent, globalTxId, localTxId, parentTxId, compensationMethod, timeout, retriesMethod, retries, payloads);
   }
 }

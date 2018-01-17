@@ -29,9 +29,9 @@ class CompensableInterceptor implements EventAwareInterceptor {
   }
 
   @Override
-  public AlphaResponse preIntercept(String parentTxId, String compensationMethod, int timeout, Object... message) {
+  public AlphaResponse preIntercept(String parentTxId, String compensationMethod, int timeout, String retriesMethod, int retries, Object... message) {
     return sender.send(new TxStartedEvent(
-        context.globalTxId(), context.localTxId(), parentTxId, compensationMethod, timeout, message));
+        context.globalTxId(), context.localTxId(), parentTxId, compensationMethod, timeout, retriesMethod, retries, message));
   }
 
   @Override

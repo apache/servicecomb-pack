@@ -36,8 +36,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Compensable {
 
+  int retries() default 0;
+
   /**
-   * Compensation method name, should not be null.<br>
+   * Compensation method name.<br>
    * A compensation method should satisfy below requirements:
    * <ol>
    *   <li>has same parameter list as @Compensable method's</li>

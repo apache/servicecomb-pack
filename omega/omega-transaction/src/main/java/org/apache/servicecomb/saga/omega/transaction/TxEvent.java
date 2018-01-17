@@ -31,9 +31,11 @@ public class TxEvent {
   private final String compensationMethod;
   private final int timeout;
   private final Object[] payloads;
+  private final String retriesMethod;
+  private final int retries;
 
   public TxEvent(EventType type, String globalTxId, String localTxId, String parentTxId, String compensationMethod,
-      int timeout, Object... payloads) {
+      int timeout, String retriesMethod, int retries, Object... payloads) {
     this.timestamp = System.currentTimeMillis();
     this.type = type;
     this.localTxId = localTxId;
@@ -42,6 +44,8 @@ public class TxEvent {
     this.payloads = payloads;
     this.globalTxId = globalTxId;
     this.timeout = timeout;
+    this.retriesMethod = retriesMethod;
+    this.retries = retries;
   }
 
   public long timestamp() {
@@ -74,6 +78,14 @@ public class TxEvent {
 
   public int timeout() {
     return timeout;
+  }
+
+  public String retriesMethod() {
+    return retriesMethod;
+  }
+
+  public int retries() {
+    return retries;
   }
 
   @Override

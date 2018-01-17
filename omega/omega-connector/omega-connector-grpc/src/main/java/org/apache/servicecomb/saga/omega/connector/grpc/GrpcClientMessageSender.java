@@ -65,7 +65,8 @@ public class GrpcClientMessageSender implements MessageSender {
     this.blockingEventService = TxEventServiceGrpc.newBlockingStub(channel);
     this.serializer = serializer;
 
-    this.compensateStreamObserver = new GrpcCompensateStreamObserver(handler, errorHandlerFactory.apply(this), deserializer);
+    this.compensateStreamObserver =
+        new GrpcCompensateStreamObserver(handler, errorHandlerFactory.apply(this), deserializer);
     this.serviceConfig = serviceConfig(serviceConfig.serviceName(), serviceConfig.instanceId());
   }
 
@@ -103,6 +104,8 @@ public class GrpcClientMessageSender implements MessageSender {
         .setType(event.type().name())
         .setTimeout(event.timeout())
         .setCompensationMethod(event.compensationMethod())
+        .setRetries(event.retries())
+        .setRetriesMethod(event.retriesMethod() == null ? "" : event.retriesMethod())
         .setPayloads(payloads);
 
     return builder.build();
