@@ -98,7 +98,7 @@ public class LoadBalancedClusterMessageSenderTest {
   private final String parentTxId = uniquify("parentTxId");
   private final String compensationMethod = getClass().getCanonicalName();
   private final TxEvent event = new TxEvent(EventType.TxStartedEvent, globalTxId, localTxId, parentTxId,
-      compensationMethod, 0, "blah");
+      compensationMethod, 0, null, 0, "blah");
 
   private final String serviceName = uniquify("serviceName");
   private final String[] addresses = {"localhost:8080", "localhost:8090"};
@@ -189,7 +189,7 @@ public class LoadBalancedClusterMessageSenderTest {
     await().atMost(3, SECONDS).until(() -> compensated.contains(globalTxId));
   }
 
-  @Test (timeout = 1000)
+  @Test(timeout = 1000)
   public void stopSendingOnInterruption() throws Exception {
     MessageSender underlying = Mockito.mock(MessageSender.class);
     doThrow(RuntimeException.class).when(underlying).send(event);
@@ -300,7 +300,7 @@ public class LoadBalancedClusterMessageSenderTest {
   public void forwardSendResult() {
     assertThat(messageSender.send(event).aborted(), is(false));
 
-    TxEvent rejectEvent = new TxStartedEvent(globalTxId, localTxId, parentTxId, "reject", 0, "blah");
+    TxEvent rejectEvent = new TxStartedEvent(globalTxId, localTxId, parentTxId, "reject", 0, null, 0, "blah");
     assertThat(messageSender.send(rejectEvent).aborted(), is(true));
   }
 
@@ -357,6 +357,8 @@ public class LoadBalancedClusterMessageSenderTest {
           request.getLocalTxId(),
           request.getParentTxId(),
           request.getCompensationMethod(),
+          0,
+          null,
           0,
           new String(request.getPayloads().toByteArray())));
 

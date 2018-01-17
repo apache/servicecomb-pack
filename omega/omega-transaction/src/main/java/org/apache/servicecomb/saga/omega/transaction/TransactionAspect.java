@@ -49,12 +49,15 @@ public class TransactionAspect {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
     LOG.debug("Intercepting compensable method {} with context {}", method.toString(), context);
 
-    String signature = compensationMethodSignature(joinPoint, compensable, method);
+    Object[] args = joinPoint.getArgs();
+    int retries = compensable.retries();
+    String retriesSignature = ((MethodSignature) joinPoint.getSignature()).getMethod().toString();
+    String compensationSignature = compensationMethodSignature(joinPoint, compensable, method);
 
     String localTxId = context.localTxId();
     context.newLocalTxId();
 
-    AlphaResponse response = interceptor.preIntercept(localTxId, signature, compensable.timeout(), joinPoint.getArgs());
+    AlphaResponse response = interceptor.preIntercept(localTxId, compensationSignature, compensable.timeout(), retriesSignature, retries, args);
     if (response.aborted()) {
       String abortedLocalTxId = context.localTxId();
       context.setLocalTxId(localTxId);
@@ -65,11 +68,11 @@ public class TransactionAspect {
 
     try {
       Object result = joinPoint.proceed();
-      interceptor.postIntercept(localTxId, signature);
+      interceptor.postIntercept(localTxId, compensationSignature);
 
       return result;
     } catch (Throwable throwable) {
-      interceptor.onError(localTxId, signature, throwable);
+      interceptor.onError(localTxId, compensationSignature, throwable);
       throw throwable;
     } finally {
       context.setLocalTxId(localTxId);
