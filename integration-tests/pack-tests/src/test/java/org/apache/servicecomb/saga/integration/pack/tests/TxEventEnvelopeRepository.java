@@ -19,12 +19,13 @@ package org.apache.servicecomb.saga.integration.pack.tests;
 
 import java.util.List;
 
+import org.apache.servicecomb.saga.alpha.core.TxEvent;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
-interface TxEventEnvelopeRepository extends CrudRepository<TxEventEnvelope, Long> {
-  List<TxEventEnvelope> findByGlobalTxIdOrderByCreationTime(String globalTxId);
+interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
+  List<TxEvent> findByGlobalTxIdOrderByCreationTime(String globalTxId);
 
-  @Query("SELECT DISTINCT(e.globalTxId) from TxEventEnvelope e")
+  @Query("SELECT DISTINCT(e.globalTxId) from TxEvent e")
   List<String> findDistinctGlobalTxId();
 }

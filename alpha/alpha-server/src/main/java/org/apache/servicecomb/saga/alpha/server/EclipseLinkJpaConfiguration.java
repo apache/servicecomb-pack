@@ -31,8 +31,8 @@ import org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter;
 import org.springframework.transaction.jta.JtaTransactionManager;
 
 @Configuration
-class JpaBaseConfigurationImpl extends JpaBaseConfiguration {
-  JpaBaseConfigurationImpl(DataSource dataSource,
+class EclipseLinkJpaConfiguration extends JpaBaseConfiguration {
+  EclipseLinkJpaConfiguration(DataSource dataSource,
       JpaProperties properties,
       ObjectProvider<JtaTransactionManager> jtaTransactionManagerProvider) {
     super(dataSource, properties, jtaTransactionManagerProvider);

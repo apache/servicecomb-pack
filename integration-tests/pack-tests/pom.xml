@@ -45,6 +45,10 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.servicecomb.saga</groupId>
+      <artifactId>alpha-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>omega-spring-starter</artifactId>
     </dependency>
     <dependency>
@@ -79,12 +83,27 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.hibernate</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
+      <groupId>javax.persistence</groupId>
+      <artifactId>javax.persistence-api</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.persistence</groupId>
+      <artifactId>org.eclipse.persistence.jpa</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -114,26 +133,25 @@
             <configuration>
               <images>
                 <image>
-                  <name>mysql/mysql-server:5.7</name>
-                  <alias>mysql</alias>
+                  <name>postgres</name>
+                  <alias>postgres</alias>
                   <run>
                     <env>
-                      <MYSQL_ROOT_PASSWORD>password</MYSQL_ROOT_PASSWORD>
-                      <MYSQL_DATABASE>saga</MYSQL_DATABASE>
-                      <MYSQL_USER>saga</MYSQL_USER>
-                      <MYSQL_PASSWORD>password</MYSQL_PASSWORD>
+                      <POSTGRES_DB>saga</POSTGRES_DB>
+                      <POSTGRES_USER>saga</POSTGRES_USER>
+                      <POSTGRES_PASSWORD>password</POSTGRES_PASSWORD>
                     </env>
                     <wait>
-                      <log>Starting MySQL 5.7</log>
+                      <log>database system is ready to accept connections</log>
                       <tcp>
                         <ports>
-                          <port>3306</port>
+                          <port>5432</port>
                         </ports>
                       </tcp>
                       <time>60000</time>
                     </wait>
                     <ports>
-                      <port>mysql.port:3306</port>
+                      <port>postgres.port:5432</port>
                     </ports>
                   </run>
                 </image>
@@ -147,7 +165,7 @@
                       </JAVA_OPTS>
                     </env>
                     <links>
-                      <link>mysql:mysql.servicecomb.io</link>
+                      <link>postgres:postgresql.servicecomb.io</link>
                     </links>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
@@ -162,7 +180,7 @@
                       <port>alpha.port:8080</port>
                     </ports>
                     <dependsOn>
-                      <dependsOn>mysql</dependsOn>
+                      <dependsOn>postgres</dependsOn>
                     </dependsOn>
                   </run>
                 </image>
@@ -214,7 +232,7 @@
                   ${docker.hostname}:${alpha.port}
                 </alpha.cluster.address>
                 <spring.datasource.url>
-                  jdbc:mysql://${docker.hostname}:${mysql.port}/saga?useSSL=false
+                  jdbc:postgresql://${docker.hostname}:${postgres.port}/saga?useSSL=false
                 </spring.datasource.url>
               </systemPropertyVariables>
               <argLine>${jacoco.failsafe.argLine}</argLine>
@@ -227,6 +245,10 @@
                 </goals>
               </execution>
             </executions>
+          </plugin>
+          <plugin>
+            <groupId>com.ethlo.persistence.tools</groupId>
+            <artifactId>eclipselink-maven-plugin</artifactId>
           </plugin>
         </plugins>
       </build>
