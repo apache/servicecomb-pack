@@ -61,6 +61,7 @@
     <grpc.version>1.8.0</grpc.version>
     <kryo.version>4.0.1</kryo.version>
     <javax.transaction.version>1.2</javax.transaction.version>
+    <eclipse.link.version>2.7.1</eclipse.link.version>
   </properties>
 
   <name>ServiceComb Saga</name>
@@ -353,6 +354,16 @@
         <artifactId>javax.transaction-api</artifactId>
         <version>${javax.transaction.version}</version>
       </dependency>
+      <dependency>
+        <groupId>javax.persistence</groupId>
+        <artifactId>javax.persistence-api</artifactId>
+        <version>2.2</version>
+      </dependency>
+      <dependency>
+      <groupId>org.eclipse.persistence</groupId>
+      <artifactId>org.eclipse.persistence.jpa</artifactId>
+      <version>${eclipse.link.version}</version>
+    </dependency>
 
       <!-- test dependencies -->
       <dependency>
@@ -585,6 +596,26 @@
               </configuration>
             </execution>
           </executions>
+        </plugin>
+        <plugin>
+          <groupId>com.ethlo.persistence.tools</groupId>
+          <artifactId>eclipselink-maven-plugin</artifactId>
+          <version>2.7.0</version>
+          <executions>
+            <execution>
+              <phase>process-classes</phase>
+              <goals>
+                <goal>weave</goal>
+              </goals>
+            </execution>
+          </executions>
+          <dependencies>
+            <dependency>
+              <groupId>org.eclipse.persistence</groupId>
+              <artifactId>org.eclipse.persistence.jpa</artifactId>
+              <version>${eclipse.link.version}</version>
+            </dependency>
+          </dependencies>
         </plugin>
       </plugins>
     </pluginManagement>
