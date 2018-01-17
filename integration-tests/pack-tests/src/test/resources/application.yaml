@@ -18,10 +18,4 @@ spring:
   datasource:
     username: saga
     password: password
-    driver-class-name: com.mysql.jdbc.Driver
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL5Dialect
-    hibernate:
-      ddl-auto: none
+    driver-class-name: org.postgresql.Driver
