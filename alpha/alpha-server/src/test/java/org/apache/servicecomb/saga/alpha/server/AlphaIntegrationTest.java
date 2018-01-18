@@ -34,6 +34,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
@@ -55,6 +57,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.google.protobuf.ByteString;
@@ -65,7 +69,7 @@ import io.grpc.stub.StreamObserver;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {AlphaApplication.class, AlphaConfig.class},
-    properties = {"alpha.server.port=8090", "alpha.command.pollingInterval=300"})
+    properties = {"alpha.server.port=8090", "alpha.command.pollingInterval=1"})
 public class AlphaIntegrationTest {
   private static final int port = 8090;
 
@@ -412,5 +416,11 @@ public class AlphaIntegrationTest {
     boolean isCompleted() {
       return completed;
     }
+  }
+
+  @Primary
+  @Bean
+  ScheduledExecutorService scheduler() {
+    return Executors.newScheduledThreadPool(2);
   }
 }

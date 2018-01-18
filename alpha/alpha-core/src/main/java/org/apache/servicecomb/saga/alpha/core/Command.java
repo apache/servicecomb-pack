@@ -113,11 +113,11 @@ public class Command {
     return instanceId;
   }
 
-  String globalTxId() {
+  public String globalTxId() {
     return globalTxId;
   }
 
-  String localTxId() {
+  public String localTxId() {
     return localTxId;
   }
 

@@ -19,6 +19,7 @@ package org.apache.servicecomb.saga.alpha.server;
 
 import static org.apache.servicecomb.saga.alpha.core.CommandStatus.DONE;
 import static org.apache.servicecomb.saga.alpha.core.CommandStatus.NEW;
+import static org.apache.servicecomb.saga.alpha.core.CommandStatus.PENDING;
 import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
 
 import java.util.LinkedHashMap;
@@ -82,7 +83,15 @@ public class SpringCommandRepository implements CommandRepository {
 
   @Override
   public List<Command> findFirstCommandToCompensate() {
-    return commandRepository
+    List<Command> commands = commandRepository
         .findFirstGroupByGlobalTxIdOrderByIdDesc(SINGLE_COMMAND_REQUEST);
+
+    commands.forEach(command ->
+        commandRepository.updateStatusByGlobalTxIdAndLocalTxId(
+            PENDING.name(),
+            command.globalTxId(),
+            command.localTxId()));
+
+    return commands;
   }
 }
