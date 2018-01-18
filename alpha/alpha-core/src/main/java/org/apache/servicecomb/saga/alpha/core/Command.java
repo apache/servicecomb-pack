@@ -19,7 +19,18 @@ package org.apache.servicecomb.saga.alpha.core;
 
 import static org.apache.servicecomb.saga.alpha.core.CommandStatus.NEW;
 
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Version;
+
+@Entity
 public class Command {
+
+  @Id
+  private Long surrogateId;
+
   private String serviceName;
   private String instanceId;
   private String globalTxId;
@@ -28,6 +39,11 @@ public class Command {
   private String compensationMethod;
   private byte[] payloads;
   private String status;
+
+  private Date lastModified;
+
+  @Version
+  private int version;
 
   Command() {
   }
@@ -49,6 +65,7 @@ public class Command {
     this.compensationMethod = compensationMethod;
     this.payloads = payloads;
     this.status = status;
+    this.lastModified = new Date();
   }
 
   Command(String serviceName,

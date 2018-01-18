@@ -41,7 +41,7 @@ class SpringTxEventRepository implements TxEventRepository {
 
   @Override
   public TxEvent findFirstTransaction(String globalTxId, String localTxId, String type) {
-    return eventRepo.findFirstByGlobalTxIdAndLocalTxIdAndType(globalTxId, localTxId, type);
+    return eventRepo.findFirstByGlobalTxIdAndLocalTxIdAndTypeOrderBySurrogateIdAsc(globalTxId, localTxId, type);
   }
 
   @Override
