@@ -52,15 +52,25 @@ public class TxConsistentService {
   }};
 
   private final ExecutorService executor = Executors.newSingleThreadExecutor();
-  private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+  private final ScheduledExecutorService scheduler;
 
   public TxConsistentService(TxEventRepository eventRepository,
       CommandRepository commandRepository,
       OmegaCallback omegaCallback,
       int commandPollingInterval) {
+
+    this(eventRepository, commandRepository, omegaCallback, commandPollingInterval, Executors.newSingleThreadScheduledExecutor());
+  }
+
+  public TxConsistentService(TxEventRepository eventRepository,
+      CommandRepository commandRepository,
+      OmegaCallback omegaCallback,
+      int commandPollingInterval,
+      ScheduledExecutorService scheduler) {
     this.eventRepository = eventRepository;
     this.commandRepository = commandRepository;
     this.omegaCallback = omegaCallback;
+    this.scheduler = scheduler;
 
     scheduleCompensationCommandPolling(commandPollingInterval);
   }

@@ -20,7 +20,9 @@ package org.apache.servicecomb.saga.alpha.server;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.PostConstruct;
 
@@ -65,8 +67,14 @@ class AlphaConfig {
   }
 
   @Bean
+  ScheduledExecutorService compensationScheduler() {
+    return Executors.newSingleThreadScheduledExecutor();
+  }
+
+  @Bean
   TxConsistentService txConsistentService(@Value("${alpha.server.port:8080}") int port,
       @Value("${alpha.command.pollingInterval:3000}") int commandPollingInterval,
+      ScheduledExecutorService scheduler,
       TxEventRepository eventRepository,
       CommandRepository commandRepository,
       OmegaCallback omegaCallback,
@@ -76,7 +84,8 @@ class AlphaConfig {
         eventRepository,
         commandRepository,
         omegaCallback,
-        commandPollingInterval);
+        commandPollingInterval,
+        scheduler);
 
     ServerStartable startable = buildGrpc(port, consistentService, omegaCallbacks);
     new Thread(startable::start).start();

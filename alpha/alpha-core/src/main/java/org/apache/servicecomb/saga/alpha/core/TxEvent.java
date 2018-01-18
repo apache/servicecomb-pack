@@ -65,7 +65,34 @@ public class TxEvent {
       String type,
       String compensationMethod,
       byte[] payloads) {
-    this.surrogateId = -1L;
+    this(-1L, serviceName, instanceId, creationTime, globalTxId, localTxId, parentTxId, type, compensationMethod, payloads);
+  }
+
+  public TxEvent(
+      long id,
+      String serviceName,
+      String instanceId,
+      String globalTxId,
+      String localTxId,
+      String parentTxId,
+      String type,
+      String compensationMethod,
+      byte[] payloads) {
+    this(id, serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type, compensationMethod, payloads);
+  }
+
+  TxEvent(Long surrogateId,
+      String serviceName,
+      String instanceId,
+      Date creationTime,
+      String globalTxId,
+      String localTxId,
+      String parentTxId,
+      String type,
+      String compensationMethod,
+      byte[] payloads) {
+
+    this.surrogateId = surrogateId;
     this.serviceName = serviceName;
     this.instanceId = instanceId;
     this.creationTime = creationTime;
@@ -120,7 +147,8 @@ public class TxEvent {
   @Override
   public String toString() {
     return "TxEvent{" +
-        "serviceName='" + serviceName + '\'' +
+        "surrogateId=" + surrogateId +
+        ", serviceName='" + serviceName + '\'' +
         ", instanceId='" + instanceId + '\'' +
         ", creationTime=" + creationTime +
         ", globalTxId='" + globalTxId + '\'' +

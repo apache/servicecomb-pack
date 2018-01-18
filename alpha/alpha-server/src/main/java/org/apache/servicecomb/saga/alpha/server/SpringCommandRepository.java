@@ -21,7 +21,7 @@ import static org.apache.servicecomb.saga.alpha.core.CommandStatus.DONE;
 import static org.apache.servicecomb.saga.alpha.core.CommandStatus.NEW;
 import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -61,7 +61,7 @@ public class SpringCommandRepository implements CommandRepository {
     List<TxEvent> events = eventRepository
         .findStartedEventEnvelopesWithMatchingEndedButNotCompensatedEvents(globalTxId);
 
-    Map<String, Command> commands = new HashMap<>();
+    Map<String, Command> commands = new LinkedHashMap<>();
 
     for (TxEvent event : events) {
       commands.computeIfAbsent(event.localTxId(), k -> new Command(event));

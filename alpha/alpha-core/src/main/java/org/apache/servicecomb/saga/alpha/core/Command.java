@@ -48,7 +48,8 @@ public class Command {
   Command() {
   }
 
-  Command(String serviceName,
+  Command(long id,
+      String serviceName,
       String instanceId,
       String globalTxId,
       String localTxId,
@@ -57,6 +58,7 @@ public class Command {
       byte[] payloads,
       String status) {
 
+    this.surrogateId = id;
     this.serviceName = serviceName;
     this.instanceId = instanceId;
     this.globalTxId = globalTxId;
@@ -68,7 +70,8 @@ public class Command {
     this.lastModified = new Date();
   }
 
-  Command(String serviceName,
+  Command(long id,
+      String serviceName,
       String instanceId,
       String globalTxId,
       String localTxId,
@@ -76,11 +79,12 @@ public class Command {
       String compensationMethod,
       byte[] payloads) {
 
-    this(serviceName, instanceId, globalTxId, localTxId, parentTxId, compensationMethod, payloads, NEW.name());
+    this(id, serviceName, instanceId, globalTxId, localTxId, parentTxId, compensationMethod, payloads, NEW.name());
   }
 
   Command(Command command, CommandStatus status) {
-    this(command.serviceName,
+    this(command.surrogateId,
+        command.serviceName,
         command.instanceId,
         command.globalTxId,
         command.localTxId,
@@ -91,7 +95,8 @@ public class Command {
   }
 
   public Command(TxEvent event) {
-    this(event.serviceName(),
+    this(event.id(),
+        event.serviceName(),
         event.instanceId(),
         event.globalTxId(),
         event.localTxId(),
@@ -130,5 +135,22 @@ public class Command {
 
   String status() {
     return status;
+  }
+
+  long id() {
+    return surrogateId;
+  }
+
+  @Override
+  public String toString() {
+    return "Command{" +
+        "surrogateId=" + surrogateId +
+        ", serviceName='" + serviceName + '\'' +
+        ", instanceId='" + instanceId + '\'' +
+        ", globalTxId='" + globalTxId + '\'' +
+        ", localTxId='" + localTxId + '\'' +
+        ", parentTxId='" + parentTxId + '\'' +
+        ", compensationMethod='" + compensationMethod + '\'' +
+        '}';
   }
 }
