@@ -45,9 +45,10 @@ public interface CommandEntityRepository extends CrudRepository<Command, Long> {
 
   List<Command> findByGlobalTxIdAndStatus(String globalTxId, String status);
 
+  // TODO: 2018/1/18 we assumed compensation will never fail. if all service instances are not reachable, we have to set up retry mechanism for pending commands
   @Query("SELECT c FROM Command c "
       + "WHERE c.surrogateId IN ("
-      + " SELECT MAX(c1.surrogateId) FROM Command c1 WHERE c1.status <> 'DONE' GROUP BY c1.globalTxId"
+      + " SELECT MAX(c1.surrogateId) FROM Command c1 WHERE c1.status = 'NEW' GROUP BY c1.globalTxId"
       + ") "
       + "ORDER BY c.surrogateId ASC")
   List<Command> findFirstGroupByGlobalTxIdOrderByIdDesc(Pageable pageable);
