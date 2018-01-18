@@ -32,7 +32,7 @@ interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
       + "WHERE t.globalTxId = ?1 AND t.type = ?2")
   List<TxEvent> findByEventGlobalTxIdAndEventType(String globalTxId, String type);
 
-  TxEvent findFirstByGlobalTxIdAndLocalTxIdAndType(String globalTxId, String localTxId, String type);
+  TxEvent findFirstByGlobalTxIdAndLocalTxIdAndTypeOrderBySurrogateIdAsc(String globalTxId, String localTxId, String type);
 
   @Query("SELECT DISTINCT new org.apache.servicecomb.saga.alpha.core.TxEvent("
       + "t.serviceName, t.instanceId, t.globalTxId, t.localTxId, t.parentTxId, t.type, t.compensationMethod, t.payloads"
@@ -49,21 +49,26 @@ interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
       + "  FROM TxEvent t2 "
       + "  WHERE t2.globalTxId = ?1 "
       + "  AND t2.localTxId = t.localTxId "
-      + "  AND t2.type = 'TxCompensatedEvent')"
+      + "  AND t2.type = 'TxCompensatedEvent') "
+      + "ORDER BY t.surrogateId ASC"
  )
   List<TxEvent> findStartedEventsWithMatchingEndedButNotCompensatedEvents(String globalTxId);
 
-  @Query("FROM TxEventEnvelope t "
-      + "WHERE t.event.globalTxId = ?1 AND t.event.type = 'TxStartedEvent' AND EXISTS ( "
-      + "  FROM TxEventEnvelope t1 "
-      + "  WHERE t1.event.globalTxId = ?1 "
-      + "  AND t1.event.localTxId = t.event.localTxId "
-      + "  AND t1.event.type = 'TxEndedEvent'"
+  @Query("SELECT DISTINCT new org.apache.servicecomb.saga.alpha.core.TxEvent("
+      + "t.serviceName, t.instanceId, t.globalTxId, t.localTxId, t.parentTxId, t.type, t.compensationMethod, t.payloads"
+      + ") FROM TxEvent t "
+      + "WHERE t.globalTxId = ?1 AND t.type = 'TxStartedEvent' AND EXISTS ( "
+      + "  SELECT t1.globalTxId"
+      + "  FROM TxEvent t1 "
+      + "  WHERE t1.globalTxId = ?1 "
+      + "  AND t1.localTxId = t.localTxId "
+      + "  AND t1.type = 'TxEndedEvent'"
       + ") AND NOT EXISTS ( "
-      + "  FROM TxEventEnvelope t2 "
-      + "  WHERE t2.event.globalTxId = ?1 "
-      + "  AND t2.event.localTxId = t.event.localTxId "
-      + "  AND t2.event.type = 'TxCompensatedEvent')"
-      + "ORDER BY t.id ASC ")
-  List<TxEventEnvelope> findStartedEventEnvelopesWithMatchingEndedButNotCompensatedEvents(String globalTxId);
+      + "  SELECT t2.globalTxId"
+      + "  FROM TxEvent t2 "
+      + "  WHERE t2.globalTxId = ?1 "
+      + "  AND t2.localTxId = t.localTxId "
+      + "  AND t2.type = 'TxCompensatedEvent') "
+      + "ORDER BY t.surrogateId ASC")
+  List<TxEvent> findStartedEventEnvelopesWithMatchingEndedButNotCompensatedEvents(String globalTxId);
 }

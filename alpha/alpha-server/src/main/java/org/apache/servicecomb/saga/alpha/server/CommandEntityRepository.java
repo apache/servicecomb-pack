@@ -22,32 +22,33 @@ import java.util.Optional;
 
 import javax.transaction.Transactional;
 
+import org.apache.servicecomb.saga.alpha.core.Command;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
-public interface CommandEntityRepository extends CrudRepository<CommandEntity, Long> {
-  Optional<CommandEntity> findByCommandGlobalTxIdAndCommandLocalTxId(String globalTxId, String localTxId);
+public interface CommandEntityRepository extends CrudRepository<Command, Long> {
+  Optional<Command> findByGlobalTxIdAndLocalTxId(String globalTxId, String localTxId);
 
   @Transactional
   @Modifying
-  @Query("UPDATE org.apache.servicecomb.saga.alpha.server.CommandEntity c "
-      + "SET c.command.status = :status "
-      + "WHERE c.command.globalTxId = :globalTxId "
-      + "AND c.command.localTxId = :localTxId")
+  @Query("UPDATE org.apache.servicecomb.saga.alpha.core.Command c "
+      + "SET c.status = :status "
+      + "WHERE c.globalTxId = :globalTxId "
+      + "AND c.localTxId = :localTxId")
   void updateStatusByGlobalTxIdAndLocalTxId(
       @Param("status") String status,
       @Param("globalTxId") String globalTxId,
       @Param("localTxId") String localTxId);
 
-  List<CommandEntity> findByCommandGlobalTxIdAndCommandStatus(String globalTxId, String status);
+  List<Command> findByGlobalTxIdAndStatus(String globalTxId, String status);
 
-  @Query("FROM CommandEntity c "
-      + "WHERE id IN ("
-      + " SELECT MAX(id) FROM CommandEntity c1 WHERE c1.command.status <> 'DONE' GROUP BY c1.command.globalTxId"
+  @Query("SELECT c FROM Command c "
+      + "WHERE c.surrogateId IN ("
+      + " SELECT MAX(c1.surrogateId) FROM Command c1 WHERE c1.status <> 'DONE' GROUP BY c1.globalTxId"
       + ") "
-      + "ORDER BY c.id ASC")
-  List<CommandEntity> findFirstGroupByCommandGlobalTxIdOrderByIdDesc(Pageable pageable);
+      + "ORDER BY c.surrogateId ASC")
+  List<Command> findFirstGroupByGlobalTxIdOrderByIdDesc(Pageable pageable);
 }

@@ -65,6 +65,7 @@ public class TxEvent {
       String type,
       String compensationMethod,
       byte[] payloads) {
+    this.surrogateId = -1L;
     this.serviceName = serviceName;
     this.instanceId = instanceId;
     this.creationTime = creationTime;
@@ -110,6 +111,10 @@ public class TxEvent {
 
   public byte[] payloads() {
     return payloads;
+  }
+
+  public long id() {
+    return surrogateId;
   }
 
   @Override

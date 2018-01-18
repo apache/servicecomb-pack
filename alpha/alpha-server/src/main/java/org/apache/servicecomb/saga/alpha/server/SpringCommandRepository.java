@@ -24,10 +24,10 @@ import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.servicecomb.saga.alpha.core.Command;
 import org.apache.servicecomb.saga.alpha.core.CommandRepository;
+import org.apache.servicecomb.saga.alpha.core.TxEvent;
 import org.springframework.data.domain.PageRequest;
 
 public class SpringCommandRepository implements CommandRepository {
@@ -43,28 +43,28 @@ public class SpringCommandRepository implements CommandRepository {
 
   @Override
   public boolean exists(String globalTxId, String localTxId) {
-    return commandRepository.findByCommandGlobalTxIdAndCommandLocalTxId(globalTxId, localTxId).isPresent();
+    return commandRepository.findByGlobalTxIdAndLocalTxId(globalTxId, localTxId).isPresent();
   }
 
   @Override
   public void saveCompensationCommand(String globalTxId, String localTxId) {
-    TxEventEnvelope startedEvent = eventRepository.findFirstByEventGlobalTxIdAndEventLocalTxIdAndEventTypeOrderByIdAsc(
+    TxEvent startedEvent = eventRepository.findFirstByGlobalTxIdAndLocalTxIdAndTypeOrderBySurrogateIdAsc(
         globalTxId,
         localTxId,
         TxStartedEvent.name());
 
-    commandRepository.save(new CommandEntity(startedEvent.id(), startedEvent.event()));
+    commandRepository.save(new Command(startedEvent));
   }
 
   @Override
   public void saveCompensationCommands(String globalTxId) {
-    List<TxEventEnvelope> events = eventRepository
+    List<TxEvent> events = eventRepository
         .findStartedEventEnvelopesWithMatchingEndedButNotCompensatedEvents(globalTxId);
 
-    Map<String, CommandEntity> commands = new HashMap<>();
+    Map<String, Command> commands = new HashMap<>();
 
-    for (TxEventEnvelope event : events) {
-      commands.computeIfAbsent(event.localTxId(), k -> new CommandEntity(event.id(), event.event()));
+    for (TxEvent event : events) {
+      commands.computeIfAbsent(event.localTxId(), k -> new Command(event));
     }
 
     commandRepository.save(commands.values());
@@ -77,18 +77,12 @@ public class SpringCommandRepository implements CommandRepository {
 
   @Override
   public List<Command> findUncompletedCommands(String globalTxId) {
-    return commandRepository.findByCommandGlobalTxIdAndCommandStatus(globalTxId, NEW.name())
-        .stream()
-        .map(CommandEntity::command)
-        .collect(Collectors.toList());
+    return commandRepository.findByGlobalTxIdAndStatus(globalTxId, NEW.name());
   }
 
   @Override
   public List<Command> findFirstCommandToCompensate() {
     return commandRepository
-        .findFirstGroupByCommandGlobalTxIdOrderByIdDesc(SINGLE_COMMAND_REQUEST)
-        .stream()
-        .map(CommandEntity::command)
-        .collect(Collectors.toList());
+        .findFirstGroupByGlobalTxIdOrderByIdDesc(SINGLE_COMMAND_REQUEST);
   }
 }
