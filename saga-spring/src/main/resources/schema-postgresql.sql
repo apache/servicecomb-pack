@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS SagaEventEntity (
   sagaId varchar(36) NOT NULL,
   creationTime timestamp(6) NOT NULL DEFAULT CURRENT_DATE,
   type varchar(50) NOT NULL,
-  contentJson JSON NOT NULL
+  contentJson TEXT NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS running_sagas_index ON SagaEventEntity (sagaId, type);
