@@ -18,7 +18,6 @@
 package org.apache.servicecomb.saga.alpha.server;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.transaction.Transactional;
 
@@ -30,10 +29,9 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 public interface CommandEntityRepository extends CrudRepository<Command, Long> {
-  Optional<Command> findByGlobalTxIdAndLocalTxId(String globalTxId, String localTxId);
 
   @Transactional
-  @Modifying
+  @Modifying(clearAutomatically = true)
   @Query("UPDATE org.apache.servicecomb.saga.alpha.core.Command c "
       + "SET c.status = :status "
       + "WHERE c.globalTxId = :globalTxId "
@@ -47,9 +45,9 @@ public interface CommandEntityRepository extends CrudRepository<Command, Long> {
 
   // TODO: 2018/1/18 we assumed compensation will never fail. if all service instances are not reachable, we have to set up retry mechanism for pending commands
   @Query("SELECT c FROM Command c "
-      + "WHERE c.surrogateId IN ("
-      + " SELECT MAX(c1.surrogateId) FROM Command c1 WHERE c1.status = 'NEW' GROUP BY c1.globalTxId"
+      + "WHERE c.eventId IN ("
+      + " SELECT MAX(c1.eventId) FROM Command c1 WHERE c1.status = 'NEW' GROUP BY c1.globalTxId"
       + ") "
-      + "ORDER BY c.surrogateId ASC")
+      + "ORDER BY c.eventId ASC")
   List<Command> findFirstGroupByGlobalTxIdOrderByIdDesc(Pageable pageable);
 }

@@ -11,4 +11,22 @@ CREATE TABLE IF NOT EXISTS TxEvent (
   payloads bytea
 );
 
-CREATE INDEX IF NOT EXISTS running_sagas_index ON TxEvent (globalTxId, localTxId, type);
+CREATE INDEX IF NOT EXISTS saga_events_index ON TxEvent (surrogateId, globalTxId, localTxId, type);
+
+
+CREATE TABLE IF NOT EXISTS Command (
+  surrogateId BIGSERIAL PRIMARY KEY,
+  eventId bigint NOT NULL UNIQUE,
+  serviceName varchar(16) NOT NULL,
+  instanceId varchar(36) NOT NULL,
+  globalTxId varchar(36) NOT NULL,
+  localTxId varchar(36) NOT NULL,
+  parentTxId varchar(36) DEFAULT NULL,
+  compensationMethod varchar(256) NOT NULL,
+  payloads bytea,
+  status varchar(12),
+  lastModified timestamp(6) NOT NULL DEFAULT CURRENT_DATE,
+  version bigint NOT NULL,
+);
+
+CREATE INDEX IF NOT EXISTS saga_commands_index ON Command (surrogateId, eventId, globalTxId, localTxId, type, status);

@@ -81,8 +81,7 @@ public class EventScanner implements Runnable {
         .forEach(event -> {
           log.info("Found uncompensated event {}", event);
           nextEndedEventId = event.id();
-          commandRepository.saveCompensationCommands(event.globalTxId())
-              .forEach(command -> nextEndedEventId = command.id());
+          commandRepository.saveCompensationCommands(event.globalTxId());
         });
   }
 
@@ -130,17 +129,21 @@ public class EventScanner implements Runnable {
 
   private void pollCompensationCommand(int commandPollingInterval) {
     scheduler.scheduleWithFixedDelay(
-        () -> commandRepository.findFirstCommandToCompensate()
-            .forEach(command -> {
-              log.info("Compensating transaction with globalTxId {} and localTxId {}",
-                  command.globalTxId(),
-                  command.localTxId());
-
-              omegaCallback.compensate(txStartedEventOf(command));
-            }),
+        this::compensate,
         0,
         commandPollingInterval,
         MILLISECONDS);
+  }
+
+  private void compensate() {
+    commandRepository.findFirstCommandToCompensate()
+        .forEach(command -> {
+          log.info("Compensating transaction with globalTxId {} and localTxId {}",
+              command.globalTxId(),
+              command.localTxId());
+
+          omegaCallback.compensate(txStartedEventOf(command));
+        });
   }
 
   private TxEvent txStartedEventOf(Command command) {
