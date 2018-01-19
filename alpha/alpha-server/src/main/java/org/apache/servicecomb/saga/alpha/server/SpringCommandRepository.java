@@ -26,6 +26,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.transaction.Transactional;
+
 import org.apache.servicecomb.saga.alpha.core.Command;
 import org.apache.servicecomb.saga.alpha.core.CommandRepository;
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
@@ -56,13 +58,15 @@ public class SpringCommandRepository implements CommandRepository {
       commands.computeIfAbsent(event.localTxId(), k -> new Command(event));
     }
 
-    log.info("Saving compensation commands {}", commands.values());
-    try {
-      commandRepository.save(commands.values());
-    } catch (Exception e) {
-      log.warn("Failed to save some commands", e);
+    for (Command command : commands.values()) {
+      log.info("Saving compensation command {}", command);
+      try {
+        commandRepository.save(command);
+      } catch (Exception e) {
+        log.warn("Failed to save some command {}", command);
+      }
+      log.info("Saved compensation command {}", command);
     }
-    log.info("Saved compensation commands {}", commands.values());
   }
 
   @Override
@@ -75,6 +79,7 @@ public class SpringCommandRepository implements CommandRepository {
     return commandRepository.findByGlobalTxIdAndStatus(globalTxId, NEW.name());
   }
 
+  @Transactional
   @Override
   public List<Command> findFirstCommandToCompensate() {
     List<Command> commands = commandRepository

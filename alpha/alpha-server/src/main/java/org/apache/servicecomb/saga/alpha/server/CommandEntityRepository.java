@@ -19,10 +19,12 @@ package org.apache.servicecomb.saga.alpha.server;
 
 import java.util.List;
 
+import javax.persistence.LockModeType;
 import javax.transaction.Transactional;
 
 import org.apache.servicecomb.saga.alpha.core.Command;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -44,6 +46,7 @@ public interface CommandEntityRepository extends CrudRepository<Command, Long> {
   List<Command> findByGlobalTxIdAndStatus(String globalTxId, String status);
 
   // TODO: 2018/1/18 we assumed compensation will never fail. if all service instances are not reachable, we have to set up retry mechanism for pending commands
+  @Lock(LockModeType.OPTIMISTIC)
   @Query("SELECT c FROM Command c "
       + "WHERE c.eventId IN ("
       + " SELECT MAX(c1.eventId) FROM Command c1 WHERE c1.status = 'NEW' GROUP BY c1.globalTxId"

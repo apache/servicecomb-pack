@@ -28,4 +28,6 @@ public interface TxEventRepository {
   List<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id, String type);
 
   Optional<TxEvent> findFirstCompensatedEventByIdGreaterThan(long id, String type);
+
+  void deleteDuplicateEvents(String type);
 }

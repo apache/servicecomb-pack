@@ -20,8 +20,11 @@ package org.apache.servicecomb.saga.alpha.server;
 import java.util.List;
 import java.util.Optional;
 
+import javax.transaction.Transactional;
+
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
@@ -51,7 +54,7 @@ interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
   List<TxEvent> findStartedEventsWithMatchingEndedButNotCompensatedEvents(String globalTxId);
 
   @Query("SELECT t FROM TxEvent t "
-      + "WHERE t.type = 'TxEndedEvent' AND t.surrogateId > ?2 AND EXISTS ( "
+      + "WHERE t.type = ?1 AND t.surrogateId > ?2 AND EXISTS ( "
       + "  SELECT t1.globalTxId"
       + "  FROM TxEvent t1 "
       + "  WHERE t1.globalTxId = t.globalTxId "
@@ -59,11 +62,21 @@ interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
       + ") AND NOT EXISTS ( "
       + "  SELECT t2.globalTxId"
       + "  FROM TxEvent t2 "
-      + "  WHERE t2.globalTxId = ?1 "
+      + "  WHERE t2.globalTxId = t.globalTxId "
       + "  AND t2.localTxId = t.localTxId "
       + "  AND t2.type = 'TxCompensatedEvent') "
       + "ORDER BY t.surrogateId ASC")
   List<TxEvent> findFirstByTypeAndSurrogateIdGreaterThan(String type, long surrogateId, Pageable pageable);
 
   Optional<TxEvent> findFirstByTypeAndSurrogateIdGreaterThan(String type, long surrogateId);
+
+  @Transactional
+  @Modifying(clearAutomatically = true)
+  @Query("DELETE FROM TxEvent t "
+      + "WHERE t.type = ?1 AND t.surrogateId NOT IN ("
+      + " SELECT MAX(t1.surrogateId) FROM TxEvent t1 "
+      + " WHERE t1.type = ?1"
+      + " GROUP BY t1.globalTxId"
+      + ")")
+  void deleteByType(String type);
 }

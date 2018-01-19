@@ -38,7 +38,6 @@ public class EventScanner implements Runnable {
   private final TxEventRepository eventRepository;
   private final CommandRepository commandRepository;
   private final OmegaCallback omegaCallback;
-  private final int commandPollingInterval;
   private final int eventPollingInterval;
 
   private long nextEndedEventId;
@@ -48,20 +47,17 @@ public class EventScanner implements Runnable {
       TxEventRepository eventRepository,
       CommandRepository commandRepository,
       OmegaCallback omegaCallback,
-      int commandPollingInterval,
       int eventPollingInterval) {
 
     this.scheduler = scheduler;
     this.eventRepository = eventRepository;
     this.commandRepository = commandRepository;
     this.omegaCallback = omegaCallback;
-    this.commandPollingInterval = commandPollingInterval;
     this.eventPollingInterval = eventPollingInterval;
   }
 
   @Override
   public void run() {
-    pollCompensationCommand(commandPollingInterval);
     pollEvents();
   }
 
@@ -69,7 +65,9 @@ public class EventScanner implements Runnable {
     scheduler.scheduleWithFixedDelay(
         () -> {
           saveUncompensatedEventsToCommands();
+          compensate();
           updateCompensatedCommands();
+          deleteDuplicateSagaEndedEvents();
         },
         0,
         eventPollingInterval,
@@ -94,6 +92,14 @@ public class EventScanner implements Runnable {
         });
   }
 
+  private void deleteDuplicateSagaEndedEvents() {
+    try {
+      eventRepository.deleteDuplicateEvents(SagaEndedEvent.name());
+    } catch (Exception e) {
+      log.warn("Failed to delete duplicate SagaEndedEvent", e);
+    }
+  }
+
   // TODO: 2018/1/13 SagaEndedEvent may still not be the last, because some omegas may have slow network and its TxEndedEvent reached late,
   // unless we ask user to specify a name for each participant in the global TX in @Compensable
   private void updateCompensationStatus(TxEvent event) {
@@ -102,9 +108,11 @@ public class EventScanner implements Runnable {
         event.globalTxId(),
         event.localTxId());
 
-    if (eventRepository.findTransactions(event.globalTxId(), SagaEndedEvent.name()).isEmpty()
-        && commandRepository.findUncompletedCommands(event.globalTxId()).isEmpty()) {
+    markSagaEnded(event);
+  }
 
+  private void markSagaEnded(TxEvent event) {
+    if (commandRepository.findUncompletedCommands(event.globalTxId()).isEmpty()) {
       markGlobalTxEnd(event);
     }
   }
@@ -125,14 +133,6 @@ public class EventScanner implements Runnable {
         SagaEndedEvent.name(),
         "",
         EMPTY_PAYLOAD);
-  }
-
-  private void pollCompensationCommand(int commandPollingInterval) {
-    scheduler.scheduleWithFixedDelay(
-        this::compensate,
-        0,
-        commandPollingInterval,
-        MILLISECONDS);
   }
 
   private void compensate() {

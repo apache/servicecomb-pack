@@ -64,6 +64,10 @@ public class TxConsistentServiceTest {
     public Optional<TxEvent> findFirstCompensatedEventByIdGreaterThan(long id, String type) {
       return Optional.empty();
     }
+
+    @Override
+    public void deleteDuplicateEvents(String type) {
+    }
   };
 
   private final String globalTxId = UUID.randomUUID().toString();
