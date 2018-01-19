@@ -28,6 +28,7 @@ import javax.annotation.PostConstruct;
 
 import org.apache.servicecomb.saga.alpha.core.CommandRepository;
 import org.apache.servicecomb.saga.alpha.core.CompositeOmegaCallback;
+import org.apache.servicecomb.saga.alpha.core.EventScanner;
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.PendingTaskRunner;
 import org.apache.servicecomb.saga.alpha.core.PushBackOmegaCallback;
@@ -68,24 +69,27 @@ class AlphaConfig {
 
   @Bean
   ScheduledExecutorService compensationScheduler() {
-    return Executors.newSingleThreadScheduledExecutor();
+    return Executors.newScheduledThreadPool(2);
   }
 
   @Bean
   TxConsistentService txConsistentService(@Value("${alpha.server.port:8080}") int port,
-      @Value("${alpha.command.pollingInterval:3000}") int commandPollingInterval,
+      @Value("${alpha.command.pollingInterval:500}") int commandPollingInterval,
+      @Value("${alpha.event.pollingInterval:500}") int eventPollingInterval,
       ScheduledExecutorService scheduler,
       TxEventRepository eventRepository,
       CommandRepository commandRepository,
       OmegaCallback omegaCallback,
       Map<String, Map<String, OmegaCallback>> omegaCallbacks) {
 
-    TxConsistentService consistentService = new TxConsistentService(
+    new EventScanner(scheduler,
         eventRepository,
         commandRepository,
         omegaCallback,
         commandPollingInterval,
-        scheduler);
+        eventPollingInterval).run();
+
+    TxConsistentService consistentService = new TxConsistentService(eventRepository);
 
     ServerStartable startable = buildGrpc(port, consistentService, omegaCallbacks);
     new Thread(startable::start).start();

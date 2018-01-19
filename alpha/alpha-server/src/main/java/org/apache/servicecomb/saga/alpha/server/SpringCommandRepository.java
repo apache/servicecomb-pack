@@ -20,8 +20,8 @@ package org.apache.servicecomb.saga.alpha.server;
 import static org.apache.servicecomb.saga.alpha.core.CommandStatus.DONE;
 import static org.apache.servicecomb.saga.alpha.core.CommandStatus.NEW;
 import static org.apache.servicecomb.saga.alpha.core.CommandStatus.PENDING;
-import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
 
+import java.lang.invoke.MethodHandles;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +29,12 @@ import java.util.Map;
 import org.apache.servicecomb.saga.alpha.core.Command;
 import org.apache.servicecomb.saga.alpha.core.CommandRepository;
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 
 public class SpringCommandRepository implements CommandRepository {
+  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private static final PageRequest SINGLE_COMMAND_REQUEST = new PageRequest(0, 1);
 
   private final TxEventEnvelopeRepository eventRepository;
@@ -43,22 +46,7 @@ public class SpringCommandRepository implements CommandRepository {
   }
 
   @Override
-  public boolean exists(String globalTxId, String localTxId) {
-    return commandRepository.findByGlobalTxIdAndLocalTxId(globalTxId, localTxId).isPresent();
-  }
-
-  @Override
-  public void saveCompensationCommand(String globalTxId, String localTxId) {
-    TxEvent startedEvent = eventRepository.findFirstByGlobalTxIdAndLocalTxIdAndTypeOrderBySurrogateIdAsc(
-        globalTxId,
-        localTxId,
-        TxStartedEvent.name());
-
-    commandRepository.save(new Command(startedEvent));
-  }
-
-  @Override
-  public void saveCompensationCommands(String globalTxId) {
+  public Iterable<Command> saveCompensationCommands(String globalTxId) {
     List<TxEvent> events = eventRepository
         .findStartedEventEnvelopesWithMatchingEndedButNotCompensatedEvents(globalTxId);
 
@@ -68,7 +56,8 @@ public class SpringCommandRepository implements CommandRepository {
       commands.computeIfAbsent(event.localTxId(), k -> new Command(event));
     }
 
-    commandRepository.save(commands.values());
+    log.info("Saving compensation commands {}", commands.values());
+    return commandRepository.save(commands.values());
   }
 
   @Override
