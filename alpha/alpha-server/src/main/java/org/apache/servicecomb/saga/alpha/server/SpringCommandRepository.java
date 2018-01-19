@@ -46,9 +46,9 @@ public class SpringCommandRepository implements CommandRepository {
   }
 
   @Override
-  public Iterable<Command> saveCompensationCommands(String globalTxId) {
+  public void saveCompensationCommands(String globalTxId) {
     List<TxEvent> events = eventRepository
-        .findStartedEventEnvelopesWithMatchingEndedButNotCompensatedEvents(globalTxId);
+        .findStartedEventsWithMatchingEndedButNotCompensatedEvents(globalTxId);
 
     Map<String, Command> commands = new LinkedHashMap<>();
 
@@ -57,7 +57,12 @@ public class SpringCommandRepository implements CommandRepository {
     }
 
     log.info("Saving compensation commands {}", commands.values());
-    return commandRepository.save(commands.values());
+    try {
+      commandRepository.save(commands.values());
+    } catch (Exception e) {
+      log.warn("Failed to save some commands", e);
+    }
+    log.info("Saved compensation commands {}", commands.values());
   }
 
   @Override

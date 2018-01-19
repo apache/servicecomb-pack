@@ -22,6 +22,8 @@ import static org.apache.servicecomb.saga.alpha.core.CommandStatus.NEW;
 import java.util.Date;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Version;
 
@@ -29,8 +31,10 @@ import javax.persistence.Version;
 public class Command {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long surrogateId;
 
+  private long eventId;
   private String serviceName;
   private String instanceId;
   private String globalTxId;
@@ -48,7 +52,7 @@ public class Command {
   Command() {
   }
 
-  Command(long id,
+  private Command(long id,
       String serviceName,
       String instanceId,
       String globalTxId,
@@ -58,7 +62,7 @@ public class Command {
       byte[] payloads,
       String status) {
 
-    this.surrogateId = id;
+    this.eventId = id;
     this.serviceName = serviceName;
     this.instanceId = instanceId;
     this.globalTxId = globalTxId;
@@ -70,7 +74,7 @@ public class Command {
     this.lastModified = new Date();
   }
 
-  Command(long id,
+  private Command(long id,
       String serviceName,
       String instanceId,
       String globalTxId,
@@ -80,18 +84,6 @@ public class Command {
       byte[] payloads) {
 
     this(id, serviceName, instanceId, globalTxId, localTxId, parentTxId, compensationMethod, payloads, NEW.name());
-  }
-
-  Command(Command command, CommandStatus status) {
-    this(command.surrogateId,
-        command.serviceName,
-        command.instanceId,
-        command.globalTxId,
-        command.localTxId,
-        command.parentTxId,
-        command.compensationMethod,
-        command.payloads,
-        status.name());
   }
 
   public Command(TxEvent event) {
@@ -144,7 +136,7 @@ public class Command {
   @Override
   public String toString() {
     return "Command{" +
-        "surrogateId=" + surrogateId +
+        "eventId=" + eventId +
         ", serviceName='" + serviceName + '\'' +
         ", instanceId='" + instanceId + '\'' +
         ", globalTxId='" + globalTxId + '\'' +

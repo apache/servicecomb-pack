@@ -21,7 +21,7 @@ import java.util.List;
 
 public interface CommandRepository {
 
-  Iterable<Command> saveCompensationCommands(String globalTxId);
+  void saveCompensationCommands(String globalTxId);
 
   void markCommandAsDone(String globalTxId, String localTxId);
 

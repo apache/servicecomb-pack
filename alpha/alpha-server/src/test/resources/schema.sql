@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS `TxEvent` (
 ) DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `Command` (
-  `surrogateId` bigint NOT NULL,
+  `surrogateId` bigint NOT NULL AUTO_INCREMENT,
+  `eventId` bigint NOT NULL UNIQUE,
   `serviceName` varchar(36) NOT NULL,
   `instanceId` varchar(36) NOT NULL,
   `globalTxId` varchar(36) NOT NULL,
