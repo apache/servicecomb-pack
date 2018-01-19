@@ -19,6 +19,7 @@ package org.apache.servicecomb.saga.alpha.server;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.servicecomb.saga.common.EventType.SagaEndedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxAbortedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxCompensatedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxEndedEvent;
@@ -30,15 +31,18 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import javax.annotation.PostConstruct;
 
 import org.apache.servicecomb.saga.alpha.core.CommandRepository;
+import org.apache.servicecomb.saga.alpha.core.EventScanner;
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.TxConsistentService;
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
@@ -345,6 +349,23 @@ public class AlphaIntegrationTest {
     assertThat(receivedCommands.poll().getGlobalTxId(), is(globalTxId));
   }
 
+  @Test
+  public void sagaEndedEventIsAlwaysInTheEnd() throws Exception {
+    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+    blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent));
+    blockingStub.onTxEvent(someGrpcEvent(TxEndedEvent));
+
+    String anotherLocalTxId = UUID.randomUUID().toString();
+    blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent, globalTxId, anotherLocalTxId));
+    blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent, globalTxId, anotherLocalTxId));
+
+    blockingStub.onTxEvent(someGrpcEvent(TxEndedEvent, globalTxId, anotherLocalTxId));
+
+    await().atMost(1, SECONDS).until(() -> eventRepo.count() == 8);
+    List<TxEvent> events = eventRepo.findByGlobalTxId(globalTxId);
+    assertThat(events.get(events.size() - 1).type(), is(SagaEndedEvent.name()));
+  }
+
   private GrpcAck onCompensation(GrpcCompensateCommand command) {
     return blockingStub.onTxEvent(
         eventOf(TxCompensatedEvent,
@@ -445,6 +466,12 @@ public class AlphaIntegrationTest {
 
   @PostConstruct
   void init() {
-//    new EventScanner(Executors.newScheduledThreadPool(2), eventRepository, commandRepository, omegaCallback, 1, 1).run();
+    // simulates concurrent db connections
+    new EventScanner(
+        Executors.newSingleThreadScheduledExecutor(),
+        eventRepository,
+        commandRepository,
+        omegaCallback,
+        1).run();
   }
 }
