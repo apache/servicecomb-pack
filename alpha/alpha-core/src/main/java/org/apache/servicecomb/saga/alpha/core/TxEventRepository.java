@@ -18,13 +18,14 @@
 package org.apache.servicecomb.saga.alpha.core;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TxEventRepository {
   void save(TxEvent event);
 
   List<TxEvent> findTransactions(String globalTxId, String type);
 
-  TxEvent findFirstTransaction(String globalTxId, String localTxId, String type);
+  List<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id, String type);
 
-  List<TxEvent> findTransactionsToCompensate(String globalTxId);
+  Optional<TxEvent> findFirstCompensatedEventByIdGreaterThan(long id, String type);
 }

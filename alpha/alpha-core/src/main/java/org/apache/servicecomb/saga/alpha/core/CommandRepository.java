@@ -20,11 +20,8 @@ package org.apache.servicecomb.saga.alpha.core;
 import java.util.List;
 
 public interface CommandRepository {
-  boolean exists(String globalTxId, String localTxId);
 
-  void saveCompensationCommand(String globalTxId, String localTxId);
-
-  void saveCompensationCommands(String globalTxId);
+  Iterable<Command> saveCompensationCommands(String globalTxId);
 
   void markCommandAsDone(String globalTxId, String localTxId);
 

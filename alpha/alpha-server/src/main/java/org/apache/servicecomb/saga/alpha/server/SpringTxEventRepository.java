@@ -18,9 +18,11 @@
 package org.apache.servicecomb.saga.alpha.server;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
 import org.apache.servicecomb.saga.alpha.core.TxEventRepository;
+import org.springframework.data.domain.PageRequest;
 
 class SpringTxEventRepository implements TxEventRepository {
   private final TxEventEnvelopeRepository eventRepo;
@@ -40,12 +42,12 @@ class SpringTxEventRepository implements TxEventRepository {
   }
 
   @Override
-  public TxEvent findFirstTransaction(String globalTxId, String localTxId, String type) {
-    return eventRepo.findFirstByGlobalTxIdAndLocalTxIdAndTypeOrderBySurrogateIdAsc(globalTxId, localTxId, type);
+  public List<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id, String type) {
+    return eventRepo.findFirstByTypeAndSurrogateIdGreaterThan(type, id, new PageRequest(0, 1));
   }
 
   @Override
-  public List<TxEvent> findTransactionsToCompensate(String globalTxId) {
-    return eventRepo.findStartedEventsWithMatchingEndedButNotCompensatedEvents(globalTxId);
+  public Optional<TxEvent> findFirstCompensatedEventByIdGreaterThan(long id, String type) {
+    return eventRepo.findFirstByTypeAndSurrogateIdGreaterThan(type, id);
   }
 }
