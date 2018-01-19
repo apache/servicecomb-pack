@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS Command (
   payloads bytea,
   status varchar(12),
   lastModified timestamp(6) NOT NULL DEFAULT CURRENT_DATE,
-  version bigint NOT NULL,
+  version bigint NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS saga_commands_index ON Command (surrogateId, eventId, globalTxId, localTxId, type, status);
+CREATE INDEX IF NOT EXISTS saga_commands_index ON Command (surrogateId, eventId, globalTxId, localTxId, status);
