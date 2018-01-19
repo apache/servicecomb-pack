@@ -47,7 +47,7 @@ public class Command {
   private Date lastModified;
 
   @Version
-  private int version;
+  private long version;
 
   Command() {
   }

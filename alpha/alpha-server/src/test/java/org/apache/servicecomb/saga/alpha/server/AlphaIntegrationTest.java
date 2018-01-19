@@ -36,9 +36,13 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
+import javax.annotation.PostConstruct;
+
+import org.apache.servicecomb.saga.alpha.core.CommandRepository;
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.TxConsistentService;
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
+import org.apache.servicecomb.saga.alpha.core.TxEventRepository;
 import org.apache.servicecomb.saga.common.EventType;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
@@ -65,7 +69,7 @@ import io.grpc.stub.StreamObserver;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {AlphaApplication.class, AlphaConfig.class},
-    properties = {"alpha.server.port=8090", "alpha.command.pollingInterval=1", "alpha.event.pollingInterval=1"})
+    properties = {"alpha.server.port=8090", "alpha.event.pollingInterval=1"})
 public class AlphaIntegrationTest {
   private static final int port = 8090;
 
@@ -93,6 +97,18 @@ public class AlphaIntegrationTest {
   private TxEventEnvelopeRepository eventRepo;
 
   @Autowired
+  private TxEventRepository eventRepository;
+
+  @Autowired
+  private CommandRepository commandRepository;
+
+  @Autowired
+  private CommandEntityRepository commandEntityRepository;
+
+  @Autowired
+  private OmegaCallback omegaCallback;
+
+  @Autowired
   private Map<String, Map<String, OmegaCallback>> omegaCallbacks;
 
   @Autowired
@@ -115,6 +131,19 @@ public class AlphaIntegrationTest {
   @After
   public void after() throws Exception {
     blockingStub.onDisconnected(serviceConfig);
+    deleteAllTillSuccessful();
+  }
+
+  public void deleteAllTillSuccessful() {
+    boolean deleted = false;
+    do {
+      try {
+        eventRepo.deleteAll();
+        commandEntityRepository.deleteAll();
+        deleted = true;
+      } catch (Exception ignored) {
+      }
+    } while (!deleted);
   }
 
   @Test
@@ -412,5 +441,10 @@ public class AlphaIntegrationTest {
     boolean isCompleted() {
       return completed;
     }
+  }
+
+  @PostConstruct
+  void init() {
+//    new EventScanner(Executors.newScheduledThreadPool(2), eventRepository, commandRepository, omegaCallback, 1, 1).run();
   }
 }

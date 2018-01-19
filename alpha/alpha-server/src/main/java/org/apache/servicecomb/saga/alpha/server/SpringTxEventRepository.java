@@ -50,4 +50,9 @@ class SpringTxEventRepository implements TxEventRepository {
   public Optional<TxEvent> findFirstCompensatedEventByIdGreaterThan(long id, String type) {
     return eventRepo.findFirstByTypeAndSurrogateIdGreaterThan(type, id);
   }
+
+  @Override
+  public void deleteDuplicateEvents(String type) {
+    eventRepo.deleteByType(type);
+  }
 }

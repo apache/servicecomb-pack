@@ -74,7 +74,6 @@ class AlphaConfig {
 
   @Bean
   TxConsistentService txConsistentService(@Value("${alpha.server.port:8080}") int port,
-      @Value("${alpha.command.pollingInterval:500}") int commandPollingInterval,
       @Value("${alpha.event.pollingInterval:500}") int eventPollingInterval,
       ScheduledExecutorService scheduler,
       TxEventRepository eventRepository,
@@ -86,7 +85,6 @@ class AlphaConfig {
         eventRepository,
         commandRepository,
         omegaCallback,
-        commandPollingInterval,
         eventPollingInterval).run();
 
     TxConsistentService consistentService = new TxConsistentService(eventRepository);
