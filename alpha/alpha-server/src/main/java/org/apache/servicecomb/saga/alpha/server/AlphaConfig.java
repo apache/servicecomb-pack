@@ -69,7 +69,7 @@ class AlphaConfig {
 
   @Bean
   ScheduledExecutorService compensationScheduler() {
-    return Executors.newScheduledThreadPool(2);
+    return Executors.newScheduledThreadPool(1);
   }
 
   @Bean

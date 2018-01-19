@@ -100,8 +100,6 @@ public class EventScanner implements Runnable {
     }
   }
 
-  // TODO: 2018/1/13 SagaEndedEvent may still not be the last, because some omegas may have slow network and its TxEndedEvent reached late,
-  // unless we ask user to specify a name for each participant in the global TX in @Compensable
   private void updateCompensationStatus(TxEvent event) {
     commandRepository.markCommandAsDone(event.globalTxId(), event.localTxId());
     log.info("Transaction with globalTxId {} and localTxId {} was compensated",
@@ -135,6 +133,7 @@ public class EventScanner implements Runnable {
         EMPTY_PAYLOAD);
   }
 
+  // TODO: 2018/1/19 potentially compensation may be out of order if we don't wait till received compensated event for the previous one, since compensation is async
   private void compensate() {
     commandRepository.findFirstCommandToCompensate()
         .forEach(command -> {
