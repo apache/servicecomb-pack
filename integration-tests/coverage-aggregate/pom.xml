@@ -75,6 +75,10 @@
     </dependency>
     <dependency>
       <groupId>org.apache.servicecomb.saga</groupId>
+      <artifactId>alpha-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>alpha-server</artifactId>
     </dependency>
     <dependency>
