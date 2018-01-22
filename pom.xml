@@ -439,12 +439,6 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>uk.co.datumedge</groupId>
-        <artifactId>hamcrest-json</artifactId>
-        <version>0.2</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-test</artifactId>
         <version>${spring.version}</version>

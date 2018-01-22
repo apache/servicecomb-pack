@@ -30,6 +30,18 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <version>${spring.boot.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+          </exclusion>
+        </exclusions>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
         <groupId>io.servicecomb</groupId>
         <artifactId>java-chassis-dependencies</artifactId>
         <version>${java.chassis.version}</version>
@@ -62,11 +74,9 @@
         </exclusion>
       </exclusions>
     </dependency>
-
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
-      <scope>test</scope>
       <exclusions>
         <exclusion>
           <groupId>ch.qos.logback</groupId>
@@ -74,6 +84,7 @@
         </exclusion>
       </exclusions>
     </dependency>
+
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
@@ -82,6 +93,7 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
