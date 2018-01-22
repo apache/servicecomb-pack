@@ -37,6 +37,17 @@
       </dependency>
       <dependency>
         <groupId>io.servicecomb</groupId>
+        <artifactId>spring-boot-starter-provider</artifactId>
+        <version>${java.chassis.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>annotations</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>io.servicecomb</groupId>
         <artifactId>java-chassis-dependencies</artifactId>
         <version>${java.chassis.version}</version>
         <type>pom</type>
