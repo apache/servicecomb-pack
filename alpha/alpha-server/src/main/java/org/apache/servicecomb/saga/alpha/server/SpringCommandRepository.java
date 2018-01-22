@@ -83,7 +83,7 @@ public class SpringCommandRepository implements CommandRepository {
   @Override
   public List<Command> findFirstCommandToCompensate() {
     List<Command> commands = commandRepository
-        .findFirstGroupByGlobalTxIdOrderByIdDesc(SINGLE_COMMAND_REQUEST);
+        .findFirstGroupByGlobalTxIdWithoutPendingOrderByIdDesc();
 
     commands.forEach(command ->
         commandRepository.updateStatusByGlobalTxIdAndLocalTxId(
