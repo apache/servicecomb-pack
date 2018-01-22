@@ -21,7 +21,6 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
-import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -61,15 +60,14 @@ public class CompositeSagaResponseTest {
         + "  \"body\" : \"blah\"\n"
         + "}\n");
 
-    assertThat(compositeSagaResponse.body(), sameJSONAs("[\n"
-        + "  {\n"
-        + "    \"status\": 500,\n"
-        + "    \"body\": \"oops\"\n"
-        + "  },\n"
-        + "  {\n"
-        + "    \"status\": 200,\n"
-        + "    \"body\": \"blah\"\n"
-        + "  }\n"
+    assertThat(compositeSagaResponse.body(), is("[{\n"
+        + "  \"status\": 500,\n"
+        + "  \"body\" : \"oops\"\n"
+        + "}\n"
+        + ", {\n"
+        + "  \"status\": 200,\n"
+        + "  \"body\" : \"blah\"\n"
+        + "}\n"
         + "]"));
   }
 }
