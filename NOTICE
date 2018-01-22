@@ -1,0 +1,79 @@
+Servicecomb Saga
+Copyright 2017-2018 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+================================================================
+The Eclipse Public License 1.0
+================================================================
+
+The following components are provided under the  Eclipse Public License - v 1.0  (http://www.eclipse.org/legal/epl-v10.html). See project link for details.
+
+AspectJ weaver (http://www.aspectj.org) org.aspectj:aspectjweaver:jar:1.8.10
+Logback Core Module (http://logback.qos.ch/logback-core) ch.qos.logback:logback-core:jar:1.1.7
+Logback Core Module (http://logback.qos.ch/logback-core) ch.qos.logback:logback-core:jar:1.1.11
+Logback Classic Module (http://logback.qos.ch/logback-classic) ch.qos.logback:logback-classic:jar:1.1.7
+Logback Classic Module (http://logback.qos.ch/logback-classic) ch.qos.logback:logback-classic:jar:1.1.11
+EclipseLink ASM (http://www.eclipse.org/eclipselink) org.eclipse.persistence:org.eclipse.persistence.asm:jar:2.7.1
+EclipseLink Hermes JPQL Parser (http://www.eclipse.org/eclipselink) org.eclipse.persistence:org.eclipse.persistence.jpa.jpql:jar:2.7.1
+EclipseLink JPA (http://www.eclipse.org/eclipselink) org.eclipse.persistence:org.eclipse.persistence.jpa:jar:2.7.1
+EclipseLink ANTLR (http://www.eclipse.org/eclipselink) org.eclipse.persistence:org.eclipse.persistence.antlr:jar:2.7.1
+EclipseLink Core (http://www.eclipse.org/eclipselink) org.eclipse.persistence:org.eclipse.persistence.core:jar:2.7.1
+Javax Persistence (http://www.eclipse.org/eclipselink) org.eclipse.persistence:javax.persistence:jar:2.2.0
+javax.persistence-api (https://github.com/javaee/jpa-spec) javax.persistence:javax.persistence-api:jar:2.2
+
+================================================================
+The BSD Licenses
+================================================================
+
+The following components are provided under the BSD Licenses (http://www.opensource.org/licenses/bsd-license.php). See project link for details.
+
+PostgreSQL JDBC Driver - JDBC 4.1 (https://github.com/pgjdbc/pgjdbc-parent-poms/pgjdbc-core-parent/pgjdbc-core-prevjre/postgresql) org.postgresql:postgresql:bundle:9.4.1212.jre7
+Kryo (https://github.com/EsotericSoftware/kryo/kryo) com.esotericsoftware:kryo:bundle:4.0.1
+Protocol Buffers [Util] (https://developers.google.com/protocol-buffers/protobuf-java-util/) com.google.protobuf:protobuf-java-util:bundle:3.4.0
+Protocol Buffers [Core] (https://developers.google.com/protocol-buffers/protobuf-java/) com.google.protobuf:protobuf-java:bundle:3.4.0
+Hamcrest Core (https://github.com/hamcrest/JavaHamcrest/hamcrest-core) org.hamcrest:hamcrest-core:jar:1.3
+ReflectASM (https://github.com/EsotericSoftware/reflectasm) com.esotericsoftware:reflectasm:bundle:1.11.3
+MinLog (https://github.com/EsotericSoftware/minlog) com.esotericsoftware:minlog:bundle:1.3.0
+Hamcrest library (https://github.com/hamcrest/JavaHamcrest/hamcrest-library) org.hamcrest:hamcrest-library:jar:1.3
+scala-java8-compat (http://www.scala-lang.org/) org.scala-lang.modules:scala-java8-compat_2.12:bundle:0.8.0
+ASM Core (http://asm.objectweb.org/asm/) org.ow2.asm:asm:jar:5.0.3
+ASM Core (http://asm.objectweb.org/asm/) org.ow2.asm:asm:jar:5.0.4
+Stax2 API (http://wiki.fasterxml.com/WoodstoxStax2) org.codehaus.woodstox:stax2-api:bundle:3.1.4
+Scala Library (http://www.scala-lang.org/) org.scala-lang:scala-library:jar:2.12.3
+
+================================================================
+The MIT License
+================================================================
+
+The following components are provided under the  MIT License  (http://www.opensource.org/licenses/mit-license.php). See project link for details.
+
+Bouncy Castle PKIX, CMS, EAC, TSP, PKCS, OCSP, CMP, and CRMF APIs (http://www.bouncycastle.org/java.html) org.bouncycastle:bcpkix-jdk15on:jar:1.55
+Bouncy Castle Provider (http://www.bouncycastle.org/java.html) org.bouncycastle:bcprov-jdk15on:jar:1.55
+JCL 1.2 implemented over SLF4J (http://www.slf4j.org) org.slf4j:jcl-over-slf4j:jar:1.7.24
+JUL to SLF4J bridge (http://www.slf4j.org) org.slf4j:jul-to-slf4j:jar:1.7.24
+SLF4J API Module (http://www.slf4j.org) org.slf4j:slf4j-api:jar:1.7.25
+
+================================================================
+The COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.1
+================================================================
+
+The following components are provided under the  CDDL 1.1  (http://glassfish.java.net/public/CDDL+GPL_1_1.html)
+
+jersey-core (https://jersey.java.net/jersey-core/) com.sun.jersey:jersey-core:jar:1.19.1
+Jersey Apache HTTP Client 4.x (https://jersey.java.net/jersey-contribs/jersey-apache-client4/) com.sun.jersey.contribs:jersey-apache-client4:jar:1.19.1
+javax.ws.rs-api (http://jax-rs-spec.java.net) javax.ws.rs:javax.ws.rs-api:jar:2.0.1
+jersey-client (https://jersey.java.net/jersey-client/) com.sun.jersey:jersey-client:jar:1.19.1
+Java Servlet API (http://servlet-spec.java.net) javax.servlet:javax.servlet-api:jar:3.1.0
+Expression Language 3.0 (http://el-spec.java.net) org.glassfish:javax.el:jar:3.0.0
+javax.transaction API (http://jta-spec.java.net) javax.transaction:javax.transaction-api:jar:1.2
+JSR 353 (JSON Processing) Default Provider (http://jsonp.java.net) org.glassfish:javax.json:bundle:1.0.4
+
+================================================================
+Public Domain
+================================================================
+
+The following components are provided under the Public Domain, per Creative Commons CC0  (http://creativecommons.org/publicdomain/zero/1.0/). See project link for details.
+
+HdrHistogram (http://hdrhistogram.github.io/HdrHistogram/) org.hdrhistogram:HdrHistogram:bundle:2.1.9
