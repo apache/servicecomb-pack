@@ -21,9 +21,7 @@ import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
 
 class CompensableInterceptor implements EventAwareInterceptor {
-
   private final OmegaContext context;
-
   private final MessageSender sender;
 
   CompensableInterceptor(OmegaContext context, MessageSender sender) {

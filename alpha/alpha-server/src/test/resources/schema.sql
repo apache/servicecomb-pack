@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS TxEvent (
   type varchar(50) NOT NULL,
   compensationMethod varchar(256) NOT NULL,
   payloads varbinary(10240),
+  retries int NOT NULL,
+  retriesMethod varchar(256) NOT NULL
 --  version bigint NOT NULL
 );
 

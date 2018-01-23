@@ -307,19 +307,23 @@ public class TransactionInterceptionTest {
   static class MessageConfig {
     private final List<String> messages = new ArrayList<>();
 
-    @Bean CompensationContext compensationContext() {
+    @Bean
+    CompensationContext compensationContext() {
       return new CompensationContext();
     }
 
-    @Bean OmegaContext omegaContext() {
+    @Bean
+    OmegaContext omegaContext() {
       return new OmegaContext(idGenerator);
     }
 
-    @Bean List<String> messages() {
+    @Bean
+    List<String> messages() {
       return messages;
     }
 
-    @Bean MessageSender sender() {
+    @Bean
+    MessageSender sender() {
       return (event) -> {
         messages.add(event.toString());
         return new AlphaResponse(false);

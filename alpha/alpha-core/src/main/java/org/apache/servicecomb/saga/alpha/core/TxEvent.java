@@ -31,25 +31,15 @@ public class TxEvent {
   private Long surrogateId;
 
   private String serviceName;
-
   private String instanceId;
-
   private Date creationTime;
-
   private String globalTxId;
-
   private String localTxId;
-
   private String parentTxId;
-
   private String type;
-
   private String compensationMethod;
-
   private byte[] payloads;
-
   private int retries;
-
   private String retriesMethod;
 
   private TxEvent() {
@@ -84,6 +74,22 @@ public class TxEvent {
       String parentTxId, String type, String compensationMethod, byte[] payloads) {
     this(
         -1L,
+        serviceName,
+        instanceId,
+        creationTime,
+        globalTxId,
+        localTxId,
+        parentTxId,
+        type,
+        compensationMethod,
+        0, "",
+        payloads);
+  }
+
+  public TxEvent(Long id, String serviceName, String instanceId, Date creationTime, String globalTxId, String localTxId,
+      String parentTxId, String type, String compensationMethod, byte[] payloads) {
+    this(
+        id,
         serviceName,
         instanceId,
         creationTime,

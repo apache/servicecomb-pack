@@ -42,8 +42,8 @@ class SpringTxEventRepository implements TxEventRepository {
   }
 
   @Override
-  public List<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id, String type) {
-    return eventRepo.findFirstByTypeAndSurrogateIdGreaterThan(type, id, new PageRequest(0, 1));
+  public List<TxEvent> findByTypeAndIdGreaterThan(long id, String type) {
+    return eventRepo.findByTypeAndSurrogateIdGreaterThan(type, id, new PageRequest(0, 1));
   }
 
   @Override

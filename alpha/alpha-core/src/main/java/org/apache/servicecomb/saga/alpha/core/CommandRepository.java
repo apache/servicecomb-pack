@@ -21,7 +21,7 @@ import java.util.List;
 
 public interface CommandRepository {
 
-  void saveCompensationCommands(String globalTxId);
+  void saveCompensationCommands(TxEvent abortEvent);
 
   void markCommandAsDone(String globalTxId, String localTxId);
 

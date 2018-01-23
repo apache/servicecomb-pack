@@ -97,8 +97,7 @@ public class LoadBalancedClusterMessageSenderTest {
   private final String localTxId = uniquify("localTxId");
   private final String parentTxId = uniquify("parentTxId");
   private final String compensationMethod = getClass().getCanonicalName();
-  private final TxEvent event =
-      new TxEvent(EventType.TxStartedEvent, globalTxId, localTxId, parentTxId, compensationMethod, "blah");
+  private final TxEvent event = new TxEvent(EventType.TxStartedEvent, globalTxId, localTxId, parentTxId, compensationMethod, "blah");
 
   private final String serviceName = uniquify("serviceName");
   private final String[] addresses = {"localhost:8080", "localhost:8090"};
@@ -178,8 +177,7 @@ public class LoadBalancedClusterMessageSenderTest {
     startServerOnPort(deadPort);
     await().atMost(2, SECONDS).until(() -> connected.get(deadPort).size() == 3);
 
-    TxEvent abortedEvent =
-        new TxAbortedEvent(globalTxId, localTxId, parentTxId, compensationMethod, new RuntimeException("oops"));
+    TxEvent abortedEvent = new TxAbortedEvent(globalTxId, localTxId, parentTxId, compensationMethod, new RuntimeException("oops"));
     messageSender.send(abortedEvent);
 
     // restarted server gets priority, since it had no traffic
@@ -190,7 +188,7 @@ public class LoadBalancedClusterMessageSenderTest {
     await().atMost(1, SECONDS).until(() -> compensated.contains(globalTxId));
   }
 
-  @Test(timeout = 1000)
+  @Test (timeout = 1000)
   public void stopSendingOnInterruption() throws Exception {
     MessageSender underlying = Mockito.mock(MessageSender.class);
     doThrow(RuntimeException.class).when(underlying).send(event);
