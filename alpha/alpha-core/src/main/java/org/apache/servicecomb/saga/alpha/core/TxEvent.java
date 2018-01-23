@@ -43,6 +43,19 @@ public class TxEvent {
   private TxEvent() {
   }
 
+  public TxEvent(TxEvent event) {
+    this(event.surrogateId,
+        event.serviceName,
+        event.instanceId,
+        event.creationTime,
+        event.globalTxId,
+        event.localTxId,
+        event.parentTxId,
+        event.type,
+        event.compensationMethod,
+        event.payloads);
+  }
+
   public TxEvent(
       String serviceName,
       String instanceId,
