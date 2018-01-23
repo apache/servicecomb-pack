@@ -17,14 +17,14 @@
 
 package org.apache.servicecomb.saga.omega.transaction;
 
-import org.apache.servicecomb.saga.common.EventType;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.apache.servicecomb.saga.common.EventType;
+
 public class TxAbortedEvent extends TxEvent {
   public TxAbortedEvent(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Throwable throwable) {
-    super(EventType.TxAbortedEvent, globalTxId, localTxId, parentTxId, compensationMethod, stackTrace(throwable));
+    super(EventType.TxAbortedEvent, globalTxId, localTxId, parentTxId, compensationMethod, 0, stackTrace(throwable));
   }
 
   private static String stackTrace(Throwable e) {

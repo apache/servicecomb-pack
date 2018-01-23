@@ -20,6 +20,7 @@ package org.apache.servicecomb.saga.alpha.server;
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.servicecomb.saga.common.EventType.SagaEndedEvent;
+import static org.apache.servicecomb.saga.common.EventType.SagaStartedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxAbortedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxCompensatedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxEndedEvent;
@@ -367,6 +368,34 @@ public class AlphaIntegrationTest {
     });
   }
 
+  @Test
+  public void abortTimeoutSagaStartedEvent() {
+    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+    blockingStub.onTxEvent(someGrpcEventWithTimeout(SagaStartedEvent, globalTxId, null, 1));
+
+    await().atMost(1, SECONDS).until(() -> eventRepo.count() == 3);
+
+    List<TxEvent> events = eventRepo.findByGlobalTxId(globalTxId);
+    assertThat(events.get(0).type(), is(SagaStartedEvent.name()));
+    assertThat(events.get(1).type(), is(TxAbortedEvent.name()));
+    assertThat(events.get(2).type(), is(SagaEndedEvent.name()));
+  }
+
+  @Test
+  public void abortTimeoutTxStartedEvent() {
+    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+    blockingStub.onTxEvent(someGrpcEvent(SagaStartedEvent, globalTxId, globalTxId));
+    blockingStub.onTxEvent(someGrpcEventWithTimeout(TxStartedEvent, localTxId, globalTxId, 1));
+
+    await().atMost(1, SECONDS).until(() -> eventRepo.count() == 4);
+
+    List<TxEvent> events = eventRepo.findByGlobalTxId(globalTxId);
+    assertThat(events.get(0).type(), is(SagaStartedEvent.name()));
+    assertThat(events.get(1).type(), is(TxStartedEvent.name()));
+    assertThat(events.get(2).type(), is(TxAbortedEvent.name()));
+    assertThat(events.get(3).type(), is(SagaEndedEvent.name()));
+  }
+
   private GrpcAck onCompensation(GrpcCompensateCommand command) {
     return blockingStub.onTxEvent(
         eventOf(TxCompensatedEvent,
@@ -393,7 +422,12 @@ public class AlphaIntegrationTest {
         parentTxId,
         TxAbortedEvent.name(),
         compensationMethod,
+        null,
         payload.getBytes());
+  }
+
+  private GrpcTxEvent someGrpcEventWithTimeout(EventType type, String localTxId, String parentTxId, int timeout) {
+    return eventOf(type, globalTxId, localTxId, parentTxId, payload.getBytes(), getClass().getCanonicalName(), timeout);
   }
 
   private GrpcTxEvent someGrpcEvent(EventType type) {
@@ -405,11 +439,11 @@ public class AlphaIntegrationTest {
   }
 
   private GrpcTxEvent someGrpcEvent(EventType type, String globalTxId, String localTxId) {
-    return eventOf(type, globalTxId, localTxId, parentTxId, payload.getBytes(), getClass().getCanonicalName());
+    return eventOf(type, globalTxId, localTxId, parentTxId, payload.getBytes(), getClass().getCanonicalName(), 0);
   }
 
   private GrpcTxEvent eventOf(EventType eventType, String localTxId, String parentTxId, byte[] payloads, String compensationMethod) {
-    return eventOf(eventType, globalTxId, localTxId, parentTxId, payloads, compensationMethod);
+    return eventOf(eventType, globalTxId, localTxId, parentTxId, payloads, compensationMethod, 0);
   }
 
   private GrpcTxEvent eventOf(EventType eventType,
@@ -417,7 +451,8 @@ public class AlphaIntegrationTest {
       String localTxId,
       String parentTxId,
       byte[] payloads,
-      String compensationMethod) {
+      String compensationMethod,
+      int timeout) {
 
     return GrpcTxEvent.newBuilder()
         .setServiceName(serviceName)
@@ -428,6 +463,7 @@ public class AlphaIntegrationTest {
         .setParentTxId(parentTxId == null ? "" : parentTxId)
         .setType(eventType.name())
         .setCompensationMethod(compensationMethod)
+        .setTimeout(timeout)
         .setPayloads(ByteString.copyFrom(payloads))
         .build();
   }

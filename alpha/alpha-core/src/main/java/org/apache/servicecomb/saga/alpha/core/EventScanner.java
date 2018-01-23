@@ -19,12 +19,13 @@ package org.apache.servicecomb.saga.alpha.core;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.servicecomb.saga.common.EventType.SagaEndedEvent;
+import static org.apache.servicecomb.saga.common.EventType.TxAbortedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxCompensatedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxEndedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.slf4j.Logger;
@@ -42,6 +43,7 @@ public class EventScanner implements Runnable {
 
   private long nextEndedEventId;
   private long nextCompensatedEventId;
+  private long nextTimeoutEventId;
 
   public EventScanner(ScheduledExecutorService scheduler,
       TxEventRepository eventRepository,
@@ -64,10 +66,12 @@ public class EventScanner implements Runnable {
   private void pollEvents() {
     scheduler.scheduleWithFixedDelay(
         () -> {
+          abortTimeoutEvent();
           saveUncompensatedEventsToCommands();
           compensate();
           updateCompensatedCommands();
-          deleteDuplicateSagaEndedEvents();
+          deleteDuplicateEvents();
+          updateTransactionStatus();
         },
         0,
         eventPollingInterval,
@@ -92,11 +96,11 @@ public class EventScanner implements Runnable {
         });
   }
 
-  private void deleteDuplicateSagaEndedEvents() {
+  private void deleteDuplicateEvents() {
     try {
-      eventRepository.deleteDuplicateEvents(SagaEndedEvent.name());
+      eventRepository.deleteDuplicateEvents(Arrays.asList(TxAbortedEvent.name(), SagaEndedEvent.name()));
     } catch (Exception e) {
-      log.warn("Failed to delete duplicate SagaEndedEvent", e);
+      log.warn("Failed to delete duplicate event", e);
     }
   }
 
@@ -107,6 +111,19 @@ public class EventScanner implements Runnable {
         event.localTxId());
 
     markSagaEnded(event);
+  }
+
+  private void abortTimeoutEvent() {
+    eventRepository.findFirstTimeoutEventByIdGreaterThan(nextTimeoutEventId)
+    .ifPresent((TxEvent event) -> {
+      log.info("Found timeout event {}", event);
+      nextTimeoutEventId = event.id();
+      eventRepository.save(toTxAbortedEvent(event));
+    });
+  }
+
+  private void updateTransactionStatus() {
+    eventRepository.findFirstAbortedGlobalTransaction().ifPresent(this::markGlobalTxEnd);
   }
 
   private void markSagaEnded(TxEvent event) {
@@ -120,16 +137,29 @@ public class EventScanner implements Runnable {
     log.info("Marked end of transaction with globalTxId {}", event.globalTxId());
   }
 
+  private TxEvent toTxAbortedEvent(TxEvent event) {
+    return new TxEvent(
+        event.serviceName(),
+        event.instanceId(),
+        event.globalTxId(),
+        event.localTxId(),
+        event.parentTxId(),
+        TxAbortedEvent.name(),
+        "",
+        null,
+        EMPTY_PAYLOAD);
+  }
+
   private TxEvent toSagaEndedEvent(TxEvent event) {
     return new TxEvent(
         event.serviceName(),
         event.instanceId(),
-        new Date(),
         event.globalTxId(),
         event.globalTxId(),
         null,
         SagaEndedEvent.name(),
         "",
+        null,
         EMPTY_PAYLOAD);
   }
 
@@ -153,6 +183,7 @@ public class EventScanner implements Runnable {
         command.parentTxId(),
         TxStartedEvent.name(),
         command.compensationMethod(),
+        null,
         command.payloads()
     );
   }

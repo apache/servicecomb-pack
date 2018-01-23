@@ -17,9 +17,8 @@
 
 package org.apache.servicecomb.saga.alpha.core;
 
-import org.apache.servicecomb.saga.common.EventType;
-
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
+import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
 
 import java.util.Date;
 import java.util.UUID;
@@ -33,8 +32,9 @@ class TxEventMaker {
         uniquify("globalTxId"),
         uniquify("localTxId"),
         UUID.randomUUID().toString(),
-        EventType.TxStartedEvent.name(),
+        TxStartedEvent.name(),
         TxEventMaker.class.getCanonicalName(),
+        null,
         uniquify("blah").getBytes());
   }
 }

@@ -17,9 +17,9 @@
 
 package org.apache.servicecomb.saga.omega.transaction;
 
-import org.apache.servicecomb.saga.common.EventType;
-
 import java.util.Arrays;
+
+import org.apache.servicecomb.saga.common.EventType;
 
 public class TxEvent {
 
@@ -29,9 +29,11 @@ public class TxEvent {
   private final String localTxId;
   private final String parentTxId;
   private final String compensationMethod;
+  private final int timeout;
   private final Object[] payloads;
 
-  public TxEvent(EventType type, String globalTxId, String localTxId, String parentTxId, String compensationMethod, Object... payloads) {
+  public TxEvent(EventType type, String globalTxId, String localTxId, String parentTxId, String compensationMethod,
+      int timeout, Object... payloads) {
     this.timestamp = System.currentTimeMillis();
     this.type = type;
     this.localTxId = localTxId;
@@ -39,6 +41,7 @@ public class TxEvent {
     this.compensationMethod = compensationMethod;
     this.payloads = payloads;
     this.globalTxId = globalTxId;
+    this.timeout = timeout;
   }
 
   public long timestamp() {
@@ -69,6 +72,10 @@ public class TxEvent {
     return compensationMethod;
   }
 
+  public int timeout() {
+    return timeout;
+  }
+
   @Override
   public String toString() {
     return type.name() + "{" +
@@ -76,6 +83,7 @@ public class TxEvent {
         ", localTxId='" + localTxId + '\'' +
         ", parentTxId='" + parentTxId + '\'' +
         ", compensationMethod='" + compensationMethod + '\'' +
+        ", timeout='" + timeout + '\'' +
         ", payloads=" + Arrays.toString(payloads) +
         '}';
   }

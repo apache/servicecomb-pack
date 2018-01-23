@@ -49,6 +49,11 @@ public class TxConsistentServiceTest {
     }
 
     @Override
+    public Optional<TxEvent> findFirstAbortedGlobalTransaction() {
+      return Optional.empty();
+    }
+
+    @Override
     public List<TxEvent> findTransactions(String globalTxId, String type) {
       return events.stream()
           .filter(event -> globalTxId.equals(event.globalTxId()) && type.equals(event.type()))
@@ -66,7 +71,12 @@ public class TxConsistentServiceTest {
     }
 
     @Override
-    public void deleteDuplicateEvents(String type) {
+    public Optional<TxEvent> findFirstTimeoutEventByIdGreaterThan(long id) {
+      return Optional.empty();
+    }
+
+    @Override
+    public void deleteDuplicateEvents(List<String> types) {
     }
   };
 
@@ -111,7 +121,7 @@ public class TxConsistentServiceTest {
   }
 
   private TxEvent newEvent(EventType eventType) {
-    return new TxEvent(serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, eventType.name(), compensationMethod, payloads);
+    return new TxEvent(serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, eventType.name(), compensationMethod, null, payloads);
   }
 
   private TxEvent eventOf(EventType eventType, String localTxId) {
@@ -121,6 +131,7 @@ public class TxConsistentServiceTest {
         UUID.randomUUID().toString(),
         eventType.name(),
         compensationMethod,
+        null,
         payloads);
   }
 }
