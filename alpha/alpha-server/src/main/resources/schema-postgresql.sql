@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS TxEvent (
   type varchar(50) NOT NULL,
   compensationMethod varchar(256) NOT NULL,
   expiryTime timestamp(6) NOT NULL,
+  retriesMethod varchar(256) NOT NULL,
+  retries int NOT NULL,
   payloads bytea
 );
 

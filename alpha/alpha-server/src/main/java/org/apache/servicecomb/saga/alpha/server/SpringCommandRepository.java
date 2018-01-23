@@ -91,4 +91,18 @@ public class SpringCommandRepository implements CommandRepository {
 
     return commands;
   }
+
+  private long retriedTimes(String globalTxId, String retriesMethod, String localTxId) {
+    return commandRepository.findByGlobalTxIdAndStatus(globalTxId, DONE.name()).stream()
+        .filter(c -> Objects.equals(c.compensationMethod(), retriesMethod)
+            && Objects.equals(c.localTxId(), localTxId)).count();
+  }
+
+  private List<TxEvent> createRetriesTxEvent(long abortEventId, TxEvent txEvent) {
+    return Collections.singletonList(new TxEvent(
+        abortEventId, txEvent.serviceName(), txEvent.instanceId(), txEvent.creationTime(),
+        txEvent.globalTxId(), txEvent.localTxId(), txEvent.parentTxId(),
+        txEvent.type(), txEvent.retriesMethod(), txEvent.payloads()
+    ));
+  }
 }
