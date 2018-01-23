@@ -18,20 +18,14 @@
 package org.apache.servicecomb.saga.omega.transaction;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.apache.servicecomb.saga.common.EventType;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
@@ -61,8 +55,6 @@ public class SagaStartAspectTest {
 
   private final OmegaContext omegaContext = new OmegaContext(idGenerator);
   private final SagaStartAspect aspect = new SagaStartAspect(sender, omegaContext);
-
-  private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
   @Before
   public void setUp() throws Exception {
@@ -118,42 +110,6 @@ public class SagaStartAspectTest {
 
     assertThat(omegaContext.globalTxId(), is(nullValue()));
     assertThat(omegaContext.localTxId(), is(nullValue()));
-  }
-
-  @Test
-  public void sendsAbortEventOnTimeout() throws Throwable {
-    CountDownLatch latch = new CountDownLatch(1);
-    when(sagaStart.timeout()).thenReturn(100);
-    when(joinPoint.proceed()).thenAnswer(invocationOnMock -> {
-      latch.await();
-      assertThat(omegaContext.localTxId(), is(globalTxId));
-      return null;
-    });
-
-    ExpectedException exception = ExpectedException.none();
-    executor.execute(() -> {
-      try {
-        aspect.advise(joinPoint, sagaStart);
-      } catch (Throwable throwable) {
-        exception.expect(OmegaTxTimeoutException.class);
-      }
-    });
-
-    await().atMost(1, SECONDS).until(() -> messages.size() == 2);
-
-    TxEvent event = messages.get(1);
-
-    assertThat(event.globalTxId(), is(globalTxId));
-    assertThat(event.localTxId(), is(globalTxId));
-    assertThat(event.parentTxId(), is(nullValue()));
-    assertThat(event.type(), is(EventType.TxAbortedEvent));
-
-    latch.countDown();
-
-    await().atMost(1, SECONDS).until(() -> omegaContext.localTxId() == null);
-
-    // no redundant ended message received
-    assertThat(messages.size(), is(2));
   }
 
   private String doNothing() {

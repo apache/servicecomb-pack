@@ -20,12 +20,9 @@ package org.apache.servicecomb.saga.omega.transaction;
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -34,7 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class TimeAwareInterceptorTest {
+public class OnceAwareInterceptorTest {
   private static final int runningCounts = 1000;
 
   private final String localTxId = uniquify("localTxId");
@@ -66,70 +63,36 @@ public class TimeAwareInterceptorTest {
   };
 
   private final ExecutorService executorService = Executors.newFixedThreadPool(2);
-  private final RuntimeException timeoutException = new OmegaTxTimeoutException("timed out");
 
-
-  @Test(timeout = 5000)
-  public void invokeEitherPostInterceptOrOnTimeoutConcurrently() throws Exception {
+  @Test
+  public void invokePostIntercept() throws Exception {
     List<Future<?>> futures = new LinkedList<>();
 
     for (int i = 0; i < runningCounts; i++) {
-      TimeAwareInterceptor interceptor = new TimeAwareInterceptor(underlying);
-      CyclicBarrier cyclicBarrier = new CyclicBarrier(2);
-      ExpectedException exception = ExpectedException.none();
+      OnceAwareInterceptor interceptor = new OnceAwareInterceptor(underlying);
 
-      futures.add(executorService.submit(() -> {
-        try {
-          waitForSignal(cyclicBarrier);
-          interceptor.postIntercept(localTxId, signature);
-        } catch (Throwable throwable) {
-          exception.expect(OmegaTxTimeoutException.class);
-        }
-      }));
-
-      futures.add(executorService.submit(() -> {
-        waitForSignal(cyclicBarrier);
-        interceptor.onTimeout(localTxId, signature, timeoutException);
-      }));
+      futures.add(executorService.submit(() -> interceptor.postIntercept(localTxId, signature)));
     }
 
     waitTillAllDone(futures);
 
-    assertThat(postInterceptInvoked.get() + onTimeoutInvoked.get(), is(runningCounts));
+    assertThat(postInterceptInvoked.get(), is(runningCounts));
   }
 
-  @Test(timeout = 5000)
+  @Test
   public void invokeEitherOnErrorOrOnTimeoutConcurrently() throws Exception {
     RuntimeException oops = new RuntimeException("oops");
     List<Future<?>> futures = new LinkedList<>();
 
     for (int i = 0; i < runningCounts; i++) {
-      TimeAwareInterceptor interceptor = new TimeAwareInterceptor(underlying);
-      CyclicBarrier cyclicBarrier = new CyclicBarrier(2);
+      OnceAwareInterceptor interceptor = new OnceAwareInterceptor(underlying);
 
-
-      futures.add(executorService.submit(() -> {
-        waitForSignal(cyclicBarrier);
-        interceptor.onError(localTxId, signature, oops);
-      }));
-
-      futures.add(executorService.submit(() -> {
-        waitForSignal(cyclicBarrier);
-        interceptor.onTimeout(localTxId, signature, timeoutException);
-      }));
+      futures.add(executorService.submit(() -> interceptor.onError(localTxId, signature, oops)));
     }
 
     waitTillAllDone(futures);
 
-    assertThat(onErrorInvoked.get() + onTimeoutInvoked.get(), is(runningCounts));
-  }
-
-  private void waitForSignal(CyclicBarrier cyclicBarrier) {
-    try {
-      cyclicBarrier.await();
-    } catch (InterruptedException | BrokenBarrierException e) {
-      fail(e.getMessage());
-    }
+    assertThat(onErrorInvoked.get(), is(runningCounts));
   }
 
   private void waitTillAllDone(List<Future<?>> futures)

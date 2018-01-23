@@ -17,12 +17,8 @@
 
 package org.apache.servicecomb.saga.omega.transaction;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.context.annotations.SagaStart;
@@ -38,7 +34,7 @@ public class SagaStartAspect {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final SagaStartAnnotationProcessor sagaStartAnnotationProcessor;
-  private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+
   private final OmegaContext context;
 
   public SagaStartAspect(MessageSender sender, OmegaContext context) {
@@ -51,11 +47,10 @@ public class SagaStartAspect {
     initializeOmegaContext();
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
 
-    TimeAwareInterceptor interceptor = new TimeAwareInterceptor(sagaStartAnnotationProcessor);
+    OnceAwareInterceptor interceptor = new OnceAwareInterceptor(sagaStartAnnotationProcessor);
     interceptor.preIntercept(context.globalTxId(), method.toString(), sagaStart.timeout());
     LOG.debug("Initialized context {} before execution of method {}", context, method.toString());
 
-    scheduleTimeoutTask(interceptor, method, sagaStart.timeout());
     try {
       Object result = joinPoint.proceed();
 
@@ -73,21 +68,5 @@ public class SagaStartAspect {
 
   private void initializeOmegaContext() {
     context.setLocalTxId(context.newGlobalTxId());
-  }
-
-  private void scheduleTimeoutTask(
-      TimeAwareInterceptor interceptor,
-      Method method,
-      int timeout) {
-
-    if (timeout > 0) {
-      executor.schedule(
-          () -> interceptor.onTimeout(
-              context.globalTxId(),
-              method.toString(),
-              new OmegaTxTimeoutException("Saga " + method.toString() + " timed out")),
-          timeout,
-          MILLISECONDS);
-    }
   }
 }

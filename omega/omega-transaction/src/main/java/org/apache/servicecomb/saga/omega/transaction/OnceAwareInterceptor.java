@@ -19,12 +19,12 @@ package org.apache.servicecomb.saga.omega.transaction;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-class TimeAwareInterceptor implements EventAwareInterceptor {
+class OnceAwareInterceptor implements EventAwareInterceptor {
   private final EventAwareInterceptor interceptor;
   private final AtomicReference<EventAwareInterceptor> interceptorRef;
   private Throwable throwable = null;
 
-  TimeAwareInterceptor(EventAwareInterceptor interceptor) {
+  OnceAwareInterceptor(EventAwareInterceptor interceptor) {
     this.interceptor = interceptor;
     this.interceptorRef = new AtomicReference<>(interceptor);
   }

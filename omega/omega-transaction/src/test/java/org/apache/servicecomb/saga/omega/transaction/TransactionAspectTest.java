@@ -18,11 +18,8 @@
 package org.apache.servicecomb.saga.omega.transaction;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -32,9 +29,6 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.transaction.InvalidTransactionException;
 
@@ -68,8 +62,6 @@ public class TransactionAspectTest {
 
   private final OmegaContext omegaContext = new OmegaContext(idGenerator);
   private final TransactionAspect aspect = new TransactionAspect(sender, omegaContext);
-
-  private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
   @Before
   public void setUp() throws Exception {
@@ -128,46 +120,6 @@ public class TransactionAspectTest {
 
     assertThat(omegaContext.globalTxId(), is(globalTxId));
     assertThat(omegaContext.localTxId(), is(localTxId));
-  }
-
-  @Test
-  public void sendsAbortEventOnTimeout() throws Throwable {
-    CountDownLatch latch = new CountDownLatch(1);
-    when(compensable.timeout()).thenReturn(100);
-    when(joinPoint.proceed()).thenAnswer(invocationOnMock -> {
-      latch.await();
-      assertThat(omegaContext.localTxId(), is(newLocalTxId));
-      return null;
-    });
-
-    ExpectedException exception = ExpectedException.none();
-    executor.execute(() -> {
-      try {
-        // need to setup the thread local for it
-        omegaContext.setGlobalTxId(globalTxId);
-        omegaContext.setLocalTxId(localTxId);
-
-        aspect.advise(joinPoint, compensable);
-      } catch (Throwable throwable) {
-        exception.expect(OmegaTxTimeoutException.class);
-      }
-    });
-
-    await().atMost(1, SECONDS).until(() -> messages.size() == 2);
-
-    TxEvent event = messages.get(1);
-
-    assertThat(event.globalTxId(), is(globalTxId));
-    assertThat(event.localTxId(), is(newLocalTxId));
-    assertThat(event.parentTxId(), is(localTxId));
-    assertThat(event.type(), is(EventType.TxAbortedEvent));
-
-    latch.countDown();
-
-    await().atMost(1, SECONDS).until(() -> localTxId.equals(omegaContext.localTxId()));
-
-    // no redundant ended message received
-    assertThat(messages.size(), is(2));
   }
 
   @Test
