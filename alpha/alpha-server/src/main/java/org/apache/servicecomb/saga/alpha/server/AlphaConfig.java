@@ -25,6 +25,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.apache.servicecomb.saga.alpha.core.CommandRepository;
 import org.apache.servicecomb.saga.alpha.core.CompositeOmegaCallback;
@@ -43,6 +44,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 class AlphaConfig {
   private final BlockingQueue<Runnable> pendingCompensations = new LinkedBlockingQueue<>();
+  private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
   @Value("${alpha.compensation.retry.delay:3000}")
   private int delay;
@@ -69,7 +71,7 @@ class AlphaConfig {
 
   @Bean
   ScheduledExecutorService compensationScheduler() {
-    return Executors.newScheduledThreadPool(1);
+    return scheduler;
   }
 
   @Bean
@@ -104,5 +106,10 @@ class AlphaConfig {
   @PostConstruct
   void init() {
     new PendingTaskRunner(pendingCompensations, delay).run();
+  }
+
+  @PreDestroy
+  void shutdown() {
+    scheduler.shutdownNow();
   }
 }
