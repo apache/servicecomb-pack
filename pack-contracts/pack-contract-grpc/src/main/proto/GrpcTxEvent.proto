@@ -46,6 +46,7 @@ message GrpcTxEvent {
   bytes payloads = 7;
   string serviceName = 8;
   string instanceId = 9;
+  int32 timeout = 10;
 }
 
 message GrpcCompensateCommand {

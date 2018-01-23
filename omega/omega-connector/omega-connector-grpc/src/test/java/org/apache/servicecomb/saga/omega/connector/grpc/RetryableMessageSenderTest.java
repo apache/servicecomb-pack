@@ -42,7 +42,7 @@ public class RetryableMessageSenderTest {
 
   private final String globalTxId = uniquify("globalTxId");
   private final String localTxId = uniquify("localTxId");
-  private final TxStartedEvent event = new TxStartedEvent(globalTxId, localTxId, null, "method x");
+  private final TxStartedEvent event = new TxStartedEvent(globalTxId, localTxId, null, "method x", 0);
 
   @Test
   public void sendEventWhenSenderIsAvailable() {
@@ -56,7 +56,7 @@ public class RetryableMessageSenderTest {
 
   @Test
   public void blowsUpWhenEventIsSagaStarted() {
-    TxEvent event = new SagaStartedEvent(globalTxId, localTxId);
+    TxEvent event = new SagaStartedEvent(globalTxId, localTxId, 0);
 
     try {
       messageSender.send(event);

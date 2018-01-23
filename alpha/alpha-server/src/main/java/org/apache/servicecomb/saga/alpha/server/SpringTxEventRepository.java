@@ -37,6 +37,11 @@ class SpringTxEventRepository implements TxEventRepository {
   }
 
   @Override
+  public Optional<TxEvent> findFirstAbortedGlobalTransaction() {
+    return eventRepo.findFirstAbortedGlobalTxByType();
+  }
+
+  @Override
   public List<TxEvent> findTransactions(String globalTxId, String type) {
     return eventRepo.findByEventGlobalTxIdAndEventType(globalTxId, type);
   }
@@ -52,7 +57,12 @@ class SpringTxEventRepository implements TxEventRepository {
   }
 
   @Override
-  public void deleteDuplicateEvents(String type) {
-    eventRepo.deleteByType(type);
+  public Optional<TxEvent> findFirstTimeoutEventByIdGreaterThan(long id) {
+    return eventRepo.findFirstTimeoutSurrogateIdGreaterThan(id);
+  }
+
+  @Override
+  public void deleteDuplicateEvents(List<String> types) {
+    eventRepo.deleteByTypes(types);
   }
 }

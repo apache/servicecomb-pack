@@ -65,7 +65,7 @@ public class SagaStartAnnotationProcessorTest {
 
   @Test
   public void sendsSagaStartedEvent() {
-    sagaStartAnnotationProcessor.preIntercept(null, null);
+    sagaStartAnnotationProcessor.preIntercept(null, null, 0);
 
     TxEvent event = messages.get(0);
 
@@ -99,7 +99,7 @@ public class SagaStartAnnotationProcessorTest {
     doThrow(exception).when(sender).send(any());
 
     try {
-      sagaStartAnnotationProcessor.preIntercept(null, null);
+      sagaStartAnnotationProcessor.preIntercept(null, null, 0);
       expectFailing(TransactionalException.class);
     } catch (TransactionalException e) {
       assertThat(e.getMessage(), is("exception"));

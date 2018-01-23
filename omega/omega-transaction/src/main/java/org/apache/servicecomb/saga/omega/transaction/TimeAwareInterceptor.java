@@ -30,8 +30,8 @@ class TimeAwareInterceptor implements EventAwareInterceptor {
   }
 
   @Override
-  public AlphaResponse preIntercept(String parentTxId, String signature, Object... args) {
-    return interceptor.preIntercept(parentTxId, signature, args);
+  public AlphaResponse preIntercept(String parentTxId, String signature, int timeout, Object... args) {
+    return interceptor.preIntercept(parentTxId, signature, timeout, args);
   }
 
   @Override

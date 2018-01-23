@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS TxEvent (
   serviceName varchar(36) NOT NULL,
   instanceId varchar(36) NOT NULL,
   creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  expireTime TIMESTAMP NULL,
   globalTxId varchar(36) NOT NULL,
   localTxId varchar(36) NOT NULL,
   parentTxId varchar(36) DEFAULT NULL,

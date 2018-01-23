@@ -23,11 +23,15 @@ import java.util.Optional;
 public interface TxEventRepository {
   void save(TxEvent event);
 
+  Optional<TxEvent> findFirstAbortedGlobalTransaction();
+
   List<TxEvent> findTransactions(String globalTxId, String type);
 
   List<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id, String type);
 
   Optional<TxEvent> findFirstCompensatedEventByIdGreaterThan(long id, String type);
 
-  void deleteDuplicateEvents(String type);
+  Optional<TxEvent> findFirstTimeoutEventByIdGreaterThan(long id);
+
+  void deleteDuplicateEvents(List<String> types);
 }

@@ -20,9 +20,8 @@ package org.apache.servicecomb.saga.omega.transaction;
 import org.apache.servicecomb.saga.common.EventType;
 
 public class SagaStartedEvent extends TxEvent {
-
-  public SagaStartedEvent(String globalTxId, String localTxId) {
+  public SagaStartedEvent(String globalTxId, String localTxId, int timeout) {
     // use "" instead of null as compensationMethod requires not null in sql
-    super(EventType.SagaStartedEvent, globalTxId, localTxId, null, "");
+    super(EventType.SagaStartedEvent, globalTxId, localTxId, null, "", timeout);
   }
 }

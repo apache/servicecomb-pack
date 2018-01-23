@@ -62,7 +62,7 @@ public class CompensableInterceptorTest {
 
   @Test
   public void sendsTxStartedEventBefore() throws Exception {
-    interceptor.preIntercept(parentTxId, compensationMethod, message);
+    interceptor.preIntercept(parentTxId, compensationMethod, 0, message);
 
     TxEvent event = messages.get(0);
 

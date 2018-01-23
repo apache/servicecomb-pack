@@ -56,7 +56,7 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
   public void onConnected(GrpcServiceConfig request, StreamObserver<GrpcCompensateCommand> responseObserver) {
     omegaCallbacks
         .computeIfAbsent(request.getServiceName(), key -> new ConcurrentHashMap<>())
-        .computeIfAbsent(request.getInstanceId(), key -> new GrpcOmegaCallback(responseObserver));
+        .put(request.getInstanceId(), new GrpcOmegaCallback(responseObserver));
   }
 
   // TODO: 2018/1/5 connect is async and disconnect is sync, meaning callback may not be registered on disconnected
@@ -75,15 +75,18 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
 
   @Override
   public void onTxEvent(GrpcTxEvent message, StreamObserver<GrpcAck> responseObserver) {
+    Date date = new Date(message.getTimestamp());
+    int timeout = message.getTimeout();
     boolean ok = txConsistentService.handle(new TxEvent(
         message.getServiceName(),
         message.getInstanceId(),
-        new Date(message.getTimestamp()),
+        date,
         message.getGlobalTxId(),
         message.getLocalTxId(),
         message.getParentTxId().isEmpty() ? null : message.getParentTxId(),
         message.getType(),
         message.getCompensationMethod(),
+        timeout == 0 ? null : new Date(date.getTime() + timeout),
         message.getPayloads().toByteArray()
     ));
 

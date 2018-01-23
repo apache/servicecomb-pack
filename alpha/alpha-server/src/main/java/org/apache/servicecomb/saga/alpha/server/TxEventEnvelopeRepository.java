@@ -31,8 +31,16 @@ import org.springframework.data.repository.CrudRepository;
 interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
   List<TxEvent> findByGlobalTxId(String globalTxId);
 
+  @Query("SELECT t FROM TxEvent t "
+      + "WHERE t.type = 'TxAbortedEvent' AND NOT EXISTS( "
+      + "  SELECT t1.globalTxId FROM TxEvent t1"
+      + "  WHERE t1.globalTxId = t.globalTxId "
+      + "    AND t1.type IN ('TxEndedEvent', 'SagaEndedEvent'))")
+  Optional<TxEvent> findFirstAbortedGlobalTxByType();
+
   @Query("SELECT DISTINCT new org.apache.servicecomb.saga.alpha.core.TxEvent("
-      + "t.serviceName, t.instanceId, t.globalTxId, t.localTxId, t.parentTxId, t.type, t.compensationMethod, t.payloads"
+      + "t.serviceName, t.instanceId, t.globalTxId, t.localTxId, t.parentTxId, "
+      + "t.type, t.compensationMethod, t.expireTime, t.payloads"
       + ") FROM TxEvent t "
       + "WHERE t.globalTxId = ?1 AND t.type = ?2")
   List<TxEvent> findByEventGlobalTxIdAndEventType(String globalTxId, String type);
@@ -70,13 +78,26 @@ interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
 
   Optional<TxEvent> findFirstByTypeAndSurrogateIdGreaterThan(String type, long surrogateId);
 
+  @Query("SELECT t FROM TxEvent t "
+      + "WHERE t.type IN ('TxStartedEvent', 'SagaStartedEvent') "
+      + "  AND t.expireTime IS NOT NULL "
+      + "  AND t.expireTime < CURRENT_TIMESTAMP "
+      + "  AND t.surrogateId > ?1 AND NOT EXISTS ("
+      + "  SELECT t1.globalTxId"
+      + "  FROM TxEvent t1 "
+      + "  WHERE t1.globalTxId = t.globalTxId "
+      + "  AND t1.localTxId = t.localTxId "
+      + "  AND t1.type IN ('TxEndedEvent', 'SagaEndedEvent')) "
+      + "ORDER BY t.surrogateId ASC")
+  Optional<TxEvent> findFirstTimeoutSurrogateIdGreaterThan(long surrogateId);
+
   @Transactional
   @Modifying(clearAutomatically = true)
   @Query("DELETE FROM TxEvent t "
-      + "WHERE t.type = ?1 AND t.surrogateId NOT IN ("
+      + "WHERE t.type IN ?1 AND t.surrogateId NOT IN ("
       + " SELECT MAX(t1.surrogateId) FROM TxEvent t1 "
-      + " WHERE t1.type = ?1"
+      + " WHERE t1.type = t.type"
       + " GROUP BY t1.globalTxId"
       + ")")
-  void deleteByType(String type);
+  void deleteByTypes(List<String> types);
 }
