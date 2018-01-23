@@ -32,6 +32,7 @@
   <modules>
     <module>dependency-free-transaction-demo</module>
     <module>conditional-transaction-demo</module>
+    <module>pack-demo</module>
   </modules>
 
   <dependencyManagement>
