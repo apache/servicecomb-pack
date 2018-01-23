@@ -17,12 +17,8 @@
 
 package org.apache.servicecomb.saga.omega.transaction;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import javax.transaction.InvalidTransactionException;
 
@@ -40,7 +36,7 @@ public class TransactionAspect {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final OmegaContext context;
-  private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+
   private final CompensableInterceptor interceptor;
 
   public TransactionAspect(MessageSender sender, OmegaContext context) {
@@ -58,7 +54,7 @@ public class TransactionAspect {
     String localTxId = context.localTxId();
     context.newLocalTxId();
 
-    TimeAwareInterceptor interceptor = new TimeAwareInterceptor(this.interceptor);
+    OnceAwareInterceptor interceptor = new OnceAwareInterceptor(this.interceptor);
     AlphaResponse response = interceptor.preIntercept(localTxId, signature, compensable.timeout(), joinPoint.getArgs());
     if (response.aborted()) {
       String abortedLocalTxId = context.localTxId();
@@ -67,9 +63,6 @@ public class TransactionAspect {
           " because global transaction " + context.globalTxId() + " has already aborted.");
     }
     LOG.debug("Updated context {} for compensable method {} ", context, method.toString());
-
-    // TODO: 2018/1/15 omega shall be stateless, all states shall be on alpha
-    scheduleTimeoutTask(interceptor, localTxId, signature, method, compensable.timeout());
 
     try {
       Object result = joinPoint.proceed();
@@ -82,24 +75,6 @@ public class TransactionAspect {
     } finally {
       context.setLocalTxId(localTxId);
       LOG.debug("Restored context back to {}", context);
-    }
-  }
-
-  private void scheduleTimeoutTask(
-      TimeAwareInterceptor interceptor,
-      String localTxId,
-      String signature,
-      Method method,
-      int timeout) {
-
-    if (timeout > 0) {
-      executor.schedule(
-          () -> interceptor.onTimeout(
-              localTxId,
-              signature,
-              new OmegaTxTimeoutException("Transaction " + method.toString() + " timed out")),
-          timeout,
-          MILLISECONDS);
     }
   }
 
