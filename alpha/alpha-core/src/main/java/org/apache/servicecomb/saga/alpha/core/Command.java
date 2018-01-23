@@ -115,11 +115,11 @@ public class Command {
     return localTxId;
   }
 
-  String parentTxId() {
+  public String parentTxId() {
     return parentTxId;
   }
 
-  String compensationMethod() {
+  public String compensationMethod() {
     return compensationMethod;
   }
 

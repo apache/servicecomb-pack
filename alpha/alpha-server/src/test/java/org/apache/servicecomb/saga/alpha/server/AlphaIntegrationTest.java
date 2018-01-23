@@ -438,6 +438,55 @@ public class AlphaIntegrationTest {
     return false;
   }
 
+  @Test
+  public void retiesAndCompensateOnFailure() throws Exception {
+    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+
+    String localTxId1 = UUID.randomUUID().toString();
+
+    blockingStub.onTxEvent(GrpcTxEvent.newBuilder()
+        .setServiceName(serviceName)
+        .setInstanceId(instanceId)
+        .setTimestamp(System.currentTimeMillis())
+        .setGlobalTxId(globalTxId)
+        .setLocalTxId(localTxId1)
+        .setParentTxId(parentTxId)
+        .setType(TxStartedEvent.name())
+        .setCompensationMethod("Compensation Method")
+        .setPayloads(ByteString.copyFrom(payload.getBytes()))
+        .setRetries(3).setRetriesMethod("Retries Method")
+        .build());
+    blockingStub.onTxEvent(someGrpcEvent(TxEndedEvent, globalTxId, localTxId1));
+
+    await().atMost(3, SECONDS).until(() -> !eventRepo.findByGlobalTxId(globalTxId).isEmpty());
+
+    for (int i = 0; i < 3; i++) {
+      blockingStub.onTxEvent(
+          eventOf(TxAbortedEvent, localTxId, localTxId1, payload.getBytes(), getClass().getCanonicalName()));
+
+      await().atMost(3, SECONDS).until(() -> receivedCommands.size() == 1);
+
+      GrpcCompensateCommand command = receivedCommands.poll();
+      assertThat(command.getGlobalTxId(), is(globalTxId));
+      assertThat(command.getLocalTxId(), is(localTxId1));
+      assertThat(command.getParentTxId(), is(parentTxId));
+      assertThat(command.getCompensateMethod(), is("Retries Method"));
+      assertThat(command.getPayloads().toByteArray(), is(payload.getBytes()));
+    }
+
+    blockingStub.onTxEvent(
+        eventOf(TxAbortedEvent, localTxId, localTxId1, payload.getBytes(), getClass().getCanonicalName()));
+
+    await().atMost(3, SECONDS).until(() -> receivedCommands.size() == 1);
+
+    GrpcCompensateCommand command = receivedCommands.poll();
+    assertThat(command.getGlobalTxId(), is(globalTxId));
+    assertThat(command.getLocalTxId(), is(localTxId1));
+    assertThat(command.getParentTxId(), is(parentTxId));
+    assertThat(command.getCompensateMethod(), is("Compensation Method"));
+    assertThat(command.getPayloads().toByteArray(), is(payload.getBytes()));
+  }
+
   private GrpcAck onCompensation(GrpcCompensateCommand command) {
     return blockingStub.onTxEvent(
         eventOf(TxCompensatedEvent,
