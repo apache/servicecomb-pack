@@ -44,6 +44,7 @@
     <module>pack-common</module>
     <module>integration-tests</module>
     <module>saga-persistence</module>
+    <module>acceptance-tests</module>
   </modules>
 
   <properties>
