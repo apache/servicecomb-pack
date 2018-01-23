@@ -17,29 +17,42 @@
 
 package org.apache.servicecomb.saga;
 
-import cucumber.api.PendingException;
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cucumber.api.DataTable;
 import cucumber.api.java8.En;
 
 public class PackStepdefs implements En {
+  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
   public PackStepdefs() {
     Given("^Car Service is up and running$", () -> {
-      // Write code here that turns the phrase above into concrete actions
-      throw new PendingException();
     });
 
     And("^Hotel Service is up and running$", () -> {
-      // Write code here that turns the phrase above into concrete actions
-      throw new PendingException();
     });
 
-    When("^A booking transaction is received$", () -> {
-      // Write code here that turns the phrase above into concrete actions
-      throw new PendingException();
+    When("^User ([A-Za-z]+) requests to book ([0-9]+) cars and ([0-9]+) rooms$", (username, cars, rooms) -> {
+      log.info("Received request from user {} to book {} cars and {} rooms", username, cars, rooms);
     });
 
-    Then("^Alpha records the following events$", () -> {
-      // Write code here that turns the phrase above into concrete actions
-      throw new PendingException();
+    Then("^Alpha records the following events$", (DataTable dataTable) -> {
+      List<Map<String, String>> maps = dataTable.asMaps(String.class, String.class);
+      log.info("events {}", maps);
+    });
+
+    And("^Car Service contains the following booking orders$", (DataTable dataTable) -> {
+      List<Map<String, String>> maps = dataTable.asMaps(String.class, String.class);
+      log.info("car orders {}", maps);
+    });
+    And("^Hotel Service contains the following booking orders$", (DataTable dataTable) -> {
+      List<Map<String, String>> maps = dataTable.asMaps(String.class, String.class);
+      log.info("hotel orders {}", maps);
     });
   }
 }
