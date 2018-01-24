@@ -3,6 +3,8 @@ Feature: Alpha records transaction events
   Scenario: Everything is normal
     Given Car Service is up and running
     And Hotel Service is up and running
+    And Booking Service is up and running
+    And Alpha is up and running
 
     When User Sean requests to book 2 cars and 1 rooms
 
