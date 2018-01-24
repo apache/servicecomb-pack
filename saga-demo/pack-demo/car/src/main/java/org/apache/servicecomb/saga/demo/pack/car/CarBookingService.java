@@ -21,29 +21,31 @@ import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-public class CarBookingService {
-  private ConcurrentHashMap<Integer, CarBooking> bookings = new ConcurrentHashMap<>();
+class CarBookingService {
+  private Map<Integer, CarBooking> bookings = new ConcurrentHashMap<>();
 
   @Compensable(compensationMethod = "cancel")
-  public void order(CarBooking booking) {
-    booking.setConfirm(true);
-    booking.setCancel(false);
+  void order(CarBooking booking) {
+    booking.confirm();
     bookings.put(booking.getId(), booking);
   }
 
-  public void cancel(CarBooking booking) {
+  void cancel(CarBooking booking) {
     Integer id = booking.getId();
     if (bookings.containsKey(id)) {
-      CarBooking origin = bookings.get(id);
-      origin.setConfirm(false);
-      origin.setCancel(true);
+      bookings.get(id).cancel();
     }
   }
 
-  public Collection<CarBooking> getAllBookings() {
+  Collection<CarBooking> getAllBookings() {
     return bookings.values();
+  }
+
+  void clearAllBookings() {
+    bookings.clear();
   }
 }

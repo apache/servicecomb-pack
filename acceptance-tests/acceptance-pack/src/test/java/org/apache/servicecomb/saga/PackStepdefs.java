@@ -18,30 +18,38 @@
 package org.apache.servicecomb.saga;
 
 import static io.restassured.RestAssured.given;
+import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cucumber.api.DataTable;
+import cucumber.api.java.After;
 import cucumber.api.java8.En;
 
 public class PackStepdefs implements En {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+  private static final String ALPHA_REST_ADDRESS = "alpha.rest.address";
+  private static final String CAR_SERVICE_ADDRESS = "car.service.address";
+  private static final String HOTEL_SERVICE_ADDRESS = "hotel.service.address";
+  private static final String[] addresses = {CAR_SERVICE_ADDRESS, HOTEL_SERVICE_ADDRESS};
+
+  private static final Consumer<Map<String, String>[]> NO_OP_CONSUMER = (dataMap) -> {
+  };
+
   public PackStepdefs() {
     Given("^Car Service is up and running$", () -> {
-      probe(System.getProperty("car.service.address"));
+      probe(System.getProperty(CAR_SERVICE_ADDRESS));
     });
 
     And("^Hotel Service is up and running$", () -> {
-      probe(System.getProperty("hotel.service.address"));
+      probe(System.getProperty(HOTEL_SERVICE_ADDRESS));
     });
 
     When("^User ([A-Za-z]+) requests to book ([0-9]+) cars and ([0-9]+) rooms$", (username, cars, rooms) -> {
@@ -58,43 +66,63 @@ public class PackStepdefs implements En {
     });
 
     Then("^Alpha records the following events$", (DataTable dataTable) -> {
-      List<Map<String, String>> maps = dataTable.asMaps(String.class, String.class);
-      log.info("events {}", maps);
+      Consumer<Map<String, String>[]> columnStrippingConsumer = dataMap -> {
+        for (Map<String, String> map : dataMap)
+          map.keySet().retainAll(dataTable.topCells());
+      };
+
+      dataMatches(System.getProperty(ALPHA_REST_ADDRESS) + "/events", dataTable, columnStrippingConsumer);
     });
 
     And("^Car Service contains the following booking orders$", (DataTable dataTable) -> {
-      List<Map<String, String>> maps = dataTable.asMaps(String.class, String.class);
-      log.info("car orders {}", maps);
-
-      bookingsMatches(dataTable, "car.service.address");
+      dataMatches(System.getProperty(CAR_SERVICE_ADDRESS) + "/bookings", dataTable, NO_OP_CONSUMER);
     });
 
     And("^Hotel Service contains the following booking orders$", (DataTable dataTable) -> {
-      List<Map<String, String>> maps = dataTable.asMaps(String.class, String.class);
-      log.info("hotel orders {}", maps);
-
-      bookingsMatches(dataTable, "hotel.service.address");
+      dataMatches(System.getProperty(HOTEL_SERVICE_ADDRESS) + "/bookings", dataTable, NO_OP_CONSUMER);
     });
   }
 
-  @SuppressWarnings("unchecked")
-  private void bookingsMatches(DataTable dataTable, String address) {
-    Map<String, String>[] bookings = given()
+  @After
+  public void cleanUp() {
+    log.info("Cleaning up services");
+    for (String address : addresses) {
+      given()
+          .when()
+          .delete(System.getProperty(address) + "/bookings")
+          .then()
+          .statusCode(is(200));
+    }
+
+    given()
         .when()
-        .post(System.getProperty(address) + "/bookings")
+        .delete(System.getProperty(ALPHA_REST_ADDRESS) + "/events")
+        .then()
+        .statusCode(is(200));
+  }
+
+  @SuppressWarnings("unchecked")
+  private void dataMatches(String address, DataTable dataTable, Consumer<Map<String, String>[]> dataProcessor) {
+    Map<String, String>[] dataMap = given()
+        .when()
+        .get(address)
         .then()
         .statusCode(is(200))
         .extract()
         .body()
         .as(Map[].class);
 
-    dataTable.diff(Arrays.stream(bookings).collect(Collectors.toList()));
+    dataProcessor.accept(dataMap);
+
+    log.info("Retrieved data {} from service", dataMap);
+    dataTable.diff(DataTable.create(asList(dataMap)));
   }
 
   private void probe(String address) {
+    log.info("Connecting to service address {}", address);
     given()
         .when()
-        .post(address + "/info")
+        .get(address + "/info")
         .then()
         .statusCode(is(200));
   }

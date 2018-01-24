@@ -28,6 +28,19 @@
 
   <artifactId>acceptance-pack</artifactId>
 
+  <dependencies>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+  </dependencies>
+
   <profiles>
     <profile>
       <id>docker</id>
@@ -78,16 +91,92 @@
                       <tcp>
                         <ports>
                           <port>8080</port>
+                          <port>8090</port>
                         </ports>
                       </tcp>
                       <time>120000</time>
                     </wait>
                     <ports>
                       <port>alpha.port:8080</port>
+                      <port>alpha.rest.port:8090</port>
                     </ports>
                     <dependsOn>
                       <dependsOn>postgres</dependsOn>
                     </dependsOn>
+                  </run>
+                </image>
+                <image>
+                  <name>pack-car:${project.version}</name>
+                  <alias>car</alias>
+                  <run>
+                    <env>
+                      <JAVA_OPTS />
+                    </env>
+                    <wait>
+                      <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
+                      <tcp>
+                        <ports>
+                          <port>8080</port>
+                        </ports>
+                      </tcp>
+                      <time>120000</time>
+                    </wait>
+                    <links>
+                      <link>alpha:alpha-server.servicecomb.io</link>
+                    </links>
+                    <ports>
+                      <port>car.port:8080</port>
+                    </ports>
+                  </run>
+                </image>
+                <image>
+                  <name>pack-hotel:${project.version}</name>
+                  <alias>hotel</alias>
+                  <run>
+                    <env>
+                      <JAVA_OPTS />
+                    </env>
+                    <wait>
+                      <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
+                      <tcp>
+                        <ports>
+                          <port>8080</port>
+                        </ports>
+                      </tcp>
+                      <time>120000</time>
+                    </wait>
+                    <links>
+                      <link>alpha:alpha-server.servicecomb.io</link>
+                    </links>
+                    <ports>
+                      <port>hotel.port:8080</port>
+                    </ports>
+                  </run>
+                </image>
+                <image>
+                  <name>pack-booking:${project.version}</name>
+                  <alias>booking</alias>
+                  <run>
+                    <env>
+                      <JAVA_OPTS />
+                    </env>
+                    <wait>
+                      <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
+                      <tcp>
+                        <ports>
+                          <port>8080</port>
+                        </ports>
+                      </tcp>
+                      <time>120000</time>
+                    </wait>
+                    <links>
+                      <link>alpha:alpha-server.servicecomb.io</link>
+                      <link>car:pack-car.servicecomb.io</link>
+                      <link>hotel:pack-hotel.servicecomb.io</link>
+                    </links>
+                    <ports>
+                      <port>booking.port:8080</port>
+                    </ports>
                   </run>
                 </image>
               </images>
@@ -135,8 +224,20 @@
             <configuration>
               <systemPropertyVariables>
                 <alpha.cluster.address>
-                  ${docker.hostname}:${alpha.port}
+                  http://${docker.hostname}:${alpha.port}
                 </alpha.cluster.address>
+                <alpha.rest.address>
+                  http://${docker.hostname}:${alpha.rest.port}
+                </alpha.rest.address>
+                <car.service.address>
+                  http://${docker.hostname}:${car.port}
+                </car.service.address>
+                <hotel.service.address>
+                  http://${docker.hostname}:${hotel.port}
+                </hotel.service.address>
+                <booking.service.address>
+                  http://${docker.hostname}:${booking.port}
+                </booking.service.address>
                 <spring.datasource.url>
                   jdbc:postgresql://${docker.hostname}:${postgres.port}/saga?useSSL=false
                 </spring.datasource.url>

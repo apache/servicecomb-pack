@@ -133,7 +133,6 @@ public class EventScanner implements Runnable {
         EMPTY_PAYLOAD);
   }
 
-  // TODO: 2018/1/19 potentially compensation may be out of order if we don't wait till received compensated event for the previous one, since compensation is async
   private void compensate() {
     commandRepository.findFirstCommandToCompensate()
         .forEach(command -> {

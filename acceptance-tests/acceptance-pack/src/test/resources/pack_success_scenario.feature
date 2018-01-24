@@ -7,7 +7,7 @@ Feature: Alpha records transaction events
     When User Sean requests to book 2 cars and 1 rooms
 
     Then Alpha records the following events
-      | service name | event type       |
+      | serviceName  | type             |
       | pack-booking | SagaStartedEvent |
       | pack-car     | TxStartedEvent   |
       | pack-car     | TxEndedEvent     |
@@ -16,9 +16,9 @@ Feature: Alpha records transaction events
       | pack-booking | SagaEndedEvent   |
 
     And Car Service contains the following booking orders
-      | user name | amount | confirmed |
-      | Sean      | 2      | true      |
+      | name | amount | confirmed | cancelled |
+      | Sean | 2      | true      | false     |
 
     And Hotel Service contains the following booking orders
-      | user name | amount | confirmed |
-      | Sean      | 1      | true      |
+      | name | amount | confirmed | cancelled |
+      | Sean | 1      | true      | false     |
