@@ -38,6 +38,7 @@ public class PackStepdefs implements En {
   private static final String ALPHA_REST_ADDRESS = "alpha.rest.address";
   private static final String CAR_SERVICE_ADDRESS = "car.service.address";
   private static final String HOTEL_SERVICE_ADDRESS = "hotel.service.address";
+  private static final String BOOKING_SERVICE_ADDRESS = "booking.service.address";
   private static final String[] addresses = {CAR_SERVICE_ADDRESS, HOTEL_SERVICE_ADDRESS};
 
   private static final Consumer<Map<String, String>[]> NO_OP_CONSUMER = (dataMap) -> {
@@ -50,6 +51,14 @@ public class PackStepdefs implements En {
 
     And("^Hotel Service is up and running$", () -> {
       probe(System.getProperty(HOTEL_SERVICE_ADDRESS));
+    });
+
+    And("^Booking Service is up and running$", () -> {
+      probe(System.getProperty(BOOKING_SERVICE_ADDRESS));
+    });
+
+    And("^Alpha is up and running$", () -> {
+      probe(System.getProperty(ALPHA_REST_ADDRESS));
     });
 
     When("^User ([A-Za-z]+) requests to book ([0-9]+) cars and ([0-9]+) rooms$", (username, cars, rooms) -> {
