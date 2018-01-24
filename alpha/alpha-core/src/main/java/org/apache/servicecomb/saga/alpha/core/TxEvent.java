@@ -39,6 +39,8 @@ public class TxEvent {
   private String type;
   private String compensationMethod;
   private byte[] payloads;
+  private int retries;
+  private String retriesMethod;
 
   private TxEvent() {
   }
@@ -68,43 +70,57 @@ public class TxEvent {
     this(serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type, compensationMethod, payloads);
   }
 
-  public TxEvent(
-      String serviceName,
-      String instanceId,
-      Date creationTime,
-      String globalTxId,
-      String localTxId,
-      String parentTxId,
-      String type,
-      String compensationMethod,
-      byte[] payloads) {
-    this(-1L, serviceName, instanceId, creationTime, globalTxId, localTxId, parentTxId, type, compensationMethod, payloads);
+  public TxEvent(String serviceName, String instanceId, Date creationTime, String globalTxId, String localTxId,
+      String parentTxId, String type, String compensationMethod, byte[] payloads) {
+    this(
+        -1L,
+        serviceName,
+        instanceId,
+        creationTime,
+        globalTxId,
+        localTxId,
+        parentTxId,
+        type,
+        compensationMethod,
+        0, "",
+        payloads);
   }
 
-  public TxEvent(
-      long id,
-      String serviceName,
-      String instanceId,
-      String globalTxId,
-      String localTxId,
-      String parentTxId,
-      String type,
-      String compensationMethod,
-      byte[] payloads) {
-    this(id, serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type, compensationMethod, payloads);
+  public TxEvent(Long id, String serviceName, String instanceId, Date creationTime, String globalTxId, String localTxId,
+      String parentTxId, String type, String compensationMethod, byte[] payloads) {
+    this(
+        id,
+        serviceName,
+        instanceId,
+        creationTime,
+        globalTxId,
+        localTxId,
+        parentTxId,
+        type,
+        compensationMethod,
+        0, "",
+        payloads);
   }
 
-  TxEvent(Long surrogateId,
-      String serviceName,
-      String instanceId,
-      Date creationTime,
-      String globalTxId,
-      String localTxId,
-      String parentTxId,
-      String type,
-      String compensationMethod,
-      byte[] payloads) {
+  public TxEvent(long id, String serviceName, String instanceId, String globalTxId, String localTxId, String parentTxId,
+      String type, String compensationMethod, byte[] payloads) {
+    this(
+        id,
+        serviceName,
+        instanceId,
+        new Date(),
+        globalTxId,
+        localTxId,
+        parentTxId,
+        type,
+        compensationMethod,
+        0, "",
+        payloads);
+  }
 
+  TxEvent(Long surrogateId, String serviceName, String instanceId, Date creationTime, String globalTxId,
+      String localTxId, String parentTxId, String type, String compensationMethod, int retries, String retriesMethod,
+      byte[] payloads) {
     this.surrogateId = surrogateId;
     this.serviceName = serviceName;
     this.instanceId = instanceId;
@@ -114,6 +130,25 @@ public class TxEvent {
     this.parentTxId = parentTxId;
     this.type = type;
     this.compensationMethod = compensationMethod;
+    this.retriesMethod = retriesMethod;
+    this.retries = retries;
+    this.payloads = payloads;
+  }
+
+
+  public TxEvent(String serviceName, String instanceId, Date creationTime, String globalTxId,
+      String localTxId, String parentTxId, String type, String compensationMethod, String retriesMethod, int retries,
+      byte[] payloads) {
+    this.serviceName = serviceName;
+    this.instanceId = instanceId;
+    this.creationTime = creationTime;
+    this.globalTxId = globalTxId;
+    this.localTxId = localTxId;
+    this.parentTxId = parentTxId;
+    this.type = type;
+    this.compensationMethod = compensationMethod;
+    this.retriesMethod = retriesMethod;
+    this.retries = retries;
     this.payloads = payloads;
   }
 
@@ -170,5 +205,17 @@ public class TxEvent {
         ", type='" + type + '\'' +
         ", compensationMethod='" + compensationMethod + '\'' +
         '}';
+  }
+
+  public int retries() {
+    return retries;
+  }
+
+  public String retriesMethod() {
+    return retriesMethod;
+  }
+
+  public boolean containChildren(TxEvent event) {
+    return this.localTxId.equals(event.parentTxId);
   }
 }

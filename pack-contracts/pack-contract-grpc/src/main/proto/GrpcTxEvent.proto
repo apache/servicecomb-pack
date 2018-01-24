@@ -46,6 +46,8 @@ message GrpcTxEvent {
   bytes payloads = 7;
   string serviceName = 8;
   string instanceId = 9;
+  int32 retries = 10;
+  string retriesMethod = 11;
 }
 
 message GrpcCompensateCommand {

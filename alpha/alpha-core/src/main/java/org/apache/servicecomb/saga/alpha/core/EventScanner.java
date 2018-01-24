@@ -18,10 +18,7 @@
 package org.apache.servicecomb.saga.alpha.core;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.apache.servicecomb.saga.common.EventType.SagaEndedEvent;
-import static org.apache.servicecomb.saga.common.EventType.TxCompensatedEvent;
-import static org.apache.servicecomb.saga.common.EventType.TxEndedEvent;
-import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
+import static org.apache.servicecomb.saga.common.EventType.*;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Date;
@@ -40,7 +37,7 @@ public class EventScanner implements Runnable {
   private final OmegaCallback omegaCallback;
   private final int eventPollingInterval;
 
-  private long nextEndedEventId;
+  private long nextAbortedEventId;
   private long nextCompensatedEventId;
 
   public EventScanner(ScheduledExecutorService scheduler,
@@ -75,11 +72,11 @@ public class EventScanner implements Runnable {
   }
 
   private void saveUncompensatedEventsToCommands() {
-    eventRepository.findFirstUncompensatedEventByIdGreaterThan(nextEndedEventId, TxEndedEvent.name())
+    eventRepository.findByTypeAndIdGreaterThan(nextAbortedEventId, TxAbortedEvent.name())
         .forEach(event -> {
-          log.info("Found uncompensated event {}", event);
-          nextEndedEventId = event.id();
-          commandRepository.saveCompensationCommands(event.globalTxId());
+          log.info("Found aborted event {}", event);
+          nextAbortedEventId = event.id();
+          commandRepository.saveCompensationCommands(event);
         });
   }
 

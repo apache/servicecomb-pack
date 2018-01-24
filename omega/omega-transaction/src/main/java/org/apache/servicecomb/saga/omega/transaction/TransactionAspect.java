@@ -40,12 +40,12 @@ public class TransactionAspect {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final OmegaContext context;
+  private final EventAwareInterceptor interceptor;
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-  private final CompensableInterceptor interceptor;
 
-  public TransactionAspect(MessageSender sender, OmegaContext context) {
+  public TransactionAspect(MessageSender messageSender, OmegaContext context) {
     this.context = context;
-    this.interceptor = new CompensableInterceptor(context, sender);
+    this.interceptor = new CompensableInterceptor(context,messageSender);
   }
 
   @Around("execution(@org.apache.servicecomb.saga.omega.transaction.annotations.Compensable * *(..)) && @annotation(compensable)")
@@ -53,13 +53,16 @@ public class TransactionAspect {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
     LOG.debug("Intercepting compensable method {} with context {}", method.toString(), context);
 
-    String signature = compensationMethodSignature(joinPoint, compensable, method);
+    Object[] args = joinPoint.getArgs();
+    int retries = compensable.retries();
+    String retriesSignature = ((MethodSignature) joinPoint.getSignature()).getMethod().toString();
+    String compensationSignature = compensationMethodSignature(joinPoint, compensable, method);
 
     String localTxId = context.localTxId();
     context.newLocalTxId();
 
     TimeAwareInterceptor interceptor = new TimeAwareInterceptor(this.interceptor);
-    AlphaResponse response = interceptor.preIntercept(localTxId, signature, joinPoint.getArgs());
+    AlphaResponse response = interceptor.preIntercept(localTxId, retriesSignature, compensationSignature, retries, args);
     if (response.aborted()) {
       String abortedLocalTxId = context.localTxId();
       context.setLocalTxId(localTxId);
@@ -68,16 +71,15 @@ public class TransactionAspect {
     }
     LOG.debug("Updated context {} for compensable method {} ", context, method.toString());
 
-    // TODO: 2018/1/15 omega shall be stateless, all states shall be on alpha
-    scheduleTimeoutTask(interceptor, localTxId, signature, method, compensable.timeout());
+    scheduleTimeoutTask(interceptor, localTxId, compensationSignature, method, compensable.timeout());
 
     try {
       Object result = joinPoint.proceed();
-      interceptor.postIntercept(localTxId, signature);
+      interceptor.postIntercept(localTxId, compensationSignature);
 
       return result;
     } catch (Throwable throwable) {
-      interceptor.onError(localTxId, signature, throwable);
+      interceptor.onError(localTxId, compensationSignature, throwable);
       throw throwable;
     } finally {
       context.setLocalTxId(localTxId);
@@ -87,7 +89,7 @@ public class TransactionAspect {
 
   private void scheduleTimeoutTask(
       TimeAwareInterceptor interceptor,
-      String localTxId,
+      String parentTxId,
       String signature,
       Method method,
       int timeout) {
@@ -95,7 +97,7 @@ public class TransactionAspect {
     if (timeout > 0) {
       executor.schedule(
           () -> interceptor.onTimeout(
-              localTxId,
+              parentTxId,
               signature,
               new OmegaTxTimeoutException("Transaction " + method.toString() + " timed out")),
           timeout,

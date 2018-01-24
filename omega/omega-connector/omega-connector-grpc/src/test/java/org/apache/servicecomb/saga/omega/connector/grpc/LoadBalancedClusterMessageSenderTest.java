@@ -299,7 +299,7 @@ public class LoadBalancedClusterMessageSenderTest {
   public void forwardSendResult() {
     assertThat(messageSender.send(event).aborted(), is(false));
 
-    TxEvent rejectEvent = new TxStartedEvent(globalTxId, localTxId, parentTxId, "reject", "blah");
+    TxEvent rejectEvent = new TxStartedEvent(globalTxId, localTxId, parentTxId, "reject", null, 0, "blah");
     assertThat(messageSender.send(rejectEvent).aborted(), is(true));
   }
 

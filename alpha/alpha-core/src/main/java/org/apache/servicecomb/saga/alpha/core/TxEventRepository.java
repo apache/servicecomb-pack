@@ -25,7 +25,7 @@ public interface TxEventRepository {
 
   List<TxEvent> findTransactions(String globalTxId, String type);
 
-  List<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id, String type);
+  List<TxEvent> findByTypeAndIdGreaterThan(long id, String type);
 
   Optional<TxEvent> findFirstCompensatedEventByIdGreaterThan(long id, String type);
 

@@ -17,23 +17,21 @@
 
 package org.apache.servicecomb.saga.alpha.server;
 
-import static org.apache.servicecomb.saga.alpha.core.CommandStatus.DONE;
-import static org.apache.servicecomb.saga.alpha.core.CommandStatus.NEW;
-import static org.apache.servicecomb.saga.alpha.core.CommandStatus.PENDING;
-
-import java.lang.invoke.MethodHandles;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.transaction.Transactional;
-
 import org.apache.servicecomb.saga.alpha.core.Command;
 import org.apache.servicecomb.saga.alpha.core.CommandRepository;
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
+
+import javax.transaction.Transactional;
+import java.lang.invoke.MethodHandles;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import static org.apache.servicecomb.saga.alpha.core.CommandStatus.*;
 
 public class SpringCommandRepository implements CommandRepository {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -48,25 +46,32 @@ public class SpringCommandRepository implements CommandRepository {
   }
 
   @Override
-  public void saveCompensationCommands(String globalTxId) {
-    List<TxEvent> events = eventRepository
-        .findStartedEventsWithMatchingEndedButNotCompensatedEvents(globalTxId);
+  public void saveCompensationCommands(TxEvent abortEvent) {
+    Optional<TxEvent> compensationStartedEvent =
+        eventRepository.findStartedEventWithLocalTxId(abortEvent.globalTxId(), abortEvent.parentTxId());
 
-    Map<String, Command> commands = new LinkedHashMap<>();
+    compensationStartedEvent.ifPresent(txEvent -> {
+      String retriesMethod = txEvent.retriesMethod();
+      long retried = retriedTimes(txEvent.globalTxId(), retriesMethod, txEvent.localTxId());
 
-    for (TxEvent event : events) {
-      commands.computeIfAbsent(event.localTxId(), k -> new Command(event));
-    }
+      List<TxEvent> compensationEvents = createRetriesTxEvent(abortEvent.id(), txEvent);
 
-    for (Command command : commands.values()) {
-      log.info("Saving compensation command {}", command);
-      try {
-        commandRepository.save(command);
-      } catch (Exception e) {
-        log.warn("Failed to save some command {}", command);
+      if (txEvent.retries() < (retried + 1)) {
+        compensationEvents =
+            eventRepository.findStartedEventsWithMatchingEndedButNotCompensatedEvents(txEvent.globalTxId());
       }
-      log.info("Saved compensation command {}", command);
-    }
+
+      compensationEvents.stream().map(Command::new)
+          .forEach(command -> {
+            log.info("Saving compensation command {}", command);
+            try {
+              commandRepository.save(command);
+            } catch (Exception e) {
+              log.warn("Failed to save some command {}", command);
+            }
+            log.info("Saved compensation command {}", command);
+          });
+    });
   }
 
   @Override
@@ -92,5 +97,19 @@ public class SpringCommandRepository implements CommandRepository {
             command.localTxId()));
 
     return commands;
+  }
+
+  private long retriedTimes(String globalTxId, String retriesMethod, String localTxId) {
+    return commandRepository.findByGlobalTxIdAndStatus(globalTxId, DONE.name()).stream()
+        .filter(c -> Objects.equals(c.compensationMethod(), retriesMethod)
+            && Objects.equals(c.localTxId(), localTxId)).count();
+  }
+
+  private List<TxEvent> createRetriesTxEvent(long abortEventId, TxEvent txEvent) {
+    return Collections.singletonList(new TxEvent(
+        abortEventId, txEvent.serviceName(), txEvent.instanceId(), txEvent.creationTime(),
+        txEvent.globalTxId(), txEvent.localTxId(), txEvent.parentTxId(),
+        txEvent.type(), txEvent.retriesMethod(), txEvent.payloads()
+    ));
   }
 }

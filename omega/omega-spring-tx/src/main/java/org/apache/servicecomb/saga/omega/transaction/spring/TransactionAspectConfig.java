@@ -34,8 +34,8 @@ import org.springframework.core.annotation.Order;
 public class TransactionAspectConfig {
 
   @Bean
-  MessageHandler messageHandler(MessageSender sender, CompensationContext context) {
-    return new CompensationMessageHandler(sender, context);
+  MessageHandler messageHandler(MessageSender sender, CompensationContext context, OmegaContext omegaContext) {
+    return new CompensationMessageHandler(sender, omegaContext, context);
   }
 
   @Order(0)

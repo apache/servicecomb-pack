@@ -56,7 +56,7 @@ public class TxConsistentServiceTest {
     }
 
     @Override
-    public List<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id, String type) {
+    public List<TxEvent> findByTypeAndIdGreaterThan(long id, String type) {
       return emptyList();
     }
 
@@ -111,7 +111,15 @@ public class TxConsistentServiceTest {
   }
 
   private TxEvent newEvent(EventType eventType) {
-    return new TxEvent(serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, eventType.name(), compensationMethod, payloads);
+    return new TxEvent(serviceName,
+        instanceId,
+        new Date(),
+        globalTxId,
+        localTxId,
+        parentTxId,
+        eventType.name(),
+        compensationMethod,
+        payloads);
   }
 
   private TxEvent eventOf(EventType eventType, String localTxId) {

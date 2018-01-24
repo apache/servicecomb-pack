@@ -155,7 +155,7 @@ public class AlphaIntegrationTest {
     asyncStub.onConnected(serviceConfig, compensateResponseObserver);
     blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent));
     // use the asynchronous stub need to wait for some time
-    await().atMost(1, SECONDS).until(() -> !eventRepo.findByGlobalTxId(globalTxId).isEmpty());
+    await().atMost(3, SECONDS).until(() -> !eventRepo.findByGlobalTxId(globalTxId).isEmpty());
 
     assertThat(receivedCommands.isEmpty(), is(true));
 
@@ -175,7 +175,7 @@ public class AlphaIntegrationTest {
   public void closeStreamOnDisconnected() {
     asyncStub.onConnected(serviceConfig, compensateResponseObserver);
 
-    await().atMost(1, SECONDS).until(() -> omegaCallbacks.containsKey(serviceConfig.getServiceName()));
+    await().atMost(3, SECONDS).until(() -> omegaCallbacks.containsKey(serviceConfig.getServiceName()));
 
     assertThat(
         omegaCallbacks.get(serviceConfig.getServiceName()).get(serviceConfig.getInstanceId()),
@@ -186,19 +186,19 @@ public class AlphaIntegrationTest {
         omegaCallbacks.get(serviceConfig.getServiceName()).containsKey(serviceConfig.getInstanceId()),
         is(false));
 
-    await().atMost(1, SECONDS).until(compensateResponseObserver::isCompleted);
+    await().atMost(3, SECONDS).until(compensateResponseObserver::isCompleted);
   }
 
   @Test
   public void closeStreamOfDisconnectedClientOnly() {
     asyncStub.onConnected(serviceConfig, compensateResponseObserver);
-    await().atMost(1, SECONDS).until(() -> omegaCallbacks.containsKey(serviceConfig.getServiceName()));
+    await().atMost(3, SECONDS).until(() -> omegaCallbacks.containsKey(serviceConfig.getServiceName()));
 
     GrpcServiceConfig anotherServiceConfig = someServiceConfig();
     CompensateStreamObserver anotherResponseObserver = new CompensateStreamObserver();
     TxEventServiceGrpc.newStub(clientChannel).onConnected(anotherServiceConfig, anotherResponseObserver);
 
-    await().atMost(1, SECONDS).until(() -> omegaCallbacks.containsKey(anotherServiceConfig.getServiceName()));
+    await().atMost(3, SECONDS).until(() -> omegaCallbacks.containsKey(anotherServiceConfig.getServiceName()));
 
     blockingStub.onDisconnected(serviceConfig);
 
@@ -219,19 +219,31 @@ public class AlphaIntegrationTest {
 
     omegaCallbacks.get(serviceName).get(instanceId).disconnect();
 
-    consistentService.handle(someTxAbortEvent(serviceName, instanceId));
+    consistentService.handle(
+        new TxEvent(
+            serviceName,
+            instanceId,
+            new Date(),
+            globalTxId,
+            localTxId,
+            localTxId,
+            TxAbortedEvent.name(),
+            compensationMethod,
+            payload.getBytes())
+    );
 
-    await().atMost(1, SECONDS).until(() -> omegaCallbacks.get(serviceName).isEmpty());
+    await().atMost(3, SECONDS).until(() -> omegaCallbacks.get(serviceName).isEmpty());
   }
 
   @Test
   public void compensateImmediatelyWhenGlobalTxAlreadyAborted() throws Exception {
     asyncStub.onConnected(serviceConfig, compensateResponseObserver);
     blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent));
-    blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
+    blockingStub.onTxEvent(
+        eventOf(TxAbortedEvent, localTxId, localTxId, payload.getBytes(), getClass().getCanonicalName()));
 
     blockingStub.onTxEvent(eventOf(TxEndedEvent, localTxId, parentTxId, new byte[0], compensationMethod));
-    await().atMost(1, SECONDS).until(() -> !receivedCommands.isEmpty());
+    await().atMost(3, SECONDS).until(() -> !receivedCommands.isEmpty());
 
     GrpcCompensateCommand command = receivedCommands.poll();
     assertThat(command.getGlobalTxId(), is(globalTxId));
@@ -254,8 +266,9 @@ public class AlphaIntegrationTest {
     blockingStub.onTxEvent(eventOf(TxStartedEvent, localTxId1, parentTxId1, "service b".getBytes(), "method b"));
     blockingStub.onTxEvent(eventOf(TxEndedEvent, localTxId1, parentTxId1, new byte[0], "method b"));
 
-    blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
-    await().atMost(1, SECONDS).until(() -> receivedCommands.size() > 1);
+    blockingStub.onTxEvent(
+        eventOf(TxAbortedEvent, localTxId, localTxId1, payload.getBytes(), getClass().getCanonicalName()));
+    await().atMost(3, SECONDS).until(() -> receivedCommands.size() > 1);
 
     assertThat(receivedCommands, contains(
         GrpcCompensateCommand.newBuilder().setGlobalTxId(globalTxId).setLocalTxId(localTxId1).setParentTxId(parentTxId1)
@@ -270,10 +283,11 @@ public class AlphaIntegrationTest {
     asyncStub.onConnected(serviceConfig, compensateResponseObserver);
     blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent));
     blockingStub.onTxEvent(someGrpcEvent(TxEndedEvent));
-    await().atMost(1, SECONDS).until(() -> !eventRepo.findByGlobalTxId(globalTxId).isEmpty());
+    await().atMost(3, SECONDS).until(() -> !eventRepo.findByGlobalTxId(globalTxId).isEmpty());
 
-    blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
-    await().atMost(1, SECONDS).until(() -> !receivedCommands.isEmpty());
+    blockingStub.onTxEvent(
+        eventOf(TxAbortedEvent, localTxId, localTxId, payload.getBytes(), getClass().getCanonicalName()));
+    await().atMost(3, SECONDS).until(() -> !receivedCommands.isEmpty());
 
     GrpcCompensateCommand command = receivedCommands.poll();
     assertThat(command.getGlobalTxId(), is(globalTxId));
@@ -296,10 +310,11 @@ public class AlphaIntegrationTest {
     TxEventServiceBlockingStub anotherBlockingStub = TxEventServiceGrpc.newBlockingStub(clientChannel);
     anotherBlockingStub.onTxEvent(someGrpcEvent(TxStartedEvent, UUID.randomUUID().toString()));
 
-    await().atMost(1, SECONDS).until(() -> eventRepo.count() == 3);
+    await().atMost(3, SECONDS).until(() -> eventRepo.count() == 3);
 
-    blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
-    await().atMost(1, SECONDS).until(() -> !receivedCommands.isEmpty());
+    blockingStub.onTxEvent(
+        eventOf(TxAbortedEvent, localTxId, localTxId, payload.getBytes(), getClass().getCanonicalName()));
+    await().atMost(3, SECONDS).until(() -> !receivedCommands.isEmpty());
 
     assertThat(receivedCommands.size(), is(1));
     assertThat(receivedCommands.poll().getGlobalTxId(), is(globalTxId));
@@ -314,9 +329,10 @@ public class AlphaIntegrationTest {
     blockingStub.onTxEvent(eventOf(TxStartedEvent, localTxId, parentTxId, "service a".getBytes(), "method a"));
     blockingStub.onTxEvent(someGrpcEvent(TxEndedEvent));
 
-    blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
+    blockingStub.onTxEvent(
+        eventOf(TxAbortedEvent, localTxId, localTxId, payload.getBytes(), getClass().getCanonicalName()));
 
-    await().atMost(1, SECONDS).until(() -> receivedCommands.size() == 1);
+    await().atMost(3, SECONDS).until(() -> receivedCommands.size() == 1);
 
     String localTxId1 = UUID.randomUUID().toString();
     String parentTxId1 = UUID.randomUUID().toString();
@@ -340,10 +356,11 @@ public class AlphaIntegrationTest {
     String anotherLocalTxId2 = UUID.randomUUID().toString();
     blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent, globalTxId, anotherLocalTxId2));
 
-    await().atMost(1, SECONDS).until(() -> eventRepo.count() == 7);
+    await().atMost(3, SECONDS).until(() -> eventRepo.count() == 7);
 
-    blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent, globalTxId, anotherLocalTxId2));
-    await().atMost(1, SECONDS).until(() -> !receivedCommands.isEmpty());
+    blockingStub.onTxEvent(
+        eventOf(TxAbortedEvent, anotherLocalTxId2, localTxId, payload.getBytes(), getClass().getCanonicalName()));
+    await().atMost(3, SECONDS).until(() -> !receivedCommands.isEmpty());
 
     assertThat(receivedCommands.size(), is(1));
     assertThat(receivedCommands.poll().getGlobalTxId(), is(globalTxId));
@@ -357,13 +374,63 @@ public class AlphaIntegrationTest {
 
     String anotherLocalTxId = UUID.randomUUID().toString();
     blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent, globalTxId, anotherLocalTxId));
-    blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent, globalTxId, anotherLocalTxId));
+    blockingStub.onTxEvent(
+        eventOf(TxAbortedEvent, anotherLocalTxId, localTxId, payload.getBytes(), getClass().getCanonicalName()));
 
     blockingStub.onTxEvent(someGrpcEvent(TxEndedEvent, globalTxId, anotherLocalTxId));
 
-    await().atMost(1, SECONDS).until(() -> eventRepo.count() == 8);
+    await().atMost(3, SECONDS).until(() -> eventRepo.count() == 8);
     List<TxEvent> events = eventRepo.findByGlobalTxId(globalTxId);
     assertThat(events.get(events.size() - 1).type(), is(SagaEndedEvent.name()));
+  }
+
+  @Test
+  public void retiesAndCompensateOnFailure() throws Exception {
+    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+
+    String localTxId1 = UUID.randomUUID().toString();
+
+    blockingStub.onTxEvent(GrpcTxEvent.newBuilder()
+        .setServiceName(serviceName)
+        .setInstanceId(instanceId)
+        .setTimestamp(System.currentTimeMillis())
+        .setGlobalTxId(globalTxId)
+        .setLocalTxId(localTxId1)
+        .setParentTxId(parentTxId)
+        .setType(TxStartedEvent.name())
+        .setCompensationMethod("Compensation Method")
+        .setPayloads(ByteString.copyFrom(payload.getBytes()))
+        .setRetries(3).setRetriesMethod("Retries Method")
+        .build());
+    blockingStub.onTxEvent(someGrpcEvent(TxEndedEvent, globalTxId, localTxId1));
+
+    await().atMost(3, SECONDS).until(() -> !eventRepo.findByGlobalTxId(globalTxId).isEmpty());
+
+    for (int i = 0; i < 3; i++) {
+      blockingStub.onTxEvent(
+          eventOf(TxAbortedEvent, localTxId, localTxId1, payload.getBytes(), getClass().getCanonicalName()));
+
+      await().atMost(3, SECONDS).until(() -> receivedCommands.size() == 1);
+
+      GrpcCompensateCommand command = receivedCommands.poll();
+      assertThat(command.getGlobalTxId(), is(globalTxId));
+      assertThat(command.getLocalTxId(), is(localTxId1));
+      assertThat(command.getParentTxId(), is(parentTxId));
+      assertThat(command.getCompensateMethod(), is("Retries Method"));
+      assertThat(command.getPayloads().toByteArray(), is(payload.getBytes()));
+    }
+
+    blockingStub.onTxEvent(
+        eventOf(TxAbortedEvent, localTxId, localTxId1, payload.getBytes(), getClass().getCanonicalName()));
+
+    await().atMost(3, SECONDS).until(() -> receivedCommands.size() == 1);
+
+    GrpcCompensateCommand command = receivedCommands.poll();
+    assertThat(command.getGlobalTxId(), is(globalTxId));
+    assertThat(command.getLocalTxId(), is(localTxId1));
+    assertThat(command.getParentTxId(), is(parentTxId));
+    assertThat(command.getCompensateMethod(), is("Compensation Method"));
+    assertThat(command.getPayloads().toByteArray(), is(payload.getBytes()));
   }
 
   private GrpcAck onCompensation(GrpcCompensateCommand command) {
@@ -407,7 +474,8 @@ public class AlphaIntegrationTest {
     return eventOf(type, globalTxId, localTxId, parentTxId, payload.getBytes(), getClass().getCanonicalName());
   }
 
-  private GrpcTxEvent eventOf(EventType eventType, String localTxId, String parentTxId, byte[] payloads, String compensationMethod) {
+  private GrpcTxEvent eventOf(EventType eventType, String localTxId, String parentTxId, byte[] payloads,
+      String compensationMethod) {
     return eventOf(eventType, globalTxId, localTxId, parentTxId, payloads, compensationMethod);
   }
 

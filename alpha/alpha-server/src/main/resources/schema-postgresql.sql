@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS TxEvent (
   parentTxId varchar(36) DEFAULT NULL,
   type varchar(50) NOT NULL,
   compensationMethod varchar(256) NOT NULL,
+  retries int NOT NULL,
+  retriesMethod varchar(256) NOT NULL,
   payloads bytea
 );
 
