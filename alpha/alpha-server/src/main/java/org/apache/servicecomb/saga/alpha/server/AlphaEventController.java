@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -48,6 +49,12 @@ class AlphaEventController {
     events.forEach(event -> eventVos.add(new TxEventVo(event)));
 
     return ResponseEntity.ok(eventVos);
+  }
+
+  @DeleteMapping("/events")
+  ResponseEntity<String> clear() {
+    eventRepository.deleteAll();
+    return ResponseEntity.ok("All events deleted");
   }
 
   @JsonAutoDetect(fieldVisibility = Visibility.ANY)

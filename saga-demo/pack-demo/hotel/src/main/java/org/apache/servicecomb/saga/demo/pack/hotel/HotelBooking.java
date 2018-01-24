@@ -17,50 +17,58 @@
 
 package org.apache.servicecomb.saga.demo.pack.hotel;
 
-public class HotelBooking {
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+@JsonAutoDetect(fieldVisibility = Visibility.ANY)
+class HotelBooking {
+  @JsonIgnore
   private Integer id;
   private String name;
-  private Integer rooms;
-  private boolean confirm;
-  private boolean cancel;
+  private Integer amount;
+  private boolean confirmed;
+  private boolean cancelled;
 
-  public Integer getId() {
+  Integer getId() {
     return id;
   }
 
-  public void setId(Integer id) {
+  void setId(Integer id) {
     this.id = id;
   }
 
-  public String getName() {
+  String getName() {
     return name;
   }
 
-  public void setName(String name) {
+  void setName(String name) {
     this.name = name;
   }
 
-  public Integer getRooms() {
-    return rooms;
+  Integer getAmount() {
+    return amount;
   }
 
-  public void setRooms(Integer rooms) {
-    this.rooms = rooms;
+  void setAmount(Integer amount) {
+    this.amount = amount;
   }
 
-  public boolean isConfirm() {
-    return confirm;
+  boolean isConfirmed() {
+    return confirmed;
   }
 
-  public void setConfirm(boolean confirm) {
-    this.confirm = confirm;
+  void confirm() {
+    this.confirmed = true;
+    this.cancelled = false;
   }
 
-  public boolean isCancel() {
-    return cancel;
+  boolean isCancelled() {
+    return cancelled;
   }
 
-  public void setCancel(boolean cancel) {
-    this.cancel = cancel;
+  void cancel() {
+    this.confirmed = false;
+    this.cancelled = true;
   }
 }

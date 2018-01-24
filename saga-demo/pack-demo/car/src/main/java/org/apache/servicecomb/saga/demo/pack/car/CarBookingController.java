@@ -18,6 +18,7 @@
 package org.apache.servicecomb.saga.demo.pack.car;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,7 +33,7 @@ public class CarBookingController {
   @Autowired
   private CarBookingService service;
 
-  private AtomicInteger id = new AtomicInteger(0);
+  private final AtomicInteger id = new AtomicInteger(0);
 
   @GetMapping("/bookings") List<CarBooking> getAll() {
     return new ArrayList<>(service.getAllBookings());
@@ -43,8 +44,14 @@ public class CarBookingController {
     CarBooking booking = new CarBooking();
     booking.setId(id.incrementAndGet());
     booking.setName(name);
-    booking.setCars(cars);
+    booking.setAmount(cars);
     service.order(booking);
     return booking;
+  }
+
+  @DeleteMapping("/bookings")
+  void clear() {
+    service.clearAllBookings();
+    id.set(0);
   }
 }

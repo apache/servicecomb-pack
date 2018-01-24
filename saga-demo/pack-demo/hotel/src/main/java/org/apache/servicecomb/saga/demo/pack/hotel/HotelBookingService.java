@@ -21,32 +21,34 @@ import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-public class HotelBookingService {
-  private ConcurrentHashMap<Integer, HotelBooking> bookings = new ConcurrentHashMap<>();
+class HotelBookingService {
+  private Map<Integer, HotelBooking> bookings = new ConcurrentHashMap<>();
 
   @Compensable(compensationMethod = "cancel")
-  public void order(HotelBooking booking) {
-    if (booking.getRooms() > 2) {
+  void order(HotelBooking booking) {
+    if (booking.getAmount() > 2) {
       throw new IllegalArgumentException("can not order the rooms large than two");
     }
-    booking.setConfirm(true);
-    booking.setCancel(false);
+    booking.confirm();
     bookings.put(booking.getId(), booking);
   }
 
-  public void cancel(HotelBooking booking) {
+  void cancel(HotelBooking booking) {
     Integer id = booking.getId();
     if (bookings.containsKey(id)) {
-      HotelBooking origin = bookings.get(id);
-      origin.setConfirm(false);
-      origin.setCancel(true);
+      bookings.get(id).cancel();
     }
   }
 
-  public Collection<HotelBooking> getAllBookings() {
+  Collection<HotelBooking> getAllBookings() {
     return bookings.values();
+  }
+
+  void clearAllBookings() {
+    bookings.clear();
   }
 }

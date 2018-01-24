@@ -22,3 +22,6 @@ spring:
     url: jdbc:postgresql://postgresql.servicecomb.io:5432/saga?useSSL=false
     platform: postgresql
 #    continue-on-error: true
+
+server:
+  port: 8090

@@ -44,7 +44,6 @@
     <module>pack-common</module>
     <module>integration-tests</module>
     <module>saga-persistence</module>
-    <module>acceptance-tests</module>
   </modules>
 
   <properties>
@@ -64,6 +63,7 @@
     <kryo.version>4.0.1</kryo.version>
     <javax.transaction.version>1.2</javax.transaction.version>
     <eclipse.link.version>2.7.1</eclipse.link.version>
+    <jackson.version>2.9.0</jackson.version>
   </properties>
 
   <name>ServiceComb Saga</name>
@@ -710,6 +710,7 @@
       <id>demo</id>
       <modules>
         <module>saga-demo</module>
+        <module>acceptance-tests</module>
       </modules>
     </profile>
     <profile>
