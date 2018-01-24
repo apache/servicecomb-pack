@@ -26,6 +26,7 @@ script:
 - set -e
 - mvn clean install -Pjacoco -Pdocker coveralls:report
 - mvn clean verify -f saga-demo -Pdemo -Pdocker -Ddocker.useColor=false -Ddocker.showLogs
+- mvn clean verify -f acceptance-tests -Pdemo -Pdocker -Ddocker.useColor=false -Ddocker.showLogs
 after_success:
 - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn deploy -DskipTests --settings .travis.settings.xml; fi
 env:
