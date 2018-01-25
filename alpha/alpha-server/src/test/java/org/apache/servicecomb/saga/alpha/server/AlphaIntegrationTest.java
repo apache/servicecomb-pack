@@ -361,9 +361,10 @@ public class AlphaIntegrationTest {
 
     blockingStub.onTxEvent(someGrpcEvent(TxEndedEvent, globalTxId, anotherLocalTxId));
 
-    await().atMost(1, SECONDS).until(() -> eventRepo.count() == 8);
-    List<TxEvent> events = eventRepo.findByGlobalTxId(globalTxId);
-    assertThat(events.get(events.size() - 1).type(), is(SagaEndedEvent.name()));
+    await().atMost(1, SECONDS).until(() -> {
+      List<TxEvent> events = eventRepo.findByGlobalTxId(globalTxId);
+      return events.size() == 8 && events.get(events.size() - 1).type().equals(SagaEndedEvent.name());
+    });
   }
 
   private GrpcAck onCompensation(GrpcCompensateCommand command) {
