@@ -41,6 +41,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 public class SagaStartAspectTest {
@@ -129,11 +130,12 @@ public class SagaStartAspectTest {
       return null;
     });
 
+    ExpectedException exception = ExpectedException.none();
     executor.execute(() -> {
       try {
         aspect.advise(joinPoint, sagaStart);
       } catch (Throwable throwable) {
-        fail(throwable.getMessage());
+        exception.expect(OmegaTxTimeoutException.class);
       }
     });
 

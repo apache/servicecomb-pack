@@ -32,6 +32,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class TimeAwareInterceptorTest {
   private static final int runningCounts = 1000;
@@ -75,11 +76,15 @@ public class TimeAwareInterceptorTest {
     for (int i = 0; i < runningCounts; i++) {
       TimeAwareInterceptor interceptor = new TimeAwareInterceptor(underlying);
       CyclicBarrier cyclicBarrier = new CyclicBarrier(2);
-
+      ExpectedException exception = ExpectedException.none();
 
       futures.add(executorService.submit(() -> {
-        waitForSignal(cyclicBarrier);
-        interceptor.postIntercept(localTxId, signature);
+        try {
+          waitForSignal(cyclicBarrier);
+          interceptor.postIntercept(localTxId, signature);
+        } catch (Throwable throwable) {
+          exception.expect(OmegaTxTimeoutException.class);
+        }
       }));
 
       futures.add(executorService.submit(() -> {
