@@ -46,6 +46,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class TransactionAspectTest {
   private final List<TxEvent> messages = new ArrayList<>();
@@ -139,6 +140,7 @@ public class TransactionAspectTest {
       return null;
     });
 
+    ExpectedException exception = ExpectedException.none();
     executor.execute(() -> {
       try {
         // need to setup the thread local for it
@@ -147,7 +149,7 @@ public class TransactionAspectTest {
 
         aspect.advise(joinPoint, compensable);
       } catch (Throwable throwable) {
-        fail(throwable.getMessage());
+        exception.expect(OmegaTxTimeoutException.class);
       }
     });
 
