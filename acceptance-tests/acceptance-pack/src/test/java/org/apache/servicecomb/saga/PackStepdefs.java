@@ -18,10 +18,14 @@
 package org.apache.servicecomb.saga;
 
 import static io.restassured.RestAssured.given;
-import static java.util.Arrays.asList;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.Is.is;
 
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -69,9 +73,7 @@ public class PackStepdefs implements En {
           .pathParam("rooms", rooms)
           .pathParam("cars", cars)
           .when()
-          .post(System.getProperty("booking.service.address") + "/booking/{name}/{rooms}/{cars}")
-          .then()
-          .statusCode(is(200));
+          .post(System.getProperty("booking.service.address") + "/booking/{name}/{rooms}/{cars}");
     });
 
     Then("^Alpha records the following events$", (DataTable dataTable) -> {
@@ -112,6 +114,26 @@ public class PackStepdefs implements En {
 
   @SuppressWarnings("unchecked")
   private void dataMatches(String address, DataTable dataTable, Consumer<Map<String, String>[]> dataProcessor) {
+    List<Map<String, String>> expectedMaps = dataTable.asMaps(String.class, String.class);
+    List<Map<String, String>> actualMaps = new ArrayList<>();
+
+    await().atMost(2, SECONDS).until(() -> {
+      actualMaps.clear();
+      Collections.addAll(actualMaps, retrieveDataMaps(address, dataProcessor));
+
+      return expectedMaps.size() == actualMaps.size();
+    });
+
+    if (expectedMaps.isEmpty() && actualMaps.isEmpty()) {
+      return;
+    }
+
+    log.info("Retrieved data {} from service", actualMaps);
+    dataTable.diff(DataTable.create(actualMaps));
+  }
+
+  @SuppressWarnings("unchecked")
+  private Map<String, String>[] retrieveDataMaps(String address, Consumer<Map<String, String>[]> dataProcessor) {
     Map<String, String>[] dataMap = given()
         .when()
         .get(address)
@@ -122,9 +144,7 @@ public class PackStepdefs implements En {
         .as(Map[].class);
 
     dataProcessor.accept(dataMap);
-
-    log.info("Retrieved data {} from service", dataMap);
-    dataTable.diff(DataTable.create(asList(dataMap)));
+    return dataMap;
   }
 
   private void probe(String address) {
