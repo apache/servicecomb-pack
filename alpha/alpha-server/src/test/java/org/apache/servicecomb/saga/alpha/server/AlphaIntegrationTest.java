@@ -383,9 +383,9 @@ public class AlphaIntegrationTest {
     asyncStub.onConnected(serviceConfig, compensateResponseObserver);
     blockingStub.onTxEvent(someGrpcEventWithTimeout(SagaStartedEvent, globalTxId, null, 1));
 
-    assertThat(timeoutEntityRepository.count(), is(1L));
-    TxTimeout timeout = timeoutEntityRepository.findOne(1L);
-    assertThat(timeout.status(), is(NEW.name()));
+    await().atMost(1, SECONDS).until(() -> timeoutEntityRepository.count() == 1L);
+    Iterable<TxTimeout> timeouts = timeoutEntityRepository.findAll();
+    timeouts.forEach(timeout -> assertThat(timeout.status(), is(NEW.name())));
 
     await().atMost(2, SECONDS).until(() -> eventRepo.count() == 3);
 
@@ -395,10 +395,12 @@ public class AlphaIntegrationTest {
     assertThat(events.get(2).type(), is(SagaEndedEvent.name()));
 
     assertThat(timeoutEntityRepository.count(), is(1L));
-    timeout = timeoutEntityRepository.findOne(1L);
-    assertThat(timeout.status(), is(DONE.name()));
-    assertThat(timeout.globalTxId(), is(globalTxId));
-    assertThat(timeout.localTxId(), is(globalTxId));
+    timeouts = timeoutEntityRepository.findAll();
+    timeouts.forEach(timeout -> {
+      assertThat(timeout.status(), is(DONE.name()));
+      assertThat(timeout.globalTxId(), is(globalTxId));
+      assertThat(timeout.localTxId(), is(globalTxId));
+    });
   }
 
   @Test
@@ -407,19 +409,25 @@ public class AlphaIntegrationTest {
     blockingStub.onTxEvent(someGrpcEvent(SagaStartedEvent, globalTxId, globalTxId));
     blockingStub.onTxEvent(someGrpcEventWithTimeout(TxStartedEvent, localTxId, globalTxId, 1));
 
-    await().atMost(2, SECONDS).until(() -> eventRepo.count() == 4);
+    await().atMost(2, SECONDS).until(() -> {
+      List<TxEvent> events = eventRepo.findByGlobalTxId(globalTxId);
+      return eventRepo.count() == 5 && events.get(events.size() - 1).type().equals(SagaEndedEvent.name());
+    });
 
     List<TxEvent> events = eventRepo.findByGlobalTxId(globalTxId);
     assertThat(events.get(0).type(), is(SagaStartedEvent.name()));
     assertThat(events.get(1).type(), is(TxStartedEvent.name()));
     assertThat(events.get(2).type(), is(TxAbortedEvent.name()));
-    assertThat(events.get(3).type(), is(SagaEndedEvent.name()));
+    assertThat(events.get(3).type(), is(TxCompensatedEvent.name()));
+    assertThat(events.get(4).type(), is(SagaEndedEvent.name()));
 
     assertThat(timeoutEntityRepository.count(), is(1L));
-    TxTimeout timeout = timeoutEntityRepository.findOne(1L);
-    assertThat(timeout.status(), is(DONE.name()));
-    assertThat(timeout.globalTxId(), is(globalTxId));
-    assertThat(timeout.localTxId(), is(localTxId));
+    Iterable<TxTimeout> timeouts = timeoutEntityRepository.findAll();
+    timeouts.forEach(timeout -> {
+      assertThat(timeout.status(), is(DONE.name()));
+      assertThat(timeout.globalTxId(), is(globalTxId));
+      assertThat(timeout.localTxId(), is(localTxId));
+    });
   }
 
   private GrpcAck onCompensation(GrpcCompensateCommand command) {

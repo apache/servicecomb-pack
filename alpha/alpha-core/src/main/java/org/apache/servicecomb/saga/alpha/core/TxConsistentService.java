@@ -52,7 +52,7 @@ public class TxConsistentService {
     }
 
     if (isEventWithTimeout(event)) {
-      CompletableFuture.runAsync(() -> saveTxTimeout(event));
+      saveTxTimeout(event);
     }
 
     eventRepository.save(event);

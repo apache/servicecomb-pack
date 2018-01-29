@@ -40,6 +40,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
 
 import org.apache.servicecomb.saga.common.EventType;
+import org.junit.Before;
 import org.junit.Test;
 
 public class TxConsistentServiceTest {
@@ -87,8 +88,7 @@ public class TxConsistentServiceTest {
     @Override
     public void markTxTimeoutAsDone(String globalTxId, String localTxId) {
       for (TxTimeout timeout : timeouts) {
-        if (timeout.globalTxId().equals(globalTxId) &&
-            timeout.localTxId().equals(localTxId)) {
+        if (timeout.globalTxId().equals(globalTxId) && timeout.localTxId().equals(localTxId)) {
           timeout.setStatus(DONE.name());
           break;
         }
@@ -111,6 +111,12 @@ public class TxConsistentServiceTest {
 
   private final TxConsistentService consistentService = new TxConsistentService(eventRepository, timeoutRepository);
   private final byte[] payloads = "yeah".getBytes();
+
+  @Before
+  public void setUp() throws Exception {
+    events.clear();
+    timeouts.clear();
+  }
 
   @Test
   public void persistEventOnArrival() throws Exception {
@@ -146,8 +152,8 @@ public class TxConsistentServiceTest {
   @Test
   public void persistTimeoutEventOnArrival() {
     TxEvent[] events = {
-        newEventWithTimeout(SagaStartedEvent, globalTxId,3),
-        newEventWithTimeout(TxStartedEvent, 2),
+        newEventWithTimeout(SagaStartedEvent, globalTxId,2),
+        newEventWithTimeout(TxStartedEvent, 1),
         newEvent(TxEndedEvent),
         newEvent(TxCompensatedEvent),
         eventOf(SagaEndedEvent, globalTxId)};
