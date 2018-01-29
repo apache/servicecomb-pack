@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicReference;
 class OnceAwareInterceptor implements EventAwareInterceptor {
   private final EventAwareInterceptor interceptor;
   private final AtomicReference<EventAwareInterceptor> interceptorRef;
-  private Throwable throwable = null;
 
   OnceAwareInterceptor(EventAwareInterceptor interceptor) {
     this.interceptor = interceptor;
@@ -35,11 +34,9 @@ class OnceAwareInterceptor implements EventAwareInterceptor {
   }
 
   @Override
-  public void postIntercept(String parentTxId, String signature) throws Throwable {
+  public void postIntercept(String parentTxId, String signature) {
     if (interceptorRef.compareAndSet(interceptor, NO_OP_INTERCEPTOR)) {
       interceptor.postIntercept(parentTxId, signature);
-    } else if (throwable != null) {
-      throw throwable;
     }
   }
 
@@ -47,13 +44,6 @@ class OnceAwareInterceptor implements EventAwareInterceptor {
   public void onError(String parentTxId, String signature, Throwable throwable) {
     if (interceptorRef.compareAndSet(interceptor, NO_OP_INTERCEPTOR)) {
       interceptor.onError(parentTxId, signature, throwable);
-    }
-  }
-
-  void onTimeout(String parentTxId, String signature, Throwable throwable) {
-    if (interceptorRef.compareAndSet(interceptor, NO_OP_INTERCEPTOR)) {
-      interceptor.onError(parentTxId, signature, throwable);
-      this.throwable = throwable;
     }
   }
 }
