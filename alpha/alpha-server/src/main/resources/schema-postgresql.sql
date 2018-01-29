@@ -3,13 +3,13 @@ CREATE TABLE IF NOT EXISTS TxEvent (
   serviceName varchar(16) NOT NULL,
   instanceId varchar(36) NOT NULL,
   creationTime timestamp(6) NOT NULL DEFAULT CURRENT_DATE,
-  expireTime timestamp(6) NULL,
   globalTxId varchar(36) NOT NULL,
   localTxId varchar(36) NOT NULL,
   parentTxId varchar(36) DEFAULT NULL,
   type varchar(50) NOT NULL,
   compensationMethod varchar(256) NOT NULL,
-  payloads bytea
+  payloads bytea,
+  version bigint NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS saga_events_index ON TxEvent (surrogateId, globalTxId, localTxId, type);
@@ -31,3 +31,15 @@ CREATE TABLE IF NOT EXISTS Command (
 );
 
 CREATE INDEX IF NOT EXISTS saga_commands_index ON Command (surrogateId, eventId, globalTxId, localTxId, status);
+
+
+CREATE TABLE IF NOT EXISTS TxTimeout (
+  surrogateId BIGSERIAL PRIMARY KEY,
+  globalTxId varchar(36) NOT NULL,
+  localTxId varchar(36) NOT NULL,
+  expireTime TIMESTAMP NOT NULL,
+  status varchar(12),
+  version bigint NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS saga_timeouts_index ON TxTimeout (surrogateId, expireTime, globalTxId, localTxId, status);

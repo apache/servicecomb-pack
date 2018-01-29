@@ -17,9 +17,9 @@
 
 package org.apache.servicecomb.saga.alpha.server;
 
-import static org.apache.servicecomb.saga.alpha.core.CommandStatus.DONE;
-import static org.apache.servicecomb.saga.alpha.core.CommandStatus.NEW;
-import static org.apache.servicecomb.saga.alpha.core.CommandStatus.PENDING;
+import static org.apache.servicecomb.saga.alpha.core.TaskStatus.DONE;
+import static org.apache.servicecomb.saga.alpha.core.TaskStatus.NEW;
+import static org.apache.servicecomb.saga.alpha.core.TaskStatus.PENDING;
 
 import java.lang.invoke.MethodHandles;
 import java.util.LinkedHashMap;
@@ -33,11 +33,9 @@ import org.apache.servicecomb.saga.alpha.core.CommandRepository;
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.PageRequest;
 
 public class SpringCommandRepository implements CommandRepository {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private static final PageRequest SINGLE_COMMAND_REQUEST = new PageRequest(0, 1);
 
   private final TxEventEnvelopeRepository eventRepository;
   private final CommandEntityRepository commandRepository;

@@ -39,7 +39,6 @@ public class OnceAwareInterceptorTest {
 
   private final AtomicInteger postInterceptInvoked = new AtomicInteger();
   private final AtomicInteger onErrorInvoked = new AtomicInteger();
-  private final AtomicInteger onTimeoutInvoked = new AtomicInteger();
 
   private final EventAwareInterceptor underlying = new EventAwareInterceptor() {
     @Override
@@ -54,11 +53,7 @@ public class OnceAwareInterceptorTest {
 
     @Override
     public void onError(String parentTxId, String compensationMethod, Throwable throwable) {
-      if (throwable instanceof OmegaTxTimeoutException) {
-        onTimeoutInvoked.incrementAndGet();
-      } else {
-        onErrorInvoked.incrementAndGet();
-      }
+      onErrorInvoked.incrementAndGet();
     }
   };
 

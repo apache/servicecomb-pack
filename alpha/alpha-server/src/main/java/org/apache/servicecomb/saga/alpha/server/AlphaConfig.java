@@ -35,6 +35,7 @@ import org.apache.servicecomb.saga.alpha.core.PendingTaskRunner;
 import org.apache.servicecomb.saga.alpha.core.PushBackOmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.TxConsistentService;
 import org.apache.servicecomb.saga.alpha.core.TxEventRepository;
+import org.apache.servicecomb.saga.alpha.core.TxTimeoutRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
@@ -70,6 +71,11 @@ class AlphaConfig {
   }
 
   @Bean
+  TxTimeoutRepository springTxTimeoutRepository(TxTimeoutEntityRepository timeoutRepo) {
+    return new SpringTxTimeoutRepository(timeoutRepo);
+  }
+
+  @Bean
   ScheduledExecutorService compensationScheduler() {
     return scheduler;
   }
@@ -80,16 +86,15 @@ class AlphaConfig {
       ScheduledExecutorService scheduler,
       TxEventRepository eventRepository,
       CommandRepository commandRepository,
+      TxTimeoutRepository timeoutRepository,
       OmegaCallback omegaCallback,
       Map<String, Map<String, OmegaCallback>> omegaCallbacks) {
 
     new EventScanner(scheduler,
-        eventRepository,
-        commandRepository,
-        omegaCallback,
-        eventPollingInterval).run();
+        eventRepository, commandRepository, timeoutRepository,
+        omegaCallback, eventPollingInterval).run();
 
-    TxConsistentService consistentService = new TxConsistentService(eventRepository);
+    TxConsistentService consistentService = new TxConsistentService(eventRepository, timeoutRepository);
 
     ServerStartable startable = buildGrpc(port, consistentService, omegaCallbacks);
     new Thread(startable::start).start();

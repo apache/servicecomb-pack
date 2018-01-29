@@ -28,7 +28,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -160,13 +159,11 @@ public class CompositeOmegaCallbackTest {
     return new TxEvent(
         serviceName,
         instanceId,
-        new Date(),
         uniquify("globalTxId"),
         uniquify("localTxId"),
         UUID.randomUUID().toString(),
         eventType.name(),
         getClass().getCanonicalName(),
-        null,
         uniquify("blah").getBytes());
   }
 }
