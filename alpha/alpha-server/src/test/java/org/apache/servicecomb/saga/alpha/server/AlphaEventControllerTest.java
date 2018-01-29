@@ -27,7 +27,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.Date;
 import java.util.UUID;
 
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
@@ -40,13 +39,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 @RunWith(SpringRunner.class)
 @WebMvcTest(AlphaEventController.class)
 public class AlphaEventControllerTest {
   private final TxEvent someEvent = someEvent();
-  private final ObjectMapper mapper = new ObjectMapper();
 
   @Autowired
   private MockMvc mockMvc;
@@ -72,7 +68,6 @@ public class AlphaEventControllerTest {
     return new TxEvent(
         uniquify("serviceName"),
         uniquify("instanceId"),
-        new Date(),
         uniquify("globalTxId"),
         uniquify("localTxId"),
         UUID.randomUUID().toString(),

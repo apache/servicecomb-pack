@@ -119,6 +119,10 @@ public class EventScanner implements Runnable {
 
       eventRepository.save(toTxAbortedEvent(event));
       timeoutRepository.markTxTimeoutAsDone(event.globalTxId(), event.localTxId());
+
+      if (event.type().equals(TxStartedEvent.name())) {
+        omegaCallback.compensate(event);
+      }
     });
   }
 

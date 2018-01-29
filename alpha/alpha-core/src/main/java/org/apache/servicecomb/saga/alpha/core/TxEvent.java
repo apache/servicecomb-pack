@@ -61,6 +61,7 @@ public class TxEvent {
         event.parentTxId,
         event.type,
         event.compensationMethod,
+        0,
         event.payloads);
   }
 
