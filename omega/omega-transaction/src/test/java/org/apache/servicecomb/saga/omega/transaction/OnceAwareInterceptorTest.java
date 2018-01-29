@@ -29,7 +29,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 public class OnceAwareInterceptorTest {
   private static final int runningCounts = 1000;
@@ -75,7 +74,7 @@ public class OnceAwareInterceptorTest {
   }
 
   @Test
-  public void invokeEitherOnErrorOrOnTimeoutConcurrently() throws Exception {
+  public void invokeOnErrorConcurrently() throws Exception {
     RuntimeException oops = new RuntimeException("oops");
     List<Future<?>> futures = new LinkedList<>();
 

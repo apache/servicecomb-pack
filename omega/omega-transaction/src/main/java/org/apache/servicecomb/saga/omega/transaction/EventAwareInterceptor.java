@@ -35,7 +35,7 @@ public interface EventAwareInterceptor {
 
   AlphaResponse preIntercept(String parentTxId, String compensationMethod, int timeout, Object... message);
 
-  void postIntercept(String parentTxId, String compensationMethod) throws Throwable;
+  void postIntercept(String parentTxId, String compensationMethod);
 
   void onError(String parentTxId, String compensationMethod, Throwable throwable);
 }
