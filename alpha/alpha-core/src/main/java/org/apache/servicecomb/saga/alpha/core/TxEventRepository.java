@@ -31,7 +31,5 @@ public interface TxEventRepository {
 
   Optional<TxEvent> findFirstCompensatedEventByIdGreaterThan(long id, String type);
 
-  Optional<TxEvent> findFirstTimeoutEventByIdGreaterThan(long id);
-
-  void deleteDuplicateEvents(List<String> types);
+  void deleteDuplicateEvents(String type);
 }

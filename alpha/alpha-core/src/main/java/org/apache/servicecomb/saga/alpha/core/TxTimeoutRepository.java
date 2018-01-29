@@ -15,10 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.omega.transaction;
+package org.apache.servicecomb.saga.alpha.core;
 
-public class OmegaTxTimeoutException extends RuntimeException {
-  public OmegaTxTimeoutException(String cause) {
-    super(cause);
-  }
+import java.util.List;
+
+public interface TxTimeoutRepository {
+  void save(TxTimeout event);
+
+  void markTxTimeoutAsDone(String globalTxId, String localTxId);
+
+  List<TxEvent> findFirstTimeoutTxToAbort();
 }

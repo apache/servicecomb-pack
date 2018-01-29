@@ -25,6 +25,7 @@ import org.apache.servicecomb.saga.alpha.core.TxEventRepository;
 import org.springframework.data.domain.PageRequest;
 
 class SpringTxEventRepository implements TxEventRepository {
+  private static final PageRequest SINGLE_TX_EVENT_REQUEST = new PageRequest(0, 1);
   private final TxEventEnvelopeRepository eventRepo;
 
   SpringTxEventRepository(TxEventEnvelopeRepository eventRepo) {
@@ -48,7 +49,7 @@ class SpringTxEventRepository implements TxEventRepository {
 
   @Override
   public List<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id, String type) {
-    return eventRepo.findFirstByTypeAndSurrogateIdGreaterThan(type, id, new PageRequest(0, 1));
+    return eventRepo.findFirstByTypeAndSurrogateIdGreaterThan(type, id, SINGLE_TX_EVENT_REQUEST);
   }
 
   @Override
@@ -57,12 +58,7 @@ class SpringTxEventRepository implements TxEventRepository {
   }
 
   @Override
-  public Optional<TxEvent> findFirstTimeoutEventByIdGreaterThan(long id) {
-    return eventRepo.findFirstTimeoutSurrogateIdGreaterThan(id);
-  }
-
-  @Override
-  public void deleteDuplicateEvents(List<String> types) {
-    eventRepo.deleteByTypes(types);
+  public void deleteDuplicateEvents(String type) {
+    eventRepo.deleteByType(type);
   }
 }

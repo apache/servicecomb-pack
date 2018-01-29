@@ -17,7 +17,7 @@
 
 package org.apache.servicecomb.saga.alpha.core;
 
-import static org.apache.servicecomb.saga.alpha.core.CommandStatus.NEW;
+import static org.apache.servicecomb.saga.alpha.core.TaskStatus.NEW;
 
 import java.util.Date;
 

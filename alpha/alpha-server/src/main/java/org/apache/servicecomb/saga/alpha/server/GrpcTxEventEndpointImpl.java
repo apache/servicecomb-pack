@@ -75,18 +75,16 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
 
   @Override
   public void onTxEvent(GrpcTxEvent message, StreamObserver<GrpcAck> responseObserver) {
-    Date date = new Date(message.getTimestamp());
-    int timeout = message.getTimeout();
     boolean ok = txConsistentService.handle(new TxEvent(
         message.getServiceName(),
         message.getInstanceId(),
-        date,
+        new Date(message.getTimestamp()),
         message.getGlobalTxId(),
         message.getLocalTxId(),
         message.getParentTxId().isEmpty() ? null : message.getParentTxId(),
         message.getType(),
         message.getCompensationMethod(),
-        timeout == 0 ? null : new Date(date.getTime() + timeout),
+        message.getTimeout(),
         message.getPayloads().toByteArray()
     ));
 

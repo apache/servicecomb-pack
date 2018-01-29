@@ -19,6 +19,8 @@ package org.apache.servicecomb.saga.alpha.server;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.servicecomb.saga.alpha.core.TaskStatus.DONE;
+import static org.apache.servicecomb.saga.alpha.core.TaskStatus.NEW;
 import static org.apache.servicecomb.saga.common.EventType.SagaEndedEvent;
 import static org.apache.servicecomb.saga.common.EventType.SagaStartedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxAbortedEvent;
@@ -31,7 +33,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -48,6 +49,8 @@ import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.TxConsistentService;
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
 import org.apache.servicecomb.saga.alpha.core.TxEventRepository;
+import org.apache.servicecomb.saga.alpha.core.TxTimeout;
+import org.apache.servicecomb.saga.alpha.core.TxTimeoutRepository;
 import org.apache.servicecomb.saga.common.EventType;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
@@ -108,10 +111,16 @@ public class AlphaIntegrationTest {
   private CommandRepository commandRepository;
 
   @Autowired
-  private CommandEntityRepository commandEntityRepository;
+  private TxTimeoutRepository timeoutRepository;
+
+  @Autowired
+  private TxTimeoutEntityRepository timeoutEntityRepository;
 
   @Autowired
   private OmegaCallback omegaCallback;
+
+  @Autowired
+  private CommandEntityRepository commandEntityRepository;
 
   @Autowired
   private Map<String, Map<String, OmegaCallback>> omegaCallbacks;
@@ -145,6 +154,7 @@ public class AlphaIntegrationTest {
       try {
         eventRepo.deleteAll();
         commandEntityRepository.deleteAll();
+        timeoutEntityRepository.deleteAll();
         deleted = true;
       } catch (Exception ignored) {
       }
@@ -373,12 +383,22 @@ public class AlphaIntegrationTest {
     asyncStub.onConnected(serviceConfig, compensateResponseObserver);
     blockingStub.onTxEvent(someGrpcEventWithTimeout(SagaStartedEvent, globalTxId, null, 1));
 
-    await().atMost(1, SECONDS).until(() -> eventRepo.count() == 3);
+    assertThat(timeoutEntityRepository.count(), is(1L));
+    TxTimeout timeout = timeoutEntityRepository.findOne(1L);
+    assertThat(timeout.status(), is(NEW.name()));
+
+    await().atMost(2, SECONDS).until(() -> eventRepo.count() == 3);
 
     List<TxEvent> events = eventRepo.findByGlobalTxId(globalTxId);
     assertThat(events.get(0).type(), is(SagaStartedEvent.name()));
     assertThat(events.get(1).type(), is(TxAbortedEvent.name()));
     assertThat(events.get(2).type(), is(SagaEndedEvent.name()));
+
+    assertThat(timeoutEntityRepository.count(), is(1L));
+    timeout = timeoutEntityRepository.findOne(1L);
+    assertThat(timeout.status(), is(DONE.name()));
+    assertThat(timeout.globalTxId(), is(globalTxId));
+    assertThat(timeout.localTxId(), is(globalTxId));
   }
 
   @Test
@@ -387,13 +407,19 @@ public class AlphaIntegrationTest {
     blockingStub.onTxEvent(someGrpcEvent(SagaStartedEvent, globalTxId, globalTxId));
     blockingStub.onTxEvent(someGrpcEventWithTimeout(TxStartedEvent, localTxId, globalTxId, 1));
 
-    await().atMost(1, SECONDS).until(() -> eventRepo.count() == 4);
+    await().atMost(2, SECONDS).until(() -> eventRepo.count() == 4);
 
     List<TxEvent> events = eventRepo.findByGlobalTxId(globalTxId);
     assertThat(events.get(0).type(), is(SagaStartedEvent.name()));
     assertThat(events.get(1).type(), is(TxStartedEvent.name()));
     assertThat(events.get(2).type(), is(TxAbortedEvent.name()));
     assertThat(events.get(3).type(), is(SagaEndedEvent.name()));
+
+    assertThat(timeoutEntityRepository.count(), is(1L));
+    TxTimeout timeout = timeoutEntityRepository.findOne(1L);
+    assertThat(timeout.status(), is(DONE.name()));
+    assertThat(timeout.globalTxId(), is(globalTxId));
+    assertThat(timeout.localTxId(), is(localTxId));
   }
 
   private GrpcAck onCompensation(GrpcCompensateCommand command) {
@@ -416,13 +442,11 @@ public class AlphaIntegrationTest {
     return new TxEvent(
         serviceName,
         instanceId,
-        new Date(),
         globalTxId,
         localTxId,
         parentTxId,
         TxAbortedEvent.name(),
         compensationMethod,
-        null,
         payload.getBytes());
   }
 
@@ -508,7 +532,7 @@ public class AlphaIntegrationTest {
         Executors.newSingleThreadScheduledExecutor(),
         eventRepository,
         commandRepository,
-        omegaCallback,
-        1).run();
+        timeoutRepository,
+        omegaCallback, 1).run();
   }
 }

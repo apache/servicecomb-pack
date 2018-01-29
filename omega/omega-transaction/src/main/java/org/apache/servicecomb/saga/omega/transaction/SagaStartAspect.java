@@ -47,14 +47,13 @@ public class SagaStartAspect {
     initializeOmegaContext();
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
 
-    OnceAwareInterceptor interceptor = new OnceAwareInterceptor(sagaStartAnnotationProcessor);
-    interceptor.preIntercept(context.globalTxId(), method.toString(), sagaStart.timeout());
+    sagaStartAnnotationProcessor.preIntercept(context.globalTxId(), method.toString(), sagaStart.timeout());
     LOG.debug("Initialized context {} before execution of method {}", context, method.toString());
 
     try {
       Object result = joinPoint.proceed();
 
-      interceptor.postIntercept(context.globalTxId(), method.toString());
+      sagaStartAnnotationProcessor.postIntercept(context.globalTxId(), method.toString());
       LOG.debug("Transaction with context {} has finished.", context);
 
       return result;

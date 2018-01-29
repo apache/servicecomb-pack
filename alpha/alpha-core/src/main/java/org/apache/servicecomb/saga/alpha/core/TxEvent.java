@@ -23,6 +23,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Transient;
+import javax.persistence.Version;
 
 @Entity
 public class TxEvent {
@@ -33,13 +35,18 @@ public class TxEvent {
   private String serviceName;
   private String instanceId;
   private Date creationTime;
-  private Date expireTime;
   private String globalTxId;
   private String localTxId;
   private String parentTxId;
   private String type;
   private String compensationMethod;
   private byte[] payloads;
+
+  @Version
+  private long version;
+
+  @Transient
+  private int timeout;
 
   private TxEvent() {
   }
@@ -65,9 +72,22 @@ public class TxEvent {
       String parentTxId,
       String type,
       String compensationMethod,
-      Date expireTime,
       byte[] payloads) {
-    this(-1L, serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type, compensationMethod, expireTime, payloads);
+    this(serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type, compensationMethod, 0, payloads);
+  }
+
+  public TxEvent(
+      String serviceName,
+      String instanceId,
+      String globalTxId,
+      String localTxId,
+      String parentTxId,
+      String type,
+      String compensationMethod,
+      int timeout,
+      byte[] payloads) {
+    this(-1L, serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type, compensationMethod, timeout,
+        payloads);
   }
 
   public TxEvent(
@@ -79,10 +99,10 @@ public class TxEvent {
       String parentTxId,
       String type,
       String compensationMethod,
-      Date expireTime,
+      int timeout,
       byte[] payloads) {
     this(-1L, serviceName, instanceId, creationTime, globalTxId, localTxId, parentTxId, type, compensationMethod,
-        expireTime, payloads);
+        timeout, payloads);
   }
 
   TxEvent(Long surrogateId,
@@ -96,21 +116,6 @@ public class TxEvent {
       String compensationMethod,
       int timeout,
       byte[] payloads) {
-    this(surrogateId, serviceName, instanceId, creationTime, globalTxId, localTxId, parentTxId, type,
-        compensationMethod, timeout == 0 ? null : new Date(creationTime.getTime() + timeout*1000), payloads);
-  }
-
-  TxEvent(Long surrogateId,
-      String serviceName,
-      String instanceId,
-      Date creationTime,
-      String globalTxId,
-      String localTxId,
-      String parentTxId,
-      String type,
-      String compensationMethod,
-      Date expireTime,
-      byte[] payloads) {
 
     this.surrogateId = surrogateId;
     this.serviceName = serviceName;
@@ -121,8 +126,8 @@ public class TxEvent {
     this.parentTxId = parentTxId;
     this.type = type;
     this.compensationMethod = compensationMethod;
-    this.expireTime = expireTime;
     this.payloads = payloads;
+    this.timeout = timeout;
   }
 
   public String serviceName() {
@@ -157,16 +162,16 @@ public class TxEvent {
     return compensationMethod;
   }
 
-  public Date expireTime() {
-    return expireTime;
-  }
-
   public byte[] payloads() {
     return payloads;
   }
 
   public long id() {
     return surrogateId;
+  }
+
+  public int timeout() {
+    return timeout;
   }
 
   @Override
@@ -181,7 +186,7 @@ public class TxEvent {
         ", parentTxId='" + parentTxId + '\'' +
         ", type='" + type + '\'' +
         ", compensationMethod='" + compensationMethod + '\'' +
-        ", expireTime='" + expireTime + '\'' +
+        ", timeout='" + timeout + '\'' +
         '}';
   }
 }
