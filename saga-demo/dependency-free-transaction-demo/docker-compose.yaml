@@ -84,7 +84,7 @@ services:
     environment:
       - JAVA_OPTS=-Dspring.profiles.active=prd,servicecomb -Dcse.service.registry.address=http://sc.servicecomb.io:30100
     ports:
-      - "8080:8080"
+      - "8083:8080"
     depends_on:
       postgres:
         condition: service_healthy
