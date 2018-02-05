@@ -31,9 +31,14 @@ public class TxTimeout {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long surrogateId;
 
+  private long eventId;
+  private String serviceName;
+  private String instanceId;
   private String globalTxId;
   private String localTxId;
-  private Date expireTime;
+  private String parentTxId;
+  private String type;
+  private Date expiryTime;
   private String status;
 
   @Version
@@ -42,11 +47,25 @@ public class TxTimeout {
   TxTimeout() {
   }
 
-  public TxTimeout(String globalTxId, String localTxId, Date expireTime, String status) {
+  TxTimeout(long eventId, String serviceName, String instanceId, String globalTxId, String localTxId,
+      String parentTxId, String type, Date expiryTime, String status) {
+    this.eventId = eventId;
+    this.serviceName = serviceName;
+    this.instanceId = instanceId;
     this.globalTxId = globalTxId;
     this.localTxId = localTxId;
-    this.expireTime = expireTime;
+    this.parentTxId = parentTxId;
+    this.type = type;
+    this.expiryTime = expiryTime;
     this.status = status;
+  }
+
+  public String serviceName() {
+    return serviceName;
+  }
+
+  public String instanceId() {
+    return instanceId;
   }
 
   public String globalTxId() {
@@ -57,24 +76,33 @@ public class TxTimeout {
     return localTxId;
   }
 
-  public Date expireTime() {
-    return expireTime;
+  public String parentTxId() {
+    return parentTxId;
+  }
+
+  public String type() {
+    return type;
+  }
+
+  public Date expiryTime() {
+    return expiryTime;
   }
 
   public String status() {
     return status;
   }
 
-  public void setStatus(String status) {
-    this.status = status;
-  }
-
   @Override
   public String toString() {
     return "TxTimeout{" +
-        "globalTxId='" + globalTxId + '\'' +
+        "eventId=" + eventId +
+        ", serviceName='" + serviceName + '\'' +
+        ", instanceId='" + instanceId + '\'' +
+        ", globalTxId='" + globalTxId + '\'' +
         ", localTxId='" + localTxId + '\'' +
-        ", expireTime=" + expireTime +
+        ", parentTxId='" + parentTxId + '\'' +
+        ", type='" + type + '\'' +
+        ", expiryTime=" + expiryTime +
         ", status=" + status +
         '}';
   }

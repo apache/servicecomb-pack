@@ -17,6 +17,8 @@
 
 package org.apache.servicecomb.saga.alpha.core;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -24,10 +26,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Transient;
-import javax.persistence.Version;
 
 @Entity
 public class TxEvent {
+  @Transient
+  private static final long MAX_TIMESTAMP = 253402214400000L; // 9999-12-31 00:00:00
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long surrogateId;
@@ -40,13 +44,8 @@ public class TxEvent {
   private String parentTxId;
   private String type;
   private String compensationMethod;
+  private Date expiryTime;
   private byte[] payloads;
-
-  @Version
-  private long version;
-
-  @Transient
-  private int timeout;
 
   private TxEvent() {
   }
@@ -61,7 +60,7 @@ public class TxEvent {
         event.parentTxId,
         event.type,
         event.compensationMethod,
-        0,
+        event.expiryTime,
         event.payloads);
   }
 
@@ -117,7 +116,23 @@ public class TxEvent {
       String compensationMethod,
       int timeout,
       byte[] payloads) {
+    this(surrogateId, serviceName, instanceId, creationTime, globalTxId, localTxId, parentTxId, type,
+        compensationMethod,
+        timeout == 0 ? new Date(MAX_TIMESTAMP) : new Date(creationTime.getTime() + SECONDS.toMillis(timeout)),
+        payloads);
+  }
 
+  TxEvent(Long surrogateId,
+      String serviceName,
+      String instanceId,
+      Date creationTime,
+      String globalTxId,
+      String localTxId,
+      String parentTxId,
+      String type,
+      String compensationMethod,
+      Date expiryTime,
+      byte[] payloads) {
     this.surrogateId = surrogateId;
     this.serviceName = serviceName;
     this.instanceId = instanceId;
@@ -127,8 +142,8 @@ public class TxEvent {
     this.parentTxId = parentTxId;
     this.type = type;
     this.compensationMethod = compensationMethod;
+    this.expiryTime = expiryTime;
     this.payloads = payloads;
-    this.timeout = timeout;
   }
 
   public String serviceName() {
@@ -171,8 +186,8 @@ public class TxEvent {
     return surrogateId;
   }
 
-  public int timeout() {
-    return timeout;
+  public Date expiryTime() {
+    return expiryTime;
   }
 
   @Override
@@ -187,7 +202,7 @@ public class TxEvent {
         ", parentTxId='" + parentTxId + '\'' +
         ", type='" + type + '\'' +
         ", compensationMethod='" + compensationMethod + '\'' +
-        ", timeout='" + timeout + '\'' +
+        ", expiryTime='" + expiryTime + '\'' +
         '}';
   }
 }

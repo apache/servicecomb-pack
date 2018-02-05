@@ -17,15 +17,12 @@
 
 package org.apache.servicecomb.saga.alpha.server;
 
-import static org.apache.servicecomb.saga.alpha.core.TaskStatus.DONE;
 import static org.apache.servicecomb.saga.alpha.core.TaskStatus.PENDING;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.transaction.Transactional;
 
-import org.apache.servicecomb.saga.alpha.core.TxEvent;
 import org.apache.servicecomb.saga.alpha.core.TxTimeout;
 import org.apache.servicecomb.saga.alpha.core.TxTimeoutRepository;
 import org.springframework.data.domain.PageRequest;
@@ -38,26 +35,21 @@ public class SpringTxTimeoutRepository implements TxTimeoutRepository {
   }
 
   @Override
-  public void save(TxTimeout event) {
-    timeoutRepo.save(event);
+  public void save(TxTimeout timeout) {
+    timeoutRepo.save(timeout);
   }
 
   @Override
-  public void markTxTimeoutAsDone(String globalTxId, String localTxId) {
-    timeoutRepo.updateStatusByGlobalTxIdAndLocalTxId(DONE.name(), globalTxId, localTxId);
+  public void markTimeoutAsDone() {
+    timeoutRepo.updateStatusOfFinishedTx();
   }
 
   @Transactional
   @Override
-  public List<TxEvent> findFirstTimeoutTxToAbort() {
-    List<TxEvent> timeoutEvents = timeoutRepo.findFirstTimeoutTxOrderByExpireTimeAsc(new PageRequest(0, 1));
-    List<TxEvent> pendingTimeoutEvents = new ArrayList<>();
-    timeoutEvents.forEach(event -> {
-      if (timeoutRepo.updateStatusFromNewByGlobalTxIdAndLocalTxId(PENDING.name(), event.globalTxId(), event.localTxId())
-          != 0) {
-        pendingTimeoutEvents.add(event);
-      }
-    });
-    return pendingTimeoutEvents;
+  public List<TxTimeout> findFirstTimeout() {
+    List<TxTimeout> timeoutEvents = timeoutRepo.findFirstTimeoutTxOrderByExpireTimeAsc(new PageRequest(0, 1));
+    timeoutEvents.forEach(event -> timeoutRepo
+        .updateStatusByGlobalTxIdAndLocalTxId(PENDING.name(), event.globalTxId(), event.localTxId()));
+    return timeoutEvents;
   }
 }

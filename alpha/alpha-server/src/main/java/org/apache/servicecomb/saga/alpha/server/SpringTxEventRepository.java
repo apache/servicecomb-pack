@@ -43,6 +43,16 @@ class SpringTxEventRepository implements TxEventRepository {
   }
 
   @Override
+  public List<TxEvent> findTimeoutEvents() {
+    return eventRepo.findTimeoutEvents(SINGLE_TX_EVENT_REQUEST);
+  }
+
+  @Override
+  public Optional<TxEvent> findTxStartedEventToCompensate(String globalTxId, String localTxId) {
+    return eventRepo.findFirstStartedEventByGlobalTxIdAndLocalTxId(globalTxId, localTxId);
+  }
+
+  @Override
   public List<TxEvent> findTransactions(String globalTxId, String type) {
     return eventRepo.findByEventGlobalTxIdAndEventType(globalTxId, type);
   }
