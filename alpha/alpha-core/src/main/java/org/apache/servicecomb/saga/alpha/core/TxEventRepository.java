@@ -25,6 +25,10 @@ public interface TxEventRepository {
 
   Optional<TxEvent> findFirstAbortedGlobalTransaction();
 
+  List<TxEvent> findTimeoutEvents();
+
+  Optional<TxEvent> findTxStartedEventToCompensate(String globalTxId, String localTxId);
+
   List<TxEvent> findTransactions(String globalTxId, String type);
 
   List<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id, String type);

@@ -54,7 +54,6 @@ public class TransactionAspect {
     String localTxId = context.localTxId();
     context.newLocalTxId();
 
-    OnceAwareInterceptor interceptor = new OnceAwareInterceptor(this.interceptor);
     AlphaResponse response = interceptor.preIntercept(localTxId, signature, compensable.timeout(), joinPoint.getArgs());
     if (response.aborted()) {
       String abortedLocalTxId = context.localTxId();

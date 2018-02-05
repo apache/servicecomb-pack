@@ -38,6 +38,22 @@ interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
       + "    AND t1.type IN ('TxEndedEvent', 'SagaEndedEvent'))")
   Optional<TxEvent> findFirstAbortedGlobalTxByType();
 
+  @Query("SELECT t FROM TxEvent t "
+      + "WHERE t.type IN ('TxStartedEvent', 'SagaStartedEvent') "
+      + "  AND t.expiryTime < CURRENT_TIMESTAMP AND NOT EXISTS( "
+      + "  SELECT t1.globalTxId FROM TxEvent t1 "
+      + "  WHERE t1.globalTxId = t.globalTxId "
+      + "    AND t1.localTxId = t.localTxId "
+      + "    AND t1.type != t.type"
+      + ")")
+  List<TxEvent> findTimeoutEvents(Pageable pageable);
+
+  @Query("SELECT t FROM TxEvent t "
+      + "WHERE t.globalTxId = ?1 "
+      + "  AND t.localTxId = ?2 "
+      + "  AND t.type = 'TxStartedEvent'")
+  Optional<TxEvent> findFirstStartedEventByGlobalTxIdAndLocalTxId(String globalTxId, String localTxId);
+
   @Query("SELECT DISTINCT new org.apache.servicecomb.saga.alpha.core.TxEvent("
       + "t.serviceName, t.instanceId, t.globalTxId, t.localTxId, t.parentTxId, "
       + "t.type, t.compensationMethod, t.payloads"

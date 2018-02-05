@@ -19,15 +19,12 @@ package org.apache.servicecomb.saga.alpha.core;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.util.Collections.emptyList;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.servicecomb.saga.alpha.core.TaskStatus.DONE;
 import static org.apache.servicecomb.saga.common.EventType.SagaEndedEvent;
 import static org.apache.servicecomb.saga.common.EventType.SagaStartedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxAbortedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxCompensatedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxEndedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
-import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -57,6 +54,18 @@ public class TxConsistentServiceTest {
     }
 
     @Override
+    public List<TxEvent> findTimeoutEvents() {
+      return emptyList();
+    }
+
+    @Override
+    public Optional<TxEvent> findTxStartedEventToCompensate(String globalTxId, String localTxId) {
+      return events.stream()
+          .filter(event -> globalTxId.equals(event.globalTxId()) && localTxId.equals(event.localTxId()))
+          .findFirst();
+    }
+
+    @Override
     public List<TxEvent> findTransactions(String globalTxId, String type) {
       return events.stream()
           .filter(event -> globalTxId.equals(event.globalTxId()) && type.equals(event.type()))
@@ -78,29 +87,6 @@ public class TxConsistentServiceTest {
     }
   };
 
-  private final Deque<TxTimeout> timeouts = new ConcurrentLinkedDeque<>();
-  private final TxTimeoutRepository timeoutRepository = new TxTimeoutRepository() {
-    @Override
-    public void save(TxTimeout timeout) {
-      timeouts.add(timeout);
-    }
-
-    @Override
-    public void markTxTimeoutAsDone(String globalTxId, String localTxId) {
-      for (TxTimeout timeout : timeouts) {
-        if (timeout.globalTxId().equals(globalTxId) && timeout.localTxId().equals(localTxId)) {
-          timeout.setStatus(DONE.name());
-          break;
-        }
-      }
-    }
-
-    @Override
-    public List<TxEvent> findFirstTimeoutTxToAbort() {
-      return null;
-    }
-  };
-
   private final String globalTxId = UUID.randomUUID().toString();
   private final String localTxId = UUID.randomUUID().toString();
   private final String parentTxId = UUID.randomUUID().toString();
@@ -109,13 +95,12 @@ public class TxConsistentServiceTest {
 
   private final String compensationMethod = getClass().getCanonicalName();
 
-  private final TxConsistentService consistentService = new TxConsistentService(eventRepository, timeoutRepository);
+  private final TxConsistentService consistentService = new TxConsistentService(eventRepository);
   private final byte[] payloads = "yeah".getBytes();
 
   @Before
   public void setUp() throws Exception {
     events.clear();
-    timeouts.clear();
   }
 
   @Test
@@ -132,7 +117,6 @@ public class TxConsistentServiceTest {
     }
 
     assertThat(this.events, contains(events));
-    assertThat(timeouts.isEmpty(), is(true));
   }
 
   @Test
@@ -146,46 +130,11 @@ public class TxConsistentServiceTest {
     consistentService.handle(event);
 
     assertThat(events.size(), is(2));
-    assertThat(timeouts.isEmpty(), is(true));
-  }
-
-  @Test
-  public void persistTimeoutEventOnArrival() {
-    TxEvent[] events = {
-        newEventWithTimeout(SagaStartedEvent, globalTxId,2),
-        newEventWithTimeout(TxStartedEvent, 1),
-        newEvent(TxEndedEvent),
-        newEvent(TxCompensatedEvent),
-        eventOf(SagaEndedEvent, globalTxId)};
-
-    for (TxEvent event : events) {
-      consistentService.handle(event);
-    }
-
-    assertThat(this.events, contains(events));
-    assertThat(timeouts.size(), is(2));
-    await().atMost(1, SECONDS).until(this::allTimeoutIsDone);
-  }
-
-  private boolean allTimeoutIsDone() {
-    for (TxTimeout timeout : timeouts) {
-      if (!timeout.status().equals(DONE.name())) {
-        return false;
-      }
-    }
-    return true;
   }
 
   private TxEvent newEvent(EventType eventType) {
-    return newEventWithTimeout(eventType, 0);
-  }
-
-  private TxEvent newEventWithTimeout(EventType eventType, int timeout) {
-    return newEventWithTimeout(eventType, localTxId, timeout);
-  }
-
-  private TxEvent newEventWithTimeout(EventType eventType, String localTxId, int timeout) {
-    return new TxEvent(serviceName, instanceId, globalTxId, localTxId, parentTxId, eventType.name(), compensationMethod, timeout, payloads);
+    return new TxEvent(serviceName, instanceId, globalTxId, localTxId, parentTxId, eventType.name(), compensationMethod,
+        payloads);
   }
 
   private TxEvent eventOf(EventType eventType, String localTxId) {

@@ -18,6 +18,7 @@
 package org.apache.servicecomb.saga.alpha.core;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.apache.servicecomb.saga.alpha.core.TaskStatus.NEW;
 import static org.apache.servicecomb.saga.common.EventType.SagaEndedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxAbortedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxCompensatedEvent;
@@ -66,7 +67,9 @@ public class EventScanner implements Runnable {
   private void pollEvents() {
     scheduler.scheduleWithFixedDelay(
         () -> {
-          abortTimeoutEvent();
+          updateTimeoutStatus();
+          findTimeoutEvents();
+          abortTimeoutEvents();
           saveUncompensatedEventsToCommands();
           compensate();
           updateCompensatedCommands();
@@ -76,6 +79,18 @@ public class EventScanner implements Runnable {
         0,
         eventPollingInterval,
         MILLISECONDS);
+  }
+
+  private void findTimeoutEvents() {
+    eventRepository.findTimeoutEvents()
+        .forEach(event -> {
+          log.info("Found timeout event {}", event);
+          timeoutRepository.save(txTimeoutOf(event));
+        });
+  }
+
+  private void updateTimeoutStatus() {
+    timeoutRepository.markTimeoutAsDone();
   }
 
   private void saveUncompensatedEventsToCommands() {
@@ -113,15 +128,15 @@ public class EventScanner implements Runnable {
     markSagaEnded(event);
   }
 
-  private void abortTimeoutEvent() {
-    timeoutRepository.findFirstTimeoutTxToAbort().forEach(event -> {
-      log.info("Found timeout event {}", event);
+  private void abortTimeoutEvents() {
+    timeoutRepository.findFirstTimeout().forEach(timeout -> {
+      log.info("Found timeout event {} to abort", timeout);
 
-      eventRepository.save(toTxAbortedEvent(event));
-      timeoutRepository.markTxTimeoutAsDone(event.globalTxId(), event.localTxId());
+      eventRepository.save(toTxAbortedEvent(timeout));
 
-      if (event.type().equals(TxStartedEvent.name())) {
-        omegaCallback.compensate(event);
+      if (timeout.type().equals(TxStartedEvent.name())) {
+        eventRepository.findTxStartedEventToCompensate(timeout.globalTxId(), timeout.localTxId())
+            .ifPresent(omegaCallback::compensate);
       }
     });
   }
@@ -138,17 +153,16 @@ public class EventScanner implements Runnable {
 
   private void markGlobalTxEnd(TxEvent event) {
     eventRepository.save(toSagaEndedEvent(event));
-    timeoutRepository.markTxTimeoutAsDone(event.globalTxId(), event.localTxId());
     log.info("Marked end of transaction with globalTxId {}", event.globalTxId());
   }
 
-  private TxEvent toTxAbortedEvent(TxEvent event) {
+  private TxEvent toTxAbortedEvent(TxTimeout timeout) {
     return new TxEvent(
-        event.serviceName(),
-        event.instanceId(),
-        event.globalTxId(),
-        event.localTxId(),
-        event.parentTxId(),
+        timeout.serviceName(),
+        timeout.instanceId(),
+        timeout.globalTxId(),
+        timeout.localTxId(),
+        timeout.parentTxId(),
         TxAbortedEvent.name(),
         "",
         ("Transaction timeout").getBytes());
@@ -187,6 +201,20 @@ public class EventScanner implements Runnable {
         TxStartedEvent.name(),
         command.compensationMethod(),
         command.payloads()
+    );
+  }
+
+  private TxTimeout txTimeoutOf(TxEvent event) {
+    return new TxTimeout(
+        event.id(),
+        event.serviceName(),
+        event.instanceId(),
+        event.globalTxId(),
+        event.localTxId(),
+        event.parentTxId(),
+        event.type(),
+        event.expiryTime(),
+        NEW.name()
     );
   }
 }

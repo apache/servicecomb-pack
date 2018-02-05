@@ -20,7 +20,6 @@ package org.apache.servicecomb.saga.alpha.server;
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.servicecomb.saga.alpha.core.TaskStatus.DONE;
-import static org.apache.servicecomb.saga.alpha.core.TaskStatus.NEW;
 import static org.apache.servicecomb.saga.common.EventType.SagaEndedEvent;
 import static org.apache.servicecomb.saga.common.EventType.SagaStartedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxAbortedEvent;
@@ -383,10 +382,6 @@ public class AlphaIntegrationTest {
     asyncStub.onConnected(serviceConfig, compensateResponseObserver);
     blockingStub.onTxEvent(someGrpcEventWithTimeout(SagaStartedEvent, globalTxId, null, 1));
 
-    await().atMost(1, SECONDS).until(() -> timeoutEntityRepository.count() == 1L);
-    Iterable<TxTimeout> timeouts = timeoutEntityRepository.findAll();
-    timeouts.forEach(timeout -> assertThat(timeout.status(), is(NEW.name())));
-
     await().atMost(2, SECONDS).until(() -> eventRepo.count() == 3);
 
     List<TxEvent> events = eventRepo.findByGlobalTxId(globalTxId);
@@ -395,7 +390,7 @@ public class AlphaIntegrationTest {
     assertThat(events.get(2).type(), is(SagaEndedEvent.name()));
 
     assertThat(timeoutEntityRepository.count(), is(1L));
-    timeouts = timeoutEntityRepository.findAll();
+    Iterable<TxTimeout> timeouts = timeoutEntityRepository.findAll();
     timeouts.forEach(timeout -> {
       assertThat(timeout.status(), is(DONE.name()));
       assertThat(timeout.globalTxId(), is(globalTxId));
