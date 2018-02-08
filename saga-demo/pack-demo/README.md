@@ -4,6 +4,18 @@ This demo simulates a booking application including three services:
 * pack-car
 * pack-hotel
 
+## Prerequisites
+You will need:
+1. [JDK 1.8][jdk]
+2. [Maven 3.x][maven]
+3. [Docker][docker]
+4. [Docker compose][docker_compose]
+
+[jdk]: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+[maven]: https://maven.apache.org/install.html
+[docker]: https://www.docker.com/get-docker
+[docker_compose]: https://docs.docker.com/compose/install/
+
 ## Running Demo
 1. run the following command to create docker images in saga project root folder.
 ```
