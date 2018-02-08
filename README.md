@@ -7,8 +7,6 @@ Apache ServiceComb (incubating) Saga is an eventually data consistency solution 
 * High performance. Transaction events are reported to coordinator via gRPC and transaction payloads are serialized/deserialized by Kyro.
 * Low invasion. All you need to do is add 2-3 annotations and the corresponding compensate methods.
 * Easy to deploy. All components can boot via docker.
-* Supported micro-service frameworks:
-  + Spring Cloud
 * Support both forward(retry) and backward(compensate) recovery.
 
 ## Architecture
