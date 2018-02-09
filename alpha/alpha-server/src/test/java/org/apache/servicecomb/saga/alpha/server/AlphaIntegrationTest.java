@@ -389,6 +389,8 @@ public class AlphaIntegrationTest {
     assertThat(events.get(1).type(), is(TxAbortedEvent.name()));
     assertThat(events.get(2).type(), is(SagaEndedEvent.name()));
 
+    await().atMost(2, SECONDS).until(this::waitTillTimeoutDone);
+
     assertThat(timeoutEntityRepository.count(), is(1L));
     Iterable<TxTimeout> timeouts = timeoutEntityRepository.findAll();
     timeouts.forEach(timeout -> {
@@ -416,6 +418,8 @@ public class AlphaIntegrationTest {
     assertThat(events.get(3).type(), is(TxCompensatedEvent.name()));
     assertThat(events.get(4).type(), is(SagaEndedEvent.name()));
 
+    await().atMost(2, SECONDS).until(this::waitTillTimeoutDone);
+
     assertThat(timeoutEntityRepository.count(), is(1L));
     Iterable<TxTimeout> timeouts = timeoutEntityRepository.findAll();
     timeouts.forEach(timeout -> {
@@ -423,6 +427,15 @@ public class AlphaIntegrationTest {
       assertThat(timeout.globalTxId(), is(globalTxId));
       assertThat(timeout.localTxId(), is(localTxId));
     });
+  }
+
+  private boolean waitTillTimeoutDone() {
+    for (TxTimeout txTimeout : timeoutEntityRepository.findAll()) {
+      if (txTimeout.status().equals(DONE.name())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private GrpcAck onCompensation(GrpcCompensateCommand command) {
