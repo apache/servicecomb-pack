@@ -41,9 +41,9 @@
       <artifactId>omega-spring-starter</artifactId>
     </dependency>
     <dependency>
-       <groupId>org.apache.servicecomb.saga</groupId>
-       <artifactId>omega-transport-resttemplate</artifactId>
-     </dependency>
+      <groupId>org.apache.servicecomb.saga</groupId>
+      <artifactId>omega-transport-resttemplate</artifactId>
+    </dependency>
   </dependencies>
 
   <build>

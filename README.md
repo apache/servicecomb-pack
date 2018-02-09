@@ -22,6 +22,9 @@ See [Saga Pack Design](docs/design.md) for details. If you are interested in our
 ## Get Started
 See [Booking Demo](saga-demo/pack-demo/README.md) for details.
 
+## User Guide
+See [User Guide](docs/user_guide.md) for details.
+
 ## Contact Us
 * [issues](https://issues.apache.org/jira/browse/SCB)
 * [gitter](https://gitter.im/ServiceCombUsers/Lobby)
