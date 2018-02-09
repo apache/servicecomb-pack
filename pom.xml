@@ -630,14 +630,15 @@
             <exclude>.github/PULL_REQUEST_TEMPLATE.md</exclude>
             <exclude>.travis.yml</exclude>
             <exclude>DISCLAIMER</exclude>
+            <exclude>docs/*.md</exclude>
+            <exclude>docs/**.md</exclude>
             <exclude>**/README.md</exclude>
-            <exclude>**/api.md</exclude>
-            <excldue>target/**</excldue>
+            <excldue>**/target/**</excldue>
             <exclude>**/*.sql</exclude>
-            <!-- just exclude the css and js check -->
-            <exclude>**/*.js</exclude>
+            
+            <!--exclude>**/*.js</exclude>
             <exclude>**/*.css</exclude>
-            <exclude>**/*.css.map</exclude>
+            <exclude>**/*.css.map</exclude-->
           </excludes>
         </configuration>
       </plugin>

@@ -27,6 +27,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>acceptance-pack</artifactId>
+  <name>Saga:Acceptance Tests::Pack</name>
 
   <dependencies>
     <dependency>
