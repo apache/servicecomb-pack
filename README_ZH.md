@@ -22,6 +22,9 @@ Saga是由 **alpha** 和 **omega**组成，其中：
 ## 快速入门
 详情可浏览[出行预订示例](saga-demo/pack-demo/README.md)。
 
+## 用户指南
+详情可浏览[用户指南](docs/user_guide_zh.md)。
+
 ## 联系我们
 * [提交issues](https://issues.apache.org/jira/browse/SCB)
 * [gitter聊天室](https://gitter.im/ServiceCombUsers/Lobby)
