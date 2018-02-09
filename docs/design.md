@@ -1,4 +1,5 @@
 # Saga Pack Design
+[![ZH doc](https://img.shields.io/badge/document-中文-blue.svg)](design_zh.md)
 ## Overview
 Pack contains two components: *alpha* and *omega*. Alpha is the pack leader and backed by database to make sure transaction events stored permanently while omega is the pack worker and embedded inside services to intercept transaction invocation and report events to alpha.
 
