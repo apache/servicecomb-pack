@@ -14,29 +14,26 @@
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
 ## ---------------------------------------------------------------------------
-server:
-  port: 8090
 
----
-spring:
-  profiles: prd
-  datasource:
-    username: saga
-    password: password
-    url: jdbc:postgresql://postgresql.servicecomb.io:5432/saga?useSSL=false
-    platform: postgresql
-#    continue-on-error: true
+version: '2.1'
 
----
-spring:
-  profiles: mysql
-  datasource:
-    username: saga
-    password: password
-    url: jdbc:mysql://mysql.servicecomb.io:3306/saga?useSSL=false
-    platform: mysql
-    continue-on-error: true
-  jpa:
-    properties:
-      eclipselink:
-        ddl-generation: none
+services:
+  database:
+    image: "mysql/mysql-server:5.7"
+    hostname: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=saga
+      - MYSQL_USER=saga
+      - MYSQL_PASSWORD=password
+    healthcheck:
+        test: ["CMD-SHELL", "nc -z localhost 3306 &> /dev/null; echo $$?"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+
+  alpha:
+    links:
+      - "database:mysql.servicecomb.io"
+    environment:
+      - JAVA_OPTS=-Dspring.profiles.active=mysql

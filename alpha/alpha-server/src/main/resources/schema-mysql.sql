@@ -1,22 +1,22 @@
 CREATE TABLE IF NOT EXISTS TxEvent (
-  surrogateId BIGSERIAL PRIMARY KEY,
+  surrogateId bigint NOT NULL AUTO_INCREMENT,
   serviceName varchar(16) NOT NULL,
   instanceId varchar(36) NOT NULL,
-  creationTime timestamp(6) NOT NULL DEFAULT CURRENT_DATE,
+  creationTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   globalTxId varchar(36) NOT NULL,
   localTxId varchar(36) NOT NULL,
   parentTxId varchar(36) DEFAULT NULL,
   type varchar(50) NOT NULL,
   compensationMethod varchar(256) NOT NULL,
-  expiryTime timestamp(6) NOT NULL,
-  payloads bytea
-);
-
-CREATE INDEX IF NOT EXISTS saga_events_index ON TxEvent (surrogateId, globalTxId, localTxId, type, expiryTime);
+  expiryTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  payloads varbinary(10240),
+  PRIMARY KEY (surrogateId),
+  INDEX saga_events_index (surrogateId, globalTxId, localTxId, type, expiryTime)
+) DEFAULT CHARSET=utf8;
 
 
 CREATE TABLE IF NOT EXISTS Command (
-  surrogateId BIGSERIAL PRIMARY KEY,
+  surrogateId bigint NOT NULL AUTO_INCREMENT,
   eventId bigint NOT NULL UNIQUE,
   serviceName varchar(16) NOT NULL,
   instanceId varchar(36) NOT NULL,
@@ -24,17 +24,16 @@ CREATE TABLE IF NOT EXISTS Command (
   localTxId varchar(36) NOT NULL,
   parentTxId varchar(36) DEFAULT NULL,
   compensationMethod varchar(256) NOT NULL,
-  payloads bytea,
+  payloads varbinary(10240),
   status varchar(12),
-  lastModified timestamp(6) NOT NULL DEFAULT CURRENT_DATE,
-  version bigint NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS saga_commands_index ON Command (surrogateId, eventId, globalTxId, localTxId, status);
-
+  lastModified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  version bigint NOT NULL,
+  PRIMARY KEY (surrogateId),
+  INDEX saga_commands_index (surrogateId, eventId, globalTxId, localTxId, status)
+) DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS TxTimeout (
-  surrogateId BIGSERIAL PRIMARY KEY,
+  surrogateId bigint NOT NULL AUTO_INCREMENT,
   eventId bigint NOT NULL UNIQUE,
   serviceName varchar(16) NOT NULL,
   instanceId varchar(36) NOT NULL,
@@ -42,9 +41,9 @@ CREATE TABLE IF NOT EXISTS TxTimeout (
   localTxId varchar(36) NOT NULL,
   parentTxId varchar(36) DEFAULT NULL,
   type varchar(50) NOT NULL,
-  expiryTime TIMESTAMP NOT NULL,
+  expiryTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   status varchar(12),
-  version bigint NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS saga_timeouts_index ON TxTimeout (surrogateId, expiryTime, globalTxId, localTxId, status);
+  version bigint NOT NULL,
+  PRIMARY KEY (surrogateId),
+  INDEX saga_timeouts_index (surrogateId, expiryTime, globalTxId, localTxId, status)
+) DEFAULT CHARSET=utf8;

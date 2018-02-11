@@ -18,14 +18,28 @@ You will need:
 
 ## Running Demo
 1. run the following command to create docker images in saga project root folder.
-```
-mvn package -DskipTests -Pdocker -Pdemo
-```
+   ```
+   mvn package -DskipTests -Pdocker -Pdemo
+   ```
 
 2. start application up in saga/saga-demo/pack-demo with the following command
-```
-docker-compose up
-```
+   ```
+   docker-compose up
+   ```
+
+   **Note:** If you prefer to use MySQL as alpha's backend database, you need to try the following steps instead:
+   1. add dependency of `mysql-connector-java` in `alpha/alpha-server/pom.xml`
+      ```xml
+          <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+          </dependency>
+      ```
+   
+   2. start application up in saga/saga-demo/pack-demo with the following command
+      ```
+      docker-compose -f docker-compose.yaml -f docker-compose.mysql.yaml up
+      ```
 
 ## User Requests
 1. Booking 2 rooms and 2 cars, this booking will be OK.
