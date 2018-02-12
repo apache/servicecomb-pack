@@ -33,6 +33,7 @@
   <packaging>pom</packaging>
   <modules>
     <module>omega-transport-resttemplate</module>
+    <module>omega-transport-servicecomb</module>
   </modules>
 
   <dependencies>
