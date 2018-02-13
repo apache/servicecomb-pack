@@ -14,57 +14,26 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  ~
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <artifactId>omega</artifactId>
+    <artifactId>omega-transport</artifactId>
     <groupId>org.apache.servicecomb.saga</groupId>
     <version>0.0.3-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>omega-transport</artifactId>
-  <name>Saga::Omega::Transport</name>
-
-  <packaging>pom</packaging>
-  <modules>
-    <module>omega-transport-resttemplate</module>
-    <module>omega-transport-servicecomb</module>
-  </modules>
+  <artifactId>omega-transport-servicecomb</artifactId>
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.servicecomb.saga</groupId>
-      <artifactId>omega-context</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.servicecomb.saga</groupId>
-      <artifactId>omega-transaction</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-all</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.github.tomakehurst</groupId>
-      <artifactId>wiremock-standalone</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.github.seanyinx</groupId>
-      <artifactId>unit-scaffolding</artifactId>
+      <groupId>io.servicecomb</groupId>
+      <artifactId>java-chassis-core</artifactId>
+      <version>${java.chassis.version}</version>
     </dependency>
   </dependencies>
+
 </project>
