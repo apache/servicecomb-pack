@@ -25,9 +25,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 
 @Entity
+@Table(name = "TxEvent")
 public class TxEvent {
   @Transient
   private static final long MAX_TIMESTAMP = 253402214400000L; // 9999-12-31 00:00:00

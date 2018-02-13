@@ -18,7 +18,7 @@
 version: '2.1'
 
 services:
-  postgres:
+  database:
     image: "postgres"
     hostname: postgres
     environment:
@@ -35,11 +35,16 @@ services:
     image: "alpha-server:0.0.3-SNAPSHOT"
     hostname: alpha-server
     links:
-      - "postgres:postgresql.servicecomb.io"
+      - "database:postgresql.servicecomb.io"
     environment:
       - JAVA_OPTS=-Dspring.profiles.active=prd
+    healthcheck:
+        test: ["CMD-SHELL", "nc -z localhost 8080 &> /dev/null; echo $$?"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
     depends_on:
-      postgres:
+      database:
         condition: service_healthy
 
   pack-hotel:
@@ -50,7 +55,8 @@ services:
     ports:
       - "8081:8080"
     depends_on:
-      - alpha
+      alpha:
+        condition: service_healthy
 
   pack-car:
     image: "pack-car:0.0.3-SNAPSHOT"
@@ -60,7 +66,8 @@ services:
     ports:
       - "8082:8080"
     depends_on:
-      - alpha
+      alpha:
+        condition: service_healthy
 
   pack-booking:
     image: "pack-booking:0.0.3-SNAPSHOT"

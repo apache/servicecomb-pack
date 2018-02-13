@@ -25,6 +25,10 @@ See [Booking Demo](saga-demo/pack-demo/README.md) for details.
 ## User Guide
 See [User Guide](docs/user_guide.md) for details.
 
+
+## FAQ
+* [How to use MySQL as alpha's backend database?](docs/faq/en/how_to_use_mysql_as_alpha_backend_database.md)
+
 ## Contact Us
 * [issues](https://issues.apache.org/jira/browse/SCB)
 * [gitter](https://gitter.im/ServiceCombUsers/Lobby)
