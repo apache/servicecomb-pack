@@ -28,5 +28,15 @@
       <fileMode>0644</fileMode>
       <directoryMode>0755</directoryMode>
     </fileSet>
+    <!-- Added the project LICENSE and NOTICE files into docker image-->
+    <fileSet>
+      <directory>${root.basedir}</directory>
+      <outputDirectory>saga</outputDirectory>
+      <includes>
+        <include>NOTICE</include>
+        <include>LICENSE</include>
+        <include>DISCLAIMER</include>
+      </includes>
+    </fileSet>
   </fileSets>
 </assembly>
