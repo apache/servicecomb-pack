@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class PushBackReconnectRunnable implements Runnable {
-  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final MessageSender messageSender;
   private final Map<MessageSender, Long> senders;
   private final BlockingQueue<Runnable> pendingTasks;
@@ -47,14 +47,14 @@ class PushBackReconnectRunnable implements Runnable {
   @Override
   public void run() {
     try {
-      log.info("Retry connecting to alpha at {}", messageSender.target());
+      LOG.info("Retry connecting to alpha at {}", messageSender.target());
       messageSender.onDisconnected();
       messageSender.onConnected();
       senders.put(messageSender, 0L);
       connectedSenders.offer(messageSender);
-      log.info("Retry connecting to alpha at {} is successful", messageSender.target());
+      LOG.info("Retry connecting to alpha at {} is successful", messageSender.target());
     } catch (Exception e) {
-      log.error("Failed to reconnect to alpha at {}", messageSender.target(), e);
+      LOG.error("Failed to reconnect to alpha at {}", messageSender.target(), e);
       pendingTasks.offer(this);
     }
   }

@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PushBackOmegaCallback implements OmegaCallback {
-  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final BlockingQueue<Runnable> pendingCompensations;
   private final OmegaCallback underlying;
@@ -45,11 +45,12 @@ public class PushBackOmegaCallback implements OmegaCallback {
   }
 
   private void logError(TxEvent event, Exception e) {
-    log.error(
-        "Failed to compensate service [{}] instance [{}] with method [{}], global tx id [{}] and local tx id [{}]",
+    LOG.error(
+        "Failed to {} service [{}] instance [{}] with method [{}], global tx id [{}] and local tx id [{}]",
+        event.retries() == 0 ? "compensate" : "retry",
         event.serviceName(),
         event.instanceId(),
-        event.compensationMethod(),
+        event.retries() == 0 ? event.compensationMethod() : event.retryMethod(),
         event.globalTxId(),
         event.localTxId(),
         e);

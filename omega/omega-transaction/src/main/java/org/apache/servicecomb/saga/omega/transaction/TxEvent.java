@@ -31,21 +31,22 @@ public class TxEvent {
   private final String compensationMethod;
   private final int timeout;
   private final Object[] payloads;
-  private final String retriesMethod;
+
+  private final String retryMethod;
   private final int retries;
 
   public TxEvent(EventType type, String globalTxId, String localTxId, String parentTxId, String compensationMethod,
-      int timeout, String retriesMethod, int retries, Object... payloads) {
+      int timeout, String retryMethod, int retries, Object... payloads) {
     this.timestamp = System.currentTimeMillis();
     this.type = type;
+    this.globalTxId = globalTxId;
     this.localTxId = localTxId;
     this.parentTxId = parentTxId;
     this.compensationMethod = compensationMethod;
-    this.payloads = payloads;
-    this.globalTxId = globalTxId;
     this.timeout = timeout;
-    this.retriesMethod = retriesMethod;
+    this.retryMethod = retryMethod;
     this.retries = retries;
+    this.payloads = payloads;
   }
 
   public long timestamp() {
@@ -80,8 +81,8 @@ public class TxEvent {
     return timeout;
   }
 
-  public String retriesMethod() {
-    return retriesMethod;
+  public String retryMethod() {
+    return retryMethod;
   }
 
   public int retries() {
@@ -95,7 +96,9 @@ public class TxEvent {
         ", localTxId='" + localTxId + '\'' +
         ", parentTxId='" + parentTxId + '\'' +
         ", compensationMethod='" + compensationMethod + '\'' +
-        ", timeout='" + timeout + '\'' +
+        ", timeout=" + timeout +
+        ", retryMethod='" + retryMethod + '\'' +
+        ", retries=" + retries +
         ", payloads=" + Arrays.toString(payloads) +
         '}';
   }

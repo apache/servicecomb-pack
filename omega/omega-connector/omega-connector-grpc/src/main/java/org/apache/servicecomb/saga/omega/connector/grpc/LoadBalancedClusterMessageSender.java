@@ -48,7 +48,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
 public class LoadBalancedClusterMessageSender implements MessageSender {
-  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final Map<MessageSender, Long> senders = new ConcurrentHashMap<>();
   private final Collection<ManagedChannel> channels;
 
@@ -104,7 +104,7 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
       try {
         sender.onConnected();
       } catch (Exception e) {
-        log.error("Failed connecting to alpha at {}", sender.target(), e);
+        LOG.error("Failed connecting to alpha at {}", sender.target(), e);
       }
     });
   }
@@ -115,7 +115,7 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
       try {
         sender.onDisconnected();
       } catch (Exception e) {
-        log.error("Failed disconnecting from alpha at {}", sender.target(), e);
+        LOG.error("Failed disconnecting from alpha at {}", sender.target(), e);
       }
     });
   }
@@ -140,7 +140,7 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
       } catch (OmegaException e) {
         throw e;
       } catch (Exception e) {
-        log.error("Retry sending event {} due to failure", event, e);
+        LOG.error("Retry sending event {} due to failure", event, e);
 
         // very large latency on exception
         senders.put(messageSender, Long.MAX_VALUE);

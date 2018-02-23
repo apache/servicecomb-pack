@@ -27,6 +27,9 @@ import org.springframework.stereotype.Service;
 class GreetingService {
   private final Queue<String> compensated;
 
+  private final int MAX_COUNT = 3;
+  private int failedCount = 1;
+
   @Autowired
   GreetingService(Queue<String> compensated) {
     this.compensated = compensated;
@@ -59,8 +62,27 @@ class GreetingService {
     return appendMessage("My bad, please take the window instead, " + name);
   }
 
+  @Compensable(retries = MAX_COUNT, compensationMethod = "close")
+  String open(String name, int retries) {
+    if (failedCount < retries) {
+      failedCount += 1;
+      throw new IllegalStateException("You know when the zoo opens, " + name);
+    }
+    resetCount();
+    return "Welcome to visit the zoo, " + name;
+  }
+
+  String close(String name, int retries) {
+    resetCount();
+    return appendMessage("Sorry, the zoo has already closed, " + name);
+  }
+
   private String appendMessage(String message) {
     compensated.add(message);
     return message;
+  }
+
+  void resetCount() {
+    this.failedCount = 1;
   }
 }

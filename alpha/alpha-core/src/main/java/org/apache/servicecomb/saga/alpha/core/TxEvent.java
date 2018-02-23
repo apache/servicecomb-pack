@@ -17,12 +17,16 @@
 
 package org.apache.servicecomb.saga.alpha.core;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "TxEvent")
@@ -43,9 +47,9 @@ public class TxEvent {
   private String type;
   private String compensationMethod;
   private Date expiryTime;
-  private byte[] payloads;
+  private String retryMethod;
   private int retries;
-  private String retriesMethod;
+  private byte[] payloads;
 
   private TxEvent() {
   }
@@ -61,6 +65,8 @@ public class TxEvent {
         event.type,
         event.compensationMethod,
         event.expiryTime,
+        event.retryMethod,
+        event.retries,
         event.payloads);
   }
 
@@ -73,7 +79,8 @@ public class TxEvent {
       String type,
       String compensationMethod,
       byte[] payloads) {
-    this(serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type, compensationMethod, 0, payloads);
+    this(serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type, compensationMethod, 0, "", 0,
+        payloads);
   }
 
   public TxEvent(
@@ -85,9 +92,11 @@ public class TxEvent {
       String type,
       String compensationMethod,
       int timeout,
+      String retryMethod,
+      int retries,
       byte[] payloads) {
     this(-1L, serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type, compensationMethod, timeout,
-        "", 0, payloads);
+        retryMethod, retries, payloads);
   }
 
   public TxEvent(
@@ -100,9 +109,11 @@ public class TxEvent {
       String type,
       String compensationMethod,
       int timeout,
+      String retryMethod,
+      int retries,
       byte[] payloads) {
     this(-1L, serviceName, instanceId, creationTime, globalTxId, localTxId, parentTxId, type, compensationMethod,
-        timeout, "", 0, payloads);
+        timeout, retryMethod, retries, payloads);
   }
 
   TxEvent(Long surrogateId,
@@ -115,10 +126,14 @@ public class TxEvent {
       String type,
       String compensationMethod,
       int timeout,
+      String retryMethod,
+      int retries,
       byte[] payloads) {
     this(surrogateId, serviceName, instanceId, creationTime, globalTxId, localTxId, parentTxId, type,
         compensationMethod,
         timeout == 0 ? new Date(MAX_TIMESTAMP) : new Date(creationTime.getTime() + SECONDS.toMillis(timeout)),
+        retryMethod,
+        retries,
         payloads);
   }
 
@@ -132,7 +147,7 @@ public class TxEvent {
       String type,
       String compensationMethod,
       Date expiryTime,
-      String retriesMethod,
+      String retryMethod,
       int retries,
       byte[] payloads) {
     this.surrogateId = surrogateId;
@@ -145,7 +160,7 @@ public class TxEvent {
     this.type = type;
     this.compensationMethod = compensationMethod;
     this.expiryTime = expiryTime;
-    this.retriesMethod = retriesMethod;
+    this.retryMethod = retryMethod;
     this.retries = retries;
     this.payloads = payloads;
   }
@@ -194,6 +209,14 @@ public class TxEvent {
     return expiryTime;
   }
 
+  public String retryMethod() {
+    return retryMethod;
+  }
+
+  public int retries() {
+    return retries;
+  }
+
   @Override
   public String toString() {
     return "TxEvent{" +
@@ -206,19 +229,9 @@ public class TxEvent {
         ", parentTxId='" + parentTxId + '\'' +
         ", type='" + type + '\'' +
         ", compensationMethod='" + compensationMethod + '\'' +
-        ", expiryTime='" + expiryTime + '\'' +
+        ", expiryTime=" + expiryTime +
+        ", retryMethod='" + retryMethod + '\'' +
+        ", retries=" + retries +
         '}';
-  }
-
-  public int retries() {
-    return retries;
-  }
-
-  public String retriesMethod() {
-    return retriesMethod;
-  }
-
-  public boolean containChildren(TxEvent event) {
-    return this.localTxId.equals(event.parentTxId);
   }
 }

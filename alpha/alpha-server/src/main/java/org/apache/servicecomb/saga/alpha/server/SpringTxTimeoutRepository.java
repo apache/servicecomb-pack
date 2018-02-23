@@ -31,7 +31,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 
 public class SpringTxTimeoutRepository implements TxTimeoutRepository {
-  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
   private final TxTimeoutEntityRepository timeoutRepo;
 
   SpringTxTimeoutRepository(TxTimeoutEntityRepository timeoutRepo) {
@@ -43,7 +44,7 @@ public class SpringTxTimeoutRepository implements TxTimeoutRepository {
     try {
       timeoutRepo.save(timeout);
     } catch (Exception ignored) {
-      log.warn("Failed to save some timeout {}", timeout);
+      LOG.warn("Failed to save some timeout {}", timeout);
     }
   }
 

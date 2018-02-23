@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,11 +17,17 @@
 
 package org.apache.servicecomb.saga.omega.transaction;
 
-import org.apache.servicecomb.saga.common.EventType;
+public class RecoveryPolicyFactory {
+  private static final RecoveryPolicy DEFAULT_RECOVERY = new DefaultRecovery();
 
-public class SagaStartedEvent extends TxEvent {
-  public SagaStartedEvent(String globalTxId, String localTxId, int timeout) {
-    // use "" instead of null as compensationMethod requires not null in sql
-    super(EventType.SagaStartedEvent, globalTxId, localTxId, null, "", timeout, "", 0);
+  private static final RecoveryPolicy FORWARD_RECOVERY = new ForwardRecovery();
+
+  /**
+   * If retries == 0, use the default recovery to execute only once.
+   * If retries > 0, it will use the forward recovery and retry the given times at most.
+   * If retries == -1, it will use the forward recovery and retry forever until interrupted.
+   */
+  static RecoveryPolicy getRecoveryPolicy(int retries) {
+    return retries != 0 ? FORWARD_RECOVERY : DEFAULT_RECOVERY;
   }
 }

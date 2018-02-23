@@ -20,17 +20,12 @@ package org.apache.servicecomb.saga.omega.transaction;
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import javax.transaction.InvalidTransactionException;
 
 import org.apache.servicecomb.saga.common.EventType;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
@@ -40,13 +35,11 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 public class TransactionAspectTest {
   private final List<TxEvent> messages = new ArrayList<>();
   private final String globalTxId = UUID.randomUUID().toString();
   private final String localTxId = UUID.randomUUID().toString();
-
   private final String newLocalTxId = UUID.randomUUID().toString();
 
   private final MessageSender sender = e -> {
@@ -71,6 +64,7 @@ public class TransactionAspectTest {
 
     when(methodSignature.getMethod()).thenReturn(this.getClass().getDeclaredMethod("doNothing"));
     when(compensable.compensationMethod()).thenReturn("doNothing");
+    when(compensable.retries()).thenReturn(0);
 
     omegaContext.setGlobalTxId(globalTxId);
     omegaContext.setLocalTxId(localTxId);
@@ -86,6 +80,8 @@ public class TransactionAspectTest {
     assertThat(startedEvent.localTxId(), is(newLocalTxId));
     assertThat(startedEvent.parentTxId(), is(localTxId));
     assertThat(startedEvent.type(), is(EventType.TxStartedEvent));
+    assertThat(startedEvent.retries(), is(0));
+    assertThat(startedEvent.retryMethod().isEmpty(), is(true));
 
     TxEvent endedEvent = messages.get(1);
 
@@ -123,20 +119,84 @@ public class TransactionAspectTest {
   }
 
   @Test
-  public void returnImmediatelyWhenReceivedRejectResponse() throws Throwable {
-    MessageSender sender = mock(MessageSender.class);
-    when(sender.send(any())).thenReturn(new AlphaResponse(true));
+  public void retryReachesMaximumAndForwardException() throws Throwable {
+    RuntimeException oops = new RuntimeException("oops");
+    when(joinPoint.proceed()).thenThrow(oops);
+    when(compensable.retries()).thenReturn(3);
 
-    TransactionAspect aspect = new TransactionAspect(sender, omegaContext);
     try {
       aspect.advise(joinPoint, compensable);
-      expectFailing(InvalidTransactionException.class);
-    } catch (InvalidTransactionException e) {
-      System.out.println(e.getMessage());
-      assertThat(e.getMessage().contains("Abort sub transaction"), is(true));
+      expectFailing(RuntimeException.class);
+    } catch (RuntimeException e) {
+      assertThat(e.getMessage(), is("oops"));
     }
 
-    verify(sender, times(1)).send(any());
+    assertThat(messages.size(), is(6));
+
+    TxEvent startedEvent1 = messages.get(0);
+    assertThat(startedEvent1.globalTxId(), is(globalTxId));
+    assertThat(startedEvent1.localTxId(), is(newLocalTxId));
+    assertThat(startedEvent1.parentTxId(), is(localTxId));
+    assertThat(startedEvent1.type(), is(EventType.TxStartedEvent));
+    assertThat(startedEvent1.retries(), is(3));
+    assertThat(startedEvent1.retryMethod(), is(this.getClass().getDeclaredMethod("doNothing").toString()));
+
+    assertThat(messages.get(1).type(), is(EventType.TxAbortedEvent));
+
+    TxEvent startedEvent2 = messages.get(2);
+    assertThat(startedEvent2.localTxId(), is(newLocalTxId));
+    assertThat(startedEvent2.type(), is(EventType.TxStartedEvent));
+    assertThat(startedEvent2.retries(), is(2));
+
+    assertThat(messages.get(3).type(), is(EventType.TxAbortedEvent));
+
+    TxEvent startedEvent3 = messages.get(4);
+    assertThat(startedEvent3.localTxId(), is(newLocalTxId));
+    assertThat(startedEvent3.type(), is(EventType.TxStartedEvent));
+    assertThat(startedEvent3.retries(), is(1));
+
+    assertThat(messages.get(5).type(), is(EventType.TxAbortedEvent));
+
+    assertThat(omegaContext.globalTxId(), is(globalTxId));
+    assertThat(omegaContext.localTxId(), is(localTxId));
+  }
+
+  @Test
+  public void keepRetryingTillSuccess() throws Throwable {
+    RuntimeException oops = new RuntimeException("oops");
+    when(joinPoint.proceed()).thenThrow(oops).thenThrow(oops).thenReturn(null);
+    when(compensable.retries()).thenReturn(-1);
+
+    aspect.advise(joinPoint, compensable);
+
+    assertThat(messages.size(), is(6));
+
+    TxEvent startedEvent1 = messages.get(0);
+    assertThat(startedEvent1.globalTxId(), is(globalTxId));
+    assertThat(startedEvent1.localTxId(), is(newLocalTxId));
+    assertThat(startedEvent1.parentTxId(), is(localTxId));
+    assertThat(startedEvent1.type(), is(EventType.TxStartedEvent));
+    assertThat(startedEvent1.retries(), is(-1));
+    assertThat(startedEvent1.retryMethod(), is(this.getClass().getDeclaredMethod("doNothing").toString()));
+
+    assertThat(messages.get(1).type(), is(EventType.TxAbortedEvent));
+
+    TxEvent startedEvent2 = messages.get(2);
+    assertThat(startedEvent2.localTxId(), is(newLocalTxId));
+    assertThat(startedEvent2.type(), is(EventType.TxStartedEvent));
+    assertThat(startedEvent2.retries(), is(-1));
+
+    assertThat(messages.get(3).type(), is(EventType.TxAbortedEvent));
+
+    TxEvent startedEvent3 = messages.get(4);
+    assertThat(startedEvent3.localTxId(), is(newLocalTxId));
+    assertThat(startedEvent3.type(), is(EventType.TxStartedEvent));
+    assertThat(startedEvent3.retries(), is(-1));
+
+    assertThat(messages.get(5).type(), is(EventType.TxEndedEvent));
+
+    assertThat(omegaContext.globalTxId(), is(globalTxId));
+    assertThat(omegaContext.localTxId(), is(localTxId));
   }
 
   private String doNothing() {

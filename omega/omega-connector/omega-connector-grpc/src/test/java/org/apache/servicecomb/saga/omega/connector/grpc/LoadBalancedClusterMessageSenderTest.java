@@ -90,15 +90,15 @@ public class LoadBalancedClusterMessageSenderTest {
 
   private final List<String> compensated = new ArrayList<>();
 
-  private final MessageHandler handler = (globalTxId, localTxId, parentTxId, compensationMethod, payloads) ->
-      compensated.add(globalTxId);
+  private final MessageHandler handler = (globalTxId, localTxId, parentTxId, compensationMethod,
+      payloads) -> compensated.add(globalTxId);
 
   private final String globalTxId = uniquify("globalTxId");
   private final String localTxId = uniquify("localTxId");
   private final String parentTxId = uniquify("parentTxId");
   private final String compensationMethod = getClass().getCanonicalName();
   private final TxEvent event = new TxEvent(EventType.TxStartedEvent, globalTxId, localTxId, parentTxId,
-      compensationMethod, 0, null, 0, "blah");
+      compensationMethod, 0, "", 0, "blah");
 
   private final String serviceName = uniquify("serviceName");
   private final String[] addresses = {"localhost:8080", "localhost:8090"};
@@ -300,7 +300,7 @@ public class LoadBalancedClusterMessageSenderTest {
   public void forwardSendResult() {
     assertThat(messageSender.send(event).aborted(), is(false));
 
-    TxEvent rejectEvent = new TxStartedEvent(globalTxId, localTxId, parentTxId, "reject", 0, null, 0, "blah");
+    TxEvent rejectEvent = new TxStartedEvent(globalTxId, localTxId, parentTxId, "reject", 0, "", 0, "blah");
     assertThat(messageSender.send(rejectEvent).aborted(), is(true));
   }
 
@@ -335,6 +335,7 @@ public class LoadBalancedClusterMessageSenderTest {
     private final Queue<String> connected;
     private final Queue<TxEvent> events;
     private final int delay;
+
     private StreamObserver<GrpcCompensateCommand> responseObserver;
 
     private MyTxEventService(Queue<String> connected, Queue<TxEvent> events, int delay) {
@@ -357,9 +358,9 @@ public class LoadBalancedClusterMessageSenderTest {
           request.getLocalTxId(),
           request.getParentTxId(),
           request.getCompensationMethod(),
-          0,
-          null,
-          0,
+          request.getTimeout(),
+          request.getRetryMethod(),
+          request.getRetries(),
           new String(request.getPayloads().toByteArray())));
 
       sleep();

@@ -35,7 +35,7 @@ public class TransactionAspectConfig {
 
   @Bean
   MessageHandler messageHandler(MessageSender sender, CompensationContext context, OmegaContext omegaContext) {
-    return new CompensationMessageHandler(sender, omegaContext, context);
+    return new CompensationMessageHandler(sender, context);
   }
 
   @Order(0)
@@ -51,7 +51,8 @@ public class TransactionAspectConfig {
   }
 
   @Bean
-  CompensableAnnotationProcessor compensableAnnotationProcessor(OmegaContext omegaContext, CompensationContext compensationContext) {
+  CompensableAnnotationProcessor compensableAnnotationProcessor(OmegaContext omegaContext,
+      CompensationContext compensationContext) {
     return new CompensableAnnotationProcessor(omegaContext, compensationContext);
   }
 }
