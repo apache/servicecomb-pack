@@ -41,7 +41,7 @@ import cucumber.api.java.After;
 import cucumber.api.java8.En;
 
 public class PackStepdefs implements En {
-  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private static final String ALPHA_REST_ADDRESS = "alpha.rest.address";
   private static final String CAR_SERVICE_ADDRESS = "car.service.address";
@@ -73,7 +73,7 @@ public class PackStepdefs implements En {
     });
 
     Given("^Install the byteman script ([A-Za-z0-9_\\.]+) to ([A-Za-z]+) Service$", (String script, String service) -> {
-      log.info("Install the byteman script {} to {} service", script, service);
+      LOG.info("Install the byteman script {} to {} service", script, service);
       List<String> rules = new ArrayList<>();
       rules.add("target/test-classes/" + script);
       Submit bm = getBytemanSubmit(service);
@@ -81,7 +81,7 @@ public class PackStepdefs implements En {
     });
 
     When("^User ([A-Za-z]+) requests to book ([0-9]+) cars and ([0-9]+) rooms (success|fail)$", (username, cars, rooms, result) -> {
-      log.info("Received request from user {} to book {} cars and {} rooms", username, cars, rooms);
+      LOG.info("Received request from user {} to book {} cars and {} rooms", username, cars, rooms);
 
       Response resp = given()
           .pathParam("name", username)
@@ -116,7 +116,7 @@ public class PackStepdefs implements En {
 
   @After
   public void cleanUp() {
-    log.info("Cleaning up services");
+    LOG.info("Cleaning up services");
     for (String address : addresses) {
       given()
           .when()
@@ -135,7 +135,7 @@ public class PackStepdefs implements En {
       try {
         bm.deleteAllRules();
       } catch (Exception e) {
-        log.warn("Fail to delete the byteman rules " + e);
+        LOG.warn("Fail to delete the byteman rules " + e);
       }
     }
   }
@@ -156,7 +156,7 @@ public class PackStepdefs implements En {
       return;
     }
 
-    log.info("Retrieved data {} from service", actualMaps);
+    LOG.info("Retrieved data {} from service", actualMaps);
     dataTable.diff(DataTable.create(actualMaps));
   }
 
@@ -180,12 +180,12 @@ public class PackStepdefs implements En {
     if (isEmpty(infoURI)) {
       infoURI = "/info";
     }
-    log.info("The info service uri is " + infoURI);
+    LOG.info("The info service uri is " + infoURI);
     probe(address, infoURI);
   }
 
   private void probe(String address, String infoURI) {
-    log.info("Connecting to service address {}", address);
+    LOG.info("Connecting to service address {}", address);
     given()
         .when()
         .get(address + infoURI)

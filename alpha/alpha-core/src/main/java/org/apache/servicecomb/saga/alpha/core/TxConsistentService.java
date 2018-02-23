@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TxConsistentService {
-  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final TxEventRepository eventRepository;
 
@@ -41,8 +41,9 @@ public class TxConsistentService {
   }
 
   public boolean handle(TxEvent event) {
-    if (types.contains(event.type()) && isGlobalTxAborted(event)) {
-      log.info("Transaction event {} rejected, because its parent with globalTxId {} was already aborted", event.type(), event.globalTxId());
+    if (TxStartedEvent.name().equals(event.type()) && isGlobalTxAborted(event)) {
+      LOG.info("Sub-transaction rejected, because its parent with globalTxId {} was already aborted",
+          event.globalTxId());
       return false;
     }
 
@@ -51,7 +52,7 @@ public class TxConsistentService {
       if (eventRepository.findTimeoutEvents().stream()
           .filter(txEvent -> txEvent.globalTxId().equals(event.globalTxId()))
           .count() == 1) {
-        log.warn("Transaction {} is timeout and will be handled by the event scanner", event.globalTxId());
+        LOG.warn("Transaction {} is timeout and will be handled by the event scanner", event.globalTxId());
         return false;
       }
     }

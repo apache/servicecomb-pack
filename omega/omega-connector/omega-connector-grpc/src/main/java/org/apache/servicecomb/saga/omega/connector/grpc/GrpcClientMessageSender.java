@@ -42,13 +42,13 @@ import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 
 public class GrpcClientMessageSender implements MessageSender {
-
   private final String target;
   private final TxEventServiceStub asyncEventService;
 
   private final MessageSerializer serializer;
 
   private final TxEventServiceBlockingStub blockingEventService;
+
   private final GrpcCompensateStreamObserver compensateStreamObserver;
   private final GrpcServiceConfig serviceConfig;
 
@@ -104,8 +104,8 @@ public class GrpcClientMessageSender implements MessageSender {
         .setType(event.type().name())
         .setTimeout(event.timeout())
         .setCompensationMethod(event.compensationMethod())
+        .setRetryMethod(event.retryMethod() == null ? "" : event.retryMethod())
         .setRetries(event.retries())
-        .setRetriesMethod(event.retriesMethod() == null ? "" : event.retriesMethod())
         .setPayloads(payloads);
 
     return builder.build();

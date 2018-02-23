@@ -73,8 +73,8 @@ public class TxConsistentServiceTest {
     }
 
     @Override
-    public Optional<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id) {
-      return Optional.empty();
+    public List<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id, String type) {
+      return emptyList();
     }
 
     @Override

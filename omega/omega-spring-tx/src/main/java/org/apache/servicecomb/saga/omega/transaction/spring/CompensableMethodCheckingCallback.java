@@ -31,6 +31,7 @@ class CompensableMethodCheckingCallback implements MethodCallback {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final Object bean;
+
   private final CompensationContext compensationContext;
 
   CompensableMethodCheckingCallback(Object bean, CompensationContext compensationContext) {
@@ -47,10 +48,13 @@ class CompensableMethodCheckingCallback implements MethodCallback {
     String compensationMethod = method.getAnnotation(Compensable.class).compensationMethod();
 
     try {
-      Method signature = bean.getClass().getDeclaredMethod(compensationMethod, method.getParameterTypes());
       compensationContext.addCompensationContext(method, bean);
-      compensationContext.addCompensationContext(signature, bean);
-      LOG.debug("Found compensation method [{}] in {}", compensationMethod, bean.getClass().getCanonicalName());
+
+      if (!compensationMethod.isEmpty()) {
+        Method signature = bean.getClass().getDeclaredMethod(compensationMethod, method.getParameterTypes());
+        compensationContext.addCompensationContext(signature, bean);
+        LOG.debug("Found compensation method [{}] in {}", compensationMethod, bean.getClass().getCanonicalName());
+      }
     } catch (NoSuchMethodException e) {
       throw new OmegaException(
           "No such compensation method [" + compensationMethod + "] found in " + bean.getClass().getCanonicalName(),

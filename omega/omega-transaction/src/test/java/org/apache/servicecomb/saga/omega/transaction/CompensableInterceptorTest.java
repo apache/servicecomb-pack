@@ -18,6 +18,7 @@
 package org.apache.servicecomb.saga.omega.transaction;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -47,7 +48,8 @@ public class CompensableInterceptorTest {
   };
 
   private final String message = uniquify("message");
-  private final String retriesMethod = uniquify("retries");
+
+  private final String retryMethod = uniquify("retryMethod");
   private final String compensationMethod = getClass().getCanonicalName();
 
   @SuppressWarnings("unchecked")
@@ -64,7 +66,7 @@ public class CompensableInterceptorTest {
   @Test
   public void sendsTxStartedEventBefore() throws Exception {
     int retries = new Random().nextInt();
-    interceptor.preIntercept(parentTxId, compensationMethod, 0, retriesMethod, retries, message);
+    interceptor.preIntercept(parentTxId, compensationMethod, 0, retryMethod, retries, message);
 
     TxEvent event = messages.get(0);
 
@@ -72,7 +74,7 @@ public class CompensableInterceptorTest {
     assertThat(event.localTxId(), is(localTxId));
     assertThat(event.parentTxId(), is(parentTxId));
     assertThat(event.retries(), is(retries));
-    assertThat(event.retriesMethod(), is(retriesMethod));
+    assertThat(event.retryMethod(), is(retryMethod));
     assertThat(event.type(), is(EventType.TxStartedEvent));
     assertThat(event.compensationMethod(), is(compensationMethod));
     assertThat(asList(event.payloads()), contains(message));

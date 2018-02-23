@@ -76,7 +76,7 @@ public class Command {
     this.lastModified = new Date();
   }
 
-  private Command(long id,
+  public Command(long id,
       String serviceName,
       String instanceId,
       String globalTxId,

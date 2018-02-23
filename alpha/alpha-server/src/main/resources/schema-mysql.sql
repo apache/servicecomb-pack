@@ -26,8 +26,6 @@ CREATE TABLE IF NOT EXISTS TxEvent (
   type varchar(50) NOT NULL,
   compensationMethod varchar(256) NOT NULL,
   expiryTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  retries_method varchar(256) NOT NULL,
-  retries int NOT NULL,
   payloads varbinary(10240),
   PRIMARY KEY (surrogateId),
   INDEX saga_events_index (surrogateId, globalTxId, localTxId, type, expiryTime)
@@ -43,6 +41,8 @@ CREATE TABLE IF NOT EXISTS Command (
   localTxId varchar(36) NOT NULL,
   parentTxId varchar(36) DEFAULT NULL,
   compensationMethod varchar(256) NOT NULL,
+  retryMethod varchar(256) NOT NULL,
+  retries int NOT NULL DEFAULT 0,
   payloads varbinary(10240),
   status varchar(12),
   lastModified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS Command (
   PRIMARY KEY (surrogateId),
   INDEX saga_commands_index (surrogateId, eventId, globalTxId, localTxId, status)
 ) DEFAULT CHARSET=utf8;
+
 
 CREATE TABLE IF NOT EXISTS TxTimeout (
   surrogateId bigint NOT NULL AUTO_INCREMENT,

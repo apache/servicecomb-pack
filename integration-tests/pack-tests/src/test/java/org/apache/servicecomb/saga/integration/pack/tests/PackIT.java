@@ -56,14 +56,23 @@ public class PackIT {
   private OmegaContext omegaContext;
 
   @Autowired
-  private TxEventEnvelopeRepository repository;
+  private TxEventEnvelopeRepository eventRepo;
+
+  @Autowired
+  private CommandEnvelopeRepository commandRepo;
 
   @Autowired
   private Queue<String> compensatedMessages;
 
+  @Autowired
+  private GreetingService greetingService;
+
   @After
   public void tearDown() throws Exception {
-    repository.deleteAll();
+    eventRepo.deleteAll();
+    commandRepo.deleteAll();
+    compensatedMessages.clear();
+    greetingService.resetCount();
   }
 
   @Test(timeout = 5000)
@@ -75,11 +84,11 @@ public class PackIT {
     assertThat(entity.getStatusCode(), is(OK));
     assertThat(entity.getBody(), is("Greetings, mike; Bonjour, mike"));
 
-    List<String> distinctGlobalTxIds = repository.findDistinctGlobalTxId();
+    List<String> distinctGlobalTxIds = eventRepo.findDistinctGlobalTxId();
     assertThat(distinctGlobalTxIds.size(), is(1));
 
     String globalTxId = distinctGlobalTxIds.get(0);
-    List<TxEvent> events = repository.findByGlobalTxIdOrderByCreationTime(globalTxId);
+    List<TxEvent> events = eventRepo.findByGlobalTxIdOrderByCreationTime(globalTxId);
 
     assertThat(events.size(), is(6));
 
@@ -136,13 +145,13 @@ public class PackIT {
 
     assertThat(entity.getStatusCode(), is(INTERNAL_SERVER_ERROR));
 
-    await().atMost(2, SECONDS).until(() -> repository.count() == 7);
+    await().atMost(2, SECONDS).until(() -> eventRepo.count() == 7);
 
-    List<String> distinctGlobalTxIds = repository.findDistinctGlobalTxId();
+    List<String> distinctGlobalTxIds = eventRepo.findDistinctGlobalTxId();
     assertThat(distinctGlobalTxIds.size(), is(1));
 
     String globalTxId = distinctGlobalTxIds.get(0);
-    List<TxEvent> events = repository.findByGlobalTxIdOrderByCreationTime(globalTxId);
+    List<TxEvent> events = eventRepo.findByGlobalTxIdOrderByCreationTime(globalTxId);
     assertThat(events.size(), is(7));
 
     TxEvent sagaStartedEvent = events.get(0);
@@ -184,11 +193,11 @@ public class PackIT {
     assertThat(entity.getStatusCode(), is(OK));
     assertThat(entity.getBody(), is("Good morning, Bonjour, mike"));
 
-    List<String> distinctGlobalTxIds = repository.findDistinctGlobalTxId();
+    List<String> distinctGlobalTxIds = eventRepo.findDistinctGlobalTxId();
     assertThat(distinctGlobalTxIds.size(), is(1));
 
     String globalTxId = distinctGlobalTxIds.get(0);
-    List<TxEvent> events = repository.findByGlobalTxIdOrderByCreationTime(globalTxId);
+    List<TxEvent> events = eventRepo.findByGlobalTxIdOrderByCreationTime(globalTxId);
 
     assertThat(events.size(), is(6));
 
@@ -219,5 +228,70 @@ public class PackIT {
     assertThat(sagaEndedEvent.type(), is("SagaEndedEvent"));
 
     assertThat(compensatedMessages.isEmpty(), is(true));
+  }
+
+  @Test(timeout = 5000)
+  public void retrySubTransactionSuccess() {
+    ResponseEntity<String> entity = restTemplate.getForEntity("/open?name={name}&retries={retries}",
+        String.class,
+        "eric",
+        2);
+
+    assertThat(entity.getStatusCode(), is(OK));
+    assertThat(entity.getBody(), is("Greetings, eric; Welcome to visit the zoo, eric"));
+
+    await().atMost(3, SECONDS).until(() -> eventRepo.count() == 8);
+
+    List<String> distinctGlobalTxIds = eventRepo.findDistinctGlobalTxId();
+    assertThat(distinctGlobalTxIds.size(), is(1));
+
+    String globalTxId = distinctGlobalTxIds.get(0);
+    List<TxEvent> events = eventRepo.findByGlobalTxIdOrderByCreationTime(globalTxId);
+    assertThat(events.size(), is(8));
+
+    assertThat(events.get(0).type(), is("SagaStartedEvent"));
+    assertThat(events.get(1).type(), is("TxStartedEvent"));
+    assertThat(events.get(2).type(), is("TxEndedEvent"));
+    assertThat(events.get(3).type(), is("TxStartedEvent"));
+    assertThat(events.get(4).type(), is("TxAbortedEvent"));
+    assertThat(events.get(5).type(), is("TxStartedEvent"));
+    assertThat(events.get(6).type(), is("TxEndedEvent"));
+    assertThat(events.get(7).type(), is("SagaEndedEvent"));
+
+    assertThat(compensatedMessages.isEmpty(), is(true));
+  }
+
+  @Test(timeout = 5000)
+  public void compensateWhenRetryReachesMaximum() throws InterruptedException {
+    // retries 3 times and then compensate
+    ResponseEntity<String> entity = restTemplate.getForEntity("/open?name={name}&retries={retries}",
+        String.class,
+        TRESPASSER,
+        5);
+
+    assertThat(entity.getStatusCode(), is(INTERNAL_SERVER_ERROR));
+
+    await().atMost(3, SECONDS).until(() -> eventRepo.count() == 11);
+
+    List<String> distinctGlobalTxIds = eventRepo.findDistinctGlobalTxId();
+    assertThat(distinctGlobalTxIds.size(), is(1));
+
+    String globalTxId = distinctGlobalTxIds.get(0);
+    List<TxEvent> events = eventRepo.findByGlobalTxIdOrderByCreationTime(globalTxId);
+    assertThat(events.size(), is(11));
+
+    assertThat(events.get(0).type(), is("SagaStartedEvent"));
+    assertThat(events.get(1).type(), is("TxStartedEvent"));
+    assertThat(events.get(2).type(), is("TxEndedEvent"));
+    assertThat(events.get(3).type(), is("TxStartedEvent"));
+    assertThat(events.get(4).type(), is("TxAbortedEvent"));
+    assertThat(events.get(5).type(), is("TxStartedEvent"));
+    assertThat(events.get(6).type(), is("TxAbortedEvent"));
+    assertThat(events.get(7).type(), is("TxStartedEvent"));
+    assertThat(events.get(8).type(), is("TxAbortedEvent"));
+    assertThat(events.get(9).type(), is("TxCompensatedEvent"));
+    assertThat(events.get(10).type(), is("SagaEndedEvent"));
+
+    assertThat(compensatedMessages, contains("Goodbye, " + TRESPASSER));
   }
 }

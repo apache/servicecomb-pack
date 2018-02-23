@@ -18,26 +18,21 @@
 package org.apache.servicecomb.saga.omega.transaction;
 
 import org.apache.servicecomb.saga.omega.context.CompensationContext;
-import org.apache.servicecomb.saga.omega.context.OmegaContext;
 
 public class CompensationMessageHandler implements MessageHandler {
   private final MessageSender sender;
-  private final OmegaContext omegaContext;
+
   private final CompensationContext context;
 
-  public CompensationMessageHandler(MessageSender sender, OmegaContext omegaContext, CompensationContext context) {
+  public CompensationMessageHandler(MessageSender sender, CompensationContext context) {
     this.sender = sender;
     this.context = context;
-    this.omegaContext = omegaContext;
   }
 
   @Override
-  public void onReceive(String globalTxId, String localTxId, String parentTxId,
-      String compensationMethod, Object... payloads) {
-    String oldLocalTxId = omegaContext.localTxId();
-    omegaContext.setLocalTxId(parentTxId);
-    context.compensate(globalTxId, localTxId, compensationMethod, payloads);
+  public void onReceive(String globalTxId, String localTxId, String parentTxId, String compensationMethod,
+      Object... payloads) {
+    context.apply(globalTxId, localTxId, compensationMethod, payloads);
     sender.send(new TxCompensatedEvent(globalTxId, localTxId, parentTxId, compensationMethod));
-    omegaContext.setLocalTxId(oldLocalTxId);
   }
 }

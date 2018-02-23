@@ -50,7 +50,9 @@ public @interface Compensable {
    *
    * @return
    */
-  String compensationMethod();
+  String compensationMethod() default "";
+
+  int retryDelayInMilliseconds() default 0;
 
   /**
    * <code>@Compensable</code> method timeout, in seconds. <br>

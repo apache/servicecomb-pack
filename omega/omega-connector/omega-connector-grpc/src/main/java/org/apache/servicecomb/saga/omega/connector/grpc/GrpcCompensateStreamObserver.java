@@ -46,14 +46,14 @@ class GrpcCompensateStreamObserver implements StreamObserver<GrpcCompensateComma
 
   @Override
   public void onNext(GrpcCompensateCommand command) {
-    LOG.info("Received compensate command, global tx id: {}, local tx id: {}, compensate method: {}",
-        command.getGlobalTxId(), command.getLocalTxId(), command.getCompensateMethod());
+    LOG.info("Received compensate command, global tx id: {}, local tx id: {}, compensation method: {}",
+        command.getGlobalTxId(), command.getLocalTxId(), command.getCompensationMethod());
 
     messageHandler.onReceive(
         command.getGlobalTxId(),
         command.getLocalTxId(),
         command.getParentTxId().isEmpty() ? null : command.getParentTxId(),
-        command.getCompensateMethod(),
+        command.getCompensationMethod(),
         deserializer.deserialize(command.getPayloads().toByteArray()));
   }
 

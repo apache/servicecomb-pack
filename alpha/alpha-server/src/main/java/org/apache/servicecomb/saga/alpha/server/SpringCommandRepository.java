@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SpringCommandRepository implements CommandRepository {
-  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final TxEventEnvelopeRepository eventRepository;
   private final CommandEntityRepository commandRepository;
@@ -57,13 +57,13 @@ public class SpringCommandRepository implements CommandRepository {
     }
 
     for (Command command : commands.values()) {
-      log.info("Saving compensation command {}", command);
+      LOG.info("Saving compensation command {}", command);
       try {
         commandRepository.save(command);
       } catch (Exception e) {
-        log.warn("Failed to save some command {}", command);
+        LOG.warn("Failed to save some command {}", command);
       }
-      log.info("Saved compensation command {}", command);
+      LOG.info("Saved compensation command {}", command);
     }
   }
 
@@ -85,24 +85,11 @@ public class SpringCommandRepository implements CommandRepository {
 
     commands.forEach(command ->
         commandRepository.updateStatusByGlobalTxIdAndLocalTxId(
+            NEW.name(),
             PENDING.name(),
             command.globalTxId(),
             command.localTxId()));
 
     return commands;
-  }
-
-  private long retriedTimes(String globalTxId, String retriesMethod, String localTxId) {
-    return commandRepository.findByGlobalTxIdAndStatus(globalTxId, DONE.name()).stream()
-        .filter(c -> Objects.equals(c.compensationMethod(), retriesMethod)
-            && Objects.equals(c.localTxId(), localTxId)).count();
-  }
-
-  private List<TxEvent> createRetriesTxEvent(long abortEventId, TxEvent txEvent) {
-    return Collections.singletonList(new TxEvent(
-        abortEventId, txEvent.serviceName(), txEvent.instanceId(), txEvent.creationTime(),
-        txEvent.globalTxId(), txEvent.localTxId(), txEvent.parentTxId(),
-        txEvent.type(), txEvent.retriesMethod(), txEvent.payloads()
-    ));
   }
 }

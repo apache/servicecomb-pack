@@ -42,7 +42,7 @@ class GrpcOmegaCallback implements OmegaCallback {
         .setGlobalTxId(event.globalTxId())
         .setLocalTxId(event.localTxId())
         .setParentTxId(event.parentTxId() == null ? "" : event.parentTxId())
-        .setCompensateMethod(event.compensationMethod())
+        .setCompensationMethod(event.compensationMethod())
         .setPayloads(ByteString.copyFrom(event.payloads()))
         .build();
     observer.onNext(command);

@@ -20,8 +20,6 @@ package org.apache.servicecomb.saga.omega.transaction;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 
-import javax.transaction.InvalidTransactionException;
-
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -47,45 +45,17 @@ public class TransactionAspect {
   @Around("execution(@org.apache.servicecomb.saga.omega.transaction.annotations.Compensable * *(..)) && @annotation(compensable)")
   Object advise(ProceedingJoinPoint joinPoint, Compensable compensable) throws Throwable {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
-    LOG.debug("Intercepting compensable method {} with context {}", method.toString(), context);
-
-    Object[] args = joinPoint.getArgs();
-    int retries = compensable.retries();
-    String retriesSignature = ((MethodSignature) joinPoint.getSignature()).getMethod().toString();
-    String compensationSignature = compensationMethodSignature(joinPoint, compensable, method);
-
     String localTxId = context.localTxId();
     context.newLocalTxId();
-
-    AlphaResponse response = interceptor.preIntercept(localTxId, compensationSignature, compensable.timeout(), retriesSignature, retries, args);
-    if (response.aborted()) {
-      String abortedLocalTxId = context.localTxId();
-      context.setLocalTxId(localTxId);
-      throw new InvalidTransactionException("Abort sub transaction " + abortedLocalTxId +
-          " because global transaction " + context.globalTxId() + " has already aborted.");
-    }
     LOG.debug("Updated context {} for compensable method {} ", context, method.toString());
 
+    int retries = compensable.retries();
+    RecoveryPolicy recoveryPolicy = RecoveryPolicyFactory.getRecoveryPolicy(retries);
     try {
-      Object result = joinPoint.proceed();
-      interceptor.postIntercept(localTxId, compensationSignature);
-
-      return result;
-    } catch (Throwable throwable) {
-      interceptor.onError(localTxId, compensationSignature, throwable);
-      throw throwable;
+      return recoveryPolicy.apply(joinPoint, compensable, interceptor, context, localTxId, retries);
     } finally {
       context.setLocalTxId(localTxId);
       LOG.debug("Restored context back to {}", context);
     }
-  }
-
-  private String compensationMethodSignature(ProceedingJoinPoint joinPoint, Compensable compensable, Method method)
-      throws NoSuchMethodException {
-
-    return joinPoint.getTarget()
-        .getClass()
-        .getDeclaredMethod(compensable.compensationMethod(), method.getParameterTypes())
-        .toString();
   }
 }

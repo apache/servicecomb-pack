@@ -18,7 +18,6 @@
 package org.apache.servicecomb.saga.omega.transaction;
 
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
-import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
 
 class CompensableInterceptor implements EventAwareInterceptor {
   private final OmegaContext context;
@@ -30,9 +29,10 @@ class CompensableInterceptor implements EventAwareInterceptor {
   }
 
   @Override
-  public AlphaResponse preIntercept(String parentTxId, String compensationMethod, int timeout, String retriesMethod, int retries, Object... message) {
-    return sender.send(new TxStartedEvent(
-        context.globalTxId(), context.localTxId(), parentTxId, compensationMethod, timeout, retriesMethod, retries, message));
+  public AlphaResponse preIntercept(String parentTxId, String compensationMethod, int timeout, String retriesMethod,
+      int retries, Object... message) {
+    return sender.send(new TxStartedEvent(context.globalTxId(), context.localTxId(), parentTxId, compensationMethod,
+        timeout, retriesMethod, retries, message));
   }
 
   @Override
@@ -42,7 +42,7 @@ class CompensableInterceptor implements EventAwareInterceptor {
 
   @Override
   public void onError(String parentTxId, String compensationMethod, Throwable throwable) {
-    sender.send(new TxAbortedEvent(context.globalTxId(), context.localTxId(), parentTxId, compensationMethod,
-        throwable));
+    sender.send(
+        new TxAbortedEvent(context.globalTxId(), context.localTxId(), parentTxId, compensationMethod, throwable));
   }
 }

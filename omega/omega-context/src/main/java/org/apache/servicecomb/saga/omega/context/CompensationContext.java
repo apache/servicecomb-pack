@@ -36,7 +36,7 @@ public class CompensationContext {
     contexts.put(compensationMethod.toString(), new CompensationContextInternal(target, compensationMethod));
   }
 
-  public void compensate(String globalTxId, String localTxId, String compensationMethod, Object... payloads) {
+  public void apply(String globalTxId, String localTxId, String compensationMethod, Object... payloads) {
     CompensationContextInternal contextInternal = contexts.get(compensationMethod);
 
     try {
@@ -44,7 +44,7 @@ public class CompensationContext {
       LOG.info("Compensated transaction with global tx id [{}], local tx id [{}]", globalTxId, localTxId);
     } catch (IllegalAccessException | InvocationTargetException e) {
       LOG.error(
-          "Pre-checking for compensate method " + contextInternal.compensationMethod.toString()
+          "Pre-checking for compensation method " + contextInternal.compensationMethod.toString()
               + " was somehow skipped, did you forget to configure compensable method checking on service startup?",
           e);
     }
@@ -52,6 +52,7 @@ public class CompensationContext {
 
   private static final class CompensationContextInternal {
     private final Object target;
+
     private final Method compensationMethod;
 
     private CompensationContextInternal(Object target, Method compensationMethod) {

@@ -26,6 +26,7 @@ import org.springframework.util.ReflectionUtils;
 class CompensableAnnotationProcessor implements BeanPostProcessor {
 
   private final OmegaContext omegaContext;
+
   private final CompensationContext compensationContext;
 
   CompensableAnnotationProcessor(OmegaContext omegaContext, CompensationContext compensationContext) {

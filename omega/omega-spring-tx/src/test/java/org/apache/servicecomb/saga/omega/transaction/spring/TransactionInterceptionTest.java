@@ -24,10 +24,13 @@ import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.servicecomb.saga.omega.transaction.spring.TransactionalUserService.ILLEGAL_USER;
 import static org.awaitility.Awaitility.await;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -106,15 +109,18 @@ public class TransactionInterceptionTest {
 
   private String compensationMethod;
 
-  private String retriesMethod;
+  private String compensationMethod2;
+
+  private String retryMethod;
 
   @Before
   public void setUp() throws Exception {
     when(idGenerator.nextId()).thenReturn(newLocalTxId, anotherLocalTxId);
     omegaContext.setGlobalTxId(globalTxId);
     omegaContext.setLocalTxId(globalTxId);
-    retriesMethod = TransactionalUserService.class.getDeclaredMethod("add", User.class).toString();
+    retryMethod = TransactionalUserService.class.getDeclaredMethod("add", User.class, int.class).toString();
     compensationMethod = TransactionalUserService.class.getDeclaredMethod("delete", User.class).toString();
+    compensationMethod2 = TransactionalUserService.class.getDeclaredMethod("delete", User.class, int.class).toString();
   }
 
   @After
@@ -122,6 +128,7 @@ public class TransactionInterceptionTest {
     messages.clear();
     userRepository.deleteAll();
     omegaContext.clear();
+    userService.resetCount();
   }
 
   @AfterClass
@@ -133,8 +140,9 @@ public class TransactionInterceptionTest {
     User user = userService.add(this.user);
 
     assertArrayEquals(
-        new String[]{
-            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, 0, retriesMethod, 0, user).toString(),
+        new String[] {
+            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, 0, "", 0,
+                user).toString(),
             new TxEndedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod).toString()},
         toArray(messages)
     );
@@ -154,8 +162,9 @@ public class TransactionInterceptionTest {
     }
 
     assertArrayEquals(
-        new String[]{
-            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, 0, retriesMethod, 0, illegalUser).toString(),
+        new String[] {
+            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, 0, "", 0,
+                illegalUser).toString(),
             new TxAbortedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, throwable).toString()},
         toArray(messages)
     );
@@ -176,16 +185,71 @@ public class TransactionInterceptionTest {
     assertThat(userRepository.findByUsername(anotherUser.username()), is(nullValue()));
 
     assertArrayEquals(
-        new String[]{
-            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, 0, retriesMethod, 0, user).toString(),
+        new String[] {
+            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, 0, "", 0, user).toString(),
             new TxEndedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod).toString(),
-            new TxStartedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod, 0, retriesMethod, 0, anotherUser).toString(),
+            new TxStartedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod, 0, "", 0,
+                anotherUser).toString(),
             new TxEndedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod).toString(),
             new TxCompensatedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod).toString(),
             new TxCompensatedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod).toString()
         },
         toArray(messages)
     );
+  }
+
+  @Test
+  public void retryTillSuccess() {
+    try {
+      userService.add(user, 1);
+    } catch (Exception e) {
+      fail("unexpected exception throw: " + e);
+    }
+
+    assertThat(messages.size(), is(4));
+
+    assertThat(messages.get(0),
+        is(new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod2, 0, retryMethod, 2, user, 1)
+            .toString()));
+
+    String abortedEvent = messages.get(1);
+    assertThat(abortedEvent, allOf(containsString("TxAbortedEvent"), containsString("Retry harder")));
+
+    assertThat(messages.get(2),
+        is(new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod2, 0, retryMethod, 1, user, 1)
+            .toString()));
+    assertThat(messages.get(3),
+        is(new TxEndedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod2).toString()));
+
+    assertThat(userRepository.count(), is(1L));
+    userRepository.findAll().forEach(user -> assertThat(user, is(this.user)));
+  }
+
+  @Test
+  public void retryReachesMaximumThenThrowsException() {
+    try {
+      userService.add(user, 3);
+      expectFailing(IllegalStateException.class);
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage(), is("Retry harder"));
+    }
+
+    assertThat(messages.size(), is(4));
+    assertThat(messages.get(0),
+        is(new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod2, 0, retryMethod, 2, user, 3)
+            .toString()));
+
+    String abortedEvent1 = messages.get(1);
+    assertThat(abortedEvent1, allOf(containsString("TxAbortedEvent"), containsString("Retry harder")));
+
+    assertThat(messages.get(2),
+        is(new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod2, 0, retryMethod, 1, user, 3)
+            .toString()));
+
+    String abortedEvent2 = messages.get(3);
+    assertThat(abortedEvent2, allOf(containsString("TxAbortedEvent"), containsString("Retry harder")));
+
+    assertThat(userRepository.count(), is(0L));
   }
 
   @Test
@@ -198,10 +262,10 @@ public class TransactionInterceptionTest {
     waitTillSavedUser(usernameJack);
 
     assertArrayEquals(
-        new String[]{
-            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, 0, retriesMethod, 0, user).toString(),
+        new String[] {
+            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, 0, "", 0, user).toString(),
             new TxEndedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod).toString(),
-            new TxStartedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod, 0, retriesMethod, 0, jack).toString(),
+            new TxStartedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod, 0, "", 0, jack).toString(),
             new TxEndedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod).toString()},
         toArray(messages)
     );
@@ -217,10 +281,10 @@ public class TransactionInterceptionTest {
     waitTillSavedUser(usernameJack);
 
     assertArrayEquals(
-        new String[]{
-            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, 0, retriesMethod, 0, user).toString(),
+        new String[] {
+            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, 0, "", 0, user).toString(),
             new TxEndedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod).toString(),
-            new TxStartedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod, 0, retriesMethod, 0, jack).toString(),
+            new TxStartedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod, 0, "", 0, jack).toString(),
             new TxEndedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod).toString()},
         toArray(messages)
     );
@@ -239,8 +303,8 @@ public class TransactionInterceptionTest {
     waitTillSavedUser(username);
 
     assertArrayEquals(
-        new String[]{
-            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, 0, retriesMethod, 0, user).toString(),
+        new String[] {
+            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, 0, "", 0, user).toString(),
             new TxEndedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod).toString()},
         toArray(messages)
     );
@@ -258,11 +322,10 @@ public class TransactionInterceptionTest {
 
     assertArrayEquals(
         new String[] {
-            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, 0, retriesMethod, 0, user).toString(),
+            new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod, 0, "", 0, user).toString(),
             new TxEndedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod).toString()},
         toArray(messages)
     );
-
     actorSystem.terminate();
   }
 
@@ -298,7 +361,7 @@ public class TransactionInterceptionTest {
     private final List<String> messages = new ArrayList<>();
 
     @Bean
-    CompensationContext compensationContext() {
+    CompensationContext recoveryContext() {
       return new CompensationContext();
     }
 

@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EventScanner implements Runnable {
-  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private static final byte[] EMPTY_PAYLOAD = new byte[0];
 
   private final ScheduledExecutorService scheduler;
@@ -83,7 +83,7 @@ public class EventScanner implements Runnable {
   private void findTimeoutEvents() {
     eventRepository.findTimeoutEvents()
         .forEach(event -> {
-          log.info("Found timeout event {}", event);
+          LOG.info("Found timeout event {}", event);
           timeoutRepository.save(txTimeoutOf(event));
         });
   }
@@ -93,9 +93,9 @@ public class EventScanner implements Runnable {
   }
 
   private void saveUncompensatedEventsToCommands() {
-    eventRepository.findFirstUncompensatedEventByIdGreaterThan(nextEndedEventId)
-        .ifPresent(event -> {
-          log.info("Found uncompensated event {}", event);
+    eventRepository.findFirstUncompensatedEventByIdGreaterThan(nextEndedEventId, TxEndedEvent.name())
+        .forEach(event -> {
+          LOG.info("Found uncompensated event {}", event);
           nextEndedEventId = event.id();
           commandRepository.saveCompensationCommands(event.globalTxId());
         });
@@ -104,7 +104,7 @@ public class EventScanner implements Runnable {
   private void updateCompensatedCommands() {
     eventRepository.findFirstCompensatedEventByIdGreaterThan(nextCompensatedEventId)
         .ifPresent(event -> {
-          log.info("Found compensated event {}", event);
+          LOG.info("Found compensated event {}", event);
           nextCompensatedEventId = event.id();
           updateCompensationStatus(event);
         });
@@ -114,13 +114,13 @@ public class EventScanner implements Runnable {
     try {
       eventRepository.deleteDuplicateEvents(SagaEndedEvent.name());
     } catch (Exception e) {
-      log.warn("Failed to delete duplicate event", e);
+      LOG.warn("Failed to delete duplicate event", e);
     }
   }
 
   private void updateCompensationStatus(TxEvent event) {
     commandRepository.markCommandAsDone(event.globalTxId(), event.localTxId());
-    log.info("Transaction with globalTxId {} and localTxId {} was compensated",
+    LOG.info("Transaction with globalTxId {} and localTxId {} was compensated",
         event.globalTxId(),
         event.localTxId());
 
@@ -129,7 +129,7 @@ public class EventScanner implements Runnable {
 
   private void abortTimeoutEvents() {
     timeoutRepository.findFirstTimeout().forEach(timeout -> {
-      log.info("Found timeout event {} to abort", timeout);
+      LOG.info("Found timeout event {} to abort", timeout);
 
       eventRepository.save(toTxAbortedEvent(timeout));
 
@@ -152,7 +152,7 @@ public class EventScanner implements Runnable {
 
   private void markGlobalTxEnd(TxEvent event) {
     eventRepository.save(toSagaEndedEvent(event));
-    log.info("Marked end of transaction with globalTxId {}", event.globalTxId());
+    LOG.info("Marked end of transaction with globalTxId {}", event.globalTxId());
   }
 
   private TxEvent toTxAbortedEvent(TxTimeout timeout) {
@@ -182,7 +182,7 @@ public class EventScanner implements Runnable {
   private void compensate() {
     commandRepository.findFirstCommandToCompensate()
         .forEach(command -> {
-          log.info("Compensating transaction with globalTxId {} and localTxId {}",
+          LOG.info("Compensating transaction with globalTxId {} and localTxId {}",
               command.globalTxId(),
               command.localTxId());
 

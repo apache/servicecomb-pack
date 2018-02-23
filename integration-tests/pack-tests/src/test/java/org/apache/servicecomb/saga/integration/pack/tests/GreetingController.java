@@ -77,4 +77,12 @@ public class GreetingController {
   ResponseEntity<String> goodNight(@RequestParam String name) {
     return ResponseEntity.ok("Good night, " + name);
   }
+
+  @SagaStart
+  @GetMapping("/open")
+  ResponseEntity<String> open(@RequestParam String name, @RequestParam int retries) {
+    String greetings = greetingService.greet(name);
+    String status = greetingService.open(name, retries);
+    return ResponseEntity.ok(greetings + "; " + status);
+  }
 }

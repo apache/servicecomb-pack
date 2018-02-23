@@ -34,9 +34,22 @@ public interface CommandEntityRepository extends CrudRepository<Command, Long> {
   @Transactional
   @Modifying(clearAutomatically = true)
   @Query("UPDATE org.apache.servicecomb.saga.alpha.core.Command c "
+      + "SET c.status = :toStatus "
+      + "WHERE c.globalTxId = :globalTxId "
+      + "  AND c.localTxId = :localTxId "
+      + "  AND c.status = :fromStatus")
+  void updateStatusByGlobalTxIdAndLocalTxId(
+      @Param("fromStatus") String fromStatus,
+      @Param("toStatus") String toStatus,
+      @Param("globalTxId") String globalTxId,
+      @Param("localTxId") String localTxId);
+
+  @Transactional
+  @Modifying(clearAutomatically = true)
+  @Query("UPDATE org.apache.servicecomb.saga.alpha.core.Command c "
       + "SET c.status = :status "
       + "WHERE c.globalTxId = :globalTxId "
-      + "AND c.localTxId = :localTxId")
+      + "  AND c.localTxId = :localTxId")
   void updateStatusByGlobalTxIdAndLocalTxId(
       @Param("status") String status,
       @Param("globalTxId") String globalTxId,
