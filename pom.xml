@@ -588,12 +588,13 @@
             <exclude>.github/PULL_REQUEST_TEMPLATE.md</exclude>
             <exclude>.travis.yml</exclude>
             <exclude>DISCLAIMER</exclude>
+            <exclude>**/README_ZH.md</exclude>
             <exclude>docs/*.md</exclude>
-            <exclude>docs/**.md</exclude>
+            <exclude>docs/**/**.md</exclude>
             <exclude>**/README.md</exclude>
             <excldue>**/target/**</excldue>
             <exclude>**/*.sql</exclude>
-            
+            <exclude>**/*.iml</exclude>
             <!--exclude>**/*.js</exclude>
             <exclude>**/*.css</exclude>
             <exclude>**/*.css.map</exclude-->
