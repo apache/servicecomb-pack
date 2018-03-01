@@ -31,19 +31,12 @@
   <version>0.0.3-SNAPSHOT</version>
 
   <modules>
-    <module>saga-core</module>
-    <module>transports</module>
-    <module>saga-spring</module>
     <module>docker-build-config</module>
-    <module>saga-format</module>
-    <module>saga-discovery</module>
-    <module>saga-web</module>
     <module>omega</module>
     <module>alpha</module>
     <module>pack-contracts</module>
     <module>pack-common</module>
     <module>integration-tests</module>
-    <module>saga-persistence</module>
   </modules>
 
   <properties>
@@ -123,41 +116,6 @@
     <dependencies>
       <dependency>
         <groupId>org.apache.servicecomb.saga</groupId>
-        <artifactId>saga-core</artifactId>
-        <version>0.0.3-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
-        <artifactId>saga-format</artifactId>
-        <version>0.0.3-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
-        <artifactId>saga-spring</artifactId>
-        <version>0.0.3-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.servicecomb.saga.transports</groupId>
-        <artifactId>transport-httpclient</artifactId>
-        <version>0.0.3-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.servicecomb.saga.transports</groupId>
-        <artifactId>transport-httpclient-spring</artifactId>
-        <version>0.0.3-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.servicecomb.saga.transports</groupId>
-        <artifactId>transport-resttemplate</artifactId>
-        <version>0.0.3-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.servicecomb.saga.discovery</groupId>
-        <artifactId>saga-discovery-servicecenter</artifactId>
-        <version>0.0.3-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
         <artifactId>omega-context</artifactId>
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
@@ -212,10 +170,10 @@
         <version>0.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
-        <artifactId>saga-persistence-jpa</artifactId>
-        <version>0.0.3-SNAPSHOT</version>
-      </dependency>
+       <groupId>org.apache.servicecomb.saga</groupId>
+       <artifactId>saga-persistence-jpa</artifactId>
+       <version>0.0.3-SNAPSHOT</version>
+       </dependency>
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
