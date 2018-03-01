@@ -325,6 +325,11 @@
         <version>2.2</version>
       </dependency>
       <dependency>
+        <groupId>javax.interceptor</groupId>
+        <artifactId>javax.interceptor-api</artifactId>
+        <version>1.2</version>
+      </dependency>
+      <dependency>
       <groupId>org.eclipse.persistence</groupId>
       <artifactId>org.eclipse.persistence.jpa</artifactId>
       <version>${eclipse.link.version}</version>
