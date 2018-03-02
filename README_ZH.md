@@ -17,10 +17,10 @@ Saga是由 **alpha** 和 **omega**组成，其中：
 下图展示了alpha, omega以及微服务三者的关系：
 ![Saga Pack 架构](docs/static_files/pack.png)
 
-详情可浏览[Saga Pack 设计文档](docs/design_zh.md). 如果您对Saga的上一代架构感兴趣，可移步至[上一代Saga文档](docs/old_saga.md)了解详情。
+详情可浏览[Saga Pack 设计文档](docs/design_zh.md). 
 
 ## 快速入门
-详情可浏览[出行预订示例](saga-demo/pack-demo/README.md)。
+详情可浏览[出行预订示例](saga-demo/booking/README.md)。
 
 ## 用户指南
 详情可浏览[用户指南](docs/user_guide_zh.md)。

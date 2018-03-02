@@ -30,7 +30,7 @@
 
   <packaging>pom</packaging>
   <modules>
-    <module>pack-demo</module>
+    <module>booking</module>
   </modules>
 
   <dependencyManagement>
