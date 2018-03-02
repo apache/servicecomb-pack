@@ -17,10 +17,10 @@ Saga is composed of  **alpha** and **omega**.
 The following diagram shows the relationships among alpha, omega and services.
 ![Saga Pack Architecture](docs/static_files/pack.png)
 
-See [Saga Pack Design](docs/design.md) for details. If you are interested in our previous architecture, please move forward to [Old Saga's Documentation](docs/old_saga.md).
+See [Saga Pack Design](docs/design.md) for details. 
 
 ## Get Started
-See [Booking Demo](saga-demo/pack-demo/README.md) for details.
+See [Booking Demo](saga-demo/booking/README.md) for details.
 
 ## User Guide
 See [User Guide](docs/user_guide.md) for details.

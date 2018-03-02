@@ -24,8 +24,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>pack-demo</artifactId>
-  <name>Saga::Demo::Pack</name>
+  <artifactId>booking</artifactId>
+  <name>Saga::Demo::Booking</name>
   <packaging>pom</packaging>
 
   <modules>
