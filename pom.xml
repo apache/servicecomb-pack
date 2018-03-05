@@ -614,6 +614,7 @@
       <id>release</id>
       <modules>
         <module>saga-demo</module>
+        <module>saga-distribution</module>
       </modules>
       <build>
         <plugins>
