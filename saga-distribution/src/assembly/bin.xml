@@ -54,6 +54,15 @@
                 <include>LICENSE</include>
             </includes>
         </fileSet>
+        <!-- include alpha server exec into bin directory -->
+        <fileSet>
+            <directory>../alpha/alpha-server/target/saga/</directory>
+            <outputDirectory>saga-distribution-${project.version}</outputDirectory>
+            <includes>
+                <include>alpha-server-${project.version}-exec.jar</include>
+            </includes>
+            <fileMode>0755</fileMode>
+        </fileSet>
     </fileSets>
     <dependencySets>
         <dependencySet>
