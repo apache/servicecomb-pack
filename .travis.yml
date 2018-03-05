@@ -28,4 +28,4 @@ script:
 - mvn clean verify -f saga-demo -Pdemo -Pdocker -Ddocker.useColor=false -Ddocker.showLogs
 - mvn clean verify -f acceptance-tests -Pdemo -Pdocker -Ddocker.useColor=false -Ddocker.showLogs
 after_success:
-- if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn deploy -DskipTests --settings .travis.settings.xml; fi
+- if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash -x scripts/deploy.sh ; fi

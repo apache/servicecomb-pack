@@ -24,4 +24,14 @@
       <password>${env.SONATYPE_PASSWORD}</password>
     </server>
   </servers>
+    <profiles>
+        <profile>
+          <id>passphrase</id> <!-- give it the name of your project -->
+          <properties>
+            <gpg.homedir>/home/travis/build/apache/incubator-servicecomb-saga</gpg.homedir>
+            <gpg.keyname>2DE9D2F9</gpg.keyname>
+            <gpg.passphrase>${env.MYPASSP}</gpg.passphrase>
+          </properties>
+        </profile>
+    </profiles>
 </settings>
