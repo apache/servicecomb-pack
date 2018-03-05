@@ -39,11 +39,19 @@
             <directory>../</directory>
             <outputDirectory>saga-distribution-${project.version}</outputDirectory>
             <includes>
-                <include>NOTICE</include>
-                <include>LICENSE</include>
+
                 <include>DISCLAIMER</include>
                 <include>README.md</include>
                 <include>README_ZH.md</include>
+            </includes>
+        </fileSet>
+        <!-- include the NOTICE and LICENSE file from release directory -->
+        <fileSet>
+            <directory>src/release</directory>
+            <outputDirectory>saga-distribution-${project.version}</outputDirectory>
+            <includes>
+                <include>NOTICE</include>
+                <include>LICENSE</include>
             </includes>
         </fileSet>
     </fileSets>
