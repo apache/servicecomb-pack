@@ -29,10 +29,12 @@
   <artifactId>omega-transport-servicecomb</artifactId>
 
   <dependencies>
+    <!-- We just need this jar for compile, the runtime should provide full dependencies -->
     <dependency>
       <groupId>io.servicecomb</groupId>
       <artifactId>java-chassis-core</artifactId>
       <version>${java.chassis.version}</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 
