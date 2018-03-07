@@ -37,6 +37,7 @@
     <module>pack-contracts</module>
     <module>pack-common</module>
     <module>integration-tests</module>
+    <module>saga-persistence</module>
   </modules>
 
   <properties>
