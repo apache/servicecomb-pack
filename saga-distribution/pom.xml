@@ -21,7 +21,7 @@
     <parent>
       <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>saga</artifactId>
-      <version>1.0.0-m1</version>
+      <version>0.1.0</version>
     </parent>
     <artifactId>saga-distribution</artifactId>
     <name>Saga::Distribution</name>
