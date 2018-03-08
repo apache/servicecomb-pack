@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.apache.servicecomb.saga.tests</groupId>
     <artifactId>integration-tests</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>1.0.0-m1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -64,7 +64,7 @@
     <dependency>
       <groupId>org.apache.servicecomb.saga.tests</groupId>
       <artifactId>pack-tests</artifactId>
-      <version>0.0.3-SNAPSHOT</version>
+      <version>1.0.0-m1</version>
     </dependency>
   </dependencies>
 

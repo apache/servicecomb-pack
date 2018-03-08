@@ -22,7 +22,7 @@
   <parent>
     <artifactId>saga</artifactId>
     <groupId>org.apache.servicecomb.saga</groupId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>1.0.0-m1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
