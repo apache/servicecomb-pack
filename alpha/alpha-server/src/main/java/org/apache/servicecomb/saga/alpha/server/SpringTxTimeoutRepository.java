@@ -19,15 +19,19 @@ package org.apache.servicecomb.saga.alpha.server;
 
 import static org.apache.servicecomb.saga.alpha.core.TaskStatus.PENDING;
 
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 
 import javax.transaction.Transactional;
 
 import org.apache.servicecomb.saga.alpha.core.TxTimeout;
 import org.apache.servicecomb.saga.alpha.core.TxTimeoutRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 
 public class SpringTxTimeoutRepository implements TxTimeoutRepository {
+  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final TxTimeoutEntityRepository timeoutRepo;
 
   SpringTxTimeoutRepository(TxTimeoutEntityRepository timeoutRepo) {
@@ -36,7 +40,11 @@ public class SpringTxTimeoutRepository implements TxTimeoutRepository {
 
   @Override
   public void save(TxTimeout timeout) {
-    timeoutRepo.save(timeout);
+    try {
+      timeoutRepo.save(timeout);
+    } catch (Exception ignored) {
+      log.warn("Failed to save some timeout {}", timeout);
+    }
   }
 
   @Override
