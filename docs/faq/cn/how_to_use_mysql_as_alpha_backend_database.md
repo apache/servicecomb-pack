@@ -8,5 +8,27 @@
          <artifactId>mysql-connector-java</artifactId>
        </dependency>
    ```
+
+2. 安装Saga
+   ```bash
+   mvn clean install -Pdocker -DskipTests
+   ```
+   在命令执行完成后，会生成名为alpha-server的镜像和可执行文件`alpha/alpha-server/target/saga/alpha-server-${version}-exec.jar`。
+   **注意**: 如果不需要生成docker镜像，则直接运行`mvn clean install -DskipTests`即可。
+   **注意**: 如果您之前已生成了alpha-server的docker镜像，则需要在运行命令前将其删除。
    
-2. 在alpha启动时通过添加`-Dspring.profiles.active=mysql`的启动参数来使mysql的配置生效。
+3. 运行MySQL
+   ```bash
+   docker run -d -e "MYSQL_ROOT_PASSWORD=password" "-e "MYSQL_DATABASE=saga" -e "MYSQL_USER=saga" -e "MYSQL_PASSWORD=password" -p 3306:3306 mysql/mysql-server:5.7
+   ```
+
+4. 运行alpha。请确保MySQL在此前已成功启动。alpha的运行可通过docker或可执行文件的方式。
+   * 通过docker
+      ```bash
+      docker run -d -p 8090:8090 -e "JAVA_OPTS=-Dspring.profiles.active=mysql -Dspring.datasource.url=jdbc:mysql://${host_address}:3306/saga?useSSL=false" alpha-server:${saga_version}
+      ```
+   * 通过可执行文件
+      ```bash
+      java -Dspring.profiles.active=mysql -D"spring.datasource.url=jdbc:mysql://${host_address}:3306/saga?useSSL=false" -jar alpha-server-${saga_version}-exec.jar
+      ```
+   **注意**: 请在运行命令前将`${saga_version}`和`${host_address}`更改为实际值。
