@@ -84,13 +84,13 @@ Take a transfer money application as an example:
 2. run alpha. Before running alpha, please make sure postgreSQL is already up. You can run alpha through docker or executable file.
    * Run alpha through docker.
       ```bash
-      docker run -d -p 8090:8090 -e "JAVA_OPTS=-Dspring.profiles.active=prd -Dspring.datasource.url=jdbc:postgresql://${docker_host_address}:5432/saga?useSSL=false" alpha-server:${saga_version}
+      docker run -d -p 8090:8090 -e "JAVA_OPTS=-Dspring.profiles.active=prd -Dspring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false" alpha-server:${saga_version}
       ```
    * Run alpha through executable file.
       ```bash
       java -Dspring.profiles.active=prd -D"spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false" -jar alpha-server-${saga_version}-exec.jar
       ```
-   **Note**: Please change `${saga_version}` and `${docker_host_address}`/`${host_address}` to the actual value before you execute the command.
+   **Note**: Please change `${saga_version}` and `${host_address}` to the actual value before you execute the command.
 
 3. setup omega. Configure the following values in `application.yaml`.
    ```yaml
