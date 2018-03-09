@@ -25,14 +25,15 @@ $ mvn clean install -DskipTests -Pdocker
     <dependency>
       <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>omega-spring-starter</artifactId>
-      <version>0.0.3-SNAPSHOT</version>
+      <version>${saga.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>omega-transport-resttemplate</artifactId>
-      <version>0.0.3-SNAPSHOT</version>
+      <version>${saga.version}</version>
     </dependency>
 ```
+**Note**: Please change the `${saga.version}` to the actual version.
 
 ### Add saga annotations and corresponding compensation methods
 Take a transfer money application as an example:
@@ -80,13 +81,16 @@ Take a transfer money application as an example:
    docker run -d -e "POSTGRES_DB=saga" -e "POSTGRES_USER=saga" -e "POSTGRES_PASSWORD=password" -p 5432:5432 postgres
    ```
 
-2. run alpha. Before running alpha, please make sure postgreSQL is already up.
-   ```bash
-   docker run -d -p 8090:8090 \
-     -e "JAVA_OPTS=-Dspring.profiles.active=prd" \
-     -e "spring.datasource.url=jdbc:postgresql://{docker.host.address}:5432/saga?useSSL=false" \
-     alpha-server:0.0.3-SNAPSHOT
-   ```
+2. run alpha. Before running alpha, please make sure postgreSQL is already up. You can run alpha through docker or executable file.
+   * Run alpha through docker.
+      ```bash
+      docker run -d -p 8090:8090 -e "JAVA_OPTS=-Dspring.profiles.active=prd -Dspring.datasource.url=jdbc:postgresql://${docker_host_address}:5432/saga?useSSL=false" alpha-server:${saga_version}
+      ```
+   * Run alpha through executable file.
+      ```bash
+      java -Dspring.profiles.active=prd -D"spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false" -jar alpha-server-${saga_version}-exec.jar
+      ```
+   **Note**: Please change `${saga_version}` and `${docker_host_address}`/`${host_address}` to the actual value before you execute the command.
 
 3. setup omega. Configure the following values in `application.yaml`.
    ```yaml
@@ -98,4 +102,4 @@ Take a transfer money application as an example:
        address: {alpha.cluster.addresses}
    ```
 
-Then you can start your micro-services.
+Then you can start your micro-services and access all saga events via http://${alpha-server:port}/events.
