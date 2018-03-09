@@ -24,14 +24,15 @@ $ mvn clean install -DskipTests -Pdocker
     <dependency>
       <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>omega-spring-starter</artifactId>
-      <version>0.0.3-SNAPSHOT</version>
+      <version>${saga.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>omega-transport-resttemplate</artifactId>
-      <version>0.0.3-SNAPSHOT</version>
+      <version>${saga.version}</version>
     </dependency>
 ```
+**注意**: 请将`${saga.version}`更改为实际的版本号。
 
 ### 添加Saga的注解及相应的补偿方法
 以一个转账应用为例：
@@ -79,13 +80,16 @@ $ mvn clean install -DskipTests -Pdocker
    docker run -d -e "POSTGRES_DB=saga" -e "POSTGRES_USER=saga" -e "POSTGRES_PASSWORD=password" -p 5432:5432 postgres
    ```
 
-2. 运行alpha。在运行alpha前，请确保postgreSQL已正常启动。
-   ```bash
-   docker run -d -p 8090:8090 \
-     -e "JAVA_OPTS=-Dspring.profiles.active=prd" \
-     -e "spring.datasource.url=jdbc:postgresql://{docker.host.address}:5432/saga?useSSL=false" \
-     alpha-server:0.0.3-SNAPSHOT
-   ```
+2. 运行alpha。在运行alpha前，请确保postgreSQL已正常启动。可通过docker或可执行文件的方式来启动alpha。
+   * 通过docker运行：
+      ```bash
+      docker run -d -p 8090:8090 -e "JAVA_OPTS=-Dspring.profiles.active=prd -Dspring.datasource.url=jdbc:postgresql://${docker_host_address}:5432/saga?useSSL=false" alpha-server:${saga_version}
+      ```
+   * 通过可执行文件运行：
+      ```bash
+      java -Dspring.profiles.active=prd -D"spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false" -jar alpha-server-${saga_version}-exec.jar
+      ```
+   **注意**: 请在执行命令前将`${saga_version}`和`${docker_host_address}`/`${host_address}`更改为实际值。
 
 3. 配置omega。在 `application.yaml` 添加下面的配置项：
    ```yaml
@@ -97,4 +101,4 @@ $ mvn clean install -DskipTests -Pdocker
        address: {alpha.cluster.addresses}
    ```
 
-然后就可以运行相关的微服务了。
+然后就可以运行相关的微服务了，可通过访问http://${alpha-server:port}/events 来获取所有的saga事件信息。
