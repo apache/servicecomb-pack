@@ -22,7 +22,7 @@ You will need:
    mvn package -DskipTests -Pdocker -Pdemo
    ```
 
-2. start application up in saga/saga-demo/pack-demo with the following command
+2. start application up in `saga-demo/booking/` with the following command
    ```
    docker-compose up
    ```
@@ -36,7 +36,7 @@ You will need:
           </dependency>
       ```
    
-   2. start application up in saga/saga-demo/pack-demo with the following command
+   2. start application up in `saga-demo/booking` with the following command
       ```
       docker-compose -f docker-compose.yaml -f docker-compose.mysql.yaml up
       ```
