@@ -32,7 +32,7 @@ services:
         retries: 5
 
   alpha:
-    image: "alpha-server:0.0.3-SNAPSHOT"
+    image: "alpha-server:0.1.0"
     hostname: alpha-server
     links:
       - "database:postgresql.servicecomb.io"
@@ -48,7 +48,7 @@ services:
         condition: service_healthy
 
   pack-hotel:
-    image: "pack-hotel:0.0.3-SNAPSHOT"
+    image: "pack-hotel:0.1.0"
     hostname: pack-hotel
     links:
       - "alpha:alpha-server.servicecomb.io"
@@ -59,7 +59,7 @@ services:
         condition: service_healthy
 
   pack-car:
-    image: "pack-car:0.0.3-SNAPSHOT"
+    image: "pack-car:0.1.0"
     hostname: pack-car
     links:
       - "alpha:alpha-server.servicecomb.io"
@@ -70,7 +70,7 @@ services:
         condition: service_healthy
 
   pack-booking:
-    image: "pack-booking:0.0.3-SNAPSHOT"
+    image: "pack-booking:0.1.0"
     hostname: pack-booking
     links:
       - "alpha:alpha-server.servicecomb.io"

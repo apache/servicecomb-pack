@@ -11,15 +11,20 @@
 
 2. install Saga
    ```bash
-   mvn clean install -Pdocker -DskipTests
+   mvn clean package -Pdocker -DskipTests
    ```
    After that, you will find the generated docker image `alpha-server` and executable file `alpha/alpha-server/target/saga/alpha-server-${version}-exec.jar`.
-   **Notice**: If you do not want to build the docker image, run `mvn clean install -DskipTests` is enough.
+
+   **Notice**: If you do not want to build the docker image, run `mvn clean package -DskipTests` is enough.
+
    **Notice**: If you have installed saga with docker before, you need to remove the alpha-server's docker image first.
+   ```bash
+   docker rmi -f $(docker images | grep alpha-server | awk '{print $3}')
+   ```
 
 3. run MySQL
    ```bash
-   docker run -d -e "MYSQL_ROOT_PASSWORD=password" "-e "MYSQL_DATABASE=saga" -e "MYSQL_USER=saga" -e "MYSQL_PASSWORD=password" -p 3306:3306 mysql/mysql-server:5.7
+   docker run -d -e "MYSQL_ROOT_PASSWORD=password" -e "MYSQL_DATABASE=saga" -e "MYSQL_USER=saga" -e "MYSQL_PASSWORD=password" -p 3306:3306 mysql/mysql-server:5.7
    ```
 
 4. Run alpha. Please make sure MySQL is up before this step. You can run alpha through docker or executable file.

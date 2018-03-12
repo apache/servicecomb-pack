@@ -11,15 +11,20 @@
 
 2. 安装Saga
    ```bash
-   mvn clean install -Pdocker -DskipTests
+   mvn clean package -Pdocker -DskipTests
    ```
    在命令执行完成后，会生成名为alpha-server的镜像和可执行文件`alpha/alpha-server/target/saga/alpha-server-${version}-exec.jar`。
-   **注意**: 如果不需要生成docker镜像，则直接运行`mvn clean install -DskipTests`即可。
-   **注意**: 如果您之前已生成了alpha-server的docker镜像，则需要在运行命令前将其删除。
+
+   **注意**: 如果不需要生成docker镜像，则直接运行`mvn clean package -DskipTests`即可。
+
+   **注意**: 如果您之前已生成了alpha-server的docker镜像，则需要先执行以下命令将其删除：
+   ```bash
+   docker rmi -f $(docker images | grep alpha-server | awk '{print $3}')
+   ```
    
 3. 运行MySQL
    ```bash
-   docker run -d -e "MYSQL_ROOT_PASSWORD=password" "-e "MYSQL_DATABASE=saga" -e "MYSQL_USER=saga" -e "MYSQL_PASSWORD=password" -p 3306:3306 mysql/mysql-server:5.7
+   docker run -d -e "MYSQL_ROOT_PASSWORD=password" -e "MYSQL_DATABASE=saga" -e "MYSQL_USER=saga" -e "MYSQL_PASSWORD=password" -p 3306:3306 mysql/mysql-server:5.7
    ```
 
 4. 运行alpha。请确保MySQL在此前已成功启动。alpha的运行可通过docker或可执行文件的方式。
