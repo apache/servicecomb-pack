@@ -35,8 +35,15 @@ You will need:
             <artifactId>mysql-connector-java</artifactId>
           </dependency>
       ```
-   
-   2. start application up in `saga-demo/booking` with the following command
+   2. remove alpha server's docker image
+      ```bash
+      docker rmi -f $(docker images | grep alpha-server | awk '{print $3}')
+      ```
+   3. re-generate saga's docker images
+      ```bash
+      mvn package -DskipTests -Pdocker -Pdemo
+      ```
+   4. start application up in `saga-demo/booking` with the following command
       ```
       docker-compose -f docker-compose.yaml -f docker-compose.mysql.yaml up
       ```
