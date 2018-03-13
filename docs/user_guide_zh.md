@@ -29,6 +29,12 @@ Saga可通过以下任一方式进行构建：
    $ mvn clean install -DskipTests -Pdocker
    ```
 
+* 同时构建可执行文件以及Saga发行包
+   ```bash
+      $ mvn clean install -DskipTests -Prelease
+   ```
+   
+
 在执行以上任一指令后，可在`alpha/alpha-server/target/saga/alpha-server-${version}-exec.jar`中找到alpha server的可执行文件。
 
 ## 如何使用

@@ -29,6 +29,11 @@ Saga can be built in either of the following ways.
    ```bash
    $ mvn clean install -DskipTests -Pdocker
    ```
+   
+* build the executable file and saga-distribution
+   ```bash
+      $ mvn clean install -DskipTests -Prelease
+   ```
 
 After executing either one of the above command, you will find alpha server's executable file in `alpha/alpha-server/target/saga/alpha-server-${version}-exec.jar`.
 
