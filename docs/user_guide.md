@@ -32,13 +32,6 @@ Saga can be built in either of the following ways.
 
 After executing either one of the above command, you will find alpha server's executable file in `alpha/alpha-server/target/saga/alpha-server-${version}-exec.jar`.
 
-### Build executable files and docker images
-```bash
-$ git clone https://github.com/apache/incubator-servicecomb-saga.git
-$ cd incubator-servicecomb-saga
-$ mvn clean install -DskipTests -Pdocker
-```
-
 ## How to use
 ### Add saga dependencies
 ```xml
