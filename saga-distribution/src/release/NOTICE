@@ -3,3 +3,25 @@ Copyright 2017-2018 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
+
+
+================================================================
+Notice for Apache Commons Logging
+
+Apache Commons Logging
+Copyright 2003-2016 The Apache Software Foundation
+
+================================================================
+Notice for gRPC
+
+See licenses/NOTICE-grpc
+
+================================================================
+Notice for Netty
+
+See licenses/NOTICE-netty
+
+================================================================
+Notice for Apache tomcat
+
+See licenses/NOTICE-tomcat
