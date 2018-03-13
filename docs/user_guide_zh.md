@@ -11,12 +11,25 @@
 [docker]: https://www.docker.com/get-docker
 
 ## 编译
-编译Saga，只需以下几步：
+
+获取源码：
 ```bash
 $ git clone https://github.com/apache/incubator-servicecomb-saga.git
 $ cd incubator-servicecomb-saga
-$ mvn clean install -DskipTests -Pdocker
 ```
+
+Saga可通过以下任一方式进行构建：
+* 只构建可执行文件：
+   ```bash
+   $ mvn clean install -DskipTests
+   ```
+
+* 同时构建可执行文件和docker镜像：
+   ```bash
+   $ mvn clean install -DskipTests -Pdocker
+   ```
+
+在执行以上任一指令后，可在`alpha/alpha-server/target/saga/alpha-server-${version}-exec.jar`中找到alpha server的可执行文件。
 
 ## 如何使用
 ### 引入Saga的依赖
