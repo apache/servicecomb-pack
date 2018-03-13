@@ -23,8 +23,7 @@ See [Saga Pack Design](docs/design.md) for details.
 See [Booking Demo](saga-demo/booking/README.md) for details.
 
 ## User Guide
-See [User Guide](docs/user_guide.md) for details.
-
+How to build and use can refer to [User Guide](docs/user_guide.md).
 
 ## FAQ
 * [How to use MySQL as alpha's backend database?](docs/faq/en/how_to_use_mysql_as_alpha_backend_database.md)

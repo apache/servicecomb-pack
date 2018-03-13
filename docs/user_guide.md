@@ -12,7 +12,27 @@ You will need:
 [docker]: https://www.docker.com/get-docker
 
 ## Build
-To build:
+
+Retrieve the source code:
+```bash
+$ git clone https://github.com/apache/incubator-servicecomb-saga.git
+$ cd incubator-servicecomb-saga
+```
+
+Saga can be built in either of the following ways.
+* Only build the executable files.
+   ```bash
+   $ mvn clean install -DskipTests
+   ```
+
+* build the executable files along with docker image.
+   ```bash
+   $ mvn clean install -DskipTests -Pdocker
+   ```
+
+After executing either one of the above command, you will find alpha server's executable file in `alpha/alpha-server/target/saga/alpha-server-${version}-exec.jar`.
+
+### Build executable files and docker images
 ```bash
 $ git clone https://github.com/apache/incubator-servicecomb-saga.git
 $ cd incubator-servicecomb-saga
