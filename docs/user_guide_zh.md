@@ -87,6 +87,9 @@ Saga可通过以下任一方式进行构建：
      repo.addBalanceByUsername(from, amount);
    }
    ```
+
+   **注意:** 实现的服务和补偿必须满足幂等的条件。
+
    **注意:** 默认情况下，超时设置需要显式声明才生效。
 
    **注意:** 若全局事务起点与子事务起点重合，需同时声明 `@SagaStart` 和 `@Compensable` 的注解。
@@ -102,13 +105,18 @@ Saga可通过以下任一方式进行构建：
 2. 运行alpha。在运行alpha前，请确保postgreSQL已正常启动。可通过docker或可执行文件的方式来启动alpha。
    * 通过docker运行：
       ```bash
-      docker run -d -p 8090:8090 -e "JAVA_OPTS=-Dspring.profiles.active=prd -Dspring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false" alpha-server:${saga_version}
+      docker run -d -p 8080:8080 -p 8090:8090 -e "JAVA_OPTS=-Dspring.profiles.active=prd -Dspring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false" alpha-server:${saga_version}
       ```
    * 通过可执行文件运行：
       ```bash
       java -Dspring.profiles.active=prd -D"spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false" -jar alpha-server-${saga_version}-exec.jar
       ```
+
    **注意**: 请在执行命令前将`${saga_version}`和`${host_address}`更改为实际值。
+
+
+   **注意**: 默认情况下，8080端口用于处理omega处发起的gRPC的请求，而8090端口用于处理查询存储在alpha处的事件信息。
+
 
 3. 配置omega。在 `application.yaml` 添加下面的配置项：
    ```yaml

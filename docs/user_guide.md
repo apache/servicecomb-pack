@@ -87,6 +87,9 @@ Take a transfer money application as an example:
      repo.addBalanceByUsername(from, amount);
    }
    ```
+
+   **Note** transactions and compensations implemented by services must be idempotent.
+
    **Note:** By default, timeout is disable.
 
    **Note:** If the starting point of global transaction and local transaction overlaps, both `@SagaStart` and `@Compensable` are needed.
@@ -102,13 +105,16 @@ Take a transfer money application as an example:
 2. run alpha. Before running alpha, please make sure postgreSQL is already up. You can run alpha through docker or executable file.
    * Run alpha through docker.
       ```bash
-      docker run -d -p 8090:8090 -e "JAVA_OPTS=-Dspring.profiles.active=prd -Dspring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false" alpha-server:${saga_version}
+      docker run -d -p 8080:8080 -p 8090:8090 -e "JAVA_OPTS=-Dspring.profiles.active=prd -Dspring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false" alpha-server:${saga_version}
       ```
    * Run alpha through executable file.
       ```bash
       java -Dspring.profiles.active=prd -D"spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false" -jar alpha-server-${saga_version}-exec.jar
       ```
+
    **Note**: Please change `${saga_version}` and `${host_address}` to the actual value before you execute the command.
+
+   **Note**: By default, port 8080 is used to serve omega's request via gRPC while port 8090 is used to query the events stored in alpha.
 
 3. setup omega. Configure the following values in `application.yaml`.
    ```yaml

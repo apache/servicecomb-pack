@@ -30,10 +30,14 @@
 4. Run alpha. Please make sure MySQL is up before this step. You can run alpha through docker or executable file.
    * via docker
       ```bash
-      docker run -d -p 8090:8090 -e "JAVA_OPTS=-Dspring.profiles.active=mysql -Dspring.datasource.url=jdbc:mysql://${host_address}:3306/saga?useSSL=false" alpha-server:${saga_version}
+      docker run -d -p 8080:8080 -p 8090:8090 -e "JAVA_OPTS=-Dspring.profiles.active=mysql -Dspring.datasource.url=jdbc:mysql://${host_address}:3306/saga?useSSL=false" alpha-server:${saga_version}
       ```
    * via executable file
       ```bash
       java -Dspring.profiles.active=mysql -D"spring.datasource.url=jdbc:mysql://${host_address}:3306/saga?useSSL=false" -jar alpha-server-${saga_version}-exec.jar
       ```
+
    **Notice**: Please change `${saga_version}` and `${host_address}` to the actual value before you execute the command.
+
+
+   **Note**: By default, port 8080 is used to serve omega's request via gRPC while port 8090 is used to query the events stored in alpha.
