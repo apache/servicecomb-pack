@@ -19,6 +19,7 @@ package org.apache.servicecomb.saga.demo.pack.booking;
 
 import org.apache.servicecomb.saga.omega.context.annotations.SagaStart;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +27,13 @@ import org.springframework.web.client.RestTemplate;
 
 @RestController
 public class BookingController {
+
+  @Value("${car.service.address:http://pack-car.servicecomb.io:8080}")
+  private String carServiceUrl;
+
+  @Value("${hotel.service.address:http://pack-hotel.servicecomb.io:8080}")
+  private String hotelServiceUrl;
+
   @Autowired
   private RestTemplate template;
 
@@ -33,11 +41,11 @@ public class BookingController {
   @PostMapping("/booking/{name}/{rooms}/{cars}")
   public String order(@PathVariable String name,  @PathVariable Integer rooms, @PathVariable Integer cars) {
     template.postForEntity(
-        "http://pack-car.servicecomb.io:8080/order/{name}/{cars}",
+        carServiceUrl + "/order/{name}/{cars}",
         null, String.class, name, cars);
 
     template.postForEntity(
-        "http://pack-hotel.servicecomb.io:8080/order/{name}/{rooms}",
+        hotelServiceUrl + "/order/{name}/{rooms}",
         null, String.class, name, rooms);
 
     return name + " booking " + rooms + " rooms and " + cars + " cars OK";

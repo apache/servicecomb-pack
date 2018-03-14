@@ -1,4 +1,4 @@
-# Pack Transaction Demo
+# Booking Demo
 This demo simulates a booking application including three services:
 * pack-booking
 * pack-car
@@ -17,12 +17,14 @@ You will need:
 [docker_compose]: https://docs.docker.com/compose/install/
 
 ## Running Demo
+You can run the demo using either docker compose or executable files.
+### via docker compose
 1. run the following command to create docker images in saga project root folder.
    ```
-   mvn package -DskipTests -Pdocker -Pdemo
+   mvn clean package -DskipTests -Pdocker -Pdemo
    ```
 
-2. start application up in `saga-demo/booking/` with the following command
+2. start application up
    ```
    docker-compose up
    ```
@@ -48,32 +50,56 @@ You will need:
       docker-compose -f docker-compose.yaml -f docker-compose.mysql.yaml up
       ```
 
+### via executable files
+1. run the following command to generate executable alpha server jar in `alpha/alpha-server/target/saga/alpha-server-${saga_version}-exec.jar`.
+   ```
+   mvn clean package -DskipTests -Pdemo
+   ```
+
+2. follow the instructions in the [How to run](https://github.com/apache/incubator-servicecomb-saga/blob/master/docs/user_guide.md#how-to-run) section in User Guide to run postgreSQL and alpha server.
+
+3. start application up
+   1. start hotel service. The executable jar file should be in `saga-demo/booking/hotel/target/saga`.
+   ```bash
+   java -Dserver.port=8081 -Dalpha.cluster.address=${alpha_address}:8080 -jar pack-hotel-${saga_version}-exec.jar
+   ```
+
+   2. start car service. The executable jar file should be in `saga-demo/booking/car/target/saga`.
+   ```bash
+   java -Dserver.port=8082 -Dalpha.cluster.address=${alpha_address}:8080 -jar pack-car-${saga_version}-exec.jar
+   ```
+
+   3. start booking service. The executable jar file should be in `saga-demo/booking/booking/target/saga`.
+   ```bash
+   java -Dserver.port=8083 -Dalpha.cluster.address=${alpha_address}:8080 -Dcar.service.address=${host_address}:8082 -Dhotel.service.address=${host_address}:8081  -jar pack-booking-${saga_version}-exec.jar
+   ```
+
 ## User Requests
 1. Booking 2 rooms and 2 cars, this booking will be OK.
 ```
-curl -X POST http://{docker.host.ip}:8083/booking/test/2/2
+curl -X POST http://${host_address}:8083/booking/test/2/2
 ```
 Check the hotel booking status with
 ```
-curl http://{docker.host.ip}:8081/bookings
+curl http://${host_address}:8081/bookings
 ```
 Check the car booking status with
 ```
-curl http://{docker.host.ip}:8082/bookings
+curl http://${host_address}:8082/bookings
 
 ```
 
 2. Booking 3 rooms and 2 cars, this booking will case the hotel order failed and trigger the compansate operation with car booking.
 ```
-curl -X POST http://{docker.host.ip}:8083/booking/test/3/2
+curl -X POST http://${host_address}:8083/booking/test/3/2
 ```
 Check the hotel booking status with
 ```
-curl http://{docker.host.ip}:8081/bookings
+curl http://${host_address}:8081/bookings
 ```
 Check the car booking status with
 ```
-curl http://{docker.host.ip}:8082/bookings
+curl http://${host_address}:8082/bookings
 ```
 The second car booking will be marked with **cancel:true**
 
