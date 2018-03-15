@@ -17,7 +17,8 @@
 
 <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
-    <includeBaseDirectory>false</includeBaseDirectory>
+    <includeBaseDirectory>true</includeBaseDirectory>
+    <baseDirectory>${project.build.finalName}-bin</baseDirectory>
     <id>bin</id>
     <formats>
         <format>zip</format>
@@ -25,7 +26,7 @@
     <fileSets>
         <fileSet>
             <directory>../saga-demo</directory>
-            <outputDirectory>apache-servicecomb-incubating-saga-distribution-${project.version}/saga-demo</outputDirectory>
+            <outputDirectory>/saga-demo</outputDirectory>
             <excludes>
                 <exclude>**/*.iml</exclude>
                 <exclude>**/eclipse-classes/**</exclude>
@@ -39,11 +40,11 @@
         </fileSet>
         <fileSet>
             <directory>../docs</directory>
-            <outputDirectory>apache-servicecomb-incubating-saga-distribution-${project.version}/docs</outputDirectory>
+            <outputDirectory>/docs</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>../</directory>
-            <outputDirectory>apache-servicecomb-incubating-saga-distribution-${project.version}</outputDirectory>
+            <outputDirectory>/</outputDirectory>
             <includes>
 
                 <include>DISCLAIMER</include>
@@ -54,7 +55,7 @@
         <!-- include the NOTICE and LICENSE file from release directory -->
         <fileSet>
             <directory>src/release</directory>
-            <outputDirectory>apache-servicecomb-incubating-saga-distribution-${project.version}</outputDirectory>
+            <outputDirectory>/</outputDirectory>
             <includes>
                 <include>NOTICE</include>
                 <include>LICENSE</include>
@@ -64,7 +65,7 @@
         <!-- include alpha server exec into bin directory -->
         <fileSet>
             <directory>../alpha/alpha-server/target/saga/</directory>
-            <outputDirectory>apache-servicecomb-incubating-saga-distribution-${project.version}</outputDirectory>
+            <outputDirectory>/</outputDirectory>
             <includes>
                 <include>alpha-server-${project.version}-exec.jar</include>
             </includes>
@@ -75,7 +76,7 @@
         <dependencySet>
             <useProjectArtifact>true</useProjectArtifact>
             <unpack>false</unpack>
-            <outputDirectory>apache-servicecomb-incubating-saga-distribution-${project.version}/libs</outputDirectory>
+            <outputDirectory>/libs</outputDirectory>
             <scope>runtime</scope>
         </dependencySet>
     </dependencySets>
