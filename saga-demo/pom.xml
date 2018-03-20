@@ -54,6 +54,11 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <dependency>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>${maven-dependency-plugin.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -66,6 +71,35 @@
   </dependencies>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>byteman.copy</id>
+              <phase>process-test-resources</phase>
+              <goals>
+                <goal>copy</goal>
+              </goals>
+              <configuration>
+                <artifactItems>
+                  <artifactItem>
+                    <groupId>org.jboss.byteman</groupId>
+                    <artifactId>byteman</artifactId>
+                    <version>${byteman.version}</version>
+                  </artifactItem>
+                </artifactItems>
+                <outputDirectory>${project.build.directory}/saga</outputDirectory>
+                <stripVersion>true</stripVersion>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
