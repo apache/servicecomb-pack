@@ -58,6 +58,8 @@
     <javax.transaction.version>1.2</javax.transaction.version>
     <eclipse.link.version>2.7.1</eclipse.link.version>
     <jackson.version>2.9.0</jackson.version>
+    <byteman.version>4.0.1</byteman.version>
+    <maven-dependency-plugin.version>3.0.2</maven-dependency-plugin.version>
   </properties>
 
   <name>ServiceComb Saga</name>

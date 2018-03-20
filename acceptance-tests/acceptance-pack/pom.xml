@@ -40,6 +40,11 @@
       <artifactId>jackson-databind</artifactId>
       <version>${jackson.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.byteman</groupId>
+      <artifactId>byteman-submit</artifactId>
+      <version>${byteman.version}</version>
+    </dependency>
   </dependencies>
 
   <profiles>
@@ -111,13 +116,17 @@
                   <alias>car</alias>
                   <run>
                     <env>
-                      <JAVA_OPTS />
+                      <JAVA_OPTS>
+                        -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
+                        -javaagent:/maven/saga/byteman.jar=port:9091,address:0.0.0.0,listener:true
+                      </JAVA_OPTS>
                     </env>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
                       <tcp>
                         <ports>
                           <port>8080</port>
+                          <port>9091</port>
                         </ports>
                       </tcp>
                       <time>120000</time>
@@ -127,6 +136,7 @@
                     </links>
                     <ports>
                       <port>car.port:8080</port>
+                      <port>car.byteman.port:9091</port>
                     </ports>
                   </run>
                 </image>
@@ -135,13 +145,17 @@
                   <alias>hotel</alias>
                   <run>
                     <env>
-                      <JAVA_OPTS />
+                      <JAVA_OPTS>
+                        -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
+                        -javaagent:/maven/saga/byteman.jar=port:9091,address:0.0.0.0,listener:true
+                      </JAVA_OPTS>
                     </env>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
                       <tcp>
                         <ports>
                           <port>8080</port>
+                          <port>9091</port>
                         </ports>
                       </tcp>
                       <time>120000</time>
@@ -151,6 +165,7 @@
                     </links>
                     <ports>
                       <port>hotel.port:8080</port>
+                      <port>hotel.byteman.port:9091</port>
                     </ports>
                   </run>
                 </image>
@@ -159,13 +174,17 @@
                   <alias>booking</alias>
                   <run>
                     <env>
-                      <JAVA_OPTS />
+                      <JAVA_OPTS>
+                        -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
+                        -javaagent:/maven/saga/byteman.jar=port:9091,address:0.0.0.0,listener:true
+                      </JAVA_OPTS>
                     </env>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
                       <tcp>
                         <ports>
                           <port>8080</port>
+                          <port>9091</port>
                         </ports>
                       </tcp>
                       <time>120000</time>
@@ -177,6 +196,7 @@
                     </links>
                     <ports>
                       <port>booking.port:8080</port>
+                      <port>booking.byteman.port:9091</port>
                     </ports>
                   </run>
                 </image>
@@ -242,6 +262,18 @@
                 <spring.datasource.url>
                   jdbc:postgresql://${docker.hostname}:${postgres.port}/saga?useSSL=false
                 </spring.datasource.url>
+                <byteman.address>
+                  ${docker.hostname}
+                </byteman.address>
+                <car.byteman.port>
+                  ${car.byteman.port}
+                </car.byteman.port>
+                <hotel.byteman.port>
+                  ${hotel.byteman.port}
+                </hotel.byteman.port>
+                <booking.byteman.port>
+                  ${booking.byteman.port}
+                </booking.byteman.port>
               </systemPropertyVariables>
               <argLine>${jacoco.failsafe.argLine}</argLine>
             </configuration>

@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.jboss.byteman.agent.submit.Submit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +64,16 @@ public class PackStepdefs implements En {
 
     And("^Alpha is up and running$", () -> {
       probe(System.getProperty(ALPHA_REST_ADDRESS));
+    });
+
+    Given("^Install the byteman script ([A-Za-z0-9_\\.]+) to ([A-Za-z]+) Service$", (String script, String service) -> {
+      String address = System.getProperty("byteman.address");
+      String port = System.getProperty(service.toLowerCase() + ".byteman.port");
+      log.info("Install the byteman script {} to {} service with {}:{}", script, service, address, port);
+      Submit bm = new Submit(address, Integer.parseInt(port));
+      List<String> rules = new ArrayList<>();
+      rules.add("target/test-classes/" + script);
+      bm.addRulesFromFiles(rules);
     });
 
     When("^User ([A-Za-z]+) requests to book ([0-9]+) cars and ([0-9]+) rooms$", (username, cars, rooms) -> {
