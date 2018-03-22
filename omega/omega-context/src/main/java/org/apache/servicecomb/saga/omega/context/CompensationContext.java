@@ -20,15 +20,15 @@ package org.apache.servicecomb.saga.omega.context;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CompensationContext {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private final Map<String, CompensationContextInternal> contexts = new HashMap<>();
+  private final Map<String, CompensationContextInternal> contexts = new ConcurrentHashMap<>();
 
   public void addCompensationContext(Method compensationMethod, Object target) {
     compensationMethod.setAccessible(true);
