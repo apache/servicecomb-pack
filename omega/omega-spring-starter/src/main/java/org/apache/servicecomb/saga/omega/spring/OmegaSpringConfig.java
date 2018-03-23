@@ -27,6 +27,8 @@ import org.apache.servicecomb.saga.omega.format.KryoMessageFormat;
 import org.apache.servicecomb.saga.omega.format.MessageFormat;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,13 +37,13 @@ import org.springframework.context.annotation.Lazy;
 @Configuration
 class OmegaSpringConfig {
 
-  @Bean
+  @Bean(name = {"omegaUniqueIdGenerator"})
   IdGenerator<String> idGenerator() {
     return new UniqueIdGenerator();
   }
 
   @Bean
-  OmegaContext omegaContext(IdGenerator<String> idGenerator) {
+  OmegaContext omegaContext(@Qualifier("omegaUniqueIdGenerator") IdGenerator<String> idGenerator) {
     return new OmegaContext(idGenerator);
   }
 
