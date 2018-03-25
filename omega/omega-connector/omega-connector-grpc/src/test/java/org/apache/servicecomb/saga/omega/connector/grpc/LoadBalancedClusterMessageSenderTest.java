@@ -176,7 +176,7 @@ public class LoadBalancedClusterMessageSenderTest {
     messageSender.send(event);
 
     startServerOnPort(deadPort);
-    await().atMost(3, SECONDS).until(() -> connected.get(deadPort).size() == 3);
+    await().atMost(5, SECONDS).until(() -> connected.get(deadPort).size() == 3);
 
     TxEvent abortedEvent = new TxAbortedEvent(globalTxId, localTxId, parentTxId, compensationMethod, new RuntimeException("oops"));
     messageSender.send(abortedEvent);
@@ -186,7 +186,7 @@ public class LoadBalancedClusterMessageSenderTest {
     assertThat(eventsMap.get(deadPort).poll().toString(), is(event.toString()));
     assertThat(eventsMap.get(deadPort).poll().toString(), is(abortedEvent.toString()));
 
-    await().atMost(1, SECONDS).until(() -> compensated.contains(globalTxId));
+    await().atMost(3, SECONDS).until(() -> compensated.contains(globalTxId));
   }
 
   @Test (timeout = 1000)
