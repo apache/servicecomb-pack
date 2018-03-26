@@ -19,6 +19,7 @@ package org.apache.servicecomb.saga;
 
 import static io.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.Is.is;
 
@@ -64,7 +65,11 @@ public class PackStepdefs implements En {
     });
 
     And("^Alpha is up and running$", () -> {
-      String infoURI = System.getProperty(INFO_SERVICE_URI, "/info");
+      String infoURI = System.getProperty(INFO_SERVICE_URI);
+      if (isEmpty(infoURI)) {
+        infoURI = "/info";
+      }
+      log.info("The service uri is " + infoURI);
       probe(System.getProperty(ALPHA_REST_ADDRESS), infoURI);
     });
 
