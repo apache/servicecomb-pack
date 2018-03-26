@@ -86,7 +86,7 @@
                   <run>
                     <env>
                       <JAVA_OPTS>
-                        -Dspring.profiles.active=prd
+                        -Dspring.profiles.active=prd -Dspring.datasource.initialization-mode=always
                       </JAVA_OPTS>
                     </env>
                     <links>
@@ -283,6 +283,9 @@
                 <booking.byteman.port>
                   ${booking.byteman.port}
                 </booking.byteman.port>
+                <info.service.uri>
+                  ${info.service.uri}
+                </info.service.uri>
               </systemPropertyVariables>
               <argLine>${jacoco.failsafe.argLine}</argLine>
             </configuration>
@@ -330,6 +333,12 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+    <profile>
+      <id>spring-boot-2</id>
+      <properties>
+        <info.service.uri>/actuator/info</info.service.uri>
+      </properties>
     </profile>
   </profiles>
 
