@@ -107,7 +107,7 @@
                       <port>alpha.rest.port:8090</port>
                     </ports>
                     <dependsOn>
-                      <dependsOn>postgres</dependsOn>
+                      <container>postgres</container>
                     </dependsOn>
                   </run>
                 </image>
@@ -138,6 +138,9 @@
                       <port>car.port:8080</port>
                       <port>car.byteman.port:9091</port>
                     </ports>
+                    <dependsOn>
+                      <container>alpha</container>
+                    </dependsOn>
                   </run>
                 </image>
                 <image>
@@ -167,6 +170,9 @@
                       <port>hotel.port:8080</port>
                       <port>hotel.byteman.port:9091</port>
                     </ports>
+                    <dependsOn>
+                      <container>alpha</container>
+                    </dependsOn>
                   </run>
                 </image>
                 <image>
@@ -198,6 +204,9 @@
                       <port>booking.port:8080</port>
                       <port>booking.byteman.port:9091</port>
                     </ports>
+                    <dependsOn>
+                      <container>alpha</container>
+                    </dependsOn>
                   </run>
                 </image>
               </images>
