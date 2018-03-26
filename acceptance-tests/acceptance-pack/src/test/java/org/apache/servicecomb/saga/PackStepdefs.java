@@ -44,6 +44,7 @@ public class PackStepdefs implements En {
   private static final String CAR_SERVICE_ADDRESS = "car.service.address";
   private static final String HOTEL_SERVICE_ADDRESS = "hotel.service.address";
   private static final String BOOKING_SERVICE_ADDRESS = "booking.service.address";
+  private static final String INFO_SERVICE_URI = "info.service.uri";
   private static final String[] addresses = {CAR_SERVICE_ADDRESS, HOTEL_SERVICE_ADDRESS};
 
   private static final Consumer<Map<String, String>[]> NO_OP_CONSUMER = (dataMap) -> {
@@ -63,7 +64,8 @@ public class PackStepdefs implements En {
     });
 
     And("^Alpha is up and running$", () -> {
-      probe(System.getProperty(ALPHA_REST_ADDRESS));
+      String infoURI = System.getProperty(INFO_SERVICE_URI, "/info");
+      probe(System.getProperty(ALPHA_REST_ADDRESS), infoURI);
     });
 
     Given("^Install the byteman script ([A-Za-z0-9_\\.]+) to ([A-Za-z]+) Service$", (String script, String service) -> {
@@ -159,11 +161,16 @@ public class PackStepdefs implements En {
   }
 
   private void probe(String address) {
+    probe(address, "/info");
+  }
+
+  private void probe(String address, String infoURI) {
     log.info("Connecting to service address {}", address);
     given()
         .when()
-        .get(address + "/info")
+        .get(address + infoURI)
         .then()
         .statusCode(is(200));
   }
+
 }
