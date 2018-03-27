@@ -26,7 +26,7 @@ You can run the demo using either docker compose or executable files.
 
 2. start application up
    ```
-   docker-compose up
+   ./saga-demo.sh up
    ```
 
    **Note:** If you prefer to use MySQL as alpha's backend database, you need to try the following steps instead:
@@ -47,8 +47,13 @@ You can run the demo using either docker compose or executable files.
       ```
    4. start application up in `saga-demo/booking` with the following command
       ```
-      docker-compose -f docker-compose.yaml -f docker-compose.mysql.yaml up
+      ./saga-demo.sh up-mysql
       ```
+
+3. stop application
+   ```
+   ./saga-demo.sh down
+   ```
 
 ### via executable files
 1. run the following command to generate executable alpha server jar in `alpha/alpha-server/target/saga/alpha-server-${saga_version}-exec.jar`.
