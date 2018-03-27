@@ -65,12 +65,7 @@ public class PackStepdefs implements En {
     });
 
     And("^Alpha is up and running$", () -> {
-      String infoURI = System.getProperty(INFO_SERVICE_URI);
-      if (isEmpty(infoURI)) {
-        infoURI = "/info";
-      }
-      log.info("The service uri is " + infoURI);
-      probe(System.getProperty(ALPHA_REST_ADDRESS), infoURI);
+      probe(System.getProperty(ALPHA_REST_ADDRESS));
     });
 
     Given("^Install the byteman script ([A-Za-z0-9_\\.]+) to ([A-Za-z]+) Service$", (String script, String service) -> {
@@ -166,7 +161,12 @@ public class PackStepdefs implements En {
   }
 
   private void probe(String address) {
-    probe(address, "/info");
+    String infoURI = System.getProperty(INFO_SERVICE_URI);
+    if (isEmpty(infoURI)) {
+      infoURI = "/info";
+    }
+    log.info("The info service uri is " + infoURI);
+    probe(address, infoURI);
   }
 
   private void probe(String address, String infoURI) {
