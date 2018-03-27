@@ -25,8 +25,7 @@ Saga是由 **alpha** 和 **omega**组成，其中：
 ## 用户指南
 如何构建和使用可浏览[用户指南](docs/user_guide_zh.md)。
 
-## 常见问题
-* [如何使用MySQL作为alpha的后台数据库？](docs/faq/cn/how_to_use_mysql_as_alpha_backend_database.md)
+## [常见问题](FAQ_ZH.md)
 
 ## 联系我们
 * [提交issues](https://issues.apache.org/jira/browse/SCB)

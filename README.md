@@ -25,8 +25,7 @@ See [Booking Demo](saga-demo/booking/README.md) for details.
 ## User Guide
 How to build and use can refer to [User Guide](docs/user_guide.md).
 
-## FAQ
-* [How to use MySQL as alpha's backend database?](docs/faq/en/how_to_use_mysql_as_alpha_backend_database.md)
+## [FAQ](FAQ.md)
 
 ## Contact Us
 * [issues](https://issues.apache.org/jira/browse/SCB)
