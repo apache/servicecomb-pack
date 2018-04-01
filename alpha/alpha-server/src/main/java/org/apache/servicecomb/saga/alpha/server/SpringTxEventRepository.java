@@ -23,6 +23,9 @@ import java.util.Optional;
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
 import org.apache.servicecomb.saga.alpha.core.TxEventRepository;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.util.CollectionUtils;
+
+import javax.swing.text.html.Option;
 
 import static org.apache.servicecomb.saga.common.EventType.TxCompensatedEvent;
 
@@ -60,8 +63,12 @@ class SpringTxEventRepository implements TxEventRepository {
   }
 
   @Override
-  public List<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id, String type) {
-    return eventRepo.findFirstByTypeAndSurrogateIdGreaterThan(type, id, SINGLE_TX_EVENT_REQUEST);
+  public Optional<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id) {
+    List<TxEvent> result = eventRepo.findFirstUncompensatedEventByIdGreaterThan(id, SINGLE_TX_EVENT_REQUEST);
+    if (CollectionUtils.isEmpty(result)) {
+      return Optional.empty();
+    }
+    return Optional.of(result.get(0));
   }
 
   @Override

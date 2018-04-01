@@ -85,8 +85,9 @@ public interface TxEventRepository {
   List<TxEvent> findTransactions(String globalTxId, String type);
 
   /**
-   * Find {@link TxEvent}s which satisfy below requirements:
+   * Find a {@link TxEvent} which satisfies below requirements:
    * <ol>
+   *   <li>{@link TxEvent#type} equals to {@link EventType#TxEndedEvent}</li>
    *   <li>{@link TxEvent#surrogateId} greater than param <code>id</code></li>
    *   <li>{@link TxEvent#type} equals to param <code>type</code></li>
    *   <li>There is a corresponding <code>TxAbortedEvent</code></li>
@@ -94,10 +95,9 @@ public interface TxEventRepository {
    * </ol>
    *
    * @param id
-   * @param type
    * @return
    */
-  List<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id, String type);
+  Optional<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id);
 
   /**
    * Find a {@link TxEvent} which satisfies below requirements:
