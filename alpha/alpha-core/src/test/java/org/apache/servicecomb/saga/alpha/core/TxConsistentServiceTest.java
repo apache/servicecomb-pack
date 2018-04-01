@@ -78,7 +78,7 @@ public class TxConsistentServiceTest {
     }
 
     @Override
-    public Optional<TxEvent> findFirstCompensatedEventByIdGreaterThan(long id, String type) {
+    public Optional<TxEvent> findFirstCompensatedEventByIdGreaterThan(long id) {
       return Optional.empty();
     }
 

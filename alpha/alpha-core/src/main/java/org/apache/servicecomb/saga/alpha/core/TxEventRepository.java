@@ -100,18 +100,17 @@ public interface TxEventRepository {
   List<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id, String type);
 
   /**
-   * Find first {@link TxEvent} which satisfies below requirements:
+   * Find a {@link TxEvent} which satisfies below requirements:
    *
    * <ol>
-   *   <li>{@link TxEvent#type} equals to param <code>type</code></li>
+   *   <li>{@link TxEvent#type} equals to {@link EventType#TxCompensatedEvent}</li>
    *   <li>{@link TxEvent#surrogateId} greater than param <code>id</code></li>
    * </ol>
    *
    * @param id
-   * @param type
    * @return
    */
-  Optional<TxEvent> findFirstCompensatedEventByIdGreaterThan(long id, String type);
+  Optional<TxEvent> findFirstCompensatedEventByIdGreaterThan(long id);
 
   /**
    * Delete duplicated {@link TxEvent}s which {@link TxEvent#type} equals param <code>type</code>.
