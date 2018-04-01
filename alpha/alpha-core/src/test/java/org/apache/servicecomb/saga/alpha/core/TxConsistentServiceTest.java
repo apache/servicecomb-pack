@@ -59,7 +59,7 @@ public class TxConsistentServiceTest {
     }
 
     @Override
-    public Optional<TxEvent> findTxStartedEventToCompensate(String globalTxId, String localTxId) {
+    public Optional<TxEvent> findTxStartedEvent(String globalTxId, String localTxId) {
       return events.stream()
           .filter(event -> globalTxId.equals(event.globalTxId()) && localTxId.equals(event.localTxId()))
           .findFirst();

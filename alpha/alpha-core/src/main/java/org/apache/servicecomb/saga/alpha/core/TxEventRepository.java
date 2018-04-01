@@ -69,7 +69,7 @@ public interface TxEventRepository {
    * @param localTxId
    * @return {@link TxEvent}
    */
-  Optional<TxEvent> findTxStartedEventToCompensate(String globalTxId, String localTxId);
+  Optional<TxEvent> findTxStartedEvent(String globalTxId, String localTxId);
 
   /**
    * Find {@link TxEvent}s which satisfy below requirements:
