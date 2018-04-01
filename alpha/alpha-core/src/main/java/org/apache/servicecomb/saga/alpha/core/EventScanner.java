@@ -93,8 +93,8 @@ public class EventScanner implements Runnable {
   }
 
   private void saveUncompensatedEventsToCommands() {
-    eventRepository.findFirstUncompensatedEventByIdGreaterThan(nextEndedEventId, TxEndedEvent.name())
-        .forEach(event -> {
+    eventRepository.findFirstUncompensatedEventByIdGreaterThan(nextEndedEventId)
+        .ifPresent(event -> {
           log.info("Found uncompensated event {}", event);
           nextEndedEventId = event.id();
           commandRepository.saveCompensationCommands(event.globalTxId());
