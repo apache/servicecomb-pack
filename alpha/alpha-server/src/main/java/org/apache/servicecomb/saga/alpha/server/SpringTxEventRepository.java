@@ -48,7 +48,7 @@ class SpringTxEventRepository implements TxEventRepository {
   }
 
   @Override
-  public Optional<TxEvent> findTxStartedEventToCompensate(String globalTxId, String localTxId) {
+  public Optional<TxEvent> findTxStartedEvent(String globalTxId, String localTxId) {
     return eventRepo.findFirstStartedEventByGlobalTxIdAndLocalTxId(globalTxId, localTxId);
   }
 

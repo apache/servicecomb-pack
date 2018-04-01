@@ -135,7 +135,7 @@ public class EventScanner implements Runnable {
       eventRepository.save(toTxAbortedEvent(timeout));
 
       if (timeout.type().equals(TxStartedEvent.name())) {
-        eventRepository.findTxStartedEventToCompensate(timeout.globalTxId(), timeout.localTxId())
+        eventRepository.findTxStartedEvent(timeout.globalTxId(), timeout.localTxId())
             .ifPresent(omegaCallback::compensate);
       }
     });
