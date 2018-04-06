@@ -136,7 +136,7 @@ public class TransactionInterceptionTest {
         toArray(messages)
     );
 
-    User actual = userRepository.findOne(user.id());
+    User actual = userRepository.findByUsername(user.username());
     assertThat(actual, is(user));
   }
 
@@ -169,8 +169,8 @@ public class TransactionInterceptionTest {
     messageHandler.onReceive(globalTxId, newLocalTxId, globalTxId, compensationMethod, user);
     messageHandler.onReceive(globalTxId, anotherLocalTxId, localTxId, compensationMethod, anotherUser);
 
-    assertThat(userRepository.findOne(user.id()), is(nullValue()));
-    assertThat(userRepository.findOne(anotherUser.id()), is(nullValue()));
+    assertThat(userRepository.findByUsername(user.username()), is(nullValue()));
+    assertThat(userRepository.findByUsername(anotherUser.username()), is(nullValue()));
 
     assertArrayEquals(
         new String[]{
