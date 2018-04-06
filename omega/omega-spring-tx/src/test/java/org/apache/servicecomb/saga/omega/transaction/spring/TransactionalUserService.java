@@ -41,6 +41,6 @@ class TransactionalUserService {
   }
 
   void delete(User user) {
-    userRepository.delete(user.id());
+    userRepository.delete(user);
   }
 }
