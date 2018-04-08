@@ -22,10 +22,15 @@ cache:
 language: java
 jdk:
 - oraclejdk8
+env:
+  # dummy profile
+  - SPRING_BOOT_PROFILE=spring-boot-1
+  # use spring-boot-2 profile 
+  - SPRING_BOOT_PROFILE=spring-boot-2
 script:
 - set -e
-- mvn clean install -Pjacoco -Pdocker coveralls:report
-- mvn clean verify -f saga-demo -Pdemo -Pdocker -Ddocker.useColor=false -Ddocker.showLogs
-- mvn clean verify -f acceptance-tests -Pdemo -Pdocker -Ddocker.useColor=false -Ddocker.showLogs
+- mvn clean install -Pjacoco -Pdocker -P${SPRING_BOOT_PROFILE} coveralls:report
+- mvn clean verify -f saga-demo -Pdemo -Pdocker -P${SPRING_BOOT_PROFILE} -Ddocker.useColor=false -Ddocker.showLogs
+- mvn clean verify -f acceptance-tests -Pdemo -Pdocker -P${SPRING_BOOT_PROFILE} -Ddocker.useColor=false -Ddocker.showLogs
 after_success:
 - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash -x scripts/deploy.sh ; fi
