@@ -49,7 +49,7 @@
     <spring.boot.version>1.5.10.RELEASE</spring.boot.version>
     <spring.boot2.version>2.0.1.RELEASE</spring.boot2.version>
     <spring.cloud.version>Camden.SR6</spring.cloud.version>
-    <java.chassis.version>0.5.0</java.chassis.version>
+    <java.chassis.version>1.0.0-m1</java.chassis.version>
     <spring.version>4.3.7.RELEASE</spring.version>
     <akka.version>2.5.6</akka.version>
     <rat.version>0.12</rat.version>

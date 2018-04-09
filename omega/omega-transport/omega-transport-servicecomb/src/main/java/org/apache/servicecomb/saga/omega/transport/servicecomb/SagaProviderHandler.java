@@ -27,9 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import io.servicecomb.core.Handler;
-import io.servicecomb.core.Invocation;
-import io.servicecomb.swagger.invocation.AsyncResponse;
+import org.apache.servicecomb.core.Handler;
+import org.apache.servicecomb.core.Invocation;
+import org.apache.servicecomb.swagger.invocation.AsyncResponse;
 
 public class SagaProviderHandler implements Handler {
 
