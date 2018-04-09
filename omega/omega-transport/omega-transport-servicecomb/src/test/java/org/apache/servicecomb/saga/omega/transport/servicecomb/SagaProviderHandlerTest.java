@@ -34,8 +34,8 @@ import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.servicecomb.core.Invocation;
-import io.servicecomb.swagger.invocation.AsyncResponse;
+import org.apache.servicecomb.core.Invocation;
+import org.apache.servicecomb.swagger.invocation.AsyncResponse;
 
 public class SagaProviderHandlerTest {
 
