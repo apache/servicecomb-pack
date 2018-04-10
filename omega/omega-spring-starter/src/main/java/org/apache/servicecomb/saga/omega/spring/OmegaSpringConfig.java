@@ -17,6 +17,10 @@
 
 package org.apache.servicecomb.saga.omega.spring;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.saga.omega.connector.grpc.LoadBalancedClusterMessageSender;
 import org.apache.servicecomb.saga.omega.context.CompensationContext;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
@@ -59,14 +63,21 @@ class OmegaSpringConfig {
 
   @Bean
   MessageSender grpcMessageSender(
-      @Value("${alpha.cluster.address}") String[] addresses,
+      @Value("${alpha.cluster.address:localhost:8080}") String[] addresses,
+      @Value("${alpha.cluster.ssl.enable:false}") boolean enableSSL,
+      @Value("${alpha.cluster.ssl.enableMutualAuth:false}") boolean enableMutualAuth,
+      @Value("${alpha.cluster.ssl.cert:client.crt}") String cert,
+      @Value("${alpha.cluster.ssl.key:client.pem}") String key,
+      @Value("${alpha.cluster.ssl.certChain:ca.cert}") String certChain,
       @Value("${omega.connection.reconnectDelay:3000}") int reconnectDelay,
       ServiceConfig serviceConfig,
       @Lazy MessageHandler handler) {
 
     MessageFormat messageFormat = new KryoMessageFormat();
+    AlphaClusterConfig clusterConfig = new AlphaClusterConfig(Arrays.asList(addresses),
+        enableSSL, enableMutualAuth, cert, key, certChain);
     MessageSender sender = new LoadBalancedClusterMessageSender(
-        addresses,
+        clusterConfig,
         messageFormat,
         messageFormat,
         serviceConfig,

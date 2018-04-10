@@ -64,49 +64,13 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 
-public class LoadBalancedClusterMessageSenderTest {
-
-  private static final int[] ports = {8080, 8090};
-  private static final Map<Integer, Server> servers = new HashMap<>();
-
-  private static final Map<Integer, Integer> delays = new HashMap<Integer, Integer>() {{
-    put(8080, 0);
-    put(8090, 800);
-  }};
-
-  private static final Map<Integer, Queue<String>> connected = new HashMap<Integer, Queue<String>>() {{
-    put(8080, new ConcurrentLinkedQueue<>());
-    put(8090, new ConcurrentLinkedQueue<>());
-  }};
-
-  private static final Map<Integer, Queue<TxEvent>> eventsMap = new HashMap<Integer, Queue<TxEvent>>() {{
-    put(8080, new ConcurrentLinkedQueue<>());
-    put(8090, new ConcurrentLinkedQueue<>());
-  }};
-
-  private final MessageSerializer serializer = objects -> objects[0].toString().getBytes();
-
-  private final MessageDeserializer deserializer = message -> new Object[] {new String(message)};
-
-  private final List<String> compensated = new ArrayList<>();
-
-  private final MessageHandler handler = (globalTxId, localTxId, parentTxId, compensationMethod,
-      payloads) -> compensated.add(globalTxId);
-
-  private final String globalTxId = uniquify("globalTxId");
-  private final String localTxId = uniquify("localTxId");
-  private final String parentTxId = uniquify("parentTxId");
-  private final String compensationMethod = getClass().getCanonicalName();
-  private final TxEvent event = new TxEvent(EventType.TxStartedEvent, globalTxId, localTxId, parentTxId,
-      compensationMethod, 0, "", 0, "blah");
-
-  private final String serviceName = uniquify("serviceName");
-  private final String[] addresses = {"localhost:8080", "localhost:8090"};
-  private final MessageSender messageSender = newMessageSender(addresses);
-
-  private MessageSender newMessageSender(String[] addresses) {
+public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMessageSenderTestBase {
+  @Override
+  protected MessageSender newMessageSender(String[] addresses) {
+    AlphaClusterConfig clusterConfig = new AlphaClusterConfig(Arrays.asList(addresses),
+        false, false, null,null,null);
     return new LoadBalancedClusterMessageSender(
-        addresses,
+        clusterConfig,
         serializer,
         deserializer,
         new ServiceConfig(serviceName),
@@ -130,19 +94,6 @@ public class LoadBalancedClusterMessageSenderTest {
     } catch (IOException e) {
       fail(e.getMessage());
     }
-  }
-
-  @AfterClass
-  public static void tearDown() throws Exception {
-    servers.values().forEach(Server::shutdown);
-  }
-
-  @After
-  public void after() throws Exception {
-    messageSender.onDisconnected();
-    messageSender.close();
-    eventsMap.values().forEach(Queue::clear);
-    connected.values().forEach(Queue::clear);
   }
 
   @Test
@@ -329,71 +280,5 @@ public class LoadBalancedClusterMessageSenderTest {
       }
     }
     throw new IllegalStateException("None of the servers received any message");
-  }
-
-  private static class MyTxEventService extends TxEventServiceImplBase {
-    private final Queue<String> connected;
-    private final Queue<TxEvent> events;
-    private final int delay;
-
-    private StreamObserver<GrpcCompensateCommand> responseObserver;
-
-    private MyTxEventService(Queue<String> connected, Queue<TxEvent> events, int delay) {
-      this.connected = connected;
-      this.events = events;
-      this.delay = delay;
-    }
-
-    @Override
-    public void onConnected(GrpcServiceConfig request, StreamObserver<GrpcCompensateCommand> responseObserver) {
-      this.responseObserver = responseObserver;
-      connected.add("Connected " + request.getServiceName());
-    }
-
-    @Override
-    public void onTxEvent(GrpcTxEvent request, StreamObserver<GrpcAck> responseObserver) {
-      events.offer(new TxEvent(
-          EventType.valueOf(request.getType()),
-          request.getGlobalTxId(),
-          request.getLocalTxId(),
-          request.getParentTxId(),
-          request.getCompensationMethod(),
-          request.getTimeout(),
-          request.getRetryMethod(),
-          request.getRetries(),
-          new String(request.getPayloads().toByteArray())));
-
-      sleep();
-
-      if (EventType.TxAbortedEvent.name().equals(request.getType())) {
-        this.responseObserver.onNext(GrpcCompensateCommand
-            .newBuilder()
-            .setGlobalTxId(request.getGlobalTxId())
-            .build());
-      }
-
-      if ("TxStartedEvent".equals(request.getType()) && request.getCompensationMethod().equals("reject")) {
-        responseObserver.onNext(GrpcAck.newBuilder().setAborted(true).build());
-      } else {
-        responseObserver.onNext(GrpcAck.newBuilder().setAborted(false).build());
-      }
-
-      responseObserver.onCompleted();
-    }
-
-    private void sleep() {
-      try {
-        Thread.sleep(delay);
-      } catch (InterruptedException e) {
-        fail(e.getMessage());
-      }
-    }
-
-    @Override
-    public void onDisconnected(GrpcServiceConfig request, StreamObserver<GrpcAck> responseObserver) {
-      connected.add("Disconnected " + request.getServiceName());
-      responseObserver.onNext(GrpcAck.newBuilder().build());
-      responseObserver.onCompleted();
-    }
   }
 }

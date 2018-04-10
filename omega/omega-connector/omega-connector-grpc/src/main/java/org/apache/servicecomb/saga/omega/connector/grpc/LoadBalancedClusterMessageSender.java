@@ -20,18 +20,24 @@ package org.apache.servicecomb.saga.omega.connector.grpc;
 import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
+
+import javax.net.ssl.SSLException;
 
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
@@ -46,6 +52,12 @@ import org.slf4j.LoggerFactory;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.NegotiationType;
+import io.grpc.netty.NettyChannelBuilder;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslProvider;
 
 public class LoadBalancedClusterMessageSender implements MessageSender {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -57,23 +69,39 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
   private final MessageSender retryableMessageSender = new RetryableMessageSender(availableMessageSenders);
   private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-  public LoadBalancedClusterMessageSender(String[] addresses,
+  public LoadBalancedClusterMessageSender(AlphaClusterConfig clusterConfig,
       MessageSerializer serializer,
       MessageDeserializer deserializer,
       ServiceConfig serviceConfig,
       MessageHandler handler,
       int reconnectDelay) {
 
-    if (addresses.length == 0) {
+    if (clusterConfig.getAddresses().size() == 0) {
       throw new IllegalArgumentException("No reachable cluster address provided");
     }
 
-    channels = new ArrayList<>(addresses.length);
-    for (String address : addresses) {
-      ManagedChannel channel = ManagedChannelBuilder.forTarget(address)
-          .usePlaintext(true)
-          .build();
+    channels = new ArrayList<>(clusterConfig.getAddresses().size());
 
+    SslContext sslContext = null;
+    for (String address : clusterConfig.getAddresses()) {
+      ManagedChannel channel;
+
+      if (clusterConfig.isEnableSSL()) {
+        if (sslContext == null) {
+          try {
+            sslContext = buildSslContext(clusterConfig);
+          } catch (SSLException e) {
+            throw new IllegalArgumentException("Unable to build SslContext", e);
+          }
+        }
+         channel = NettyChannelBuilder.forTarget(address)
+            .negotiationType(NegotiationType.TLS)
+            .sslContext(sslContext)
+            .build();
+      } else {
+        channel = ManagedChannelBuilder.forTarget(address).usePlaintext()
+            .build();
+      }
       channels.add(channel);
       senders.put(
           new GrpcClientMessageSender(
@@ -174,5 +202,29 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
       Runnable runnable = new PushBackReconnectRunnable(messageSender, senders, pendingTasks, availableMessageSenders);
       return () -> pendingTasks.offer(runnable);
     };
+  }
+
+  private static SslContext buildSslContext(AlphaClusterConfig clusterConfig) throws SSLException {
+    SslContextBuilder builder = GrpcSslContexts.forClient();
+    // openssl must be used because some older JDk does not support cipher suites required by http2,
+    // and the performance of JDK ssl is pretty low compared to openssl.
+    builder.sslProvider(SslProvider.OPENSSL);
+
+    Properties prop = new Properties();
+    try {
+      prop.load(LoadBalancedClusterMessageSender.class.getClassLoader().getResourceAsStream("ssl.properties"));
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Unable to read ssl.properties.", e);
+    }
+
+    builder.protocols(prop.getProperty("protocols").split(","));
+    builder.ciphers(Arrays.asList(prop.getProperty("ciphers").split(",")));
+    builder.trustManager(new File(clusterConfig.getCertChain()));
+
+    if (clusterConfig.isEnableMutualAuth()) {
+      builder.keyManager(new File(clusterConfig.getCert()), new File(clusterConfig.getKey()));
+    }
+
+    return builder.build();
   }
 }

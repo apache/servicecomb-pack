@@ -32,6 +32,8 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -41,6 +43,7 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import javax.annotation.PostConstruct;
+import javax.net.ssl.SSLException;
 
 import org.apache.servicecomb.saga.alpha.core.CommandRepository;
 import org.apache.servicecomb.saga.alpha.core.EventScanner;
@@ -72,16 +75,29 @@ import com.google.protobuf.ByteString;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.NegotiationType;
+import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslProvider;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {AlphaApplication.class, AlphaConfig.class},
-    properties = {"alpha.server.port=8090", "alpha.event.pollingInterval=1"})
+    properties = {
+        "alpha.server.host=0.0.0.0",
+        "alpha.server.port=8090", "alpha.event.pollingInterval=1",
+        "alpha.server.ssl.enable=true", "alpha.server.ssl.cert=src/test/resources/server.crt",
+        "alpha.server.ssl.key=src/test/resources/server.pem", "alpha.server.ssl.enableMutualAuth=true",
+        "alpha.server.ssl.clientCert=src/test/resources/client.crt"})
 public class AlphaIntegrationTest {
   private static final int port = 8090;
 
-  private static final ManagedChannel clientChannel = ManagedChannelBuilder
-      .forAddress("localhost", port).usePlaintext(true).build();
+  private static final ManagedChannel clientChannel = NettyChannelBuilder.forAddress("localhost", port)
+      .negotiationType(NegotiationType.TLS)
+      .sslContext(getSslContext())
+      .build();
 
   private final TxEventServiceStub asyncStub = TxEventServiceGrpc.newStub(clientChannel);
   private final TxEventServiceBlockingStub blockingStub = TxEventServiceGrpc.newBlockingStub(clientChannel);
@@ -134,6 +150,23 @@ public class AlphaIntegrationTest {
   private final CompensationStreamObserver compensateResponseObserver = new CompensationStreamObserver(
       this::onCompensation);
 
+  private static SslContext getSslContext(){
+    ClassLoader classLoader = AlphaIntegrationTest.class.getClassLoader();
+    SslContext sslContext = null;
+    try {
+      sslContext = GrpcSslContexts.forClient().sslProvider(SslProvider.OPENSSL)
+          .protocols("TLSv1.2","TLSv1.1")
+          .ciphers(Arrays.asList("ECDHE-RSA-AES128-GCM-SHA256",
+              "ECDHE-RSA-AES256-GCM-SHA384",
+              "ECDHE-ECDSA-AES128-SHA256"))
+          .trustManager(new File(classLoader.getResource("ca.crt").getFile()))
+          .keyManager(new File(classLoader.getResource("client.crt").getFile()),
+              new File(classLoader.getResource("client.pem").getFile())).build();
+    } catch (SSLException e) {
+      e.printStackTrace();
+    }
+    return sslContext;
+  }
   @AfterClass
   public static void tearDown() throws Exception {
     clientChannel.shutdown();

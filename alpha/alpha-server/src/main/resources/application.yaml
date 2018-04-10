@@ -17,6 +17,16 @@
 server:
   port: 8090
 
+alpha:
+  server:
+    host: 0.0.0.0
+    port: 8080
+    ssl:
+      enable: false
+      cert: server.crt
+      key: server.pem
+      enableMutualAuth: false
+      clientCert: client.crt
 ---
 spring:
   profiles: prd

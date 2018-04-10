@@ -339,6 +339,13 @@ Eclipse Public License v1.0.
 For details, see https://github.com/javaee/jpa-spec
 You can find a copy of the License at licenses/LICENSE-epl-v10
 
+===========================================================================
+For Boringssl(static library bundled in netty-tcnative-boringssl-static:2.0.7.Final)
+===========================================================================
+This product bundles Boringssl which is licensed under BSD style licenses.
+For details, see https://github.com/google/boringssl
+You can find a copy of the License at licenses/LICENSE-boringssl
+
 ================================================================
 This product bundles the following libraries which are licensed
 under the Apache License v2.
@@ -354,12 +361,12 @@ Gson (https://github.com/google/gson/gson) com.google.code.gson:gson:jar:2.7
 Guava: Google Core Libraries for Java (https://github.com/google/guava/guava) com.google.guava:guava:bundle:19.0
 Hibernate Validator Engine (http://hibernate.org/validator/hibernate-validator) org.hibernate:hibernate-validator:jar:5.2.4.Final
 Instrumentation (https://github.com/google/instrumentation-java) com.google.instrumentation:instrumentation-api:jar:0.4.3
-io.grpc:grpc-context (https://github.com/grpc/grpc-java) io.grpc:grpc-context:jar:1.8.0
-io.grpc:grpc-core (https://github.com/grpc/grpc-java) io.grpc:grpc-core:jar:1.8.0
-io.grpc:grpc-netty (https://github.com/grpc/grpc-java) io.grpc:grpc-netty:jar:1.8.0
-io.grpc:grpc-protobuf (https://github.com/grpc/grpc-java) io.grpc:grpc-protobuf:jar:1.8.0
-io.grpc:grpc-protobuf-lite (https://github.com/grpc/grpc-java) io.grpc:grpc-protobuf-lite:jar:1.8.0
-io.grpc:grpc-stub (https://github.com/grpc/grpc-java) io.grpc:grpc-stub:jar:1.8.0
+io.grpc:grpc-context (https://github.com/grpc/grpc-java) io.grpc:grpc-context:jar:1.11.0
+io.grpc:grpc-core (https://github.com/grpc/grpc-java) io.grpc:grpc-core:jar:1.11.0
+io.grpc:grpc-netty (https://github.com/grpc/grpc-java) io.grpc:grpc-netty:jar:1.11.0
+io.grpc:grpc-protobuf (https://github.com/grpc/grpc-java) io.grpc:grpc-protobuf:jar:1.11.0
+io.grpc:grpc-protobuf-lite (https://github.com/grpc/grpc-java) io.grpc:grpc-protobuf-lite:jar:1.11.0
+io.grpc:grpc-stub (https://github.com/grpc/grpc-java) io.grpc:grpc-stub:jar:1.11.0
 Jackson-annotations (http://github.com/FasterXML/jackson) com.fasterxml.jackson.core:jackson-annotations:bundle:2.8.7
 Jackson-core (https://github.com/FasterXML/jackson-core) com.fasterxml.jackson.core:jackson-core:bundle:2.8.7
 jackson-databind (http://github.com/FasterXML/jackson) com.fasterxml.jackson.core:jackson-databind:bundle:2.8.7
@@ -374,6 +381,7 @@ Netty/Common (http://netty.io/netty-common/) io.netty:netty-common:jar:4.1.16.Fi
 Netty/Handler (http://netty.io/netty-handler/) io.netty:netty-handler:jar:4.1.16.Final
 Netty/Handler/Proxy (http://netty.io/netty-handler-proxy/) io.netty:netty-handler-proxy:jar:4.1.16.Final
 Netty/Resolver (http://netty.io/netty-resolver/) io.netty:netty-resolver:jar:4.1.16.Final
+Netty/TomcatNative (https://github.com/netty/netty-tcnative) netty-tcnative-boringssl-static:2.0.7.Final
 Netty/Transport (http://netty.io/netty-transport/) io.netty:netty-transport:jar:4.1.16.Final
 Objenesis (http://objenesis.org) org.objenesis:objenesis:jar:2.5.1
 OpenCensus (https://github.com/census-instrumentation/opencensus-java) io.opencensus:opencensus-api:jar:0.8.0
