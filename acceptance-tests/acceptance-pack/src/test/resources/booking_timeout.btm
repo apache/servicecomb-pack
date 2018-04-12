@@ -1,0 +1,13 @@
+##############################################################
+# rules to timeout the booking after invoking the services
+#
+###############################################################
+
+RULE sleep when postBooking until timeout happens
+CLASS org.apache.servicecomb.saga.demo.pack.booking.BookingController
+METHOD postBooking
+AT ENTRY
+IF TRUE
+DO debug("delay 10s until the booking timeout"),
+   Thread.sleep(10000)
+ENDRULE

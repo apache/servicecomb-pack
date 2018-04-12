@@ -37,7 +37,7 @@ public class BookingController {
   @Autowired
   private RestTemplate template;
 
-  @SagaStart
+  @SagaStart(timeout = 5)
   @PostMapping("/booking/{name}/{rooms}/{cars}")
   public String order(@PathVariable String name,  @PathVariable Integer rooms, @PathVariable Integer cars) {
     template.postForEntity(
@@ -48,6 +48,13 @@ public class BookingController {
         hotelServiceUrl + "/order/{name}/{rooms}",
         null, String.class, name, rooms);
 
+    postBooking();
+
     return name + " booking " + rooms + " rooms and " + cars + " cars OK";
+  }
+
+  // This method is used by the byteman to inject the faults such as the timeout or the crash
+  private void postBooking() {
+
   }
 }

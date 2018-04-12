@@ -26,6 +26,7 @@ import static org.hamcrest.core.Is.is;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -51,6 +52,8 @@ public class PackStepdefs implements En {
   private static final Consumer<Map<String, String>[]> NO_OP_CONSUMER = (dataMap) -> {
   };
 
+  private static final Map<String, Submit> submits = new HashMap<>();
+
   public PackStepdefs() {
     Given("^Car Service is up and running$", () -> {
       probe(System.getProperty(CAR_SERVICE_ADDRESS));
@@ -69,12 +72,10 @@ public class PackStepdefs implements En {
     });
 
     Given("^Install the byteman script ([A-Za-z0-9_\\.]+) to ([A-Za-z]+) Service$", (String script, String service) -> {
-      String address = System.getProperty("byteman.address");
-      String port = System.getProperty(service.toLowerCase() + ".byteman.port");
-      log.info("Install the byteman script {} to {} service with {}:{}", script, service, address, port);
-      Submit bm = new Submit(address, Integer.parseInt(port));
+      log.info("Install the byteman script {} to {} service", script, service);
       List<String> rules = new ArrayList<>();
       rules.add("target/test-classes/" + script);
+      Submit bm = getBytemanSubmit(service);
       bm.addRulesFromFiles(rules);
     });
 
@@ -123,6 +124,14 @@ public class PackStepdefs implements En {
         .delete(System.getProperty(ALPHA_REST_ADDRESS) + "/events")
         .then()
         .statusCode(is(200));
+
+    for (Submit bm : submits.values()) {
+      try {
+        bm.deleteAllRules();
+      } catch (Exception e) {
+        log.warn("Fail to delete the byteman rules " + e);
+      }
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -178,4 +187,15 @@ public class PackStepdefs implements En {
         .statusCode(is(200));
   }
 
+  private Submit getBytemanSubmit(String service) {
+    if (submits.containsKey(service)) {
+      return submits.get(service);
+    } else {
+      String address = System.getProperty("byteman.address");
+      String port = System.getProperty(service.toLowerCase() + ".byteman.port");
+      Submit bm = new Submit(address, Integer.parseInt(port));
+      submits.put(service, bm);
+      return bm;
+    }
+  }
 }
