@@ -18,6 +18,14 @@
 #
 ###############################################################
 
+RULE set the saga timeout to 5s
+INTERFACE org.apache.servicecomb.saga.omega.context.annotations.SagaStart
+METHOD timeout
+AT EXIT
+IF TRUE
+DO RETURN 5
+ENDRULE
+
 RULE sleep when postBooking until timeout happens
 CLASS org.apache.servicecomb.saga.demo.pack.booking.BookingController
 METHOD postBooking
