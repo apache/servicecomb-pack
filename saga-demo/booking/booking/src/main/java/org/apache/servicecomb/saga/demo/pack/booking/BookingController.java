@@ -37,7 +37,7 @@ public class BookingController {
   @Autowired
   private RestTemplate template;
 
-  @SagaStart(timeout = 5)
+  @SagaStart
   @PostMapping("/booking/{name}/{rooms}/{cars}")
   public String order(@PathVariable String name,  @PathVariable Integer rooms, @PathVariable Integer cars) {
     template.postForEntity(
