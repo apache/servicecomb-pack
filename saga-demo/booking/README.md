@@ -10,11 +10,13 @@ You will need:
 2. [Maven 3.x][maven]
 3. [Docker][docker]
 4. [Docker compose][docker_compose]
+5. [alpha server][alpha_server]
 
 [jdk]: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
 [maven]: https://maven.apache.org/install.html
 [docker]: https://www.docker.com/get-docker
 [docker_compose]: https://docs.docker.com/compose/install/
+[alpha_server]: https://github.com/apache/incubator-servicecomb-saga/tree/master/alpha
 
 ## Running Demo
 You can run the demo using either docker compose or executable files.
