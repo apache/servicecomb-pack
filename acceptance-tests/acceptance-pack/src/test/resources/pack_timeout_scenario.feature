@@ -23,7 +23,7 @@ Feature: Alpha records transaction events
 
     Given Install the byteman script booking_timeout.btm to Booking Service
 
-    When User Sean requests to book 1 cars and 1 rooms
+    When User Sean requests to book 1 cars and 1 rooms fail
 
     Then Alpha records the following events
       | serviceName  | type               |
@@ -35,7 +35,7 @@ Feature: Alpha records transaction events
       | pack-booking | TxAbortedEvent     |
       | pack-hotel   | TxCompensatedEvent |
       | pack-car     | TxCompensatedEvent |
-      | pack-booking | SagaEndedEvent     |
+      | pack-car     | SagaEndedEvent     |
 
     Then Car Service contains the following booking orders
       | name | amount | confirmed | cancelled |

@@ -42,7 +42,10 @@ class SagaStartAnnotationProcessor implements EventAwareInterceptor {
 
   @Override
   public void postIntercept(String parentTxId, String compensationMethod) {
-    sender.send(new SagaEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
+    AlphaResponse response = sender.send(new SagaEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
+    if (response.aborted()) {
+      throw new OmegaException("transaction " + parentTxId + " is aborted");
+    }
   }
 
   @Override
