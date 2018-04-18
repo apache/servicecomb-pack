@@ -21,7 +21,7 @@ Feature: Alpha records transaction events
     And Booking Service is up and running
     And Alpha is up and running
 
-    When User Sean requests to book 5 cars and 3 rooms
+    When User Sean requests to book 5 cars and 3 rooms fail
 
     Then Alpha records the following events
       | serviceName  | type               |

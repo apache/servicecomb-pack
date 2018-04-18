@@ -35,6 +35,7 @@ import org.jboss.byteman.agent.submit.Submit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.restassured.response.Response;
 import cucumber.api.DataTable;
 import cucumber.api.java.After;
 import cucumber.api.java8.En;
@@ -79,15 +80,20 @@ public class PackStepdefs implements En {
       bm.addRulesFromFiles(rules);
     });
 
-    When("^User ([A-Za-z]+) requests to book ([0-9]+) cars and ([0-9]+) rooms$", (username, cars, rooms) -> {
+    When("^User ([A-Za-z]+) requests to book ([0-9]+) cars and ([0-9]+) rooms (success|fail)$", (username, cars, rooms, result) -> {
       log.info("Received request from user {} to book {} cars and {} rooms", username, cars, rooms);
 
-      given()
+      Response resp = given()
           .pathParam("name", username)
           .pathParam("rooms", rooms)
           .pathParam("cars", cars)
           .when()
           .post(System.getProperty("booking.service.address") + "/booking/{name}/{rooms}/{cars}");
+      if (result.equals("success")) {
+        resp.then().statusCode(is(200));
+      } else if (result.equals("fail")) {
+        resp.then().statusCode(is(500));
+      }
     });
 
     Then("^Alpha records the following events$", (DataTable dataTable) -> {
