@@ -23,7 +23,6 @@ import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -41,20 +40,10 @@ public class TxConsistentService {
   }
 
   public boolean handle(TxEvent event) {
-    if (TxStartedEvent.name().equals(event.type()) && isGlobalTxAborted(event)) {
-      LOG.info("Sub-transaction rejected, because its parent with globalTxId {} was already aborted",
-          event.globalTxId());
+    if (types.contains(event.type()) && isGlobalTxAborted(event)) {
+      LOG.info("Transaction event {} rejected, because its parent with globalTxId {} was already aborted",
+          event.type(), event.globalTxId());
       return false;
-    }
-
-    if (SagaEndedEvent.name().equals(event.type()) && !event.expiryTime().equals(new Date(TxEvent.MAX_TIMESTAMP))) {
-      // if we get the SagaEndedEvent and the expiryTime is not MAX_TIME, we need to check if it is timeout
-      if (eventRepository.findTimeoutEvents().stream()
-          .filter(txEvent -> txEvent.globalTxId().equals(event.globalTxId()))
-          .count() == 1) {
-        LOG.warn("Transaction {} is timeout and will be handled by the event scanner", event.globalTxId());
-        return false;
-      }
     }
 
     eventRepository.save(event);
