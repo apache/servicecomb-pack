@@ -132,6 +132,19 @@ public class TxConsistentServiceTest {
     assertThat(events.size(), is(2));
   }
 
+  @Test
+  public void skipSagaEndedEvent_IfGlobalTxAlreadyFailed() {
+    String localTxId1 = UUID.randomUUID().toString();
+    events.add(eventOf(SagaStartedEvent, localTxId1));
+    events.add(eventOf(TxAbortedEvent, localTxId1));
+
+    TxEvent event = eventOf(SagaEndedEvent, localTxId1);
+
+    consistentService.handle(event);
+
+    assertThat(events.size(), is(2));
+  }
+
   private TxEvent newEvent(EventType eventType) {
     return new TxEvent(serviceName, instanceId, globalTxId, localTxId, parentTxId, eventType.name(), compensationMethod,
         payloads);

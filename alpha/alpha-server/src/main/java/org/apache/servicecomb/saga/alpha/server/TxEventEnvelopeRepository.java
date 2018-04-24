@@ -72,7 +72,7 @@ interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
       + "  AND ( SELECT MIN(t1.retries) FROM TxEvent t1 "
       + "  WHERE t1.globalTxId = t.globalTxId "
       + "    AND t1.localTxId = t.localTxId "
-      + "    AND t1.type = 'TxStartedEvent' ) = 0 ")
+      + "    AND t1.type IN ('TxStartedEvent', 'SagaStartedEvent') ) = 0 ")
   List<TxEvent> findByEventGlobalTxIdAndEventType(String globalTxId, String type);
 
   @Query("SELECT t FROM TxEvent t "
