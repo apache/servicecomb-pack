@@ -16,16 +16,22 @@
 ## ---------------------------------------------------------------------------
 server:
   port: 8090
+spring:
+  profiles:
+    active: prd
 
 ---
 spring:
   profiles: prd
   datasource:
-    username: saga
-    password: password
-    url: jdbc:postgresql://postgresql.servicecomb.io:5432/saga?useSSL=false
+    username: wenj91
+    password: 123456
+    url: jdbc:postgresql://127.0.0.1:5432/saga?useSSL=false
     platform: postgresql
 #    continue-on-error: true
+alpha:
+  server:
+    port: 8888
 
 ---
 spring:

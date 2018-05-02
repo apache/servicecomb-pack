@@ -1,0 +1,2 @@
+dubboProviderFilter=org.apache.servicecomb.saga.omega.transport.dubbo.DubboProviderFilter
+dubboConsumerFilter=org.apache.servicecomb.saga.omega.transport.dubbo.DubboConsumerFilter
