@@ -428,7 +428,7 @@
         <plugin>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
-          <version>${spring.boot.version}</version>
+          <version>${spring.boot2.version}</version>
         </plugin>
         <plugin>
           <groupId>org.commonjava.maven.plugins</groupId>
@@ -466,7 +466,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.1</version>
+          <version>3.7.0</version>
           <configuration>
             <encoding>UTF-8</encoding>
             <source>1.8</source>
