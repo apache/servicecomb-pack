@@ -319,7 +319,7 @@
                   ${info.service.uri}
                 </info.service.uri>
               </systemPropertyVariables>
-              <argLine>@jacoco.failsafe.argLine</argLine>
+              <argLine>${jacoco.failsafe.argLine}</argLine>
             </configuration>
             <executions>
               <execution>
