@@ -34,6 +34,7 @@
   <modules>
     <module>omega-transport-resttemplate</module>
     <module>omega-transport-servicecomb</module>
+    <module>omega-transport-dubbo</module>
   </modules>
 
   <dependencies>
