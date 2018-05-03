@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.apache.servicecomb.saga.omega.transport.dubbo;
 
 import com.alibaba.dubbo.common.Constants;
@@ -15,8 +31,6 @@ import static org.apache.servicecomb.saga.omega.context.OmegaContext.LOCAL_TX_ID
 
 /**
  * get saga transaction id from dubbo invocation and set into omega context
-* @author wuzq
-* @email wuzunqian@msn.com
 * @date 03/05/2018 10:44 AM
 */
 @Activate(group = Constants.PROVIDER)
@@ -29,11 +43,15 @@ public class SagaDubboProviderFilter implements Filter {
         OmegaContext omegaContext = new SpringExtensionFactory().getExtension(OmegaContext.class, "omegaContext");
         String globalTxId = invocation.getAttachment(GLOBAL_TX_ID_KEY);
         if (globalTxId == null) {
-            LOG.debug("no such omega context global id: {}", GLOBAL_TX_ID_KEY);
+            LOG.info("no such omega context global id: {}", GLOBAL_TX_ID_KEY);
         }else{
             omegaContext.setGlobalTxId(globalTxId);
             omegaContext.setLocalTxId(invocation.getAttachment(LOCAL_TX_ID_KEY));
+            LOG.info("Added {} {} and {} {} to omegaContext", new Object[]{GLOBAL_TX_ID_KEY, omegaContext.globalTxId(),
+                    LOCAL_TX_ID_KEY, omegaContext.localTxId()});
         }
+        invocation.getAttachments().put(GLOBAL_TX_ID_KEY,null);
+        invocation.getAttachments().put(LOCAL_TX_ID_KEY,null);
 
         if(invoker != null){
             return invoker.invoke(invocation);
