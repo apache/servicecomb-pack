@@ -17,7 +17,7 @@
 
 CREATE TABLE IF NOT EXISTS TxEvent (
   surrogateId BIGSERIAL PRIMARY KEY,
-  serviceName varchar(16) NOT NULL,
+  serviceName varchar(36) NOT NULL,
   instanceId varchar(36) NOT NULL,
   creationTime timestamp(6) NOT NULL DEFAULT CURRENT_DATE,
   globalTxId varchar(36) NOT NULL,
@@ -37,7 +37,7 @@ CREATE INDEX IF NOT EXISTS saga_events_index ON TxEvent (surrogateId, globalTxId
 CREATE TABLE IF NOT EXISTS Command (
   surrogateId BIGSERIAL PRIMARY KEY,
   eventId bigint NOT NULL UNIQUE,
-  serviceName varchar(16) NOT NULL,
+  serviceName varchar(36) NOT NULL,
   instanceId varchar(36) NOT NULL,
   globalTxId varchar(36) NOT NULL,
   localTxId varchar(36) NOT NULL,
@@ -55,7 +55,7 @@ CREATE INDEX IF NOT EXISTS saga_commands_index ON Command (surrogateId, eventId,
 CREATE TABLE IF NOT EXISTS TxTimeout (
   surrogateId BIGSERIAL PRIMARY KEY,
   eventId bigint NOT NULL UNIQUE,
-  serviceName varchar(16) NOT NULL,
+  serviceName varchar(36) NOT NULL,
   instanceId varchar(36) NOT NULL,
   globalTxId varchar(36) NOT NULL,
   localTxId varchar(36) NOT NULL,

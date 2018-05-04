@@ -17,7 +17,7 @@
 
 CREATE TABLE IF NOT EXISTS TxEvent (
   surrogateId bigint NOT NULL AUTO_INCREMENT,
-  serviceName varchar(16) NOT NULL,
+  serviceName varchar(36) NOT NULL,
   instanceId varchar(36) NOT NULL,
   creationTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   globalTxId varchar(36) NOT NULL,
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS TxEvent (
 CREATE TABLE IF NOT EXISTS Command (
   surrogateId bigint NOT NULL AUTO_INCREMENT,
   eventId bigint NOT NULL UNIQUE,
-  serviceName varchar(16) NOT NULL,
+  serviceName varchar(36) NOT NULL,
   instanceId varchar(36) NOT NULL,
   globalTxId varchar(36) NOT NULL,
   localTxId varchar(36) NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS Command (
 CREATE TABLE IF NOT EXISTS TxTimeout (
   surrogateId bigint NOT NULL AUTO_INCREMENT,
   eventId bigint NOT NULL UNIQUE,
-  serviceName varchar(16) NOT NULL,
+  serviceName varchar(36) NOT NULL,
   instanceId varchar(36) NOT NULL,
   globalTxId varchar(36) NOT NULL,
   localTxId varchar(36) NOT NULL,
