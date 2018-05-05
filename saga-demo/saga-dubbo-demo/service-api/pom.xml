@@ -14,37 +14,31 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  ~
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>omega-transport</artifactId>
-        <groupId>org.apache.servicecomb.saga</groupId>
-        <version>0.2.0-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
-
-    <properties>
-        <dubbo.version>2.6.1</dubbo.version>
-    </properties>
-
-    <artifactId>omega-transport-dubbo</artifactId>
     <dependencies>
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>dubbo</artifactId>
-            <version>${dubbo.version}</version>
+            <groupId>org.apache.servicecomb.saga.demo</groupId>
+            <artifactId>service-pub</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
+            <groupId>org.apache.servicecomb.saga.demo</groupId>
+            <artifactId>service-pub</artifactId>
+            <version>0.2.0-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
+    <parent>
+        <artifactId>saga-dubbo-demo</artifactId>
+        <groupId>org.apache.servicecomb.saga.demo</groupId>
+        <version>0.2.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>service-api</artifactId>
 
 </project>
