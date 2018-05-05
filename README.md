@@ -22,6 +22,17 @@ See [Saga Pack Design](docs/design.md) for details.
 ## Get Started
 See [Booking Demo](saga-demo/booking/README.md) for details.
 
+## Build and Run the tests from source
+* Build the source demo docker image and run all tests
+   ```bash
+      $ mvn clean install -Pdemo,docker
+   ```   
+* Current Saga code supports Spring Boot 1.x and Spring Boot 2.x at the same time, saga uses Spring Boot 1.x by default, you can use *-Pspring-boot-2* to switch Spring Boot version to 2.x.
+Since Spring Boot supports JDK9 since 2.x, if you want to build and run test the Saga with JDK9 or JDK10, you need to use the spring-boot-2 profile. 
+   ```bash
+      $ mvn clean install -Pdemo,docker,spring-boot-2
+   ```   
+
 ## User Guide
 How to build and use can refer to [User Guide](docs/user_guide.md).
 
