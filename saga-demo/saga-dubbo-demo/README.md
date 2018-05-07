@@ -16,7 +16,7 @@ You will need:
 
 ## Running Demo
 you can run saga-dubbo-demo as normal spring application
-1. init database: sql/schema-mysql.sql, and config database info by enviroment params   
+1. init database: sql/schema-mysql.sql, and config database info and zookeeper url by enviroment params   
    enviroment params example:  
  -Ddatabase.url=jdbc:mysql://127.0.0.1:3306/saga_dubbo  
  -Ddatabase.username=root  
@@ -24,5 +24,4 @@ you can run saga-dubbo-demo as normal spring application
  -Dzookeeper.url=localhost:2181  
  -Dserver.port=8071  
 
-2. config zookeeper url by enviroment param
-3. run servicea, serviceb, servicec,visit http://${servicea_host}:${servicea_port}
+2. run servicea, serviceb, servicec,visit http://${servicea_host}:${servicea_port}

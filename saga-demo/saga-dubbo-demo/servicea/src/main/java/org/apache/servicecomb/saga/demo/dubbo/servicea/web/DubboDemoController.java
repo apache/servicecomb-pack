@@ -20,10 +20,16 @@ package org.apache.servicecomb.saga.demo.dubbo.servicea.web;
 import org.apache.servicecomb.saga.demo.dubbo.api.IServiceA;
 import org.apache.servicecomb.saga.demo.dubbo.pub.IInvokeCode;
 import org.apache.servicecomb.saga.demo.dubbo.pub.InvokeContext;
+import org.apache.servicecomb.saga.demo.dubbo.pub.ServiceVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 public class DubboDemoController {
@@ -99,10 +105,10 @@ public class DubboDemoController {
         String status_a = getServiceStatus("testa");
         String status_b = getServiceStatus("testb");
         String status_c = getServiceStatus("testc");
-        boolean checkResult = checkResult("init", status_a, "init", status_b, "init", status_c);
+        boolean checkResult = checkResult("init", status_a, "cancel", status_b, "init", status_c);
         return String.format(IInvokeCode.CExceptionWhenAbAc_description +
                 "</br>check result: %s" +
-                "</br>expected status: A:init, B:init, C:init" +
+                "</br>expected status: A:init, B:cancel, C:init" +
                 "</br> actual status: A:%s, B:%s, C: %s", checkResult, status_a, status_b, status_c);
     }
 
@@ -130,6 +136,12 @@ public class DubboDemoController {
                 "</br>check result: %s" +
                 "</br>expected status: A:init, B:init, C:init" +
                 "</br> actual status: A:%s, B:%s, C: %s", checkResult, status_a, status_b, status_c);
+    }
+
+    @GetMapping("/serviceInfo/{serviceName}")
+    public List<ServiceVO> serviceInfo(@PathVariable String serviceName){
+      String tableName = "test"+serviceName.replace("service", "");
+        return this.jdbcTemplate.query("select * from " + tableName, new BeanPropertyRowMapper<>(ServiceVO.class));
     }
 
     public void serviceInvoke(String invokeCode) throws InterruptedException {
