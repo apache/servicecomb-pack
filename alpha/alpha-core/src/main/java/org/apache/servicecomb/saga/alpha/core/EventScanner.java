@@ -25,6 +25,7 @@ import static org.apache.servicecomb.saga.common.EventType.TxEndedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.slf4j.Logger;
@@ -141,18 +142,24 @@ public class EventScanner implements Runnable {
   }
 
   private void updateTransactionStatus() {
-    eventRepository.findFirstAbortedGlobalTransaction().ifPresent(this::markGlobalTxEnd);
+    eventRepository.findFirstAbortedGlobalTransaction().ifPresent(this::markGlobalTxEndWithEvents);
   }
 
   private void markSagaEnded(TxEvent event) {
     if (commandRepository.findUncompletedCommands(event.globalTxId()).isEmpty()) {
-      markGlobalTxEnd(event);
+      markGlobalTxEntWithEvent(event);
     }
   }
 
-  private void markGlobalTxEnd(TxEvent event) {
+  private void markGlobalTxEntWithEvent(TxEvent event) {
     eventRepository.save(toSagaEndedEvent(event));
     LOG.info("Marked end of transaction with globalTxId {}", event.globalTxId());
+  }
+
+  private void markGlobalTxEndWithEvents(List<TxEvent> events) {
+    events.forEach(event -> {
+      markGlobalTxEntWithEvent(event);
+    });
   }
 
   private TxEvent toTxAbortedEvent(TxTimeout timeout) {

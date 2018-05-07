@@ -46,7 +46,7 @@ interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
       + "  AND t2.localTxId = t.localTxId "
       + "  AND t2.type = 'TxStartedEvent') = 0 "
       + "OR t.globalTxId = t.localTxId)")
-  Optional<TxEvent> findFirstAbortedGlobalTxByType();
+  Optional<List<TxEvent>> findFirstAbortedGlobalTxByType();
 
   @Query("SELECT t FROM TxEvent t "
       + "WHERE t.type IN ('TxStartedEvent', 'SagaStartedEvent') "
