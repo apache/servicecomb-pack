@@ -81,8 +81,12 @@ class AlphaConfig {
   }
 
   @Bean
-  TxConsistentService txConsistentService(@Value("${alpha.server.port:8080}") int port,
+  GrpcServerConfig grpcServerConfig() { return new GrpcServerConfig(); }
+
+  @Bean
+  TxConsistentService txConsistentService(
       @Value("${alpha.event.pollingInterval:500}") int eventPollingInterval,
+      GrpcServerConfig serverConfig,
       ScheduledExecutorService scheduler,
       TxEventRepository eventRepository,
       CommandRepository commandRepository,
@@ -96,15 +100,15 @@ class AlphaConfig {
 
     TxConsistentService consistentService = new TxConsistentService(eventRepository);
 
-    ServerStartable startable = buildGrpc(port, consistentService, omegaCallbacks);
+    ServerStartable startable = buildGrpc(serverConfig, consistentService, omegaCallbacks);
     new Thread(startable::start).start();
 
     return consistentService;
   }
 
-  private ServerStartable buildGrpc(int port, TxConsistentService txConsistentService,
+  private ServerStartable buildGrpc(GrpcServerConfig serverConfig, TxConsistentService txConsistentService,
       Map<String, Map<String, OmegaCallback>> omegaCallbacks) {
-    return new GrpcStartable(port,
+    return new GrpcStartable(serverConfig,
         new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks));
   }
 

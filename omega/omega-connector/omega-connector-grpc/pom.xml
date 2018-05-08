@@ -42,6 +42,10 @@
       <artifactId>grpc-netty</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-tcnative-boringssl-static</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>omega-transaction</artifactId>
     </dependency>
