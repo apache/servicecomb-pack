@@ -42,7 +42,7 @@ public interface TxEventRepository {
    * </ol>
    * @return
    */
-  Optional<TxEvent> findFirstAbortedGlobalTransaction();
+  Optional<List<TxEvent>> findFirstAbortedGlobalTransaction();
 
   /**
    * Find timeout {@link TxEvent}s. A timeout TxEvent satisfies below requirements:

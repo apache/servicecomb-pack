@@ -49,7 +49,7 @@ public class TxConsistentServiceTest {
     }
 
     @Override
-    public Optional<TxEvent> findFirstAbortedGlobalTransaction() {
+    public Optional<List<TxEvent>> findFirstAbortedGlobalTransaction() {
       return Optional.empty();
     }
 

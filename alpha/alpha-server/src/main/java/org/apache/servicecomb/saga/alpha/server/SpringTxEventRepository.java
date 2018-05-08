@@ -40,7 +40,7 @@ class SpringTxEventRepository implements TxEventRepository {
   }
 
   @Override
-  public Optional<TxEvent> findFirstAbortedGlobalTransaction() {
+  public Optional<List<TxEvent>> findFirstAbortedGlobalTransaction() {
     return eventRepo.findFirstAbortedGlobalTxByType();
   }
 
