@@ -86,7 +86,6 @@ import io.grpc.stub.StreamObserver;
         "alpha.server.port=8090",
         "alpha.event.pollingInterval=1"
        })
-@ActiveProfiles("ssl")
 public class AlphaIntegrationTest {
   private static final int port = 8090;
 

@@ -65,17 +65,17 @@ class OmegaSpringConfig {
   MessageSender grpcMessageSender(
       @Value("${alpha.cluster.address:localhost:8080}") String[] addresses,
       @Value("${alpha.cluster.ssl.enable:false}") boolean enableSSL,
-      @Value("${alpha.cluster.ssl.enableMutualAuth:false}") boolean enableMutualAuth,
+      @Value("${alpha.cluster.ssl.mutualAuth:false}") boolean mutualAuth,
       @Value("${alpha.cluster.ssl.cert:client.crt}") String cert,
       @Value("${alpha.cluster.ssl.key:client.pem}") String key,
-      @Value("${alpha.cluster.ssl.certChain:ca.cert}") String certChain,
+      @Value("${alpha.cluster.ssl.certChain:ca.crt}") String certChain,
       @Value("${omega.connection.reconnectDelay:3000}") int reconnectDelay,
       ServiceConfig serviceConfig,
       @Lazy MessageHandler handler) {
 
     MessageFormat messageFormat = new KryoMessageFormat();
     AlphaClusterConfig clusterConfig = new AlphaClusterConfig(Arrays.asList(addresses),
-        enableSSL, enableMutualAuth, cert, key, certChain);
+        enableSSL, mutualAuth, cert, key, certChain);
     MessageSender sender = new LoadBalancedClusterMessageSender(
         clusterConfig,
         messageFormat,

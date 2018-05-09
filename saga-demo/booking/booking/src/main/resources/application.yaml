@@ -20,9 +20,3 @@ spring:
 alpha:
   cluster:
     address: alpha-server.servicecomb.io:8080
-    ssl:
-      enable: false
-      certChain: ca.crt
-      enableMutualAuth: false
-      cert: client.crt
-      key: client.pem

@@ -34,15 +34,13 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslProvider;
 
 @RunWith(SpringRunner.class)
+@ActiveProfiles("ssl")
 @SpringBootTest(classes = {AlphaApplication.class, AlphaConfig.class},
     properties = {
         "alpha.server.host=0.0.0.0",
         "alpha.server.port=8090",
-        "alpha.event.pollingInterval=1",
-        "alpha.server.ssl.enable=true"
+        "alpha.event.pollingInterval=1"
     })
-@ActiveProfiles("ssl")
-
 public class AlphaIntegrationWithSSLTest extends AlphaIntegrationTest {
   private static final int port = 8090;
 

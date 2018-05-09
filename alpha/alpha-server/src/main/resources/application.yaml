@@ -25,14 +25,15 @@ alpha:
 ---
 spring:
   profiles: ssl
-  alpha:
-    server:
-      ssl:
-        enable: true
-        cert: server.crt
-        key: server.pem
-        mutualAuth: true
-        clientCert: client.crt
+alpha:
+  server:
+    ssl:
+      enable: true
+      cert: server.crt
+      key: server.pem
+      mutualAuth: true
+      clientCert: client.crt
+        
 ---
 spring:
   profiles: prd
