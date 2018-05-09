@@ -29,7 +29,7 @@ public class GrpcServerConfig {
   private int port;
 
   @Value("${alpha.server.ssl.enable:false}")
-  private boolean enable;
+  private boolean sslEnable;
 
   @Value("${alpha.server.ssl.cert:server.cert}")
   private String cert;
@@ -37,7 +37,7 @@ public class GrpcServerConfig {
   @Value("${alpha.server.ssl.key:server.key}")
   private String key;
 
-  @Value("${alpha.server.ssl.enable:false}")
+  @Value("${alpha.server.ssl.sslEnable:false}")
   private boolean mutalAuth;
 
   @Value("${alpha.server.ssl.clientCert:client.cert}")
@@ -51,8 +51,8 @@ public class GrpcServerConfig {
     return port;
   }
 
-  public boolean isEnable() {
-    return enable;
+  public boolean isSslEnable() {
+    return sslEnable;
   }
 
   public String getCert() {

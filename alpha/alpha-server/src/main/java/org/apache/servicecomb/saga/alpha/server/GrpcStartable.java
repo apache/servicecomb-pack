@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
 import javax.net.ssl.SSLException;
@@ -49,7 +48,7 @@ class GrpcStartable implements ServerStartable {
 
   GrpcStartable(GrpcServerConfig serverConfig, BindableService... services) {
     ServerBuilder<?> serverBuilder;
-    if (serverConfig.isEnable()){
+    if (serverConfig.isSslEnable()){
       serverBuilder = NettyServerBuilder.forAddress(
           new InetSocketAddress(serverConfig.getHost(), serverConfig.getPort()));
 
