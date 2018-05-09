@@ -143,17 +143,19 @@ public class AlphaIntegrationTest {
       this::onCompensation);
 
   @BeforeClass
-  public static void setupClientChannel() throws Exception {
+  public static void setupClientChannel() {
     clientChannel = NettyChannelBuilder.forAddress("localhost", port).usePlaintext().build();
   }
 
   @AfterClass
   public static void tearDown() throws Exception {
     clientChannel.shutdown();
+    clientChannel = null;
   }
 
   @Before
   public void before() {
+    System.out.println(" globalTxId " + globalTxId);
     eventRepo.deleteAll();
     receivedCommands.clear();
   }

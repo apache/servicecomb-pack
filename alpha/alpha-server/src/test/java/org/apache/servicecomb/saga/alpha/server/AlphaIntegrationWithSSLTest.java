@@ -38,11 +38,11 @@ import io.netty.handler.ssl.SslProvider;
 @SpringBootTest(classes = {AlphaApplication.class, AlphaConfig.class},
     properties = {
         "alpha.server.host=0.0.0.0",
-        "alpha.server.port=8090",
+        "alpha.server.port=8092",
         "alpha.event.pollingInterval=1"
     })
 public class AlphaIntegrationWithSSLTest extends AlphaIntegrationTest {
-  private static final int port = 8090;
+  private static final int port = 8092;
 
   @BeforeClass
   public static void setupClientChannel() {
