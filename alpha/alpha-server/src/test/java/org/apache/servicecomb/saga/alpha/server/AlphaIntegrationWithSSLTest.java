@@ -24,6 +24,7 @@ import javax.net.ssl.SSLException;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import io.grpc.netty.GrpcSslContexts;
@@ -36,15 +37,17 @@ import io.netty.handler.ssl.SslProvider;
 @SpringBootTest(classes = {AlphaApplication.class, AlphaConfig.class},
     properties = {
         "alpha.server.host=0.0.0.0",
-        "alpha.server.port=8090", "alpha.event.pollingInterval=1",
-        "alpha.server.ssl.enable=true", "alpha.server.ssl.cert=src/test/resources/server.crt",
-        "alpha.server.ssl.key=src/test/resources/server.pem", "alpha.server.ssl.enableMutualAuth=true",
-        "alpha.server.ssl.clientCert=src/test/resources/client.crt"})
+        "alpha.server.port=8090",
+        "alpha.event.pollingInterval=1",
+        "alpha.server.ssl.enable=true"
+    })
+@ActiveProfiles("ssl")
+
 public class AlphaIntegrationWithSSLTest extends AlphaIntegrationTest {
   private static final int port = 8090;
 
   @BeforeClass
-  public static void setupClientChannel() throws Exception {
+  public static void setupClientChannel() {
     clientChannel = NettyChannelBuilder.forAddress("localhost", port)
         .negotiationType(NegotiationType.TLS)
         .sslContext(getSslContext())

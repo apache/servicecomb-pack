@@ -70,6 +70,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.google.protobuf.ByteString;
@@ -82,10 +83,10 @@ import io.grpc.stub.StreamObserver;
 @SpringBootTest(classes = {AlphaApplication.class, AlphaConfig.class},
     properties = {
         "alpha.server.host=0.0.0.0",
-        "alpha.server.ssl.enable=false",
         "alpha.server.port=8090",
         "alpha.event.pollingInterval=1"
        })
+@ActiveProfiles("ssl")
 public class AlphaIntegrationTest {
   private static final int port = 8090;
 

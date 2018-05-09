@@ -31,16 +31,16 @@ public class GrpcServerConfig {
   @Value("${alpha.server.ssl.enable:false}")
   private boolean sslEnable;
 
-  @Value("${alpha.server.ssl.cert:server.cert}")
+  @Value("${alpha.server.ssl.cert:server.crt}")
   private String cert;
 
-  @Value("${alpha.server.ssl.key:server.key}")
+  @Value("${alpha.server.ssl.key:server.pem}")
   private String key;
 
-  @Value("${alpha.server.ssl.sslEnable:false}")
-  private boolean mutalAuth;
+  @Value("${alpha.server.ssl.mutualAuth:false}")
+  private boolean mutualAuth;
 
-  @Value("${alpha.server.ssl.clientCert:client.cert}")
+  @Value("${alpha.server.ssl.clientCert:client.crt}")
   private String clientCert;
 
   public String getHost() {
@@ -63,8 +63,8 @@ public class GrpcServerConfig {
     return key;
   }
 
-  public boolean isMutalAuth() {
-    return mutalAuth;
+  public boolean isMutualAuth() {
+    return mutualAuth;
   }
 
   public String getClientCert() {

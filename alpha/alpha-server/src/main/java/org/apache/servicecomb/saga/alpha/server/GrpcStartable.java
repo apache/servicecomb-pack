@@ -20,8 +20,8 @@
 
 package org.apache.servicecomb.saga.alpha.server;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -82,21 +82,34 @@ class GrpcStartable implements ServerStartable {
   private SslContextBuilder getSslContextBuilder(GrpcServerConfig config) {
 
     Properties prop = new Properties();
+    ClassLoader classLoader = getClass().getClassLoader();
     try {
-      prop.load(getClass().getClassLoader().getResourceAsStream("ssl.properties"));
+      prop.load(classLoader.getResourceAsStream("ssl.properties"));
     } catch (IOException e) {
       throw new IllegalStateException("Unable to read ssl.properties.", e);
     }
 
-    SslContextBuilder sslClientContextBuilder = SslContextBuilder.forServer(new File(config.getCert()),
-        new File(config.getKey()))
+    InputStream cert = getInputStream(classLoader, config.getCert(), "Server Cert");
+    InputStream key = getInputStream(classLoader, config.getKey(), "Server Key");
+
+    SslContextBuilder sslClientContextBuilder = SslContextBuilder.forServer(cert, key)
         .protocols(prop.getProperty("protocols"))
         .ciphers(Arrays.asList(prop.getProperty("ciphers").split(",")));
-    if (config.isMutalAuth()) {
-      sslClientContextBuilder.trustManager(new File(config.getClientCert()));
+    if (config.isMutualAuth()) {
+      InputStream clientCert = getInputStream(classLoader, config.getClientCert(), "Client Cert");
+      sslClientContextBuilder.trustManager(clientCert);
       sslClientContextBuilder.clientAuth(ClientAuth.REQUIRE);
     }
     return GrpcSslContexts.configure(sslClientContextBuilder,
         SslProvider.OPENSSL);
+  }
+
+  private InputStream getInputStream(ClassLoader classLoader, String resource, String config) {
+    InputStream is = classLoader.getResourceAsStream(resource);
+    if (is == null) {
+      throw new IllegalStateException("Cannot load the " + config + " from " + resource);
+    }
+    return is;
+
   }
 }
