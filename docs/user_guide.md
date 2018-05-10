@@ -127,3 +127,7 @@ Take a transfer money application as an example:
    ```
 
 Then you can start your micro-services and access all saga events via http://${alpha-server:port}/events.
+
+## Enable SSL for Alpha and Omega
+
+See [Enabling SSL](enable_ssl.md) for details.
