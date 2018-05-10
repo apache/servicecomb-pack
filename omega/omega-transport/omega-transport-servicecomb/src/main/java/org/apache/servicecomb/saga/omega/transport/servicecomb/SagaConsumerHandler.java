@@ -36,14 +36,16 @@ public class SagaConsumerHandler implements Handler {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final OmegaContext omegaContext;
 
-  @Autowired
-  public SagaConsumerHandler(OmegaContext omegaContext) {
+  public SagaConsumerHandler(@Autowired(required=false) OmegaContext omegaContext) {
     this.omegaContext = omegaContext;
+    if (omegaContext == null) {
+      LOG.info("The OmegaContext is not injected, The SagaConsumerHandler is disabled.");
+    }
   }
 
   @Override
   public void handle(Invocation invocation, AsyncResponse asyncResponse) throws Exception {
-    if (omegaContext.globalTxId() != null) {
+    if (omegaContext!= null && omegaContext.globalTxId() != null) {
       invocation.getContext().put(GLOBAL_TX_ID_KEY, omegaContext.globalTxId());
       invocation.getContext().put(LOCAL_TX_ID_KEY, omegaContext.localTxId());
 
