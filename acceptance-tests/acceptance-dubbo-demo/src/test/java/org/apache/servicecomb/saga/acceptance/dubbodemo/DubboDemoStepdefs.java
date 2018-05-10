@@ -77,16 +77,21 @@ public class DubboDemoStepdefs implements En {
     });
 
     Then("^Alpha records the following events$", (DataTable dataTable) -> {
-      Consumer<Map<String, Object>[]> sortAndColumnStrippingConsumer = dataMap -> {
-        //sort first
-        Arrays.sort(dataMap, (o1, o2) -> {
-          Integer id1 = (Integer)o1.get("surrogateId");
-          Integer id2 = (Integer)o2.get("surrogateId");
-          if(id1 == null || id2 == null) return 0;
-          return id1.compareTo(id2);
-        });
+      Consumer<Map<String, Object>[]> sortAndColumnStrippingConsumer = dataMaps -> {
+        //blur match: service for sagaEndedEvent may be unable to que
+        for(Map<String, Object> dataMap : dataMaps){
+          LOG.info(dataMap.toString());
+          if(dataMap.values().contains("SagaEndedEvent")){
+            for(String key : dataMap.keySet()){
+              if("SagaEndedEvent".equals(dataMap.get(key))){
+                dataMap.put("serviceName", "*");
+                break;
+              }
+            }
+          }
+        }
         //strip columns
-        for (Map<String, Object> map : dataMap)
+        for (Map<String, Object> map : dataMaps)
           map.keySet().retainAll(dataTable.topCells());
       };
 
@@ -131,7 +136,7 @@ public class DubboDemoStepdefs implements En {
     }
 
     LOG.info("Retrieved data {} from service", actualMaps);
-    dataTable.diff(DataTable.create(actualMaps));
+    dataTable.unorderedDiff(DataTable.create(actualMaps));
   }
 
   @SuppressWarnings("unchecked")
