@@ -31,6 +31,7 @@
   <packaging>pom</packaging>
   <modules>
     <module>booking</module>
+    <module>saga-dubbo-demo</module>
   </modules>
 
   <dependencyManagement>
