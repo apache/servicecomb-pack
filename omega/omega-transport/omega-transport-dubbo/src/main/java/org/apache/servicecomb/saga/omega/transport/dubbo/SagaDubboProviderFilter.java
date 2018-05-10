@@ -20,6 +20,7 @@ import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.extension.Activate;
 import com.alibaba.dubbo.config.spring.extension.SpringExtensionFactory;
 import com.alibaba.dubbo.rpc.*;
+
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,33 +32,33 @@ import static org.apache.servicecomb.saga.omega.context.OmegaContext.LOCAL_TX_ID
 
 /**
  * get saga transaction id from dubbo invocation and set into omega context
-*/
+ */
 @Activate(group = Constants.PROVIDER)
 public class SagaDubboProviderFilter implements Filter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    @Override
-    public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
-        // TODO not sure if it's a good way to look up OmegaContext during every invoke
-        OmegaContext omegaContext = new SpringExtensionFactory().getExtension(OmegaContext.class, "omegaContext");
-        if (omegaContext != null) {
-          String globalTxId = invocation.getAttachment(GLOBAL_TX_ID_KEY);
-          if (globalTxId == null) {
-            LOG.info("no such omega context global id: {}", GLOBAL_TX_ID_KEY);
-          } else {
-            omegaContext.setGlobalTxId(globalTxId);
-            omegaContext.setLocalTxId(invocation.getAttachment(LOCAL_TX_ID_KEY));
-            LOG.info("Added {} {} and {} {} to omegaContext", new Object[] {GLOBAL_TX_ID_KEY, omegaContext.globalTxId(),
-                LOCAL_TX_ID_KEY, omegaContext.localTxId()});
-          }
-          invocation.getAttachments().put(GLOBAL_TX_ID_KEY, null);
-          invocation.getAttachments().put(LOCAL_TX_ID_KEY, null);
-        }
-
-        if(invoker != null){
-            return invoker.invoke(invocation);
-        }
-        return null;
+  @Override
+  public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
+    // TODO not sure if it's a good way to look up OmegaContext during every invoke
+    OmegaContext omegaContext = new SpringExtensionFactory().getExtension(OmegaContext.class, "omegaContext");
+    if (omegaContext != null) {
+      String globalTxId = invocation.getAttachment(GLOBAL_TX_ID_KEY);
+      if (globalTxId == null) {
+        LOG.info("no such omega context global id: {}", GLOBAL_TX_ID_KEY);
+      } else {
+        omegaContext.setGlobalTxId(globalTxId);
+        omegaContext.setLocalTxId(invocation.getAttachment(LOCAL_TX_ID_KEY));
+        LOG.info("Added {} {} and {} {} to omegaContext", new Object[] {GLOBAL_TX_ID_KEY, omegaContext.globalTxId(),
+            LOCAL_TX_ID_KEY, omegaContext.localTxId()});
+      }
+      invocation.getAttachments().put(GLOBAL_TX_ID_KEY, null);
+      invocation.getAttachments().put(LOCAL_TX_ID_KEY, null);
     }
+
+    if (invoker != null) {
+      return invoker.invoke(invocation);
+    }
+    return null;
+  }
 }
