@@ -37,26 +37,27 @@ import static org.apache.servicecomb.saga.omega.context.OmegaContext.LOCAL_TX_ID
 
 /**
  * add saga transaction id to dubbo invocation
-*/
+ */
 @Activate(group = {Constants.CONSUMER})
 public class SagaDubboConsumerFilter implements Filter {
-    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
-        // TODO not sure if it's a good way to look up OmegaContext during every invoke
-        OmegaContext omegaContext = (OmegaContext) (new SpringExtensionFactory()).getExtension(OmegaContext.class, "omegaContext");
-        if(omegaContext != null){
-            invocation.getAttachments().put(GLOBAL_TX_ID_KEY, omegaContext.globalTxId());
-            invocation.getAttachments().put(LOCAL_TX_ID_KEY, omegaContext.localTxId());
-        }
-        if (omegaContext != null && omegaContext.globalTxId() != null) {
-            LOG.info("Added {} {} and {} {} to dubbo invocation", new Object[]{GLOBAL_TX_ID_KEY, omegaContext.globalTxId(),
-                    LOCAL_TX_ID_KEY, omegaContext.localTxId()});
-        }
-
-        if (invoker != null) {
-            return invoker.invoke(invocation);
-        }
-        return null;
+  public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
+    // TODO not sure if it's a good way to look up OmegaContext during every invoke
+    OmegaContext omegaContext = (OmegaContext) (new SpringExtensionFactory())
+        .getExtension(OmegaContext.class, "omegaContext");
+    if (omegaContext != null) {
+      invocation.getAttachments().put(GLOBAL_TX_ID_KEY, omegaContext.globalTxId());
+      invocation.getAttachments().put(LOCAL_TX_ID_KEY, omegaContext.localTxId());
     }
+    if (omegaContext != null && omegaContext.globalTxId() != null) {
+      LOG.info("Added {} {} and {} {} to dubbo invocation", new Object[] {GLOBAL_TX_ID_KEY, omegaContext.globalTxId(),
+          LOCAL_TX_ID_KEY, omegaContext.localTxId()});
+    }
+
+    if (invoker != null) {
+      return invoker.invoke(invocation);
+    }
+    return null;
+  }
 }
