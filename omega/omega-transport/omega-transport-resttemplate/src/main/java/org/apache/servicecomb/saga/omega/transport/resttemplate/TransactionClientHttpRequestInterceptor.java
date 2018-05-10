@@ -27,6 +27,7 @@ import java.lang.invoke.MethodHandles;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -44,7 +45,7 @@ class TransactionClientHttpRequestInterceptor implements ClientHttpRequestInterc
   public ClientHttpResponse intercept(HttpRequest request, byte[] body,
       ClientHttpRequestExecution execution) throws IOException {
 
-    if (omegaContext.globalTxId() != null) {
+    if (omegaContext!= null && omegaContext.globalTxId() != null) {
       request.getHeaders().add(GLOBAL_TX_ID_KEY, omegaContext.globalTxId());
       request.getHeaders().add(LOCAL_TX_ID_KEY, omegaContext.localTxId());
 

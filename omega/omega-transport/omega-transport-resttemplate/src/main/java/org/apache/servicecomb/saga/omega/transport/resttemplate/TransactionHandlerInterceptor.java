@@ -46,12 +46,14 @@ class TransactionHandlerInterceptor implements HandlerInterceptor {
 
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-    String globalTxId = request.getHeader(GLOBAL_TX_ID_KEY);
-    if (globalTxId == null) {
-      LOG.debug("no such header: {}", GLOBAL_TX_ID_KEY);
-    } else {
-      omegaContext.setGlobalTxId(globalTxId);
-      omegaContext.setLocalTxId(request.getHeader(LOCAL_TX_ID_KEY));
+    if (omegaContext != null) {
+      String globalTxId = request.getHeader(GLOBAL_TX_ID_KEY);
+      if (globalTxId == null) {
+        LOG.debug("no such header: {}", GLOBAL_TX_ID_KEY);
+      } else {
+        omegaContext.setGlobalTxId(globalTxId);
+        omegaContext.setLocalTxId(request.getHeader(LOCAL_TX_ID_KEY));
+      }
     }
     return true;
   }
