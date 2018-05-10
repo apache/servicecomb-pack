@@ -37,13 +37,13 @@ import static org.apache.servicecomb.saga.omega.context.OmegaContext.LOCAL_TX_ID
 
 /**
  * add saga transaction id to dubbo invocation
-* @date 03/05/2018 10:44 AM
 */
 @Activate(group = {Constants.CONSUMER})
 public class SagaDubboConsumerFilter implements Filter {
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
+        // TODO not sure if it's a good way to look up OmegaContext during every invoke
         OmegaContext omegaContext = (OmegaContext) (new SpringExtensionFactory()).getExtension(OmegaContext.class, "omegaContext");
         if(omegaContext != null){
             invocation.getAttachments().put(GLOBAL_TX_ID_KEY, omegaContext.globalTxId());
