@@ -36,19 +36,24 @@ public class SagaProviderHandler implements Handler {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final OmegaContext omegaContext;
 
-  @Autowired
-  public SagaProviderHandler(OmegaContext omegaContext) {
+  public SagaProviderHandler(@Autowired(required=false) OmegaContext omegaContext) {
     this.omegaContext = omegaContext;
+    if (omegaContext == null) {
+      LOG.info("The OmegaContext is not injected, The SagaProviderHander is disabled.");
+    }
   }
 
   @Override
   public void handle(Invocation invocation, AsyncResponse asyncResponse) throws Exception {
-    String globalTxId = invocation.getContext().get(GLOBAL_TX_ID_KEY);
-    if (globalTxId == null) {
-      LOG.debug("no such header: {}", GLOBAL_TX_ID_KEY);
-    } else {
-      omegaContext.setGlobalTxId(globalTxId);
-      omegaContext.setLocalTxId(invocation.getContext().get(LOCAL_TX_ID_KEY));
+    if (omegaContext != null) {
+      String globalTxId = invocation.getContext().get(GLOBAL_TX_ID_KEY);
+      if (globalTxId == null) {
+        LOG.debug("no such header: {}", GLOBAL_TX_ID_KEY);
+      } else {
+
+        omegaContext.setGlobalTxId(globalTxId);
+        omegaContext.setLocalTxId(invocation.getContext().get(LOCAL_TX_ID_KEY));
+      }
     }
 
     invocation.next(asyncResponse);
