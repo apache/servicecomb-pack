@@ -30,6 +30,7 @@ class HotelBookingService {
 
   @Compensable(compensationMethod = "cancel")
   void order(HotelBooking booking) {
+    postHotelBooking();
     if (booking.getAmount() > 2) {
       throw new IllegalArgumentException("can not order the rooms large than two");
     }
@@ -51,4 +52,7 @@ class HotelBookingService {
   void clearAllBookings() {
     bookings.clear();
   }
+
+  //used by byteman to inject fault
+  private void postHotelBooking(){}
 }

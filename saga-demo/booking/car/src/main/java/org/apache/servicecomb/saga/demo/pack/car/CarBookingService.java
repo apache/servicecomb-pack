@@ -30,6 +30,7 @@ class CarBookingService {
 
   @Compensable(compensationMethod = "cancel")
   void order(CarBooking booking) {
+    postCarBooking();
     booking.confirm();
     bookings.put(booking.getId(), booking);
   }
@@ -48,4 +49,7 @@ class CarBookingService {
   void clearAllBookings() {
     bookings.clear();
   }
+
+  //used by byteman to inject fault
+  private void postCarBooking(){}
 }
