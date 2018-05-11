@@ -26,7 +26,7 @@ You can run the demo using either docker compose or executable files.
    mvn clean package -DskipTests -Pdocker -Pdemo
    ```
 
-2. start application up
+2. start the whole application up(including alpha server and three demo services)
    ```
    ./saga-demo.sh up
    ```
@@ -50,6 +50,16 @@ You can run the demo using either docker compose or executable files.
    4. start application up in `saga-demo/booking` with the following command
       ```
       ./saga-demo.sh up-mysql
+      ```
+
+   **Note:** If you want start alpha server and demon services separatelly, you can try the following steps:
+   1. start alpha server
+      ```bash
+          ./saga-demo.sh up-alpha
+      ```
+   2. when alpha server started complatelly, then start the demo services
+      ```bash
+          ./saga-demo.sh up-demo
       ```
 
 3. stop application
