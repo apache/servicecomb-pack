@@ -18,6 +18,11 @@
 version: '2.1'
 
 services:
+
+  zookeeper:
+    image: "docker.io/zookeeper"
+    hostname: zookeeper
+
   database:
     image: "postgres"
     hostname: postgres
@@ -25,6 +30,8 @@ services:
       - POSTGRES_DB=saga
       - POSTGRES_USER=saga
       - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
     healthcheck:
         test: ["CMD-SHELL", "nc -z localhost 5432 &> /dev/null; echo $$?"]
         interval: 30s
@@ -48,4 +55,70 @@ services:
         retries: 5
     depends_on:
       database:
+        condition: service_healthy
+
+  servicea:
+    image: "servicea:${TAG}"
+    hostname: servicea
+    links:
+      - "zookeeper:zookeeper.servicecomb.io"
+      - "alpha:alpha-server.servicecomb.io"
+      - "database:postgresql.servicecomb.io"
+    environment:
+      - JAVA_OPTS=  -Dspring.profiles.active=prd
+                                -Dspring.datasource.url=jdbc:postgresql://postgresql.servicecomb.io:5432/saga
+                                -Dspring.datasource.username=saga
+                                -Dspring.datasource.password=password
+                                -Dzookeeper.url=zookeeper.servicecomb.io:2181
+                                -Dserver.port=8071
+                                -Dalpha.cluster.address=alpha-server.servicecomb.io:8080
+                                -Dspring.datasource.initialization-mode=always
+    ports:
+      - "8071:8071"
+    depends_on:
+      alpha:
+        condition: service_healthy
+
+  serviceb:
+    image: "serviceb:${TAG}"
+    hostname: serviceb
+    links:
+      - "zookeeper:zookeeper.servicecomb.io"
+      - "alpha:alpha-server.servicecomb.io"
+      - "database:postgresql.servicecomb.io"
+    environment:
+      - JAVA_OPTS=  -Dspring.profiles.active=prd
+                                -Dspring.datasource.url=jdbc:postgresql://postgresql.servicecomb.io:5432/saga
+                                -Dspring.datasource.username=saga
+                                -Dspring.datasource.password=password
+                                -Dzookeeper.url=zookeeper.servicecomb.io:2181
+                                -Dserver.port=8072
+                                -Dalpha.cluster.address=alpha-server.servicecomb.io:8080
+                                -Dspring.datasource.initialization-mode=always
+    ports:
+      - "8072:8072"
+    depends_on:
+      alpha:
+        condition: service_healthy
+
+  servicec:
+    image: "servicec:${TAG}"
+    hostname: servicec
+    links:
+      - "zookeeper:zookeeper.servicecomb.io"
+      - "alpha:alpha-server.servicecomb.io"
+      - "database:postgresql.servicecomb.io"
+    environment:
+      - JAVA_OPTS=  -Dspring.profiles.active=prd
+                                -Dspring.datasource.url=jdbc:postgresql://postgresql.servicecomb.io:5432/saga
+                                -Dspring.datasource.username=saga
+                                -Dspring.datasource.password=password
+                                -Dzookeeper.url=zookeeper.servicecomb.io:2181
+                                -Dserver.port=8073
+                                -Dalpha.cluster.address=alpha-server.servicecomb.io:8080
+                                -Dspring.datasource.initialization-mode=always
+    ports:
+      - "8073:8073"
+    depends_on:
+      alpha:
         condition: service_healthy
