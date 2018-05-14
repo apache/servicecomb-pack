@@ -80,7 +80,6 @@ public class DubboDemoStepdefs implements En {
       Consumer<Map<String, Object>[]> sortAndColumnStrippingConsumer = dataMaps -> {
         //blur match: service for sagaEndedEvent may be unable to que
         for(Map<String, Object> dataMap : dataMaps){
-          LOG.info(dataMap.toString());
           if(dataMap.values().contains("SagaEndedEvent")){
             for(String key : dataMap.keySet()){
               if("SagaEndedEvent".equals(dataMap.get(key))){
