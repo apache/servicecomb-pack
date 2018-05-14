@@ -26,7 +26,7 @@ case $1 in
   up-mysql)
     fetch_version
     echo "Starting ${service}:${version}"
-    TAG=$version docker-compose -f docker-compose.yaml -f docker-compose.mysql.yaml up
+    TAG=$version docker-compose -f docker-compose.mysql.yaml up
     exit $?
   ;;
   

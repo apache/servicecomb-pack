@@ -15,25 +15,113 @@
 ## limitations under the License.
 ## ---------------------------------------------------------------------------
 
+##
+#you need to add mysql drive to alpha pom.xml and saga-dubbo-demo pom.xml first
+##
 version: '2.1'
 
 services:
+
+  zookeeper:
+    image: "docker.io/zookeeper"
+    hostname: zookeeper
+
   database:
-    image: "mysql/mysql-server:5.7"
-    hostname: mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_DATABASE=saga
-      - MYSQL_USER=saga
-      - MYSQL_PASSWORD=password
-    healthcheck:
-        test: ["CMD-SHELL", "nc -z localhost 3306 &> /dev/null; echo $$?"]
-        interval: 30s
-        timeout: 10s
-        retries: 5
+      image: "mysql/mysql-server:5.7"
+      hostname: mysql
+      environment:
+        - MYSQL_ROOT_PASSWORD=password
+        - MYSQL_DATABASE=saga
+        - MYSQL_USER=saga
+        - MYSQL_PASSWORD=password
+      healthcheck:
+          test: ["CMD-SHELL", "nc -z localhost 3306 &> /dev/null; echo $$?"]
+          interval: 30s
+          timeout: 10s
+          retries: 5
 
   alpha:
+    image: "alpha-server:${TAG}"
+    hostname: alpha-server
+    ports:
+      - "8081:8080"
+      - "8091:8090"
     links:
       - "database:mysql.servicecomb.io"
     environment:
       - JAVA_OPTS=-Dspring.profiles.active=mysql
+    healthcheck:
+        test: ["CMD-SHELL", "nc -z localhost 8080 &> /dev/null; echo $$?"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+    depends_on:
+      database:
+        condition: service_healthy
+
+  servicea:
+    image: "servicea:${TAG}"
+    hostname: servicea
+    links:
+      - "zookeeper:zookeeper.servicecomb.io"
+      - "alpha:alpha-server.servicecomb.io"
+      - "database:mysql.servicecomb.io"
+    environment:
+      - JAVA_OPTS=  -Dspring.profiles.active=mysql
+                                -Dspring.datasource.url=jdbc:mysql://mysql.servicecomb.io:3306/saga
+                                -Dspring.datasource.username=saga
+                                -Dspring.datasource.password=password
+                                -Dzookeeper.url=zookeeper.servicecomb.io:2181
+                                -Dserver.port=8071
+                                -Dalpha.cluster.address=alpha-server.servicecomb.io:8080
+                                -Dspring.datasource.initialization-mode=always
+    ports:
+      - "8071:8071"
+    depends_on:
+      alpha:
+        condition: service_healthy
+
+  serviceb:
+    image: "serviceb:${TAG}"
+    hostname: serviceb
+    links:
+      - "zookeeper:zookeeper.servicecomb.io"
+      - "alpha:alpha-server.servicecomb.io"
+      - "database:mysql.servicecomb.io"
+    environment:
+      - JAVA_OPTS=  -Dspring.profiles.active=mysql
+                                -Dspring.datasource.url=jdbc:mysql://mysql.servicecomb.io:3306/saga
+                                -Dspring.datasource.username=saga
+                                -Dspring.datasource.password=password
+                                -Dzookeeper.url=zookeeper.servicecomb.io:2181
+                                -Dserver.port=8072
+                                -Dalpha.cluster.address=alpha-server.servicecomb.io:8080
+                                -Dspring.datasource.initialization-mode=always
+    ports:
+      - "8072:8072"
+    depends_on:
+      alpha:
+        condition: service_healthy
+
+  servicec:
+    image: "servicec:${TAG}"
+    hostname: servicec
+    links:
+      - "zookeeper:zookeeper.servicecomb.io"
+      - "alpha:alpha-server.servicecomb.io"
+      - "database:mysql.servicecomb.io"
+    environment:
+      - JAVA_OPTS=  -Dspring.profiles.active=mysql
+                                -Dspring.datasource.url=jdbc:mysql://mysql.servicecomb.io:3306/saga
+                                -Dspring.datasource.username=saga
+                                -Dspring.datasource.password=password
+                                -Dzookeeper.url=zookeeper.servicecomb.io:2181
+                                -Dserver.port=8073
+                                -Dalpha.cluster.address=alpha-server.servicecomb.io:8080
+                                -Dspring.datasource.initialization-mode=always
+    ports:
+      - "8073:8073"
+    depends_on:
+      alpha:
+        condition: service_healthy
+

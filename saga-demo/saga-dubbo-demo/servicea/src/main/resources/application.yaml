@@ -17,7 +17,36 @@
 spring:
   application:
     name: servicea
+  profiles:
+    active: prd
+
 alpha:
   cluster:
-    address: localhost:8080
+    address: alpha-server.servicecomb.io:8080
+
+---
+spring:
+  profiles: prd
+  datasource:
+    username: saga
+    password: password
+    url: jdbc:postgresql://postgresql.servicecomb.io:5432/saga?useSSL=false
+    platform: postgresql
+
+---
+spring:
+  profiles: mysql
+  datasource:
+    username: saga
+    password: password
+    url: jdbc:mysql://mysql.servicecomb.io:3306/saga?useSSL=false
+    platform: mysql
+    continue-on-error: true
+  jpa:
+    properties:
+      eclipselink:
+        ddl-generation: none
+
+
+
 
