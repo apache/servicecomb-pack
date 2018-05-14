@@ -15,13 +15,6 @@ You will need:
 [alpha_server]: https://github.com/apache/incubator-servicecomb-saga/tree/master/alpha
 
 ## Running Demo
-you can run saga-dubbo-demo as normal spring application
-1. init database: sql/schema-mysql.sql, and config database info and zookeeper url by enviroment params   
-   enviroment params example:  
- -Ddatabase.url=jdbc:mysql://127.0.0.1:3306/saga_dubbo  
- -Ddatabase.username=root  
- -Ddatabase.password=***  
- -Dzookeeper.url=localhost:2181  
- -Dserver.port=8071  
+1.mvn clean install -DskipTests -Pdocker
+2. ./saga-dubbo-demo.sh up
 
-2. run servicea, serviceb, servicec,visit http://${servicea_host}:${servicea_port}
