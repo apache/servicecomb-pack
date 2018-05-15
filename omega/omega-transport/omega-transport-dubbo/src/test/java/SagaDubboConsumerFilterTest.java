@@ -60,9 +60,9 @@ public class SagaDubboConsumerFilterTest {
   }
 
   @Test
-  public void keepHeaderUnchangedIfContextAbsent() throws Exception {
-      when(invocation.getAttachment(OmegaContext.GLOBAL_TX_ID_KEY)).thenReturn(null);
-      when(invocation.getAttachment(OmegaContext.LOCAL_TX_ID_KEY)).thenReturn(null);
+  public void keepHeaderUnchangedIfContextAbsent() {
+    when(invocation.getAttachment(OmegaContext.GLOBAL_TX_ID_KEY)).thenReturn(null);
+    when(invocation.getAttachment(OmegaContext.LOCAL_TX_ID_KEY)).thenReturn(null);
 
     filter.invoke(null, invocation);
 
@@ -70,7 +70,7 @@ public class SagaDubboConsumerFilterTest {
   }
 
   @Test
-  public void interceptTransactionIdInHeaderIfContextPresent() throws Exception {
+  public void interceptTransactionIdInHeaderIfContextPresent() {
     omegaContext.setGlobalTxId(globalTxId);
     omegaContext.setLocalTxId(localTxId);
 
