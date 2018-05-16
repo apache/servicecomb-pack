@@ -46,8 +46,8 @@
     <java.version>1.8</java.version>
     <kamon.version>0.6.7</kamon.version>
     <log4j.version>2.6.2</log4j.version>
-    <spring.boot.version>1.5.10.RELEASE</spring.boot.version>
-    <spring.boot2.version>2.0.1.RELEASE</spring.boot2.version>
+    <spring.boot.version>1.5.13.RELEASE</spring.boot.version>
+    <spring.boot2.version>2.0.2.RELEASE</spring.boot2.version>
     <spring.cloud.version>Camden.SR6</spring.cloud.version>
     <java.chassis.version>1.0.0-m1</java.chassis.version>
     <spring.version>4.3.7.RELEASE</spring.version>
