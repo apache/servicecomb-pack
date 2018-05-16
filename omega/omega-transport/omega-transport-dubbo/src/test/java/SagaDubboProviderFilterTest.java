@@ -45,7 +45,6 @@ public class SagaDubboProviderFilterTest {
   @Before
   public void setUp() {
     omegaContext.clear();
-    ApplicationContext applicationContext = mock(ApplicationContext.class);
     when(applicationContext.containsBean("omegaContext")).thenReturn(true);
     when(applicationContext.getBean("omegaContext")).thenReturn(omegaContext);
     SpringExtensionFactory.addApplicationContext(applicationContext);

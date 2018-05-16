@@ -17,7 +17,6 @@
 
 import com.alibaba.dubbo.config.spring.extension.SpringExtensionFactory;
 import com.alibaba.dubbo.rpc.Invocation;
-import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transport.dubbo.SagaDubboConsumerFilter;
 import org.junit.After;
@@ -38,8 +37,6 @@ public class SagaDubboConsumerFilterTest {
 
   private static final String globalTxId = UUID.randomUUID().toString();
   private static final String localTxId = UUID.randomUUID().toString();
-  @SuppressWarnings("unchecked")
-  private final IdGenerator<String> idGenerator = mock(IdGenerator.class);
 
   private final OmegaContext omegaContext = new OmegaContext(() -> "ignored");
   private final Invocation invocation = mock(Invocation.class);
@@ -48,7 +45,7 @@ public class SagaDubboConsumerFilterTest {
 
   @Before
   public void setUp() {
-    when(idGenerator.nextId()).thenReturn(globalTxId, localTxId);
+    omegaContext.clear();
     when(applicationContext.containsBean("omegaContext")).thenReturn(true);
     when(applicationContext.getBean("omegaContext")).thenReturn(omegaContext);
     SpringExtensionFactory.addApplicationContext(applicationContext);
