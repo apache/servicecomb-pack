@@ -17,6 +17,9 @@
 
 package org.apache.servicecomb.saga.omega.context;
 
+/**
+ * OmegaContext holds the globalTxId and localTxId which are used to build the invocation map
+ */
 public class OmegaContext {
   public static final String GLOBAL_TX_ID_KEY = "X-Pack-Global-Transaction-Id";
   public static final String LOCAL_TX_ID_KEY = "X-Pack-Local-Transaction-Id";
