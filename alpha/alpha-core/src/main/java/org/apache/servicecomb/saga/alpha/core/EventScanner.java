@@ -147,19 +147,17 @@ public class EventScanner implements Runnable {
 
   private void markSagaEnded(TxEvent event) {
     if (commandRepository.findUncompletedCommands(event.globalTxId()).isEmpty()) {
-      markGlobalTxEntWithEvent(event);
+      markGlobalTxEndWithEvent(event);
     }
   }
 
-  private void markGlobalTxEntWithEvent(TxEvent event) {
+  private void markGlobalTxEndWithEvent(TxEvent event) {
     eventRepository.save(toSagaEndedEvent(event));
     LOG.info("Marked end of transaction with globalTxId {}", event.globalTxId());
   }
 
   private void markGlobalTxEndWithEvents(List<TxEvent> events) {
-    events.forEach(event -> {
-      markGlobalTxEntWithEvent(event);
-    });
+    events.forEach(this::markGlobalTxEndWithEvent);
   }
 
   private TxEvent toTxAbortedEvent(TxTimeout timeout) {
