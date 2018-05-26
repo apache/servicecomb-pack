@@ -1,6 +1,9 @@
 # Compiled class file
 *.class
 
+# The search file of Mac OSX
+.DS_Store
+
 # Log file
 *.log
 
