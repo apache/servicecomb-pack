@@ -42,8 +42,6 @@ CREATE TABLE IF NOT EXISTS Command (
   localTxId varchar(36) NOT NULL,
   parentTxId varchar(36) DEFAULT NULL,
   compensationMethod varchar(256) NOT NULL,
-  retryMethod varchar(256) DEFAULT NULL,
-  retries int NOT NULL DEFAULT 0,
   payloads varbinary(10240),
   status varchar(12),
   lastModified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
