@@ -22,6 +22,8 @@ services:
   zookeeper:
     image: "docker.io/zookeeper"
     hostname: zookeeper
+    ports:
+      - "2181:2181"
 
   database:
     image: "postgres"
@@ -42,8 +44,8 @@ services:
     image: "alpha-server:${TAG}"
     hostname: alpha-server
     ports:
-      - "8081:8080"
-      - "8091:8090"
+      - "8080:8080"
+      - "8090:8090"
     links:
       - "database:postgresql.servicecomb.io"
     environment:
