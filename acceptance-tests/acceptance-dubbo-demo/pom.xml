@@ -318,6 +318,12 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>spring-boot-2</id>
+            <properties>
+                <info.service.uri>/actuator/info</info.service.uri>
+            </properties>
+        </profile>
     </profiles>
 
 
