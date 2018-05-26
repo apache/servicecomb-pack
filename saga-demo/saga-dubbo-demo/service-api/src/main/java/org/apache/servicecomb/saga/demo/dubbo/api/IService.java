@@ -19,8 +19,6 @@ package org.apache.servicecomb.saga.demo.dubbo.api;
 import org.apache.servicecomb.saga.demo.dubbo.pub.InvokeContext;
 
 public interface IService {
-
-    public Object run(InvokeContext invokeContext) throws Exception;
-    public void cancelRun(InvokeContext invokeContext);
-
+  Object run(InvokeContext invokeContext) throws Exception;
+  void cancelRun(InvokeContext invokeContext);
 }

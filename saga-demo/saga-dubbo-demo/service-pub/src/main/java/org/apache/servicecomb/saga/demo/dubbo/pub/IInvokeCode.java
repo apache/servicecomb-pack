@@ -21,19 +21,18 @@ package org.apache.servicecomb.saga.demo.dubbo.pub;
 * @date 05/05/2018 3:27 PM
 */
 public interface IInvokeCode {
-
-    public static final String Ab_description="A->B, success";
-    public static final String Ab = "Ab";
-    public static final String AExceptionWhenAb_description="A->B, A.run exception after A call B.run";
-    public static final String AExceptionWhenAb="AExceptionWhenAb";
-    public static final String BExceptionWhenAb_description="A->B, B.run exception";
-    public static final String BExceptionWhenAb="BExceptionWhenAb";
-    public static final String AbAc_description="A->B, A->C success";
-    public static final String AbAc="AbAc";
-    public static final String CExceptionWhenAbAc_description="A->B,A->C, C.run exception";
-    public static final String CExceptionWhenAbAc="CExceptionWhenAbAc";
-    public static final String AbBc_description="A->B, B->C, success";
-    public static final String AbBc="AbBc";
-    public static final String CExceptionWhenAbBc_description="A->B, B->C, C.run exception";
-    public static final String CExceptionWhenAbBc="CExceptionWhenAbBc";
+     String Ab_description="A->B, success";
+     String Ab = "Ab";
+     String AExceptionWhenAb_description="A->B, A.run exception after A call B.run";
+     String AExceptionWhenAb="AExceptionWhenAb";
+     String BExceptionWhenAb_description="A->B, B.run exception";
+     String BExceptionWhenAb="BExceptionWhenAb";
+     String AbAc_description="A->B, A->C success";
+     String AbAc="AbAc";
+     String CExceptionWhenAbAc_description="A->B,A->C, C.run exception";
+     String CExceptionWhenAbAc="CExceptionWhenAbAc";
+     String AbBc_description="A->B, B->C, success";
+     String AbBc="AbBc";
+     String CExceptionWhenAbBc_description="A->B, B->C, C.run exception";
+     String CExceptionWhenAbBc="CExceptionWhenAbBc";
 }
