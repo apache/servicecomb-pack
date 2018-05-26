@@ -16,7 +16,5 @@
  */
 package org.apache.servicecomb.saga.demo.dubbo.api;
 
-import java.util.Map;
-
-public interface IServiceB extends IService{
+public interface IServiceB extends IService {
 }

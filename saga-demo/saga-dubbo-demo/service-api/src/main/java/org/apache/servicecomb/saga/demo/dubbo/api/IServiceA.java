@@ -16,6 +16,5 @@
  */
 package org.apache.servicecomb.saga.demo.dubbo.api;
 
-public interface IServiceA extends IService{
-
+public interface IServiceA extends IService {
 }
