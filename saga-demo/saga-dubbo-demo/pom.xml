@@ -104,4 +104,20 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>-->
     </dependencies>
+    <profiles>
+        <profile>
+            <id>spring-boot-2</id>
+            <properties>
+                <spring.boot.version>${spring.boot2.version}</spring.boot.version>
+            </properties>
+            <!-- Need to add the dependency of log4j jar to avoid no class found error -->
+            <dependencies>
+                <dependency>
+                    <artifactId>log4j</artifactId>
+                    <groupId>log4j</groupId>
+                    <version>1.2.17</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>
