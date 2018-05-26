@@ -23,7 +23,7 @@
     </Console>
   </Appenders>
   <Loggers>
-    <AsyncRoot level="debug">
+    <AsyncRoot level="info">
       <AppenderRef ref="Console"/>
     </AsyncRoot>
   </Loggers>
