@@ -18,6 +18,7 @@
 package org.apache.servicecomb.saga.demo.pack.car;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,6 +36,7 @@ public class CarBookingController {
 
   private final AtomicInteger id = new AtomicInteger(0);
 
+  @CrossOrigin
   @GetMapping("/bookings") List<CarBooking> getAll() {
     return new ArrayList<>(service.getAllBookings());
   }

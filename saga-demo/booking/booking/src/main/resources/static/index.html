@@ -34,19 +34,23 @@
             $.post("http://127.0.0.1:8083/booking/test/3/2", function(data) {
                 var msg = data;
                 $("#booking_result_2").html(msg);
+            })
+            .fail(function(data) {
+                alert("The transaction is failed");
+                $("#booking_result_2").html("<li>" + JSON.stringify(data) + "</li>");
             });
         }
 
         function room_booking_result() {
             $.get("http://127.0.0.1:8081/bookings", function(data) {
-                var msg = "<li>" + data + "</li>";
+                var msg = "<li>" + JSON.stringify(data) + "</li>";
                 $("#room_list").html(msg);
             });
         }
 
         function car_booking_result() {
             $.get("http://127.0.0.1:8082/bookings", function(data) {
-                var msg = "<li>" + data + "</li>";
+                var msg = "<li>" + JSON.stringify(data) + "</li>";
                 $("#car_list").html(msg);
             });
         }
