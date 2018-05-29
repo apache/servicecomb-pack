@@ -91,7 +91,7 @@ You can run the demo using either docker compose or executable files.
    java -Dserver.port=8083 -Dalpha.cluster.address=${alpha_address}:8080 -Dcar.service.address=${host_address}:8082 -Dhotel.service.address=${host_address}:8081  -jar pack-booking-${saga_version}-exec.jar
    ```
 
-## User Requests
+## User Requests by command line tools
 1. Booking 2 rooms and 2 cars, this booking will be OK.
 ```
 curl -X POST http://${host_address}:8083/booking/test/2/2
@@ -120,5 +120,8 @@ curl http://${host_address}:8082/bookings
 ```
 The second car booking will be marked with **cancel:true**
 
+## User Requests by html page
+
+Open a browser with URL http://127.0.0.1:8083, You will get a html page. You can use this page to invoke test cases, and then get results.
 
 **Note** transactions and compensations implemented by services must be idempotent.
