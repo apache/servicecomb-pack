@@ -25,6 +25,10 @@ Saga是由 **alpha** 和 **omega**组成，其中：
 ## 用户指南
 如何构建和使用可浏览[用户指南](docs/user_guide_zh.md)。
 
+## 获取最新发行版本
+
+[下载Saga](http://servicecomb.incubator.apache.org/release/saga-downloads/)
+
 ## [常见问题](FAQ_ZH.md)
 
 ## 联系我们

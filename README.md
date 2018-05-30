@@ -36,6 +36,10 @@ Since Spring Boot supports JDK9 since 2.x, if you want to build and run test the
 ## User Guide
 How to build and use can refer to [User Guide](docs/user_guide.md).
 
+## Get The Latest Release
+
+[Download Saga](http://servicecomb.incubator.apache.org/release/saga-downloads/)
+
 ## [FAQ](FAQ.md)
 
 ## Contact Us
