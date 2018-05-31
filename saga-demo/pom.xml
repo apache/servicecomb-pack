@@ -30,8 +30,8 @@
 
   <packaging>pom</packaging>
   <modules>
-    <module>booking</module>
     <module>saga-dubbo-demo</module>
+    <module>saga-spring-cloud-demo</module>
   </modules>
 
   <dependencyManagement>

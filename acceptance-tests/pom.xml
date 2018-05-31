@@ -30,8 +30,8 @@
   <name>Saga:Acceptance Tests</name>
   <packaging>pom</packaging>
   <modules>
-    <module>acceptance-pack</module>
     <module>acceptance-dubbo-demo</module>
+    <module>acceptance-spring-cloud-demo</module>
   </modules>
 
   <properties>
