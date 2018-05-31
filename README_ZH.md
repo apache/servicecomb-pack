@@ -20,7 +20,8 @@ Saga是由 **alpha** 和 **omega**组成，其中：
 详情可浏览[Saga Pack 设计文档](docs/design_zh.md). 
 
 ## 快速入门
-详情可浏览[出行预订示例](saga-demo/booking/README.md)。
+* Saga在Spring Cloud应用的用法可参考[出行预订示例](saga-demo/saga-spring-cloud-demo/README.md)。
+* Saga在Dubbo应用的用法可参考[Dubbo示例](saga-demo/saga-dubbo-demo/README.md).
 
 ## 用户指南
 如何构建和使用可浏览[用户指南](docs/user_guide_zh.md)。
