@@ -15,18 +15,16 @@
  * limitations under the License.
  */
 
-import com.alibaba.dubbo.config.spring.extension.SpringExtensionFactory;
-import com.alibaba.dubbo.rpc.Invocation;
-import org.apache.servicecomb.saga.omega.context.OmegaContext;
-import org.apache.servicecomb.saga.omega.transport.dubbo.SagaDubboConsumerFilter;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.context.ApplicationContext;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import org.apache.servicecomb.saga.omega.context.OmegaContext;
+import org.apache.servicecomb.saga.omega.transport.dubbo.SagaDubboConsumerFilter;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.alibaba.dubbo.rpc.Invocation;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -40,20 +38,12 @@ public class SagaDubboConsumerFilterTest {
 
   private final OmegaContext omegaContext = new OmegaContext(() -> "ignored");
   private final Invocation invocation = mock(Invocation.class);
-  private final ApplicationContext applicationContext = mock(ApplicationContext.class);
   private final SagaDubboConsumerFilter filter = new SagaDubboConsumerFilter();
 
   @Before
   public void setUp() {
     omegaContext.clear();
-    when(applicationContext.containsBean("omegaContext")).thenReturn(true);
-    when(applicationContext.getBean("omegaContext")).thenReturn(omegaContext);
-    SpringExtensionFactory.addApplicationContext(applicationContext);
-  }
-
-  @After
-  public void setDown(){
-    SpringExtensionFactory.removeApplicationContext(applicationContext);
+    filter.setOmegaContext(omegaContext);
   }
 
   @Test

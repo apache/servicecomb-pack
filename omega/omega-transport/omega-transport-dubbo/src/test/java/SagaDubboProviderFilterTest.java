@@ -15,16 +15,14 @@
  * limitations under the License.
  */
 
-import com.alibaba.dubbo.config.spring.extension.SpringExtensionFactory;
-import com.alibaba.dubbo.rpc.Invocation;
+import java.util.UUID;
+
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transport.dubbo.SagaDubboProviderFilter;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.context.ApplicationContext;
 
-import java.util.UUID;
+import com.alibaba.dubbo.rpc.Invocation;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -38,25 +36,17 @@ public class SagaDubboProviderFilterTest {
   private static final String localTxId = UUID.randomUUID().toString();
   private final OmegaContext omegaContext = new OmegaContext(() -> "ignored");
   private final Invocation invocation = mock(Invocation.class);
-  private final ApplicationContext applicationContext = mock(ApplicationContext.class);
-
+  
   private final SagaDubboProviderFilter filter = new SagaDubboProviderFilter();
 
   @Before
   public void setUp() {
     omegaContext.clear();
-    when(applicationContext.containsBean("omegaContext")).thenReturn(true);
-    when(applicationContext.getBean("omegaContext")).thenReturn(omegaContext);
-    SpringExtensionFactory.addApplicationContext(applicationContext);
-  }
-
-  @After
-  public void setDown(){
-    SpringExtensionFactory.removeApplicationContext(applicationContext);
+    filter.setOmegaContext(omegaContext);
   }
 
   @Test
-  public void setUpOmegaContextInTransactionRequest() throws Exception {
+  public void setUpOmegaContextInTransactionRequest() {
     when(invocation.getAttachment(OmegaContext.GLOBAL_TX_ID_KEY)).thenReturn(globalTxId);
     when(invocation.getAttachment(OmegaContext.LOCAL_TX_ID_KEY)).thenReturn(localTxId);
 
@@ -67,7 +57,7 @@ public class SagaDubboProviderFilterTest {
   }
 
   @Test
-  public void doNothingInNonTransactionRequest() throws Exception {
+  public void doNothingInNonTransactionRequest() {
     when(invocation.getAttachment(OmegaContext.GLOBAL_TX_ID_KEY)).thenReturn(null);
     when(invocation.getAttachment(OmegaContext.LOCAL_TX_ID_KEY)).thenReturn(null);
 

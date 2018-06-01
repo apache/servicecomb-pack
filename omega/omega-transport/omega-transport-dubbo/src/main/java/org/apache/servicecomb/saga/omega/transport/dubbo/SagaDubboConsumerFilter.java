@@ -31,6 +31,7 @@ import java.lang.invoke.MethodHandles;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.apache.servicecomb.saga.omega.context.OmegaContext.GLOBAL_TX_ID_KEY;
 import static org.apache.servicecomb.saga.omega.context.OmegaContext.LOCAL_TX_ID_KEY;
@@ -41,11 +42,16 @@ import static org.apache.servicecomb.saga.omega.context.OmegaContext.LOCAL_TX_ID
 @Activate(group = {Constants.CONSUMER})
 public class SagaDubboConsumerFilter implements Filter {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  
+  // As we use the spring to manage the omegaContext, the Autowired work out of box
+  @Autowired(required=false)
+  private OmegaContext omegaContext;
+
+  public void setOmegaContext(OmegaContext omegaContext) {
+    this.omegaContext = omegaContext;
+  }
 
   public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
-    // TODO not sure if it's a good way to look up OmegaContext during every invoke
-    OmegaContext omegaContext = (OmegaContext) (new SpringExtensionFactory())
-        .getExtension(OmegaContext.class, "omegaContext");
     if (omegaContext != null) {
       invocation.getAttachments().put(GLOBAL_TX_ID_KEY, omegaContext.globalTxId());
       invocation.getAttachments().put(LOCAL_TX_ID_KEY, omegaContext.localTxId());
