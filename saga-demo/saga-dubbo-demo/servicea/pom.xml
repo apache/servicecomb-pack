@@ -17,72 +17,72 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.servicecomb.saga.demo</groupId>
-            <artifactId>service-api</artifactId>
-            <version>${saga.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.servicecomb.saga.demo</groupId>
-            <artifactId>service-pub</artifactId>
-            <version>${saga.version}</version>
-        </dependency>
-    </dependencies>
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.servicecomb.saga.demo</groupId>
+      <artifactId>service-api</artifactId>
+      <version>${saga.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicecomb.saga.demo</groupId>
+      <artifactId>service-pub</artifactId>
+      <version>${saga.version}</version>
+    </dependency>
+  </dependencies>
 
-    <parent>
-        <groupId>org.apache.servicecomb.saga.demo</groupId>
-        <artifactId>saga-dubbo-demo</artifactId>
-        <version>0.2.0-SNAPSHOT</version>
-    </parent>
+  <parent>
+    <groupId>org.apache.servicecomb.saga.demo</groupId>
+    <artifactId>saga-dubbo-demo</artifactId>
+    <version>0.2.0-SNAPSHOT</version>
+  </parent>
 
-    <artifactId>servicea</artifactId>
+  <artifactId>servicea</artifactId>
 
-    <build>
+  <build>
+    <plugins>
+      <!-- mixin plugin configurations declared in another pom,
+      just like importing dependencies managed in another pom -->
+      <plugin>
+        <groupId>com.github.odavid.maven.plugins</groupId>
+        <artifactId>mixin-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>docker</id>
+      <build>
         <plugins>
-            <!-- mixin plugin configurations declared in another pom,
-            just like importing dependencies managed in another pom -->
-            <plugin>
-                <groupId>com.github.odavid.maven.plugins</groupId>
-                <artifactId>mixin-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+          </plugin>
+          <plugin>
+            <groupId>org.commonjava.maven.plugins</groupId>
+            <artifactId>directory-maven-plugin</artifactId>
+          </plugin>
         </plugins>
-    </build>
-
-    <profiles>
-        <profile>
-            <id>docker</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.commonjava.maven.plugins</groupId>
-                        <artifactId>directory-maven-plugin</artifactId>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>demo</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+      </build>
+    </profile>
+    <profile>
+      <id>demo</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>

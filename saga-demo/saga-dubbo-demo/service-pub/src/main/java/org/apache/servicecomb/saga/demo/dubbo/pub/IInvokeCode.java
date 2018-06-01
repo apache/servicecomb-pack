@@ -18,21 +18,21 @@ package org.apache.servicecomb.saga.demo.dubbo.pub;
 
 /**
  * a invoke code describe a test scenario
-* @date 05/05/2018 3:27 PM
-*/
+ * @date 05/05/2018 3:27 PM
+ */
 public interface IInvokeCode {
-     String Ab_description="A->B, success";
-     String Ab = "Ab";
-     String AExceptionWhenAb_description="A->B, A.run exception after A call B.run";
-     String AExceptionWhenAb="AExceptionWhenAb";
-     String BExceptionWhenAb_description="A->B, B.run exception";
-     String BExceptionWhenAb="BExceptionWhenAb";
-     String AbAc_description="A->B, A->C success";
-     String AbAc="AbAc";
-     String CExceptionWhenAbAc_description="A->B,A->C, C.run exception";
-     String CExceptionWhenAbAc="CExceptionWhenAbAc";
-     String AbBc_description="A->B, B->C, success";
-     String AbBc="AbBc";
-     String CExceptionWhenAbBc_description="A->B, B->C, C.run exception";
-     String CExceptionWhenAbBc="CExceptionWhenAbBc";
+  String Ab_description = "A->B, success";
+  String Ab = "Ab";
+  String AExceptionWhenAb_description = "A->B, A.run exception after A call B.run";
+  String AExceptionWhenAb = "AExceptionWhenAb";
+  String BExceptionWhenAb_description = "A->B, B.run exception";
+  String BExceptionWhenAb = "BExceptionWhenAb";
+  String AbAc_description = "A->B, A->C success";
+  String AbAc = "AbAc";
+  String CExceptionWhenAbAc_description = "A->B,A->C, C.run exception";
+  String CExceptionWhenAbAc = "CExceptionWhenAbAc";
+  String AbBc_description = "A->B, B->C, success";
+  String AbBc = "AbBc";
+  String CExceptionWhenAbBc_description = "A->B, B->C, C.run exception";
+  String CExceptionWhenAbBc = "CExceptionWhenAbBc";
 }

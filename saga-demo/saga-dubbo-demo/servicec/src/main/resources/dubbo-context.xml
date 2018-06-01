@@ -16,13 +16,13 @@
   ~ limitations under the License.
   -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
-    <dubbo:application name="dubbo-servicec"/>
-    <!--localhost:2181-->
-    <dubbo:registry address="zookeeper://${zookeeper.url}?client=zkclient"/>
-    <dubbo:protocol name="dubbo" port="20883"/>
-    <dubbo:service interface="org.apache.servicecomb.saga.demo.dubbo.api.IServiceC" ref="servicec"/>
-    <bean id="servicec" class="org.apache.servicecomb.saga.demo.dubbo.servicec.ServiceC"/>
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+  <dubbo:application name="dubbo-servicec"/>
+  <!--localhost:2181-->
+  <dubbo:registry address="zookeeper://${zookeeper.url}?client=zkclient"/>
+  <dubbo:protocol name="dubbo" port="20883"/>
+  <dubbo:service interface="org.apache.servicecomb.saga.demo.dubbo.api.IServiceC" ref="servicec"/>
+  <bean id="servicec" class="org.apache.servicecomb.saga.demo.dubbo.servicec.ServiceC"/>
 </beans>

@@ -18,22 +18,22 @@ package org.apache.servicecomb.saga.demo.dubbo.pub;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.util.Map;
-
 public abstract class AbsService {
 
-    @javax.annotation.Resource(name = "jdbcTemplate")
-    protected JdbcTemplate jdbcTemplate;
+  @javax.annotation.Resource(name = "jdbcTemplate")
+  protected JdbcTemplate jdbcTemplate;
 
-    public abstract String getServiceName();
-    public abstract String getTableName();
+  public abstract String getServiceName();
 
-    protected void doRunBusi() {
-        this.jdbcTemplate.update(String.format("update %s set vstatus=? where service = ?", getTableName()), "run", getServiceName());
-    }
+  public abstract String getTableName();
 
-    protected void doCancelBusi() {
-        this.jdbcTemplate.update(String.format("update %s set vstatus=? where service = ?", getTableName()), "cancel", getServiceName());
-    }
+  protected void doRunBusi() {
+    this.jdbcTemplate
+        .update(String.format("update %s set vstatus=? where service = ?", getTableName()), "run", getServiceName());
+  }
 
+  protected void doCancelBusi() {
+    this.jdbcTemplate
+        .update(String.format("update %s set vstatus=? where service = ?", getTableName()), "cancel", getServiceName());
+  }
 }
