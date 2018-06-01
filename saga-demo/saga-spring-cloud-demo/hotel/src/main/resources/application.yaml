@@ -16,7 +16,7 @@
 ## ---------------------------------------------------------------------------
 spring:
   application:
-    name: pack-hotel
+    name: hotel
 alpha:
   cluster:
     address: alpha-server.servicecomb.io:8080

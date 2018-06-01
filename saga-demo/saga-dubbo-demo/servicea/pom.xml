@@ -40,6 +40,7 @@
   </parent>
 
   <artifactId>servicea</artifactId>
+  <name>Saga::Demo::Dubbo-Demo::ServiceA</name>
 
   <build>
     <plugins>

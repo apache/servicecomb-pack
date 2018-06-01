@@ -36,6 +36,7 @@
   </parent>
 
   <artifactId>serviceb</artifactId>
+  <name>Saga::Demo::Dubbo-Demo::ServiceB</name>
 
   <build>
     <plugins>

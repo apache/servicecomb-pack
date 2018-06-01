@@ -36,6 +36,7 @@
   </parent>
 
   <artifactId>servicec</artifactId>
+  <name>Saga::Demo::Dubbo-Demo::ServiceC</name>
 
   <build>
     <plugins>

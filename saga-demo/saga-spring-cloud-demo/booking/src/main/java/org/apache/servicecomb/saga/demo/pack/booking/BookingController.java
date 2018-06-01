@@ -28,10 +28,10 @@ import org.springframework.web.client.RestTemplate;
 @RestController
 public class BookingController {
 
-  @Value("${car.service.address:http://pack-car.servicecomb.io:8080}")
+  @Value("${car.service.address:http://car.servicecomb.io:8080}")
   private String carServiceUrl;
 
-  @Value("${hotel.service.address:http://pack-hotel.servicecomb.io:8080}")
+  @Value("${hotel.service.address:http://hotel.servicecomb.io:8080}")
   private String hotelServiceUrl;
 
   @Autowired

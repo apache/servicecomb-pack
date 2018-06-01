@@ -27,15 +27,15 @@ Feature: Alpha records transaction events
 
     Then Alpha records the following events
       | serviceName  | type               |
-      | pack-booking | SagaStartedEvent   |
-      | pack-car     | TxStartedEvent     |
-      | pack-car     | TxEndedEvent       |
-      | pack-hotel   | TxStartedEvent     |
-      | pack-hotel   | TxEndedEvent       |
-      | pack-booking | TxAbortedEvent     |
-      | pack-hotel   | TxCompensatedEvent |
-      | pack-car     | TxCompensatedEvent |
-      | pack-car     | SagaEndedEvent     |
+      | booking | SagaStartedEvent   |
+      | car     | TxStartedEvent     |
+      | car     | TxEndedEvent       |
+      | hotel   | TxStartedEvent     |
+      | hotel   | TxEndedEvent       |
+      | booking | TxAbortedEvent     |
+      | hotel   | TxCompensatedEvent |
+      | car     | TxCompensatedEvent |
+      | car     | SagaEndedEvent     |
 
     Then Car Service contains the following booking orders
       | name | amount | confirmed | cancelled |
