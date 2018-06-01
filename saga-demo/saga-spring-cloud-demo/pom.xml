@@ -24,14 +24,14 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>booking</artifactId>
+  <artifactId>saga-spring-cloud-demo</artifactId>
   <name>Saga::Demo::Spring-Cloud-Demo</name>
   <packaging>pom</packaging>
 
   <modules>
-    <module>booking</module>
-    <module>car</module>
-    <module>hotel</module>
+    <module>pack-booking</module>
+    <module>pack-car</module>
+    <module>pack-hotel</module>
   </modules>
 
   <dependencies>
