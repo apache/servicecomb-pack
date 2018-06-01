@@ -18,7 +18,6 @@ package org.apache.servicecomb.saga.demo.dubbo.pub;
 
 /**
  * a invoke code describe a test scenario
- * @date 05/05/2018 3:27 PM
  */
 public interface IInvokeCode {
   String Ab_description = "A->B, success";
