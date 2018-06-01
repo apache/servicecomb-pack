@@ -47,9 +47,9 @@ services:
       database:
         condition: service_healthy
 
-  pack-hotel:
-    image: "pack-hotel:${TAG}"
-    hostname: pack-hotel
+  hotel:
+    image: "hotel:${TAG}"
+    hostname: hotel
     links:
       - "alpha:alpha-server.servicecomb.io"
     ports:
@@ -58,9 +58,9 @@ services:
       alpha:
         condition: service_healthy
 
-  pack-car:
-    image: "pack-car:${TAG}"
-    hostname: pack-car
+  car:
+    image: "car:${TAG}"
+    hostname: car
     links:
       - "alpha:alpha-server.servicecomb.io"
     ports:
@@ -69,15 +69,15 @@ services:
       alpha:
         condition: service_healthy
 
-  pack-booking:
-    image: "pack-booking:${TAG}"
-    hostname: pack-booking
+  booking:
+    image: "booking:${TAG}"
+    hostname: booking
     links:
       - "alpha:alpha-server.servicecomb.io"
-      - "pack-hotel:pack-hotel.servicecomb.io"
-      - "pack-car:pack-car.servicecomb.io"
+      - "hotel:hotel.servicecomb.io"
+      - "car:car.servicecomb.io"
     ports:
       - "8083:8080"
     depends_on:
-      - pack-hotel
-      - pack-car
+      - hotel
+      - car

@@ -1,8 +1,8 @@
 # Booking Demo
 This demo simulates a booking application including three services:
-* pack-booking
-* pack-car
-* pack-hotel
+* booking
+* car
+* hotel
 
 ## Prerequisites
 You will need:
@@ -78,17 +78,17 @@ You can run the demo using either docker compose or executable files.
 3. start application up
    1. start hotel service. The executable jar file should be in `saga-demo/booking/hotel/target/saga`.
    ```bash
-   java -Dserver.port=8081 -Dalpha.cluster.address=${alpha_address}:8080 -jar pack-hotel-${saga_version}-exec.jar
+   java -Dserver.port=8081 -Dalpha.cluster.address=${alpha_address}:8080 -jar hotel-${saga_version}-exec.jar
    ```
 
    2. start car service. The executable jar file should be in `saga-demo/booking/car/target/saga`.
    ```bash
-   java -Dserver.port=8082 -Dalpha.cluster.address=${alpha_address}:8080 -jar pack-car-${saga_version}-exec.jar
+   java -Dserver.port=8082 -Dalpha.cluster.address=${alpha_address}:8080 -jar car-${saga_version}-exec.jar
    ```
 
    3. start booking service. The executable jar file should be in `saga-demo/booking/booking/target/saga`.
    ```bash
-   java -Dserver.port=8083 -Dalpha.cluster.address=${alpha_address}:8080 -Dcar.service.address=${host_address}:8082 -Dhotel.service.address=${host_address}:8081  -jar pack-booking-${saga_version}-exec.jar
+   java -Dserver.port=8083 -Dalpha.cluster.address=${alpha_address}:8080 -Dcar.service.address=${host_address}:8082 -Dhotel.service.address=${host_address}:8081  -jar booking-${saga_version}-exec.jar
    ```
 
 ## User Requests by command line tools

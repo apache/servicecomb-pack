@@ -144,7 +144,7 @@
                   </run>
                 </image>
                 <image>
-                  <name>pack-car:${project.version}</name>
+                  <name>car:${project.version}</name>
                   <alias>car</alias>
                   <run>
                     <env>
@@ -176,7 +176,7 @@
                   </run>
                 </image>
                 <image>
-                  <name>pack-hotel:${project.version}</name>
+                  <name>hotel:${project.version}</name>
                   <alias>hotel</alias>
                   <run>
                     <env>
@@ -208,7 +208,7 @@
                   </run>
                 </image>
                 <image>
-                  <name>pack-booking:${project.version}</name>
+                  <name>booking:${project.version}</name>
                   <alias>booking</alias>
                   <run>
                     <env>
@@ -229,8 +229,8 @@
                     </wait>
                     <links>
                       <link>alpha:alpha-server.servicecomb.io</link>
-                      <link>car:pack-car.servicecomb.io</link>
-                      <link>hotel:pack-hotel.servicecomb.io</link>
+                      <link>car:car.servicecomb.io</link>
+                      <link>hotel:hotel.servicecomb.io</link>
                     </links>
                     <ports>
                       <port>booking.port:8080</port>

@@ -18,31 +18,31 @@
 version: '2.1'
 
 services:
-  pack-hotel:
-    image: "pack-hotel:${TAG}"
-    hostname: pack-hotel
+  hotel:
+    image: "hotel:${TAG}"
+    hostname: hotel
     external_links:
       - "alpha:alpha-server.servicecomb.io"
     ports:
       - "8081:8080"
 
-  pack-car:
-    image: "pack-car:${TAG}"
-    hostname: pack-car
+  car:
+    image: "car:${TAG}"
+    hostname: car
     external_links:
       - "alpha:alpha-server.servicecomb.io"
     ports:
       - "8082:8080"
 
-  pack-booking:
-    image: "pack-booking:${TAG}"
-    hostname: pack-booking
+  booking:
+    image: "booking:${TAG}"
+    hostname: booking
     external_links:
       - "alpha:alpha-server.servicecomb.io"
-      - "pack-hotel:pack-hotel.servicecomb.io"
-      - "pack-car:pack-car.servicecomb.io"
+      - "hotel:hotel.servicecomb.io"
+      - "car:car.servicecomb.io"
     ports:
       - "8083:8080"
     depends_on:
-      - pack-hotel
-      - pack-car
+      - hotel
+      - car
