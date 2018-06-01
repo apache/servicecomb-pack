@@ -29,9 +29,9 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>pack-booking</module>
-    <module>pack-car</module>
-    <module>pack-hotel</module>
+    <module>booking</module>
+    <module>car</module>
+    <module>hotel</module>
   </modules>
 
   <dependencies>

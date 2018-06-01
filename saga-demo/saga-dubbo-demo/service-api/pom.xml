@@ -35,5 +35,6 @@
   </parent>
 
   <artifactId>service-api</artifactId>
+  <name>Saga::Demo::Dubbo-Demo::ServiceAPI</name>
 
 </project>

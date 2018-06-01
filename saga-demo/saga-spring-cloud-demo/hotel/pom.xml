@@ -24,8 +24,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>pack-hotel</artifactId>
-  <name>Saga::Demo::Pack::Hotel</name>
+  <artifactId>hotel</artifactId>
+  <name>Saga::Demo::Spring-Cloud-Demo::Hotel</name>
 
   <dependencies>
     <dependency>

@@ -26,6 +26,6 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>service-pub</artifactId>
-
+  <name>Saga::Demo::Dubbo-Demo::ServicePub</name>
 
 </project>

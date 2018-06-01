@@ -24,8 +24,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>pack-car</artifactId>
-  <name>Saga::Demo::Pack::Car</name>
+  <artifactId>booking</artifactId>
+  <name>Saga::Demo::Spring-Cloud-Demo::Booking</name>
 
   <dependencies>
     <dependency>
@@ -41,8 +41,8 @@
       <artifactId>omega-spring-starter</artifactId>
     </dependency>
     <dependency>
-       <groupId>org.apache.servicecomb.saga</groupId>
-       <artifactId>omega-transport-resttemplate</artifactId>
+      <groupId>org.apache.servicecomb.saga</groupId>
+      <artifactId>omega-transport-resttemplate</artifactId>
     </dependency>
   </dependencies>
 
