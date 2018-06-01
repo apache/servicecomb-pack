@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 package org.apache.servicecomb.saga.demo.dubbo.servicec;
+
 import org.apache.servicecomb.saga.omega.spring.EnableOmega;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ImportResource;
 
 @SpringBootApplication

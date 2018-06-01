@@ -17,53 +17,52 @@
 
 package org.apache.servicecomb.saga.acceptance.dubbodemo;
 
-import cucumber.api.DataTable;
-import cucumber.api.java.After;
-import cucumber.api.java.Before;
-import cucumber.api.java8.En;
-import io.restassured.response.Response;
-import org.hamcrest.core.StringContains;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.invoke.MethodHandles;
-import java.util.*;
-import java.util.function.Consumer;
-
 import static io.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.Is.is;
 
+import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+
+import org.hamcrest.core.StringContains;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.restassured.response.Response;
+import cucumber.api.DataTable;
+import cucumber.api.java.Before;
+import cucumber.api.java8.En;
+
 public class DubboDemoStepdefs implements En {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private static final String ALPHA_REST_ADDRESS = "alpha.rest.address";
+
   private static final String SERVICEA_ADDRESS = "servicea.address";
+
   private static final String SERVICEB_ADDRESS = "serviceb.address";
+
   private static final String SERVICEC_ADDRESS = "servicec.address";
+
   private static final String INFO_SERVICE_URI = "info.service.uri";
 
   private static final Consumer<Map<String, String>[]> NO_OP_CONSUMER = (dataMap) -> {
   };
 
   public DubboDemoStepdefs() {
-    Given("^ServiceA is up and running$", () -> {
-      probe(System.getProperty(SERVICEA_ADDRESS));
-    });
+    Given("^ServiceA is up and running$", () -> probe(System.getProperty(SERVICEA_ADDRESS)));
 
-    And("^ServiceB is up and running$", () -> {
-      probe(System.getProperty(SERVICEB_ADDRESS));
-    });
+    And("^ServiceB is up and running$", () -> probe(System.getProperty(SERVICEB_ADDRESS)));
 
-    And("^ServiceC is up and running$", () -> {
-      probe(System.getProperty(SERVICEC_ADDRESS));
-    });
+    And("^ServiceC is up and running$", () -> probe(System.getProperty(SERVICEC_ADDRESS)));
 
-    And("^Alpha is up and running$", () -> {
-      probe(System.getProperty(ALPHA_REST_ADDRESS));
-    });
+    And("^Alpha is up and running$", () -> probe(System.getProperty(ALPHA_REST_ADDRESS)));
 
     When("^([A-Za-z]+) :: .*$", (invokeCode) -> {
       LOG.info("invokeCode: " + invokeCode);
@@ -79,10 +78,10 @@ public class DubboDemoStepdefs implements En {
     Then("^Alpha records the following events$", (DataTable dataTable) -> {
       Consumer<Map<String, Object>[]> sortAndColumnStrippingConsumer = dataMaps -> {
         //blur match: service for sagaEndedEvent may be unable to que
-        for(Map<String, Object> dataMap : dataMaps){
-          if(dataMap.values().contains("SagaEndedEvent")){
-            for(String key : dataMap.keySet()){
-              if("SagaEndedEvent".equals(dataMap.get(key))){
+        for (Map<String, Object> dataMap : dataMaps) {
+          if (dataMap.values().contains("SagaEndedEvent")) {
+            for (String key : dataMap.keySet()) {
+              if ("SagaEndedEvent".equals(dataMap.get(key))) {
                 dataMap.put("serviceName", "*");
                 break;
               }
@@ -90,8 +89,9 @@ public class DubboDemoStepdefs implements En {
           }
         }
         //strip columns
-        for (Map<String, Object> map : dataMaps)
+        for (Map<String, Object> map : dataMaps) {
           map.keySet().retainAll(dataTable.topCells());
+        }
       };
 
       dataMatches(System.getProperty(ALPHA_REST_ADDRESS) + "/events", dataTable, sortAndColumnStrippingConsumer);
@@ -99,11 +99,13 @@ public class DubboDemoStepdefs implements En {
 
     And("^(service[a-c]+) success update status$", (String serviceName, DataTable dataTable) -> {
       Consumer<Map<String, Object>[]> columnStrippingConsumer = dataMap -> {
-        for (Map<String, Object> map : dataMap)
+        for (Map<String, Object> map : dataMap) {
           map.keySet().retainAll(dataTable.topCells());
+        }
       };
 
-      dataMatches(System.getProperty(SERVICEA_ADDRESS) + "/serviceInfo/"+serviceName, dataTable, columnStrippingConsumer);
+      dataMatches(System.getProperty(SERVICEA_ADDRESS) + "/serviceInfo/" + serviceName, dataTable,
+          columnStrippingConsumer);
     });
   }
 
@@ -112,10 +114,10 @@ public class DubboDemoStepdefs implements En {
     LOG.info("Cleaning up services");
 
     given()
-            .when()
-            .delete(System.getProperty(ALPHA_REST_ADDRESS) + "/events")
-            .then()
-            .statusCode(is(200));
+        .when()
+        .delete(System.getProperty(ALPHA_REST_ADDRESS) + "/events")
+        .then()
+        .statusCode(is(200));
   }
 
   @SuppressWarnings("unchecked")
@@ -170,5 +172,4 @@ public class DubboDemoStepdefs implements En {
         .then()
         .statusCode(is(200));
   }
-
 }

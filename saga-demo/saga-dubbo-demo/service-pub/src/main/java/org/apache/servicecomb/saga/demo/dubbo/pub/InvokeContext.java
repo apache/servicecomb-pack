@@ -16,41 +16,40 @@
  */
 package org.apache.servicecomb.saga.demo.dubbo.pub;
 
-public class InvokeContext implements java.io.Serializable{
+public class InvokeContext implements java.io.Serializable {
 
-    private String invokeCode;
+  private String invokeCode;
 
-    public String getInvokeCode() {
-        return invokeCode;
-    }
+  public String getInvokeCode() {
+    return invokeCode;
+  }
 
-    public InvokeContext setInvokeCode(String invokeCode) {
-        this.invokeCode = invokeCode;
-        return this;
-    }
+  public InvokeContext setInvokeCode(String invokeCode) {
+    this.invokeCode = invokeCode;
+    return this;
+  }
 
-    public boolean isInvokeB(String serviceName) {
-        return "servicea".equals(serviceName) && (IInvokeCode.AExceptionWhenAb.equals(invokeCode)
-                || IInvokeCode.Ab.equals(invokeCode)
-                || IInvokeCode.BExceptionWhenAb.equals(invokeCode)
-                || IInvokeCode.AbAc.equals(invokeCode)
-                || IInvokeCode.CExceptionWhenAbAc.equals(invokeCode)
-                || IInvokeCode.AbBc.equals(invokeCode)
-                || IInvokeCode.CExceptionWhenAbBc.equals(invokeCode));
-    }
+  public boolean isInvokeB(String serviceName) {
+    return "servicea".equals(serviceName) && (IInvokeCode.AExceptionWhenAb.equals(invokeCode)
+        || IInvokeCode.Ab.equals(invokeCode)
+        || IInvokeCode.BExceptionWhenAb.equals(invokeCode)
+        || IInvokeCode.AbAc.equals(invokeCode)
+        || IInvokeCode.CExceptionWhenAbAc.equals(invokeCode)
+        || IInvokeCode.AbBc.equals(invokeCode)
+        || IInvokeCode.CExceptionWhenAbBc.equals(invokeCode));
+  }
 
-    public boolean isInvokeC(String serviceName) {
-        return ("serviceb".equals(serviceName) && IInvokeCode.AbBc.equals(invokeCode))
-                || ("serviceb".equals(serviceName) && IInvokeCode.CExceptionWhenAbBc.equals(invokeCode))
-                || ("servicea".equals(serviceName) && IInvokeCode.AbAc.equals(invokeCode))
-                || ("servicea".equals(serviceName) && IInvokeCode.CExceptionWhenAbAc.equals(invokeCode));
-    }
+  public boolean isInvokeC(String serviceName) {
+    return ("serviceb".equals(serviceName) && IInvokeCode.AbBc.equals(invokeCode))
+        || ("serviceb".equals(serviceName) && IInvokeCode.CExceptionWhenAbBc.equals(invokeCode))
+        || ("servicea".equals(serviceName) && IInvokeCode.AbAc.equals(invokeCode))
+        || ("servicea".equals(serviceName) && IInvokeCode.CExceptionWhenAbAc.equals(invokeCode));
+  }
 
-    public boolean isException(String serviceName) {
-        return ("servicea".equals(serviceName) && IInvokeCode.AExceptionWhenAb.equals(invokeCode))
-               || ("serviceb".equals(serviceName) && IInvokeCode.BExceptionWhenAb.equals(invokeCode))
-                || ("servicec".equals(serviceName) && (IInvokeCode.CExceptionWhenAbAc.equals(invokeCode)
-                || IInvokeCode.CExceptionWhenAbBc.equals(invokeCode)));
-    }
-
+  public boolean isException(String serviceName) {
+    return ("servicea".equals(serviceName) && IInvokeCode.AExceptionWhenAb.equals(invokeCode))
+        || ("serviceb".equals(serviceName) && IInvokeCode.BExceptionWhenAb.equals(invokeCode))
+        || ("servicec".equals(serviceName) && (IInvokeCode.CExceptionWhenAbAc.equals(invokeCode)
+        || IInvokeCode.CExceptionWhenAbBc.equals(invokeCode)));
+  }
 }

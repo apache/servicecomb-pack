@@ -16,16 +16,16 @@
   ~ limitations under the License.
   -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
-    <dubbo:application name="dubbo-servicea"/>
-    <dubbo:consumer check="false" timeout="10000" />
-    <!--localhost:2181-->
-    <dubbo:registry address="zookeeper://${zookeeper.url}?client=zkclient"/>
-    <dubbo:protocol name="dubbo" port="20881"/>
-    <dubbo:service interface="org.apache.servicecomb.saga.demo.dubbo.api.IServiceA" ref="servicea"/>
-    <bean id="servicea" class="org.apache.servicecomb.saga.demo.dubbo.servicea.ServiceA"/>
-    <dubbo:reference id="serviceb" interface="org.apache.servicecomb.saga.demo.dubbo.api.IServiceB"/>
-    <dubbo:reference id="servicec" interface="org.apache.servicecomb.saga.demo.dubbo.api.IServiceC"/>
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+  <dubbo:application name="dubbo-servicea"/>
+  <dubbo:consumer check="false" timeout="10000"/>
+  <!--localhost:2181-->
+  <dubbo:registry address="zookeeper://${zookeeper.url}?client=zkclient"/>
+  <dubbo:protocol name="dubbo" port="20881"/>
+  <dubbo:service interface="org.apache.servicecomb.saga.demo.dubbo.api.IServiceA" ref="servicea"/>
+  <bean id="servicea" class="org.apache.servicecomb.saga.demo.dubbo.servicea.ServiceA"/>
+  <dubbo:reference id="serviceb" interface="org.apache.servicecomb.saga.demo.dubbo.api.IServiceB"/>
+  <dubbo:reference id="servicec" interface="org.apache.servicecomb.saga.demo.dubbo.api.IServiceC"/>
 </beans>

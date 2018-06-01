@@ -20,5 +20,6 @@ import org.apache.servicecomb.saga.demo.dubbo.pub.InvokeContext;
 
 public interface IService {
   Object run(InvokeContext invokeContext) throws Exception;
+
   void cancelRun(InvokeContext invokeContext);
 }

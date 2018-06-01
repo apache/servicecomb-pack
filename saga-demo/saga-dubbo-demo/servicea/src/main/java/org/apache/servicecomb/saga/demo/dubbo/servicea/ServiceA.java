@@ -16,6 +16,8 @@
  */
 package org.apache.servicecomb.saga.demo.dubbo.servicea;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.servicecomb.saga.demo.dubbo.api.IServiceA;
 import org.apache.servicecomb.saga.demo.dubbo.api.IServiceB;
 import org.apache.servicecomb.saga.demo.dubbo.api.IServiceC;
@@ -28,51 +30,48 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.invoke.MethodHandles;
-
 public class ServiceA extends AbsService implements IServiceA {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    @Autowired
-    private IServiceB serviceB;
+  @Autowired
+  private IServiceB serviceB;
 
-    @Autowired
-    private IServiceC serviceC;
+  @Autowired
+  private IServiceC serviceC;
 
-    @Override
-    public String getServiceName() {
-        return "servicea";
+  @Override
+  public String getServiceName() {
+    return "servicea";
+  }
+
+  @Override
+  public String getTableName() {
+    return "testa";
+  }
+
+  @Override
+  @SagaStart
+  @Compensable(compensationMethod = "cancelRun")
+  @Transactional(rollbackFor = Exception.class)
+  public Object run(InvokeContext invokeContext) throws Exception {
+    LOG.info("A.run called");
+    doRunBusi();
+    if (invokeContext.isInvokeB(getServiceName())) {
+      serviceB.run(invokeContext);
     }
-
-    @Override
-    public String getTableName() {
-        return "testa";
+    if (invokeContext.isInvokeC(getServiceName())) {
+      serviceC.run(invokeContext);
     }
-
-    @Override
-    @SagaStart
-    @Compensable( compensationMethod="cancelRun")
-    @Transactional(rollbackFor = Exception.class)
-    public Object run(InvokeContext invokeContext) throws Exception {
-        LOG.info("A.run called");
-        doRunBusi();
-        if(invokeContext.isInvokeB(getServiceName())){
-            serviceB.run(invokeContext);
-        }
-        if(invokeContext.isInvokeC(getServiceName())){
-            serviceC.run(invokeContext);
-        }
-        if(invokeContext.isException(getServiceName()) ){
-            LOG.info("A.run exception");
-            throw new Exception("A.run exception");
-        }
-        return null;
+    if (invokeContext.isException(getServiceName())) {
+      LOG.info("A.run exception");
+      throw new Exception("A.run exception");
     }
+    return null;
+  }
 
-    public void cancelRun(InvokeContext invokeContext){
-        LOG.info("A.cancel called");
-        doCancelBusi();
-    }
-
+  public void cancelRun(InvokeContext invokeContext) {
+    LOG.info("A.cancel called");
+    doCancelBusi();
+  }
 }

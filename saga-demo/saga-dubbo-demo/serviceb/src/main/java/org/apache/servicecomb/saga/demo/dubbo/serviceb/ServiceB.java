@@ -16,6 +16,8 @@
  */
 package org.apache.servicecomb.saga.demo.dubbo.serviceb;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.servicecomb.saga.demo.dubbo.api.IServiceB;
 import org.apache.servicecomb.saga.demo.dubbo.api.IServiceC;
 import org.apache.servicecomb.saga.demo.dubbo.pub.AbsService;
@@ -26,44 +28,41 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.invoke.MethodHandles;
-
 public class ServiceB extends AbsService implements IServiceB {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    @Autowired
-    private IServiceC serviceC;
+  @Autowired
+  private IServiceC serviceC;
 
-    @Override
-    public String getServiceName() {
-        return "serviceb";
+  @Override
+  public String getServiceName() {
+    return "serviceb";
+  }
+
+  @Override
+  public String getTableName() {
+    return "testb";
+  }
+
+  @Override
+  @Compensable(compensationMethod = "cancelRun")
+  @Transactional(rollbackFor = Exception.class)
+  public Object run(InvokeContext invokeContext) throws Exception {
+    LOG.info("B.run called");
+    doRunBusi();
+    if (invokeContext.isInvokeC(getServiceName())) {
+      serviceC.run(invokeContext);
+    }
+    if (invokeContext.isException(getServiceName())) {
+      throw new Exception("B.run exception");
     }
 
-    @Override
-    public String getTableName() {
-        return "testb";
-    }
+    return null;
+  }
 
-    @Override
-    @Compensable( compensationMethod="cancelRun")
-    @Transactional(rollbackFor = Exception.class)
-    public Object run(InvokeContext invokeContext) throws Exception {
-        LOG.info("B.run called");
-       doRunBusi();
-       if(invokeContext.isInvokeC(getServiceName())){
-           serviceC.run(invokeContext);
-       }
-        if(invokeContext.isException(getServiceName())){
-            throw new Exception("B.run exception");
-        }
-
-        return null;
-    }
-
-    public void cancelRun(InvokeContext invokeContext){
-        LOG.info("B.cancel called");
-        doCancelBusi();
-    }
-
+  public void cancelRun(InvokeContext invokeContext) {
+    LOG.info("B.cancel called");
+    doCancelBusi();
+  }
 }

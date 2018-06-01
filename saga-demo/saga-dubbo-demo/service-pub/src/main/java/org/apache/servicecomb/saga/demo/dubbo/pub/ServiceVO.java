@@ -18,31 +18,33 @@ package org.apache.servicecomb.saga.demo.dubbo.pub;
 
 public class ServiceVO {
 
-    private String id;
-    private String service;
-    private String vstatus;
+  private String id;
 
-    public String getId() {
-        return id;
-    }
+  private String service;
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  private String vstatus;
 
-    public String getService() {
-        return service;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public void setService(String service) {
-        this.service = service;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public String getVstatus() {
-        return vstatus;
-    }
+  public String getService() {
+    return service;
+  }
 
-    public void setVstatus(String vstatus) {
-        this.vstatus = vstatus;
-    }
+  public void setService(String service) {
+    this.service = service;
+  }
+
+  public String getVstatus() {
+    return vstatus;
+  }
+
+  public void setVstatus(String vstatus) {
+    this.vstatus = vstatus;
+  }
 }

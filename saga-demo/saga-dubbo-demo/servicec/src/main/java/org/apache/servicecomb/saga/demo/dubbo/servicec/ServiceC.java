@@ -16,6 +16,8 @@
  */
 package org.apache.servicecomb.saga.demo.dubbo.servicec;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.servicecomb.saga.demo.dubbo.api.IServiceC;
 import org.apache.servicecomb.saga.demo.dubbo.pub.AbsService;
 import org.apache.servicecomb.saga.demo.dubbo.pub.InvokeContext;
@@ -24,38 +26,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.invoke.MethodHandles;
-
 public class ServiceC extends AbsService implements IServiceC {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    @Override
-    public String getServiceName() {
-        return "servicec";
+  @Override
+  public String getServiceName() {
+    return "servicec";
+  }
+
+  @Override
+  public String getTableName() {
+    return "testc";
+  }
+
+  @Override
+  @Compensable(compensationMethod = "cancelRun")
+  @Transactional(rollbackFor = Exception.class)
+  public Object run(InvokeContext invokeContext) throws Exception {
+    LOG.info("C.run called");
+    doRunBusi();
+    if (invokeContext.isException(getServiceName())) {
+      LOG.info("C.run exception");
+      throw new Exception("C.run exception");
     }
+    return null;
+  }
 
-    @Override
-    public String getTableName() {
-        return "testc";
-    }
-
-    @Override
-    @Compensable(compensationMethod="cancelRun")
-    @Transactional(rollbackFor = Exception.class)
-    public Object run(InvokeContext invokeContext) throws Exception {
-        LOG.info("C.run called");
-        doRunBusi();
-        if(invokeContext.isException(getServiceName()) ){
-            LOG.info("C.run exception");
-            throw new Exception("C.run exception");
-        }
-        return null;
-    }
-
-    public void cancelRun(InvokeContext invokeContext){
-        LOG.info("C.cancel called");
-        doCancelBusi();
-    }
-
+  public void cancelRun(InvokeContext invokeContext) {
+    LOG.info("C.cancel called");
+    doCancelBusi();
+  }
 }
