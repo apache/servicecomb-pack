@@ -40,4 +40,4 @@ Once we've discussed your changes and you've got your code ready, make sure that
 
 ## Do you have questions about the source code?
 
-Ask any question about how to use SkyWalking in the [Gitter](https://gitter.im/ServiceCombUsers/Lobby).
+Ask any question about how to use ServiceComb in the [Gitter](https://gitter.im/ServiceCombUsers/Lobby).
