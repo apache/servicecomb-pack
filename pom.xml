@@ -46,6 +46,7 @@
     <java.version>1.8</java.version>
     <kamon.version>0.6.7</kamon.version>
     <log4j.version>2.6.2</log4j.version>
+    <dubbo.version>2.6.1</dubbo.version>
     <spring.boot.version>1.5.13.RELEASE</spring.boot.version>
     <spring.boot2.version>2.0.2.RELEASE</spring.boot2.version>
     <spring.cloud.version>Camden.SR6</spring.cloud.version>
@@ -139,6 +140,11 @@
       <dependency>
         <groupId>org.apache.servicecomb.saga</groupId>
         <artifactId>omega-transport-resttemplate</artifactId>
+        <version>0.2.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.servicecomb.saga</groupId>
+        <artifactId>omega-transport-dubbo</artifactId>
         <version>0.2.0</version>
       </dependency>
       <dependency>

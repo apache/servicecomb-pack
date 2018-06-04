@@ -27,10 +27,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <properties>
-        <dubbo.version>2.6.1</dubbo.version>
-    </properties>
-
     <artifactId>omega-transport-dubbo</artifactId>
     <dependencies>
         <dependency>
