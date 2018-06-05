@@ -21,7 +21,7 @@
   <parent>
     <artifactId>saga-demo</artifactId>
     <groupId>org.apache.servicecomb.saga.demo</groupId>
-    <version>0.2.0</version>
+    <version>0.3.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -30,7 +30,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <saga.version>0.2.0</saga.version>
+    <saga.version>0.3.0-SNAPSHOT</saga.version>
   </properties>
 
   <modules>
