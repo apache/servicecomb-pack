@@ -106,7 +106,7 @@ curl http://${host_address}:8082/bookings
 
 ```
 
-2. Booking 3 rooms and 2 cars, this booking will case the hotel order failed and trigger the compensate operation with car booking.
+2. Booking 3 rooms and 2 cars, this booking will cause the hotel order failed and trigger the compensate operation with car booking.
 ```
 curl -X POST http://${host_address}:8083/booking/test/3/2
 ```
