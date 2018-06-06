@@ -267,10 +267,10 @@ For details, see http://servlet-spec.java.net
 You can find a copy of the License at licenses/LICENSE-javax
 
 ===========================================================================
-For org.slf4j:jcl-over-slf4j:jar:1.7.22,
-org.slf4j:jcl-over-slf4j:jar:1.7.24,
-org.slf4j:jul-to-slf4j:jar:1.7.24,
+For org.slf4j:jcl-over-slf4j:jar:1.7.25,
+org.slf4j:jul-to-slf4j:jar:1.7.25,
 org.slf4j:slf4j-api:jar:1.7.25
+org.slf4j:log4j-over-slf4j:jar:1.7.25
 ===========================================================================
 This product bundles slf4j libraries which is licensed under the
 MIT license.
@@ -310,8 +310,8 @@ For details, see https://github.com/EsotericSoftware/kryo
 You can find a copy of the License at licenses/LICENSE-esotericsoftware
 
 ===========================================================================
-For com.google.protobuf:protobuf-java-util:bundle:3.4.0,
-com.google.protobuf:protobuf-java:bundle:3.4.0
+For com.google.protobuf:protobuf-java-util:bundle:3.5.1,
+com.google.protobuf:protobuf-java:bundle:3.5.1
 ===========================================================================
 This product bundles protobuf which is licensed under the
 3-Clause BSD license.
@@ -353,14 +353,15 @@ For details, see their respective project links.
 
 Apache Commons Logging (http://commons.apache.org/proper/commons-logging/) commons-logging:commons-logging:jar:1.2
 Bean Validation API (http://beanvalidation.org) javax.validation:validation-api:jar:1.1.0.Final
-ClassMate (http://github.com/cowtowncoder/java-classmate) com.fasterxml:classmate:bundle:1.3.3
-com.google.api.grpc:proto-google-common-protos (https://github.com/googleapis/googleapis) com.google.api.grpc:proto-google-common-protos:jar:0.1.9
+ClassMate (http://github.com/cowtowncoder/java-classmate) com.fasterxml:classmate:bundle:1.3.4
+com.google.api.grpc:proto-google-common-protos (https://github.com/googleapis/googleapis) com.google.api.grpc:proto-google-common-protos:jar:1.0.0
 dubbo (https://github.com/apache/incubator-dubbo) com.alibaba:dubbo:jar:2.6.1
-error-prone annotations (http://nexus.sonatype.org/oss-repository-hosting.html/error_prone_parent/error_prone_annotations) com.google.errorprone:error_prone_annotations:jar:2.0.19
+error-prone annotations (http://nexus.sonatype.org/oss-repository-hosting.html/error_prone_parent/error_prone_annotations) com.google.errorprone:error_prone_annotations:jar:2.1.2
 FindBugs-jsr305 (http://findbugs.sourceforge.net/) com.google.code.findbugs:jsr305:jar:3.0.0
-Gson (https://github.com/google/gson/gson) com.google.code.gson:gson:jar:2.7
+Gson (For libs/gson-2.7.jar) (https://github.com/google/gson/gson) com.google.code.gson:gson:jar:2.7
+Gson (For alpha-server-0.2.0-exec.jar) (https://github.com/google/gson/gson) com.google.code.gson:gson:jar:2.8.4
 Guava: Google Core Libraries for Java (https://github.com/google/guava/guava) com.google.guava:guava:bundle:20.0
-Hibernate Validator Engine (http://hibernate.org/validator/hibernate-validator) org.hibernate:hibernate-validator:jar:5.2.4.Final
+Hibernate Validator Engine (http://hibernate.org/validator/hibernate-validator) org.hibernate:hibernate-validator:jar:5.3.6.Final
 Instrumentation (https://github.com/google/instrumentation-java) com.google.instrumentation:instrumentation-api:jar:0.4.3
 io.grpc:grpc-context (https://github.com/grpc/grpc-java) io.grpc:grpc-context:jar:1.11.0
 io.grpc:grpc-core (https://github.com/grpc/grpc-java) io.grpc:grpc-core:jar:1.11.0
@@ -368,22 +369,23 @@ io.grpc:grpc-netty (https://github.com/grpc/grpc-java) io.grpc:grpc-netty:jar:1.
 io.grpc:grpc-protobuf (https://github.com/grpc/grpc-java) io.grpc:grpc-protobuf:jar:1.11.0
 io.grpc:grpc-protobuf-lite (https://github.com/grpc/grpc-java) io.grpc:grpc-protobuf-lite:jar:1.11.0
 io.grpc:grpc-stub (https://github.com/grpc/grpc-java) io.grpc:grpc-stub:jar:1.11.0
-Jackson-annotations (http://github.com/FasterXML/jackson) com.fasterxml.jackson.core:jackson-annotations:bundle:2.8.7
-Jackson-core (https://github.com/FasterXML/jackson-core) com.fasterxml.jackson.core:jackson-core:bundle:2.8.7
-jackson-databind (http://github.com/FasterXML/jackson) com.fasterxml.jackson.core:jackson-databind:bundle:2.8.7
-JBoss Logging 3 (http://www.jboss.org) org.jboss.logging:jboss-logging:jar:3.3.0.Final
-Log4j Implemented Over SLF4J (http://www.slf4j.org) org.slf4j:log4j-over-slf4j:jar:1.7.25
-Netty/Buffer (http://netty.io/netty-buffer/) io.netty:netty-buffer:jar:4.1.21.Final
-Netty/Codec/HTTP2 (http://netty.io/netty-codec-http2/) io.netty:netty-codec-http2:jar:4.1.21.Final
-Netty/Codec/HTTP (http://netty.io/netty-codec-http/) io.netty:netty-codec-http:jar:4.1.21.Final
-Netty/Codec (http://netty.io/netty-codec/) io.netty:netty-codec:jar:4.1.21.Final
-Netty/Codec/Socks (http://netty.io/netty-codec-socks/) io.netty:netty-codec-socks:jar:4.1.21.Final
-Netty/Common (http://netty.io/netty-common/) io.netty:netty-common:jar:4.1.21.Final
-Netty/Handler (http://netty.io/netty-handler/) io.netty:netty-handler:jar:4.1.21.Final
-Netty/Handler/Proxy (http://netty.io/netty-handler-proxy/) io.netty:netty-handler-proxy:jar:4.1.21.Final
-Netty/Resolver (http://netty.io/netty-resolver/) io.netty:netty-resolver:jar:4.1.21.Final
+Jackson-annotations (http://github.com/FasterXML/jackson) com.fasterxml.jackson.core:jackson-annotations:bundle:2.8.0
+Jackson-core (https://github.com/FasterXML/jackson-core) com.fasterxml.jackson.core:jackson-core:bundle:2.8.11
+jackson-databind (http://github.com/FasterXML/jackson) com.fasterxml.jackson.core:jackson-databind:bundle:2.8.11.1
+Javassist (http://www.javassist.org/) org.javassist:javassist:bundle:3.20.0-GA
+JBoss Logging 3 (http://www.jboss.org) org.jboss.logging:jboss-logging:jar:3.3.2.Final
+Netty (http://netty.io/) io.netty:netty:jar:3.2.5.Final
+Netty/Buffer (http://netty.io/netty-buffer/) io.netty:netty-buffer:jar:4.1.22.Final
+Netty/Codec/HTTP2 (http://netty.io/netty-codec-http2/) io.netty:netty-codec-http2:jar:4.1.22.Final
+Netty/Codec/HTTP (http://netty.io/netty-codec-http/) io.netty:netty-codec-http:jar:4.1.22.Final
+Netty/Codec (http://netty.io/netty-codec/) io.netty:netty-codec:jar:4.1.22.Final
+Netty/Codec/Socks (http://netty.io/netty-codec-socks/) io.netty:netty-codec-socks:jar:4.1.22.Final
+Netty/Common (http://netty.io/netty-common/) io.netty:netty-common:jar:4.1.22.Final
+Netty/Handler (http://netty.io/netty-handler/) io.netty:netty-handler:jar:4.1.22.Final
+Netty/Handler/Proxy (http://netty.io/netty-handler-proxy/) io.netty:netty-handler-proxy:jar:4.1.22.Final
+Netty/Resolver (http://netty.io/netty-resolver/) io.netty:netty-resolver:jar:4.1.22.Final
 Netty/TomcatNative (https://github.com/netty/netty-tcnative) netty-tcnative-boringssl-static:2.0.7.Final
-Netty/Transport (http://netty.io/netty-transport/) io.netty:netty-transport:jar:4.1.21.Final
+Netty/Transport (http://netty.io/netty-transport/) io.netty:netty-transport:jar:4.1.22.Final
 Objenesis (http://objenesis.org) org.objenesis:objenesis:jar:2.5.1
 OpenCensus (https://github.com/census-instrumentation/opencensus-java) io.opencensus:opencensus-api:jar:0.11.0
 OpenCensus (https://github.com/census-instrumentation/opencensus-java) io.opencensus:opencensus-contrib-grpc-metrics:jar:0.11.0
@@ -391,7 +393,8 @@ SnakeYAML (http://www.snakeyaml.org) org.yaml:snakeyaml:bundle:1.17
 Spring AOP (https://github.com/spring-projects/spring-framework) org.springframework:spring-aop:jar:4.3.17.RELEASE
 Spring Aspects (https://github.com/spring-projects/spring-framework) org.springframework:spring-aspects:jar:4.3.17.RELEASE
 Spring Beans (https://github.com/spring-projects/spring-framework) org.springframework:spring-beans:jar:4.3.17.RELEASE
-Spring Boot Actuator (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-actuator:jar:1.5.11.RELEASE
+Spring Boot (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot:jar:1.5.13.RELEASE
+Spring Boot Actuator (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-actuator:jar:1.5.13.RELEASE
 Spring Boot Actuator Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-actuator:jar:1.5.13.REALEASE
 Spring Boot AOP Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-aop:jar:1.5.13.REALEASE
 Spring Boot AutoConfigure (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-autoconfigure:jar:1.5.13.REALEASE
