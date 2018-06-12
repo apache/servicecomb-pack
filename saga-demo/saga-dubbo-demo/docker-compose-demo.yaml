@@ -1,0 +1,84 @@
+## ---------------------------------------------------------------------------
+## Licensed to the Apache Software Foundation (ASF) under one or more
+## contributor license agreements.  See the NOTICE file distributed with
+## this work for additional information regarding copyright ownership.
+## The ASF licenses this file to You under the Apache License, Version 2.0
+## (the "License"); you may not use this file except in compliance with
+## the License.  You may obtain a copy of the License at
+##
+##      http://www.apache.org/licenses/LICENSE-2.0
+##
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
+## ---------------------------------------------------------------------------
+
+version: '2.1'
+
+services:
+  zookeeper:
+    image: "docker.io/zookeeper"
+    hostname: zookeeper
+    ports:
+      - "2181:2181"
+  servicea:
+    image: "servicea:${TAG}"
+    hostname: servicea
+    links:
+      - "zookeeper:zookeeper.servicecomb.io"
+    external_links:
+      - "alpha:alpha-server.servicecomb.io"
+      - "database:postgresql.servicecomb.io"
+    environment:
+      - JAVA_OPTS=  -Dspring.profiles.active=prd
+                                -Dspring.datasource.url=jdbc:postgresql://postgresql.servicecomb.io:5432/saga
+                                -Dspring.datasource.username=saga
+                                -Dspring.datasource.password=password
+                                -Dzookeeper.url=zookeeper.servicecomb.io:2181
+                                -Dserver.port=8071
+                                -Dalpha.cluster.address=alpha-server.servicecomb.io:8080
+                                -Dspring.datasource.initialization-mode=always
+    ports:
+      - "8071:8071"
+
+  serviceb:
+    image: "serviceb:${TAG}"
+    hostname: serviceb
+    links:
+      - "zookeeper:zookeeper.servicecomb.io"
+    external_links:
+      - "alpha:alpha-server.servicecomb.io"
+      - "database:postgresql.servicecomb.io"
+    environment:
+      - JAVA_OPTS=  -Dspring.profiles.active=prd
+                                -Dspring.datasource.url=jdbc:postgresql://postgresql.servicecomb.io:5432/saga
+                                -Dspring.datasource.username=saga
+                                -Dspring.datasource.password=password
+                                -Dzookeeper.url=zookeeper.servicecomb.io:2181
+                                -Dserver.port=8072
+                                -Dalpha.cluster.address=alpha-server.servicecomb.io:8080
+                                -Dspring.datasource.initialization-mode=always
+    ports:
+      - "8072:8072"
+
+  servicec:
+    image: "servicec:${TAG}"
+    hostname: servicec
+    links:
+      - "zookeeper:zookeeper.servicecomb.io"
+    external_links:
+      - "alpha:alpha-server.servicecomb.io"
+      - "database:postgresql.servicecomb.io"
+    environment:
+      - JAVA_OPTS=  -Dspring.profiles.active=prd
+                                -Dspring.datasource.url=jdbc:postgresql://postgresql.servicecomb.io:5432/saga
+                                -Dspring.datasource.username=saga
+                                -Dspring.datasource.password=password
+                                -Dzookeeper.url=zookeeper.servicecomb.io:2181
+                                -Dserver.port=8073
+                                -Dalpha.cluster.address=alpha-server.servicecomb.io:8080
+                                -Dspring.datasource.initialization-mode=always
+    ports:
+      - "8073:8073"
