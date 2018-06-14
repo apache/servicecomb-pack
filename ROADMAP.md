@@ -11,6 +11,7 @@
 - [] [SCB-244](https://issues.apache.org/jira/browse/SCB-244) Add demo to use pack with Java-Chassis (new++)
 
 ### Test
+- [] [SCB-668](https://issues.apache.org/jira/browse/SCB-668) Using docker-compose file to start Services from docker plugin in the Accept test(new)
 - [] [SCB-306](https://issues.apache.org/jira/browse/SCB-306) Simulate different recover use cases (new)
 - [] [SCB-24](https://issues.apache.org/jira/browse/SCB-24) Performance impacts test (new)
 
@@ -22,7 +23,6 @@
 - [] [SCB-163](https://issues.apache.org/jira/browse/SCB-163) Share the context cross the thread (hard)
 
 ### Alpha
-- [] [SCB-647](https://issues.apache.org/jira/browse/SCB-647) Using testcontainers to start Alpha Server in the integration test(new)
 - [] [SCB-341](https://issues.apache.org/jira/browse/SCB-341) Multi tenant support (new)
 - [] [SCB-241](https://issues.apache.org/jira/browse/SCB-241) Visual Transactions, auditing mode support (new)
 - [] [SCB-557](https://issues.apache.org/jira/browse/SCB-557) Watch mode of Alpha (new)
