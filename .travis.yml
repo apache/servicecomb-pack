@@ -16,10 +16,13 @@
 ## ---------------------------------------------------------------------------
 
 sudo: required
+
 cache:
   directories:
   - "$HOME/.m2"
 language: java
+
+install: true
 jdk:
 - oraclejdk8
 env:
