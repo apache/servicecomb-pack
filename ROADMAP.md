@@ -12,8 +12,8 @@
 
 ### Test
 - [] [SCB-668](https://issues.apache.org/jira/browse/SCB-668) Using docker-compose file to start Services from docker plugin in the Accept test(new)
-- [] [SCB-306](https://issues.apache.org/jira/browse/SCB-306) Simulate different recover use cases (new)
-- [] [SCB-24](https://issues.apache.org/jira/browse/SCB-24) Performance impacts test (new)
+- [] [SCB-306](https://issues.apache.org/jira/browse/SCB-306) Simulate different recover use cases 
+- [] [SCB-240](https://issues.apache.org/jira/browse/SCB-240) Performance impacts test
 
 
 ### Omega
