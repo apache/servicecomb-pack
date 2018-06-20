@@ -32,7 +32,7 @@ services:
         retries: 5
 
   alpha:
-    image: "alpha-server:${TAG}"
+    image: "alpha-server:0.3.0-SNAPSHOT"
     hostname: alpha-server
     links:
       - "database:postgresql.servicecomb.io"
@@ -54,31 +54,31 @@ services:
       - "30100:30100"
 
   hotel:
-    image: "scb-hotel:${TAG}"
+    image: "scb-hotel:0.3.0-SNAPSHOT"
     hostname: hotel
     links:
       - "alpha:alpha-server.servicecomb.io"
       - "servicecenter:service-center.servicecomb.io"
     ports:
-      - "8081:8080"
+      - "8081:8081"
     depends_on:
       alpha:
         condition: service_healthy
 
   car:
-    image: "scb-car:${TAG}"
+    image: "scb-car:0.3.0-SNAPSHOT"
     hostname: car
     links:
       - "alpha:alpha-server.servicecomb.io"
       - "servicecenter:service-center.servicecomb.io"
     ports:
-      - "8082:8080"
+      - "8082:8082"
     depends_on:
       alpha:
         condition: service_healthy
 
   booking:
-    image: "scb-booking:${TAG}"
+    image: "scb-booking:0.3.0-SNAPSHOT"
     hostname: booking
     links:
       - "alpha:alpha-server.servicecomb.io"
@@ -86,7 +86,7 @@ services:
       - "car:car.servicecomb.io"
       - "servicecenter:service-center.servicecomb.io"
     ports:
-      - "8083:8080"
+      - "8083:8083"
     depends_on:
       - hotel
       - car
