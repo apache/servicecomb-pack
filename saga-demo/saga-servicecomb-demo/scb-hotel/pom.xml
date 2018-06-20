@@ -27,5 +27,6 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>scb-hotel</artifactId>
+  <name>Saga::Demo::ServiceComb-Demo::Hotel</name>
 
 </project>

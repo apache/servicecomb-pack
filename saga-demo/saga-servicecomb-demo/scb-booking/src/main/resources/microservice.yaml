@@ -34,10 +34,10 @@ servicecomb:
   service:
   #Specifies the service center IP address.
     registry:
-      address: http://127.0.0.1:30100
+      address: http://service-center.servicecomb.io:30100
   #Specifies the rest transport listening IP address.
   rest:
-    address: 127.0.0.1:18080
+    address: 0.0.0.0:8083
 
   #Add Saga Handler
   handler:
