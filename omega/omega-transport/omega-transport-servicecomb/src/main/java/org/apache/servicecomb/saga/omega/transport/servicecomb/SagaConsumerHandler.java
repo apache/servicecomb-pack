@@ -24,10 +24,13 @@ import java.lang.invoke.MethodHandles;
 
 import org.apache.servicecomb.core.Handler;
 import org.apache.servicecomb.core.Invocation;
+import org.apache.servicecomb.foundation.common.utils.BeanUtils;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.swagger.invocation.AsyncResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.annotations.VisibleForTesting;
 
 public class SagaConsumerHandler implements Handler {
 
@@ -35,6 +38,15 @@ public class SagaConsumerHandler implements Handler {
 
   private OmegaContext omegaContext;
 
+  public SagaConsumerHandler() {
+    try {
+      omegaContext = BeanUtils.getBean("omegaContext");
+    } catch (NullPointerException npe) {
+      LOG.info("The OmegaContext is not injected, The SagaConsumerHandler is disabled.");
+    }
+  }
+
+  @VisibleForTesting
   public void setOmegaContext(OmegaContext omegaContext) {
     this.omegaContext = omegaContext;
   }

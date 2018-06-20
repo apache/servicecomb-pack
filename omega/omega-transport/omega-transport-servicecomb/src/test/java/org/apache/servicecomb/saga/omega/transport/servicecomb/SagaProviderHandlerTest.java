@@ -45,11 +45,12 @@ public class SagaProviderHandlerTest {
   private final Invocation invocation = mock(Invocation.class);
   private final AsyncResponse asyncResponse = mock(AsyncResponse.class);
 
-  private final SagaProviderHandler handler = new SagaProviderHandler(omegaContext);
+  private final SagaProviderHandler handler = new SagaProviderHandler();
 
   @Before
   public void setUp() {
     omegaContext.clear();
+    handler.setOmegaContext(omegaContext);
   }
 
   @Test

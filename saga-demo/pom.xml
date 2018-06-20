@@ -32,6 +32,7 @@
   <modules>
     <module>saga-dubbo-demo</module>
     <module>saga-spring-cloud-demo</module>
+    <module>saga-servicecomb-demo</module>
   </modules>
 
   <dependencyManagement>

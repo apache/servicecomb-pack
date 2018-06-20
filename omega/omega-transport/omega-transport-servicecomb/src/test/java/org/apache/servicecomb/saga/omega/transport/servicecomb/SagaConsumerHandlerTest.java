@@ -45,11 +45,12 @@ public class SagaConsumerHandlerTest {
   private final Invocation invocation = mock(Invocation.class);
   private final AsyncResponse asyncResponse = mock(AsyncResponse.class);
 
-  private final SagaConsumerHandler handler = new SagaConsumerHandler(omegaContext);
+  private final SagaConsumerHandler handler = new SagaConsumerHandler();
 
   @Before
   public void setUp() {
     when(idGenerator.nextId()).thenReturn(globalTxId, localTxId);
+    handler.setOmegaContext(omegaContext);
   }
 
   @Test

@@ -20,32 +20,12 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <artifactId>omega-transport</artifactId>
-    <groupId>org.apache.servicecomb.saga</groupId>
+    <artifactId>saga-servicecomb-demo</artifactId>
+    <groupId>org.apache.servicecomb.saga.demo</groupId>
     <version>0.3.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>omega-transport-servicecomb</artifactId>
-
-  <properties>
-    <java-chassis.version>1.0.0-m2</java-chassis.version>
-  </properties>
-
-  <dependencies>
-    <!-- We just need this jar for compile, the runtime should provide full dependencies -->
-    <dependency>
-      <groupId>org.apache.servicecomb</groupId>
-      <artifactId>java-chassis-core</artifactId>
-      <version>${java.chassis.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+  <artifactId>scb-booking</artifactId>
 
 </project>
