@@ -42,7 +42,7 @@ public class SagaConsumerHandler implements Handler {
     try {
       omegaContext = BeanUtils.getBean("omegaContext");
     } catch (NullPointerException npe) {
-      LOG.info("The OmegaContext is not injected, The SagaConsumerHandler is disabled.");
+      LOG.warn("The OmegaContext is not injected, The SagaConsumerHandler is disabled.");
     }
   }
 
@@ -62,6 +62,8 @@ public class SagaConsumerHandler implements Handler {
           omegaContext.globalTxId(),
           LOCAL_TX_ID_KEY,
           omegaContext.localTxId());
+    } else {
+      LOG.warn("The OmegaContext is not injected, The SagaConsumerHandler is disabled.");
     }
 
     invocation.next(asyncResponse);
