@@ -37,14 +37,6 @@
     <module>scb-booking</module>
   </modules>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <saga.version>0.3.0-SNAPSHOT</saga.version>
-    <java-chassis.version>1.0.0-m2</java-chassis.version>
-  </properties>
-
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -53,12 +45,6 @@
         <version>${java-chassis.version}</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
-        <artifactId>omega-transport-servicecomb</artifactId>
-        <version>${saga.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
