@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: car
+  namespace: servicecomb
+  labels:
+    app: scsaga-car
+spec:
+  ports:
+  - port: 8082
+    targetPort: 8080
+    name: car
+  selector:
+    app: scsaga-car
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: scsaga-car
+  namespace: servicecomb
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: scsaga-car
+        version: v1
+    spec:
+      containers:
+      - name: scsaga-car
+        image: car:0.3.0-SNAPSHOT
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: JAVA_OPTS
+          value: -Dalpha.cluster.address=alpha-server.servicecomb:8080
+        ports:
+        - containerPort: 8080
+---

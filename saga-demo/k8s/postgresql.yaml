@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Service
+metadata:
+  # original docker-compose link: "database:postgresql.servicecomb.io"
+  # Since kubernetes doesn't allow a namespace with dot like "servicecomb.io", make sure the Pod and Service are under the default namespace to be accessible
+  name: postgresql
+  namespace: servicecomb
+  labels:
+    app: scsaga-database
+spec:
+  ports:
+  - port: 5432
+    name: postgresql # The name cannot be 'http'
+  selector:
+    app: scsaga-database
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: scsaga-database
+  namespace: servicecomb
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: scsaga-database
+        version: v1
+    spec:
+      containers:
+      - name: scsaga-postgresql
+        image: postgres
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: saga
+        - name: POSTGRES_USER
+          value: saga
+        - name: POSTGRES_PASSWORD
+          value: password
+---

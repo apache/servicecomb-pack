@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: alpha-server
+  namespace: servicecomb
+  labels:
+    app: scsaga-alphaserver
+spec:
+  ports:
+  - port: 8080
+    name: alpha
+  selector:
+    app: scsaga-alphaserver
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: scsaga-alphaserver
+  namespace: servicecomb
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: scsaga-alphaserver
+        version: v1
+    spec:
+      containers:
+      - name: scsaga-alphaserver
+        image: alpha-server:0.3.0-SNAPSHOT
+        imagePullPolicy: IfNotPresent
+        # ports:
+        # - containerPort: 8080
+        env:
+        - name: JAVA_OPTS
+          value: -Dspring.profiles.active=prd -Dalpha.server.port=8080 -Dspring.datasource.url=jdbc:postgresql://postgresql.servicecomb:5432/saga?useSSL=false
+---
