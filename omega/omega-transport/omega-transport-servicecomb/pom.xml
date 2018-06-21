@@ -28,10 +28,6 @@
 
   <artifactId>omega-transport-servicecomb</artifactId>
 
-  <properties>
-    <java-chassis.version>1.0.0-m2</java-chassis.version>
-  </properties>
-
   <dependencies>
     <!-- We just need this jar for compile, the runtime should provide full dependencies -->
     <dependency>

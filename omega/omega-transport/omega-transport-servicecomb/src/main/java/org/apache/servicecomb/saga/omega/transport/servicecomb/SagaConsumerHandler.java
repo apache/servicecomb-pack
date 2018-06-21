@@ -30,24 +30,23 @@ import org.apache.servicecomb.swagger.invocation.AsyncResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.annotations.VisibleForTesting;
-
 public class SagaConsumerHandler implements Handler {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private OmegaContext omegaContext;
+  private final OmegaContext omegaContext;
 
   public SagaConsumerHandler() {
+    OmegaContext context = null;
     try {
-      omegaContext = BeanUtils.getBean("omegaContext");
+      context = BeanUtils.getBean("omegaContext");
     } catch (NullPointerException npe) {
-      LOG.warn("The OmegaContext is not injected, The SagaConsumerHandler is disabled.");
+      LOG.warn("SagaConsumerHandler is not disabled, it's just cannot inject transaction ID.");
     }
+    this.omegaContext = context;
   }
 
-  @VisibleForTesting
-  public void setOmegaContext(OmegaContext omegaContext) {
+  public SagaConsumerHandler(OmegaContext omegaContext) {
     this.omegaContext = omegaContext;
   }
 
@@ -63,7 +62,7 @@ public class SagaConsumerHandler implements Handler {
           LOCAL_TX_ID_KEY,
           omegaContext.localTxId());
     } else {
-      LOG.warn("The OmegaContext is not injected, The SagaConsumerHandler is disabled.");
+      LOG.info("SagaConsumerHandler is not disabled, it's just cannot inject transaction ID.");
     }
 
     invocation.next(asyncResponse);

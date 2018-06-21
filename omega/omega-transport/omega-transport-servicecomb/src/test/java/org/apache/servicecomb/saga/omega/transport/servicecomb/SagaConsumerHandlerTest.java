@@ -26,31 +26,33 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.servicecomb.core.Invocation;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
+import org.apache.servicecomb.swagger.invocation.AsyncResponse;
 import org.junit.Before;
 import org.junit.Test;
-
-import org.apache.servicecomb.core.Invocation;
-import org.apache.servicecomb.swagger.invocation.AsyncResponse;
 
 public class SagaConsumerHandlerTest {
 
   private static final String globalTxId = UUID.randomUUID().toString();
+
   private static final String localTxId = UUID.randomUUID().toString();
+
   @SuppressWarnings("unchecked")
   private final IdGenerator<String> idGenerator = mock(IdGenerator.class);
 
   private final OmegaContext omegaContext = new OmegaContext(() -> "ignored");
+
   private final Invocation invocation = mock(Invocation.class);
+
   private final AsyncResponse asyncResponse = mock(AsyncResponse.class);
 
-  private final SagaConsumerHandler handler = new SagaConsumerHandler();
+  private final SagaConsumerHandler handler = new SagaConsumerHandler(omegaContext);
 
   @Before
   public void setUp() {
     when(idGenerator.nextId()).thenReturn(globalTxId, localTxId);
-    handler.setOmegaContext(omegaContext);
   }
 
   @Test
