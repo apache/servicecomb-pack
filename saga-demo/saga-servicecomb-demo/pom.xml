@@ -42,7 +42,7 @@
       <dependency>
         <groupId>org.apache.servicecomb</groupId>
         <artifactId>java-chassis-dependencies</artifactId>
-        <version>${java-chassis.version}</version>
+        <version>${java.chassis.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

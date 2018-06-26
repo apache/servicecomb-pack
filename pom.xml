@@ -49,8 +49,7 @@
     <dubbo.version>2.6.1</dubbo.version>
     <spring.boot.version>1.5.13.RELEASE</spring.boot.version>
     <spring.boot2.version>2.0.2.RELEASE</spring.boot2.version>
-    <spring.cloud.version>Camden.SR6</spring.cloud.version>
-    <java.chassis.version>1.0.0-m1</java.chassis.version>
+    <java.chassis.version>1.0.0-m2</java.chassis.version>
     <spring.version>4.3.7.RELEASE</spring.version>
     <akka.version>2.5.6</akka.version>
     <rat.version>0.12</rat.version>
@@ -64,7 +63,7 @@
     <jaxb.version>2.3.0</jaxb.version>
     <javax.activation.version>1.1.1</javax.activation.version>
     <maven-dependency-plugin.version>3.0.2</maven-dependency-plugin.version>
-    <netty.version>2.0.7.Final</netty.version>
+    <netty.boringssl.version>2.0.7.Final</netty.boringssl.version>
     <java-chassis.version>1.0.0-m2</java-chassis.version>
   </properties>
 
@@ -321,7 +320,7 @@
       <dependency>
         <groupId>io.netty</groupId>
         <artifactId>netty-tcnative-boringssl-static</artifactId>
-        <version>${netty.version}</version>
+        <version>${netty.boringssl.version}</version>
       </dependency>
       <dependency>
         <groupId>io.grpc</groupId>
