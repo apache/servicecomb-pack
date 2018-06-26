@@ -41,7 +41,7 @@ public class SagaConsumerHandler implements Handler {
     try {
       context = BeanUtils.getBean("omegaContext");
     } catch (NullPointerException npe) {
-      LOG.warn("SagaConsumerHandler is not disabled, it's just cannot inject transaction ID.");
+      LOG.warn("SagaConsumerHandler cannot work rightly, please make sure omegaContext is in the spring application context.");
     }
     this.omegaContext = context;
   }
@@ -62,7 +62,7 @@ public class SagaConsumerHandler implements Handler {
           LOCAL_TX_ID_KEY,
           omegaContext.localTxId());
     } else {
-      LOG.info("SagaConsumerHandler is not disabled, it's just cannot inject transaction ID.");
+      LOG.info("Cannot inject transaction ID, as the OmegaContext is null or cannot get the globalTxId.");
     }
 
     invocation.next(asyncResponse);
