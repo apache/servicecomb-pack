@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  org.apache.servicecomb.saga.omega.transport.feign.FeignAutoConfiguration
