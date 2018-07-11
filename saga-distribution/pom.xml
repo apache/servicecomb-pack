@@ -49,6 +49,10 @@
         </dependency>
         <dependency>
             <groupId>org.apache.servicecomb.saga</groupId>
+            <artifactId>omega-transport-feign</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicecomb.saga</groupId>
             <artifactId>omega-connector-grpc</artifactId>
         </dependency>
         <dependency>

@@ -302,6 +302,14 @@ This product bundles Boringssl which is licensed under BSD style licenses.
 For details, see https://github.com/google/boringssl
 You can find a copy of the License at licenses/LICENSE-boringssl
 
+===========================================================================
+For io.github.openfeign:feign-core:9.5.1
+===========================================================================
+This product bundles spring-cloud-openfeign which is licensed under the
+Apache License 2.0.
+For details, see https://github.com/spring-cloud/spring-cloud-openfeign.git
+You can find a copy of the License at licenses/LICENSE-openfeign
+
 ================================================================
 This product bundles the following libraries which are licensed
 under the Apache License v2.
