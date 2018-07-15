@@ -26,8 +26,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>acceptance-pack</artifactId>
-  <name>Saga:Acceptance Tests::Pack</name>
+  <artifactId>acceptance-pack-spring</artifactId>
+  <name>Saga:Acceptance Tests::Pack::Spring</name>
 
   <dependencies>
     <dependency>
