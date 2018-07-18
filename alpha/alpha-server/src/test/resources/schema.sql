@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS TxEvent (
   expiryTime TIMESTAMP NOT NULL,
   retryMethod varchar(256) NOT NULL,
   retries int DEFAULT 0 NOT NULL,
-  payloads varbinary(10240)
+  payloads blob
 );
 
 CREATE TABLE IF NOT EXISTS Command (
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS Command (
   localTxId varchar(36) NOT NULL,
   parentTxId varchar(36) DEFAULT NULL,
   compensationMethod varchar(256) NOT NULL,
-  payloads varbinary(10240),
+  payloads blob,
   status varchar(12),
   lastModified TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   version bigint NOT NULL
