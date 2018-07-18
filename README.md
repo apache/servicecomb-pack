@@ -20,11 +20,16 @@ The following diagram shows the relationships among alpha, omega and services.
 See [Saga Pack Design](docs/design.md) for details. 
 
 ## Get Started
-* For Spring Cloud applications, please see [Booking Demo](saga-demo/saga-spring-cloud-demo/README.md) for details.
+* For ServiceComb Java Chassis application, please see [Booking Demo](saga-demo/saga-servicecomb-demo/README.md) for details.
+* For Spring applications, please see [Booking Demo](saga-demo/saga-spring-demo/README.md) for details.
 * For Dubbo applications, please see [Dubbo Demo](saga-demo/saga-dubbo-demo/README.md) for details.
 
 ## Build and Run the tests from source
-* Build the source demo docker image and run all tests
+* Build the source code and run the tests
+   ```bash
+      $ mvn clean install
+   ```
+* Build the source demo docker images and run the accept tests
    ```bash
       $ mvn clean install -Pdemo,docker
    ```   

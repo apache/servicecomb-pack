@@ -20,8 +20,26 @@ Saga是由 **alpha** 和 **omega**组成，其中：
 详情可浏览[Saga Pack 设计文档](docs/design_zh.md). 
 
 ## 快速入门
-* Saga在Spring Cloud应用的用法可参考[出行预订示例](saga-demo/saga-spring-cloud-demo/README.md)。
+* Saga在ServiceComb Java Chassis应用可以参考[出行预订](saga-demo/saga-servicecomb-demo/README.md)
+* Saga在Spring应用的用法可参考[出行预订示例](saga-demo/saga-spring-demo/README.md)。
 * Saga在Dubbo应用的用法可参考[Dubbo示例](saga-demo/saga-dubbo-demo/README.md).
+
+## 编译和运行代码
+* 编译代码并且运行相关的单元测试
+   ```bash
+      $ mvn clean install
+   ```
+* 编译示例，并生产docker镜像，运行验收测试
+   ```bash
+      $ mvn clean install -Pdemo,docker
+   ```
+* 当前Saga模块同时支持Spring Boot 1.x 以及 Spring Boot 2.x, 在缺省情况下Saga会使用Spring Boot 1.x来进行构建。
+你可以使用 *-Pspring-boot-2* 将Spring Boot版本转换到 2.x 上。 由于Spring Boot 只在2.x开始支持 JDK9，如果你想用
+JDK9或者JDK10 来编译Saga并运行测试的话，你需要使用 spring-boot-2 profile参数。
+   ```bash
+      $ mvn clean install -Pdemo,docker,spring-boot-2
+   ```
+
 
 ## 用户指南
 如何构建和使用可浏览[用户指南](docs/user_guide_zh.md)。
