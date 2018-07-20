@@ -347,29 +347,29 @@ Netty/Transport (http://netty.io/netty-transport/) io.netty:netty-transport:jar:
 OpenCensus (https://github.com/census-instrumentation/opencensus-java) io.opencensus:opencensus-api:jar:0.11.0
 OpenCensus (https://github.com/census-instrumentation/opencensus-java) io.opencensus:opencensus-contrib-grpc-metrics:jar:0.11.0
 SnakeYAML (http://www.snakeyaml.org) org.yaml:snakeyaml:bundle:1.17
-Spring AOP (https://github.com/spring-projects/spring-framework) org.springframework:spring-aop:jar:4.3.17.RELEASE
-Spring Aspects (https://github.com/spring-projects/spring-framework) org.springframework:spring-aspects:jar:4.3.17.RELEASE
-Spring Beans (https://github.com/spring-projects/spring-framework) org.springframework:spring-beans:jar:4.3.17.RELEASE
-Spring Boot (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot:jar:1.5.13.RELEASE
-Spring Boot Actuator (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-actuator:jar:1.5.13.RELEASE
-Spring Boot Actuator Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-actuator:jar:1.5.13.REALEASE
-Spring Boot AOP Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-aop:jar:1.5.13.REALEASE
-Spring Boot AutoConfigure (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-autoconfigure:jar:1.5.13.REALEASE
-Spring Boot JDBC Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-jdbc:jar:1.5.13.REALEASE
-Spring Boot Logging Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-logging:jar:1.5.13.REALEASE
-Spring Boot Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter:jar:1.5.13.REALEASE
-Spring Boot Tomcat Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-tomcat:jar:1.5.13.REALEASE
-Spring Boot Web Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-web:jar:1.5.13.REALEASE
-Spring Context (https://github.com/spring-projects/spring-framework) org.springframework:spring-context:jar:4.3.17.RELEASE
-Spring Core (https://github.com/spring-projects/spring-framework) org.springframework:spring-core:jar:4.3.17.RELEASE
+Spring AOP (https://github.com/spring-projects/spring-framework) org.springframework:spring-aop:jar:4.3.18.RELEASE
+Spring Aspects (https://github.com/spring-projects/spring-framework) org.springframework:spring-aspects:jar:4.3.18.RELEASE
+Spring Beans (https://github.com/spring-projects/spring-framework) org.springframework:spring-beans:jar:4.3.18.RELEASE
+Spring Boot (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot:jar:1.5.14.RELEASE
+Spring Boot Actuator (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-actuator:jar:1.5.14.RELEASE
+Spring Boot Actuator Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-actuator:jar:1.5.14.REALEASE
+Spring Boot AOP Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-aop:jar:1.5.14.REALEASE
+Spring Boot AutoConfigure (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-autoconfigure:jar:1.5.14.REALEASE
+Spring Boot JDBC Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-jdbc:jar:1.5.14.REALEASE
+Spring Boot Logging Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-logging:jar:1.5.14.REALEASE
+Spring Boot Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter:jar:1.5.14.REALEASE
+Spring Boot Tomcat Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-tomcat:jar:1.5.14.REALEASE
+Spring Boot Web Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-web:jar:1.5.14.REALEASE
+Spring Context (https://github.com/spring-projects/spring-framework) org.springframework:spring-context:jar:4.3.18.RELEASE
+Spring Core (https://github.com/spring-projects/spring-framework) org.springframework:spring-core:jar:4.3.18.RELEASE
 Spring Data Core (http://www.spring.io/spring-data/spring-data-commons) org.springframework.data:spring-data-commons:jar:1.12.8.RELEASE
 Spring Data JPA (http://projects.spring.io/spring-data-jpa) org.springframework.data:spring-data-jpa:jar:1.10.8.RELEASE
-Spring Expression Language (SpEL) (https://github.com/spring-projects/spring-framework) org.springframework:spring-expression:jar:4.3.17.RELEASE
-Spring JDBC (https://github.com/spring-projects/spring-framework) org.springframework:spring-jdbc:jar:4.3.17.RELEASE
-Spring Object/Relational Mapping (https://github.com/spring-projects/spring-framework) org.springframework:spring-orm:jar:4.3.17.RELEASE
-Spring Transaction (https://github.com/spring-projects/spring-framework) org.springframework:spring-tx:jar:4.3.17.RELEASE
-Spring Web (https://github.com/spring-projects/spring-framework) org.springframework:spring-web:jar:4.3.17.RELEASE
-Spring Web MVC (https://github.com/spring-projects/spring-framework) org.springframework:spring-webmvc:jar:4.3.17.RELEASE
+Spring Expression Language (SpEL) (https://github.com/spring-projects/spring-framework) org.springframework:spring-expression:jar:4.3.18.RELEASE
+Spring JDBC (https://github.com/spring-projects/spring-framework) org.springframework:spring-jdbc:jar:4.3.18.RELEASE
+Spring Object/Relational Mapping (https://github.com/spring-projects/spring-framework) org.springframework:spring-orm:jar:4.3.18.RELEASE
+Spring Transaction (https://github.com/spring-projects/spring-framework) org.springframework:spring-tx:jar:4.3.18.RELEASE
+Spring Web (https://github.com/spring-projects/spring-framework) org.springframework:spring-web:jar:4.3.18.RELEASE
+Spring Web MVC (https://github.com/spring-projects/spring-framework) org.springframework:spring-webmvc:jar:4.3.18.RELEASE
 tomcat-embed-core (http://tomcat.apache.org/) org.apache.tomcat.embed:tomcat-embed-core:jar:8.5.31
 tomcat-embed-el (http://tomcat.apache.org/) org.apache.tomcat.embed:tomcat-embed-el:jar:8.5.31
 tomcat-embed-websocket (http://tomcat.apache.org/) org.apache.tomcat.embed:tomcat-embed-websocket:jar:8.5.31
@@ -516,14 +516,14 @@ Objenesis (http://objenesis.org) org.objenesis:objenesis:jar:2.5.1
 OpenCensus (https://github.com/census-instrumentation/opencensus-java) io.opencensus:opencensus-api:jar:0.11.0
 OpenCensus (https://github.com/census-instrumentation/opencensus-java) io.opencensus:opencensus-contrib-grpc-metrics:jar:0.11.0
 SnakeYAML (http://www.snakeyaml.org) org.yaml:snakeyaml:bundle:1.17
-Spring AOP (https://github.com/spring-projects/spring-framework) org.springframework:spring-aop:jar:4.3.17.RELEASE
-Spring Beans (https://github.com/spring-projects/spring-framework) org.springframework:spring-beans:jar:4.3.17.RELEASE
+Spring AOP (https://github.com/spring-projects/spring-framework) org.springframework:spring-aop:jar:4.3.18.RELEASE
+Spring Beans (https://github.com/spring-projects/spring-framework) org.springframework:spring-beans:jar:4.3.18.RELEASE
 Spring Boot (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot:jar:1.5.13.RELEASE
 Spring Boot AutoConfigure (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-autoconfigure:jar:1.5.13.REALEASE
 Spring Boot Logging Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-logging:jar:1.5.13.REALEASE
 Spring Boot Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter:jar:1.5.13.REALEASE
-Spring Context (https://github.com/spring-projects/spring-framework) org.springframework:spring-context:jar:4.3.17.RELEASE
-Spring Core (https://github.com/spring-projects/spring-framework) org.springframework:spring-core:jar:4.3.17.RELEASE
-Spring Expression Language (SpEL) (https://github.com/spring-projects/spring-framework) org.springframework:spring-expression:jar:4.3.17.RELEASE
-Spring Web (https://github.com/spring-projects/spring-framework) org.springframework:spring-web:jar:4.3.17.RELEASE
-Spring Web MVC (https://github.com/spring-projects/spring-framework) org.springframework:spring-webmvc:jar:4.3.17.RELEASE
+Spring Context (https://github.com/spring-projects/spring-framework) org.springframework:spring-context:jar:4.3.18.RELEASE
+Spring Core (https://github.com/spring-projects/spring-framework) org.springframework:spring-core:jar:4.3.18.RELEASE
+Spring Expression Language (SpEL) (https://github.com/spring-projects/spring-framework) org.springframework:spring-expression:jar:4.3.18.RELEASE
+Spring Web (https://github.com/spring-projects/spring-framework) org.springframework:spring-web:jar:4.3.18.RELEASE
+Spring Web MVC (https://github.com/spring-projects/spring-framework) org.springframework:spring-webmvc:jar:4.3.18.RELEASE
