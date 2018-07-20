@@ -33,6 +33,8 @@
     <module>saga-dubbo-demo</module>
     <module>saga-spring-demo</module>
     <module>saga-servicecomb-demo</module>
+    <module>dependency-free-transaction-demo</module>
+    <module>conditional-transaction-demo</module>
   </modules>
 
   <dependencyManagement>

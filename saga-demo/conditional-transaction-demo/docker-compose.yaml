@@ -1,0 +1,75 @@
+## ---------------------------------------------------------------------------
+## Licensed to the Apache Software Foundation (ASF) under one or more
+## contributor license agreements.  See the NOTICE file distributed with
+## this work for additional information regarding copyright ownership.
+## The ASF licenses this file to You under the Apache License, Version 2.0
+## (the "License"); you may not use this file except in compliance with
+## the License.  You may obtain a copy of the License at
+##
+##      http://www.apache.org/licenses/LICENSE-2.0
+##
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
+## ---------------------------------------------------------------------------
+
+version: '2.1'
+
+services:
+  postgres:
+    image: "postgres"
+    hostname: postgres
+    environment:
+      - POSTGRES_DB=saga
+      - POSTGRES_USER=saga
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    healthcheck:
+        test: ["CMD-SHELL", "nc -z localhost 5432 &> /dev/null; echo $$?"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+
+  payment:
+    image: "payment:0.0.3-SNAPSHOT"
+    hostname: payment
+    ports:
+      - "8080"
+
+  membership:
+    image: "membership:0.0.3-SNAPSHOT"
+    hostname: membership
+    ports:
+      - "8080"
+
+  inventory:
+    image: "inventory:0.0.3-SNAPSHOT"
+    hostname: inventory
+    ports:
+      - "8080"
+
+  supplier:
+    image: "supplier:0.0.3-SNAPSHOT"
+    hostname: supplier
+    ports:
+      - "8080"
+
+  saga:
+    image: "saga-spring:0.0.3-SNAPSHOT"
+    hostname: saga
+    links:
+      - "postgres:postgres.servicecomb.io"
+      - "payment:payment.servicecomb.io"
+      - "membership:membership.servicecomb.io"
+      - "inventory:inventory.servicecomb.io"
+      - "supplier:supplier.servicecomb.io"
+    environment:
+      - JAVA_OPTS=-Dspring.profiles.active=prd -Dspring.main.webEnvironment=true
+    ports:
+      - "8083:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
