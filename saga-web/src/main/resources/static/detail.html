@@ -1,0 +1,174 @@
+<!DOCTYPE HTML>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<html>
+<head>
+  <title>Detail</title>
+  <script src="http://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/1.3.2/raphael-min.js" integrity="sha256-5C/soUzPY/Tqibm8m0ScOsVh++6jF/FIe7EwzCJNc9I=" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/graphdracula/1.0.3/dracula.min.js"></script>
+  <script type="text/javascript">
+    var redraw;
+	var height = 600;
+	var width = 600;
+
+    function getQueryString(name, url) {
+      var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+      var r = url.match(reg);
+      if (r != null) {
+        return unescape(r[2]);
+      }
+      return null;
+    }
+
+    var sagaId = "";
+    if (location.href.split('?').length > 1) {
+      var par = location.href.split('?')[1];
+      sagaId = getQueryString("sagaId", par);
+    }
+    var url = "/saga-service/requests/" + sagaId;
+    var render = function (r, n) {
+      /* the Raphael set is obligatory, containing all you want to display */
+      var set = r.set().push(
+          /* custom objects go here */
+          r.rect(n.point[0] - 30, n.point[1] - 13, 60, 44).attr(
+              {"fill": "#5b9bd5", r: "12px", "stroke-width": n.distance == 0 ? "3px" : "1px"})).push(
+          r.text(n.point[0], n.point[1] + 10, (n.label || n.id)));
+      return set;
+    };
+
+    var render_false = function (r, n) {
+      /* the Raphael set is obligatory, containing all you want to display */
+      var set = r.set().push(
+          /* custom objects go here */
+          r.rect(n.point[0] - 30, n.point[1] - 13, 60, 44).attr(
+              {"fill": "#d16d2a", r: "12px", "stroke-width": n.distance == 0 ? "3px" : "1px"})).push(
+          r.text(n.point[0], n.point[1] + 10, (n.label || n.id)));
+      return set;
+    };
+
+    var render_no = function (r, n) {
+      /* the Raphael set is obligatory, containing all you want to display */
+      var set = r.set().push(
+          /* custom objects go here */
+          r.rect(n.point[0] - 30, n.point[1] - 13, 60, 44).attr(
+              {"fill": "#f2f2f2", r: "12px", "stroke-width": n.distance == 0 ? "3px" : "1px"})).push(
+          r.text(n.point[0], n.point[1] + 10, (n.label || n.id)));
+      return set;
+    };
+
+    var g = new Graph();
+    /* modify the edge creation to attach random weights */
+    g.edgeFactory.build = function (source, target) {
+      var e = jQuery.extend(true, {}, this.template);
+      e.source = source;
+      e.target = target;
+      e.style.label = e.weight = Math.floor(Math.random() * 10) + 1;
+      return e;
+    }
+
+    var render_st = function (r, n) {
+      /* the Raphael set is obligatory, containing all you want to display */
+      var set = r.set().push(
+          /* custom objects go here */
+          r.rect(n.point[0] - 30, n.point[1] - 13, 60, 44).attr(
+              {"fill": "#7b92f1", r: "22px", "stroke-width": n.distance == 0 ? "3px" : "1px"})).push(
+          r.text(n.point[0], n.point[1] + 10, (n.label || n.id)));
+      return set;
+    };
+
+    window.onload = function () {
+      $.ajax({
+        type: 'GET',
+        url: url,
+        dataType: "json",
+        success: function (datas) {
+          console.log(datas);
+          //var datas = {"router":{"request-aaa":["request-bbb"],"saga-start":["request-aaa"],"request-bbb":["saga-end"]},"status":{"request-aaa":"OK","request-bbb":"OK"},"error":{}};
+          var datas_status = datas.status;
+          $.each(datas.router,function(key,value){
+				$.each(value,function(k,val){
+					if(datas_status[key] == 'Failed'){
+						if(key.indexOf("saga-start") >= 0){
+							g.addNode(key, {render:render_st});
+						}else if(val.indexOf("saga-end") >= 0){
+							g.addNode(val, {render:render_st});
+						}
+						g.addNode(key, {render:render_no});
+						g.addNode(val, {render:render_no});
+						
+						g.addEdge(key, val, {
+							stroke: '#adadad',
+							//fill: '#f2f2f2',
+							label: '',
+							directed : true
+						});
+					}else if(datas_status[val] == 'Failed'){
+						if(key.indexOf("saga-start") >= 0){
+							g.addNode(key, {render:render_st});
+						}else if(val.indexOf("saga-end") >= 0){
+							g.addNode(val, {render:render_st});
+						}
+						g.addNode(key, {render:render});
+						g.addNode(val, {render:render_false});
+						
+						g.addEdge(key, val, {
+							stroke: '#adadad',
+							//fill: '#f2f2f2',
+							label: '',
+							directed : true
+						});
+					}else{
+						if(key.indexOf("saga-start") >= 0){
+							g.addNode(key, {render:render_st});
+						}else if(val.indexOf("saga-end") >= 0){
+							g.addNode(val, {render:render_st});
+						}
+						g.addNode(key, {render:render});
+						g.addNode(val, {render:render});
+						
+						g.addEdge(key, val, {
+							stroke: '#5b9bd5',
+							//fill: '#5b9bd5',
+							label: '',
+							directed : true
+						});	
+					}
+				})
+			})
+
+          /* layout the graph using the Spring layout implementation */
+          var layouter = new Graph.Layout.Spring(g);
+          layouter.layout();
+
+          /* draw the graph using the RaphaelJS draw implementation */
+          var renderer = new Graph.Renderer.Raphael('canvas', g, width, height);
+          renderer.draw();
+
+          redraw = function () {
+            layouter.layout();
+            renderer.draw();
+          };
+        }
+      });
+    };
+  </script>
+</head>
+<body>
+<div id="canvas" style="height: 600px; width: 100%;text-align: center;"></div>
+</body>
+</html>
