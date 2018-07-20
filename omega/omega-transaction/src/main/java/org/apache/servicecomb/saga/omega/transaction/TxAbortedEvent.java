@@ -23,6 +23,9 @@ import java.io.StringWriter;
 import org.apache.servicecomb.saga.common.EventType;
 
 public class TxAbortedEvent extends TxEvent {
+
+  private static final int PAYLOADS_MAX_LENGTH = 10240;
+
   public TxAbortedEvent(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Throwable throwable) {
     super(EventType.TxAbortedEvent, globalTxId, localTxId, parentTxId, compensationMethod, 0, "", 0,
         stackTrace(throwable));
@@ -31,6 +34,10 @@ public class TxAbortedEvent extends TxEvent {
   private static String stackTrace(Throwable e) {
     StringWriter writer = new StringWriter();
     e.printStackTrace(new PrintWriter(writer));
-    return writer.toString();
+    String stackTrace = writer.toString();
+    if (stackTrace.length() > PAYLOADS_MAX_LENGTH) {
+      stackTrace = stackTrace.substring(0, PAYLOADS_MAX_LENGTH);
+    }
+    return stackTrace;
   }
 }
