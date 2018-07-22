@@ -20,7 +20,7 @@ package org.apache.servicecomb.saga.demo.hotel.reservation;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import io.servicecomb.springboot.starter.provider.EnableServiceComb;
+import org.apache.servicecomb.springboot.starter.provider.EnableServiceComb;
 
 @SpringBootApplication
 @EnableServiceComb
