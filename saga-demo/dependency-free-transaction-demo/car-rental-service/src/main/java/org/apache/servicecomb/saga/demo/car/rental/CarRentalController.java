@@ -38,8 +38,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import io.servicecomb.provider.rest.common.RestSchema;
-import io.servicecomb.swagger.invocation.exception.InvocationException;
+import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 

@@ -22,11 +22,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import io.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
+import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.apache.servicecomb.saga.transports.HttpClientTransportConfig;
 import org.apache.servicecomb.saga.transports.RestTransport;
 import org.apache.servicecomb.saga.transports.resttemplate.RestTemplateTransport;
-import io.servicecomb.springboot.starter.provider.EnableServiceComb;
+import org.apache.servicecomb.springboot.starter.provider.EnableServiceComb;
 
 @EnableServiceComb
 @Profile("servicecomb")

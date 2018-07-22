@@ -18,7 +18,7 @@
 package org.apache.servicecomb.saga.discovery.service.center;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
-import static io.servicecomb.serviceregistry.client.LocalServiceRegistryClientImpl.LOCAL_REGISTRY_FILE_KEY;
+import static org.apache.servicecomb.serviceregistry.client.LocalServiceRegistryClientImpl.LOCAL_REGISTRY_FILE_KEY;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -40,7 +40,7 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import io.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
+import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 
 import org.apache.servicecomb.saga.core.TransportFailedException;
 

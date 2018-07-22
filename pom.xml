@@ -51,7 +51,8 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>1.8</java.version>
     <kamon.version>0.6.7</kamon.version>
-    <log4j.version>2.6.2</log4j.version>
+    <!-- using log4j 2.7 with Spring Boot 1.x -->
+    <log4j.version>2.7</log4j.version>
     <dubbo.version>2.6.1</dubbo.version>
     <spring.boot.version>1.5.14.RELEASE</spring.boot.version>
     <spring.boot2.version>2.0.3.RELEASE</spring.boot2.version>
