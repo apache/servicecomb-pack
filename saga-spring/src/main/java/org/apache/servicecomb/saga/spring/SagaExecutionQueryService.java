@@ -56,7 +56,7 @@ import org.apache.servicecomb.saga.core.TransactionEndedEvent;
 import org.apache.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import org.apache.servicecomb.saga.core.dag.GraphBuilder;
 
-import io.servicecomb.swagger.invocation.exception.InvocationException;
+import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 
 @Service
 public class SagaExecutionQueryService {

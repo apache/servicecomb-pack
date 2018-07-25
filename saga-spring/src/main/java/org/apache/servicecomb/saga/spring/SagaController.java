@@ -46,10 +46,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
-import io.servicecomb.provider.rest.common.RestSchema;
+import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.apache.servicecomb.saga.core.SagaException;
 import org.apache.servicecomb.saga.core.application.SagaExecutionComponent;
-import io.servicecomb.swagger.invocation.exception.InvocationException;
+import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import kamon.annotation.EnableKamon;
