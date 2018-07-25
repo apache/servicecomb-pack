@@ -62,9 +62,7 @@ public class ServiceCenterDiscoveryRestTransportTest {
   }
 
   private static void setUpLocalRegistry() {
-    ClassLoader loader = Thread.currentThread().getContextClassLoader();
-    URL resource = loader.getResource("registry.yaml");
-    System.setProperty(LOCAL_REGISTRY_FILE_KEY, resource.getPath());
+    System.setProperty(LOCAL_REGISTRY_FILE_KEY,"notExistJustForceLocal");
   }
 
   @Test
