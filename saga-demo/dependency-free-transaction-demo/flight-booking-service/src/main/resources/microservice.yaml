@@ -18,7 +18,7 @@ APPLICATION_ID: saga
 service_description:
   name: flight-booking-service
   version: 0.0.1
-cse:
+servicecomb:
   service:
     registry:
       address: http://sc.servicecomb.io:30100
