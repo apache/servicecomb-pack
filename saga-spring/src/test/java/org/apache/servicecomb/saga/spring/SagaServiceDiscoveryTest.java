@@ -19,7 +19,7 @@ package org.apache.servicecomb.saga.spring;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.TEXT;
-import static io.servicecomb.serviceregistry.client.LocalServiceRegistryClientImpl.LOCAL_REGISTRY_FILE_KEY;
+import static org.apache.servicecomb.serviceregistry.client.LocalServiceRegistryClientImpl.LOCAL_REGISTRY_FILE_KEY;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -83,9 +83,7 @@ public class SagaServiceDiscoveryTest {
   }
 
   private static void setUpLocalRegistry() {
-    ClassLoader loader = Thread.currentThread().getContextClassLoader();
-    URL resource = loader.getResource("registry.yaml");
-    System.setProperty(LOCAL_REGISTRY_FILE_KEY, resource.getPath());
+    System.setProperty(LOCAL_REGISTRY_FILE_KEY,"notExistJustForceLocal");
   }
 
   @Test
