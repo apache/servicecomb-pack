@@ -24,7 +24,6 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -78,7 +77,7 @@ public class SagaServiceDiscoveryTest {
 
 
   @BeforeClass
-  public static void setUpClass() throws Exception {
+  public static void setUpClass() {
     setUpLocalRegistry();
   }
 

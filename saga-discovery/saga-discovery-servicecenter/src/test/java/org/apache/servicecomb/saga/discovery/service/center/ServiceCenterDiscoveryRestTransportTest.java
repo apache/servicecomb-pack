@@ -57,7 +57,7 @@ public class ServiceCenterDiscoveryRestTransportTest {
   private final String serviceName = "saga-service";
 
   @BeforeClass
-  public static void setUpClass() throws Exception {
+  public static void setUpClass() {
     setUpLocalRegistry();
   }
 
