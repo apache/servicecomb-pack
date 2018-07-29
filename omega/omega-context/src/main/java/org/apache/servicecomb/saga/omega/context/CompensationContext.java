@@ -30,6 +30,11 @@ public class CompensationContext {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final Map<String, CompensationContextInternal> contexts = new ConcurrentHashMap<>();
+  private final OmegaContext omegaContext;
+
+  public CompensationContext(OmegaContext omegaContext) {
+    this.omegaContext = omegaContext;
+  }
 
   public void addCompensationContext(Method compensationMethod, Object target) {
     compensationMethod.setAccessible(true);
@@ -39,7 +44,11 @@ public class CompensationContext {
   public void apply(String globalTxId, String localTxId, String compensationMethod, Object... payloads) {
     CompensationContextInternal contextInternal = contexts.get(compensationMethod);
 
+    String oldGlobalTxId = omegaContext.globalTxId();
+    String oldLocalTxId= omegaContext.localTxId();
     try {
+      omegaContext.setGlobalTxId(globalTxId);
+      omegaContext.setLocalTxId(localTxId);
       contextInternal.compensationMethod.invoke(contextInternal.target, payloads);
       LOG.info("Compensated transaction with global tx id [{}], local tx id [{}]", globalTxId, localTxId);
     } catch (IllegalAccessException | InvocationTargetException e) {
@@ -47,6 +56,9 @@ public class CompensationContext {
           "Pre-checking for compensation method " + contextInternal.compensationMethod.toString()
               + " was somehow skipped, did you forget to configure compensable method checking on service startup?",
           e);
+    } finally {
+      omegaContext.setGlobalTxId(oldGlobalTxId);
+      omegaContext.setLocalTxId(oldLocalTxId);
     }
   }
 

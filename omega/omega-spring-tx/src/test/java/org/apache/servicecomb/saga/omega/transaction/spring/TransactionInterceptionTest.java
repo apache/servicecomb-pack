@@ -361,8 +361,8 @@ public class TransactionInterceptionTest {
     private final List<String> messages = new ArrayList<>();
 
     @Bean
-    CompensationContext recoveryContext() {
-      return new CompensationContext();
+    CompensationContext recoveryContext(OmegaContext omegaContext) {
+      return new CompensationContext(omegaContext);
     }
 
     @Bean
