@@ -17,11 +17,14 @@
 
 package org.apache.servicecomb.saga.alpha.server;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,9 +34,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
+import sun.rmi.runtime.Log;
+
 @Controller
 @RequestMapping("/")
 class AlphaEventController {
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final TxEventEnvelopeRepository eventRepository;
 
@@ -43,10 +49,12 @@ class AlphaEventController {
 
   @GetMapping(value = "/events")
   ResponseEntity<Collection<TxEventVo>> events() {
+    LOG.info("Get the events request");
     Iterable<TxEvent> events = eventRepository.findAll();
 
     List<TxEventVo> eventVos = new LinkedList<>();
     events.forEach(event -> eventVos.add(new TxEventVo(event)));
+    LOG.info("Get the event size " + eventVos.size());
 
     return ResponseEntity.ok(eventVos);
   }

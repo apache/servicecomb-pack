@@ -45,6 +45,8 @@ public class BookingController {
         carServiceUrl + "/order/{name}/{cars}",
         null, String.class, name, cars);
 
+    postCarBooking();
+
     template.postForEntity(
         hotelServiceUrl + "/order/{name}/{rooms}",
         null, String.class, name, rooms);
@@ -52,6 +54,11 @@ public class BookingController {
     postBooking();
 
     return name + " booking " + rooms + " rooms and " + cars + " cars OK";
+  }
+
+  // This method is used by the byteman to inject exception here
+  private void postCarBooking() {
+
   }
 
   // This method is used by the byteman to inject the faults such as the timeout or the crash

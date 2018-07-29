@@ -29,7 +29,9 @@ Feature: Alpha records transaction events
       | serviceb    | TxStartedEvent     |
       | serviceb   | TxAbortedEvent   |
       | servicea   | TxAbortedEvent     |
+      | servicea    | TxAbortedEvent     |
       | * | SagaEndedEvent   |
+
 
     And servicea success update status
       | service | vstatus |
