@@ -15,28 +15,23 @@
 
 Feature: Alpha records transaction events
 
-  Scenario: A transaction timeout and will be compensated
+  Scenario: An exception is throw and the first transaction should be compensated
     Given Car Service is up and running
     And Hotel Service is up and running
     And Booking Service is up and running
     And Alpha is up and running
 
-    Given Install the byteman script booking_timeout.btm to Booking Service
+    Given Install the byteman script booking_exception.btm to Booking Service
 
     When User Sean requests to book 1 cars and 1 rooms fail
 
     Then Alpha records the following events
-      | serviceName  | type          |
+      | serviceName  | type               |
       | booking | SagaStartedEvent   |
       | car     | TxStartedEvent     |
       | car     | TxEndedEvent       |
-      | hotel   | TxStartedEvent     |
-      | hotel   | TxEndedEvent       |
       | booking | TxAbortedEvent     |
-      | hotel   | TxCompensatedEvent |
       | car     | TxCompensatedEvent |
-      | car     | SagaEndedEvent   |
-
 
     Then Car Service contains the following booking orders
       | name | amount | confirmed | cancelled |
@@ -44,5 +39,4 @@ Feature: Alpha records transaction events
 
     Then Hotel Service contains the following booking orders
       | name | amount | confirmed | cancelled |
-      | Sean | 1      | false     | true      |
-
+    
