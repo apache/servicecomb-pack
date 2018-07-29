@@ -52,8 +52,8 @@ class OmegaSpringConfig {
   }
 
   @Bean
-  CompensationContext compensationContext() {
-    return new CompensationContext();
+  CompensationContext compensationContext(OmegaContext omegaContext) {
+    return new CompensationContext(omegaContext);
   }
 
   @Bean
