@@ -171,15 +171,22 @@ public class PackIT {
     assertThat(txAbortedEvent.serviceName(), is(serviceName));
     assertThat(txAbortedEvent.instanceId(), is(txStartedEvent2.instanceId()));
 
-    // TODO: 2018/1/9 compensation shall be done in reverse order
-    TxEvent txCompensatedEvent1 = events.get(5);
+
+    assertThat(events.get(5).type(), is("TxAbortedEvent"));
+    txAbortedEvent = events.get(5);
+    System.out.println(txAbortedEvent);
+    assertThat(txAbortedEvent.localTxId(), is(globalTxId));
+    assertThat(txAbortedEvent.globalTxId(), is(globalTxId));
+    assertThat(txAbortedEvent.parentTxId(), is(nullValue()));
+    
+    TxEvent txCompensatedEvent1 = events.get(6);
     assertThat(txCompensatedEvent1.type(), is("TxCompensatedEvent"));
     assertThat(txCompensatedEvent1.localTxId(), is(txStartedEvent1.localTxId()));
     assertThat(txCompensatedEvent1.parentTxId(), is(globalTxId));
     assertThat(txCompensatedEvent1.serviceName(), is(serviceName));
     assertThat(txCompensatedEvent1.instanceId(), is(txStartedEvent1.instanceId()));
 
-    assertThat(events.get(6).type(), is("SagaEndedEvent"));
+
 
     assertThat(compensatedMessages, contains("Goodbye, " + TRESPASSER));
   }
@@ -289,8 +296,13 @@ public class PackIT {
     assertThat(events.get(6).type(), is("TxAbortedEvent"));
     assertThat(events.get(7).type(), is("TxStartedEvent"));
     assertThat(events.get(8).type(), is("TxAbortedEvent"));
-    assertThat(events.get(9).type(), is("TxCompensatedEvent"));
-    assertThat(events.get(10).type(), is("SagaEndedEvent"));
+    // This event is for the whole saga event
+    assertThat(events.get(9).type(), is("TxAbortedEvent"));
+    assertThat(events.get(10).type(), is("TxCompensatedEvent"));
+    
+    //assertThat(events.get(10).type(), is("SagaEndedEvent"));
+
+    System.out.println(compensatedMessages);
 
     assertThat(compensatedMessages, contains("Goodbye, " + TRESPASSER));
   }

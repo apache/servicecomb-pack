@@ -32,7 +32,9 @@ Feature: Alpha records transaction events
       | servicec | TxAbortedEvent   |
       | serviceb | TxAbortedEvent   |
       | servicea | TxAbortedEvent   |
+      | servicea | TxAbortedEvent     |
       | * | SagaEndedEvent   |
+
 
     And servicea success update status
       | service | vstatus |

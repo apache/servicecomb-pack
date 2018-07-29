@@ -145,7 +145,7 @@ public class PackStepdefs implements En {
     List<Map<String, String>> expectedMaps = dataTable.asMaps(String.class, String.class);
     List<Map<String, String>> actualMaps = new ArrayList<>();
 
-    await().atMost(2, SECONDS).until(() -> {
+    await().atMost(5, SECONDS).until(() -> {
       actualMaps.clear();
       Collections.addAll(actualMaps, retrieveDataMaps(address, dataProcessor));
 
