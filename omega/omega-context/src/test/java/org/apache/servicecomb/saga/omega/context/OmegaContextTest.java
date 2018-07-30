@@ -21,61 +21,90 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+import java.io.Serializable;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
+
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.junit.Test;
 
+
 public class OmegaContextTest {
 
-  private final OmegaContext omegaContext = new OmegaContext(() -> "ignored");
+  private final OmegaContext omegaContext = new OmegaContext(
+      new IdGenerator() {
+        @Override
+        public Serializable nextId() {
+          return "ignored";
+        }
+      });
+
+  ExecutorService executor = Executors.newFixedThreadPool(2);
+
+
 
   @Test
   public void eachThreadGetsDifferentGlobalTxId() throws Exception {
-    CyclicBarrier barrier = new CyclicBarrier(2);
+    final CyclicBarrier barrier = new CyclicBarrier(2);
 
-    Runnable runnable = exceptionalRunnable(() -> {
-      String txId = UUID.randomUUID().toString();
-      omegaContext.setGlobalTxId(txId);
-      barrier.await();
+    Runnable runnable = exceptionalRunnable(new ExceptionalRunnable() {
 
-      assertThat(omegaContext.globalTxId(), is(txId));
+      @Override
+      public void run() throws Exception {
+        String txId = UUID.randomUUID().toString();
+        omegaContext.setGlobalTxId(txId);
+        barrier.await();
+
+        assertThat(omegaContext.globalTxId(), is(txId));
+      }
     });
 
-    CompletableFuture<Void> future1 = CompletableFuture.runAsync(runnable);
-    CompletableFuture<Void> future2 = CompletableFuture.runAsync(runnable);
+    Future f1 = executor.submit(runnable);                                      ;
+    Future f2 = executor.submit(runnable);
+    f1.get();
+    f2.get();
 
-    CompletableFuture.allOf(future1, future2).join();
   }
 
   @Test
   public void eachThreadGetsDifferentLocalTxId() throws Exception {
-    CyclicBarrier barrier = new CyclicBarrier(2);
+    final CyclicBarrier barrier = new CyclicBarrier(2);
 
-    Runnable runnable = exceptionalRunnable(() -> {
-      String spanId = UUID.randomUUID().toString();
-      omegaContext.setLocalTxId(spanId);
-      barrier.await();
+    Runnable runnable = exceptionalRunnable(new ExceptionalRunnable() {
 
-      assertThat(omegaContext.localTxId(), is(spanId));
+      @Override
+      public void run() throws Exception {
+        String spanId = UUID.randomUUID().toString();
+        omegaContext.setLocalTxId(spanId);
+        barrier.await();
+
+        assertThat(omegaContext.localTxId(), is(spanId));
+      }
     });
 
-    CompletableFuture<Void> future1 = CompletableFuture.runAsync(runnable);
-    CompletableFuture<Void> future2 = CompletableFuture.runAsync(runnable);
-
-    CompletableFuture.allOf(future1, future2).join();
+    Future f1 = executor.submit(runnable);                                      ;
+    Future f2 = executor.submit(runnable);
+    f1.get();
+    f2.get();
   }
 
-  private Runnable exceptionalRunnable(ExceptionalRunnable runnable) {
-    return () -> {
-      try {
-        runnable.run();
-      } catch (Exception e) {
-        fail(e.getMessage());
+  private Runnable exceptionalRunnable(final ExceptionalRunnable runnable) {
+    return new Runnable() {
+
+      @Override
+      public void run() {
+        try {
+          runnable.run();
+        } catch (Exception e) {
+          fail(e.getMessage());
+        }
       }
     };
   }
+
 
   interface ExceptionalRunnable {
     void run() throws Exception;

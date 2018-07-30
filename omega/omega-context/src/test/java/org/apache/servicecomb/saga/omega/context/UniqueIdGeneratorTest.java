@@ -37,7 +37,12 @@ public class UniqueIdGeneratorTest {
 
   private final UniqueIdGenerator idGenerator = new UniqueIdGenerator();
 
-  private Callable<String> task = idGenerator::nextId;
+  private Callable<String> task = new Callable<String>() {
+    @Override
+    public String call() throws Exception {
+      return idGenerator.nextId();
+    }
+  };
 
   @Test
   public void nextIdIsUnique() throws InterruptedException {

@@ -42,11 +42,31 @@ public class CompensableInterceptorTest {
   private final String localTxId = UUID.randomUUID().toString();
   private final String parentTxId = UUID.randomUUID().toString();
 
-  private final MessageSender sender = e -> {
-    messages.add(e);
-    return new AlphaResponse(false);
-  };
+  private final MessageSender sender =new MessageSender() {
+    @Override
+    public void onConnected() {
+    }
 
+    @Override
+    public void onDisconnected() {
+    }
+
+    @Override
+    public void close() {
+    }
+
+    @Override
+    public String target() {
+      return "UNKNOWN";
+    }
+
+    @Override
+    public AlphaResponse send(TxEvent event) {
+      messages.add(event);
+      return new AlphaResponse(false);
+    }
+  };
+  
   private final String message = uniquify("message");
 
   private final String retryMethod = uniquify("retryMethod");
@@ -77,7 +97,7 @@ public class CompensableInterceptorTest {
     assertThat(event.retryMethod(), is(retryMethod));
     assertThat(event.type(), is(EventType.TxStartedEvent));
     assertThat(event.compensationMethod(), is(compensationMethod));
-    assertThat(asList(event.payloads()), contains(message));
+    assertThat(asList(event.payloads()).contains(message), is(true));
   }
 
   @Test

@@ -34,9 +34,31 @@ import org.junit.Test;
 public class CompensationMessageHandlerTest {
 
   private final List<TxEvent> events = new ArrayList<>();
-  private final MessageSender sender = e -> {
-    events.add(e);
-    return new AlphaResponse(false);
+  private final MessageSender sender = new MessageSender() {
+    @Override
+    public void onConnected() {
+
+    }
+
+    @Override
+    public void onDisconnected() {
+
+    }
+
+    @Override
+    public void close() {
+
+    }
+
+    @Override
+    public String target() {
+      return "UNKNOWN"; }
+
+    @Override
+    public AlphaResponse send(TxEvent event) {
+      events.add(event);
+      return new AlphaResponse(false);
+    }
   };
 
   private final String globalTxId = uniquify("globalTxId");

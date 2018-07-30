@@ -66,9 +66,32 @@ public class ForwardRecoveryTest {
 
   private final Compensable compensable = mock(Compensable.class);
 
-  private final MessageSender sender = e -> {
-    messages.add(e);
-    return new AlphaResponse(false);
+  private final MessageSender sender = new MessageSender() {
+    @Override
+    public void onConnected() {
+
+    }
+
+    @Override
+    public void onDisconnected() {
+
+    }
+
+    @Override
+    public void close() {
+
+    }
+
+    @Override
+    public String target() {
+      return "UNKNOWN";
+    }
+
+    @Override
+    public AlphaResponse send(TxEvent event) {
+      messages.add(event);
+      return new AlphaResponse(false);
+    }
   };
 
   private final CompensableInterceptor interceptor = new CompensableInterceptor(omegaContext, sender);
@@ -94,7 +117,7 @@ public class ForwardRecoveryTest {
   @Test
   public void forwardExceptionWhenGlobalTxAborted() {
     MessageSender sender = mock(MessageSender.class);
-    when(sender.send(any())).thenReturn(new AlphaResponse(true));
+    when(sender.send(any(TxEvent.class))).thenReturn(new AlphaResponse(true));
 
     CompensableInterceptor interceptor = new CompensableInterceptor(omegaContext, sender);
 
@@ -107,7 +130,7 @@ public class ForwardRecoveryTest {
       fail("unexpected exception throw: " + throwable);
     }
 
-    verify(sender, times(1)).send(any());
+    verify(sender, times(1)).send(any(TxEvent.class));
   }
 
   @Test
@@ -135,14 +158,17 @@ public class ForwardRecoveryTest {
     when(compensable.retryDelayInMilliseconds()).thenReturn(1000);
     when(joinPoint.proceed()).thenThrow(oops);
 
-    Thread thread = new Thread(() -> {
-      try {
-        recoveryPolicy.apply(joinPoint, compensable, interceptor, omegaContext, parentTxId, -1);
-        expectFailing(OmegaException.class);
-      } catch (OmegaException e) {
-        exception = e;
-      } catch (Throwable throwable) {
-        fail("unexpected exception throw: " + throwable);
+    Thread thread = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          recoveryPolicy.apply(joinPoint, compensable, interceptor, omegaContext, parentTxId, -1);
+          expectFailing(OmegaException.class);
+        } catch (OmegaException e) {
+          exception = e;
+        } catch (Throwable throwable) {
+          fail("unexpected exception throw: " + throwable);
+        }
       }
     });
     thread.start();

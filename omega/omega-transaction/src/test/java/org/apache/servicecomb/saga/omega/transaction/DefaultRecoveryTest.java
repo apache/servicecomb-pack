@@ -67,9 +67,32 @@ public class DefaultRecoveryTest {
 
   private final Compensable compensable = mock(Compensable.class);
 
-  private final MessageSender sender = e -> {
-    messages.add(e);
-    return new AlphaResponse(false);
+  private final MessageSender sender = new MessageSender() {
+    @Override
+    public void onConnected() {
+
+    }
+
+    @Override
+    public void onDisconnected() {
+
+    }
+
+    @Override
+    public void close() {
+
+    }
+
+    @Override
+    public String target() {
+      return "UNKNOWN";
+    }
+
+    @Override
+    public AlphaResponse send(TxEvent event) {
+      messages.add(event);
+      return new AlphaResponse(false);
+    }
   };
 
   private final CompensableInterceptor interceptor = new CompensableInterceptor(omegaContext, sender);
@@ -143,7 +166,7 @@ public class DefaultRecoveryTest {
   @Test
   public void returnImmediatelyWhenReceivedRejectResponse() {
     MessageSender sender = mock(MessageSender.class);
-    when(sender.send(any())).thenReturn(new AlphaResponse(true));
+    when(sender.send(any(TxEvent.class))).thenReturn(new AlphaResponse(true));
 
     CompensableInterceptor interceptor = new CompensableInterceptor(omegaContext, sender);
 
@@ -156,7 +179,7 @@ public class DefaultRecoveryTest {
       fail("unexpected exception throw: " + throwable);
     }
 
-    verify(sender, times(1)).send(any());
+    verify(sender, times(1)).send(any(TxEvent.class));
   }
 
   @Test

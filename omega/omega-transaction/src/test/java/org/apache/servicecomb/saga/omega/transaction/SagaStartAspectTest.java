@@ -42,9 +42,29 @@ public class SagaStartAspectTest {
   private final List<TxEvent> messages = new ArrayList<>();
   private final String globalTxId = UUID.randomUUID().toString();
 
-  private final MessageSender sender = e -> {
-    messages.add(e);
-    return new AlphaResponse(false);
+  private final MessageSender sender = new MessageSender() {
+    @Override
+    public void onConnected() {
+    }
+
+    @Override
+    public void onDisconnected() {
+    }
+
+    @Override
+    public void close() {
+    }
+
+    @Override
+    public String target() {
+      return "UNKNOWN";
+    }
+
+    @Override
+    public AlphaResponse send(TxEvent event) {
+      messages.add(event);
+      return new AlphaResponse(false);
+    }
   };
   private final ProceedingJoinPoint joinPoint = Mockito.mock(ProceedingJoinPoint.class);
   private final MethodSignature methodSignature = Mockito.mock(MethodSignature.class);

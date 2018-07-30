@@ -42,9 +42,32 @@ public class SagaStartAnnotationProcessorTest {
 
   private final List<TxEvent> messages = new ArrayList<>();
 
-  private final MessageSender sender = e -> {
-    messages.add(e);
-    return new AlphaResponse(false);
+  private final MessageSender sender = new MessageSender() {
+    @Override
+    public void onConnected() {
+
+    }
+
+    @Override
+    public void onDisconnected() {
+
+    }
+
+    @Override
+    public void close() {
+
+    }
+
+    @Override
+    public String target() {
+      return "UNKNOWN";
+    }
+
+    @Override
+    public AlphaResponse send(TxEvent event) {
+      messages.add(event);
+      return new AlphaResponse(false);
+    }
   };
 
   private final String globalTxId = UUID.randomUUID().toString();
@@ -96,7 +119,7 @@ public class SagaStartAnnotationProcessorTest {
     MessageSender sender = mock(MessageSender.class);
     SagaStartAnnotationProcessor sagaStartAnnotationProcessor = new SagaStartAnnotationProcessor(context, sender);
 
-    doThrow(exception).when(sender).send(any());
+    doThrow(exception).when(sender).send(any(TxEvent.class));
 
     try {
       sagaStartAnnotationProcessor.preIntercept(null, null, 0, null, 0);

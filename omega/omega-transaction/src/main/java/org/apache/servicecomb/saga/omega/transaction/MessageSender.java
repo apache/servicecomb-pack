@@ -18,20 +18,13 @@
 package org.apache.servicecomb.saga.omega.transaction;
 
 public interface MessageSender {
-  MessageSender NO_OP_SENDER = event -> new AlphaResponse(false);
+  void onConnected();
 
-  default void onConnected() {
-  }
+  void onDisconnected();
 
-  default void onDisconnected() {
-  }
+  void close();
 
-  default void close() {
-  }
-
-  default String target() {
-    return "UNKNOWN";
-  }
+  String target();
 
   AlphaResponse send(TxEvent event);
 }

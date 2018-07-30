@@ -254,11 +254,21 @@ public class TransactionInterceptionTest {
 
   @Test
   public void passesOmegaContextThroughDifferentThreads() throws Exception {
-    new Thread(() -> userService.add(user)).start();
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        userService.add(user))
+      }
+    }).start();
     waitTillSavedUser(username);
 
     String localTxId = omegaContext.newLocalTxId();
-    new Thread(() -> userService.add(jack)).start();
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        userService.add(jack);
+      }
+    }).start();
     waitTillSavedUser(usernameJack);
 
     assertArrayEquals(
