@@ -148,7 +148,11 @@ public class PackStepdefs implements En {
     await().atMost(5, SECONDS).until(() -> {
       actualMaps.clear();
       Collections.addAll(actualMaps, retrieveDataMaps(address, dataProcessor));
-
+      // write the log if the Map size is not same
+      boolean result = expectedMaps.size() == actualMaps.size();
+      if (!result) {
+        LOG.warn("The response message size is not we expected. ExpectedMap size is {},  ActualMap size is {}", expectedMaps.size(), actualMaps.size());
+      }
       return expectedMaps.size() == actualMaps.size();
     });
 
