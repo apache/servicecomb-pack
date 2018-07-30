@@ -22,7 +22,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
@@ -137,10 +139,12 @@ class ExecutorFieldCallback implements FieldCallback {
         if (isExecutable(arg)) {
           augmentedArgs[i] = RunnableProxy.newInstance(arg, omegaContext);
         } else if (isCollectionOfExecutables(arg)) {
-          augmentedArgs[i] = ((Collection<?>) arg)
-              .stream()
-              .map(a -> RunnableProxy.newInstance(a, omegaContext))
-              .collect(Collectors.toList());
+          List argList = new ArrayList();
+          Collection argCollection = (Collection<?>) arg;
+          for (Object a : argCollection) {
+            argList.add(RunnableProxy.newInstance(a, omegaContext));
+          }
+          augmentedArgs[i] = argList;
         } else {
           augmentedArgs[i] = arg;
         }

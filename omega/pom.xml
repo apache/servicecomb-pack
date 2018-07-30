@@ -74,4 +74,20 @@
     </dependencies>
   </dependencyManagement>
 
+  <build>
+    <plugins>
+      <!-- SCB-648 Just make sure the Omega is 1.7 compatible -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.1</version>
+        <configuration>
+          <encoding>UTF-8</encoding>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>
