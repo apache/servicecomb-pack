@@ -30,6 +30,7 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +42,13 @@ public class TransactionHandlerInterceptorTest {
 
   private static final String localTxId = UUID.randomUUID().toString();
 
-  private final OmegaContext omegaContext = new OmegaContext(() -> "ignored");
+  private final OmegaContext omegaContext = new OmegaContext(new IdGenerator<String>() {
+
+    @Override
+    public String nextId() {
+      return "ignored";
+    }
+  });
 
   private HandlerInterceptor requestInterceptor = new TransactionHandlerInterceptor(omegaContext);
 

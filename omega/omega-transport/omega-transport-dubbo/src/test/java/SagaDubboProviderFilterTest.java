@@ -17,6 +17,7 @@
 
 import java.util.UUID;
 
+import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transport.dubbo.SagaDubboProviderFilter;
 import org.junit.Before;
@@ -34,7 +35,12 @@ public class SagaDubboProviderFilterTest {
 
   private static final String globalTxId = UUID.randomUUID().toString();
   private static final String localTxId = UUID.randomUUID().toString();
-  private final OmegaContext omegaContext = new OmegaContext(() -> "ignored");
+  private final OmegaContext omegaContext = new OmegaContext(new IdGenerator<String>() {
+    @Override
+    public String nextId() {
+      return "ignored";
+    }
+  });
   private final Invocation invocation = mock(Invocation.class);
   
   private final SagaDubboProviderFilter filter = new SagaDubboProviderFilter();
