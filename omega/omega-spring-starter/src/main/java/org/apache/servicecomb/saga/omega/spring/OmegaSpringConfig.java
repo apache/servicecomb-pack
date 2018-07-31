@@ -76,7 +76,7 @@ class OmegaSpringConfig {
     MessageFormat messageFormat = new KryoMessageFormat();
     AlphaClusterConfig clusterConfig = new AlphaClusterConfig(Arrays.asList(addresses),
         enableSSL, mutualAuth, cert, key, certChain);
-    MessageSender sender = new LoadBalancedClusterMessageSender(
+    final MessageSender sender = new LoadBalancedClusterMessageSender(
         clusterConfig,
         messageFormat,
         messageFormat,
@@ -85,11 +85,14 @@ class OmegaSpringConfig {
         reconnectDelay);
 
     sender.onConnected();
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      sender.onDisconnected();
-      sender.close();
+    
+    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+      @Override
+      public void run() {
+        sender.onDisconnected();
+        sender.close();
+      }
     }));
-
     return sender;
   }
 }
