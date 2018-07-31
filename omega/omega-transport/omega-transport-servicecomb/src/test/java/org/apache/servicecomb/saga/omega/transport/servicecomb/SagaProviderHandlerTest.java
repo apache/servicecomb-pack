@@ -26,11 +26,13 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 import org.apache.servicecomb.core.Invocation;
+import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.swagger.invocation.AsyncResponse;
 import org.junit.Before;
@@ -42,7 +44,13 @@ public class SagaProviderHandlerTest {
 
   private static final String localTxId = UUID.randomUUID().toString();
 
-  private final OmegaContext omegaContext = new OmegaContext(() -> "ignored");
+  private final OmegaContext omegaContext = new OmegaContext(new IdGenerator<String>() {
+
+    @Override
+    public String nextId() {
+      return "ignored";
+    }
+  });
 
   private final Invocation invocation = mock(Invocation.class);
 
@@ -70,7 +78,7 @@ public class SagaProviderHandlerTest {
 
   @Test
   public void doNothingInNonTransactionRequest() throws Exception {
-    when(invocation.getContext()).thenReturn(emptyMap());
+    when(invocation.getContext()).thenReturn(Collections.EMPTY_MAP);
 
     handler.handle(invocation, asyncResponse);
 

@@ -42,7 +42,13 @@ public class SagaConsumerHandlerTest {
   @SuppressWarnings("unchecked")
   private final IdGenerator<String> idGenerator = mock(IdGenerator.class);
 
-  private final OmegaContext omegaContext = new OmegaContext(() -> "ignored");
+  private final OmegaContext omegaContext = new OmegaContext(new IdGenerator<String>() {
+
+    @Override
+    public String nextId() {
+      return "ignored";
+    }
+  });
 
   private final Invocation invocation = mock(Invocation.class);
 

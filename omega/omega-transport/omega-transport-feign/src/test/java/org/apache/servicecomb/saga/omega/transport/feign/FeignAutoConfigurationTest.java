@@ -27,7 +27,10 @@ import java.util.UUID;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
+
+import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,7 +40,13 @@ public class FeignAutoConfigurationTest{
 
     private static final String localTxId = UUID.randomUUID().toString();
 
-    private final OmegaContext omegaContext = new OmegaContext(() -> "ignored");
+    private final OmegaContext omegaContext = new OmegaContext(new IdGenerator<String>() {
+
+        @Override
+        public String nextId() {
+            return "ignored";
+        }
+    });
 
     private RequestTemplate requestTemplate = new RequestTemplate(); // mock(RequestTemplate.class);
 
@@ -55,8 +64,10 @@ public class FeignAutoConfigurationTest{
 
         feignClientRequestInterceptor.apply(requestTemplate); // .preHandle(request, response, null);
 
-        assertThat((new ArrayList(requestTemplate.headers().get(OmegaContext.GLOBAL_TX_ID_KEY))).get(0), is(globalTxId));
-        assertThat((new ArrayList(requestTemplate.headers().get(OmegaContext.LOCAL_TX_ID_KEY))).get(0), is(localTxId));
+        assertThat((new ArrayList(requestTemplate.headers().get(OmegaContext.GLOBAL_TX_ID_KEY))).get(0),
+            Matchers.<Object>is(globalTxId));
+        assertThat((new ArrayList(requestTemplate.headers().get(OmegaContext.LOCAL_TX_ID_KEY))).get(0),
+            Matchers.<Object>is(localTxId));
     }
 
     @Test
