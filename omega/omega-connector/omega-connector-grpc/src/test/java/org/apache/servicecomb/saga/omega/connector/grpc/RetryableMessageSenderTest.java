@@ -70,12 +70,15 @@ public class RetryableMessageSenderTest {
 
   @Test
   public void blowsUpWhenInterrupted() throws InterruptedException {
-    Thread thread = new Thread(() -> {
-      try {
-        messageSender.send(event);
-        expectFailing(OmegaException.class);
-      } catch (OmegaException e) {
-        assertThat(e.getMessage().endsWith("interruption"), is(true));
+    Thread thread = new Thread( new Runnable() {
+      @Override
+      public void run() {
+        try {
+          messageSender.send(event);
+          expectFailing(OmegaException.class);
+        } catch (OmegaException e) {
+          assertThat(e.getMessage().endsWith("interruption"), is(true));
+        }
       }
     });
 

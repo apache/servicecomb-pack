@@ -34,6 +34,26 @@ public class RetryableMessageSender implements MessageSender {
   }
 
   @Override
+  public void onConnected() {
+
+  }
+
+  @Override
+  public void onDisconnected() {
+
+  }
+
+  @Override
+  public void close() {
+
+  }
+
+  @Override
+  public String target() {
+    return "UNKNOWN";
+  }
+
+  @Override
   public AlphaResponse send(TxEvent event) {
     if (event.type() == SagaStartedEvent) {
       throw new OmegaException("Failed to process subsequent requests because no alpha server is available");

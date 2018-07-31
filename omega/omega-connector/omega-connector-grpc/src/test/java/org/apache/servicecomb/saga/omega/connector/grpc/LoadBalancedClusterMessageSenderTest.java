@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.servicecomb.saga.common.EventType;
@@ -80,7 +81,9 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    Arrays.stream(ports).forEach(LoadBalancedClusterMessageSenderTest::startServerOnPort);
+    for(int port: ports) {
+      startServerOnPort(port);
+    }
   }
 
   private static void startServerOnPort(int port) {
@@ -121,13 +124,19 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
     messageSender.onConnected();
     messageSender.send(event);
 
-    int deadPort = killServerReceivedMessage();
+    final int deadPort = killServerReceivedMessage();
 
     // ensure live message sender has latency greater than 0
     messageSender.send(event);
 
     startServerOnPort(deadPort);
-    await().atMost(5, SECONDS).until(() -> connected.get(deadPort).size() == 3);
+    await().atMost(5, SECONDS).until(new Callable<Boolean>() {
+
+      @Override
+      public Boolean call() throws Exception {
+        return connected.get(deadPort).size() == 3;
+      }
+    });
 
     TxEvent abortedEvent = new TxAbortedEvent(globalTxId, localTxId, parentTxId, compensationMethod, new RuntimeException("oops"));
     messageSender.send(abortedEvent);
@@ -137,7 +146,13 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
     assertThat(eventsMap.get(deadPort).poll().toString(), is(event.toString()));
     assertThat(eventsMap.get(deadPort).poll().toString(), is(abortedEvent.toString()));
 
-    await().atMost(3, SECONDS).until(() -> compensated.contains(globalTxId));
+    await().atMost(3, SECONDS).until(new Callable<Boolean>() {
+
+      @Override
+      public Boolean call() throws Exception {
+        return compensated.contains(globalTxId);
+      }
+    });
   }
 
   @Test(timeout = 1000)
@@ -145,9 +160,14 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
     MessageSender underlying = Mockito.mock(MessageSender.class);
     doThrow(RuntimeException.class).when(underlying).send(event);
 
-    MessageSender messageSender = new LoadBalancedClusterMessageSender(underlying);
+    final MessageSender messageSender = new LoadBalancedClusterMessageSender(underlying);
 
-    Thread thread = new Thread(() -> messageSender.send(event));
+    Thread thread = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        messageSender.send(event);
+      }
+    });
     thread.start();
 
     Thread.sleep(300);
@@ -162,7 +182,13 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
   @Test
   public void broadcastConnectionAndDisconnection() throws Exception {
     messageSender.onConnected();
-    await().atMost(1, SECONDS).until(() -> !connected.get(8080).isEmpty() && !connected.get(8090).isEmpty());
+    await().atMost(1, SECONDS).until(new Callable<Boolean>() {
+
+      @Override
+      public Boolean call() throws Exception {
+        return !connected.get(8080).isEmpty() && !connected.get(8090).isEmpty();
+      }
+    });
 
     assertThat(connected.get(8080), contains("Connected " + serviceName));
     assertThat(connected.get(8090), contains("Connected " + serviceName));
@@ -228,14 +254,26 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
 
   @Test
   public void stopSendingWhenClusterIsDown() throws Exception {
-    servers.values().forEach(Server::shutdownNow);
+    for(Server server:servers.values()) {
+      server.shutdownNow();
+    }
     messageSender.onConnected();
 
-    Thread thread = new Thread(() -> messageSender.send(event));
+    final Thread thread = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        messageSender.send(event);
+      }
+    });
     thread.start();
 
     // we don't want to keep sending on cluster down
-    await().atMost(2, SECONDS).until(() -> thread.isAlive() && thread.getState().equals(WAITING));
+    await().atMost(2, SECONDS).until(new Callable<Boolean>() {
+      @Override
+      public Boolean call() throws Exception {
+        return thread.isAlive() && thread.getState().equals(WAITING);
+      }
+    });
 
     assertThat(eventsMap.get(8080).isEmpty(), is(true));
     assertThat(eventsMap.get(8090).isEmpty(), is(true));
@@ -243,8 +281,18 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
     startServerOnPort(8080);
     startServerOnPort(8090);
 
-    await().atMost(2, SECONDS).until(() -> connected.get(8080).size() == 2 || connected.get(8090).size() == 2);
-    await().atMost(2, SECONDS).until(() -> eventsMap.get(8080).size() == 1 || eventsMap.get(8090).size() == 1);
+    await().atMost(2, SECONDS).until(new Callable<Boolean>() {
+      @Override
+      public Boolean call() throws Exception {
+        return connected.get(8080).size() == 2 || connected.get(8090).size() == 2;
+      }
+    });
+    await().atMost(2, SECONDS).until(new Callable<Boolean>() {
+      @Override
+      public Boolean call() throws Exception {
+        return eventsMap.get(8080).size() == 1 || eventsMap.get(8090).size() == 1;
+      }
+    });
   }
 
   @Test
@@ -257,12 +305,15 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
 
   @Test
   public void blowsUpWhenServerIsInterrupted() throws InterruptedException {
-    Thread thread = new Thread(() -> {
-      try {
-        messageSender.send(event);
-        expectFailing(OmegaException.class);
-      } catch (OmegaException e) {
-        assertThat(e.getMessage().endsWith("interruption"), is(true));
+    Thread thread = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          messageSender.send(event);
+          expectFailing(OmegaException.class);
+        } catch (OmegaException e) {
+          assertThat(e.getMessage().endsWith("interruption"), is(true));
+        }
       }
     });
 

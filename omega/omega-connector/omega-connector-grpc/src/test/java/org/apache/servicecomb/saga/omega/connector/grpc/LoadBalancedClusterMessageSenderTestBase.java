@@ -57,13 +57,13 @@ public abstract class LoadBalancedClusterMessageSenderTestBase {
   }};
 
   protected static final Map<Integer, Queue<String>> connected = new HashMap<Integer, Queue<String>>() {{
-    put(8080, new ConcurrentLinkedQueue<>());
-    put(8090, new ConcurrentLinkedQueue<>());
+    put(8080, new ConcurrentLinkedQueue<String>());
+    put(8090, new ConcurrentLinkedQueue<String>());
   }};
 
   protected static final Map<Integer, Queue<TxEvent>> eventsMap = new HashMap<Integer, Queue<TxEvent>>() {{
-    put(8080, new ConcurrentLinkedQueue<>());
-    put(8090, new ConcurrentLinkedQueue<>());
+    put(8080, new ConcurrentLinkedQueue<TxEvent>());
+    put(8090, new ConcurrentLinkedQueue<TxEvent>());
   }};
 
   protected final List<String> compensated = new ArrayList<>();
@@ -81,12 +81,30 @@ public abstract class LoadBalancedClusterMessageSenderTestBase {
 
   protected final String serviceName = uniquify("serviceName");
 
-  protected final MessageSerializer serializer = objects -> objects[0].toString().getBytes();
+  protected final MessageSerializer serializer = new MessageSerializer() {
+    @Override
+    public byte[] serialize(Object[] objects) {
+      return objects[0].toString().getBytes();
+    }
+  };
 
-  protected final MessageDeserializer deserializer = message -> new Object[] {new String(message)};
+  protected final MessageDeserializer deserializer = new MessageDeserializer() {
 
-  protected final MessageHandler handler = (globalTxId, localTxId, parentTxId, compensationMethod,
-      payloads) -> compensated.add(globalTxId);
+    @Override
+    public Object[] deserialize(byte[] message) {
+      return new Object[] {new String(message)};
+    }
+  };
+
+  protected final MessageHandler handler = new MessageHandler() {
+
+    @Override
+    public void onReceive(String globalTxId, String localTxId, String parentTxId, String compensationMethod,
+        Object... payloads) {
+      compensated.add(globalTxId);
+
+    }
+  };
 
   protected final String[] addresses = {"localhost:8080", "localhost:8090"};
 
@@ -94,7 +112,9 @@ public abstract class LoadBalancedClusterMessageSenderTestBase {
 
   @AfterClass
   public static void tearDown() throws Exception {
-    servers.values().forEach(Server::shutdown);
+    for(Server server: servers.values()) {
+      server.shutdown();
+    }
   }
 
   protected abstract MessageSender newMessageSender(String[] addresses);
@@ -103,8 +123,12 @@ public abstract class LoadBalancedClusterMessageSenderTestBase {
   public void after() throws Exception {
     messageSender.onDisconnected();
     messageSender.close();
-    eventsMap.values().forEach(Queue::clear);
-    connected.values().forEach(Queue::clear);
+    for (Queue<TxEvent> queue :eventsMap.values()) {
+      queue.clear();
+    }
+    for (Queue<String> queue :connected.values()) {
+      queue.clear();
+    }
   }
 
   protected static class MyTxEventService extends TxEventServiceImplBase {

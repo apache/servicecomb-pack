@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
+import java.util.concurrent.Callable;
 
 import javax.net.ssl.SSLException;
 
@@ -65,7 +66,10 @@ public class LoadBalanceClusterMessageSenderWithTLSTest extends LoadBalancedClus
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    Arrays.stream(ports).forEach(LoadBalanceClusterMessageSenderWithTLSTest::startServerOnPort);
+    for(int port: ports) {
+      System.out.println("Start the port " + port);
+      startServerOnPort(port);
+    }
   }
 
   private static void startServerOnPort(int port) {
@@ -122,7 +126,12 @@ public class LoadBalanceClusterMessageSenderWithTLSTest extends LoadBalancedClus
   @Test
   public void broadcastConnectionAndDisconnection() throws Exception {
     messageSender.onConnected();
-    await().atMost(1, SECONDS).until(() -> !connected.get(8080).isEmpty() && !connected.get(8090).isEmpty());
+    await().atMost(1, SECONDS).until( new Callable<Boolean>() {
+      @Override
+      public Boolean call() throws Exception {
+        return !connected.get(8080).isEmpty() && !connected.get(8090).isEmpty();
+      }
+    });
 
     assertThat(connected.get(8080), contains("Connected " + serviceName));
     assertThat(connected.get(8090), contains("Connected " + serviceName));

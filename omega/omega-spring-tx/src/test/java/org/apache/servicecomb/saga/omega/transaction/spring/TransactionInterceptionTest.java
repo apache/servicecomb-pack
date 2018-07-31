@@ -36,6 +36,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -48,6 +49,7 @@ import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.TxAbortedEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxCompensatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxEndedEvent;
+import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxStartedEvent;
 import org.apache.servicecomb.saga.omega.transaction.spring.TransactionInterceptionTest.MessageConfig;
 import org.apache.servicecomb.saga.omega.transaction.spring.annotations.OmegaContextAware;
@@ -65,11 +67,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import io.reactivex.Flowable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
+import akka.japi.Creator;
+import akka.japi.pf.FI.UnitApply;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {TransactionTestMain.class, MessageConfig.class})
@@ -222,7 +227,10 @@ public class TransactionInterceptionTest {
         is(new TxEndedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod2).toString()));
 
     assertThat(userRepository.count(), is(1L));
-    userRepository.findAll().forEach(user -> assertThat(user, is(this.user)));
+    Iterable<User> users =  userRepository.findAll();
+    for(User user: users ) {
+      assertThat(user, is(this.user));
+    }
   }
 
   @Test
@@ -257,7 +265,7 @@ public class TransactionInterceptionTest {
     new Thread(new Runnable() {
       @Override
       public void run() {
-        userService.add(user))
+        userService.add(user);
       }
     }).start();
     waitTillSavedUser(username);
@@ -283,11 +291,21 @@ public class TransactionInterceptionTest {
 
   @Test
   public void passesOmegaContextInThreadPool() throws Exception {
-    executor.schedule(() -> userService.add(user), 0, MILLISECONDS);
+    executor.schedule(new Runnable() {
+      @Override
+      public void run() {
+        userService.add(user);
+      }
+    }, 0, MILLISECONDS);
     waitTillSavedUser(username);
 
     String localTxId = omegaContext.newLocalTxId();
-    executor.invokeAll(singletonList(() -> userService.add(jack)));
+    executor.invokeAll(singletonList(new Callable<User>() {
+      @Override
+      public User call() throws Exception {
+        return userService.add(jack);
+      }
+    }));
     waitTillSavedUser(usernameJack);
 
     assertArrayEquals(
@@ -306,7 +324,12 @@ public class TransactionInterceptionTest {
     Flowable.just(user)
         .parallel()
         .runOn(Schedulers.io())
-        .doOnNext(userService::add)
+        .doOnNext(new Consumer() {
+          @Override
+          public void accept(Object user) throws Exception {
+            userService.add((User)user);
+          }
+        })
         .sequential()
         .subscribe();
 
@@ -339,8 +362,13 @@ public class TransactionInterceptionTest {
     actorSystem.terminate();
   }
 
-  private void waitTillSavedUser(String username) {
-    await().atMost(1000, MILLISECONDS).until(() -> userRepository.findByUsername(username) != null);
+  private void waitTillSavedUser(final String username) {
+    await().atMost(1000, MILLISECONDS).until(new Callable<Boolean>() {
+      @Override
+      public Boolean call() throws Exception {
+        return userRepository.findByUsername(username) != null;
+      }
+    });
   }
 
   private static class UserServiceActor extends AbstractLoggingActor {
@@ -350,15 +378,24 @@ public class TransactionInterceptionTest {
       this.userService = userService;
     }
 
-    static Props props(TransactionalUserService userService) {
-      return Props.create(UserServiceActor.class, () -> new UserServiceActor(userService));
+    static Props props(final TransactionalUserService userService) {
+      return Props.create(UserServiceActor.class, new Creator<UserServiceActor>() {
+        @Override
+        public UserServiceActor create() throws Exception {
+          return new UserServiceActor(userService);
+        }
+      });
     }
 
     @Override
     public Receive createReceive() {
       return receiveBuilder()
-          .match(User.class, userService::add)
-          .build();
+          .match(User.class, new UnitApply<User>() {
+            @Override
+            public void apply(User user) throws Exception {
+              userService.add(user);
+            }
+          }).build();
     }
   }
 
@@ -387,9 +424,32 @@ public class TransactionInterceptionTest {
 
     @Bean
     MessageSender sender() {
-      return (event) -> {
-        messages.add(event.toString());
-        return new AlphaResponse(false);
+      return new MessageSender() {
+        @Override
+        public void onConnected() {
+
+        }
+
+        @Override
+        public void onDisconnected() {
+
+        }
+
+        @Override
+        public void close() {
+
+        }
+
+        @Override
+        public String target() {
+          return "UNKNOW";
+        }
+
+        @Override
+        public AlphaResponse send(TxEvent event) {
+          messages.add(event.toString());
+          return new AlphaResponse(false);
+        }
       };
     }
   }

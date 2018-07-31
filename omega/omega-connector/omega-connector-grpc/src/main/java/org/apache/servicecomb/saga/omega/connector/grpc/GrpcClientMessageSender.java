@@ -20,8 +20,7 @@
 
 package org.apache.servicecomb.saga.omega.connector.grpc;
 
-import java.util.function.Function;
-
+import org.apache.servicecomb.saga.omega.connector.grpc.LoadBalancedClusterMessageSender.ErrorHandlerFactory;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
@@ -58,7 +57,7 @@ public class GrpcClientMessageSender implements MessageSender {
       MessageSerializer serializer,
       MessageDeserializer deserializer,
       ServiceConfig serviceConfig,
-      Function<MessageSender, Runnable> errorHandlerFactory,
+      ErrorHandlerFactory errorHandlerFactory,
       MessageHandler handler) {
     this.target = address;
     this.asyncEventService = TxEventServiceGrpc.newStub(channel);
@@ -66,7 +65,7 @@ public class GrpcClientMessageSender implements MessageSender {
     this.serializer = serializer;
 
     this.compensateStreamObserver =
-        new GrpcCompensateStreamObserver(handler, errorHandlerFactory.apply(this), deserializer);
+        new GrpcCompensateStreamObserver(handler, errorHandlerFactory.getHandler(this), deserializer);
     this.serviceConfig = serviceConfig(serviceConfig.serviceName(), serviceConfig.instanceId());
   }
 
@@ -78,6 +77,11 @@ public class GrpcClientMessageSender implements MessageSender {
   @Override
   public void onDisconnected() {
     blockingEventService.onDisconnected(serviceConfig);
+  }
+
+  @Override
+  public void close() {
+    // just do nothing here
   }
 
   @Override

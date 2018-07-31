@@ -31,11 +31,16 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 
 public class PushBackReconnectRunnableTest {
-  private static final Runnable NO_OP_RUNNABLE = () -> {
+  private static final Runnable NO_OP_RUNNABLE = new Runnable() {
+    @Override
+    public void run() {
+      // Do nothing here
+    }
   };
 
   private final MessageSender sender = mock(MessageSender.class);
@@ -60,11 +65,11 @@ public class PushBackReconnectRunnableTest {
 
     assertThat(runnables, contains(NO_OP_RUNNABLE, pushBack));
     assertThat(runnables.poll(), is(NO_OP_RUNNABLE));
-    assertThat(runnables, contains(pushBack));
+    assertThat(runnables.contains(pushBack), is(true));
 
     // failed again and pushed back itself to queue
     runnables.poll().run();
-    assertThat(runnables, contains(pushBack));
+    assertThat(runnables.contains(pushBack), is(true));
 
     runnables.poll().run();
 

@@ -35,7 +35,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.function.Function;
 
 import javax.net.ssl.SSLException;
 
@@ -110,7 +109,7 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
               serializer,
               deserializer,
               serviceConfig,
-              errorHandlerFactory(),
+              new ErrorHandlerFactory(),
               handler),
           0L);
     }
@@ -128,30 +127,37 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
 
   @Override
   public void onConnected() {
-    senders.keySet().forEach(sender -> {
+    for(MessageSender sender :senders.keySet()){
       try {
         sender.onConnected();
       } catch (Exception e) {
         LOG.error("Failed connecting to alpha at {}", sender.target(), e);
       }
-    });
+    };
   }
 
   @Override
   public void onDisconnected() {
-    senders.keySet().forEach(sender -> {
+    for (MessageSender sender :senders.keySet()) {
       try {
         sender.onDisconnected();
       } catch (Exception e) {
         LOG.error("Failed disconnecting from alpha at {}", sender.target(), e);
       }
-    });
+    };
   }
 
   @Override
   public void close() {
     scheduler.shutdown();
-    channels.forEach(ManagedChannel::shutdownNow);
+    for(ManagedChannel channel : channels) {
+      channel.shutdownNow();
+    }
+  }
+
+  @Override
+  public String target() {
+    return "UNKNOWN";
   }
 
   @Override
@@ -179,29 +185,50 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
   }
 
   private MessageSender fastestSender() {
-    return senders.entrySet()
-        .stream()
-        .filter(entry -> entry.getValue() < Long.MAX_VALUE)
-        .min(Comparator.comparingLong(Entry::getValue))
-        .map(Entry::getKey)
-        .orElse(retryableMessageSender);
+    Long min = Long.MAX_VALUE;
+    MessageSender sender = null;
+    for(Map.Entry<MessageSender, Long> entry :senders.entrySet()) {
+      if (entry.getValue() == Long.MAX_VALUE) {
+        continue;
+      } else {
+        if (min > entry.getValue()) {
+          min = entry.getValue();
+          sender = entry.getKey();
+        }
+      }
+    }
+    if (sender == null) {
+      return retryableMessageSender;
+    } else {
+      return sender;
+    }
   }
 
   private void scheduleReconnectTask(int reconnectDelay) {
-    scheduler.scheduleWithFixedDelay(() -> {
-      try {
-        pendingTasks.take().run();
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
+    scheduler.scheduleWithFixedDelay(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          pendingTasks.take().run();
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
       }
     }, 0, reconnectDelay, MILLISECONDS);
   }
 
-  private Function<MessageSender, Runnable> errorHandlerFactory() {
-    return messageSender -> {
-      Runnable runnable = new PushBackReconnectRunnable(messageSender, senders, pendingTasks, availableMessageSenders);
-      return () -> pendingTasks.offer(runnable);
-    };
+  class ErrorHandlerFactory {
+    Runnable getHandler(MessageSender messageSender) {
+      final Runnable runnable = new PushBackReconnectRunnable(messageSender, senders, pendingTasks,
+          availableMessageSenders);
+      return new Runnable() {
+        @Override
+        public void run() {
+          pendingTasks.offer(runnable);
+        }
+      };
+    }
+
   }
 
   private static SslContext buildSslContext(AlphaClusterConfig clusterConfig) throws SSLException {
