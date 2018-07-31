@@ -25,7 +25,10 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
+import java.util.List;
+
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
+import org.hamcrest.Matcher;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -40,7 +43,7 @@ public class MessageFormatTestBase {
 
     Object[] message = format.deserialize(bytes);
 
-    assertThat(asList(message), contains("hello", "world"));
+    assertThat(asList(message).containsAll(asList("hello", "world")), is(true));
   }
 
   @Test
