@@ -32,7 +32,12 @@ public class KryoMessageFormat implements MessageFormat {
 
   private static final int DEFAULT_BUFFER_SIZE = 4096;
 
-  private static final KryoFactory factory = Kryo::new;
+  private static final KryoFactory factory = new KryoFactory() {
+    @Override
+    public Kryo create() {
+      return new Kryo();
+    }
+  };
 
   private static final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
 
