@@ -18,7 +18,6 @@
 package org.apache.servicecomb.saga.omega.connector.grpc;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
-import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.lang.Thread.State.WAITING;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
@@ -27,43 +26,26 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import org.apache.servicecomb.saga.common.EventType;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
-import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
-import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
+import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
-import org.apache.servicecomb.saga.omega.transaction.MessageSerializer;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
 import org.apache.servicecomb.saga.omega.transaction.TxAbortedEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxStartedEvent;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
-import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceImplBase;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
-import io.grpc.stub.StreamObserver;
 
 public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMessageSenderTestBase {
   @Override
@@ -320,6 +302,28 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
     thread.start();
     thread.interrupt();
     thread.join();
+  }
+
+  @Test
+  public void avoidFailingForeverUsingFastestStrategy() {
+    MessageSender underlying1 = mock(MessageSender.class);
+    when(underlying1.send(Mockito.any(TxEvent.class)))
+        .thenReturn(new AlphaResponse(false))
+        .thenThrow(RuntimeException.class);
+
+    MessageSender underlying2 = mock(MessageSender.class);
+    when(underlying2.send(Mockito.any(TxEvent.class)))
+        .thenThrow(RuntimeException.class)
+        .thenReturn(new AlphaResponse(false));
+
+
+    LoadBalancedClusterMessageSender composite
+        = new LoadBalancedClusterMessageSender(underlying1, underlying2);
+
+    for(int i = 0; i < 10; i++) {
+      composite.send(event, new FastestSender());
+      System.out.println(i);
+    }
   }
 
   private int killServerReceivedMessage() {

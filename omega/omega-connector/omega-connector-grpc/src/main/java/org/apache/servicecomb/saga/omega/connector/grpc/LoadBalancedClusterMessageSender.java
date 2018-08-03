@@ -42,7 +42,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
-import javax.annotation.Nonnull;
 import javax.net.ssl.SSLException;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
@@ -172,7 +171,7 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
     return send(event, new FastestSender());
   }
 
-  public AlphaResponse send(TxEvent event, MessageSenderPicker messageSenderPicker) {
+  AlphaResponse send(TxEvent event, MessageSenderPicker messageSenderPicker) {
     do {
       MessageSender messageSender = messageSenderPicker.pick(senders, defaultMessageSender);
 
@@ -258,9 +257,7 @@ class FastestSender implements MessageSenderPicker {
     Long min = Long.MAX_VALUE;
     MessageSender sender = null;
     for (Map.Entry<MessageSender, Long> entry : messageSenders.entrySet()) {
-      if (entry.getValue() == Long.MAX_VALUE) {
-        continue;
-      } else {
+      if (entry.getValue() != Long.MAX_VALUE) {
         if (min > entry.getValue()) {
           min = entry.getValue();
           sender = entry.getKey();
