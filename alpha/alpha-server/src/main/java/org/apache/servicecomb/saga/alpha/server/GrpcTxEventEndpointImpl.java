@@ -78,7 +78,7 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
     boolean ok = txConsistentService.handle(new TxEvent(
         message.getServiceName(),
         message.getInstanceId(),
-        new Date(message.getTimestamp()),
+        new Date(),
         message.getGlobalTxId(),
         message.getLocalTxId(),
         message.getParentTxId().isEmpty() ? null : message.getParentTxId(),
