@@ -49,7 +49,7 @@ public class DefaultRecovery implements RecoveryPolicy {
   public Object apply(ProceedingJoinPoint joinPoint, Compensable compensable, CompensableInterceptor interceptor,
       OmegaContext context, String parentTxId, int retries) throws Throwable {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
-    LOG.debug("Intercepting compensable method {} with context {}", method.toString(), context);
+    LOG.debug("Intercepting componsable method {} with context {}", method.toString(), context);
 
     String compensationSignature =
         compensable.compensationMethod().isEmpty() ? "" : compensationMethodSignature(joinPoint, compensable, method);

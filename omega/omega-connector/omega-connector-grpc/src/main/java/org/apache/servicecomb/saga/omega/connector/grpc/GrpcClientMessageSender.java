@@ -20,9 +20,12 @@
 
 package org.apache.servicecomb.saga.omega.connector.grpc;
 
+import javax.annotation.Nullable;
+
 import org.apache.servicecomb.saga.omega.connector.grpc.LoadBalancedClusterMessageSender.ErrorHandlerFactory;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
+import org.apache.servicecomb.saga.omega.transaction.AsyncMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
@@ -34,19 +37,27 @@ import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTxEvent.Builder;
 import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc;
 import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceBlockingStub;
+import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceFutureStub;
 import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceStub;
 
+import com.google.common.base.Function;
+import com.google.common.util.concurrent.AsyncFunction;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 
 import io.grpc.ManagedChannel;
 
-public class GrpcClientMessageSender implements MessageSender {
+public class GrpcClientMessageSender implements MessageSender,AsyncMessageSender {
   private final String target;
   private final TxEventServiceStub asyncEventService;
 
   private final MessageSerializer serializer;
 
   private final TxEventServiceBlockingStub blockingEventService;
+
+  private final TxEventServiceFutureStub noBlockingEventService;
 
   private final GrpcCompensateStreamObserver compensateStreamObserver;
   private final GrpcServiceConfig serviceConfig;
@@ -62,6 +73,7 @@ public class GrpcClientMessageSender implements MessageSender {
     this.target = address;
     this.asyncEventService = TxEventServiceGrpc.newStub(channel);
     this.blockingEventService = TxEventServiceGrpc.newBlockingStub(channel);
+    this.noBlockingEventService = TxEventServiceGrpc.newFutureStub(channel);
     this.serializer = serializer;
 
     this.compensateStreamObserver =
@@ -76,6 +88,7 @@ public class GrpcClientMessageSender implements MessageSender {
 
   @Override
   public void onDisconnected() {
+    noBlockingEventService.onDisconnected(serviceConfig);
     blockingEventService.onDisconnected(serviceConfig);
   }
 
@@ -120,5 +133,22 @@ public class GrpcClientMessageSender implements MessageSender {
         .setServiceName(serviceName)
         .setInstanceId(instanceId)
         .build();
+  }
+
+  @Override
+  public ListenableFuture<AlphaResponse> asyncSend(TxEvent event) {
+
+    ListenableFuture<GrpcAck>  ack =  noBlockingEventService.onTxEvent(convertEvent(event));
+
+    Function<GrpcAck, AlphaResponse> function = new Function<GrpcAck, AlphaResponse>() {
+
+      @Nullable
+      @Override
+      public AlphaResponse apply(@Nullable GrpcAck grpcAck) {
+        return new AlphaResponse(grpcAck.getAborted());
+      }
+    };
+
+    return Futures.transform(ack, function, MoreExecutors.directExecutor());
   }
 }

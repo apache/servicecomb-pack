@@ -31,18 +31,28 @@ class CompensableInterceptor implements EventAwareInterceptor {
   @Override
   public AlphaResponse preIntercept(String parentTxId, String compensationMethod, int timeout, String retriesMethod,
       int retries, Object... message) {
+    // As we need to check if the transaction is abort, so we still wait for the transaction
     return sender.send(new TxStartedEvent(context.globalTxId(), context.localTxId(), parentTxId, compensationMethod,
         timeout, retriesMethod, retries, message));
+
   }
 
   @Override
   public void postIntercept(String parentTxId, String compensationMethod) {
-    sender.send(new TxEndedEvent(context.globalTxId(), context.localTxId(), parentTxId, compensationMethod));
+    if (sender instanceof AsyncMessageSender) {
+      ((AsyncMessageSender) sender).asyncSend(new TxEndedEvent(context.globalTxId(), context.localTxId(), parentTxId, compensationMethod));
+    } else {
+      sender.send(new TxEndedEvent(context.globalTxId(), context.localTxId(), parentTxId, compensationMethod));
+    }
   }
 
   @Override
   public void onError(String parentTxId, String compensationMethod, Throwable throwable) {
-    sender.send(
-        new TxAbortedEvent(context.globalTxId(), context.localTxId(), parentTxId, compensationMethod, throwable));
+    if (sender instanceof AsyncMessageSender) {
+      ((AsyncMessageSender) sender).asyncSend(new TxAbortedEvent(context.globalTxId(), context.localTxId(), parentTxId, compensationMethod, throwable));
+    } else {
+      sender.send(
+          new TxAbortedEvent(context.globalTxId(), context.localTxId(), parentTxId, compensationMethod, throwable));
+    }
   }
 }

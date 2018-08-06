@@ -134,7 +134,7 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
 
       @Override
       public Boolean call() throws Exception {
-        return connected.get(deadPort).size() == 3;
+        return connected.get(deadPort).size() == 4;
       }
     });
 
@@ -194,8 +194,8 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
     assertThat(connected.get(8090), contains("Connected " + serviceName));
 
     messageSender.onDisconnected();
-    assertThat(connected.get(8080), contains("Connected " + serviceName, "Disconnected " + serviceName));
-    assertThat(connected.get(8090), contains("Connected " + serviceName, "Disconnected " + serviceName));
+    assertThat(connected.get(8080), contains("Connected " + serviceName, "Disconnected " + serviceName, "Disconnected " + serviceName));
+    assertThat(connected.get(8090), contains("Connected " + serviceName, "Disconnected " + serviceName, "Disconnected " + serviceName));
   }
 
   @Test
@@ -284,7 +284,7 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
     await().atMost(2, SECONDS).until(new Callable<Boolean>() {
       @Override
       public Boolean call() throws Exception {
-        return connected.get(8080).size() == 2 || connected.get(8090).size() == 2;
+        return connected.get(8080).size() == 3 || connected.get(8090).size() == 3;
       }
     });
     await().atMost(2, SECONDS).until(new Callable<Boolean>() {

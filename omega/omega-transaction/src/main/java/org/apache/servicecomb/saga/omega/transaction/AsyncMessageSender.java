@@ -14,19 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.servicecomb.saga.omega.transaction;
 
-public interface MessageSender {
-  
-  void onConnected();
+import com.google.common.util.concurrent.ListenableFuture;
 
-  void onDisconnected();
-
-  void close();
-
-  String target();
-
-  AlphaResponse send(TxEvent event);
-
+public interface AsyncMessageSender {
+  ListenableFuture<AlphaResponse> asyncSend(TxEvent event);
 }

@@ -26,9 +26,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,6 +38,7 @@ import javax.net.ssl.SSLException;
 
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
+import org.apache.servicecomb.saga.omega.transaction.AsyncMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
@@ -48,6 +47,8 @@ import org.apache.servicecomb.saga.omega.transaction.OmegaException;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -58,7 +59,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 
-public class LoadBalancedClusterMessageSender implements MessageSender {
+public class LoadBalancedClusterMessageSender implements MessageSender, AsyncMessageSender {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final Map<MessageSender, Long> senders = new ConcurrentHashMap<>();
   private final Collection<ManagedChannel> channels;
@@ -215,6 +216,18 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
         }
       }
     }, 0, reconnectDelay, MILLISECONDS);
+  }
+
+  @Override
+  public ListenableFuture<AlphaResponse> asyncSend(TxEvent event) {
+    MessageSender messageSender = fastestSender();
+    if (messageSender instanceof AsyncMessageSender) {
+      return ((AsyncMessageSender) messageSender).asyncSend(event);
+    } else {
+      // just throw the unsupport exception
+      throw new IllegalArgumentException("The MessageSender doesn't support asyncSend");
+
+    }
   }
 
   class ErrorHandlerFactory {

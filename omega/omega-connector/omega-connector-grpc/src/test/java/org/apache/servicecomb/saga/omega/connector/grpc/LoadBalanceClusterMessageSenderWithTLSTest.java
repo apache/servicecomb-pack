@@ -137,7 +137,8 @@ public class LoadBalanceClusterMessageSenderWithTLSTest extends LoadBalancedClus
     assertThat(connected.get(8090), contains("Connected " + serviceName));
 
     messageSender.onDisconnected();
-    assertThat(connected.get(8080), contains("Connected " + serviceName, "Disconnected " + serviceName));
-    assertThat(connected.get(8090), contains("Connected " + serviceName, "Disconnected " + serviceName));
+    Thread.sleep(5000);
+    assertThat(connected.get(8080), contains("Connected " + serviceName, "Disconnected " + serviceName, "Disconnected " + serviceName));
+    assertThat(connected.get(8090), contains("Connected " + serviceName, "Disconnected " + serviceName, "Disconnected " + serviceName));
   }
 }

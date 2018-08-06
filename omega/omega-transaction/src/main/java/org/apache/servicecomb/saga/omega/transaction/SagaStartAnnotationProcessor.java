@@ -37,21 +37,31 @@ class SagaStartAnnotationProcessor implements EventAwareInterceptor {
     try {
       return sender.send(new SagaStartedEvent(omegaContext.globalTxId(), omegaContext.localTxId(), timeout));
     } catch (OmegaException e) {
+      // need to check if the message sender can connect the alpha server
       throw new TransactionalException(e.getMessage(), e.getCause());
     }
   }
 
   @Override
   public void postIntercept(String parentTxId, String compensationMethod) {
-    AlphaResponse response = sender.send(new SagaEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
-    if (response.aborted()) {
-      throw new OmegaException("transaction " + parentTxId + " is aborted");
+    if (!(sender instanceof AsyncMessageSender)) {
+      AlphaResponse response = sender.send(new SagaEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
+      // We should know about if the transaction is succeed or not here
+      if (response.aborted()) {
+        throw new OmegaException("transaction " + parentTxId + " is aborted");
+      }
+    } else {
+      ((AsyncMessageSender) sender).asyncSend(new SagaEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
     }
   }
 
   @Override
   public void onError(String parentTxId, String compensationMethod, Throwable throwable) {
     String globalTxId = omegaContext.globalTxId();
-    sender.send(new TxAbortedEvent(globalTxId, globalTxId, null, compensationMethod, throwable));
+    if (sender instanceof AsyncMessageSender) {
+      ((AsyncMessageSender) sender).asyncSend(new TxAbortedEvent(globalTxId, globalTxId, null, compensationMethod, throwable));
+    } else {
+      sender.send(new TxAbortedEvent(globalTxId, globalTxId, null, compensationMethod, throwable));
+    }
   }
 }

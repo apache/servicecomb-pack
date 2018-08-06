@@ -33,6 +33,10 @@ public class CompensationMessageHandler implements MessageHandler {
   public void onReceive(String globalTxId, String localTxId, String parentTxId, String compensationMethod,
       Object... payloads) {
     context.apply(globalTxId, localTxId, compensationMethod, payloads);
-    sender.send(new TxCompensatedEvent(globalTxId, localTxId, parentTxId, compensationMethod));
+    if (sender instanceof AsyncMessageSender) {
+      ((AsyncMessageSender) sender).asyncSend(new TxCompensatedEvent(globalTxId, localTxId, parentTxId, compensationMethod));
+    } else {
+      sender.send(new TxCompensatedEvent(globalTxId, localTxId, parentTxId, compensationMethod));
+    }
   }
 }
