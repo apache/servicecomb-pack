@@ -15,7 +15,8 @@ The process of Inter-Service Communication is similar to [Zipkin](https://github
 
 ![Inter-Service Communication](static_files/inter-service_communication.png)
 
-## Workflow
+## Workflow Saga
+Saga处理场景是要求相关的子事务提供事务处理函数同时也提供补偿函数。Saga协调器alpha会根据事务的执行情况向omega发送相关的指令，确定是否向前重试或者向后恢复。
 ### Successful Scenario
 In a successful scenario, all started events will have a corresponding ended event.
 
@@ -30,3 +31,14 @@ In an exception scenario, omega inside the abnormal service will report an abort
 In timeout scenario, timeouted events will be detected by alpha's period scanner, the corresponding global transaction will be abort at the same time.
 
 ![Timeout Scenario](static_files/timeout_scenario.png)
+
+## Workflow TCC
+Comparing Saga, TCC(try-confirm-cancel) just have one more method(try) to check if we have enough resource to finish the transaction.
+ The transaction starter knows all the distributed sub transactions status, so it can work with alpha to confirm or cancel the transactions。
+### Successful Scenario
+In a successful scenario, all try events are confirmed.
+
+![Successful Scenario](static_files/successful_scenario_TCC.png)
+
+### Exception Scenario
+In an exception scenario, the starter will send the cancel event to alpha, and alpha could invoke the cancel methods which are registered to the Alpha server to clean up the pre allocated resources.

@@ -17,9 +17,10 @@ omega是微服务中内嵌的一个agent。当服务收到请求时，omega会�
 
 ![Inter-Service Communication](static_files/inter-service_communication.png)
 
-## 具体处理流程
+## Saga 具体处理流程
+Saga处理场景是要求相关的子事务提供事务处理函数同时也提供补偿函数。Saga协调器alpha会根据事务的执行情况向omega发送相关的指令，确定是否向前重试或者向后恢复。
 ### 成功场景
-成功场景下，每个开始的事件都会有对应的结束事件。
+成功场景下，每个事务都会有开始和有对应的结束事件。
 
 ![Successful Scenario](static_files/successful_scenario.png)
 
@@ -28,7 +29,19 @@ omega是微服务中内嵌的一个agent。当服务收到请求时，omega会�
 
 ![Exception Scenario](static_files/exception_scenario.png)
 
-### 超时场景
+### 超时场景 (需要调整）
 超时场景下，已超时的事件会被alpha的定期扫描器检测出来，与此同时，该超时事务对应的全局事务也会被中断。
 
 ![Timeout Scenario](static_files/timeout_scenario.png)
+
+## TCC 具体处理流程
+TCC(try-confirm-cancel)与Saga事务处理方式相比多了一个Try方法。事务调用的发起方来根据事务的执行情况协调各方相关各方进行提交事务或者回滚事务。
+### 成功场景
+成功场景下， 每个事务都会有开始和对应的结束事件
+
+![Successful Scenario](static_files/successful_scenario_TCC.png)
+
+### 异常场景
+异常场景下，事务发起方会向alpha上报异常事件，然后alpha会向该全局事务的其它已完成的子事务发送补偿指令，确保最终所有的子事务要么都成功，要么都回滚。
+
+![Exception Scenario](static_files/exception_scenario_TCC.png)
