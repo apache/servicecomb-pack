@@ -42,3 +42,5 @@ In a successful scenario, all try events are confirmed.
 
 ### Exception Scenario
 In an exception scenario, the starter will send the cancel event to alpha, and alpha could invoke the cancel methods which are registered to the Alpha server to clean up the pre allocated resources.
+
+![Exception Scenario](static_files/exception_scenario_TCC.png)
