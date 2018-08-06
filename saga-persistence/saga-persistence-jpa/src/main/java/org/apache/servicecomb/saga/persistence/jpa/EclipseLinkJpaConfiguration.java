@@ -18,6 +18,7 @@
 package org.apache.servicecomb.saga.persistence.jpa;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -47,6 +48,9 @@ public class EclipseLinkJpaConfiguration extends JpaBaseConfiguration {
 
   @Override
   protected Map<String, Object> getVendorProperties() {
-    return Collections.singletonMap("eclipselink.weaving", "false");
+    Map<String, Object> props = new HashMap<>();
+    props.put("eclipselink.weaving", "false");
+    props.put("eclipselink.logging.logger", "JavaLogger");
+    return props;
   }
 }
