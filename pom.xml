@@ -53,6 +53,7 @@
     <kamon.version>0.6.7</kamon.version>
     <!-- using log4j 2.7 with Spring Boot 1.x -->
     <log4j.version>2.7</log4j.version>
+    <disruptor.version>3.3.7</disruptor.version>
     <dubbo.version>2.6.1</dubbo.version>
     <spring.boot.version>1.5.14.RELEASE</spring.boot.version>
     <spring.boot2.version>2.0.3.RELEASE</spring.boot2.version>
@@ -356,6 +357,11 @@
         <version>1.7.25</version>
       </dependency>
       <dependency>
+        <groupId>com.lmax</groupId>
+        <artifactId>disruptor</artifactId>
+        <version>${disruptor.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-slf4j-impl</artifactId>
         <version>${log4j.version}</version>
@@ -449,11 +455,6 @@
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjweaver</artifactId>
         <version>1.8.10</version>
-      </dependency>
-      <dependency>
-        <groupId>com.lmax</groupId>
-        <artifactId>disruptor</artifactId>
-        <version>3.3.6</version>
       </dependency>
       <dependency>
         <groupId>com.typesafe.akka</groupId>
