@@ -20,24 +20,29 @@ package org.apache.servicecomb.saga.omega.connector.grpc;
 import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import com.google.common.base.Supplier;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.NegotiationType;
+import io.grpc.netty.NettyChannelBuilder;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslProvider;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
-
 import javax.net.ssl.SSLException;
-
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
@@ -49,23 +54,24 @@ import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-import io.grpc.netty.GrpcSslContexts;
-import io.grpc.netty.NegotiationType;
-import io.grpc.netty.NettyChannelBuilder;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.SslProvider;
-
 public class LoadBalancedClusterMessageSender implements MessageSender {
+
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final Map<MessageSender, Long> senders = new ConcurrentHashMap<>();
   private final Collection<ManagedChannel> channels;
 
   private final BlockingQueue<Runnable> pendingTasks = new LinkedBlockingQueue<>();
   private final BlockingQueue<MessageSender> availableMessageSenders = new LinkedBlockingQueue<>();
-  private final MessageSender retryableMessageSender = new RetryableMessageSender(availableMessageSenders);
+  private final MessageSender retryableMessageSender = new RetryableMessageSender(
+      availableMessageSenders);
+
+  private final Supplier<MessageSender> defaultMessageSender = new Supplier<MessageSender>() {
+    @Override
+    public MessageSender get() {
+      return retryableMessageSender;
+    }
+  };
+
   private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
   public LoadBalancedClusterMessageSender(AlphaClusterConfig clusterConfig,
@@ -133,7 +139,7 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
       } catch (Exception e) {
         LOG.error("Failed connecting to alpha at {}", sender.target(), e);
       }
-    };
+    }
   }
 
   @Override
@@ -144,7 +150,7 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
       } catch (Exception e) {
         LOG.error("Failed disconnecting from alpha at {}", sender.target(), e);
       }
-    };
+    }
   }
 
   @Override
@@ -162,8 +168,12 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
 
   @Override
   public AlphaResponse send(TxEvent event) {
+    return send(event, new FastestSender());
+  }
+
+  AlphaResponse send(TxEvent event, MessageSenderPicker messageSenderPicker) {
     do {
-      MessageSender messageSender = fastestSender();
+      MessageSender messageSender = messageSenderPicker.pick(senders, defaultMessageSender);
 
       try {
         long startTime = System.nanoTime();
@@ -182,26 +192,6 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
     } while (!Thread.currentThread().isInterrupted());
 
     throw new OmegaException("Failed to send event " + event + " due to interruption");
-  }
-
-  private MessageSender fastestSender() {
-    Long min = Long.MAX_VALUE;
-    MessageSender sender = null;
-    for(Map.Entry<MessageSender, Long> entry :senders.entrySet()) {
-      if (entry.getValue() == Long.MAX_VALUE) {
-        continue;
-      } else {
-        if (min > entry.getValue()) {
-          min = entry.getValue();
-          sender = entry.getKey();
-        }
-      }
-    }
-    if (sender == null) {
-      return retryableMessageSender;
-    } else {
-      return sender;
-    }
   }
 
   private void scheduleReconnectTask(int reconnectDelay) {
@@ -253,5 +243,31 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
     }
 
     return builder.build();
+  }
+}
+
+/**
+ * The strategy of picking the fastest {@link MessageSender}
+ */
+class FastestSender implements MessageSenderPicker {
+
+  @Override
+  public MessageSender pick(Map<MessageSender, Long> messageSenders,
+      Supplier<MessageSender> defaultSender) {
+    Long min = Long.MAX_VALUE;
+    MessageSender sender = null;
+    for (Map.Entry<MessageSender, Long> entry : messageSenders.entrySet()) {
+      if (entry.getValue() != Long.MAX_VALUE) {
+        if (min > entry.getValue()) {
+          min = entry.getValue();
+          sender = entry.getKey();
+        }
+      }
+    }
+    if (sender == null) {
+      return defaultSender.get();
+    } else {
+      return sender;
+    }
   }
 }
