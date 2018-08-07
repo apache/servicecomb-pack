@@ -171,24 +171,36 @@ public class PackIT {
     assertThat(txAbortedEvent.serviceName(), is(serviceName));
     assertThat(txAbortedEvent.instanceId(), is(txStartedEvent2.instanceId()));
 
+    // The TxAbortedEvent and TxCompensatedEvent could arrive in different order 
+    TxEvent event = events.get(5);
+    checkedLastTwoEvents(globalTxId, txStartedEvent1, event);
 
-    assertThat(events.get(5).type(), is("TxAbortedEvent"));
-    txAbortedEvent = events.get(5);
-    System.out.println(txAbortedEvent);
+    event = events.get(6);
+    checkedLastTwoEvents(globalTxId, txStartedEvent1, event);
+
+    assertThat(compensatedMessages, contains("Goodbye, " + TRESPASSER));
+  }
+
+  private void checkedLastTwoEvents(String globalTxId, TxEvent txStartedEvent1, TxEvent event) {
+    if ("TxAbortedEvent".equals(event.type())) {
+      // check the globalTx
+      checkGloableTransactionEvent(event, globalTxId);
+    } else {
+      checkCompensatedTransactionEvent(event, txStartedEvent1, globalTxId);
+    }
+  }
+
+  private void checkCompensatedTransactionEvent(TxEvent txCompensatedEvent, TxEvent txStartedEvent, String globalTxId) {
+    assertThat(txCompensatedEvent.localTxId(), is(txStartedEvent.localTxId()));
+    assertThat(txCompensatedEvent.parentTxId(), is(globalTxId));
+    assertThat(txCompensatedEvent.serviceName(), is(serviceName));
+    assertThat(txCompensatedEvent.instanceId(), is(txStartedEvent.instanceId()));
+  }
+
+  private void checkGloableTransactionEvent(TxEvent txAbortedEvent, String globalTxId) {
     assertThat(txAbortedEvent.localTxId(), is(globalTxId));
     assertThat(txAbortedEvent.globalTxId(), is(globalTxId));
     assertThat(txAbortedEvent.parentTxId(), is(nullValue()));
-    
-    TxEvent txCompensatedEvent1 = events.get(6);
-    assertThat(txCompensatedEvent1.type(), is("TxCompensatedEvent"));
-    assertThat(txCompensatedEvent1.localTxId(), is(txStartedEvent1.localTxId()));
-    assertThat(txCompensatedEvent1.parentTxId(), is(globalTxId));
-    assertThat(txCompensatedEvent1.serviceName(), is(serviceName));
-    assertThat(txCompensatedEvent1.instanceId(), is(txStartedEvent1.instanceId()));
-
-
-
-    assertThat(compensatedMessages, contains("Goodbye, " + TRESPASSER));
   }
 
   @Test(timeout = 5000)
