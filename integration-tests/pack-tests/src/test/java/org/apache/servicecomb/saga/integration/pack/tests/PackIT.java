@@ -290,7 +290,7 @@ public class PackIT {
 
     assertThat(entity.getStatusCode(), is(INTERNAL_SERVER_ERROR));
 
-    await().atMost(3, SECONDS).until(() -> eventRepo.count() == 11);
+    await().atMost(5, SECONDS).until(() -> eventRepo.count() == 11);
 
     List<String> distinctGlobalTxIds = eventRepo.findDistinctGlobalTxId();
     assertThat(distinctGlobalTxIds.size(), is(1));
@@ -312,10 +312,6 @@ public class PackIT {
     assertThat(events.get(9).type(), is("TxAbortedEvent"));
     assertThat(events.get(10).type(), is("TxCompensatedEvent"));
     
-    //assertThat(events.get(10).type(), is("SagaEndedEvent"));
-
-    System.out.println(compensatedMessages);
-
     assertThat(compensatedMessages, contains("Goodbye, " + TRESPASSER));
   }
 }
