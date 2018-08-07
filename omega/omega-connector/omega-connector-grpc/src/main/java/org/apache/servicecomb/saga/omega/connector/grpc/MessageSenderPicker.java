@@ -25,8 +25,6 @@ import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 /**
  * The strategy of picking a specific {@link MessageSender} from a {@link Collection} of {@link
  * MessageSender}s
- *
- * @author imlijinting
  */
 public interface MessageSenderPicker {
 
