@@ -12,6 +12,27 @@ Apache Commons Logging
 Copyright 2003-2016 The Apache Software Foundation
 
 ================================================================
+Notice for Apache Log4j API
+
+Apache Log4j API
+Copyright 1999-2016 Apache Software Foundation
+
+================================================================
+Notice for Apache Log4j Core
+
+Apache Log4j Core
+Copyright 1999-2012 Apache Software Foundation
+
+ResolverUtil.java
+Copyright 2005-2006 Tim Fennell
+
+================================================================
+Notice for Apache Log4j SLF4J Binding
+
+Apache Log4j SLF4J Binding
+Copyright 1999-2016 Apache Software Foundation
+
+================================================================
 Notice for gRPC
 
 See licenses/NOTICE-grpc
