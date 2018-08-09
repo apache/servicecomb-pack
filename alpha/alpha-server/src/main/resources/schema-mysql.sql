@@ -30,7 +30,8 @@ CREATE TABLE IF NOT EXISTS TxEvent (
   retries int(11) NOT NULL DEFAULT '0',
   retryMethod varchar(256) DEFAULT NULL,
   PRIMARY KEY (surrogateId),
-  INDEX saga_events_index (surrogateId, globalTxId, localTxId, type, expiryTime)
+  INDEX saga_events_index (surrogateId, globalTxId, localTxId, type, expiryTime),
+  INDEX saga_global_tx_index (globalTxId)
 ) DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS Command (
