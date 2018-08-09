@@ -4,29 +4,29 @@ metadata:
   name: alpha-server
   namespace: servicecomb
   labels:
-    app: scsaga-alphaserver
+    app: alphaserver
 spec:
   ports:
   - port: 8080
     name: alpha
   selector:
-    app: scsaga-alphaserver
+    app: alphaserver
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: scsaga-alphaserver
+  name: alphaserver
   namespace: servicecomb
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: scsaga-alphaserver
+        app: alphaserver
         version: v1
     spec:
       containers:
-      - name: scsaga-alphaserver
+      - name: alphaserver
         image: alpha-server:0.3.0-SNAPSHOT
         imagePullPolicy: IfNotPresent
         # ports:

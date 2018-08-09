@@ -4,30 +4,32 @@ metadata:
   name: booking
   namespace: servicecomb
   labels:
-    app: scsaga-booking
+    app: booking
 spec:
+  externalIPs: ['192.168.43.70']
+  type: NodePort
   ports:
   - port: 8083
     targetPort: 8080
-    name: booking
+    name: http
   selector:
-    app: scsaga-booking
+    app: booking
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: scsaga-booking
+  name: booking
   namespace: servicecomb
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: scsaga-booking
+        app: booking
         version: v1
     spec:
       containers:
-      - name: scsaga-booking
+      - name: booking
         image: booking:0.3.0-SNAPSHOT
         imagePullPolicy: IfNotPresent
         env:
@@ -36,20 +38,21 @@ spec:
         ports:
         - containerPort: 8080
 ---
+# Only for debugging
 # apiVersion: v1
 # kind: Service
 # metadata:
 #   name: booking-nodeip
 #   namespace: servicecomb
 #   labels:
-#     app: scsaga-booking
+#     app: booking
 # spec:
 #   type: NodePort
 #   ports:
-#   - port: 8088
-#     # targetPort: 8088
+#   - port: 8080
+#     # targetPort: 8080
 #     name: http
 #   externalIPs: ['192.168.43.70']
 #   selector:
-#     app: scsaga-booking
+#     app: booking
 # ---

@@ -6,29 +6,29 @@ metadata:
   name: postgresql
   namespace: servicecomb
   labels:
-    app: scsaga-database
+    app: database
 spec:
   ports:
   - port: 5432
     name: postgresql # The name cannot be 'http'
   selector:
-    app: scsaga-database
+    app: database
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: scsaga-database
+  name: database
   namespace: servicecomb
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: scsaga-database
+        app: database
         version: v1
     spec:
       containers:
-      - name: scsaga-postgresql
+      - name: postgresql
         image: postgres
         imagePullPolicy: IfNotPresent
         ports:
