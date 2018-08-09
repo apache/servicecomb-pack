@@ -21,7 +21,7 @@ import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.util.Collections.emptyMap;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
@@ -36,7 +36,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-@SuppressWarnings("unchecked")
 public class JacksonRestOperationTest {
 
   private final String address = uniquify("address");
