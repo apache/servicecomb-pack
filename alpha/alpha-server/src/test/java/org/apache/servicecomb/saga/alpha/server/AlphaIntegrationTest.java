@@ -434,8 +434,13 @@ public class AlphaIntegrationTest {
     assertThat(events.get(0).type(), is(SagaStartedEvent.name()));
     assertThat(events.get(1).type(), is(TxStartedEvent.name()));
     assertThat(events.get(2).type(), is(TxAbortedEvent.name()));
-    assertThat(events.get(3).type(), is(TxCompensatedEvent.name()));
-    assertThat(events.get(4).type(), is(SagaEndedEvent.name()));
+    // The SagaEndedEvent could be received before TxCompensatedEvent
+    if ("TxCompensatedEvent".equals(events.get(3).type())) {
+      assertThat(events.get(4).type(), is(SagaEndedEvent.name()));
+    } else {
+      assertThat(events.get(3).type(), is(SagaEndedEvent.name()));
+      assertThat(events.get(4).type(), is(TxCompensatedEvent.name()));
+    }
 
     await().atMost(2, SECONDS).until(this::waitTillTimeoutDone);
 
