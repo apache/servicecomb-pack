@@ -1,0 +1,54 @@
+## ---------------------------------------------------------------------------
+## Licensed to the Apache Software Foundation (ASF) under one or more
+## contributor license agreements.  See the NOTICE file distributed with
+## this work for additional information regarding copyright ownership.
+## The ASF licenses this file to You under the Apache License, Version 2.0
+## (the "License"); you may not use this file except in compliance with
+## the License.  You may obtain a copy of the License at
+##
+##      http://www.apache.org/licenses/LICENSE-2.0
+##
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
+## ---------------------------------------------------------------------------
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: alpha-server
+  namespace: servicecomb
+  labels:
+    app: alphaserver
+spec:
+  ports:
+  - port: 8080
+    name: alpha
+  selector:
+    app: alphaserver
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: alphaserver
+  namespace: servicecomb
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: alphaserver
+        version: v1
+    spec:
+      containers:
+      - name: alphaserver
+        image: alpha-server:0.3.0-SNAPSHOT
+        imagePullPolicy: IfNotPresent
+        # ports:
+        # - containerPort: 8080
+        env:
+        - name: JAVA_OPTS
+          value: -Dspring.profiles.active=prd -Dalpha.server.port=8080 -Dspring.datasource.url=jdbc:postgresql://postgresql.servicecomb:5432/saga?useSSL=false
+---
