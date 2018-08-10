@@ -34,7 +34,7 @@ spec:
         # TODO ReplicaSet, ReplicationController, Deployment, Daemonset only allow restartPolicy to be 'Always'
         # Maybe we should provide a custom test scheduler to scale up pods and let them exit naturally.
         # restartPolicy: Never
-        args: ["-n", "-t", "/tmp/saga.jmx", "-l", "/saga-jmeter-result/spring-demo.jtl"]
+        args: ["-n", "-t", "/tmp/saga.jmx", "-l", "/tmp/jmeter-result/spring-demo.jtl"]
         volumeMounts:
         - name: jmeter-script
           mountPath: /tmp/
