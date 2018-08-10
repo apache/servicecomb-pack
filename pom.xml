@@ -57,7 +57,7 @@
     <dubbo.version>2.6.1</dubbo.version>
     <spring.boot.version>1.5.14.RELEASE</spring.boot.version>
     <spring.boot2.version>2.0.3.RELEASE</spring.boot2.version>
-    <java.chassis.version>1.0.0-m2</java.chassis.version>
+    <java.chassis.version>1.0.0</java.chassis.version>
     <spring.version>4.3.18.RELEASE</spring.version>
     <akka.version>2.5.6</akka.version>
     <rat.version>0.12</rat.version>
@@ -72,7 +72,6 @@
     <javax.activation.version>1.1.1</javax.activation.version>
     <maven-dependency-plugin.version>3.0.2</maven-dependency-plugin.version>
     <netty.boringssl.version>2.0.7.Final</netty.boringssl.version>
-    <java-chassis.version>1.0.0-m2</java-chassis.version>
     <netty.version>4.1.24.Final</netty.version>
   </properties>
 
