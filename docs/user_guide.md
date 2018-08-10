@@ -96,11 +96,14 @@ Take a transfer money application as an example:
 
 4. Repeat step 3 for the `transferIn` service.
 
+5. Since Saga-0.3.0,  you can access the [OmegaContext](https://github.com/apache/incubator-servicecomb-saga/blob/master/omega/omega-context/src/main/java/org/apache/servicecomb/saga/omega/context/OmegaContext.java) for the gloableTxId and localTxId in the @Compensable annotated method or the cancel method.
+
 ## How to run
 1. run postgreSQL.
    ```bash
    docker run -d -e "POSTGRES_DB=saga" -e "POSTGRES_USER=saga" -e "POSTGRES_PASSWORD=password" -p 5432:5432 postgres
    ```
+   Please check out [this document](https://github.com/apache/incubator-servicecomb-saga/blob/master/docs/faq/en/how_to_use_mysql_as_alpha_backend_database.md), if you want to use the MySQL instead of postgreSQL.
 
 2. run alpha. Before running alpha, please make sure postgreSQL is already up. You can run alpha through docker or executable file.
    * Run alpha through docker.
