@@ -29,11 +29,6 @@
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>3.6</version>
-      </dependency>
       <!-- java chassis jdbc version conflicts with the one defined in spring boot, so we override the version here -->
       <dependency>
         <groupId>org.springframework</groupId>
