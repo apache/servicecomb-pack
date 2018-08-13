@@ -28,27 +28,24 @@ spec:
         version: v1
     spec:
       containers:
-      - name: jmeter
-        image: justb4/jmeter
+      - name: spring-demo-jmeter
+        image: saga/jmeter:v1
         imagePullPolicy: IfNotPresent
         # TODO ReplicaSet, ReplicationController, Deployment, Daemonset only allow restartPolicy to be 'Always'
         # Maybe we should provide a custom test scheduler to scale up pods and let them exit naturally.
         # restartPolicy: Never
-        args: ["-n", "-t", "/tmp/saga.jmx", "-l", "/tmp/jmeter-result/spring-demo.jtl"]
+        args: ["-n", "-t", "/tmp/saga.jmx", "-l", "/root/spring-demo.jtl", "-e", "-o", "/root/dashboard"]
+        env:
+        - name: REPORT_PATH
+          value: /root/spring-demo.jtl
+        - name: REPORT_UPLOAD_SERVER
+          value: jmeter-collector.servicecomb
+        - name: TESTNAME
+          value: spring-demo
         volumeMounts:
         - name: jmeter-script
           mountPath: /tmp/
-        - name: result-dir
-          mountPath: /tmp/jmeter-result
-        lifecycle:
-          preStop:
-            exec:
-              command: ["echo", "jmeter finished"]
       volumes:
         - name: jmeter-script
           configMap:
             name: springdemo-jmeter-script
-        - name: result-dir
-          hostPath:
-            type: DirectoryOrCreate
-            path: /saga-jmeter-result/

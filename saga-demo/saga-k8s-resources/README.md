@@ -27,6 +27,8 @@ service "alpha-server" created
 deployment "alphaserver" created
 service "postgresql" created
 deployment "database" created
+service "jmeter-collector" created
+deployment "jmeter-collector" created
 
 $ kubectl apply -f ./spring-demo
 service "booking" created
@@ -60,13 +62,8 @@ configmap "springdemo-jmeter-script" created
 deployment "spring-demo-jmeter" created
 
 $ kubectl get pods -n servicecomb | grep jmeter
+jmeter-collector-75c4c96dbb-2bjtc     1/1       Running   0          47s
 spring-demo-jmeter-6cfb679f58-sckkx   1/1       Running   0          12s
 ```
 
-The jmeter deployment will keep testing the demo and generate the test result. For now the the result file is stored in the Kubernetes nodes under the path `/saga-jmeter-result/{demo_name}.jtl`. You can generate the HTML dashboard with the command:
-
-```bash
-$ jmeter -g /saga-jmeter-result/{demo_name}.jtl -o output/
-```
-
-We will try to provide more services to automate the dashboard generation in the future.
+The jmeter deployment will keep testing the demo and generate the test result. After each test, the result and its corresponding dashboard will be uploaded to the jmeter-collector service, which provides a simple web page to browser the test outputs. So make sure you config the jmeter-collector to be accessible, like a [NodePort](https://kubernetes.io/docs/concepts/services-networking/service/#nodeport) in a private cluster or [LoadBalancer](https://kubernetes.io/docs/concepts/services-networking/#loadbalancer) in a public cloud service.

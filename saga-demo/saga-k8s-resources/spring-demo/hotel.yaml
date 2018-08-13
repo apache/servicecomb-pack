@@ -45,7 +45,7 @@ spec:
     spec:
       containers:
       - name: hotel
-        image: hotel:0.3.0-SNAPSHOT
+        image: saga/hotel:0.3.0-SNAPSHOT
         imagePullPolicy: IfNotPresent
         env:
         - name: JAVA_OPTS
