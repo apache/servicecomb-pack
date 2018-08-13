@@ -29,6 +29,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
@@ -327,6 +328,17 @@ public class TransactionInterceptionTest {
         toArray(messages)
     );
     actorSystem.terminate();
+  }
+
+  @Test
+  public void assertCompensationMethodTransactionAware() throws NoSuchMethodException {
+    userService.add(user);
+    compensationMethod = TransactionalUserService.class.getDeclaredMethod("deleteWithTransactional", User.class).toString();
+    messageHandler.onReceive(globalTxId, newLocalTxId, globalTxId, compensationMethod, user);
+    User actualUser = userRepository.findByUsername(user.username());
+    assertNotNull(actualUser);
+    assertThat(actualUser.username(), is(username));
+    assertThat(actualUser.email(), is(email));
   }
 
   private void waitTillSavedUser(String username) {
