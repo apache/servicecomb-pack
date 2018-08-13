@@ -19,9 +19,14 @@ package org.apache.servicecomb.saga.alpha.core;
 
 import static java.util.Collections.emptyMap;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class CompositeOmegaCallback implements OmegaCallback {
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final Map<String, Map<String, OmegaCallback>> callbacks;
 
   public CompositeOmegaCallback(Map<String, Map<String, OmegaCallback>> callbacks) {
@@ -38,6 +43,7 @@ public class CompositeOmegaCallback implements OmegaCallback {
 
     OmegaCallback omegaCallback = serviceCallbacks.get(event.instanceId());
     if (omegaCallback == null) {
+      LOG.info("Cannot find the service with the instanceId {}, call the other instance.", event.instanceId());
       omegaCallback = serviceCallbacks.values().iterator().next();
     }
 
