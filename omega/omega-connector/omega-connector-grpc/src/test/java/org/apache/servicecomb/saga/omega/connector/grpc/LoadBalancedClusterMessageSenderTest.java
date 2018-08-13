@@ -278,6 +278,10 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
     assertThat(eventsMap.get(8080).isEmpty(), is(true));
     assertThat(eventsMap.get(8090).isEmpty(), is(true));
 
+    //it seems in Windows environment we need wait a short time in order to make sure onError in GrpcCompensateStreamObserver triggered
+    // after servers shutdown before restart server
+    Thread.sleep(2000);
+
     startServerOnPort(8080);
     startServerOnPort(8090);
 
