@@ -47,7 +47,7 @@ spec:
     spec:
       containers:
       - name: jmeter-collector
-        image: saga/jmeter-collector:v1
+        image: servicecomb/jmeter-collector:v1
         imagePullPolicy: IfNotPresent
 ---
 
