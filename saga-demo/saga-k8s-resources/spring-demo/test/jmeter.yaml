@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
       - name: spring-demo-jmeter
-        image: saga/jmeter:v1
+        image: servicecomb/jmeter:v1
         imagePullPolicy: IfNotPresent
         # TODO ReplicaSet, ReplicationController, Deployment, Daemonset only allow restartPolicy to be 'Always'
         # Maybe we should provide a custom test scheduler to scale up pods and let them exit naturally.

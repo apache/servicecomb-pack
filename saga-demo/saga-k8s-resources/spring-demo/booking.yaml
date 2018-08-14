@@ -45,7 +45,7 @@ spec:
     spec:
       containers:
       - name: booking
-        image: saga/booking:0.3.0-SNAPSHOT
+        image: servicecomb/booking:0.3.0-SNAPSHOT
         imagePullPolicy: IfNotPresent
         env:
         - name: JAVA_OPTS

@@ -44,7 +44,7 @@ spec:
     spec:
       containers:
       - name: alphaserver
-        image: saga/alpha-server:0.3.0-SNAPSHOT
+        image: servicecomb/alpha-server:0.3.0-SNAPSHOT
         imagePullPolicy: IfNotPresent
         # ports:
         # - containerPort: 8080

@@ -45,7 +45,7 @@ spec:
     spec:
       containers:
       - name: car
-        image: saga/car:0.3.0-SNAPSHOT
+        image: servicecomb/car:0.3.0-SNAPSHOT
         imagePullPolicy: IfNotPresent
         env:
         - name: JAVA_OPTS
