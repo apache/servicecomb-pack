@@ -25,22 +25,22 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 /**
  * Indicates the annotated method will start a sub-transaction. <br>
- * A <code>@TCC</code> method should satisfy below requirements:
+ * A <code>@Participate</code> method should satisfy below requirements:
  * <ol>
  *   <li>all parameters are serialized</li>
  *   <li>is idempotent</li>
- *   <li>the object instance which @TCC method resides in should be stateless</li>
+ *   <li>the object instance which @Participate method resides in should be stateless</li>
  * </ol>
  */
-public @interface TCC {
+public @interface Participate {
   /**
    * Confirm method name.<br>
    * A confirm method should satisfy below requirements:
    * <ol>
-   *   <li>has same parameter list as @TCC method's</li>
+   *   <li>has same parameter list as @Participate method's</li>
    *   <li>all parameters are serialized</li>
    *   <li>is idempotent</li>
-   *   <li>be in the same class as @TCC method is in</li>
+   *   <li>be in the same class as @Participate method is in</li>
    * </ol>
    *
    * @return
@@ -51,10 +51,10 @@ public @interface TCC {
    * Cancel method name.<br>
    * A cancel method should satisfy below requirements:
    * <ol>
-   *   <li>has same parameter list as @TCC method's</li>
+   *   <li>has same parameter list as @Participate method's</li>
    *   <li>all parameters are serialized</li>
    *   <li>is idempotent</li>
-   *   <li>be in the same class as @TCC method is in</li>
+   *   <li>be in the same class as @Participate method is in</li>
    * </ol>
    *
    * @return

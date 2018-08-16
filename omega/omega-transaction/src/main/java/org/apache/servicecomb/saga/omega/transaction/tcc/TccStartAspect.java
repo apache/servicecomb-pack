@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.context.annotations.SagaStart;
+import org.apache.servicecomb.saga.omega.context.annotations.TccStart;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -27,12 +28,12 @@ public class TccStartAspect {
     this.tccStartAnnotationProcessor = new TccStartAnnotationProcessor(context, sender);
   }
 
-  @Around("execution(@org.apache.servicecomb.saga.omega.context.annotations.TccStart * *(..)) && @annotation(sagaStart)")
-  Object advise(ProceedingJoinPoint joinPoint, SagaStart sagaStart) throws Throwable {
+  @Around("execution(@org.apache.servicecomb.saga.omega.context.annotations.TccStart * *(..)) && @annotation(tccStart)")
+  Object advise(ProceedingJoinPoint joinPoint, TccStart tccStart) throws Throwable {
     initializeOmegaContext();
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
 
-    tccStartAnnotationProcessor.preIntercept(context.globalTxId(), method.toString(), sagaStart.timeout(), "", 0);
+    tccStartAnnotationProcessor.preIntercept(context.globalTxId(), method.toString(), tccStart.timeout(), "", 0);
     LOG.debug("Initialized context {} before execution of method {}", context, method.toString());
 
     try {

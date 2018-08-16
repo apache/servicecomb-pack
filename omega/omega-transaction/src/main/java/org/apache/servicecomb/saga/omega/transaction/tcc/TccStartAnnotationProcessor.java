@@ -33,14 +33,16 @@ public class TccStartAnnotationProcessor implements EventAwareInterceptor {
 
   @Override
   public void postIntercept(String parentTxId, String compensationMethod) {
-    AlphaResponse response = sender.send(new SagaEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
+    // Send the confirm event
+    /*AlphaResponse response = sender.send(new SagaEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
     if (response.aborted()) {
       throw new OmegaException("transaction " + parentTxId + " is aborted");
-    }
+    }*/
   }
 
   @Override
   public void onError(String parentTxId, String compensationMethod, Throwable throwable) {
+    // Send the cancel event
     String globalTxId = omegaContext.globalTxId();
     sender.send(new TxAbortedEvent(globalTxId, omegaContext.localTxId(), null, compensationMethod, throwable));
   }
