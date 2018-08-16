@@ -19,38 +19,14 @@ syntax = "proto3";
 
 option java_multiple_files = true;
 option java_package = "org.apache.servicecomb.saga.pack.contract.grpc";
-option java_outer_classname = "TxEventProto";
 
-import "GrpcCommon.proto";
+// Define the common structs which could be use for TccEventService and SagaEventService
 
-service TxEventService {
-  rpc OnConnected (GrpcServiceConfig) returns (stream GrpcCompensateCommand) {
-  }
-  rpc OnTxEvent (GrpcTxEvent) returns (GrpcAck) {}
-  rpc OnDisconnected (GrpcServiceConfig) returns (GrpcAck) {
-  }
+message GrpcServiceConfig {
+  string serviceName = 1;
+  string instanceId = 2;
 }
 
-message GrpcTxEvent {
-  int64 timestamp = 1;
-  string globalTxId = 2;
-  string localTxId = 3;
-  string parentTxId = 4;
-  string type = 5;
-  string compensationMethod = 6;
-  bytes payloads = 7;
-  string serviceName = 8;
-  string instanceId = 9;
-  int32 timeout = 10;
-  int32 retries = 11;
-  string retryMethod = 12;
+message GrpcAck {
+  bool aborted = 1;
 }
-
-message GrpcCompensateCommand {
-  string globalTxId = 1;
-  string localTxId = 2;
-  string parentTxId = 3;
-  string compensationMethod = 4;
-  bytes payloads = 5;
-}
-

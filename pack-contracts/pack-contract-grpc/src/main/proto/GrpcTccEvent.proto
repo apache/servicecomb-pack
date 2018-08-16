@@ -19,38 +19,48 @@ syntax = "proto3";
 
 option java_multiple_files = true;
 option java_package = "org.apache.servicecomb.saga.pack.contract.grpc";
-option java_outer_classname = "TxEventProto";
+option java_outer_classname = "TccEventProto";
 
 import "GrpcCommon.proto";
 
-service TxEventService {
-  rpc OnConnected (GrpcServiceConfig) returns (stream GrpcCompensateCommand) {
+service TccEventService {
+  rpc participate(GrpcParticipateEvent) returns (GrpcAck) {}
+  rpc OnConnected (GrpcServiceConfig) returns (stream GrpcCordinateCommand) {
   }
-  rpc OnTxEvent (GrpcTxEvent) returns (GrpcAck) {}
+  rpc OnTransactionStarted (GrpcTransactionStartedEvent) returns (GrpcAck) {}
+  rpc OnTransactionEnded (GrpcTransactionEndedEvent) returns (GrpcAck) {}
   rpc OnDisconnected (GrpcServiceConfig) returns (GrpcAck) {
   }
 }
 
-message GrpcTxEvent {
+message GrpcTransactionStartedEvent {
+  int64 timestamp = 1;
+  string globalTxId = 2;
+  string localTxId = 3;
+  string parentTxId = 4;
+}
+
+message GrpcParticipateEvent {
+  int64 timestamp = 1;
+  string globalTxId = 2;
+  string localTxId = 3;
+  string parentTxId = 4;
+  string confirmMethod = 6;
+  string cancelMethod = 7;
+}
+
+message GrpcTransactionEndedEvent {
   int64 timestamp = 1;
   string globalTxId = 2;
   string localTxId = 3;
   string parentTxId = 4;
   string type = 5;
-  string compensationMethod = 6;
-  bytes payloads = 7;
-  string serviceName = 8;
-  string instanceId = 9;
-  int32 timeout = 10;
-  int32 retries = 11;
-  string retryMethod = 12;
 }
 
-message GrpcCompensateCommand {
+message GrpcCordinateCommand {
   string globalTxId = 1;
   string localTxId = 2;
   string parentTxId = 3;
-  string compensationMethod = 4;
-  bytes payloads = 5;
+  string type = 4;
 }
 
