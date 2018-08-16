@@ -12,4 +12,11 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Target(METHOD)
 public @interface TccStart {
+  /**
+   * TCC timeout, in seconds. <br>
+   * Default value is 0, which means never timeout.
+   *
+   * @return
+   */
+  int timeout() default 0;
 }
