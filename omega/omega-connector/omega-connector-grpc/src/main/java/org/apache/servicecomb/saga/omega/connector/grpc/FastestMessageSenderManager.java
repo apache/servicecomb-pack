@@ -64,6 +64,13 @@ public class FastestMessageSenderManager extends MessageSenderManager {
               msw.setWeight(duration);
             }
           }
+
+          @Override
+          public void onException(Exception e) {
+            messageSender.onDisconnected();
+            messageSender.onConnected();
+          }
+
         };
       }
     };

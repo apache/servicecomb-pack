@@ -76,13 +76,14 @@ public abstract class MessageSenderManager {
 
   public <T> T use(UsingMessageSenderCallback<T> messageSenderCallback) {
     MessageSenderWithWeight messageSender = null;
+    MessageSenderUsingLifeCycleManager lifeCycleManager = null;
     try {
       messageSender = messageSenders.poll(timeout, TimeUnit.MILLISECONDS);
       if (messageSender == null) {
         throw new OmegaException("Timeout trying to get connection");
       }
 
-      MessageSenderUsingLifeCycleManager lifeCycleManager = lifeCycleManagerFactory()
+      lifeCycleManager = lifeCycleManagerFactory()
           .manages(messageSender);
       lifeCycleManager.beforeUsing();
       T returnValue = messageSenderCallback.using(messageSender);
@@ -90,8 +91,14 @@ public abstract class MessageSenderManager {
 
       return returnValue;
     } catch (InterruptedException e) {
+      if(lifeCycleManager!=null) {
+        lifeCycleManager.onException(e);
+      }
       throw new OmegaException("Interrupted at borrowing MessageSender", e);
     } catch (Exception e) {
+      if(lifeCycleManager!=null) {
+        lifeCycleManager.onException(e);
+      }
       throw new OmegaException("Unkonwn exception at borrowing MessageSender", e);
     } finally {
       if (messageSender != null) {

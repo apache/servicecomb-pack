@@ -63,6 +63,12 @@ public class SimpleMessageSenderManager extends MessageSenderManager {
             }
 
           }
+
+          @Override
+          public void onException(Exception e) {
+            messageSender.onDisconnected();
+            messageSender.onConnected();
+          }
         };
       }
     };

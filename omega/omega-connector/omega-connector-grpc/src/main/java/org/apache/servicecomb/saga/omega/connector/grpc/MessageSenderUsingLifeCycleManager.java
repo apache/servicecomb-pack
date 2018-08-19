@@ -23,4 +23,6 @@ public interface MessageSenderUsingLifeCycleManager {
 
   void afterUsing();
 
+  void onException(Exception e);
+
 }
