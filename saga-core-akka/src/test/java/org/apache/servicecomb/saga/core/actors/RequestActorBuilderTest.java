@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.servicecomb.saga.core.CompositeSagaResponse;
 import org.apache.servicecomb.saga.core.NoOpSagaRequest;
 import org.apache.servicecomb.saga.core.SagaRequest;
 import org.apache.servicecomb.saga.core.SagaResponse;
@@ -49,7 +50,6 @@ import org.scalatest.junit.JUnitSuite;
 
 import com.seanyinx.github.unit.scaffolding.Randomness;
 
-import org.apache.servicecomb.saga.core.CompositeSagaResponse;
 import org.apache.servicecomb.saga.core.actors.messages.CompensateMessage;
 import org.apache.servicecomb.saga.core.actors.messages.TransactMessage;
 import org.apache.servicecomb.saga.core.application.interpreter.FromJsonFormat;
