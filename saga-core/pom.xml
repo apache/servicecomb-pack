@@ -49,31 +49,11 @@
       <artifactId>log4j-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-actor_2.12</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-slf4j_2.12</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.kamon</groupId>
-      <artifactId>kamon-core_2.12</artifactId>
-    </dependency>
-    <dependency>
       <groupId>io.kamon</groupId>
       <artifactId>kamon-annotation_2.12</artifactId>
     </dependency>
 
     <!-- test dependencies -->
-    <dependency>
-      <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-testkit_2.12</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.scalatest</groupId>
-      <artifactId>scalatest_2.12</artifactId>
-    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -101,5 +81,21 @@
       <artifactId>unit-scaffolding</artifactId>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

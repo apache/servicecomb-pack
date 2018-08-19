@@ -17,9 +17,9 @@
 
 package org.apache.servicecomb.saga.core.actors;
 
-import org.apache.servicecomb.saga.core.application.SagaFactory;
 import org.apache.servicecomb.saga.core.PersistentStore;
 import org.apache.servicecomb.saga.core.SagaExecutionComponentTestBase;
+import org.apache.servicecomb.saga.core.application.SagaFactory;
 
 
 public class ActorBasedSagaExecutionComponentTest extends SagaExecutionComponentTestBase {
