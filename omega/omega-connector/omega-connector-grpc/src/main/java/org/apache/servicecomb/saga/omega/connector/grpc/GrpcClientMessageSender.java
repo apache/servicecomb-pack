@@ -20,7 +20,8 @@
 
 package org.apache.servicecomb.saga.omega.connector.grpc;
 
-import org.apache.servicecomb.saga.omega.connector.grpc.LoadBalancedClusterMessageSender.ErrorHandlerFactory;
+import com.google.protobuf.ByteString;
+import io.grpc.ManagedChannel;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
@@ -36,15 +37,13 @@ import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc;
 import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceBlockingStub;
 import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceStub;
 
-import com.google.protobuf.ByteString;
-
-import io.grpc.ManagedChannel;
-
 public class GrpcClientMessageSender implements MessageSender {
   private final String target;
   private final TxEventServiceStub asyncEventService;
 
   private final MessageSerializer serializer;
+
+  private final ManagedChannel managedChannel;
 
   private final TxEventServiceBlockingStub blockingEventService;
 
@@ -57,15 +56,15 @@ public class GrpcClientMessageSender implements MessageSender {
       MessageSerializer serializer,
       MessageDeserializer deserializer,
       ServiceConfig serviceConfig,
-      ErrorHandlerFactory errorHandlerFactory,
       MessageHandler handler) {
     this.target = address;
-    this.asyncEventService = TxEventServiceGrpc.newStub(channel);
-    this.blockingEventService = TxEventServiceGrpc.newBlockingStub(channel);
+    this.managedChannel = channel;
+    this.asyncEventService = TxEventServiceGrpc.newStub(managedChannel);
+    this.blockingEventService = TxEventServiceGrpc.newBlockingStub(managedChannel);
     this.serializer = serializer;
 
     this.compensateStreamObserver =
-        new GrpcCompensateStreamObserver(handler, errorHandlerFactory.getHandler(this), deserializer);
+        new GrpcCompensateStreamObserver(handler, deserializer);
     this.serviceConfig = serviceConfig(serviceConfig.serviceName(), serviceConfig.instanceId());
   }
 
@@ -81,7 +80,9 @@ public class GrpcClientMessageSender implements MessageSender {
 
   @Override
   public void close() {
-    // just do nothing here
+    if(managedChannel!=null) {
+      managedChannel.shutdownNow();
+    }
   }
 
   @Override

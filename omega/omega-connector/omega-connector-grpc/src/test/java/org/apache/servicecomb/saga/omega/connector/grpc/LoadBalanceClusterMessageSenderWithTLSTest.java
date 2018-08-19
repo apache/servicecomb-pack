@@ -24,19 +24,6 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.Arrays;
-import java.util.concurrent.Callable;
-
-import javax.net.ssl.SSLException;
-
-import org.apache.servicecomb.saga.omega.context.ServiceConfig;
-import org.apache.servicecomb.saga.omega.transaction.MessageSender;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.netty.GrpcSslContexts;
@@ -44,24 +31,37 @@ import io.grpc.netty.NettyServerBuilder;
 import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
+import java.io.File;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.Arrays;
+import java.util.concurrent.Callable;
+import javax.net.ssl.SSLException;
+import org.apache.servicecomb.saga.omega.context.ServiceConfig;
+import org.apache.servicecomb.saga.omega.transaction.MessageSender;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class LoadBalanceClusterMessageSenderWithTLSTest extends LoadBalancedClusterMessageSenderTestBase {
 
   @Override
   protected MessageSender newMessageSender(String[] addresses) {
     ClassLoader classLoader = getClass().getClassLoader();
-    AlphaClusterConfig clusterConfig = new AlphaClusterConfig(Arrays.asList(addresses),
-        true, true,
-        classLoader.getResource("client.crt").getFile(),
-        classLoader.getResource("client.pem").getFile(),
-        classLoader.getResource("ca.crt").getFile());
+
+    AlphaClusterConfig clusterConfig = AlphaClusterConfig.builder()
+        .addresses(Arrays.asList(addresses))
+        .enableSSL(true)
+        .enableMutualAuth(true)
+        .cert(classLoader.getResource("client.crt").getFile())
+        .key(classLoader.getResource("client.pem").getFile())
+        .certChain( classLoader.getResource("ca.crt").getFile())
+        .messageDeserializer(deserializer)
+        .messageSerializer(serializer)
+        .build();
     return new LoadBalancedClusterMessageSender(
         clusterConfig,
-        serializer,
-        deserializer,
-        new ServiceConfig(serviceName),
-        handler,
-        100);
+        new GrpcClientClusterMessageSenderFactory(new ServiceConfig(serviceName)),
+        FastestMessageSenderManager.FACTORY);
   }
 
   @BeforeClass
