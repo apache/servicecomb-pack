@@ -17,7 +17,10 @@ Saga is composed of  **alpha** and **omega**.
 The following diagram shows the relationships among alpha, omega and services.
 ![Saga Pack Architecture](docs/static_files/pack.png)
 
-See [Saga Pack Design](docs/design.md) for details. 
+See [Saga Pack Design](docs/design.md) for details.
+
+Please check out Go lang version of Omega here https://github.com/jeremyxu2010/matrix-saga-go
+C# version of Omega here https://github.com/OpenSagas-csharp/servicecomb-saga-csharp
 
 ## Get Started
 * For ServiceComb Java Chassis application, please see [Booking Demo](saga-demo/saga-servicecomb-demo/README.md) for details.
@@ -50,7 +53,7 @@ How to build and use can refer to [User Guide](docs/user_guide.md).
 
 ## Contact Us
 * [issues](https://issues.apache.org/jira/browse/SCB)
-* [gitter](https://gitter.im/ServiceCombUsers/Lobby)
+* [gitter](https://gitter.im/ServiceCombUsers/Saga)
 * mailing list: [subscribe](mailto:dev-subscribe@servicecomb.incubator.apache.org) [view](https://lists.apache.org/list.html?dev@servicecomb.apache.org)
 
 ## Contributing
