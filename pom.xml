@@ -32,6 +32,7 @@
 
   <modules>
     <module>saga-core</module>
+    <module>saga-core-akka</module>
     <module>transports</module>
     <module>saga-spring</module>
     <module>docker-build-config</module>
