@@ -24,4 +24,9 @@ public class CompensationImpl extends RestOperation implements Compensation {
   public CompensationImpl(String path, String method, Map<String, Map<String, String>> params) {
     super(path, method, params);
   }
+
+  @Override
+  public int retries() {
+    return DEFAULT_RETRIES;
+  }
 }

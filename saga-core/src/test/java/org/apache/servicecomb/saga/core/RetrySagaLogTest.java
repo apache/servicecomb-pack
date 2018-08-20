@@ -26,6 +26,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -63,18 +64,26 @@ public class RetrySagaLogTest {
   public void exitOnInterruption() throws InterruptedException {
     ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    Future<?> future = executor.submit(() -> {
-      doThrow(RuntimeException.class).when(persistentStore).offer(dummyEvent);
+    Future<?> future = executor.submit(new Runnable() {
+      @Override
+      public void run() {
+        doThrow(RuntimeException.class).when(persistentStore).offer(dummyEvent);
 
-      retrySagaLog.offer(dummyEvent);
-      interrupted = true;
+        retrySagaLog.offer(dummyEvent);
+        interrupted = true;
+      }
     });
 
     Thread.sleep(500);
 
     assertThat(future.cancel(true), is(true));
 
-    await().atMost(2, TimeUnit.SECONDS).until(() -> interrupted);
+    await().atMost(2, TimeUnit.SECONDS).until(new Callable<Boolean>() {
+      @Override
+      public Boolean call() {
+        return interrupted;
+      }
+    });
     executor.shutdown();
   }
 }

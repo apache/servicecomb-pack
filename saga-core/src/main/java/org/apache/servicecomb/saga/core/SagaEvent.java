@@ -36,4 +36,9 @@ public abstract class SagaEvent implements Descriptive {
   public String json(ToJsonFormat toJsonFormat) {
     return "{}";
   }
+
+  @Override
+  public String description() {
+    return getClass().getSimpleName();
+  }
 }

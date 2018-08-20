@@ -65,15 +65,15 @@ public class GraphBasedSaga implements Saga {
     this.tasks = tasks;
 
     this.transactionTaskRunner = new TaskRunner(
-        traveller(sagaTaskGraph, new FromRootTraversalDirection<>()),
+        traveller(sagaTaskGraph, new FromRootTraversalDirection<SagaRequest>()),
         new TransactionTaskConsumer(
             tasks,
             sagaContext,
-            new ExecutorCompletionService<>(executor)));
+            new ExecutorCompletionService<Operation>(executor)));
 
     this.sagaContext = sagaContext;
     this.compensationTaskRunner = new TaskRunner(
-        traveller(sagaTaskGraph, new FromLeafTraversalDirection<>()),
+        traveller(sagaTaskGraph, new FromLeafTraversalDirection<SagaRequest>()),
         new CompensationTaskConsumer(tasks, sagaContext));
 
     currentTaskRunner = transactionTaskRunner;
@@ -92,9 +92,12 @@ public class GraphBasedSaga implements Saga {
         log.error("Failed to run operation", e);
         currentTaskRunner = compensationTaskRunner;
 
-        sagaContext.handleHangingTransactions(request -> {
-          tasks.get(request.task()).commit(request, sagaContext.responseOf(request.parents()));
-          tasks.get(request.task()).compensate(request);
+        sagaContext.handleHangingTransactions(new TransactionConsumer<SagaRequest>() {
+          @Override
+          public void accept(SagaRequest request) {
+            tasks.get(request.task()).commit(request, sagaContext.responseOf(request.parents()));
+            tasks.get(request.task()).compensate(request);
+          }
         });
       }
     } while (currentTaskRunner.hasNext());
