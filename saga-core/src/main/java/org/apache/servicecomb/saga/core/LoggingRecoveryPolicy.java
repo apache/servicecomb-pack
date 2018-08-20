@@ -43,4 +43,9 @@ public class LoggingRecoveryPolicy implements RecoveryPolicy {
     log.info("Completed request id={} for service {}", request.id(), request.serviceName());
     return response;
   }
+
+  @Override
+  public String description() {
+    return getClass().getSimpleName();
+  }
 }

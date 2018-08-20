@@ -23,14 +23,20 @@ import static java.util.Collections.singletonMap;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.junit.Test;
 
 public class RestOperationTest {
 
+  public static final Map<String, Map<String, String>> EMPTY_MAP_MAP = Collections.<String, Map<String, String>>emptyMap();
+  public static final Map<String, String> EMPTY_MAP =  Collections.<String, String>emptyMap();
+
   @Test
   public void blowsUpWhenGetMethodWithForm() {
     try {
-      new RestOperation("blah", "GET", singletonMap("form", emptyMap()));
+      new RestOperation("blah", "GET", singletonMap("form", EMPTY_MAP));
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
@@ -40,7 +46,7 @@ public class RestOperationTest {
   @Test
   public void blowsUpWhenGetMethodWithJson() {
     try {
-      new RestOperation("blah", "GET", singletonMap("json", emptyMap()));
+      new RestOperation("blah", "GET", singletonMap("json", EMPTY_MAP));
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
@@ -50,7 +56,7 @@ public class RestOperationTest {
   @Test
   public void blowsUpWhenDeleteMethodWithForm() {
     try {
-      new RestOperation("blah", "DELETE", singletonMap("form", emptyMap()));
+      new RestOperation("blah", "DELETE", singletonMap("form", EMPTY_MAP));
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
@@ -60,7 +66,7 @@ public class RestOperationTest {
   @Test
   public void blowsUpWhenDeleteMethodWithJson() {
     try {
-      new RestOperation("blah", "DELETE", singletonMap("json", emptyMap()));
+      new RestOperation("blah", "DELETE", singletonMap("json", EMPTY_MAP));
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("GET & DELETE request cannot enclose a body"));
@@ -70,7 +76,7 @@ public class RestOperationTest {
   @Test
   public void blowsUpWhenMethodIsNotSupported() {
     try {
-      new RestOperation("blah", "foo", emptyMap());
+      new RestOperation("blah", "foo", EMPTY_MAP_MAP );
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("Unsupported method foo"));
@@ -80,7 +86,7 @@ public class RestOperationTest {
   @Test
   public void blowsUpWhenMethodIsNull() {
     try {
-      new RestOperation("blah", null, emptyMap());
+      new RestOperation("blah", null, EMPTY_MAP_MAP);
       expectFailing(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage(), is("Unsupported method null"));

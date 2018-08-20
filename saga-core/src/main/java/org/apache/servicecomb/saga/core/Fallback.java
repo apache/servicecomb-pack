@@ -19,7 +19,22 @@ package org.apache.servicecomb.saga.core;
 
 public interface Fallback extends Operation {
 
-  Fallback NOP_FALLBACK = () -> TYPE_NOP;
+  Fallback NOP_FALLBACK = new Fallback() {
+    @Override
+    public String type() {
+      return TYPE_NOP;
+    }
+
+    @Override
+    public SagaResponse send(String address) {
+      return SUCCESSFUL_SAGA_RESPONSE;
+    }
+
+    @Override
+    public SagaResponse send(String address, SagaResponse response) {
+      return send(address);
+    }
+  };
 
   String type();
 }

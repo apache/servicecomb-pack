@@ -23,11 +23,7 @@ public interface Operation {
   String TYPE_REST = "rest";
   SagaResponse SUCCESSFUL_SAGA_RESPONSE = new SuccessfulSagaResponse("success");
 
-  default SagaResponse send(String address) {
-    return SUCCESSFUL_SAGA_RESPONSE;
-  }
+  SagaResponse send(String address);
 
-  default SagaResponse send(String address, SagaResponse response) {
-    return send(address);
-  }
+  SagaResponse send(String address, SagaResponse response);
 }

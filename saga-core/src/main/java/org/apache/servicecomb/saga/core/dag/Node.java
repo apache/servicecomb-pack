@@ -56,7 +56,9 @@ public class Node<T> {
 
   public void addChildren(Collection<Node<T>> nodes) {
     children.addAll(nodes);
-    nodes.forEach(node -> node.parents.add(this));
+    for (Node<T> node : nodes) {
+      node.parents.add(this);
+    }
   }
 
   @Override

@@ -63,10 +63,11 @@ public class GraphBuilder {
       }
     }
 
-    requestNodes.values().stream()
-        .filter((node) -> node.children().isEmpty())
-        .forEach(node -> node.addChild(leaf));
-
+    for(Node<SagaRequest> node : requestNodes.values()) {
+      if (node.children().isEmpty()) {
+        node.addChild(leaf);
+      }
+    }
     return new SingleLeafDirectedAcyclicGraph<>(root, leaf);
   }
 

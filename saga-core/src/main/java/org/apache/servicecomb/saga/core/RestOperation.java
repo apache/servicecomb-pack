@@ -17,8 +17,6 @@
 
 package org.apache.servicecomb.saga.core;
 
-import static java.util.Collections.emptyMap;
-
 import org.apache.servicecomb.saga.core.application.interpreter.RestRequestChecker;
 import java.util.Map;
 
@@ -33,7 +31,7 @@ public class RestOperation implements Operation {
 
     this.path = path;
     this.method = method;
-    this.params = params == null? emptyMap() : params;
+    this.params = params == null? java.util.Collections.<String, Map<String, String>>emptyMap() : params;
   }
 
   public String path() {
@@ -55,5 +53,15 @@ public class RestOperation implements Operation {
         ", method='" + method + '\'' +
         ", params=" + params +
         '}';
+  }
+
+  @Override
+  public SagaResponse send(String address) {
+    return SUCCESSFUL_SAGA_RESPONSE;
+  }
+
+  @Override
+  public SagaResponse send(String address, SagaResponse response) {
+    return send(address);
   }
 }

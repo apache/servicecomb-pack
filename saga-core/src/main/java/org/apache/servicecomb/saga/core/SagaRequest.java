@@ -17,8 +17,6 @@
 
 package org.apache.servicecomb.saga.core;
 
-import static org.apache.servicecomb.saga.core.Fallback.NOP_FALLBACK;
-
 public interface SagaRequest {
 
   String PARAM_FORM = "form";
@@ -30,9 +28,7 @@ public interface SagaRequest {
 
   Compensation compensation();
 
-  default Fallback fallback() {
-    return NOP_FALLBACK;
-  }
+  Fallback fallback();
 
   String serviceName();
 

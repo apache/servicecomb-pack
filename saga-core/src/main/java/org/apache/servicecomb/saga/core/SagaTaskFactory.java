@@ -36,12 +36,12 @@ public class SagaTaskFactory {
     retrySagaLog = new RetrySagaLog(persistentStore, retryDelay);
   }
 
-  public Map<String, SagaTask> sagaTasks(String sagaId,
-      String requestJson,
-      RecoveryPolicy recoveryPolicy,
-      EventStore sagaLog) {
+  public Map<String, SagaTask> sagaTasks(final String sagaId,
+      final String requestJson,
+      final RecoveryPolicy recoveryPolicy,
+      final EventStore sagaLog) {
 
-    SagaLog compositeSagaLog = compositeSagaLog(sagaLog, persistentStore);
+    final SagaLog compositeSagaLog = compositeSagaLog(sagaLog, persistentStore);
 
     return new HashMap<String, SagaTask>() {{
       put(SagaTask.SAGA_START_TASK, new SagaStartTask(sagaId, requestJson, compositeSagaLog));

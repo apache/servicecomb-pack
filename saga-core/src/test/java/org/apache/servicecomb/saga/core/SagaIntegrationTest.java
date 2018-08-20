@@ -44,6 +44,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -54,6 +55,7 @@ import java.util.concurrent.CyclicBarrier;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.seanyinx.github.unit.scaffolding.Randomness;
@@ -116,7 +118,7 @@ public class SagaIntegrationTest {
   // root - node1 - node2 - leaf
   @Before
   public void setUp() throws Exception {
-    when(childrenExtractor.fromJson(anyString())).thenReturn(emptySet());
+    when(childrenExtractor.fromJson(anyString())).thenReturn(Collections.<String>emptySet());
     when(childrenExtractor.fromJson(NONE_RESPONSE.body())).thenReturn(setOf("none"));
 
     when(transaction1.send(request1.serviceName(), EMPTY_RESPONSE)).thenReturn(transactionResponse1);
@@ -169,20 +171,26 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     // barrier to make sure the two transactions starts at the same time
-    CyclicBarrier barrier = new CyclicBarrier(2);
+    final CyclicBarrier barrier = new CyclicBarrier(2);
     when(transaction2.send(request2.serviceName(), transactionResponse1))
         .thenAnswer(
-            withAnswer(() -> {
-              barrier.await();
-              Thread.sleep(100);
-              throw exception;
+            withAnswer(new Callable<SagaResponse>() {
+              @Override
+              public SagaResponse call() throws Exception {
+                barrier.await();
+                Thread.sleep(100);
+                throw exception;
+              }
             }));
 
     when(transaction3.send(request3.serviceName(), transactionResponse1))
         .thenAnswer(
-            withAnswer(() -> {
-              barrier.await();
-              return transactionResponse3;
+            withAnswer(new Callable<SagaResponse>() {
+              @Override
+              public SagaResponse call() throws Exception {
+                barrier.await();
+                return transactionResponse3;
+              }
             }));
 
     saga.run();
@@ -305,21 +313,27 @@ public class SagaIntegrationTest {
     addExtraChildToNode1();
 
     // barrier to make sure the two transactions starts at the same time
-    CyclicBarrier barrier = new CyclicBarrier(2);
+    final CyclicBarrier barrier = new CyclicBarrier(2);
     when(transaction3.send(request3.serviceName(), transactionResponse1))
-        .thenAnswer(withAnswer(() -> {
-      barrier.await();
-      throw exception;
-    }));
+        .thenAnswer(withAnswer(new Callable<SagaResponse>() {
+          @Override
+          public SagaResponse call() throws Exception {
+            barrier.await();
+            throw exception;
+          }
+        }));
 
-    CountDownLatch latch = new CountDownLatch(1);
+    final CountDownLatch latch = new CountDownLatch(1);
 
     when(transaction2.send(request2.serviceName(), transactionResponse1))
-        .thenAnswer(withAnswer(() -> {
-      barrier.await();
-      latch.await();
-      return transactionResponse2;
-    })).thenReturn(transactionResponse2);
+        .thenAnswer(withAnswer(new Callable<SagaResponse>() {
+          @Override
+          public SagaResponse call() throws Exception {
+            barrier.await();
+            latch.await();
+            return transactionResponse2;
+          }
+        })).thenReturn(transactionResponse2);
 
     saga.run();
 
@@ -646,8 +660,13 @@ public class SagaIntegrationTest {
     verify(compensation2, never()).send(request2.serviceName());
   }
 
-  private Answer<SagaResponse> withAnswer(Callable<SagaResponse> callable) {
-    return invocationOnMock -> callable.call();
+  private Answer<SagaResponse> withAnswer(final Callable<SagaResponse> callable) {
+    return new Answer<SagaResponse>() {
+      @Override
+      public SagaResponse answer(InvocationOnMock invocation) throws Throwable {
+        return callable.call();
+      }
+    };
   }
 
   private EventEnvelope envelope(SagaEvent event) {

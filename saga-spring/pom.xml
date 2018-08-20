@@ -82,6 +82,10 @@
     </dependency>
     <dependency>
       <groupId>org.apache.servicecomb.saga</groupId>
+      <artifactId>saga-core-akka</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>saga-format</artifactId>
       <exclusions>
         <exclusion>

@@ -46,4 +46,9 @@ public class BackwardRecovery implements RecoveryPolicy {
       throw e;
     }
   }
+
+  @Override
+  public String description() {
+    return getClass().getSimpleName();
+  }
 }

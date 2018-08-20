@@ -19,7 +19,5 @@ package org.apache.servicecomb.saga.core;
 
 interface Descriptive {
 
-  default String description() {
-    return getClass().getSimpleName();
-  }
+  String description();
 }
