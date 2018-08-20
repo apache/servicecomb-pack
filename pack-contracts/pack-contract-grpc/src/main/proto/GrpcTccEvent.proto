@@ -25,11 +25,18 @@ import "GrpcCommon.proto";
 
 service TccEventService {
   rpc OnConnected (GrpcServiceConfig) returns (stream GrpcCoordinateCommand) {}
-  rpc participate(GrpcParticipateEvent) returns (GrpcAck) {}
   rpc OnTransactionStarted (GrpcTransactionStartedEvent) returns (GrpcAck) {}
+  rpc participate(GrpcParticipateEvent) returns (GrpcAck) {}
   rpc OnTransactionEnded (GrpcTransactionEndedEvent) returns (GrpcAck) {}
   rpc OnDisconnected (GrpcServiceConfig) returns (GrpcAck) {
   }
+}
+
+message GrpcTransactionStartedEvent {
+  int64 timestamp = 1;
+  string globalTxId = 2;
+  string localTxId = 3;
+  string parentTxId = 4;
 }
 
 message GrpcParticipateEvent {
@@ -39,13 +46,6 @@ message GrpcParticipateEvent {
   string parentTxId = 4;
   string confirmMethod = 6;
   string cancelMethod = 7;
-}
-
-message GrpcTransactionStartedEvent {
-  int64 timestamp = 1;
-  string globalTxId = 2;
-  string localTxId = 3;
-  string parentTxId = 4;
 }
 
 message GrpcTransactionEndedEvent {
