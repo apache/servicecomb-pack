@@ -19,8 +19,8 @@ The following diagram shows the relationships among alpha, omega and services.
 
 See [Saga Pack Design](docs/design.md) for details.
 
-Please check out Go lang version of Omega here https://github.com/jeremyxu2010/matrix-saga-go
-C# version of Omega here https://github.com/OpenSagas-csharp/servicecomb-saga-csharp
+* Go lang version of Omega here https://github.com/jeremyxu2010/matrix-saga-go
+* C# version of Omega here https://github.com/OpenSagas-csharp/servicecomb-saga-csharp
 
 ## Get Started
 * For ServiceComb Java Chassis application, please see [Booking Demo](saga-demo/saga-servicecomb-demo/README.md) for details.

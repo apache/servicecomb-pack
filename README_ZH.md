@@ -19,8 +19,8 @@ Saga是由 **alpha** 和 **omega**组成，其中：
 
 详情可浏览[Saga Pack 设计文档](docs/design_zh.md).
 
-Go语言版本Omega 可参见 https://github.com/jeremyxu2010/matrix-saga-go
-C#语言版本Omega 可参见 https://github.com/OpenSagas-csharp/servicecomb-saga-csharp
+* Go语言版本Omega 可参见 https://github.com/jeremyxu2010/matrix-saga-go
+* C#语言版本Omega 可参见 https://github.com/OpenSagas-csharp/servicecomb-saga-csharp
 
 
 ## 快速入门
