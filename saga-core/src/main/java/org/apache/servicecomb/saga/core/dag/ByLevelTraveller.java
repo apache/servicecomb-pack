@@ -59,7 +59,10 @@ public class ByLevelTraveller<T> implements Traveller<T> {
       nodes.add(node);
 
       for (Node<T> child : traversalDirection.children(node)) {
-        nodeParents.computeIfAbsent(child.id(), id -> new HashSet<>(traversalDirection.parents(child)));
+        // This is not thread safe
+        if (nodeParents.get(child.id()) == null) {
+          nodeParents.put(child.id(), new HashSet<>(traversalDirection.parents(child)));
+        }
         nodeParents.get(child.id()).remove(node);
 
         if (nodeParents.get(child.id()).isEmpty()) {

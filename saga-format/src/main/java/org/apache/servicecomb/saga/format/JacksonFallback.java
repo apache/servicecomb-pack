@@ -19,6 +19,7 @@ package org.apache.servicecomb.saga.format;
 
 import org.apache.servicecomb.saga.core.Fallback;
 import org.apache.servicecomb.saga.core.Operation;
+import org.apache.servicecomb.saga.core.SagaResponse;
 import org.apache.servicecomb.saga.transports.TransportFactory;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -59,6 +60,16 @@ public interface JacksonFallback extends Fallback, TransportAware {
     @Override
     public Operation with(TransportFactory transport) {
       return this;
+    }
+
+    @Override
+    public SagaResponse send(String address) {
+      return SUCCESSFUL_SAGA_RESPONSE;
+    }
+
+    @Override
+    public SagaResponse send(String address, SagaResponse response) {
+      return send(address);
     }
   }
 }

@@ -58,7 +58,7 @@ public class DirectedAcyclicGraphTraversalTest {
 
   @Test
   public void traverseGraphOneLevelPerStepFromRoot() {
-    Traveller<String> traveller = new ByLevelTraveller<>(dag, new FromRootTraversalDirection<>());
+    Traveller<String> traveller = new ByLevelTraveller<>(dag, new FromRootTraversalDirection<String>());
 
     Collection<Node<String>> nodes = traveller.nodes();
 
@@ -80,7 +80,7 @@ public class DirectedAcyclicGraphTraversalTest {
 
   @Test
   public void traverseGraphOneLevelPerStepFromLeaf() {
-    Traveller<String> traveller = new ByLevelTraveller<>(dag, new FromLeafTraversalDirection<>());
+    Traveller<String> traveller = new ByLevelTraveller<>(dag, new FromLeafTraversalDirection<String>());
 
     Collection<Node<String>> nodes = traveller.nodes();
 

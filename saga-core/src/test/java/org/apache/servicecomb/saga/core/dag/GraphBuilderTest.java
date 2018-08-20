@@ -19,8 +19,6 @@ package org.apache.servicecomb.saga.core.dag;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static org.apache.servicecomb.saga.core.Operation.TYPE_REST;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
@@ -31,8 +29,12 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.servicecomb.saga.core.NoOpSagaRequest;
 import org.apache.servicecomb.saga.core.SagaException;
@@ -49,28 +51,30 @@ import org.apache.servicecomb.saga.core.TransactionImpl;
 @SuppressWarnings("unchecked")
 public class GraphBuilderTest {
 
+  public static final Map<String, Map<String, String>> EMPTY_MAP = Collections.<String, Map<String, String>>emptyMap();
+
   private final SagaRequest request1 = new SagaRequestImpl(
       "request-aaa",
       "aaa",
       TYPE_REST,
-      new TransactionImpl("/rest/as", "post", emptyMap()),
-      new CompensationImpl("/rest/as","delete", emptyMap())
+      new TransactionImpl("/rest/as", "post", EMPTY_MAP),
+      new CompensationImpl("/rest/as","delete", EMPTY_MAP)
   );
 
   private final SagaRequest request2 = new SagaRequestImpl(
       "request-bbb",
       "bbb",
       TYPE_REST,
-      new TransactionImpl("/rest/bs", "post", emptyMap()),
-      new CompensationImpl("/rest/bs","delete", emptyMap())
+      new TransactionImpl("/rest/bs", "post", EMPTY_MAP),
+      new CompensationImpl("/rest/bs","delete", EMPTY_MAP)
   );
 
   private final SagaRequest request3 = new SagaRequestImpl(
       "request-ccc",
       "ccc",
       TYPE_REST,
-      new TransactionImpl("/rest/cs", "post", emptyMap()),
-      new CompensationImpl("/rest/cs","delete", emptyMap()),
+      new TransactionImpl("/rest/cs", "post", EMPTY_MAP),
+      new CompensationImpl("/rest/cs","delete", EMPTY_MAP),
       null,
       new String[]{"request-aaa", "request-bbb"}
   );
@@ -80,8 +84,8 @@ public class GraphBuilderTest {
       "request-duplicate-id",
       "xxx",
       TYPE_REST,
-      new TransactionImpl("/rest/xs", "post", emptyMap()),
-      new CompensationImpl("/rest/xs","delete", emptyMap())
+      new TransactionImpl("/rest/xs", "post", EMPTY_MAP),
+      new CompensationImpl("/rest/xs","delete", EMPTY_MAP)
   );
   private final SagaRequest[] duplicateRequests = {duplicateRequest, duplicateRequest};
 
@@ -90,14 +94,14 @@ public class GraphBuilderTest {
 
   @Before
   public void setUp() throws Exception {
-    when(detector.cycleJoints(any())).thenReturn(emptySet());
+    when(detector.cycleJoints((SingleLeafDirectedAcyclicGraph<SagaRequest>)any())).thenReturn((Set<Node<SagaRequest>>) Collections.EMPTY_SET);
   }
 
   @Test
   public void buildsGraphOfParallelRequests() {
     SingleLeafDirectedAcyclicGraph<SagaRequest> tasks = graphBuilder.build(requests);
 
-    Traveller<SagaRequest> traveller = new ByLevelTraveller<>(tasks, new FromRootTraversalDirection<>());
+    Traveller<SagaRequest> traveller = new ByLevelTraveller<>(tasks, new FromRootTraversalDirection<SagaRequest>());
     Collection<Node<SagaRequest>> nodes = traveller.nodes();
 
     traveller.next();
@@ -130,7 +134,7 @@ public class GraphBuilderTest {
   @Test
   public void blowsUpWhenGraphContainsCycle() {
     reset(detector);
-    when(detector.cycleJoints(any())).thenReturn(singleton(new Node<>(0L, null)));
+    when(detector.cycleJoints((SingleLeafDirectedAcyclicGraph<SagaRequest>) any())).thenReturn(singleton(new Node<SagaRequest>(0L, null)));
 
     try {
       graphBuilder.build(requests);
@@ -141,8 +145,10 @@ public class GraphBuilderTest {
   }
 
   private Collection<SagaRequest> requestsOf(Collection<Node<SagaRequest>> nodes) {
-    return nodes.stream()
-        .map(Node::value)
-        .collect(Collectors.toList());
+    List<SagaRequest> result = new ArrayList<>();
+    for(Node<SagaRequest> node: nodes) {
+      result.add(node.value());
+    }
+    return result;
   }
 }

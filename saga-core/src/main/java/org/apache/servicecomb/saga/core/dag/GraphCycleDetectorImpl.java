@@ -45,26 +45,32 @@ public class GraphCycleDetectorImpl<T> implements GraphCycleDetector<T> {
     return unvisitedNodes(nodeParents);
   }
 
+  // This method is not thread safe
   private void traverse(Queue<Node<T>> orphanNodes, Map<Node<T>, Set<Node<T>>> nodeParents) {
     while (!orphanNodes.isEmpty()) {
       Node<T> node = orphanNodes.poll();
 
-      node.children().forEach(child -> {
-        nodeParents.computeIfAbsent(child, n -> new HashSet<>(child.parents()))
-            .remove(node);
-
+      for(Node<T> child : node.children()) {
+        Set<Node<T>> parent = nodeParents.get(child);
+        if (parent == null) {
+          parent = new HashSet<>(child.parents());
+          nodeParents.put(child, parent);
+        }
+        parent.remove(node);
         if (nodeParents.get(child).isEmpty()) {
           orphanNodes.add(child);
         }
-      });
+      }
     }
   }
 
   private Set<Node<T>> unvisitedNodes(Map<Node<T>, Set<Node<T>>> nodeParents) {
-    return nodeParents.entrySet()
-        .parallelStream()
-        .filter(parents -> !parents.getValue().isEmpty())
-        .map(Entry::getKey)
-        .collect(Collectors.toSet());
+    Set<Node<T>> result = new HashSet<>();
+    for (Map.Entry<Node<T>, Set<Node<T>>> entry : nodeParents.entrySet()) {
+      if (!entry.getValue().isEmpty()) {
+        result.add(entry.getKey());
+      }
+    }
+    return result;
   }
 }

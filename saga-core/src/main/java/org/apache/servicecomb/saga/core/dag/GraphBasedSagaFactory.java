@@ -27,6 +27,7 @@ import org.apache.servicecomb.saga.core.GraphBasedSaga;
 import org.apache.servicecomb.saga.core.Saga;
 import org.apache.servicecomb.saga.core.SagaContext;
 import org.apache.servicecomb.saga.core.SagaContextImpl;
+import org.apache.servicecomb.saga.core.SagaRequest;
 import org.apache.servicecomb.saga.core.application.SagaFactory;
 import org.apache.servicecomb.saga.infrastructure.ContextAwareEventStore;
 import org.apache.servicecomb.saga.core.PersistentStore;
@@ -49,7 +50,7 @@ public class GraphBasedSagaFactory implements SagaFactory {
     this.childrenExtractor = childrenExtractor;
     this.executorService = executorService;
     this.sagaTaskFactory = new SagaTaskFactory(retryDelay, persistentStore);
-    this.graphBuilder = new GraphBuilder(new GraphCycleDetectorImpl<>());
+    this.graphBuilder = new GraphBuilder(new GraphCycleDetectorImpl<SagaRequest>());
   }
 
   @Override

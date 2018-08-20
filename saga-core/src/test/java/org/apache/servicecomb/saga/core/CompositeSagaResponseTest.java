@@ -22,6 +22,8 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -31,6 +33,7 @@ public class CompositeSagaResponseTest {
   private final SagaResponse response2 = Mockito.mock(SagaResponse.class);
 
   private final SagaResponse compositeSagaResponse = new CompositeSagaResponse(asList(response1, response2));
+  private final SagaResponse emptySagaResponse = new CompositeSagaResponse(new ArrayList<SagaResponse>());
 
   @Test
   public void succeededOnlyWhenAllAreSuccessful() throws Exception {
@@ -69,5 +72,10 @@ public class CompositeSagaResponseTest {
         + "  \"body\" : \"blah\"\n"
         + "}\n"
         + "]"));
+  }
+
+  @Test
+  public void EmptyCompositeSagaResponse() {
+    assertThat(emptySagaResponse.body(), is("{}"));
   }
 }

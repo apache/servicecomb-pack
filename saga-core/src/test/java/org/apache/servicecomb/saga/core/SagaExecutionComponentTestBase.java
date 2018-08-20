@@ -18,7 +18,6 @@
 package org.apache.servicecomb.saga.core;
 
 import static org.apache.servicecomb.saga.core.Operation.TYPE_REST;
-import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -30,9 +29,12 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.servicecomb.saga.core.application.SagaFactory;
 import org.hamcrest.Description;
@@ -48,6 +50,7 @@ import org.apache.servicecomb.saga.infrastructure.EmbeddedEventStore;
 
 @SuppressWarnings("unchecked")
 public abstract class SagaExecutionComponentTestBase {
+
   private static final String requestJson = "[\n"
       + "  {\n"
       + "    \"id\": \"request-1\",\n"
@@ -88,20 +91,22 @@ public abstract class SagaExecutionComponentTestBase {
       + "  \"requests\": " + anotherRequestJson + "\n"
       + "}";
 
+  public static final Map<String, Map<String, String>> EMPTY_MAP = Collections.<String, Map<String, String>>emptyMap();
+
   private final SagaRequest request1 = new SagaRequestImpl(
       "request-1",
       "aaa",
       TYPE_REST,
-      new TransactionImpl("/rest/as", "post", emptyMap()),
-      new CompensationImpl("/rest/as", "delete", emptyMap())
+      new TransactionImpl("/rest/as", "post", EMPTY_MAP),
+      new CompensationImpl("/rest/as", "delete", EMPTY_MAP)
   );
 
   private final SagaRequest request2 = new SagaRequestImpl(
       "request-2",
       "bbb",
       TYPE_REST,
-      new TransactionImpl("/rest/bs", "post", emptyMap()),
-      new CompensationImpl("/rest/bs", "delete", emptyMap())
+      new TransactionImpl("/rest/bs", "post", EMPTY_MAP),
+      new CompensationImpl("/rest/bs", "delete", EMPTY_MAP)
   );
 
   private final SagaDefinition definition1 = new SagaDefinition() {
@@ -174,10 +179,27 @@ public abstract class SagaExecutionComponentTestBase {
 
   @Test
   public void processRequestsInParallel() {
-    CompletableFuture.runAsync(() -> coordinator.run(sagaJson));
-    CompletableFuture.runAsync(() -> coordinator.run(anotherSagaJson));
+    ExecutorService executor = Executors.newFixedThreadPool(2);
 
-    waitAtMost(2, SECONDS).until(() -> eventStore.size() == 8);
+    executor.submit(new Runnable() {
+      @Override
+      public void run() {
+        coordinator.run(sagaJson);
+      }
+    });
+    executor.submit(new Runnable() {
+      @Override
+      public void run() {
+        coordinator.run(anotherSagaJson);
+      }
+    });
+
+    waitAtMost(2, SECONDS).until(new Callable<Boolean>() {
+      @Override
+      public Boolean call() throws Exception {
+        return eventStore.size() == 8;
+      }
+    });
 
     assertThat(eventStore, containsInAnyOrder(
         eventWith(NoOpSagaRequest.SAGA_START_REQUEST, SagaStartedEvent.class),
@@ -211,8 +233,8 @@ public abstract class SagaExecutionComponentTestBase {
   }
 
   private Matcher<SagaEvent> eventWith(
-      SagaRequest sagaRequest,
-      Class<?> type) {
+      final SagaRequest sagaRequest,
+      final Class<?> type) {
 
     return new TypeSafeMatcher<SagaEvent>() {
       @Override
