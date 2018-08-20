@@ -20,11 +20,13 @@ package org.apache.servicecomb.saga.core.actors;
 import static akka.actor.ActorRef.noSender;
 import static akka.actor.Props.empty;
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
 
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -127,7 +129,7 @@ public class CompletionCallbackActorTest {
       AbortMessage message = new AbortMessage(new RuntimeException("oops"));
       actor.tell(message, noSender());
 
-      CompensateMessage compensateMessage = (CompensateMessage) receiveOne(duration("2 seconds"));
+      CompensateMessage compensateMessage = (CompensateMessage) receiveOne(Duration.of(2, SECONDS));
       assertThat(compensateMessage.response(), is(message.response()));
     }};
   }

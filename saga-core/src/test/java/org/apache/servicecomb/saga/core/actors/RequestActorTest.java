@@ -20,6 +20,8 @@ package org.apache.servicecomb.saga.core.actors;
 import static akka.actor.ActorRef.noSender;
 import static akka.actor.Props.empty;
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
+import static java.time.temporal.ChronoUnit.MILLIS;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.hamcrest.Matchers.contains;
@@ -35,6 +37,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -62,12 +65,16 @@ import org.scalatest.junit.JUnitSuite;
 import org.apache.servicecomb.saga.core.actors.messages.CompensateMessage;
 import org.apache.servicecomb.saga.core.actors.messages.FailMessage;
 import org.apache.servicecomb.saga.core.application.interpreter.FromJsonFormat;
+
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.testkit.javadsl.TestKit;
 
 @SuppressWarnings("unchecked")
 public class RequestActorTest extends JUnitSuite {
+
+  public static final Duration TWO_SECONDS = Duration.of(2, SECONDS);
+
   private final String parentRequestId1 = uniquify("parentRequestId1");
   private final String parentRequestId2 = uniquify("parentRequestId2");
   private final String requestId = uniquify("requestId");
@@ -114,7 +121,7 @@ public class RequestActorTest extends JUnitSuite {
 
       actorRef.tell(new TransactMessage(request1, Operation.SUCCESSFUL_SAGA_RESPONSE), parent);
 
-      List<SagaResponse> responses = receiveN(2, duration("2 seconds")).stream()
+      List<SagaResponse> responses = receiveN(2, TWO_SECONDS).stream()
           .map(o -> ((TransactMessage) o).response())
           .collect(Collectors.toList());
 
@@ -143,11 +150,11 @@ public class RequestActorTest extends JUnitSuite {
       ActorRef actorRef = actorSystem.actorOf(RequestActor.props(context, task, request));
 
       actorRef.tell(new TransactMessage(request1, Operation.SUCCESSFUL_SAGA_RESPONSE), parent1);
-      expectNoMsg(duration("500 milliseconds"));
+      expectNoMessage(Duration.of(500, MILLIS));
 
       actorRef.tell(new TransactMessage(request2, SagaResponse.EMPTY_RESPONSE), parent2);
 
-      List<SagaResponse> responses = receiveN(2, duration("2 seconds")).stream()
+      List<SagaResponse> responses = receiveN(2, TWO_SECONDS).stream()
           .map(o -> ((TransactMessage) o).response())
           .collect(Collectors.toList());
 
@@ -175,7 +182,7 @@ public class RequestActorTest extends JUnitSuite {
 
       actorRef.tell(new TransactMessage(request1, Operation.SUCCESSFUL_SAGA_RESPONSE), getRef());
 
-      List<SagaResponse> responses = receiveN(2, duration("2 seconds")).stream()
+      List<SagaResponse> responses = receiveN(2, TWO_SECONDS).stream()
           .map(o -> ((AbortMessage) o).response())
           .collect(Collectors.toList());
 
@@ -197,14 +204,14 @@ public class RequestActorTest extends JUnitSuite {
 
       actorRef.tell(new AbortMessage(exception), someActor());
 
-      List<SagaResponse> responses = receiveN(2, duration("2 seconds")).stream()
+      List<SagaResponse> responses = receiveN(2, TWO_SECONDS).stream()
           .map(o -> ((AbortMessage) o).response())
           .collect(Collectors.toList());
 
       assertThat(responses, containsInAnyOrder(instanceOf(FailedSagaResponse.class), instanceOf(FailedSagaResponse.class)));
 
       actorRef.tell(new AbortMessage(exception), someActor());
-      expectNoMsg(duration("500 milliseconds"));
+      expectNoMessage(Duration.of(500, MILLIS));
     }};
   }
 
@@ -224,14 +231,14 @@ public class RequestActorTest extends JUnitSuite {
       actorRef.tell(compensateMessage, getRef());
       actorRef.tell(compensateMessage, getRef());
 
-      expectMsg(duration("2 seconds"), compensateMessage);
+      expectMsg(TWO_SECONDS, compensateMessage);
       verify(task).compensate(request);
 
       // no duplicate compensation
       reset(task);
       actorRef.tell(compensateMessage, getRef());
       actorRef.tell(compensateMessage, getRef());
-      expectNoMsg(duration("200 milliseconds"));
+      expectNoMessage(Duration.of(200, MILLIS));
       verify(task, never()).compensate(request);
     }};
   }
@@ -250,7 +257,7 @@ public class RequestActorTest extends JUnitSuite {
       actorRef.tell(compensateMessage, getRef());
       actorRef.tell(compensateMessage, getRef());
 
-      List<Object> responses = receiveN(2, duration("2 seconds"));
+      List<Object> responses = receiveN(2, TWO_SECONDS);
       assertThat(responses, contains(instanceOf(AbortMessage.class), instanceOf(CompensateMessage.class)));
       verify(task, never()).compensate(request);
 
@@ -258,7 +265,7 @@ public class RequestActorTest extends JUnitSuite {
       reset(task);
       actorRef.tell(compensateMessage, getRef());
       actorRef.tell(compensateMessage, getRef());
-      expectNoMsg(duration("200 milliseconds"));
+      expectNoMessage(Duration.of(200, MILLIS));
       verify(task, never()).compensate(request);
     }};
   }
@@ -277,7 +284,7 @@ public class RequestActorTest extends JUnitSuite {
 
       actorRef.tell(new TransactMessage(request1, Operation.SUCCESSFUL_SAGA_RESPONSE), getRef());
 
-      List<SagaResponse> responses = receiveN(2, duration("2 seconds")).stream()
+      List<SagaResponse> responses = receiveN(2, TWO_SECONDS).stream()
           .map(o -> ((TransactMessage) o).response())
           .collect(Collectors.toList());
 
@@ -288,7 +295,7 @@ public class RequestActorTest extends JUnitSuite {
       actorRef.tell(compensateMessage, getRef());
       actorRef.tell(compensateMessage, getRef());
 
-      expectMsg(duration("2 seconds"), compensateMessage);
+      expectMsg(TWO_SECONDS, compensateMessage);
       verify(task, never()).compensate(request);
     }};
   }
@@ -314,7 +321,7 @@ public class RequestActorTest extends JUnitSuite {
       actorRef.tell(new TransactMessage(request1, Operation.SUCCESSFUL_SAGA_RESPONSE), parent1);
       actorRef.tell(new TransactMessage(request2, Operation.SUCCESSFUL_SAGA_RESPONSE), parent2);
 
-      List<SagaResponse> responses = receiveN(2, duration("2 seconds")).stream()
+      List<SagaResponse> responses = receiveN(2, TWO_SECONDS).stream()
           .map(o -> ((TransactMessage) o).response())
           .collect(Collectors.toList());
 
@@ -337,7 +344,7 @@ public class RequestActorTest extends JUnitSuite {
       actorRef.tell(new TransactionRecoveryMessage(response), noSender());
       actorRef.tell(new TransactMessage(request1, Operation.SUCCESSFUL_SAGA_RESPONSE), parent);
 
-      List<SagaResponse> responses = receiveN(1, duration("2 seconds")).stream()
+      List<SagaResponse> responses = receiveN(1, TWO_SECONDS).stream()
           .map(o -> ((TransactMessage) o).response())
           .collect(Collectors.toList());
 
@@ -361,7 +368,7 @@ public class RequestActorTest extends JUnitSuite {
       actorRef.tell(new CompensationRecoveryMessage(), someActor());
       actorRef.tell(compensateMessage, someActor());
 
-      List<Object> responses = receiveN(2, duration("2 seconds"));
+      List<Object> responses = receiveN(2, TWO_SECONDS);
       assertThat(responses, contains(instanceOf(AbortMessage.class), instanceOf(CompensateMessage.class)));
 
       verify(task, never()).compensate(request);

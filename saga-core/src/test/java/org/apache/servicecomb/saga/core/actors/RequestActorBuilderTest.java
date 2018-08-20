@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.saga.core.actors;
 
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -26,6 +27,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -123,7 +125,7 @@ public class RequestActorBuilderTest extends JUnitSuite {
 
       root.tell(new TransactMessage(NoOpSagaRequest.SAGA_START_REQUEST, SagaResponse.EMPTY_RESPONSE), getRef());
 
-      List<SagaResponse> responses = receiveN(1, duration("2 seconds")).stream()
+      List<SagaResponse> responses = receiveN(1, Duration.of(2, SECONDS)).stream()
           .map(o -> ((TransactMessage) o).response())
           .collect(Collectors.toList());
 
@@ -153,7 +155,7 @@ public class RequestActorBuilderTest extends JUnitSuite {
 
       root.tell(new TransactMessage(NoOpSagaRequest.SAGA_START_REQUEST, SagaResponse.EMPTY_RESPONSE), getRef());
 
-      List<SagaResponse> responses = receiveN(1, duration("2 seconds")).stream()
+      List<SagaResponse> responses = receiveN(1, Duration.of(2, SECONDS)).stream()
           .map(o -> ((TransactMessage) o).response())
           .collect(Collectors.toList());
 

@@ -18,9 +18,12 @@
 package org.apache.servicecomb.saga.core.actors;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
+
+import java.time.Duration;
 
 import org.apache.servicecomb.saga.core.SagaRequest;
 import org.apache.servicecomb.saga.core.SagaResponse;
@@ -63,7 +66,7 @@ public class EventContextImplTest extends JUnitSuite {
 
       eventContext.endTransaction(request, response);
 
-      TransactionRecoveryMessage message = (TransactionRecoveryMessage) receiveOne(duration("2 seconds"));
+      TransactionRecoveryMessage message = (TransactionRecoveryMessage) receiveOne(Duration.of(2, SECONDS));
       assertThat(message.response(), is(response));
     }};
   }
@@ -86,7 +89,7 @@ public class EventContextImplTest extends JUnitSuite {
 
       eventContext.abortTransaction(request, response);
 
-      AbortRecoveryMessage message = ((AbortRecoveryMessage) receiveOne(duration("2 seconds")));
+      AbortRecoveryMessage message = ((AbortRecoveryMessage) receiveOne(Duration.of(2, SECONDS)));
       assertThat(message.response(), is(response));
     }};
   }

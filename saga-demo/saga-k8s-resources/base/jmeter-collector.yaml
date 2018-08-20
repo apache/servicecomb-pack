@@ -18,38 +18,36 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: hotel
+  name: jmeter-collector
   namespace: servicecomb
   labels:
-    app: hotel
+    app: jmeter-collector
 spec:
   ports:
-  - port: 8081
-    targetPort: 8080
-    name: hotel
+  - port: 80
+    targetPort: 8883
+    name: http-jmeter-collector
+  # externalIPs: ["YOUR_NODE_IP"]
+  # type: NodePort
   selector:
-    app: hotel
+    app: jmeter-collector
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: hotel
+  name: jmeter-collector
   namespace: servicecomb
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: hotel
+        app: jmeter-collector
         version: v1
     spec:
       containers:
-      - name: hotel
-        image: servicecomb/hotel:0.3.0-SNAPSHOT
+      - name: jmeter-collector
+        image: servicecomb/jmeter-collector:v1
         imagePullPolicy: IfNotPresent
-        env:
-        - name: JAVA_OPTS
-          value: -Dalpha.cluster.address=alpha-server.servicecomb:8080
-        ports:
-        - containerPort: 8080
 ---
+
