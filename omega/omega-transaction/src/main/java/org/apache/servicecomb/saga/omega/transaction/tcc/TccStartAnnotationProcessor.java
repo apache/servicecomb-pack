@@ -18,30 +18,30 @@ package org.apache.servicecomb.saga.omega.transaction.tcc;
 
 import javax.transaction.TransactionalException;
 
+import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.EventAwareInterceptor;
-import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
-import org.apache.servicecomb.saga.omega.transaction.SagaEndedEvent;
-import org.apache.servicecomb.saga.omega.transaction.SagaStartedEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxAbortedEvent;
+import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccEndedEvent;
+import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccStartedEvent;
 
 public class TccStartAnnotationProcessor implements EventAwareInterceptor {
 
   private final OmegaContext omegaContext;
-  private final MessageSender sender;
+  private final TccEventService eventService;
 
-  TccStartAnnotationProcessor(OmegaContext omegaContext, MessageSender sender) {
+  TccStartAnnotationProcessor(OmegaContext omegaContext, TccEventService eventService) {
     this.omegaContext = omegaContext;
-    this.sender = sender;
+    this.eventService = eventService;
   }
 
   @Override
   public AlphaResponse preIntercept(String parentTxId, String compensationMethod, int timeout, String retriesMethod,
       int retries, Object... message) {
     try {
-      return sender.send(new SagaStartedEvent(omegaContext.globalTxId(), omegaContext.localTxId(), timeout));
+      return eventService.TccTransactionStart(new TccStartedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
     } catch (OmegaException e) {
       throw new TransactionalException(e.getMessage(), e.getCause());
     }
@@ -49,17 +49,15 @@ public class TccStartAnnotationProcessor implements EventAwareInterceptor {
 
   @Override
   public void postIntercept(String parentTxId, String compensationMethod) {
-    // Send the confirm event
-    /*AlphaResponse response = sender.send(new SagaEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
-    if (response.aborted()) {
-      throw new OmegaException("transaction " + parentTxId + " is aborted");
-    }*/
+    eventService.TccTransactionStop(new TccEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId(),
+        TransactionStatus.Succeed));
   }
 
   @Override
   public void onError(String parentTxId, String compensationMethod, Throwable throwable) {
     // Send the cancel event
-    String globalTxId = omegaContext.globalTxId();
-    sender.send(new TxAbortedEvent(globalTxId, omegaContext.localTxId(), null, compensationMethod, throwable));
+    // Do we need to wait for the alpha finish all the transaction
+    eventService.TccTransactionStop(new TccEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId(),
+        TransactionStatus.Failed));
   }
 }

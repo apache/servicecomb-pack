@@ -20,6 +20,7 @@ package org.apache.servicecomb.saga.omega.transaction.tcc;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 
+import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
@@ -27,6 +28,7 @@ import org.apache.servicecomb.saga.omega.transaction.RecoveryPolicy;
 import org.apache.servicecomb.saga.omega.transaction.RecoveryPolicyFactory;
 import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
 import org.apache.servicecomb.saga.omega.transaction.annotations.Participate;
+import org.apache.servicecomb.saga.omega.transaction.tcc.events.ParticipatedEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -39,9 +41,11 @@ public class TccParticipatorAspect {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final OmegaContext context;
+  private final TccEventService tccEventService;
 
-  public TccParticipatorAspect(MessageSender sender, OmegaContext context) {
+  public TccParticipatorAspect(TccEventService tccEventService, OmegaContext context) {
     this.context = context;
+    this.tccEventService = tccEventService;
   }
 
   @Around("execution(@org.apache.servicecomb.saga.omega.transaction.annotations.Participate * *(..)) && @annotation(participate)")
@@ -49,6 +53,7 @@ public class TccParticipatorAspect {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
     String localTxId = context.localTxId();
     String cancelMethod = participate.cancelMethod();
+    String confirmMethod = participate.confirmMethod();
     
     context.newLocalTxId();
     LOG.debug("Updated context {} for participate method {} ", context, method.toString());
@@ -56,13 +61,18 @@ public class TccParticipatorAspect {
     try {
       Object result = joinPoint.proceed();
       // Send the participate message back
+      tccEventService.participate(new ParticipatedEvent(context.globalTxId(), context.localTxId(), localTxId, cancelMethod, confirmMethod,
+          TransactionStatus.Succeed));
       LOG.debug("Participate Transaction with context {} has finished.", context);
-
       return result;
     } catch (Throwable throwable) {
       // Now we don't handle the error message
+      tccEventService.participate(new ParticipatedEvent(context.globalTxId(), context.localTxId(), localTxId, cancelMethod,
+          confirmMethod, TransactionStatus.Failed));
       LOG.error("Participate Transaction with context {} failed.", context, throwable);
       throw throwable;
+    } finally {
+      context.setLocalTxId(localTxId);
     }
   }
 }
