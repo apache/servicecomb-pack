@@ -45,10 +45,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.net.ssl.SSLException;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
-import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
-import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
-import org.apache.servicecomb.saga.omega.transaction.MessageSerializer;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.slf4j.Logger;
@@ -75,13 +72,10 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
   private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
   public LoadBalancedClusterMessageSender(AlphaClusterConfig clusterConfig,
-      MessageSerializer serializer,
-      MessageDeserializer deserializer,
       ServiceConfig serviceConfig,
-      MessageHandler handler,
       int reconnectDelay) {
 
-    if (clusterConfig.getAddresses().size() == 0) {
+    if (clusterConfig.getAddresses().isEmpty()) {
       throw new IllegalArgumentException("No reachable cluster address provided");
     }
 
@@ -112,11 +106,11 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
           new GrpcClientMessageSender(
               address,
               channel,
-              serializer,
-              deserializer,
+              clusterConfig.getMessageSerializer(),
+              clusterConfig.getMessageDeserializer(),
               serviceConfig,
               new ErrorHandlerFactory(),
-              handler),
+              clusterConfig.getMessageHandler()),
           0L);
     }
 
@@ -257,11 +251,9 @@ class FastestSender implements MessageSenderPicker {
     Long min = Long.MAX_VALUE;
     MessageSender sender = null;
     for (Map.Entry<MessageSender, Long> entry : messageSenders.entrySet()) {
-      if (entry.getValue() != Long.MAX_VALUE) {
-        if (min > entry.getValue()) {
-          min = entry.getValue();
-          sender = entry.getKey();
-        }
+      if (entry.getValue() != Long.MAX_VALUE && min > entry.getValue()) {
+        min = entry.getValue();
+        sender = entry.getKey();
       }
     }
     if (sender == null) {
