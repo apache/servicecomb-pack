@@ -16,15 +16,22 @@
  */
 package org.apache.servicecomb.saga.omega.transaction.tcc.events;
 
-public class TccEndEvent {
+
+public class ParticipateEvent {
+  
   private final String globalTxId;
   private final String localTxId;
   private final String parentTxId;
-   
+  private final String confirmMethod;
+  private final String cancelMethod;
 
-  public TccEndEvent(String globalTxId, String localTxId, String parentTxId) {
+
+  public ParticipateEvent(String globalTxId, String localTxId, String parentTxId, String confirmMethod,
+      String cancelMethod) {
     this.globalTxId = globalTxId;
     this.localTxId = localTxId;
     this.parentTxId = parentTxId;
+    this.confirmMethod = confirmMethod;
+    this.cancelMethod = cancelMethod;
   }
 }
