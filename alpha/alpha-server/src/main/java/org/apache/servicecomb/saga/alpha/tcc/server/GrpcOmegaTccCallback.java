@@ -19,12 +19,9 @@
 
 package org.apache.servicecomb.saga.alpha.tcc.server;
 
-import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
-import org.apache.servicecomb.saga.alpha.core.TxEvent;
 import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipateEvent;
 import org.apache.servicecomb.saga.common.TransactionStatus;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCordinateCommand;
 
 /**
@@ -32,7 +29,7 @@ import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCordinateCommand;
  *
  * @author zhaojun
  */
-public final class GrpcOmegaTccCallback implements OmegaCallback<ParticipateEvent> {
+public final class GrpcOmegaTccCallback implements OmegaCallback {
 
   private StreamObserver<GrpcTccCordinateCommand> responseObserver;
 

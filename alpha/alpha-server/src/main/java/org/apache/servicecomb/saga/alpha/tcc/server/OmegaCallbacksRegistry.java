@@ -43,8 +43,8 @@ public class OmegaCallbacksRegistry {
         .put(request.getInstanceId(), new GrpcOmegaTccCallback(responseObserver));
   }
 
-  public static OmegaCallback getThenRemove(ParticipateEvent request) {
-    return CALLBACKS.getOrDefault(request.getServiceName(), emptyMap()).remove(request.getInstanceId());
+  public static OmegaCallback get(ParticipateEvent request) {
+    return CALLBACKS.getOrDefault(request.getServiceName(), emptyMap()).get(request.getInstanceId());
   }
 
 }

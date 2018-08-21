@@ -20,6 +20,7 @@
 package org.apache.servicecomb.saga.alpha.tcc.server;
 
 import io.grpc.stub.StreamObserver;
+import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipateEvent;
 import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipateEventFactory;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
@@ -57,6 +58,9 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
 
   @Override
   public void onTccTransactionEnded(GrpcTccTransactionEndedEvent request, StreamObserver<GrpcAck> responseObserver) {
+    for (ParticipateEvent each : TransactionEventRegistry.getTxEvents(request.getGlobalTxId())) {
+      OmegaCallbacksRegistry.get(each).execute(each, each.getStatus());
+    }
     responseObserver.onNext(ALLOW);
     responseObserver.onCompleted();
   }
