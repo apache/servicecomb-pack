@@ -20,12 +20,13 @@
 package org.apache.servicecomb.saga.alpha.tcc.server;
 
 import io.grpc.stub.StreamObserver;
+import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipateEventFactory;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCoordinateCommand;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcParticipateEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTransactionEndedEvent;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTransactionStartedEvent;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCordinateCommand;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccParticipateEvent;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccTransactionEndedEvent;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccTransactionStartedEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.TccEventServiceGrpc;
 
 /**
@@ -35,20 +36,28 @@ import org.apache.servicecomb.saga.pack.contract.grpc.TccEventServiceGrpc;
  */
 public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImplBase {
 
+  private static final GrpcAck ALLOW = GrpcAck.newBuilder().setAborted(false).build();
+  private static final GrpcAck REJECT = GrpcAck.newBuilder().setAborted(true).build();
+
   @Override
-  public void onConnected(GrpcServiceConfig request, StreamObserver<GrpcCoordinateCommand> responseObserver) {
+  public void onConnected(GrpcServiceConfig request, StreamObserver<GrpcTccCordinateCommand> responseObserver) {
+    OmegaCallbacksRegistry.add(request, responseObserver);
   }
 
   @Override
-  public void onTransactionStarted(GrpcTransactionStartedEvent request, StreamObserver<GrpcAck> responseObserver) {
+  public void onTccTransactionStarted(GrpcTccTransactionStartedEvent request, StreamObserver<GrpcAck> responseObserver) {
   }
 
   @Override
-  public void participate(GrpcParticipateEvent request, StreamObserver<GrpcAck> responseObserver) {
+  public void participate(GrpcTccParticipateEvent request, StreamObserver<GrpcAck> responseObserver) {
+    TransactionEventRegistry.add(ParticipateEventFactory.create(request));
+    responseObserver.onNext(ALLOW);
+    responseObserver.onCompleted();
   }
 
   @Override
-  public void onTransactionEnded(GrpcTransactionEndedEvent request, StreamObserver<GrpcAck> responseObserver) {
+  public void onTccTransactionEnded(GrpcTccTransactionEndedEvent request, StreamObserver<GrpcAck> responseObserver) {
+
   }
 
   @Override
