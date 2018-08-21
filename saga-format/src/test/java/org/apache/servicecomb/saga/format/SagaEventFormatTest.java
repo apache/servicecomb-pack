@@ -28,6 +28,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.apache.servicecomb.saga.core.JacksonToJsonFormat;
 import org.apache.servicecomb.saga.core.SagaRequest;
 import org.apache.servicecomb.saga.core.SagaRequestImpl;
@@ -65,7 +68,7 @@ public class SagaEventFormatTest {
       TYPE_REST,
       new JacksonRestTransaction("/rest/xxx", "POST", singletonMap("query", singletonMap("foo", "xxx"))),
       new JacksonRestCompensation("/rest/xxx", "DELETE", singletonMap("query", singletonMap("bar", "xxx"))),
-      new JacksonRestFallback(TYPE_REST, "/rest/xxx", "PUT", emptyMap())
+      new JacksonRestFallback(TYPE_REST, "/rest/xxx", "PUT", Collections.<String, Map<String, String>>emptyMap())
   );
 
   private final RestTransport restTransport = Mockito.mock(RestTransport.class);
@@ -140,7 +143,7 @@ public class SagaEventFormatTest {
     assertThat(((TransactionCompensatedEvent) sagaEvent).response(), eqToResponse(response));
   }
 
-  private static Matcher<SagaRequest> eqToRequest(SagaRequest expected) {
+  private static Matcher<SagaRequest> eqToRequest(final SagaRequest expected) {
     return new TypeSafeMatcher<SagaRequest>() {
       @Override
       protected boolean matchesSafely(SagaRequest request) {
@@ -162,7 +165,7 @@ public class SagaEventFormatTest {
 
   }
 
-  private static Matcher<SagaResponse> eqToResponse(SagaResponse expected) {
+  private static Matcher<SagaResponse> eqToResponse(final SagaResponse expected) {
     return new TypeSafeMatcher<SagaResponse>() {
       @Override
       protected boolean matchesSafely(SagaResponse response) {
