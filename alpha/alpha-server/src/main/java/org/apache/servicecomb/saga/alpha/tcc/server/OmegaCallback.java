@@ -24,7 +24,7 @@ import org.apache.servicecomb.saga.common.TransactionStatus;
 
 public interface OmegaCallback {
 
-  void execute(ParticipateEvent event, TransactionStatus status);
+  void compensate(ParticipateEvent event, TransactionStatus status);
 
   default void disconnect() {
   }

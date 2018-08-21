@@ -42,7 +42,7 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
 
   @Override
   public void onConnected(GrpcServiceConfig request, StreamObserver<GrpcTccCordinateCommand> responseObserver) {
-    OmegaCallbacksRegistry.add(request, responseObserver);
+    OmegaCallbacksRegistry.register(request, responseObserver);
   }
 
   @Override
@@ -51,15 +51,15 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
 
   @Override
   public void participate(GrpcTccParticipateEvent request, StreamObserver<GrpcAck> responseObserver) {
-    TransactionEventRegistry.add(ParticipateEventFactory.create(request));
+    TransactionEventRegistry.register(ParticipateEventFactory.create(request));
     responseObserver.onNext(ALLOW);
     responseObserver.onCompleted();
   }
 
   @Override
   public void onTccTransactionEnded(GrpcTccTransactionEndedEvent request, StreamObserver<GrpcAck> responseObserver) {
-    for (ParticipateEvent each : TransactionEventRegistry.getTxEvents(request.getGlobalTxId())) {
-      OmegaCallbacksRegistry.get(each).execute(each, each.getStatus());
+    for (ParticipateEvent event : TransactionEventRegistry.getTxEvents(request.getGlobalTxId())) {
+      OmegaCallbacksRegistry.retrieve(event.getServiceName(), event.getInstanceId()).compensate(event, event.getStatus());
     }
     responseObserver.onNext(ALLOW);
     responseObserver.onCompleted();

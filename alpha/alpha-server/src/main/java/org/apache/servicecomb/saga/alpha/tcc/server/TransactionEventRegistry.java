@@ -34,7 +34,7 @@ public class TransactionEventRegistry {
 
   private final static Map<String, List<ParticipateEvent>> TRANS_EVENTS = new ConcurrentHashMap<>();
 
-  public static void add(ParticipateEvent participateEvent) {
+  public static void register(ParticipateEvent participateEvent) {
     TRANS_EVENTS
         .computeIfAbsent(participateEvent.getGlobalTxId(), key -> new LinkedList<>())
         .add(participateEvent);

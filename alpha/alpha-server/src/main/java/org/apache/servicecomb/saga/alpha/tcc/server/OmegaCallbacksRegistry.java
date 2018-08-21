@@ -37,14 +37,14 @@ public class OmegaCallbacksRegistry {
 
   private final static Map<String, Map<String, OmegaCallback>> CALLBACKS = new ConcurrentHashMap<>();
 
-  public static void add(GrpcServiceConfig request, StreamObserver<GrpcTccCordinateCommand> responseObserver) {
+  public static void register(GrpcServiceConfig request, StreamObserver<GrpcTccCordinateCommand> responseObserver) {
     CALLBACKS
         .computeIfAbsent(request.getServiceName(), key -> new ConcurrentHashMap<>())
         .put(request.getInstanceId(), new GrpcOmegaTccCallback(responseObserver));
   }
 
-  public static OmegaCallback get(ParticipateEvent request) {
-    return CALLBACKS.getOrDefault(request.getServiceName(), emptyMap()).get(request.getInstanceId());
+  public static OmegaCallback retrieve(String serviceName, String instanceId) {
+    return CALLBACKS.getOrDefault(serviceName, emptyMap()).get(instanceId);
   }
 
 }

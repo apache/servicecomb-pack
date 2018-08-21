@@ -38,7 +38,7 @@ public final class GrpcOmegaTccCallback implements OmegaCallback {
   }
 
   @Override
-  public void execute(ParticipateEvent event, TransactionStatus status) {
+  public void compensate(ParticipateEvent event, TransactionStatus status) {
     GrpcTccCordinateCommand command = GrpcTccCordinateCommand.newBuilder()
         .setGlobalTxId(event.getGlobalTxId())
         .setLocalTxId(event.getLocalTxId())
