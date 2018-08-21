@@ -152,6 +152,8 @@ public class JacksonFromJsonFormatTest {
   private final TransportFactory transportFactory = Mockito.mock(TransportFactory.class);
   private final FromJsonFormat<SagaDefinition> format = new JacksonFromJsonFormat(transportFactory);
 
+  private final Map<String, Map<String, String>> EMPTY_MAP = Collections.<String, Map<String, String>>emptyMap();
+
   private final Function<SagaRequest, String> getRequestId = new Function<SagaRequest, String>() {
     @Override
     public String apply(SagaRequest sagaRequest) {
@@ -195,24 +197,24 @@ public class JacksonFromJsonFormatTest {
         .thenReturn(response11);
     when(restTransport.with("aaa", "/rest/as", "delete", singletonMap("query", singletonMap("bar", "as"))))
         .thenReturn(response12);
-    when(restTransport.with("aaa", "/rest/as", "put", Collections.<String, Map<String, String>>emptyMap()))
+    when(restTransport.with("aaa", "/rest/as", "put", EMPTY_MAP))
         .thenReturn(response13);
 
     when(restTransport
         .with("bbb", "/rest/bs", "post",
             mapOf("query", singletonMap("foo", "bs"), "json", singletonMap("body", "{ \"bar\": \"bs\" }"))))
         .thenReturn(response21);
-    when(restTransport.with("bbb", "/rest/bs", "delete", Collections.<String, Map<String, String>>emptyMap()))
+    when(restTransport.with("bbb", "/rest/bs", "delete", EMPTY_MAP))
         .thenReturn(response22);
-    when(restTransport.with("bbb", "/rest/bs", "put", Collections.<String, Map<String, String>>emptyMap()))
+    when(restTransport.with("bbb", "/rest/bs", "put", EMPTY_MAP))
         .thenReturn(response23);
 
     when(restTransport
         .with("ccc", "/rest/cs", "post", mapOf("query", singletonMap("foo", "cs"), "form", singletonMap("bar", "cs"))))
         .thenReturn(response31);
-    when(restTransport.with("ccc", "/rest/cs", "delete", Collections.<String, Map<String, String>>emptyMap()))
+    when(restTransport.with("ccc", "/rest/cs", "delete", EMPTY_MAP))
         .thenReturn(response32);
-    when(restTransport.with("ccc", "/rest/cs", "put", Collections.<String, Map<String, String>>emptyMap()))
+    when(restTransport.with("ccc", "/rest/cs", "put", EMPTY_MAP))
         .thenReturn(response33);
   }
 
