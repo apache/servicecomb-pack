@@ -53,10 +53,9 @@ class JacksonRestOperation extends RestOperation implements TransportAware {
     Map<String, Map<String, String>> updated = new HashMap<>(params());
     // This is not thread safe
     if (updated.get("form") == null) {
-      HashMap<String, String> formMap = new HashMap<>();
-      formMap.put("response", response.body());
-      updated.put("form", formMap);
+      updated.put("form", new HashMap<String, String>());
     }
+    updated.get("form").put("response", response.body());
 
     return transport.with(
         address,
