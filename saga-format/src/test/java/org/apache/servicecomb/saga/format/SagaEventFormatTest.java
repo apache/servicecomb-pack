@@ -62,13 +62,14 @@ import org.apache.servicecomb.saga.transports.RestTransport;
 public class SagaEventFormatTest {
 
   private final String sagaId = Randomness.uniquify("sagaId");
+  private final Map<String, Map<String, String>> EMPTY_MAP = Collections.<String, Map<String, String>>emptyMap();
   private final SagaRequest request = new SagaRequestImpl(
       sagaId,
       Randomness.uniquify("serviceName"),
       TYPE_REST,
       new JacksonRestTransaction("/rest/xxx", "POST", singletonMap("query", singletonMap("foo", "xxx"))),
       new JacksonRestCompensation("/rest/xxx", "DELETE", singletonMap("query", singletonMap("bar", "xxx"))),
-      new JacksonRestFallback(TYPE_REST, "/rest/xxx", "PUT", Collections.<String, Map<String, String>>emptyMap())
+      new JacksonRestFallback(TYPE_REST, "/rest/xxx", "PUT", EMPTY_MAP)
   );
 
   private final RestTransport restTransport = Mockito.mock(RestTransport.class);
