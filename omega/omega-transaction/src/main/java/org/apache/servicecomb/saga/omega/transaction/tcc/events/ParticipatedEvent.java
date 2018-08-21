@@ -16,26 +16,26 @@
  */
 package org.apache.servicecomb.saga.omega.transaction.tcc.events;
 
-public class TccStartEvent {
+
+import org.apache.servicecomb.saga.common.TransactionStatus;
+
+public class ParticipatedEvent {
+  
   private final String globalTxId;
   private final String localTxId;
   private final String parentTxId;
+  private final String confirmMethod;
+  private final String cancelMethod;
+  private final TransactionStatus status;
 
-  public String getGlobalTxId() {
-    return globalTxId;
-  }
 
-  public String getLocalTxId() {
-    return localTxId;
-  }
-
-  public String getParentTxId() {
-    return parentTxId;
-  }
-
-  public TccStartEvent(String globalTxId, String localTxId, String parentTxId) {
+  public ParticipatedEvent(String globalTxId, String localTxId, String parentTxId, String confirmMethod,
+      String cancelMethod, TransactionStatus status) {
     this.globalTxId = globalTxId;
     this.localTxId = localTxId;
     this.parentTxId = parentTxId;
+    this.confirmMethod = confirmMethod;
+    this.cancelMethod = cancelMethod;
+    this.status = status;
   }
 }

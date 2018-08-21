@@ -14,8 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.servicecomb.saga.omega.transaction.tcc.events;
 
+package org.apache.servicecomb.saga.common;
 
-public class ParticipateEvent {
+public enum TransactionStatus {
+  Succeed,
+  Failed
 }
