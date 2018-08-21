@@ -18,13 +18,13 @@ package org.apache.servicecomb.saga.omega.transaction.tcc.events;
 
 import org.apache.servicecomb.saga.common.TransactionStatus;
 
-public class TccEndEvent {
+public class TccEndedEvent {
   private final String globalTxId;
   private final String localTxId;
   private final TransactionStatus status;
    
 
-  public TccEndEvent(String globalTxId, String localTxId,
+  public TccEndedEvent(String globalTxId, String localTxId,
       TransactionStatus status) {
     this.globalTxId = globalTxId;
     this.localTxId = localTxId;

@@ -16,7 +16,7 @@
  */
 package org.apache.servicecomb.saga.omega.transaction.tcc.events;
 
-public class TccStartEvent {
+public class TccStartedEvent {
   private final String globalTxId;
   private final String localTxId;
 
@@ -31,7 +31,7 @@ public class TccStartEvent {
 
 
 
-  public TccStartEvent(String globalTxId, String localTxId) {
+  public TccStartedEvent(String globalTxId, String localTxId) {
     this.globalTxId = globalTxId;
     this.localTxId = localTxId;
   }
