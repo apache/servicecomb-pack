@@ -30,17 +30,28 @@ import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipateEvent;
  *
  * @author zhaojun
  */
-public class TransactionEventRegistry {
+public final class TransactionEventRegistry {
 
-  private final static Map<String, List<ParticipateEvent>> TRANS_EVENTS = new ConcurrentHashMap<>();
+  private final static Map<String, List<ParticipateEvent>> REGISTRY = new ConcurrentHashMap<>();
 
+  /**
+   * Register participate event.
+   *
+   * @param participateEvent participate event
+   */
   public static void register(ParticipateEvent participateEvent) {
-    TRANS_EVENTS
+    REGISTRY
         .computeIfAbsent(participateEvent.getGlobalTxId(), key -> new LinkedList<>())
         .add(participateEvent);
   }
 
-  public static List<ParticipateEvent> getTxEvents(String globalTxId) {
-    return TRANS_EVENTS.get(globalTxId);
+  /**
+   * Retrieve participate event from registry.
+   *
+   * @param globalTxId global transaction id
+   * @return participate events
+   */
+  public static List<ParticipateEvent> retrieve(String globalTxId) {
+    return REGISTRY.get(globalTxId);
   }
 }

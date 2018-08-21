@@ -58,7 +58,7 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
 
   @Override
   public void onTccTransactionEnded(GrpcTccTransactionEndedEvent request, StreamObserver<GrpcAck> responseObserver) {
-    for (ParticipateEvent event : TransactionEventRegistry.getTxEvents(request.getGlobalTxId())) {
+    for (ParticipateEvent event : TransactionEventRegistry.retrieve(request.getGlobalTxId())) {
       OmegaCallbacksRegistry.retrieve(event.getServiceName(), event.getInstanceId()).compensate(event, event.getStatus());
     }
     responseObserver.onNext(ALLOW);
@@ -67,5 +67,8 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
 
   @Override
   public void onDisconnected(GrpcServiceConfig request, StreamObserver<GrpcAck> responseObserver) {
+    OmegaCallbacksRegistry.retrieveThenRemove(request.getServiceName(), request.getInstanceId()).disconnect();
+    responseObserver.onNext(ALLOW);
+    responseObserver.onCompleted();
   }
 }

@@ -24,7 +24,6 @@ import static java.util.Collections.emptyMap;
 import io.grpc.stub.StreamObserver;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipateEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCordinateCommand;
 
@@ -33,18 +32,42 @@ import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCordinateCommand;
  *
  * @author zhaojun
  */
-public class OmegaCallbacksRegistry {
+public final class OmegaCallbacksRegistry {
 
-  private final static Map<String, Map<String, OmegaCallback>> CALLBACKS = new ConcurrentHashMap<>();
+  private final static Map<String, Map<String, OmegaCallback>> REGISTRY = new ConcurrentHashMap<>();
 
+  /**
+   * Register omega TCC callback.
+   *
+   * @param request Grpc service config
+   * @param responseObserver stream observer
+   */
   public static void register(GrpcServiceConfig request, StreamObserver<GrpcTccCordinateCommand> responseObserver) {
-    CALLBACKS
+    REGISTRY
         .computeIfAbsent(request.getServiceName(), key -> new ConcurrentHashMap<>())
         .put(request.getInstanceId(), new GrpcOmegaTccCallback(responseObserver));
   }
 
+  /**
+   * Retrieve omega TCC callback by service name and instance id.
+   *
+   * @param serviceName service name
+   * @param instanceId instance id
+   * @return Grpc omega TCC callback
+   */
   public static OmegaCallback retrieve(String serviceName, String instanceId) {
-    return CALLBACKS.getOrDefault(serviceName, emptyMap()).get(instanceId);
+    return REGISTRY.getOrDefault(serviceName, emptyMap()).get(instanceId);
+  }
+
+  /**
+   * Retrieve omega TCC callback by service name and instance id, then remove it from registry.
+   *
+   * @param serviceName service name
+   * @param instanceId instance id
+   * @return Grpc omega TCC callback
+   */
+  public static OmegaCallback retrieveThenRemove(String serviceName, String instanceId) {
+    return REGISTRY.getOrDefault(serviceName, emptyMap()).remove(instanceId);
   }
 
 }
