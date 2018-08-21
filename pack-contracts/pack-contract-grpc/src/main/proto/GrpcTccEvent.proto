@@ -47,6 +47,7 @@ message GrpcTccParticipateEvent {
   string parentTxId = 4;
   string confirmMethod = 6;
   string cancelMethod = 7;
+  string status = 8;
 }
 
 message GrpcTccTransactionEndedEvent {
@@ -54,7 +55,7 @@ message GrpcTccTransactionEndedEvent {
   string globalTxId = 2;
   string localTxId = 3;
   string parentTxId = 4;
-  string type = 5;
+  string status = 5;
 }
 
 message GrpcTccCordinateCommand {
