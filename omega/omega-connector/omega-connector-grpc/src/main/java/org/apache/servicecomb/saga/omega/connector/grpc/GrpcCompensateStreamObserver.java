@@ -35,12 +35,10 @@ class GrpcCompensateStreamObserver implements StreamObserver<GrpcCompensateComma
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final MessageHandler messageHandler;
-  private final Runnable errorHandler;
   private final MessageDeserializer deserializer;
 
-  GrpcCompensateStreamObserver(MessageHandler messageHandler, Runnable errorHandler, MessageDeserializer deserializer) {
+  GrpcCompensateStreamObserver(MessageHandler messageHandler, MessageDeserializer deserializer) {
     this.messageHandler = messageHandler;
-    this.errorHandler = errorHandler;
     this.deserializer = deserializer;
   }
 
@@ -60,7 +58,6 @@ class GrpcCompensateStreamObserver implements StreamObserver<GrpcCompensateComma
   @Override
   public void onError(Throwable t) {
     LOG.error("failed to process grpc compensate command.", t);
-    errorHandler.run();
   }
 
   @Override

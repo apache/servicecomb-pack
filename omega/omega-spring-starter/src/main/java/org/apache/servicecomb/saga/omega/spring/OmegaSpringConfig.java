@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
+import org.apache.servicecomb.saga.omega.connector.grpc.FastestMessageSenderManager;
+import org.apache.servicecomb.saga.omega.connector.grpc.GrpcClientClusterMessageSenderFactory;
 import org.apache.servicecomb.saga.omega.connector.grpc.LoadBalancedClusterMessageSender;
 import org.apache.servicecomb.saga.omega.context.CompensationContext;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
@@ -74,15 +76,21 @@ class OmegaSpringConfig {
       @Lazy MessageHandler handler) {
 
     MessageFormat messageFormat = new KryoMessageFormat();
-    AlphaClusterConfig clusterConfig = new AlphaClusterConfig(Arrays.asList(addresses),
-        enableSSL, mutualAuth, cert, key, certChain);
+    AlphaClusterConfig clusterConfig = AlphaClusterConfig.builder()
+        .addresses(Arrays.asList(addresses))
+        .enableSSL(enableSSL)
+        .enableMutualAuth(mutualAuth)
+        .cert(cert)
+        .key(key)
+        .certChain(certChain)
+        .messageDeserializer(messageFormat)
+        .messageSerializer(messageFormat)
+        .build();
+
     final MessageSender sender = new LoadBalancedClusterMessageSender(
         clusterConfig,
-        messageFormat,
-        messageFormat,
-        serviceConfig,
-        handler,
-        reconnectDelay);
+        new GrpcClientClusterMessageSenderFactory(serviceConfig),
+        FastestMessageSenderManager.FACTORY);
 
     sender.onConnected();
     

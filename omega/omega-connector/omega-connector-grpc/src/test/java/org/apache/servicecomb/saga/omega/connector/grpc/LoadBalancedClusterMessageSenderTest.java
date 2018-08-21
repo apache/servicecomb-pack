@@ -68,15 +68,18 @@ import io.grpc.stub.StreamObserver;
 public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMessageSenderTestBase {
   @Override
   protected MessageSender newMessageSender(String[] addresses) {
-    AlphaClusterConfig clusterConfig = new AlphaClusterConfig(Arrays.asList(addresses),
-        false, false, null,null,null);
+    ClassLoader classLoader = getClass().getClassLoader();
+    AlphaClusterConfig clusterConfig = AlphaClusterConfig.builder()
+        .addresses(Arrays.asList(addresses))
+        .enableSSL(false)
+        .enableMutualAuth(true)
+        .messageDeserializer(deserializer)
+        .messageSerializer(serializer)
+        .build();
     return new LoadBalancedClusterMessageSender(
         clusterConfig,
-        serializer,
-        deserializer,
-        new ServiceConfig(serviceName),
-        handler,
-        100);
+        new GrpcClientClusterMessageSenderFactory(new ServiceConfig(serviceName)),
+        FastestMessageSenderManager.FACTORY);
   }
 
   @BeforeClass
@@ -155,7 +158,7 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
     });
   }
 
-  @Test(timeout = 1000)
+  @Test(timeout = 2000)
   public void stopSendingOnInterruption() throws Exception {
     MessageSender underlying = Mockito.mock(MessageSender.class);
     doThrow(RuntimeException.class).when(underlying).send(event);
@@ -315,7 +318,7 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
           messageSender.send(event);
           expectFailing(OmegaException.class);
         } catch (OmegaException e) {
-          assertThat(e.getMessage().endsWith("interruption"), is(true));
+          assertThat(e.getMessage().contains("Interrupted"), is(true));
         }
       }
     });

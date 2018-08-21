@@ -122,7 +122,6 @@ public abstract class LoadBalancedClusterMessageSenderTestBase {
   @After
   public void after() throws Exception {
     messageSender.onDisconnected();
-    messageSender.close();
     for (Queue<TxEvent> queue :eventsMap.values()) {
       queue.clear();
     }
