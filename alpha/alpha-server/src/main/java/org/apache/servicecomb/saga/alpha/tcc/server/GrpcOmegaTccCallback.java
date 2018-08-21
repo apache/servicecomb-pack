@@ -19,9 +19,12 @@
 
 package org.apache.servicecomb.saga.alpha.tcc.server;
 
+import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
-import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
+import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipateEvent;
+import org.apache.servicecomb.saga.common.TransactionStatus;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCordinateCommand;
 
 /**
@@ -29,7 +32,7 @@ import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCordinateCommand;
  *
  * @author zhaojun
  */
-public final class GrpcOmegaTccCallback implements OmegaCallback {
+public final class GrpcOmegaTccCallback implements OmegaCallback<ParticipateEvent> {
 
   private StreamObserver<GrpcTccCordinateCommand> responseObserver;
 
@@ -38,6 +41,13 @@ public final class GrpcOmegaTccCallback implements OmegaCallback {
   }
 
   @Override
-  public void compensate(TxEvent event) {
+  public void execute(ParticipateEvent event, TransactionStatus status) {
+    GrpcTccCordinateCommand command = GrpcTccCordinateCommand.newBuilder()
+        .setGlobalTxId(event.getGlobalTxId())
+        .setLocalTxId(event.getLocalTxId())
+        .setParentTxId(event.getParentTxId() == null ? "" : event.getParentTxId())
+        .setMethod(TransactionStatus.Succeed.equals(status) ? event.getConfirmMethod() : event.getCancelMethod())
+        .build();
+    responseObserver.onNext(command);
   }
 }

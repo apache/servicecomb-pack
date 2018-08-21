@@ -19,10 +19,12 @@
 
 package org.apache.servicecomb.saga.alpha.tcc.server;
 
+import static java.util.Collections.emptyMap;
+
 import io.grpc.stub.StreamObserver;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
+import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipateEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCordinateCommand;
 
@@ -40,4 +42,9 @@ public class OmegaCallbacksRegistry {
         .computeIfAbsent(request.getServiceName(), key -> new ConcurrentHashMap<>())
         .put(request.getInstanceId(), new GrpcOmegaTccCallback(responseObserver));
   }
+
+  public static OmegaCallback getThenRemove(ParticipateEvent request) {
+    return CALLBACKS.getOrDefault(request.getServiceName(), emptyMap()).remove(request.getInstanceId());
+  }
+
 }
