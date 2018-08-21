@@ -32,12 +32,13 @@ class JsonSagaDefinition implements SagaDefinition {
 
   static final RecoveryPolicy backwardRecovery = new BackwardRecovery();
 
-  private static final Map<String, RecoveryPolicy> policies = new HashMap<String, RecoveryPolicy>(){{
+  private static final Map<String, RecoveryPolicy> policies = new HashMap<String, RecoveryPolicy>() {{
     put(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY, backwardRecovery);
     put(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY, new ForwardRecovery());
   }};
 
   private final JsonSagaRequest[] requests;
+
   private final RecoveryPolicy policy;
 
   public JsonSagaDefinition(
@@ -45,7 +46,7 @@ class JsonSagaDefinition implements SagaDefinition {
       @JsonProperty("requests") JsonSagaRequest[] requests) {
 
     this.requests = requests;
-    this.policy = policies.getOrDefault(policy, backwardRecovery);
+    this.policy = null == policies.get(policy) ? backwardRecovery : policies.get(policy);
   }
 
   @Override

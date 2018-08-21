@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import org.apache.servicecomb.saga.core.SagaException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,6 +33,7 @@ import org.apache.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 public class ChildrenExtractor implements FromJsonFormat<Set<String>> {
 
   private static final String SAGA_CHILDREN = "sagaChildren";
+
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   @Override
@@ -46,8 +49,9 @@ public class ChildrenExtractor implements FromJsonFormat<Set<String>> {
     Set<String> children = new HashSet<>();
 
     if (value.has(SAGA_CHILDREN)) {
-      value.get(SAGA_CHILDREN)
-          .forEach(node -> children.add(node.textValue()));
+      for (JsonNode node : value.get(SAGA_CHILDREN)) {
+        children.add(node.textValue());
+      }
     }
 
     return children;

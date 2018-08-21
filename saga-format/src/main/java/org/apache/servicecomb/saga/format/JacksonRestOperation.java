@@ -51,7 +51,12 @@ class JacksonRestOperation extends RestOperation implements TransportAware {
   @Override
   public SagaResponse send(String address, SagaResponse response) {
     Map<String, Map<String, String>> updated = new HashMap<>(params());
-    updated.computeIfAbsent("form", (key) -> new HashMap<>()).put("response", response.body());
+    // This is not thread safe
+    if (updated.get("form") == null) {
+      HashMap<String, String> formMap = new HashMap<>();
+      formMap.put("response", response.body());
+      updated.put("form", formMap);
+    }
 
     return transport.with(
         address,
