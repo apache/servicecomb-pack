@@ -18,7 +18,6 @@
 package org.apache.servicecomb.saga.format;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
-import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
@@ -27,12 +26,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import org.apache.servicecomb.saga.core.Operation;
 import org.apache.servicecomb.saga.core.SagaException;
@@ -158,6 +152,41 @@ public class JacksonFromJsonFormatTest {
   private final TransportFactory transportFactory = Mockito.mock(TransportFactory.class);
   private final FromJsonFormat<SagaDefinition> format = new JacksonFromJsonFormat(transportFactory);
 
+  private final Function<SagaRequest, String> getRequestId = new Function<SagaRequest, String>() {
+    @Override
+    public String apply(SagaRequest sagaRequest) {
+      return sagaRequest.id();
+    }
+  };
+
+  private final Function<SagaRequest, String> getRequestServiceName = new Function<SagaRequest, String>() {
+    @Override
+    public String apply(SagaRequest sagaRequest) {
+      return sagaRequest.serviceName();
+    }
+  };
+
+  private final Function<SagaRequest, String> getRequestType = new Function<SagaRequest, String>() {
+    @Override
+    public String apply(SagaRequest sagaRequest) {
+      return sagaRequest.type();
+    }
+  };
+
+  private final Function<SagaRequest, Integer> getCompensationRetries = new Function<SagaRequest, Integer>() {
+    @Override
+    public Integer apply(SagaRequest sagaRequest) {
+      return sagaRequest.compensation().retries();
+    }
+  };
+
+  private final Function<SagaRequest, String> getFallbackType = new Function<SagaRequest, String>() {
+    @Override
+    public String apply(SagaRequest sagaRequest) {
+      return sagaRequest.fallback().type();
+    }
+  };
+
   @Before
   public void setUp() throws Exception {
     when(transportFactory.restTransport()).thenReturn(restTransport);
@@ -166,23 +195,24 @@ public class JacksonFromJsonFormatTest {
         .thenReturn(response11);
     when(restTransport.with("aaa", "/rest/as", "delete", singletonMap("query", singletonMap("bar", "as"))))
         .thenReturn(response12);
-    when(restTransport.with("aaa", "/rest/as", "put", emptyMap()))
+    when(restTransport.with("aaa", "/rest/as", "put", Collections.<String, Map<String, String>>emptyMap()))
         .thenReturn(response13);
 
     when(restTransport
-        .with("bbb", "/rest/bs", "post", mapOf("query", singletonMap("foo", "bs"), "json", singletonMap("body", "{ \"bar\": \"bs\" }"))))
+        .with("bbb", "/rest/bs", "post",
+            mapOf("query", singletonMap("foo", "bs"), "json", singletonMap("body", "{ \"bar\": \"bs\" }"))))
         .thenReturn(response21);
-    when(restTransport.with("bbb", "/rest/bs", "delete", emptyMap()))
+    when(restTransport.with("bbb", "/rest/bs", "delete", Collections.<String, Map<String, String>>emptyMap()))
         .thenReturn(response22);
-    when(restTransport.with("bbb", "/rest/bs", "put", emptyMap()))
+    when(restTransport.with("bbb", "/rest/bs", "put", Collections.<String, Map<String, String>>emptyMap()))
         .thenReturn(response23);
 
     when(restTransport
         .with("ccc", "/rest/cs", "post", mapOf("query", singletonMap("foo", "cs"), "form", singletonMap("bar", "cs"))))
         .thenReturn(response31);
-    when(restTransport.with("ccc", "/rest/cs", "delete", emptyMap()))
+    when(restTransport.with("ccc", "/rest/cs", "delete", Collections.<String, Map<String, String>>emptyMap()))
         .thenReturn(response32);
-    when(restTransport.with("ccc", "/rest/cs", "put", emptyMap()))
+    when(restTransport.with("ccc", "/rest/cs", "put", Collections.<String, Map<String, String>>emptyMap()))
         .thenReturn(response33);
   }
 
@@ -190,12 +220,12 @@ public class JacksonFromJsonFormatTest {
   public void addTransportToDeserializedRequests() throws IOException {
     SagaRequest[] sagaRequests = format.fromJson(requests).requests();
 
-    assertThat(collect(sagaRequests, SagaRequest::id), contains("request-aaa", "request-bbb", "request-ccc"));
-    assertThat(collect(sagaRequests, SagaRequest::serviceName), contains("aaa", "bbb", "ccc"));
-    assertThat(collect(sagaRequests, SagaRequest::type), Matchers
+    assertThat(collect(sagaRequests, getRequestId), contains("request-aaa", "request-bbb", "request-ccc"));
+    assertThat(collect(sagaRequests, getRequestServiceName), contains("aaa", "bbb", "ccc"));
+    assertThat(collect(sagaRequests, getRequestType), Matchers
         .contains(Operation.TYPE_REST, Operation.TYPE_REST, Operation.TYPE_REST));
-    assertThat(collect(sagaRequests, (request) -> request.compensation().retries()), contains(3, 4, 5));
-    assertThat(collect(sagaRequests, (request) -> request.fallback().type()), Matchers
+    assertThat(collect(sagaRequests, getCompensationRetries), contains(3, 4, 5));
+    assertThat(collect(sagaRequests, getFallbackType), Matchers
         .contains(Operation.TYPE_REST, Operation.TYPE_REST, Operation.TYPE_REST));
 
     SagaResponse response = sagaRequests[0].transaction().send("aaa");
@@ -226,7 +256,7 @@ public class JacksonFromJsonFormatTest {
 
     response = sagaRequests[2].fallback().send("ccc");
     assertThat(response, is(response33));
-    assertArrayEquals(new String[]{"request-aaa", "request-bbb"}, sagaRequests[2].parents());
+    assertArrayEquals(new String[] {"request-aaa", "request-bbb"}, sagaRequests[2].parents());
   }
 
   @Test
@@ -242,9 +272,11 @@ public class JacksonFromJsonFormatTest {
   }
 
   private <T> Collection<T> collect(SagaRequest[] requests, Function<SagaRequest, T> mapper) {
-    return Arrays.stream(requests)
-        .map(mapper)
-        .collect(Collectors.toList());
+    List<T> result = new LinkedList<T>();
+    for (SagaRequest request : requests) {
+      result.add(mapper.apply(request));
+    }
+    return result;
   }
 
   private Map<String, Map<String, String>> mapOf(
@@ -257,5 +289,9 @@ public class JacksonFromJsonFormatTest {
     map.put(key1, value1);
     map.put(key2, value2);
     return map;
+  }
+
+  private interface Function<T, R> {
+    R apply(T t);
   }
 }

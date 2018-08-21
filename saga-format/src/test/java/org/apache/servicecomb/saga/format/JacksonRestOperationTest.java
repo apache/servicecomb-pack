@@ -18,18 +18,19 @@
 package org.apache.servicecomb.saga.format;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
-import static java.util.Collections.emptyMap;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.servicecomb.saga.core.Operation;
 import org.apache.servicecomb.saga.core.SagaResponse;
 import org.apache.servicecomb.saga.transports.RestTransport;
+import org.apache.servicecomb.saga.transports.TransportFactory;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,11 +45,13 @@ public class JacksonRestOperationTest {
   private final Map<String, Map<String, String>> params = new HashMap<>();
 
   private final RestTransport transport = Mockito.mock(RestTransport.class);
+  private final TransportFactory transportFactory = Mockito.mock(TransportFactory.class);
   private final JacksonRestOperation restOperation = new JacksonRestOperation(path, method, params);
 
   @Before
   public void setUp() throws Exception {
-    restOperation.with(() -> transport);
+    when(transportFactory.restTransport()).thenReturn(transport);
+    restOperation.with(transportFactory);
   }
 
   @Test
@@ -62,7 +65,9 @@ public class JacksonRestOperationTest {
     assertThat(response, Is.is(SagaResponse.EMPTY_RESPONSE));
 
     Map<String, Map<String, String>> updatedParams = argumentCaptor.getValue();
-    assertThat(updatedParams.getOrDefault("form", emptyMap()).get("response"), Is.is(Operation.SUCCESSFUL_SAGA_RESPONSE.body()));
+    assertThat(null == updatedParams.get("form") ? Collections.<String, String>emptyMap().get("response")
+            : updatedParams.get("form").get("response")
+        , Is.is(Operation.SUCCESSFUL_SAGA_RESPONSE.body()));
     assertThat(params.isEmpty(), is(true));
   }
 }
