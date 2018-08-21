@@ -21,6 +21,7 @@ package org.apache.servicecomb.saga.alpha.tcc.server;
 
 import io.grpc.stub.StreamObserver;
 import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipateEventFactory;
+import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCordinateCommand;
@@ -57,7 +58,13 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
 
   @Override
   public void onTccTransactionEnded(GrpcTccTransactionEndedEvent request, StreamObserver<GrpcAck> responseObserver) {
-
+    switch (TransactionStatus.valueOf(request.getStatus())) {
+      case Succeed:
+        TransactionEventRegistry.getTxEvents(request.getGlobalTxId());
+      case Failed:
+    }
+    responseObserver.onNext(ALLOW);
+    responseObserver.onCompleted();
   }
 
   @Override

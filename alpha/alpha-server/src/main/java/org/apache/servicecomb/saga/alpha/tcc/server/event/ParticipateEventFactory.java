@@ -30,7 +30,16 @@ import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccParticipateEvent;
 public class ParticipateEventFactory {
 
   public static ParticipateEvent create(GrpcTccParticipateEvent request) {
-    return new ParticipateEvent(request.getGlobalTxId(), request.getLocalTxId(), request.getParentTxId(),
-        request.getConfirmMethod(), request.getCancelMethod(), TransactionStatus.valueOf(request.getStatus()));
+
+    return new ParticipateEvent(
+        request.getGlobalTxId(),
+        request.getLocalTxId(),
+        request.getParentTxId(),
+        request.getConfirmMethod(),
+        request.getCancelMethod(),
+        request.getServiceName(),
+        request.getInstanceId(),
+        TransactionStatus.valueOf(request.getStatus())
+    );
   }
 }

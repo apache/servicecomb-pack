@@ -31,15 +31,19 @@ public class ParticipateEvent {
   private String globalTxId;
   private String localTxId;
   private String parentTxId;
+  private String serviceName;
+  private String instanceId;
   private String confirmMethod;
   private String cancelMethod;
   private TransactionStatus status;
 
-  public ParticipateEvent(String globalTxId, String localTxId, String parentTxId, String confirmMethod,
-      String cancelMethod, TransactionStatus status) {
+  public ParticipateEvent(String globalTxId, String localTxId, String parentTxId, String serviceName,
+      String instanceId, String confirmMethod, String cancelMethod, TransactionStatus status) {
     this.globalTxId = globalTxId;
     this.localTxId = localTxId;
     this.parentTxId = parentTxId;
+    this.serviceName = serviceName;
+    this.instanceId = instanceId;
     this.confirmMethod = confirmMethod;
     this.cancelMethod = cancelMethod;
     this.status = status;
@@ -83,6 +87,22 @@ public class ParticipateEvent {
 
   public void setCancelMethod(String cancelMethod) {
     this.cancelMethod = cancelMethod;
+  }
+
+  public String getServiceName() {
+    return serviceName;
+  }
+
+  public void setServiceName(String serviceName) {
+    this.serviceName = serviceName;
+  }
+
+  public String getInstanceId() {
+    return instanceId;
+  }
+
+  public void setInstanceId(String instanceId) {
+    this.instanceId = instanceId;
   }
 
   public TransactionStatus getStatus() {
