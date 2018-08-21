@@ -45,9 +45,11 @@ message GrpcTccParticipateEvent {
   string globalTxId = 2;
   string localTxId = 3;
   string parentTxId = 4;
-  string confirmMethod = 6;
-  string cancelMethod = 7;
-  string status = 8;
+  string serviceName = 5;
+  string instanceId = 6;
+  string confirmMethod = 7;
+  string cancelMethod = 8;
+  string status = 9;
 }
 
 message GrpcTccTransactionEndedEvent {
