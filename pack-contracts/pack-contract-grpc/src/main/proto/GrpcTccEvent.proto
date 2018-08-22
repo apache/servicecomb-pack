@@ -26,7 +26,7 @@ import "GrpcCommon.proto";
 service TccEventService {
   rpc OnConnected (GrpcServiceConfig) returns (stream GrpcTccCordinateCommand) {
   }
-  rpc participate(GrpcTccParticipateEvent) returns (GrpcAck) {}
+  rpc participate(GrpcTccParticipatedEvent) returns (GrpcAck) {}
   rpc OnTccTransactionStarted (GrpcTccTransactionStartedEvent) returns (GrpcAck) {}
   rpc OnTccTransactionEnded (GrpcTccTransactionEndedEvent) returns (GrpcAck) {}
   rpc OnDisconnected (GrpcServiceConfig) returns (GrpcAck) {
@@ -38,16 +38,20 @@ message GrpcTccTransactionStartedEvent {
   string globalTxId = 2;
   string localTxId = 3;
   string parentTxId = 4;
+  string serviceName = 5;
+  string instanceId = 6;
 }
 
-message GrpcTccParticipateEvent {
+message GrpcTccParticipatedEvent {
   int64 timestamp = 1;
   string globalTxId = 2;
   string localTxId = 3;
   string parentTxId = 4;
-  string confirmMethod = 6;
-  string cancelMethod = 7;
-  string status = 8;
+  string serviceName = 5;
+  string instanceId = 6;
+  string confirmMethod = 7;
+  string cancelMethod = 8;
+  string status = 9;
 }
 
 message GrpcTccTransactionEndedEvent {
@@ -55,13 +59,16 @@ message GrpcTccTransactionEndedEvent {
   string globalTxId = 2;
   string localTxId = 3;
   string parentTxId = 4;
-  string status = 5;
+  string serviceName = 5;
+  string instanceId = 6;
+  string status = 7;
 }
 
 message GrpcTccCordinateCommand {
   string globalTxId = 1;
   string localTxId = 2;
   string parentTxId = 3;
-  string method = 4;
+  string serviceName = 4;
+  string method = 5;
 }
 
