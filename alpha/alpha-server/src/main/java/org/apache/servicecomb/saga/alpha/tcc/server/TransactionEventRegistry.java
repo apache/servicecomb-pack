@@ -21,7 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipateEvent;
+import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipatedEvent;
 
 /**
  * Manage TCC transaction event.
@@ -30,14 +30,14 @@ import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipateEvent;
  */
 public final class TransactionEventRegistry {
 
-  private final static Map<String, List<ParticipateEvent>> REGISTRY = new ConcurrentHashMap<>();
+  private final static Map<String, List<ParticipatedEvent>> REGISTRY = new ConcurrentHashMap<>();
 
   /**
    * Register participate event.
    *
    * @param participateEvent participate event
    */
-  public static void register(ParticipateEvent participateEvent) {
+  public static void register(ParticipatedEvent participateEvent) {
     REGISTRY
         .computeIfAbsent(participateEvent.getGlobalTxId(), key -> new LinkedList<>())
         .add(participateEvent);
@@ -49,7 +49,7 @@ public final class TransactionEventRegistry {
    * @param globalTxId global transaction id
    * @return participate events
    */
-  public static List<ParticipateEvent> retrieve(String globalTxId) {
+  public static List<ParticipatedEvent> retrieve(String globalTxId) {
     return REGISTRY.get(globalTxId);
   }
 }

@@ -24,7 +24,7 @@ import org.apache.servicecomb.saga.common.TransactionStatus;
  *
  * @author zhaojun
  */
-public class ParticipateEvent {
+public class ParticipatedEvent {
 
   private String globalTxId;
   private String localTxId;
@@ -35,7 +35,7 @@ public class ParticipateEvent {
   private String cancelMethod;
   private TransactionStatus status;
 
-  public ParticipateEvent(String globalTxId, String localTxId, String parentTxId, String serviceName,
+  public ParticipatedEvent(String globalTxId, String localTxId, String parentTxId, String serviceName,
       String instanceId, String confirmMethod, String cancelMethod, TransactionStatus status) {
     this.globalTxId = globalTxId;
     this.localTxId = localTxId;

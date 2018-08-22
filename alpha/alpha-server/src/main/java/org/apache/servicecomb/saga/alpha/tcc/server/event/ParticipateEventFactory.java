@@ -18,7 +18,7 @@
 package org.apache.servicecomb.saga.alpha.tcc.server.event;
 
 import org.apache.servicecomb.saga.common.TransactionStatus;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccParticipateEvent;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccParticipatedEvent;
 
 /**
  * Participate event factory.
@@ -27,8 +27,8 @@ import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccParticipateEvent;
  */
 public class ParticipateEventFactory {
 
-  public static ParticipateEvent create(GrpcTccParticipateEvent request) {
-    return new ParticipateEvent(
+  public static ParticipatedEvent create(GrpcTccParticipatedEvent request) {
+    return new ParticipatedEvent(
         request.getGlobalTxId(),
         request.getLocalTxId(),
         request.getParentTxId(),

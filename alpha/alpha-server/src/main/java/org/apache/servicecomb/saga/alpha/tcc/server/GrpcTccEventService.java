@@ -18,12 +18,12 @@
 package org.apache.servicecomb.saga.alpha.tcc.server;
 
 import io.grpc.stub.StreamObserver;
-import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipateEvent;
+import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipatedEvent;
 import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipateEventFactory;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccParticipateEvent;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccParticipatedEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccTransactionEndedEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccTransactionStartedEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.TccEventServiceGrpc;
@@ -56,7 +56,7 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
 
   @Override
   public void onTccTransactionEnded(GrpcTccTransactionEndedEvent request, StreamObserver<GrpcAck> responseObserver) {
-    for (ParticipateEvent event : TransactionEventRegistry.retrieve(request.getGlobalTxId())) {
+    for (ParticipatedEvent event : TransactionEventRegistry.retrieve(request.getGlobalTxId())) {
       OmegaCallbacksRegistry.retrieve(event.getServiceName(), event.getInstanceId()).compensate(event, event.getStatus());
     }
     responseObserver.onNext(ALLOW);
