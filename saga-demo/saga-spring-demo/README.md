@@ -125,3 +125,21 @@ The second car booking will be marked with **cancel:true**
 Open a browser with URL http://127.0.0.1:8083, You will get a html page. You can use this page to invoke test cases, and then get results.
 
 **Note** transactions and compensations implemented by services must be idempotent.
+
+## Debugging
+
+To debug the services of the demo, just add debug parameter to JVM through the environment field in docker-compose configs. Let's take alpha-server as an example:
+
+```yaml
+alpha:
+  image: "alpha-server:${TAG}"
+  environment:
+    - JAVA_OPTS=-Dspring.profiles.active=prd -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+  ports:
+    - "6006:5005"
+...
+```
+
+We append the debug parameter `-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005` to the JAVA_OPTS environment variable, the Java process inside the container will listen on port 5005. With the port forwarding rule `6006:5005`, when alpha-server is ready, we can connect to port 6006 on the host and start debugging alpha-server.
+
+If  you're using [IntelliJ](https://www.jetbrains.com/idea/), open the saga project, create a new debug configuration with template 'Remote', fill "Host" and "Port" input with "localhost" and "6006", then select "alpha" in the drop-down list of "Use classpath of module". When alpha-server is running, hit shift+f9 to debug the remote application.
