@@ -15,6 +15,10 @@ You will need:
 [alpha_server]: https://github.com/apache/incubator-servicecomb-saga/tree/master/alpha
 
 ## Running Demo
-1.mvn clean install -DskipTests -Pdocker
-2. ./saga-dubbo-demo.sh up
+```bash
+$ mvn clean install -DskipTests -Pdocker
+$ ./saga-dubbo-demo.sh up
+```
 
+## Debugging
+Take the [spring-demo debugging](../saga-spring-demo#debugging) as a reference.
