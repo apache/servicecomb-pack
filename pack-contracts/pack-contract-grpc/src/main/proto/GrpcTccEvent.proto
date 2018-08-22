@@ -24,7 +24,7 @@ option java_outer_classname = "TccEventProto";
 import "GrpcCommon.proto";
 
 service TccEventService {
-  rpc OnConnected (GrpcServiceConfig) returns (stream GrpcTccCordinateCommand) {
+  rpc OnConnected (GrpcServiceConfig) returns (stream GrpcTccCoordinateCommand) {
   }
   rpc participate(GrpcTccParticipatedEvent) returns (GrpcAck) {}
   rpc OnTccTransactionStarted (GrpcTccTransactionStartedEvent) returns (GrpcAck) {}
@@ -64,7 +64,7 @@ message GrpcTccTransactionEndedEvent {
   string status = 7;
 }
 
-message GrpcTccCordinateCommand {
+message GrpcTccCoordinateCommand {
   string globalTxId = 1;
   string localTxId = 2;
   string parentTxId = 3;
