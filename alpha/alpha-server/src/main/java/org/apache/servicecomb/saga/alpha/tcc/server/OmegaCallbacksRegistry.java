@@ -23,7 +23,7 @@ import io.grpc.stub.StreamObserver;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCordinateCommand;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
 
 /**
  * Manage Omega callbacks.
@@ -40,7 +40,7 @@ public final class OmegaCallbacksRegistry {
    * @param request Grpc service config
    * @param responseObserver stream observer
    */
-  public static void register(GrpcServiceConfig request, StreamObserver<GrpcTccCordinateCommand> responseObserver) {
+  public static void register(GrpcServiceConfig request, StreamObserver<GrpcTccCoordinateCommand> responseObserver) {
     REGISTRY
         .computeIfAbsent(request.getServiceName(), key -> new ConcurrentHashMap<>())
         .put(request.getInstanceId(), new GrpcOmegaTccCallback(responseObserver));
