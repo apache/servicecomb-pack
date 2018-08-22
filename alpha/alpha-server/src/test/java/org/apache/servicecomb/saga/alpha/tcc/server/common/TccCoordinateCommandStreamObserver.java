@@ -20,22 +20,22 @@ package org.apache.servicecomb.saga.alpha.tcc.server.common;
 import io.grpc.stub.StreamObserver;
 import java.util.Queue;
 import java.util.function.Consumer;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCordinateCommand;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
 
-public class TccCoordinateCommandStreamObserver implements StreamObserver<GrpcTccCordinateCommand> {
+public class TccCoordinateCommandStreamObserver implements StreamObserver<GrpcTccCoordinateCommand> {
 
-  private static  Queue<GrpcTccCordinateCommand> receivedCommands;
-  private  Consumer<GrpcTccCordinateCommand> consumer;
+  private static  Queue<GrpcTccCoordinateCommand> receivedCommands;
+  private  Consumer<GrpcTccCoordinateCommand> consumer;
   private boolean completed = false;
 
-  public TccCoordinateCommandStreamObserver(Consumer<GrpcTccCordinateCommand> consumer,
-      Queue<GrpcTccCordinateCommand> receivedCommands) {
+  public TccCoordinateCommandStreamObserver(Consumer<GrpcTccCoordinateCommand> consumer,
+      Queue<GrpcTccCoordinateCommand> receivedCommands) {
     this.consumer = consumer;
     TccCoordinateCommandStreamObserver.receivedCommands = receivedCommands;
   }
 
   @Override
-  public void onNext(GrpcTccCordinateCommand value) {
+  public void onNext(GrpcTccCoordinateCommand value) {
     consumer.accept(value);
     receivedCommands.add(value);
   }

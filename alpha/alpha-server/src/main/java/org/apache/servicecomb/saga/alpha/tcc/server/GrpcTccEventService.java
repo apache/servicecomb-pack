@@ -22,7 +22,7 @@ import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipateEvent;
 import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipateEventFactory;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCordinateCommand;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccParticipateEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccTransactionEndedEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccTransactionStartedEvent;
@@ -39,7 +39,7 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
   private static final GrpcAck REJECT = GrpcAck.newBuilder().setAborted(true).build();
 
   @Override
-  public void onConnected(GrpcServiceConfig request, StreamObserver<GrpcTccCordinateCommand> responseObserver) {
+  public void onConnected(GrpcServiceConfig request, StreamObserver<GrpcTccCoordinateCommand> responseObserver) {
     OmegaCallbacksRegistry.register(request, responseObserver);
   }
 
@@ -48,7 +48,7 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
   }
 
   @Override
-  public void participate(GrpcTccParticipateEvent request, StreamObserver<GrpcAck> responseObserver) {
+  public void participate(GrpcTccParticipatedEvent request, StreamObserver<GrpcAck> responseObserver) {
     TransactionEventRegistry.register(ParticipateEventFactory.create(request));
     responseObserver.onNext(ALLOW);
     responseObserver.onCompleted();

@@ -32,7 +32,7 @@ import org.apache.servicecomb.saga.alpha.tcc.server.common.GrpcTccServerConfig;
 import org.apache.servicecomb.saga.alpha.tcc.server.common.TccCoordinateCommandStreamObserver;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCordinateCommand;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
 import org.apache.servicecomb.saga.pack.contract.grpc.TccEventServiceGrpc;
 import org.apache.servicecomb.saga.pack.contract.grpc.TccEventServiceGrpc.TccEventServiceBlockingStub;
 import org.apache.servicecomb.saga.pack.contract.grpc.TccEventServiceGrpc.TccEventServiceStub;
@@ -74,7 +74,7 @@ public class AlphaTccServerTest {
 
   private final TccEventServiceBlockingStub blockingStub = TccEventServiceGrpc.newBlockingStub(clientChannel);
 
-  private static final Queue<GrpcTccCordinateCommand> receivedCommands = new ConcurrentLinkedQueue<>();
+  private static final Queue<GrpcTccCoordinateCommand> receivedCommands = new ConcurrentLinkedQueue<>();
 
   private final TccCoordinateCommandStreamObserver commandStreamObserver =
       new TccCoordinateCommandStreamObserver(this::onCompensation, receivedCommands);
@@ -118,7 +118,7 @@ public class AlphaTccServerTest {
 //    asyncStub.onConnected(serviceConfig, commandStreamObserver);
   }
 
-  private GrpcAck onCompensation(GrpcTccCordinateCommand command) {
+  private GrpcAck onCompensation(GrpcTccCoordinateCommand command) {
     return GrpcAck.newBuilder().setAborted(false).build();
   }
 
