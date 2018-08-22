@@ -26,6 +26,7 @@ See [Saga Pack Design](docs/design.md) for details.
 * For ServiceComb Java Chassis application, please see [Booking Demo](saga-demo/saga-servicecomb-demo/README.md) for details.
 * For Spring applications, please see [Booking Demo](saga-demo/saga-spring-demo/README.md) for details.
 * For Dubbo applications, please see [Dubbo Demo](saga-demo/saga-dubbo-demo/README.md) for details.
+* To debug the applications, please see [Spring Demo Debugging](saga-demo/saga-spring-demo#debugging) for details.
 
 ## Build and Run the tests from source
 * Build the source code and run the tests

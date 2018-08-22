@@ -27,6 +27,7 @@ Saga是由 **alpha** 和 **omega**组成，其中：
 * Saga在ServiceComb Java Chassis应用可以参考[出行预订](saga-demo/saga-servicecomb-demo/README.md)
 * Saga在Spring应用的用法可参考[出行预订示例](saga-demo/saga-spring-demo/README.md)。
 * Saga在Dubbo应用的用法可参考[Dubbo示例](saga-demo/saga-dubbo-demo/README.md).
+* Saga的调试方法可以参考[调试Spring示例](saga-demo/saga-spring-demo#debugging).
 
 ## 编译和运行代码
 * 编译代码并且运行相关的单元测试
