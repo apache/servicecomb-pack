@@ -18,7 +18,7 @@
 package org.apache.servicecomb.saga.alpha.tcc.server;
 
 import io.grpc.stub.StreamObserver;
-import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipateEvent;
+import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipatedEvent;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
 
@@ -36,7 +36,7 @@ public final class GrpcOmegaTccCallback implements OmegaCallback {
   }
 
   @Override
-  public void compensate(ParticipateEvent event, TransactionStatus status) {
+  public void compensate(ParticipatedEvent event, TransactionStatus status) {
     GrpcTccCoordinateCommand command = GrpcTccCoordinateCommand.newBuilder()
         .setGlobalTxId(event.getGlobalTxId())
         .setLocalTxId(event.getLocalTxId())

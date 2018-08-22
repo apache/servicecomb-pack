@@ -17,12 +17,12 @@
 
 package org.apache.servicecomb.saga.alpha.tcc.server;
 
-import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipateEvent;
+import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipatedEvent;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 
 public interface OmegaCallback {
 
-  void compensate(ParticipateEvent event, TransactionStatus status);
+  void compensate(ParticipatedEvent event, TransactionStatus status);
 
   default void disconnect() {
   }
