@@ -28,7 +28,7 @@ import org.apache.servicecomb.saga.core.RestOperation;
 import org.apache.servicecomb.saga.core.SagaResponse;
 import org.apache.servicecomb.saga.transports.RestTransport;
 
-class JacksonRestOperation extends RestOperation implements TransportAware {
+class JacksonRestOperation extends RestOperation implements TransportAware<RestTransport> {
 
   @JsonIgnore
   private RestTransport transport;
@@ -38,8 +38,8 @@ class JacksonRestOperation extends RestOperation implements TransportAware {
   }
 
   @Override
-  public JacksonRestOperation with(TransportFactory transport) {
-    this.transport = transport.restTransport();
+  public JacksonRestOperation with(TransportFactory<RestTransport> transport) {
+    this.transport = transport.getTransport();
     return this;
   }
 

@@ -20,6 +20,7 @@ package org.apache.servicecomb.saga.format;
 import org.apache.servicecomb.saga.core.Fallback;
 import org.apache.servicecomb.saga.core.Operation;
 import org.apache.servicecomb.saga.core.SagaResponse;
+import org.apache.servicecomb.saga.core.Transport;
 import org.apache.servicecomb.saga.transports.TransportFactory;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -39,7 +40,7 @@ import org.apache.servicecomb.saga.format.JacksonFallback.NopJacksonFallback;
     @Type(value = JacksonRestFallback.class, name = Operation.TYPE_REST),
     @Type(value = NopJacksonFallback.class, name = Operation.TYPE_NOP)
 })
-public interface JacksonFallback extends Fallback, TransportAware {
+public interface JacksonFallback<T extends Transport> extends Fallback, TransportAware<T> {
 
   JacksonFallback NOP_TRANSPORT_AWARE_FALLBACK = new NopJacksonFallback(TYPE_NOP);
 

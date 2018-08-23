@@ -69,7 +69,7 @@ public class JsonRestSagaRequestTest {
   @SuppressWarnings("unchecked")
   @Test
   public void defaultToNopFallbackIfNotSpecified() {
-    when(transportFactory.restTransport()).thenReturn(restTransport);
+    when(transportFactory.getTransport()).thenReturn(restTransport);
     JsonRestSagaRequest request = newSagaRequest(transaction, compensation, null);
 
     request.with(transportFactory);

@@ -50,7 +50,7 @@ public class JacksonRestOperationTest {
 
   @Before
   public void setUp() throws Exception {
-    when(transportFactory.restTransport()).thenReturn(transport);
+    when(transportFactory.getTransport()).thenReturn(transport);
     restOperation.with(transportFactory);
   }
 

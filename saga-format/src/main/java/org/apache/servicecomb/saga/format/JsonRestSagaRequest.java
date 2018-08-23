@@ -20,6 +20,7 @@ package org.apache.servicecomb.saga.format;
 import static org.apache.servicecomb.saga.format.JacksonFallback.NOP_TRANSPORT_AWARE_FALLBACK;
 
 import org.apache.servicecomb.saga.core.SagaRequestImpl;
+import org.apache.servicecomb.saga.transports.RestTransport;
 import org.apache.servicecomb.saga.transports.TransportFactory;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -27,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.apache.servicecomb.saga.core.Operation;
 
-public class JsonRestSagaRequest extends SagaRequestImpl implements JsonSagaRequest {
+public class JsonRestSagaRequest extends SagaRequestImpl implements JsonSagaRequest<RestTransport> {
 
   private final JacksonRestTransaction transaction;
   private final JacksonRestCompensation compensation;

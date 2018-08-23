@@ -19,6 +19,7 @@ package org.apache.servicecomb.saga.format;
 
 import org.apache.servicecomb.saga.core.Operation;
 import org.apache.servicecomb.saga.core.SagaRequest;
+import org.apache.servicecomb.saga.core.Transport;
 import org.apache.servicecomb.saga.transports.TransportFactory;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -33,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({
     @Type(value = JsonRestSagaRequest.class, name = Operation.TYPE_REST)
 })
-public interface JsonSagaRequest extends SagaRequest {
+public interface JsonSagaRequest<T extends Transport> extends SagaRequest {
 
   JsonSagaRequest with(TransportFactory transportFactory);
 }

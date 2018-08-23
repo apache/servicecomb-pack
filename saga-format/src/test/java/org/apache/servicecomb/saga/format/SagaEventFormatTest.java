@@ -80,12 +80,12 @@ public class SagaEventFormatTest {
 
   @Before
   public void setUp() throws Exception {
-    when(transportFactory.restTransport()).thenReturn(restTransport);
+    when(transportFactory.getTransport()).thenReturn(restTransport);
   }
 
   @After
   public void tearDown() throws Exception {
-    verify(transportFactory, times(3)).restTransport();
+    verify(transportFactory, times(3)).getTransport();
   }
 
   @Test
