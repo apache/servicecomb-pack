@@ -22,7 +22,19 @@ public class TccEndedEvent {
   private final String globalTxId;
   private final String localTxId;
   private final TransactionStatus status;
-   
+
+
+  public String getGlobalTxId() {
+    return globalTxId;
+  }
+
+  public String getLocalTxId() {
+    return localTxId;
+  }
+
+  public TransactionStatus getStatus() {
+    return status;
+  }
 
   public TccEndedEvent(String globalTxId, String localTxId,
       TransactionStatus status) {

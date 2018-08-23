@@ -20,9 +20,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
-import org.apache.servicecomb.saga.omega.context.annotations.SagaStart;
 import org.apache.servicecomb.saga.omega.context.annotations.TccStart;
-import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -49,7 +47,7 @@ public class TccStartAspect {
     initializeOmegaContext();
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
 
-    tccStartAnnotationProcessor.preIntercept(context.globalTxId(), method.toString(), tccStart.timeout(), "", 0);
+    tccStartAnnotationProcessor.preIntercept(context.globalTxId(), method.toString(), tccStart.timeout());
     LOG.debug("Initialized context {} before execution of method {}", context, method.toString());
 
     try {

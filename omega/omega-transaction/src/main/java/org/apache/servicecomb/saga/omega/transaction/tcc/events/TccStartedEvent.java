@@ -20,16 +20,12 @@ public class TccStartedEvent {
   private final String globalTxId;
   private final String localTxId;
 
-
   public String getGlobalTxId() {
     return globalTxId;
   }
-
   public String getLocalTxId() {
     return localTxId;
   }
-
-
 
   public TccStartedEvent(String globalTxId, String localTxId) {
     this.globalTxId = globalTxId;

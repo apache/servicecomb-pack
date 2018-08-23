@@ -61,14 +61,14 @@ public class TccParticipatorAspect {
     try {
       Object result = joinPoint.proceed();
       // Send the participate message back
-      tccEventService.participate(new ParticipatedEvent(context.globalTxId(), context.localTxId(), localTxId, cancelMethod, confirmMethod,
-          TransactionStatus.Succeed));
+      tccEventService.participate(new ParticipatedEvent(context.globalTxId(), context.localTxId(), localTxId, confirmMethod,
+          cancelMethod, TransactionStatus.Succeed));
       LOG.debug("Participate Transaction with context {} has finished.", context);
       return result;
     } catch (Throwable throwable) {
       // Now we don't handle the error message
-      tccEventService.participate(new ParticipatedEvent(context.globalTxId(), context.localTxId(), localTxId, cancelMethod,
-          confirmMethod, TransactionStatus.Failed));
+      tccEventService.participate(new ParticipatedEvent(context.globalTxId(), context.localTxId(), localTxId, confirmMethod,
+          cancelMethod, TransactionStatus.Failed));
       LOG.error("Participate Transaction with context {} failed.", context, throwable);
       throw throwable;
     } finally {
