@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.tcc.server.event;
+package org.apache.servicecomb.saga.alpha.server.tcc.event;
 
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccParticipatedEvent;
