@@ -19,10 +19,12 @@ package org.apache.servicecomb.saga.format;
 
 import java.util.Map;
 
+import org.apache.servicecomb.saga.transports.RestTransport;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-class JacksonRestFallback extends JacksonRestOperation implements JacksonFallback {
+class JacksonRestFallback extends JacksonRestOperation implements JacksonFallback<RestTransport> {
 
   private final String type;
 
