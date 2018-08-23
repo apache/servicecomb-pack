@@ -17,7 +17,9 @@
 
 package org.apache.servicecomb.saga.transports;
 
-public interface TransportFactory {
+import org.apache.servicecomb.saga.core.Transport;
 
-  RestTransport restTransport();
+public interface TransportFactory<T extends Transport> {
+
+  T getTransport();
 }
