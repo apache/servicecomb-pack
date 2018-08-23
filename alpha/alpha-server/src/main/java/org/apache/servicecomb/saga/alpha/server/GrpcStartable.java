@@ -41,12 +41,12 @@ import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 
-class GrpcStartable implements ServerStartable {
+public class GrpcStartable implements ServerStartable {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final Server server;
 
-  GrpcStartable(GrpcServerConfig serverConfig, BindableService... services) {
+  public GrpcStartable(GrpcServerConfig serverConfig, BindableService... services) {
     ServerBuilder<?> serverBuilder;
     if (serverConfig.isSslEnable()){
       serverBuilder = NettyServerBuilder.forAddress(

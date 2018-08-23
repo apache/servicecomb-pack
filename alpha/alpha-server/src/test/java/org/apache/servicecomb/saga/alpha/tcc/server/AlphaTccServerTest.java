@@ -25,6 +25,7 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.annotation.PostConstruct;
+import org.apache.servicecomb.saga.alpha.server.tcc.GrpcTccEventService;
 import org.apache.servicecomb.saga.alpha.tcc.server.common.AlphaTccApplication;
 import org.apache.servicecomb.saga.alpha.tcc.server.common.Bootstrap;
 import org.apache.servicecomb.saga.alpha.tcc.server.common.GrpcBootstrap;
