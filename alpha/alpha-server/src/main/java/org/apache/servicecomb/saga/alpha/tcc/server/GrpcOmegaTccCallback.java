@@ -24,8 +24,6 @@ import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
 
 /**
  * Grpc omega callback for TCC workflow.
- *
- * @author zhaojun
  */
 public final class GrpcOmegaTccCallback implements OmegaCallback {
 

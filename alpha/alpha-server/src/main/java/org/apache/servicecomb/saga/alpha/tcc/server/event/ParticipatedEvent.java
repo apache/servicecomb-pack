@@ -19,11 +19,6 @@ package org.apache.servicecomb.saga.alpha.tcc.server.event;
 
 import org.apache.servicecomb.saga.common.TransactionStatus;
 
-/**
- * Participate event.
- *
- * @author zhaojun
- */
 public class ParticipatedEvent {
 
   private String globalTxId;

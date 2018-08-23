@@ -25,8 +25,6 @@ import org.apache.servicecomb.saga.alpha.tcc.server.event.ParticipatedEvent;
 
 /**
  * Manage TCC transaction event.
- *
- * @author zhaojun
  */
 public final class TransactionEventRegistry {
 
