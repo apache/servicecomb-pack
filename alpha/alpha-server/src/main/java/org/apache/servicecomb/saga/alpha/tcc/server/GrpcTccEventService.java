@@ -30,8 +30,6 @@ import org.apache.servicecomb.saga.pack.contract.grpc.TccEventServiceGrpc;
 
 /**
  * Grpc TCC event service implement.
- *
- * @author zhaojun
  */
 public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImplBase {
 

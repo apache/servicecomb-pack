@@ -20,11 +20,6 @@ package org.apache.servicecomb.saga.alpha.tcc.server.event;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccParticipatedEvent;
 
-/**
- * Participate event factory.
- *
- * @author zhaojun
- */
 public class ParticipateEventFactory {
 
   public static ParticipatedEvent create(GrpcTccParticipatedEvent request) {

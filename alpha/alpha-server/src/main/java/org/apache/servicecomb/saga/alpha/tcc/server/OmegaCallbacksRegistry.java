@@ -26,9 +26,7 @@ import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
 
 /**
- * Manage Omega callbacks.
- *
- * @author zhaojun
+ * Manage omega callbacks.
  */
 public final class OmegaCallbacksRegistry {
 
