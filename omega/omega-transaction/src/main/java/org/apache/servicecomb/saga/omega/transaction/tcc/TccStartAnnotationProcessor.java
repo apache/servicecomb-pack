@@ -21,13 +21,11 @@ import javax.transaction.TransactionalException;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
-import org.apache.servicecomb.saga.omega.transaction.EventAwareInterceptor;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
-import org.apache.servicecomb.saga.omega.transaction.TxAbortedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccEndedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccStartedEvent;
 
-public class TccStartAnnotationProcessor implements EventAwareInterceptor {
+public class TccStartAnnotationProcessor {
 
   private final OmegaContext omegaContext;
   private final TccEventService eventService;
@@ -37,9 +35,7 @@ public class TccStartAnnotationProcessor implements EventAwareInterceptor {
     this.eventService = eventService;
   }
 
-  @Override
-  public AlphaResponse preIntercept(String parentTxId, String compensationMethod, int timeout, String retriesMethod,
-      int retries, Object... message) {
+  public AlphaResponse preIntercept(String parentTxId, String methodName, int timeout) {
     try {
       return eventService.TccTransactionStart(new TccStartedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
     } catch (OmegaException e) {
@@ -47,14 +43,12 @@ public class TccStartAnnotationProcessor implements EventAwareInterceptor {
     }
   }
 
-  @Override
-  public void postIntercept(String parentTxId, String compensationMethod) {
+  public void postIntercept(String parentTxId, String methodName) {
     eventService.TccTransactionStop(new TccEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId(),
         TransactionStatus.Succeed));
   }
 
-  @Override
-  public void onError(String parentTxId, String compensationMethod, Throwable throwable) {
+  public void onError(String parentTxId, String methodName, Throwable throwable) {
     // Send the cancel event
     // Do we need to wait for the alpha finish all the transaction
     eventService.TccTransactionStop(new TccEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId(),

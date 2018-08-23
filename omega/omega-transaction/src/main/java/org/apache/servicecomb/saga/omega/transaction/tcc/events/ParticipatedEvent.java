@@ -38,4 +38,28 @@ public class ParticipatedEvent {
     this.cancelMethod = cancelMethod;
     this.status = status;
   }
+
+  public String getGlobalTxId() {
+    return globalTxId;
+  }
+
+  public String getLocalTxId() {
+    return localTxId;
+  }
+
+  public String getParentTxId() {
+    return parentTxId;
+  }
+
+  public String getConfirmMethod() {
+    return confirmMethod;
+  }
+
+  public String getCancelMethod() {
+    return cancelMethod;
+  }
+
+  public TransactionStatus getStatus() {
+    return status;
+  }
 }

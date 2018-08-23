@@ -38,7 +38,5 @@ public interface TccEventService {
   AlphaResponse TccTransactionStart(TccStartedEvent tccStartEvent);
 
   AlphaResponse TccTransactionStop(TccEndedEvent tccEndEvent);
-
-  AlphaResponse send(TxEvent event);
   
 }
