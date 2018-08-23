@@ -191,7 +191,7 @@ public class JacksonFromJsonFormatTest {
 
   @Before
   public void setUp() throws Exception {
-    when(transportFactory.restTransport()).thenReturn(restTransport);
+    when(transportFactory.getTransport()).thenReturn(restTransport);
 
     when(restTransport.with("aaa", "/rest/as", "post", singletonMap("form", singletonMap("foo", "as"))))
         .thenReturn(response11);
