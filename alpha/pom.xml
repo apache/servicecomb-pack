@@ -35,6 +35,27 @@
     <module>alpha-server</module>
   </modules>
 
+  <dependencies>
+    <dependency>
+      <groupId>io.kamon</groupId>
+      <artifactId>kamon-core_2.12</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.kamon</groupId>
+      <artifactId>kamon-annotation_2.12</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicecomb.saga</groupId>
+      <artifactId>saga-core-akka</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-slf4j-impl</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
+
   <build>
     <plugins>
       <!-- TODO need to clean up the states of AlphaServer -->
@@ -47,4 +68,30 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>perf</id>
+      <dependencies>
+        <dependency>
+          <groupId>io.kamon</groupId>
+          <artifactId>kamon-log-reporter_2.12</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>io.kamon</groupId>
+          <artifactId>kamon-statsd_2.12</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>io.kamon</groupId>
+          <artifactId>kamon-autoweave_2.12</artifactId>
+          <version>0.6.5</version>
+        </dependency>
+        <dependency>
+          <groupId>org.aspectj</groupId>
+          <artifactId>aspectjweaver</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+
 </project>

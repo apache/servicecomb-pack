@@ -220,6 +220,7 @@
         <dependency>
           <groupId>io.kamon</groupId>
           <artifactId>kamon-autoweave_2.12</artifactId>
+          <version>0.6.5</version>
         </dependency>
         <dependency>
           <groupId>org.aspectj</groupId>
