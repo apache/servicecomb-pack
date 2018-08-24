@@ -17,7 +17,6 @@
 
 package org.apache.servicecomb.saga.alpha.server.tcc;
 
-import org.apache.servicecomb.saga.alpha.server.GrpcServerConfig;
 import org.apache.servicecomb.saga.alpha.server.GrpcStartable;
 import org.apache.servicecomb.saga.alpha.server.ServerStartable;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -27,7 +26,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EntityScan(basePackages = "org.apache.servicecomb.saga.alpha")
-//@ConditionalOnProperty(value ="alpha.mode.TCC")
 @ConditionalOnExpression("'${alpha.mode:SAGA}'.contains('TCC')")
 public class AlphaTccConfig {
 
