@@ -27,10 +27,10 @@ public class ParticipateEventFactory {
         request.getGlobalTxId(),
         request.getLocalTxId(),
         request.getParentTxId(),
-        request.getConfirmMethod(),
-        request.getCancelMethod(),
         request.getServiceName(),
         request.getInstanceId(),
+        request.getConfirmMethod(),
+        request.getCancelMethod(),
         TransactionStatus.valueOf(request.getStatus())
     );
   }

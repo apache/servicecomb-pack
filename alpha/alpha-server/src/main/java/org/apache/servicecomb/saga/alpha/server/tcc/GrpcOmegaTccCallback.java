@@ -34,13 +34,19 @@ public final class GrpcOmegaTccCallback implements OmegaCallback {
   }
 
   @Override
-  public void compensate(ParticipatedEvent event, TransactionStatus status) {
+  public void invoke(ParticipatedEvent event, String status) {
     GrpcTccCoordinateCommand command = GrpcTccCoordinateCommand.newBuilder()
         .setGlobalTxId(event.getGlobalTxId())
         .setLocalTxId(event.getLocalTxId())
         .setParentTxId(event.getParentTxId() == null ? "" : event.getParentTxId())
-        .setMethod(TransactionStatus.Succeed.equals(status) ? event.getConfirmMethod() : event.getCancelMethod())
+        .setServiceName(event.getServiceName())
+        .setMethod("Succeed".equals(status) ? event.getConfirmMethod() : event.getCancelMethod())
         .build();
     responseObserver.onNext(command);
+  }
+
+  @Override
+  public void disconnect() {
+    responseObserver.onCompleted();
   }
 }

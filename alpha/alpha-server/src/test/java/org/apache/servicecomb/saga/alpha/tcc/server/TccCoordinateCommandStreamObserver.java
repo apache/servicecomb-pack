@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.tcc.server.common;
+package org.apache.servicecomb.saga.alpha.tcc.server;
 
 import io.grpc.stub.StreamObserver;
 import java.util.Queue;
@@ -24,14 +24,14 @@ import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
 
 public class TccCoordinateCommandStreamObserver implements StreamObserver<GrpcTccCoordinateCommand> {
 
-  private static  Queue<GrpcTccCoordinateCommand> receivedCommands;
-  private  Consumer<GrpcTccCoordinateCommand> consumer;
+  private Queue<GrpcTccCoordinateCommand> receivedCommands;
+  private Consumer<GrpcTccCoordinateCommand> consumer;
   private boolean completed = false;
 
   public TccCoordinateCommandStreamObserver(Consumer<GrpcTccCoordinateCommand> consumer,
       Queue<GrpcTccCoordinateCommand> receivedCommands) {
     this.consumer = consumer;
-    TccCoordinateCommandStreamObserver.receivedCommands = receivedCommands;
+    this.receivedCommands = receivedCommands;
   }
 
   @Override
@@ -42,7 +42,6 @@ public class TccCoordinateCommandStreamObserver implements StreamObserver<GrpcTc
 
   @Override
   public void onError(Throwable t) {
-
   }
 
   @Override
