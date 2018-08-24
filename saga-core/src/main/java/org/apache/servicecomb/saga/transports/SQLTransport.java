@@ -15,16 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.core;
+package org.apache.servicecomb.saga.transports;
 
-public interface Operation {
+import java.util.List;
 
-  String TYPE_NOP = "NOP";
-  String TYPE_REST = "rest";
-  String TYPE_SQL = "sql";
-  SagaResponse SUCCESSFUL_SAGA_RESPONSE = new SuccessfulSagaResponse("success");
+import org.apache.servicecomb.saga.core.SagaResponse;
+import org.apache.servicecomb.saga.core.Transport;
 
-  SagaResponse send(String address);
+public interface SQLTransport extends Transport {
 
-  SagaResponse send(String address, SagaResponse response);
+  SagaResponse with(String datasource, String sql, List<String> params);
+
 }
