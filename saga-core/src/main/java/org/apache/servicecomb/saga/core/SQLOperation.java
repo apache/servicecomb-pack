@@ -17,14 +17,42 @@
 
 package org.apache.servicecomb.saga.core;
 
-public interface Operation {
+import java.util.Collections;
+import java.util.List;
 
-  String TYPE_NOP = "NOP";
-  String TYPE_REST = "rest";
-  String TYPE_SQL = "sql";
-  SagaResponse SUCCESSFUL_SAGA_RESPONSE = new SuccessfulSagaResponse("success");
+public class SQLOperation implements Operation {
 
-  SagaResponse send(String address);
+  private final String sql;
+  private final List<String> params;
 
-  SagaResponse send(String address, SagaResponse response);
+  public SQLOperation(String sql, List<String> params) {
+    this.sql = sql;
+    this.params = params == null ? Collections.<String>emptyList() : params;
+  }
+
+  public String sql() {
+    return sql;
+  }
+
+  public List<String> params() {
+    return params;
+  }
+
+  @Override
+  public String toString() {
+    return "SQLOperation{" +
+        "sql='" + sql + '\'' +
+        ", params=" + params +
+        '}';
+  }
+
+  @Override
+  public SagaResponse send(String datasource) {
+    return SUCCESSFUL_SAGA_RESPONSE;
+  }
+
+  @Override
+  public SagaResponse send(String datasource, SagaResponse response) {
+    return send(datasource);
+  }
 }
