@@ -17,25 +17,32 @@
 
 package org.apache.servicecomb.saga.format;
 
-import org.apache.servicecomb.saga.core.Operation;
-import org.apache.servicecomb.saga.core.SagaRequest;
-import org.apache.servicecomb.saga.core.Transport;
-import org.apache.servicecomb.saga.transports.TransportFactory;
+import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.servicecomb.saga.core.Compensation;
 
-@JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.PROPERTY,
-    visible = true,
-    property = "type")
-@JsonSubTypes({
-    @Type(value = JsonRestSagaRequest.class, name = Operation.TYPE_REST),
-    @Type(value = JsonSQLSagaRequest.class, name = Operation.TYPE_SQL)
-})
-public interface JsonSagaRequest<T extends Transport> extends SagaRequest {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-  JsonSagaRequest with(TransportFactory transportFactory);
+public class JacksonSQLCompensation extends JacksonSQLOperation implements Compensation {
+
+  private final int retries;
+
+  public JacksonSQLCompensation(String sql, List<String> params) {
+    this(sql, params, DEFAULT_RETRIES);
+  }
+
+  @JsonCreator
+  public JacksonSQLCompensation(
+      @JsonProperty("sql") String sql,
+      @JsonProperty("params") List<String> params,
+      @JsonProperty("retries") int retries) {
+    super(sql, params);
+    this.retries = retries <= 0? DEFAULT_RETRIES : retries;
+  }
+
+  @Override
+  public int retries() {
+    return this.retries;
+  }
 }
