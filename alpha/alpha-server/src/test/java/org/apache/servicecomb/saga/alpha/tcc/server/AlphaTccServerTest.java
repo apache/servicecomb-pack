@@ -24,12 +24,7 @@ import io.grpc.netty.NettyChannelBuilder;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import javax.annotation.PostConstruct;
-import org.apache.servicecomb.saga.alpha.server.tcc.GrpcTccEventService;
-import org.apache.servicecomb.saga.alpha.tcc.server.common.AlphaTccApplication;
-import org.apache.servicecomb.saga.alpha.tcc.server.common.Bootstrap;
-import org.apache.servicecomb.saga.alpha.tcc.server.common.GrpcBootstrap;
-import org.apache.servicecomb.saga.alpha.tcc.server.common.GrpcTccServerConfig;
+import org.apache.servicecomb.saga.alpha.server.AlphaApplication;
 import org.apache.servicecomb.saga.alpha.tcc.server.common.TccCoordinateCommandStreamObserver;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
@@ -43,32 +38,20 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {AlphaTccApplication.class},
+@SpringBootTest(classes = {AlphaApplication.class},
     properties = {
         "alpha.server.host=0.0.0.0",
-        "alpha.server.port=8098",
-        "alpha.event.pollingInterval=1"
+        "alpha.server.tcc-port=8090",
+        "alpha.event.pollingInterval=1",
+        "alpha.mode=TCC"
     })
 public class AlphaTccServerTest {
 
-  @Autowired
-  private GrpcTccServerConfig grpcTccServerConfig;
-
-  private static GrpcTccServerConfig serverConfig;
-  @PostConstruct
-  public void init() {
-    serverConfig = grpcTccServerConfig;
-    server = new GrpcBootstrap(serverConfig, new GrpcTccEventService());
-    new Thread(server::start).start();
-  }
-
   private static final int port = 8090;
-  private  static Bootstrap server;
   protected static ManagedChannel clientChannel;
 
   private final TccEventServiceStub asyncStub = TccEventServiceGrpc.newStub(clientChannel);
@@ -116,7 +99,7 @@ public class AlphaTccServerTest {
 
   @Test
   public void assertOnConnect() {
-//    asyncStub.onConnected(serviceConfig, commandStreamObserver);
+    asyncStub.onConnected(serviceConfig, commandStreamObserver);
   }
 
   private GrpcAck onCompensation(GrpcTccCoordinateCommand command) {
