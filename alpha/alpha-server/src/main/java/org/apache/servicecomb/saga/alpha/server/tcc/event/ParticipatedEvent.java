@@ -46,63 +46,31 @@ public class ParticipatedEvent {
     return globalTxId;
   }
 
-  public void setGlobalTxId(String globalTxId) {
-    this.globalTxId = globalTxId;
-  }
-
   public String getLocalTxId() {
     return localTxId;
-  }
-
-  public void setLocalTxId(String localTxId) {
-    this.localTxId = localTxId;
   }
 
   public String getParentTxId() {
     return parentTxId;
   }
 
-  public void setParentTxId(String parentTxId) {
-    this.parentTxId = parentTxId;
-  }
-
-  public String getConfirmMethod() {
-    return confirmMethod;
-  }
-
-  public void setConfirmMethod(String confirmMethod) {
-    this.confirmMethod = confirmMethod;
-  }
-
-  public String getCancelMethod() {
-    return cancelMethod;
-  }
-
-  public void setCancelMethod(String cancelMethod) {
-    this.cancelMethod = cancelMethod;
-  }
-
   public String getServiceName() {
     return serviceName;
-  }
-
-  public void setServiceName(String serviceName) {
-    this.serviceName = serviceName;
   }
 
   public String getInstanceId() {
     return instanceId;
   }
 
-  public void setInstanceId(String instanceId) {
-    this.instanceId = instanceId;
+  public String getConfirmMethod() {
+    return confirmMethod;
+  }
+
+  public String getCancelMethod() {
+    return cancelMethod;
   }
 
   public TransactionStatus getStatus() {
     return status;
-  }
-
-  public void setStatus(TransactionStatus status) {
-    this.status = status;
   }
 }

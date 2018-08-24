@@ -84,7 +84,8 @@ import io.grpc.stub.StreamObserver;
     properties = {
         "alpha.server.host=0.0.0.0",
         "alpha.server.port=8090",
-        "alpha.event.pollingInterval=1"
+        "alpha.event.pollingInterval=1",
+        "alpha.mode=SAGA"
        })
 public class AlphaIntegrationTest {
   private static final int port = 8090;

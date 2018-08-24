@@ -22,6 +22,7 @@ import static java.util.Collections.emptyMap;
 import io.grpc.stub.StreamObserver;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.servicecomb.saga.alpha.core.AlphaException;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
 
@@ -31,6 +32,10 @@ import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
 public final class OmegaCallbacksRegistry {
 
   private final static Map<String, Map<String, OmegaCallback>> REGISTRY = new ConcurrentHashMap<>();
+
+  public static Map<String, Map<String, OmegaCallback>> getRegistry() {
+    return REGISTRY;
+  }
 
   /**
    * Register omega TCC callback.
@@ -50,9 +55,18 @@ public final class OmegaCallbacksRegistry {
    * @param serviceName service name
    * @param instanceId instance id
    * @return Grpc omega TCC callback
+   * @throws AlphaException trigger this exception while missing omega callback by service name
    */
-  public static OmegaCallback retrieve(String serviceName, String instanceId) {
-    return REGISTRY.getOrDefault(serviceName, emptyMap()).get(instanceId);
+  public static OmegaCallback retrieve(String serviceName, String instanceId) throws AlphaException {
+    Map<String, OmegaCallback> callbackMap = REGISTRY.getOrDefault(serviceName, emptyMap());
+    if (callbackMap.isEmpty()) {
+      throw new AlphaException("No such omega callback found for service " + serviceName);
+    }
+    OmegaCallback result = callbackMap.get(instanceId);
+    if (null == result) {
+      return callbackMap.values().iterator().next();
+    }
+    return result;
   }
 
   /**

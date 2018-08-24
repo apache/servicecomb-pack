@@ -17,9 +17,9 @@
 
 package org.apache.servicecomb.saga.alpha.server.tcc;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.servicecomb.saga.alpha.server.tcc.event.ParticipatedEvent;
 
@@ -28,7 +28,7 @@ import org.apache.servicecomb.saga.alpha.server.tcc.event.ParticipatedEvent;
  */
 public final class TransactionEventRegistry {
 
-  private final static Map<String, List<ParticipatedEvent>> REGISTRY = new ConcurrentHashMap<>();
+  private final static Map<String, Set<ParticipatedEvent>> REGISTRY = new ConcurrentHashMap<>();
 
   /**
    * Register participate event.
@@ -37,7 +37,7 @@ public final class TransactionEventRegistry {
    */
   public static void register(ParticipatedEvent participateEvent) {
     REGISTRY
-        .computeIfAbsent(participateEvent.getGlobalTxId(), key -> new LinkedList<>())
+        .computeIfAbsent(participateEvent.getGlobalTxId(), key -> new LinkedHashSet<>())
         .add(participateEvent);
   }
 
@@ -47,7 +47,7 @@ public final class TransactionEventRegistry {
    * @param globalTxId global transaction id
    * @return participate events
    */
-  public static List<ParticipatedEvent> retrieve(String globalTxId) {
+  public static Set<ParticipatedEvent> retrieve(String globalTxId) {
     return REGISTRY.get(globalTxId);
   }
 }

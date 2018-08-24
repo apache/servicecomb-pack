@@ -18,8 +18,9 @@
 package org.apache.servicecomb.saga.alpha.server.tcc;
 
 import io.grpc.stub.StreamObserver;
-import org.apache.servicecomb.saga.alpha.server.tcc.event.ParticipatedEvent;
+import org.apache.servicecomb.saga.alpha.core.AlphaException;
 import org.apache.servicecomb.saga.alpha.server.tcc.event.ParticipateEventFactory;
+import org.apache.servicecomb.saga.alpha.server.tcc.event.ParticipatedEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
@@ -43,6 +44,8 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
 
   @Override
   public void onTccTransactionStarted(GrpcTccTransactionStartedEvent request, StreamObserver<GrpcAck> responseObserver) {
+    responseObserver.onNext(ALLOW);
+    responseObserver.onCompleted();
   }
 
   @Override
@@ -54,8 +57,13 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
 
   @Override
   public void onTccTransactionEnded(GrpcTccTransactionEndedEvent request, StreamObserver<GrpcAck> responseObserver) {
-    for (ParticipatedEvent event : TransactionEventRegistry.retrieve(request.getGlobalTxId())) {
-      OmegaCallbacksRegistry.retrieve(event.getServiceName(), event.getInstanceId()).compensate(event, event.getStatus());
+    try {
+      for (ParticipatedEvent event : TransactionEventRegistry.retrieve(request.getGlobalTxId())) {
+        OmegaCallbacksRegistry.retrieve(event.getServiceName(),
+            event.getInstanceId()).invoke(event, request.getStatus());
+      }
+    } catch (AlphaException ex) {
+      responseObserver.onNext(REJECT);
     }
     responseObserver.onNext(ALLOW);
     responseObserver.onCompleted();
@@ -63,7 +71,10 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
 
   @Override
   public void onDisconnected(GrpcServiceConfig request, StreamObserver<GrpcAck> responseObserver) {
-    OmegaCallbacksRegistry.retrieveThenRemove(request.getServiceName(), request.getInstanceId()).disconnect();
+    OmegaCallback omegaCallback = OmegaCallbacksRegistry.retrieveThenRemove(request.getServiceName(), request.getInstanceId());
+    if (null != omegaCallback) {
+      omegaCallback.disconnect();
+    }
     responseObserver.onNext(ALLOW);
     responseObserver.onCompleted();
   }
