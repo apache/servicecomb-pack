@@ -17,25 +17,33 @@
 
 package org.apache.servicecomb.saga.format;
 
+import java.util.List;
+
 import org.apache.servicecomb.saga.core.Operation;
-import org.apache.servicecomb.saga.core.SagaRequest;
-import org.apache.servicecomb.saga.core.Transport;
+import org.apache.servicecomb.saga.core.SQLOperation;
+import org.apache.servicecomb.saga.core.SagaResponse;
+import org.apache.servicecomb.saga.transports.SQLTransport;
 import org.apache.servicecomb.saga.transports.TransportFactory;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.PROPERTY,
-    visible = true,
-    property = "type")
-@JsonSubTypes({
-    @Type(value = JsonRestSagaRequest.class, name = Operation.TYPE_REST),
-    @Type(value = JsonSQLSagaRequest.class, name = Operation.TYPE_SQL)
-})
-public interface JsonSagaRequest<T extends Transport> extends SagaRequest {
+public class JacksonSQLOperation extends SQLOperation implements TransportAware<SQLTransport> {
 
-  JsonSagaRequest with(TransportFactory transportFactory);
+  @JsonIgnore
+  private SQLTransport transport;
+
+  public JacksonSQLOperation(String sql, List<String> params) {
+    super(sql, params);
+  }
+
+  @Override
+  public Operation with(TransportFactory<SQLTransport> transport) {
+    this.transport = transport.getTransport();
+    return this;
+  }
+
+  @Override
+  public SagaResponse send(String datasource) {
+    return transport.with(datasource, sql(), params());
+  }
 }
