@@ -47,10 +47,10 @@ class SagaStartAnnotationProcessor {
     }
   }
 
-  void onError(String parentTxId, String compensationMethod, Throwable throwable) {
+  void onError(String compensationMethod, Throwable throwable) {
     String globalTxId = omegaContext.globalTxId();
     sender.send(
-        new TxAbortedEvent(globalTxId, omegaContext.localTxId(), parentTxId, compensationMethod,
+        new TxAbortedEvent(globalTxId, omegaContext.localTxId(), null, compensationMethod,
             throwable));
   }
 }
