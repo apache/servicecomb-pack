@@ -19,7 +19,6 @@ package org.apache.servicecomb.saga.omega.transaction;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
-
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.context.annotations.SagaStart;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -47,13 +46,13 @@ public class SagaStartAspect {
     initializeOmegaContext();
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
 
-    sagaStartAnnotationProcessor.preIntercept(context.globalTxId(), method.toString(), sagaStart.timeout(), "", 0);
+    sagaStartAnnotationProcessor.preIntercept(sagaStart.timeout());
     LOG.debug("Initialized context {} before execution of method {}", context, method.toString());
 
     try {
       Object result = joinPoint.proceed();
 
-      sagaStartAnnotationProcessor.postIntercept(context.globalTxId(), method.toString());
+      sagaStartAnnotationProcessor.postIntercept(context.globalTxId());
       LOG.debug("Transaction with context {} has finished.", context);
 
       return result;

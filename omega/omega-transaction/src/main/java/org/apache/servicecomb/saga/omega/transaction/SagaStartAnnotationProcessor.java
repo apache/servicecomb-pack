@@ -18,10 +18,9 @@
 package org.apache.servicecomb.saga.omega.transaction;
 
 import javax.transaction.TransactionalException;
-
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 
-class SagaStartAnnotationProcessor implements EventAwareInterceptor {
+class SagaStartAnnotationProcessor {
 
   private final OmegaContext omegaContext;
   private final MessageSender sender;
@@ -31,27 +30,27 @@ class SagaStartAnnotationProcessor implements EventAwareInterceptor {
     this.sender = sender;
   }
 
-  @Override
-  public AlphaResponse preIntercept(String parentTxId, String compensationMethod, int timeout, String retriesMethod,
-      int retries, Object... message) {
+  AlphaResponse preIntercept(int timeout) {
     try {
-      return sender.send(new SagaStartedEvent(omegaContext.globalTxId(), omegaContext.localTxId(), timeout));
+      return sender
+          .send(new SagaStartedEvent(omegaContext.globalTxId(), omegaContext.localTxId(), timeout));
     } catch (OmegaException e) {
       throw new TransactionalException(e.getMessage(), e.getCause());
     }
   }
 
-  @Override
-  public void postIntercept(String parentTxId, String compensationMethod) {
-    AlphaResponse response = sender.send(new SagaEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
+  void postIntercept(String parentTxId) {
+    AlphaResponse response = sender
+        .send(new SagaEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
     if (response.aborted()) {
       throw new OmegaException("transaction " + parentTxId + " is aborted");
     }
   }
 
-  @Override
-  public void onError(String parentTxId, String compensationMethod, Throwable throwable) {
+  void onError(String parentTxId, String compensationMethod, Throwable throwable) {
     String globalTxId = omegaContext.globalTxId();
-    sender.send(new TxAbortedEvent(globalTxId, omegaContext.localTxId(), null, compensationMethod, throwable));
+    sender.send(
+        new TxAbortedEvent(globalTxId, omegaContext.localTxId(), parentTxId, compensationMethod,
+            throwable));
   }
 }
