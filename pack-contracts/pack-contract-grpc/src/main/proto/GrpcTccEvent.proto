@@ -29,6 +29,7 @@ service TccEventService {
   rpc participate(GrpcTccParticipatedEvent) returns (GrpcAck) {}
   rpc OnTccTransactionStarted (GrpcTccTransactionStartedEvent) returns (GrpcAck) {}
   rpc OnTccTransactionEnded (GrpcTccTransactionEndedEvent) returns (GrpcAck) {}
+  rpc OnTccCoordinated(GrpcTccCoordinatedEvent) returns(GrpcAck) {}
   rpc OnDisconnected (GrpcServiceConfig) returns (GrpcAck) {
   }
 }
@@ -62,6 +63,17 @@ message GrpcTccTransactionEndedEvent {
   string serviceName = 5;
   string instanceId = 6;
   string status = 7;
+}
+
+message GrpcTccCoordinatedEvent {
+  int64 timestamp = 1;
+  string globalTxId = 2;
+  string localTxId = 3;
+  string parentTxId = 4;
+  string serviceName = 5;
+  string instanceId = 6;
+  string methodName = 7;
+  string status = 8;
 }
 
 message GrpcTccCoordinateCommand {
