@@ -4,7 +4,7 @@ You can now play with saga under Kubernetes!
 
 The demos' Kubernetes resources are splitted into 3 categories:
 
-- **base**: The base resources that all demos needs under `base/` folder, including the `alpha-server` and `postgresql` database
+- **base**: The base resources that all demos needs under `base/` folder, including the `alpha-server,`the `postgresql` database, and a `jmeter-collector` for [load test](https://github.com/apache/incubator-servicecomb-saga/blob/master/docs/load_test.md).
 - **demos**: The resources that each demo will consume, stored in the folder named with `xxx-demo/`
 - **tests**: A [jmeter](https://jmeter.apache.org/) deployment is provided for each demo under the demo's `test/` folder, there is also a [Kubernetes configmap](http://kubernetes-v1-4.github.io/docs/user-guide/configmap/) where you can change and apply the jmeter test plans. So you can change the plan at any time and pull up the jmeter deployment to test the demos.
 
