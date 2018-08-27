@@ -59,8 +59,8 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
   public void onTccTransactionEnded(GrpcTccTransactionEndedEvent request, StreamObserver<GrpcAck> responseObserver) {
     try {
       for (ParticipatedEvent event : TransactionEventRegistry.retrieve(request.getGlobalTxId())) {
-        OmegaCallbacksRegistry.retrieve(event.getServiceName(),
-            event.getInstanceId()).invoke(event, request.getStatus());
+        OmegaCallbacksRegistry.retrieve(event.getServiceName(), event.getInstanceId())
+            .invoke(event, request.getStatus());
       }
     } catch (AlphaException ex) {
       responseObserver.onNext(REJECT);

@@ -34,15 +34,14 @@ import org.apache.servicecomb.saga.alpha.core.PushBackOmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.TxConsistentService;
 import org.apache.servicecomb.saga.alpha.core.TxEventRepository;
 import org.apache.servicecomb.saga.alpha.core.TxTimeoutRepository;
+import org.apache.servicecomb.saga.alpha.server.tcc.GrpcTccEventService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @EntityScan(basePackages = "org.apache.servicecomb.saga.alpha")
 @Configuration
-@ConditionalOnExpression("'${alpha.mode:SAGA}'.contains('SAGA')")
 class AlphaConfig {
   private final BlockingQueue<Runnable> pendingCompensations = new LinkedBlockingQueue<>();
   private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -102,10 +101,11 @@ class AlphaConfig {
   }
 
   @Bean
-  ServerStartable sagaServerBootstrap(SagaGrpcServerConfig serverConfig, TxConsistentService txConsistentService,
+  ServerStartable serverStartable(GrpcServerConfig serverConfig, TxConsistentService txConsistentService,
       Map<String, Map<String, OmegaCallback>> omegaCallbacks) {
     ServerStartable bootstrap = new GrpcStartable(serverConfig,
-        new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks));
+        new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks),
+        new GrpcTccEventService());
     new Thread(bootstrap::start).start();
     return bootstrap;
   }

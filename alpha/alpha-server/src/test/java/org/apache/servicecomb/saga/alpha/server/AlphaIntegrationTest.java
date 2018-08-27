@@ -32,8 +32,10 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-import java.io.File;
-import java.util.Arrays;
+import com.google.protobuf.ByteString;
+import io.grpc.ManagedChannel;
+import io.grpc.netty.NettyChannelBuilder;
+import io.grpc.stub.StreamObserver;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -41,10 +43,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
-
 import javax.annotation.PostConstruct;
-import javax.net.ssl.SSLException;
-
 import org.apache.servicecomb.saga.alpha.core.CommandRepository;
 import org.apache.servicecomb.saga.alpha.core.EventScanner;
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
@@ -70,22 +69,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import com.google.protobuf.ByteString;
-
-import io.grpc.ManagedChannel;
-import io.grpc.netty.NettyChannelBuilder;
-import io.grpc.stub.StreamObserver;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {AlphaApplication.class, AlphaConfig.class},
     properties = {
         "alpha.server.host=0.0.0.0",
         "alpha.server.port=8090",
-        "alpha.event.pollingInterval=1",
-        "alpha.mode=SAGA"
+        "alpha.event.pollingInterval=1"
        })
 public class AlphaIntegrationTest {
   private static final int port = 8090;

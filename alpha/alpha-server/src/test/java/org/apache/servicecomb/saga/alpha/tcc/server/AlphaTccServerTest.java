@@ -57,12 +57,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(classes = {AlphaApplication.class},
     properties = {
         "alpha.server.host=0.0.0.0",
-        "alpha.server.tcc-port=8190",
-        "alpha.mode=TCC"
+        "alpha.server.port=8090"
     })
 public class AlphaTccServerTest {
 
-  private static final int port = 8190;
+  private static final int port = 8090;
   protected static ManagedChannel clientChannel;
 
   private final TccEventServiceStub asyncStub = TccEventServiceGrpc.newStub(clientChannel);

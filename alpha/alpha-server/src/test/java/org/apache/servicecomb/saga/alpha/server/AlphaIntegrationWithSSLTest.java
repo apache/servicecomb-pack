@@ -39,8 +39,7 @@ import io.netty.handler.ssl.SslProvider;
     properties = {
         "alpha.server.host=0.0.0.0",
         "alpha.server.port=8092",
-        "alpha.event.pollingInterval=1",
-        "alpha.mode=SAGA"
+        "alpha.event.pollingInterval=1"
     })
 public class AlphaIntegrationWithSSLTest extends AlphaIntegrationTest {
   private static final int port = 8092;
