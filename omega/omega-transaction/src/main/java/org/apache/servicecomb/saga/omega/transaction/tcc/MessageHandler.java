@@ -17,28 +17,6 @@
 
 package org.apache.servicecomb.saga.omega.transaction.tcc;
 
-import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
-import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent;
-import org.apache.servicecomb.saga.omega.transaction.tcc.events.ParticipatedEvent;
-import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccEndedEvent;
-import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccStartedEvent;
-
-public interface TccEventService {
-
-  void onConnected();
-
-  void onDisconnected();
-
-  void close();
-
-  String target();
-
-  AlphaResponse participate(ParticipatedEvent participateEvent);
-
-  AlphaResponse tccTransactionStart(TccStartedEvent tccStartEvent);
-
-  AlphaResponse tccTransactionStop(TccEndedEvent tccEndEvent);
-
-  AlphaResponse coordinate(CoordinatedEvent coordinatedEvent);
-  
+public interface MessageHandler {
+  void onReceive(String globalTxId, String localTxId, String parentTxId, String method);
 }
