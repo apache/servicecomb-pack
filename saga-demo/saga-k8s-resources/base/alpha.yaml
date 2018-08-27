@@ -25,7 +25,9 @@ metadata:
 spec:
   ports:
   - port: 8080
-    name: alpha
+    name: alpha-http
+  - port: 8090
+    name: alpha-grpc
   selector:
     app: alphaserver
 ---
