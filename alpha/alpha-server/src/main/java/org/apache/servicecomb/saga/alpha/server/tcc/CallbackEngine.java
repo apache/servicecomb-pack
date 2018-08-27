@@ -17,13 +17,9 @@
 
 package org.apache.servicecomb.saga.alpha.server.tcc;
 
-import org.apache.servicecomb.saga.alpha.server.tcc.event.ParticipatedEvent;
-import org.apache.servicecomb.saga.common.TransactionStatus;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccTransactionEndedEvent;
 
-public interface OmegaCallback {
+public interface CallbackEngine {
 
-  void invoke(ParticipatedEvent event, TransactionStatus status);
-
-  default void disconnect() {
-  }
+   boolean execute(GrpcTccTransactionEndedEvent request);
 }

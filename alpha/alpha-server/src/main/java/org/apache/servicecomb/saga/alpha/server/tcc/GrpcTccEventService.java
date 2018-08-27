@@ -18,9 +18,7 @@
 package org.apache.servicecomb.saga.alpha.server.tcc;
 
 import io.grpc.stub.StreamObserver;
-import org.apache.servicecomb.saga.alpha.core.AlphaException;
 import org.apache.servicecomb.saga.alpha.server.tcc.event.ParticipateEventFactory;
-import org.apache.servicecomb.saga.alpha.server.tcc.event.ParticipatedEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
@@ -35,7 +33,15 @@ import org.apache.servicecomb.saga.pack.contract.grpc.TccEventServiceGrpc;
 public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImplBase {
 
   private static final GrpcAck ALLOW = GrpcAck.newBuilder().setAborted(false).build();
+  
   private static final GrpcAck REJECT = GrpcAck.newBuilder().setAborted(true).build();
+
+  private final TccCallbackEngine tccCallbackEngine;
+
+  public GrpcTccEventService(
+      TccCallbackEngine tccCallbackEngine) {
+    this.tccCallbackEngine = tccCallbackEngine;
+  }
 
   @Override
   public void onConnected(GrpcServiceConfig request, StreamObserver<GrpcTccCoordinateCommand> responseObserver) {
@@ -57,18 +63,10 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
 
   @Override
   public void onTccTransactionEnded(GrpcTccTransactionEndedEvent request, StreamObserver<GrpcAck> responseObserver) {
-    try {
-      for (ParticipatedEvent event : TransactionEventRegistry.retrieve(request.getGlobalTxId())) {
-        OmegaCallbacksRegistry.retrieve(event.getServiceName(), event.getInstanceId())
-            .invoke(event, request.getStatus());
-      }
-    } catch (AlphaException ex) {
-      responseObserver.onNext(REJECT);
-    }
-    responseObserver.onNext(ALLOW);
+    responseObserver.onNext(tccCallbackEngine.execute(request) ? ALLOW : REJECT);
     responseObserver.onCompleted();
   }
-
+  
   @Override
   public void onDisconnected(GrpcServiceConfig request, StreamObserver<GrpcAck> responseObserver) {
     OmegaCallback omegaCallback = OmegaCallbacksRegistry.retrieveThenRemove(request.getServiceName(), request.getInstanceId());
