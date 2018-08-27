@@ -18,7 +18,9 @@
 package org.apache.servicecomb.saga.alpha.server;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 public class GrpcServerConfig {
   @Value("${alpha.server.host:0.0.0.0}")
   private String host;
