@@ -37,21 +37,21 @@ public class TccStartAnnotationProcessor {
 
   public AlphaResponse preIntercept(String parentTxId, String methodName, int timeout) {
     try {
-      return eventService.TccTransactionStart(new TccStartedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
+      return eventService.tccTransactionStart(new TccStartedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
     } catch (OmegaException e) {
       throw new TransactionalException(e.getMessage(), e.getCause());
     }
   }
 
   public void postIntercept(String parentTxId, String methodName) {
-    eventService.TccTransactionStop(new TccEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId(),
+    eventService.tccTransactionStop(new TccEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId(),
         TransactionStatus.Succeed));
   }
 
   public void onError(String parentTxId, String methodName, Throwable throwable) {
     // Send the cancel event
     // Do we need to wait for the alpha finish all the transaction
-    eventService.TccTransactionStop(new TccEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId(),
+    eventService.tccTransactionStop(new TccEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId(),
         TransactionStatus.Failed));
   }
 }

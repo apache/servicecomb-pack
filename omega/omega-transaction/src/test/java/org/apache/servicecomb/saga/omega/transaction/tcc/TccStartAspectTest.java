@@ -32,6 +32,7 @@ import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.context.annotations.TccStart;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
+import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.ParticipatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccEndedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccStartedEvent;
@@ -75,17 +76,21 @@ public class TccStartAspectTest {
     }
 
     @Override
-    public AlphaResponse TccTransactionStart(TccStartedEvent tccStartEvent) {
+    public AlphaResponse tccTransactionStart(TccStartedEvent tccStartEvent) {
       startedEvents.add(tccStartEvent);
       return response;
     }
 
     @Override
-    public AlphaResponse TccTransactionStop(TccEndedEvent tccEndEvent) {
+    public AlphaResponse tccTransactionStop(TccEndedEvent tccEndEvent) {
       endedEvents.add(tccEndEvent);
       return response;
     }
 
+    @Override
+    public AlphaResponse coordinate(CoordinatedEvent coordinatedEvent) {
+      return null;
+    }
   };
 
 
