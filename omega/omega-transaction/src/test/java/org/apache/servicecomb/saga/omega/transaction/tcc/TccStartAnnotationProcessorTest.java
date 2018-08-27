@@ -33,6 +33,7 @@ import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
+import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.ParticipatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccEndedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccStartedEvent;
@@ -79,7 +80,7 @@ public class TccStartAnnotationProcessorTest {
     }
 
     @Override
-    public AlphaResponse TccTransactionStart(TccStartedEvent tccStartEvent) {
+    public AlphaResponse tccTransactionStart(TccStartedEvent tccStartEvent) {
       if (throwException) {
         throw exception;
       }
@@ -88,12 +89,15 @@ public class TccStartAnnotationProcessorTest {
     }
 
     @Override
-    public AlphaResponse TccTransactionStop(TccEndedEvent tccEndEvent) {
+    public AlphaResponse tccTransactionStop(TccEndedEvent tccEndEvent) {
       endedEvents.add(tccEndEvent);
       return response;
     }
 
-
+    @Override
+    public AlphaResponse coordinate(CoordinatedEvent coordinatedEvent) {
+      return null;
+    }
   };
   private final TccStartAnnotationProcessor tccStartAnnotationProcessor = new TccStartAnnotationProcessor(context,
       eventService);

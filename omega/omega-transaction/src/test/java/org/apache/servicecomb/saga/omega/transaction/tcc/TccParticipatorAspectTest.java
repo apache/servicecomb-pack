@@ -31,10 +31,9 @@ import java.util.UUID;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
-import org.apache.servicecomb.saga.omega.context.annotations.TccStart;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
-import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
 import org.apache.servicecomb.saga.omega.transaction.annotations.Participate;
+import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.ParticipatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccEndedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccStartedEvent;
@@ -81,15 +80,19 @@ public class TccParticipatorAspectTest {
     }
 
     @Override
-    public AlphaResponse TccTransactionStart(TccStartedEvent tccStartEvent) {
+    public AlphaResponse tccTransactionStart(TccStartedEvent tccStartEvent) {
       return null;
     }
 
     @Override
-    public AlphaResponse TccTransactionStop(TccEndedEvent tccEndEvent) {
+    public AlphaResponse tccTransactionStop(TccEndedEvent tccEndEvent) {
       return null;
     }
 
+    @Override
+    public AlphaResponse coordinate(CoordinatedEvent coordinatedEvent) {
+      return null;
+    }
   };
 
 

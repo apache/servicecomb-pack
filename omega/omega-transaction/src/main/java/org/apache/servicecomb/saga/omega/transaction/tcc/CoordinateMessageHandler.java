@@ -15,43 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.omega.transaction.tcc.events;
+package org.apache.servicecomb.saga.omega.transaction.tcc;
 
 import org.apache.servicecomb.saga.common.TransactionStatus;
+import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent;
 
-public class CoordinatedEvent {
-  private final String globalTxId;
-  private final String localTxId;
-  private final String parentTxId;
-  private final String methodName;
-  private final TransactionStatus status;
+public class CoordinateMessageHandler implements MessageHandler {
 
-  public CoordinatedEvent(String globalTxId, String localTxId, String parentTxId, String methodName,
-      TransactionStatus status) {
-    this.globalTxId = globalTxId;
-    this.localTxId = localTxId;
-    this.parentTxId = parentTxId;
-    this.methodName = methodName;
-    this.status = status;
+  private final TccEventService tccEventService;
+
+  public CoordinateMessageHandler(TccEventService tccEventService) {
+    this.tccEventService = tccEventService;
   }
 
-  public String getGlobalTxId() {
-    return globalTxId;
-  }
-
-  public String getLocalTxId() {
-    return localTxId;
-  }
-
-  public String getParentTxId() {
-    return parentTxId;
-  }
-
-  public String getMethodName() {
-    return methodName;
-  }
-
-  public TransactionStatus getStatus() {
-    return status;
+  @Override
+  public void onReceive(String globalTxId, String localTxId, String parentTxId, String methodName) {
+    //TODO Omega Call the service
+    tccEventService.coordinate(new CoordinatedEvent(globalTxId, localTxId, parentTxId, methodName, TransactionStatus.Succeed));
   }
 }
