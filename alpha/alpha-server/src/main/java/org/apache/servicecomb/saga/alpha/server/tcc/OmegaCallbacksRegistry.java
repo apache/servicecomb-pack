@@ -20,16 +20,21 @@ package org.apache.servicecomb.saga.alpha.server.tcc;
 import static java.util.Collections.emptyMap;
 
 import io.grpc.stub.StreamObserver;
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.servicecomb.saga.alpha.core.AlphaException;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manage omega callbacks.
  */
 public final class OmegaCallbacksRegistry {
+
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final static Map<String, Map<String, OmegaCallback>> REGISTRY = new ConcurrentHashMap<>();
 
@@ -64,9 +69,15 @@ public final class OmegaCallbacksRegistry {
     }
     OmegaCallback result = callbackMap.get(instanceId);
     if (null == result) {
+      LOG.info("Cannot find the service with the instanceId {}, call the other instance.", instanceId);
       return callbackMap.values().iterator().next();
     }
     return result;
+  }
+
+  public static void removeByValue(String serviceName, OmegaCallback omegaCallback) {
+    Map<String, OmegaCallback> callbackMap = REGISTRY.getOrDefault(serviceName, emptyMap());
+    callbackMap.values().remove(omegaCallback);
   }
 
   /**

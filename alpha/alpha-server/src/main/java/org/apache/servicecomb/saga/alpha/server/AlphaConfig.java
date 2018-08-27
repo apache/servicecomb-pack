@@ -35,6 +35,8 @@ import org.apache.servicecomb.saga.alpha.core.TxConsistentService;
 import org.apache.servicecomb.saga.alpha.core.TxEventRepository;
 import org.apache.servicecomb.saga.alpha.core.TxTimeoutRepository;
 import org.apache.servicecomb.saga.alpha.server.tcc.GrpcTccEventService;
+import org.apache.servicecomb.saga.alpha.server.tcc.OmegaCallbackWrapper;
+import org.apache.servicecomb.saga.alpha.server.tcc.TccCallbackEngine;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
@@ -90,14 +92,11 @@ class AlphaConfig {
       CommandRepository commandRepository,
       TxTimeoutRepository timeoutRepository,
       OmegaCallback omegaCallback) {
-
-    new EventScanner(scheduler,
-        eventRepository, commandRepository, timeoutRepository,
-        omegaCallback, eventPollingInterval).run();
-
-    TxConsistentService consistentService = new TxConsistentService(eventRepository);
-
-    return consistentService;
+        new EventScanner(scheduler,
+            eventRepository, commandRepository, timeoutRepository,
+            omegaCallback, eventPollingInterval).run();
+        TxConsistentService consistentService = new TxConsistentService(eventRepository);
+        return consistentService;
   }
 
   @Bean
@@ -105,7 +104,7 @@ class AlphaConfig {
       Map<String, Map<String, OmegaCallback>> omegaCallbacks) {
     ServerStartable bootstrap = new GrpcStartable(serverConfig,
         new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks),
-        new GrpcTccEventService());
+        new GrpcTccEventService(new TccCallbackEngine(new OmegaCallbackWrapper())));
     new Thread(bootstrap::start).start();
     return bootstrap;
   }
