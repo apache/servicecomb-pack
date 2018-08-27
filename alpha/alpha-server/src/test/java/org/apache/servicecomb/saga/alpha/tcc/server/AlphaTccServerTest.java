@@ -118,6 +118,17 @@ public class AlphaTccServerTest {
     );
   }
 
+  @Test
+  public void assertOnDisConnect() {
+    asyncStub.onConnected(serviceConfig, commandStreamObserver);
+    awaitUntilConnected();
+    assertThat(
+        OmegaCallbacksRegistry.retrieve(serviceName, instanceId), is(instanceOf(GrpcOmegaTccCallback.class))
+    );
+    blockingStub.onDisconnected(serviceConfig);
+    assertThat(commandStreamObserver.isCompleted(), is(true));
+  }
+
   private void awaitUntilConnected() {
     await().atMost(2, SECONDS).until(() -> null != (OmegaCallbacksRegistry.getRegistry().get(serviceName)));
   }
@@ -168,6 +179,61 @@ public class AlphaTccServerTest {
     assertThat(command.getMethod(), is("cancel"));
     assertThat(command.getGlobalTxId(), is(globalTxId));
     assertThat(command.getServiceName(), is(serviceName));
+    assertThat(commandStreamObserver.isCompleted(), is(false));
+  }
+
+  @Test
+  public void assertOnCallbackNotExist() {
+    asyncStub.onConnected(serviceConfig, commandStreamObserver);
+    awaitUntilConnected();
+
+    OmegaCallbacksRegistry.getRegistry().remove(serviceName);
+    blockingStub.onTccTransactionStarted(newTxStart());
+    blockingStub.participate(newParticipatedEvent("Succeed"));
+    GrpcAck result = blockingStub.onTccTransactionEnded(newTxEnd("Succeed"));
+    assertThat(result.getAborted(), is(true));
+  }
+
+  @Test
+  public void assertOnCallbacksExecuteError() {
+    asyncStub.onConnected(serviceConfig, commandStreamObserver);
+    awaitUntilConnected();
+
+    OmegaCallbacksRegistry.getRegistry().get(serviceName).put(instanceId, new GrpcOmegaTccCallback(null));
+    blockingStub.onTccTransactionStarted(newTxStart());
+    blockingStub.participate(newParticipatedEvent("Succeed"));
+    GrpcAck result = blockingStub.onTccTransactionEnded(newTxEnd("Succeed"));
+
+    assertThat(result.getAborted(), is(true));
+    assertThat(OmegaCallbacksRegistry.getRegistry().get(serviceName).size(), is(0));
+  }
+
+  @Test
+  public void assertOnSwitchOtherCallbackInstance() {
+    asyncStub.onConnected(serviceConfig, commandStreamObserver);
+    GrpcServiceConfig config = GrpcServiceConfig.newBuilder()
+        .setServiceName(serviceName)
+        .setInstanceId(uniquify("instanceId"))
+        .build();
+    asyncStub.onConnected(config, commandStreamObserver);
+
+    await().atMost(1, SECONDS).until(() -> (OmegaCallbacksRegistry.getRegistry().get(serviceName) != null));
+    await().atMost(1, SECONDS).until(() -> (OmegaCallbacksRegistry.getRegistry().get(serviceName).size() == 2));
+
+    OmegaCallbacksRegistry.getRegistry().get(serviceName).remove(instanceId);
+    blockingStub.onTccTransactionStarted(newTxStart());
+    blockingStub.participate(newParticipatedEvent("Succeed"));
+    GrpcAck result = blockingStub.onTccTransactionEnded(newTxEnd("Succeed"));
+
+    await().atMost(2, SECONDS).until(() -> !receivedCommands.isEmpty());
+    assertThat(receivedCommands.size(), is(1));
+    GrpcTccCoordinateCommand command = receivedCommands.poll();
+    assertThat(command.getMethod(), is("confirm"));
+    assertThat(command.getGlobalTxId(), is(globalTxId));
+    assertThat(command.getServiceName(), is(serviceName));
+
+    assertThat(result.getAborted(), is(false));
+
   }
 
   private GrpcTccParticipatedEvent newParticipatedEvent(String status) {
