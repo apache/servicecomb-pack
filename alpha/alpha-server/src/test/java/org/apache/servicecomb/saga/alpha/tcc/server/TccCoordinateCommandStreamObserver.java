@@ -26,6 +26,11 @@ public class TccCoordinateCommandStreamObserver implements StreamObserver<GrpcTc
 
   private Queue<GrpcTccCoordinateCommand> receivedCommands;
   private Consumer<GrpcTccCoordinateCommand> consumer;
+
+  public boolean isCompleted() {
+    return completed;
+  }
+
   private boolean completed = false;
 
   public TccCoordinateCommandStreamObserver(Consumer<GrpcTccCoordinateCommand> consumer,
