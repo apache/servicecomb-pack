@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.server.tcc;
+package org.apache.servicecomb.saga.alpha.server.tcc.registry;
 
 import static java.util.Collections.emptyMap;
 
@@ -24,6 +24,8 @@ import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.servicecomb.saga.alpha.core.AlphaException;
+import org.apache.servicecomb.saga.alpha.server.tcc.callback.GrpcOmegaTccCallback;
+import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallback;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
 import org.slf4j.Logger;

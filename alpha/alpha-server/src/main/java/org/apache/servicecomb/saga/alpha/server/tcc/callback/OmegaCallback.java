@@ -15,21 +15,15 @@
  *  limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.server.tcc;
+package org.apache.servicecomb.saga.alpha.server.tcc.callback;
 
 import org.apache.servicecomb.saga.alpha.server.tcc.event.ParticipatedEvent;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 
-public class OmegaCallbackWrapper implements OmegaCallback {
+public interface OmegaCallback {
 
-  @Override
-  public void invoke(ParticipatedEvent event, TransactionStatus status) {
-    OmegaCallback omegaCallback = OmegaCallbacksRegistry.retrieve(event.getServiceName(), event.getInstanceId());
-    try {
-      omegaCallback.invoke(event, status);
-    } catch (Exception ex) {
-      OmegaCallbacksRegistry.removeByValue(event.getServiceName(), omegaCallback);
-      throw ex;
-    }
+  void invoke(ParticipatedEvent event, TransactionStatus status);
+
+  default void disconnect() {
   }
 }
