@@ -17,16 +17,21 @@
 
 package org.apache.servicecomb.saga.alpha.server.tcc.registry;
 
+import java.lang.invoke.MethodHandles;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.servicecomb.saga.alpha.server.tcc.event.ParticipatedEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manage TCC transaction event.
  */
 public final class TransactionEventRegistry {
+
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final static Map<String, Set<ParticipatedEvent>> REGISTRY = new ConcurrentHashMap<>();
 
@@ -39,6 +44,12 @@ public final class TransactionEventRegistry {
     REGISTRY
         .computeIfAbsent(participateEvent.getGlobalTxId(), key -> new LinkedHashSet<>())
         .add(participateEvent);
+
+    LOG.info("Registered participated event, global tx: {}, local tx: {}, parent id: {}, "
+            + "confirm: {}, cancel: {}, status: {}, service [{}] instanceId [{}]",
+        participateEvent.getGlobalTxId(), participateEvent.getLocalTxId(), participateEvent.getParentTxId(),
+        participateEvent.getConfirmMethod(), participateEvent.getCancelMethod(), participateEvent.getStatus(),
+        participateEvent.getServiceName(), participateEvent.getInstanceId());
   }
 
   /**

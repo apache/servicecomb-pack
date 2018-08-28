@@ -31,9 +31,9 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.servicecomb.saga.alpha.server.AlphaApplication;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.GrpcOmegaTccCallback;
+import org.apache.servicecomb.saga.alpha.server.tcc.event.ParticipatedEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.registry.OmegaCallbacksRegistry;
 import org.apache.servicecomb.saga.alpha.server.tcc.registry.TransactionEventRegistry;
-import org.apache.servicecomb.saga.alpha.server.tcc.event.ParticipatedEvent;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
@@ -46,7 +46,6 @@ import org.apache.servicecomb.saga.pack.contract.grpc.TccEventServiceGrpc.TccEve
 import org.apache.servicecomb.saga.pack.contract.grpc.TccEventServiceGrpc.TccEventServiceStub;
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -97,11 +96,6 @@ public class AlphaTccServerTest {
   public static void tearDown() {
     clientChannel.shutdown();
     clientChannel = null;
-  }
-
-  @Before
-  public void before() {
-    System.out.println(" globalTxId " + globalTxId);
   }
 
   @After
@@ -233,7 +227,6 @@ public class AlphaTccServerTest {
     assertThat(command.getServiceName(), is(serviceName));
 
     assertThat(result.getAborted(), is(false));
-
   }
 
   private GrpcTccParticipatedEvent newParticipatedEvent(String status) {
