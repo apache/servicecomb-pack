@@ -166,3 +166,115 @@ curl -XGET http://<docker.host.ip:saga.port>/events
 ####  Status codes
 -   **200** – no error
 
+### Invoke embedded Saga to execute SQL transaction
+
+In order to Invoke embedded saga, it is necessary to add dependencies to your applications.
+
+There are a `maven` example
+
+```
+<dependencies>
+
+    ...
+    
+    <dependency>
+        <groupId>org.apache.servicecomb.saga</groupId>
+        <artifactId>saga-core</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicecomb.saga</groupId>
+        <artifactId>saga-format</artifactId>
+    </dependency>
+    
+    ...
+    
+</dependencies>
+```
+
+####  Description
+    
+1. Implement SQLTransport interface in your own applications.
+
+2. Instance `SagaExecutionComponent` and inject it into your own applications.
+
+3. Define requests in order and recovery policy by JSON format as below in your applications.
+
+```
+{
+  "policy": "",
+  "requests": [
+    {
+      "id": "",
+      "type": "",
+      "datasource": "",
+      "parents": [
+
+      ],
+      "transaction": {
+        "sql": "",
+        "params": [
+
+        ]
+      },
+      "compensation": {
+        "sql": "",
+        "params": [
+
+        ]
+      }
+    }
+  ]
+}
+```
+JSON parameters:
+- policy - support `BackwardRecovery` or `ForwardRecovery`.
+- requests - transactions array.
+  - id - request id. It should be unique among this collection of requests.
+  - type - support `sql` for now.
+  - datasource - user-defined datasource name.
+  - parents - request ids. It means this request is only executed after all requests in the parents field are completed.
+  - transaction - user-defined transaction that executed by the Saga.
+    - sql - user-defined, forward sql.
+    - params - parameters for forward sql.
+  - compensation - user-defined compensation that executed by the Saga.
+    - sql - user-defined, backward sql.
+    - params - parameters for backward sql.
+
+4. Invoke `SagaExecutionComponent.run(String json)` function to execute saga.
+
+#### Example Implement SQLTransport interface
+
+```
+public class ExampleSQLTransport implements SQLTransport {
+  @Override
+  public SagaResponse with(final String datasource, final String sql, final List<String> params) {
+    try {
+      // invoke your own code to execute sql.
+    } catch (Exception e) {
+      throw new TransportFailedException("execute SQL " + sql + " occur exception: ", e);
+    }
+    return new JsonSuccessfulSagaResponse("{}");
+  }
+}
+```
+
+#### Example Instance `SagaExecutionComponent`
+
+```
+  private final SQLTransport sqlTransport = new ExampleSQLTransport;
+
+  private final TransportFactory<SQLTransport> transportFactory = new TransportFactory<SQLTransport>() {
+    @Override
+    public SQLTransport getTransport() {
+      return sqlTransport;
+    }
+  };
+
+  private final SagaExecutionComponent coordinator = new SagaExecutionComponent(
+      new EmbeddedPersistentStore(),
+      new JacksonFromJsonFormat(transportFactory),
+      null,
+      new GraphBasedSagaFactory(500, eventStore, new ChildrenExtractor(), Executors.newFixedThreadPool(5))
+  );
+```
+
