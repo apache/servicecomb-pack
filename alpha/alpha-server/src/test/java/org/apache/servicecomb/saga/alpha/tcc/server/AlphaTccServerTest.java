@@ -70,7 +70,7 @@ public class AlphaTccServerTest {
   private final Queue<GrpcTccCoordinateCommand> receivedCommands = new ConcurrentLinkedQueue<>();
 
   private final TccCoordinateCommandStreamObserver commandStreamObserver =
-      new TccCoordinateCommandStreamObserver(this::onCompensation, receivedCommands);
+      new TccCoordinateCommandStreamObserver(this::onReceivedCoordinateCommand, receivedCommands);
 
   private final String globalTxId = UUID.randomUUID().toString();
   private final String localTxId = UUID.randomUUID().toString();
@@ -256,7 +256,7 @@ public class AlphaTccServerTest {
         .build();
   }
 
-  private GrpcAck onCompensation(GrpcTccCoordinateCommand command) {
+  private GrpcAck onReceivedCoordinateCommand(GrpcTccCoordinateCommand command) {
     return GrpcAck.newBuilder().setAborted(false).build();
   }
 
