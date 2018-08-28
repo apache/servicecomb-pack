@@ -120,7 +120,7 @@ public class AlphaTccServerTest {
         OmegaCallbacksRegistry.retrieve(serviceName, instanceId), is(instanceOf(GrpcOmegaTccCallback.class))
     );
     blockingStub.onDisconnected(serviceConfig);
-    assertThat(commandStreamObserver.isCompleted(), is(true));
+    await().atMost(2, SECONDS).until(()->commandStreamObserver.isCompleted());
   }
 
   private void awaitUntilConnected() {
