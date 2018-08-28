@@ -35,21 +35,18 @@
     <module>alpha-server</module>
   </modules>
 
-  <properties>
-    <kamon.version>0.6.0</kamon.version>
-    <akka.version>2.3.12</akka.version>
-  </properties>
-
   <dependencies>
    <dependency>
       <groupId>io.kamon</groupId>
-      <artifactId>kamon-core_2.11</artifactId>
-     <version>${kamon.version}</version>
+      <artifactId>kamon-core_2.12</artifactId>
     </dependency>
     <dependency>
       <groupId>io.kamon</groupId>
-      <artifactId>kamon-annotation_2.11</artifactId>
-      <version>${kamon.version}</version>
+      <artifactId>kamon-annotation_2.12</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-actor_2.12</artifactId>
     </dependency>
   </dependencies>
 
@@ -72,8 +69,16 @@
       <dependencies>
         <dependency>
           <groupId>io.kamon</groupId>
-          <artifactId>kamon-autoweave_2.11</artifactId>
-          <version>${kamon.version}</version>
+          <artifactId>kamon-log-reporter_2.12</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>io.kamon</groupId>
+          <artifactId>kamon-statsd_2.12</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>io.kamon</groupId>
+          <artifactId>kamon-autoweave_2.12</artifactId>
+          <version>0.6.5</version>
         </dependency>
         <dependency>
           <groupId>org.aspectj</groupId>
@@ -81,32 +86,7 @@
         </dependency>
         <dependency>
           <groupId>io.kamon</groupId>
-          <artifactId>kamon-log-reporter_2.11</artifactId>
-          <version>${kamon.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>io.kamon</groupId>
-          <artifactId>kamon-statsd_2.11</artifactId>
-          <version>${kamon.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>com.typesafe.akka</groupId>
-          <artifactId>akka-actor_2.11</artifactId>
-          <version>${akka.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>io.kamon</groupId>
-          <artifactId>kamon-akka_2.11</artifactId>
-          <version>${kamon.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>io.kamon</groupId>
-          <artifactId>kamon-system-metrics_2.11</artifactId>
-          <version>${kamon.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>io.kamon</groupId>
-          <artifactId>kamon-scala_2.11</artifactId>
+          <artifactId>kamon-system-metrics_2.12</artifactId>
           <version>${kamon.version}</version>
         </dependency>
       </dependencies>
