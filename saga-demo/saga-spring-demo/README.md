@@ -23,10 +23,14 @@ You can run the demo using either docker compose or executable files.
 ### via docker compose
 1. run the following command to create docker images in saga project root folder.
    ```
-   mvn clean package -DskipTests -Pdocker -Pdemo
+   mvn clean install -DskipTests -Pdocker -Pdemo
    ```
-
-2. start the whole application up(including alpha server and three demo services)
+2. Enter the saga spring demo directory and give permissions to script
+   ```
+   cd ./saga-demo/saga-spring-demo
+   chmod +x saga-demo.sh
+   ```
+3. start the whole application up(including alpha server and three demo services)
    ```
    ./saga-demo.sh up
    ```
@@ -62,7 +66,7 @@ You can run the demo using either docker compose or executable files.
           ./saga-demo.sh up-demo
       ```
 
-3. stop application
+4. stop application
    ```
    ./saga-demo.sh down
    ```
