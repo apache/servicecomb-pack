@@ -17,10 +17,11 @@
 
 package org.apache.servicecomb.saga.format;
 
+import org.apache.servicecomb.saga.core.Transport;
 import org.apache.servicecomb.saga.transports.TransportFactory;
 import org.apache.servicecomb.saga.core.Operation;
 
-interface TransportAware {
+interface TransportAware<T extends Transport> {
 
-  Operation with(TransportFactory transport);
+  Operation with(TransportFactory<T> transport);
 }

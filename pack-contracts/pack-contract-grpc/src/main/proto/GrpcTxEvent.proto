@@ -21,21 +21,14 @@ option java_multiple_files = true;
 option java_package = "org.apache.servicecomb.saga.pack.contract.grpc";
 option java_outer_classname = "TxEventProto";
 
+import "GrpcCommon.proto";
+
 service TxEventService {
   rpc OnConnected (GrpcServiceConfig) returns (stream GrpcCompensateCommand) {
   }
   rpc OnTxEvent (GrpcTxEvent) returns (GrpcAck) {}
   rpc OnDisconnected (GrpcServiceConfig) returns (GrpcAck) {
   }
-}
-
-message GrpcServiceConfig {
-  string serviceName = 1;
-  string instanceId = 2;
-}
-
-message GrpcAck {
-  bool aborted = 1;
 }
 
 message GrpcTxEvent {

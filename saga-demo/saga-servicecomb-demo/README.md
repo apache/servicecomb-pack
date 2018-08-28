@@ -59,3 +59,6 @@ Check the car booking status with
 curl http://${host_address}:8082/bookings
 ```
 The second car booking will be marked with **cancel:true**
+
+## Debugging
+Take the [spring-demo debugging](../saga-spring-demo#debugging) as a reference.

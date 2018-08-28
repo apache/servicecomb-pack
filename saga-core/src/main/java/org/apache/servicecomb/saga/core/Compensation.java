@@ -20,14 +20,40 @@ package org.apache.servicecomb.saga.core;
 public interface Compensation extends Operation {
 
   Compensation SAGA_START_COMPENSATION = new Compensation() {
+    @Override
+    public SagaResponse send(String address) {
+      return SUCCESSFUL_SAGA_RESPONSE;
+    }
+
+    @Override
+    public SagaResponse send(String address, SagaResponse response) {
+      return send(address);
+    }
+
+    @Override
+    public int retries() {
+      return DEFAULT_RETRIES;
+    }
   };
 
   Compensation SAGA_END_COMPENSATION = new Compensation() {
+    @Override
+    public SagaResponse send(String address) {
+      return SUCCESSFUL_SAGA_RESPONSE;
+    }
+
+    @Override
+    public SagaResponse send(String address, SagaResponse response) {
+      return send(address);
+    }
+
+    @Override
+    public int retries() {
+      return DEFAULT_RETRIES;
+    }
   };
 
   int DEFAULT_RETRIES = 3;
 
-  default int retries() {
-    return DEFAULT_RETRIES;
-  }
+  int retries();
 }

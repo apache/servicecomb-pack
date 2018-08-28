@@ -17,9 +17,7 @@
 
 package org.apache.servicecomb.saga.omega.spring;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
+import com.google.common.collect.ImmutableList;
 import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.saga.omega.connector.grpc.LoadBalancedClusterMessageSender;
 import org.apache.servicecomb.saga.omega.context.CompensationContext;
@@ -31,7 +29,6 @@ import org.apache.servicecomb.saga.omega.format.KryoMessageFormat;
 import org.apache.servicecomb.saga.omega.format.MessageFormat;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -52,8 +49,8 @@ class OmegaSpringConfig {
   }
 
   @Bean
-  CompensationContext compensationContext() {
-    return new CompensationContext();
+  CompensationContext compensationContext(OmegaContext omegaContext) {
+    return new CompensationContext(omegaContext);
   }
 
   @Bean
@@ -74,14 +71,21 @@ class OmegaSpringConfig {
       @Lazy MessageHandler handler) {
 
     MessageFormat messageFormat = new KryoMessageFormat();
-    AlphaClusterConfig clusterConfig = new AlphaClusterConfig(Arrays.asList(addresses),
-        enableSSL, mutualAuth, cert, key, certChain);
+    AlphaClusterConfig clusterConfig = AlphaClusterConfig.builder()
+        .addresses(ImmutableList.copyOf(addresses))
+        .enableSSL(enableSSL)
+        .enableMutualAuth(mutualAuth)
+        .cert(cert)
+        .key(key)
+        .certChain(certChain)
+        .messageDeserializer(messageFormat)
+        .messageSerializer(messageFormat)
+        .messageHandler(handler)
+        .build();
+
     final MessageSender sender = new LoadBalancedClusterMessageSender(
         clusterConfig,
-        messageFormat,
-        messageFormat,
         serviceConfig,
-        handler,
         reconnectDelay);
 
     sender.onConnected();

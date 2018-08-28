@@ -17,8 +17,6 @@
 
 package org.apache.servicecomb.saga.core;
 
-import java.util.function.Consumer;
-
 public interface SagaContext extends EventContext {
   boolean isCompensationStarted();
 
@@ -26,7 +24,7 @@ public interface SagaContext extends EventContext {
 
   boolean isCompensationCompleted(SagaRequest request);
 
-  void handleHangingTransactions(Consumer<SagaRequest> consumer);
+  void handleHangingTransactions(TransactionConsumer<SagaRequest> consumer);
 
   SagaResponse responseOf(String requestId);
 

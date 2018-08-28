@@ -23,10 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
 import org.apache.servicecomb.saga.alpha.core.CommandRepository;
 import org.apache.servicecomb.saga.alpha.core.CompositeOmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.EventScanner;
@@ -36,6 +34,9 @@ import org.apache.servicecomb.saga.alpha.core.PushBackOmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.TxConsistentService;
 import org.apache.servicecomb.saga.alpha.core.TxEventRepository;
 import org.apache.servicecomb.saga.alpha.core.TxTimeoutRepository;
+import org.apache.servicecomb.saga.alpha.server.tcc.GrpcTccEventService;
+import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallbackWrapper;
+import org.apache.servicecomb.saga.alpha.server.tcc.callback.TccCallbackEngine;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
@@ -86,30 +87,26 @@ class AlphaConfig {
   @Bean
   TxConsistentService txConsistentService(
       @Value("${alpha.event.pollingInterval:500}") int eventPollingInterval,
-      GrpcServerConfig serverConfig,
       ScheduledExecutorService scheduler,
       TxEventRepository eventRepository,
       CommandRepository commandRepository,
       TxTimeoutRepository timeoutRepository,
-      OmegaCallback omegaCallback,
-      Map<String, Map<String, OmegaCallback>> omegaCallbacks) {
-
-    new EventScanner(scheduler,
-        eventRepository, commandRepository, timeoutRepository,
-        omegaCallback, eventPollingInterval).run();
-
-    TxConsistentService consistentService = new TxConsistentService(eventRepository);
-
-    ServerStartable startable = buildGrpc(serverConfig, consistentService, omegaCallbacks);
-    new Thread(startable::start).start();
-
-    return consistentService;
+      OmegaCallback omegaCallback) {
+        new EventScanner(scheduler,
+            eventRepository, commandRepository, timeoutRepository,
+            omegaCallback, eventPollingInterval).run();
+        TxConsistentService consistentService = new TxConsistentService(eventRepository);
+        return consistentService;
   }
 
-  private ServerStartable buildGrpc(GrpcServerConfig serverConfig, TxConsistentService txConsistentService,
+  @Bean
+  ServerStartable serverStartable(GrpcServerConfig serverConfig, TxConsistentService txConsistentService,
       Map<String, Map<String, OmegaCallback>> omegaCallbacks) {
-    return new GrpcStartable(serverConfig,
-        new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks));
+    ServerStartable bootstrap = new GrpcStartable(serverConfig,
+        new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks),
+        new GrpcTccEventService(new TccCallbackEngine(new OmegaCallbackWrapper())));
+    new Thread(bootstrap::start).start();
+    return bootstrap;
   }
 
   @PostConstruct

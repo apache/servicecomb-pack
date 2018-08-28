@@ -18,7 +18,6 @@
 package org.apache.servicecomb.saga.core;
 
 import java.util.Collection;
-import java.util.Optional;
 
 public class CompositeSagaResponse implements SagaResponse {
   private final Collection<SagaResponse> responses;
@@ -29,18 +28,34 @@ public class CompositeSagaResponse implements SagaResponse {
 
   @Override
   public boolean succeeded() {
-    return responses.stream().allMatch(SagaResponse::succeeded);
+    if (responses.size() > 0) {
+      boolean result = true;
+      for (SagaResponse response : responses) {
+        result = result && response.succeeded();
+      }
+      return result;
+    } else {
+      return false;
+    }
   }
 
   @Override
   public String body() {
-    Optional<String> reduce = responses.stream()
-        .map(SagaResponse::body)
-        .reduce((a, b) -> a + ", " + b)
-        .map(combined -> "[" + combined + "]");
-
-    return reduce.orElse("{}");
+    StringBuffer result = new StringBuffer();
+    if (responses.size() == 0) {
+      result.append("{}");
+    } else {
+      result.append("[");
+      for (SagaResponse response : responses) {
+        result.append(response.body());
+        result.append(", ");
+      }
+      result.delete(result.length()-2, result.length());
+      result.append("]");
+    }
+    return result.toString();
   }
+
 
   public Collection<SagaResponse> responses() {
     return responses;

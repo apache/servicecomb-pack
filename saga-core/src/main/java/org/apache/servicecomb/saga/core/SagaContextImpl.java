@@ -17,16 +17,16 @@
 
 package org.apache.servicecomb.saga.core;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
+
 
 import org.apache.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 
@@ -86,7 +86,7 @@ public class SagaContextImpl implements SagaContext {
   }
 
   @Override
-  public void handleHangingTransactions(Consumer<SagaRequest> consumer)  {
+  public void handleHangingTransactions(TransactionConsumer<SagaRequest> consumer)  {
     for (Iterator<SagaRequest> iterator = hangingTransactions.values().iterator(); iterator.hasNext(); ) {
       consumer.accept(iterator.next());
     }
@@ -94,13 +94,19 @@ public class SagaContextImpl implements SagaContext {
 
   @Override
   public SagaResponse responseOf(String requestId) {
-    return completedTransactions.getOrDefault(requestId, SagaResponse.NONE_RESPONSE);
+    SagaResponse response = completedTransactions.get(requestId);
+    if (response == null) {
+      response = SagaResponse.NONE_RESPONSE;
+    }
+    return response;
   }
 
   private List<SagaResponse> responsesOf(String[] parentRequestIds) {
-    return Arrays.stream(parentRequestIds)
-        .map(this::responseOf)
-        .collect(Collectors.toList());
+    List<SagaResponse> result = new ArrayList<>();
+    for(String parentRequestId: parentRequestIds) {
+      result.add(responseOf(parentRequestId));
+    }
+    return result;
   }
 
   @Override
@@ -125,9 +131,14 @@ public class SagaContextImpl implements SagaContext {
   }
 
   private Set<String> chosenChildrenOf(String[] parentRequestIds) {
-    return Arrays.stream(parentRequestIds)
-        .map(this::responseOf)
-        .flatMap(sagaResponse -> childrenExtractor.fromJson(sagaResponse.body()).stream())
-        .collect(Collectors.toSet());
+    Set<String> result = new HashSet<>();
+    for(String parentRequestId: parentRequestIds) {
+      SagaResponse response = responseOf(parentRequestId);
+      Set<String> jsons = childrenExtractor.fromJson(response.body());
+      for (String json : jsons) {
+        result.add(json);
+      }
+    }
+    return result;
   }
 }

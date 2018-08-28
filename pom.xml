@@ -32,6 +32,7 @@
 
   <modules>
     <module>saga-core</module>
+    <module>saga-core-akka</module>
     <module>transports</module>
     <module>saga-spring</module>
     <module>docker-build-config</module>
@@ -57,9 +58,9 @@
     <dubbo.version>2.6.1</dubbo.version>
     <spring.boot.version>1.5.14.RELEASE</spring.boot.version>
     <spring.boot2.version>2.0.3.RELEASE</spring.boot2.version>
-    <java.chassis.version>1.0.0-m2</java.chassis.version>
+    <java.chassis.version>1.0.0</java.chassis.version>
     <spring.version>4.3.18.RELEASE</spring.version>
-    <akka.version>2.5.6</akka.version>
+    <akka.version>2.5.14</akka.version>
     <rat.version>0.12</rat.version>
     <maven.failsafe.version>2.19.1</maven.failsafe.version>
     <grpc.version>1.14.0</grpc.version>
@@ -72,7 +73,6 @@
     <javax.activation.version>1.1.1</javax.activation.version>
     <maven-dependency-plugin.version>3.0.2</maven-dependency-plugin.version>
     <netty.boringssl.version>2.0.7.Final</netty.boringssl.version>
-    <java-chassis.version>1.0.0-m2</java-chassis.version>
     <netty.version>4.1.24.Final</netty.version>
   </properties>
 
@@ -249,6 +249,17 @@
       <dependency>
         <groupId>org.apache.servicecomb.saga</groupId>
         <artifactId>saga-core</artifactId>
+        <version>0.3.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.servicecomb.saga</groupId>
+        <artifactId>saga-core-akka</artifactId>
+        <version>0.3.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.servicecomb.saga</groupId>
+        <artifactId>saga-core</artifactId>
+        <type>test-jar</type>
         <version>0.3.0-SNAPSHOT</version>
       </dependency>
       <dependency>
@@ -492,6 +503,11 @@
         <version>${grpc.version}</version>
       </dependency>
       <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-testing</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
         <groupId>com.esotericsoftware</groupId>
         <artifactId>kryo</artifactId>
         <version>${kryo.version}</version>
@@ -512,10 +528,15 @@
         <version>1.2</version>
       </dependency>
       <dependency>
-      <groupId>org.eclipse.persistence</groupId>
-      <artifactId>org.eclipse.persistence.jpa</artifactId>
-      <version>${eclipse.link.version}</version>
-    </dependency>
+        <groupId>org.eclipse.persistence</groupId>
+        <artifactId>org.eclipse.persistence.jpa</artifactId>
+        <version>${eclipse.link.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.6</version>
+      </dependency>
 
       <!-- test dependencies -->
       <dependency>
@@ -546,12 +567,6 @@
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
         <version>2.16.0</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>3.6</version>
         <scope>test</scope>
       </dependency>
       <dependency>

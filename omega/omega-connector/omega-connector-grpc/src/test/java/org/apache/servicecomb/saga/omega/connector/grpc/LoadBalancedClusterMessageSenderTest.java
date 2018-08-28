@@ -18,7 +18,6 @@
 package org.apache.servicecomb.saga.omega.connector.grpc;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
-import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.lang.Thread.State.WAITING;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
@@ -30,52 +29,35 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.google.common.collect.ImmutableList;
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import org.apache.servicecomb.saga.common.EventType;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
-import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
-import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
-import org.apache.servicecomb.saga.omega.transaction.MessageSerializer;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
 import org.apache.servicecomb.saga.omega.transaction.TxAbortedEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxStartedEvent;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTxEvent;
-import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceImplBase;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
-import io.grpc.stub.StreamObserver;
-
 public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMessageSenderTestBase {
   @Override
   protected MessageSender newMessageSender(String[] addresses) {
-    AlphaClusterConfig clusterConfig = new AlphaClusterConfig(Arrays.asList(addresses),
-        false, false, null,null,null);
+    AlphaClusterConfig clusterConfig = AlphaClusterConfig.builder()
+        .addresses(ImmutableList.copyOf(addresses))
+        .enableSSL(false)
+        .enableMutualAuth(false)
+        .messageSerializer(serializer)
+        .messageDeserializer(deserializer)
+        .messageHandler(handler)
+        .build();
     return new LoadBalancedClusterMessageSender(
         clusterConfig,
-        serializer,
-        deserializer,
         new ServiceConfig(serviceName),
-        handler,
         100);
   }
 
@@ -277,6 +259,9 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
 
     assertThat(eventsMap.get(8080).isEmpty(), is(true));
     assertThat(eventsMap.get(8090).isEmpty(), is(true));
+
+    //TODO:it seems in Windows environment we need wait a short time in order to make sure reconnect mechanism work
+    Thread.sleep(2000);
 
     startServerOnPort(8080);
     startServerOnPort(8090);

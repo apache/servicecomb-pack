@@ -20,8 +20,26 @@ package org.apache.servicecomb.saga.core;
 public interface Transaction extends Operation {
 
   Transaction SAGA_START_TRANSACTION = new Transaction() {
+    @Override
+    public SagaResponse send(String address) {
+      return SUCCESSFUL_SAGA_RESPONSE;
+    }
+
+    @Override
+    public SagaResponse send(String address, SagaResponse response) {
+      return send(address);
+    }
   };
 
   Transaction SAGA_END_TRANSACTION = new Transaction() {
+    @Override
+    public SagaResponse send(String address) {
+      return SUCCESSFUL_SAGA_RESPONSE;
+    }
+
+    @Override
+    public SagaResponse send(String address, SagaResponse response) {
+      return send(address);
+    }
   };
 }

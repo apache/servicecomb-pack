@@ -49,7 +49,12 @@ public class ForwardRecoveryTest {
   public void blowsUpWhenTaskIsNotCommittedWithFailRetryDelaySeconds() throws Exception {
     doThrow(Exception.class).when(transaction).send(serviceName, parentResponse);
 
-    Thread t = new Thread(() -> forwardRecovery.apply(sagaTask, sagaRequest, parentResponse));
+    Thread t = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        forwardRecovery.apply(sagaTask, sagaRequest, parentResponse);
+      }
+    });
     t.start();
     Thread.sleep(400);
     t.interrupt();

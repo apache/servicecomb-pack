@@ -17,12 +17,17 @@ Saga是由 **alpha** 和 **omega**组成，其中：
 下图展示了alpha, omega以及微服务三者的关系：
 ![Saga Pack 架构](docs/static_files/pack.png)
 
-详情可浏览[Saga Pack 设计文档](docs/design_zh.md). 
+详情可浏览[Saga Pack 设计文档](docs/design_zh.md).
+
+* Go语言版本Omega 可参见 https://github.com/jeremyxu2010/matrix-saga-go
+* C#语言版本Omega 可参见 https://github.com/OpenSagas-csharp/servicecomb-saga-csharp
+
 
 ## 快速入门
 * Saga在ServiceComb Java Chassis应用可以参考[出行预订](saga-demo/saga-servicecomb-demo/README.md)
 * Saga在Spring应用的用法可参考[出行预订示例](saga-demo/saga-spring-demo/README.md)。
 * Saga在Dubbo应用的用法可参考[Dubbo示例](saga-demo/saga-dubbo-demo/README.md).
+* Saga的调试方法可以参考[调试Spring示例](saga-demo/saga-spring-demo#debugging).
 
 ## 编译和运行代码
 * 编译代码并且运行相关的单元测试
@@ -52,7 +57,7 @@ JDK9或者JDK10 来编译Saga并运行测试的话，你需要使用 spring-boot
 
 ## 联系我们
 * [提交issues](https://issues.apache.org/jira/browse/SCB)
-* [gitter聊天室](https://gitter.im/ServiceCombUsers/Lobby)
+* [gitter聊天室](https://gitter.im/ServiceCombUsers/Saga)
 * 邮件列表: [订阅](mailto:dev-subscribe@servicecomb.incubator.apache.org) [浏览](https://lists.apache.org/list.html?dev@servicecomb.apache.org)
 
 ## 贡献

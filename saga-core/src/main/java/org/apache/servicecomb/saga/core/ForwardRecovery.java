@@ -50,4 +50,9 @@ public class ForwardRecovery implements RecoveryPolicy {
       throw new TransactionFailedException(ignored);
     }
   }
+
+  @Override
+  public String description() {
+    return getClass().getSimpleName();
+  }
 }

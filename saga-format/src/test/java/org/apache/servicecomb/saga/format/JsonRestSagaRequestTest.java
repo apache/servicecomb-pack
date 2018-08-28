@@ -29,6 +29,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Map;
+
 import org.apache.servicecomb.saga.transports.TransportFactory;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -67,14 +69,18 @@ public class JsonRestSagaRequestTest {
   @SuppressWarnings("unchecked")
   @Test
   public void defaultToNopFallbackIfNotSpecified() {
-    when(transportFactory.restTransport()).thenReturn(restTransport);
+    when(transportFactory.getTransport()).thenReturn(restTransport);
     JsonRestSagaRequest request = newSagaRequest(transaction, compensation, null);
 
     request.with(transportFactory);
 
     request.fallback().send(uniquify("blah"));
 
-    verify(restTransport, never()).with(anyString(), anyString(), anyString(), anyMap());
+    verify(restTransport, never()).with(anyString(), anyString(), anyString(), anyStringMap());
+  }
+
+  private Map<String, Map<String, String>> anyStringMap() {
+    return anyMap();
   }
 
   private JsonRestSagaRequest newSagaRequest(

@@ -19,6 +19,7 @@ package org.apache.servicecomb.saga.core;
 
 import static org.apache.servicecomb.saga.core.Compensation.SAGA_END_COMPENSATION;
 import static org.apache.servicecomb.saga.core.Compensation.SAGA_START_COMPENSATION;
+import static org.apache.servicecomb.saga.core.Fallback.NOP_FALLBACK;
 import static org.apache.servicecomb.saga.core.Operation.TYPE_NOP;
 import static org.apache.servicecomb.saga.core.SagaTask.SAGA_END_TASK;
 import static org.apache.servicecomb.saga.core.SagaTask.SAGA_START_TASK;
@@ -62,6 +63,11 @@ public class NoOpSagaRequest implements SagaRequest {
   @Override
   public Compensation compensation() {
     return compensation;
+  }
+
+  @Override
+  public Fallback fallback() {
+    return NOP_FALLBACK;
   }
 
   @Override

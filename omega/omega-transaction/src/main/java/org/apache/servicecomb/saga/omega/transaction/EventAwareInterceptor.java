@@ -18,23 +18,9 @@
 package org.apache.servicecomb.saga.omega.transaction;
 
 public interface EventAwareInterceptor {
-  EventAwareInterceptor NO_OP_INTERCEPTOR = new EventAwareInterceptor() {
-    @Override
-    public AlphaResponse preIntercept(String parentTxId, String compensationMethod, int timeout, String retriesMethod,
-        int retries, Object... message) {
-      return new AlphaResponse(false);
-    }
 
-    @Override
-    public void postIntercept(String parentTxId, String compensationMethod) {
-    }
-
-    @Override
-    public void onError(String parentTxId, String compensationMethod, Throwable throwable) {
-    }
-  };
-
-  AlphaResponse preIntercept(String parentTxId, String compensationMethod, int timeout, String retriesMethod,
+  AlphaResponse preIntercept(String parentTxId, String compensationMethod, int timeout,
+      String retriesMethod,
       int retries, Object... message);
 
   void postIntercept(String parentTxId, String compensationMethod);

@@ -29,9 +29,7 @@ import static org.mockito.Mockito.mock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import javax.transaction.TransactionalException;
-
 import org.apache.servicecomb.saga.common.EventType;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
@@ -75,9 +73,11 @@ public class SagaStartAnnotationProcessorTest {
   @SuppressWarnings("unchecked")
   private final IdGenerator<String> generator = mock(IdGenerator.class);
   private final OmegaContext context = new OmegaContext(generator);
-  private final OmegaException exception = new OmegaException("exception", new RuntimeException("runtime exception"));
+  private final OmegaException exception = new OmegaException("exception",
+      new RuntimeException("runtime exception"));
 
-  private final SagaStartAnnotationProcessor sagaStartAnnotationProcessor = new SagaStartAnnotationProcessor(context,
+  private final SagaStartAnnotationProcessor sagaStartAnnotationProcessor = new SagaStartAnnotationProcessor(
+      context,
       sender);
 
   @Before
@@ -88,7 +88,7 @@ public class SagaStartAnnotationProcessorTest {
 
   @Test
   public void sendsSagaStartedEvent() {
-    sagaStartAnnotationProcessor.preIntercept(null, null, 0, null, 0);
+    sagaStartAnnotationProcessor.preIntercept(0);
 
     TxEvent event = messages.get(0);
 
@@ -102,7 +102,7 @@ public class SagaStartAnnotationProcessorTest {
 
   @Test
   public void sendsSagaEndedEvent() {
-    sagaStartAnnotationProcessor.postIntercept(null, null);
+    sagaStartAnnotationProcessor.postIntercept(null);
 
     TxEvent event = messages.get(0);
 
@@ -117,12 +117,13 @@ public class SagaStartAnnotationProcessorTest {
   @Test
   public void transformInterceptedException() {
     MessageSender sender = mock(MessageSender.class);
-    SagaStartAnnotationProcessor sagaStartAnnotationProcessor = new SagaStartAnnotationProcessor(context, sender);
+    SagaStartAnnotationProcessor sagaStartAnnotationProcessor = new SagaStartAnnotationProcessor(
+        context, sender);
 
     doThrow(exception).when(sender).send(any(TxEvent.class));
 
     try {
-      sagaStartAnnotationProcessor.preIntercept(null, null, 0, null, 0);
+      sagaStartAnnotationProcessor.preIntercept(0);
       expectFailing(TransactionalException.class);
     } catch (TransactionalException e) {
       assertThat(e.getMessage(), is("exception"));
