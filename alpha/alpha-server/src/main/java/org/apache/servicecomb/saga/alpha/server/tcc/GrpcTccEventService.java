@@ -18,10 +18,11 @@
 package org.apache.servicecomb.saga.alpha.server.tcc;
 
 import io.grpc.stub.StreamObserver;
+import java.lang.invoke.MethodHandles;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallback;
-import org.apache.servicecomb.saga.alpha.server.tcc.registry.OmegaCallbacksRegistry;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.TccCallbackEngine;
 import org.apache.servicecomb.saga.alpha.server.tcc.event.ParticipateEventFactory;
+import org.apache.servicecomb.saga.alpha.server.tcc.registry.OmegaCallbacksRegistry;
 import org.apache.servicecomb.saga.alpha.server.tcc.registry.TransactionEventRegistry;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
@@ -30,11 +31,15 @@ import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccParticipatedEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccTransactionEndedEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccTransactionStartedEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.TccEventServiceGrpc;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Grpc TCC event service implement.
  */
 public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImplBase {
+
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private static final GrpcAck ALLOW = GrpcAck.newBuilder().setAborted(false).build();
   
@@ -50,10 +55,12 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
   @Override
   public void onConnected(GrpcServiceConfig request, StreamObserver<GrpcTccCoordinateCommand> responseObserver) {
     OmegaCallbacksRegistry.register(request, responseObserver);
+    LOG.info("Established connection service [{}] instanceId [{}].", request.getServiceName(), request.getInstanceId());
   }
 
   @Override
   public void onTccTransactionStarted(GrpcTccTransactionStartedEvent request, StreamObserver<GrpcAck> responseObserver) {
+    LOG.info("Received transaction start event, global tx id: {}", request.getGlobalTxId());
     responseObserver.onNext(ALLOW);
     responseObserver.onCompleted();
   }
@@ -67,6 +74,7 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
 
   @Override
   public void onTccTransactionEnded(GrpcTccTransactionEndedEvent request, StreamObserver<GrpcAck> responseObserver) {
+    LOG.info("Received transaction end event, global tx id: {}", request.getGlobalTxId());
     responseObserver.onNext(tccCallbackEngine.execute(request) ? ALLOW : REJECT);
     responseObserver.onCompleted();
   }
@@ -75,6 +83,7 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
   public void onDisconnected(GrpcServiceConfig request, StreamObserver<GrpcAck> responseObserver) {
     OmegaCallback omegaCallback = OmegaCallbacksRegistry.retrieveThenRemove(request.getServiceName(), request.getInstanceId());
     if (null != omegaCallback) {
+      LOG.info("Disconnect from alpha, service [{}] instanceId [{}].", request.getServiceName(), request.getInstanceId());
       omegaCallback.disconnect();
     }
     responseObserver.onNext(ALLOW);
