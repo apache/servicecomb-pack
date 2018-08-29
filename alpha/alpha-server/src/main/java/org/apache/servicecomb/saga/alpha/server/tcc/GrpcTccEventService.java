@@ -27,6 +27,7 @@ import org.apache.servicecomb.saga.alpha.server.tcc.registry.TransactionEventReg
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinatedEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccParticipatedEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccTransactionEndedEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccTransactionStartedEvent;
@@ -76,6 +77,16 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
   public void onTccTransactionEnded(GrpcTccTransactionEndedEvent request, StreamObserver<GrpcAck> responseObserver) {
     LOG.info("Received transaction end event, global tx id: {}", request.getGlobalTxId());
     responseObserver.onNext(tccCallbackEngine.execute(request) ? ALLOW : REJECT);
+    responseObserver.onCompleted();
+  }
+
+  @Override
+  public void onTccCoordinated(GrpcTccCoordinatedEvent request, StreamObserver<GrpcAck> responseObserver) {
+    LOG.info("Received coordinated event, global tx: {}, local tx: {}, parent id: {}, "
+            + "method: {}, status: {}, service [{}] instanceId [{}]",
+        request.getGlobalTxId(), request.getLocalTxId(), request.getParentTxId(),
+        request.getMethodName(), request.getStatus(), request.getServiceName(), request.getInstanceId());
+    responseObserver.onNext(ALLOW);
     responseObserver.onCompleted();
   }
   
