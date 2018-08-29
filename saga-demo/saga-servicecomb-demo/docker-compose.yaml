@@ -32,7 +32,7 @@ services:
         retries: 5
 
   alpha:
-    image: "alpha-server:0.3.0-SNAPSHOT"
+    image: "alpha-server:${TAG}"
     hostname: alpha-server
     links:
       - "database:postgresql.servicecomb.io"
@@ -54,7 +54,7 @@ services:
       - "30100:30100"
 
   hotel:
-    image: "scb-hotel:0.3.0-SNAPSHOT"
+    image: "scb-hotel:${TAG}"
     hostname: hotel
     links:
       - "alpha:alpha-server.servicecomb.io"
@@ -66,7 +66,7 @@ services:
         condition: service_healthy
 
   car:
-    image: "scb-car:0.3.0-SNAPSHOT"
+    image: "scb-car:${TAG}"
     hostname: car
     links:
       - "alpha:alpha-server.servicecomb.io"
@@ -78,7 +78,7 @@ services:
         condition: service_healthy
 
   booking:
-    image: "scb-booking:0.3.0-SNAPSHOT"
+    image: "scb-booking:${TAG}"
     hostname: booking
     links:
       - "alpha:alpha-server.servicecomb.io"
