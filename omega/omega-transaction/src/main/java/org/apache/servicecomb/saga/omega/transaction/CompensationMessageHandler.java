@@ -17,14 +17,14 @@
 
 package org.apache.servicecomb.saga.omega.transaction;
 
-import org.apache.servicecomb.saga.omega.context.CompensationContext;
+import org.apache.servicecomb.saga.omega.context.CallbackContext;
 
 public class CompensationMessageHandler implements MessageHandler {
   private final MessageSender sender;
 
-  private final CompensationContext context;
+  private final CallbackContext context;
 
-  public CompensationMessageHandler(MessageSender sender, CompensationContext context) {
+  public CompensationMessageHandler(MessageSender sender, CallbackContext context) {
     this.sender = sender;
     this.context = context;
   }

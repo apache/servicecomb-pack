@@ -23,15 +23,15 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.util.ReflectionUtils;
 
-class CompensableAnnotationProcessor implements BeanPostProcessor {
+class ParticipateAnnotationProcessor implements BeanPostProcessor {
 
   private final OmegaContext omegaContext;
 
-  private final CallbackContext compensationContext;
+  private final CallbackContext callbackContext;
 
-  CompensableAnnotationProcessor(OmegaContext omegaContext, CallbackContext compensationContext) {
+  ParticipateAnnotationProcessor(OmegaContext omegaContext, CallbackContext callbackContext) {
     this.omegaContext = omegaContext;
-    this.compensationContext = compensationContext;
+    this.callbackContext = callbackContext;
   }
 
   @Override
@@ -49,7 +49,7 @@ class CompensableAnnotationProcessor implements BeanPostProcessor {
   private void checkMethod(Object bean) {
     ReflectionUtils.doWithMethods(
         bean.getClass(),
-        new CompensableMethodCheckingCallback(bean, compensationContext));
+        new ParticipateMethodCheckingCallback(bean, callbackContext));
   }
 
   private void checkFields(Object bean) {

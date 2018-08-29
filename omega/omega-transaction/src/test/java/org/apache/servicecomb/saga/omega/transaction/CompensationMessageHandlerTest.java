@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.servicecomb.saga.common.EventType;
-import org.apache.servicecomb.saga.omega.context.CompensationContext;
+import org.apache.servicecomb.saga.omega.context.CallbackContext;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -68,7 +68,7 @@ public class CompensationMessageHandlerTest {
   private final String compensationMethod = getClass().getCanonicalName();
   private final String payload = uniquify("blah");
 
-  private final CompensationContext context = mock(CompensationContext.class);
+  private final CallbackContext context = mock(CallbackContext.class);
 
   private final CompensationMessageHandler handler = new CompensationMessageHandler(sender, context);
 

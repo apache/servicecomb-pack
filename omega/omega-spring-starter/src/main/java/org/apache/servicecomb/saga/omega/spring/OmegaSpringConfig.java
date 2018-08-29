@@ -23,7 +23,7 @@ import io.grpc.ManagedChannelBuilder;
 import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.saga.omega.connector.grpc.GrpcTccEventService;
 import org.apache.servicecomb.saga.omega.connector.grpc.LoadBalancedClusterMessageSender;
-import org.apache.servicecomb.saga.omega.context.CompensationContext;
+import org.apache.servicecomb.saga.omega.context.CallbackContext;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
@@ -52,9 +52,14 @@ class OmegaSpringConfig {
     return new OmegaContext(idGenerator);
   }
 
-  @Bean
-  CompensationContext compensationContext(OmegaContext omegaContext) {
-    return new CompensationContext(omegaContext);
+  @Bean(name = {"compensationContext"})
+  CallbackContext compensationContext(OmegaContext omegaContext) {
+    return new CallbackContext(omegaContext);
+  }
+
+  @Bean(name = {"coordinateContext"})
+  CallbackContext coordinateContext(OmegaContext omegaContext) {
+    return new CallbackContext(omegaContext);
   }
 
   @Bean

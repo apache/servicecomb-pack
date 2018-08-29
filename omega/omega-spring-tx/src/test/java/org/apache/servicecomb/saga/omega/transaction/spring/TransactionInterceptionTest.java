@@ -40,7 +40,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.servicecomb.saga.omega.context.CompensationContext;
+import org.apache.servicecomb.saga.omega.context.CallbackContext;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
@@ -408,8 +408,8 @@ public class TransactionInterceptionTest {
     private final List<String> messages = new ArrayList<>();
 
     @Bean
-    CompensationContext recoveryContext(OmegaContext omegaContext) {
-      return new CompensationContext(omegaContext);
+    CallbackContext recoveryContext(OmegaContext omegaContext) {
+      return new CallbackContext(omegaContext);
     }
 
     @Bean
