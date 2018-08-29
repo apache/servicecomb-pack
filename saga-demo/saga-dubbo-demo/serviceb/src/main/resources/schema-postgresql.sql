@@ -23,4 +23,4 @@ CREATE TABLE IF NOT EXISTS testb (
 
 CREATE INDEX IF NOT EXISTS testb_index ON testb (id, service);
 
-INSERT INTO testb (id, service, vstatus) VALUES ('1','serviceb','init');
+INSERT INTO testb SELECT '2','serviceb','init' WHERE NOT EXISTS (SELECT 1 FROM testb WHERE id = '2');

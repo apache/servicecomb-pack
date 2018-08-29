@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-CREATE TABLE `testb` (
+CREATE TABLE IF NOT EXISTS `testb` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `service` varchar(128) DEFAULT NULL,
   `vstatus` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
-INSERT INTO `testb` (`id`, `service`, `vstatus`) VALUES ('2','serviceb','init');
+INSERT INTO testb SELECT '2','serviceb','init' WHERE NOT EXISTS (SELECT 1 FROM testb WHERE id = '2');

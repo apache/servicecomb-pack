@@ -23,10 +23,14 @@ You can run the demo using either docker compose or executable files.
 ### via docker compose
 1. run the following command to create docker images in saga project root folder.
    ```
-   mvn clean package -DskipTests -Pdocker -Pdemo
+   mvn clean install -DskipTests -Pdocker -Pdemo
    ```
-
-2. start the whole application up(including alpha server and three demo services)
+2. Enter the saga spring demo directory and give permissions to script
+   ```
+   cd ./saga-demo/saga-spring-demo
+   chmod +x saga-demo.sh
+   ```
+3. start the whole application up(including alpha server and three demo services)
    ```
    ./saga-demo.sh up
    ```
@@ -39,16 +43,13 @@ You can run the demo using either docker compose or executable files.
             <artifactId>mysql-connector-java</artifactId>
           </dependency>
       ```
-   2. remove alpha server's docker image
-      ```bash
-      docker rmi -f $(docker images | grep alpha-server | awk '{print $3}')
-      ```
-   3. re-generate saga's docker images
+   2. re-generate saga's docker images in saga project root folder
       ```bash
       mvn package -DskipTests -Pdocker -Pdemo
       ```
-   4. start application up in `saga-demo/booking` with the following command
+   3. start application up in `saga-demo/booking` with the following command
       ```
+	  cd ./saga-demo/saga-spring-demo
       ./saga-demo.sh up-mysql
       ```
 
@@ -62,7 +63,7 @@ You can run the demo using either docker compose or executable files.
           ./saga-demo.sh up-demo
       ```
 
-3. stop application
+4. stop application
    ```
    ./saga-demo.sh down
    ```

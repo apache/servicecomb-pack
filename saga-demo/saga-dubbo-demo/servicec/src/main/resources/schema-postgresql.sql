@@ -23,4 +23,4 @@ CREATE TABLE IF NOT EXISTS testc (
 
 CREATE INDEX IF NOT EXISTS testc_index ON testc (id, service);
 
-INSERT INTO testc (id, service, vstatus) VALUES ('1','servicec','init');
+INSERT INTO testc SELECT '3','servicec','init' WHERE NOT EXISTS (SELECT 1 FROM testc WHERE id = '3');
