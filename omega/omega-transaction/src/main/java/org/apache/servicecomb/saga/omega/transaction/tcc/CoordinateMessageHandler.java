@@ -18,19 +18,28 @@
 package org.apache.servicecomb.saga.omega.transaction.tcc;
 
 import org.apache.servicecomb.saga.common.TransactionStatus;
+import org.apache.servicecomb.saga.omega.context.CallbackContext;
+import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent;
 
 public class CoordinateMessageHandler implements MessageHandler {
 
   private final TccEventService tccEventService;
 
-  public CoordinateMessageHandler(TccEventService tccEventService) {
+  private final CallbackContext callbackContext;
+
+  private final OmegaContext omegaContext;
+
+  public CoordinateMessageHandler(TccEventService tccEventService,
+      CallbackContext callbackContext, OmegaContext omegaContext) {
     this.tccEventService = tccEventService;
+    this.callbackContext = callbackContext;
+    this.omegaContext = omegaContext;
   }
 
   @Override
   public void onReceive(String globalTxId, String localTxId, String parentTxId, String methodName) {
-    //TODO Omega Call the service
+    callbackContext.apply(globalTxId, localTxId, methodName, omegaContext.parameters());
     tccEventService.coordinate(new CoordinatedEvent(globalTxId, localTxId, parentTxId, methodName, TransactionStatus.Succeed));
   }
 }

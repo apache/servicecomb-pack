@@ -17,6 +17,8 @@
 
 package org.apache.servicecomb.saga.omega.context;
 
+import java.util.Collection;
+
 /**
  * OmegaContext holds the globalTxId and localTxId which are used to build the invocation map
  */
@@ -27,6 +29,7 @@ public class OmegaContext {
   private final ThreadLocal<String> globalTxId = new InheritableThreadLocal<>();
   private final ThreadLocal<String> localTxId = new InheritableThreadLocal<>();
   private final IdGenerator<String> idGenerator;
+  private final ThreadLocal<Collection> parameters = new InheritableThreadLocal<>();
 
   public OmegaContext(IdGenerator<String> idGenerator) {
     this.idGenerator = idGenerator;
@@ -60,9 +63,18 @@ public class OmegaContext {
     return localTxId.get();
   }
 
+  public void setParameters(Collection parameters) {
+    this.parameters.set(parameters);
+  }
+
+  public Collection parameters() {
+    return parameters.get();
+  }
+
   public void clear() {
     globalTxId.remove();
     localTxId.remove();
+    parameters.remove();
   }
 
   @Override
