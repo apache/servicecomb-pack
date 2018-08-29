@@ -40,7 +40,7 @@ services:
         retries: 5
 
   car-rental-service:
-    image: "car-rental-service:0.0.3-SNAPSHOT"
+    image: "car-rental-service:0.3.0-SNAPSHOT"
     hostname: car
     links:
       - "service-center:sc.servicecomb.io"
@@ -48,7 +48,7 @@ services:
       - "8080"
 
   flight-booking-service:
-    image: "flight-booking-service:0.0.3-SNAPSHOT"
+    image: "flight-booking-service:0.3.0-SNAPSHOT"
     hostname: flight
     links:
       - "service-center:sc.servicecomb.io"
@@ -56,7 +56,7 @@ services:
       - "8080"
 
   hotel-reservation-service:
-    image: "hotel-reservation-service:0.0.3-SNAPSHOT"
+    image: "hotel-reservation-service:0.3.0-SNAPSHOT"
     hostname: hotel
     links:
       - "service-center:sc.servicecomb.io"
@@ -64,7 +64,7 @@ services:
       - "8080"
 
   payment-service:
-    image: "payment-service:0.0.3-SNAPSHOT"
+    image: "payment-service:0.3.0-SNAPSHOT"
     hostname: payment
     links:
       - "service-center:sc.servicecomb.io"
@@ -72,7 +72,7 @@ services:
       - "8080"
 
   saga:
-    image: "saga-spring:0.0.3-SNAPSHOT"
+    image: "saga-spring:0.3.0-SNAPSHOT"
     hostname: saga
     links:
       - "postgres:postgres.servicecomb.io"
@@ -90,7 +90,7 @@ services:
         condition: service_healthy
 
   web:
-    image: "saga-web:0.0.3-SNAPSHOT"
+    image: "saga-web:0.3.0-SNAPSHOT"
     hostname: web
     links:
       - "service-center:sc.servicecomb.io"
