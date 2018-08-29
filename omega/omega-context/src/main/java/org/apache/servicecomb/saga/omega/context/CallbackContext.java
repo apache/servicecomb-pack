@@ -22,39 +22,38 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CallbackContext {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private final Map<String, CompensationContextInternal> contexts = new ConcurrentHashMap<>();
+  private final Map<String, CallbackContextInternal> contexts = new ConcurrentHashMap<>();
   private final OmegaContext omegaContext;
 
   public CallbackContext(OmegaContext omegaContext) {
     this.omegaContext = omegaContext;
   }
 
-  public void addCompensationContext(Method compensationMethod, Object target) {
+  public void addCallbackContext(Method compensationMethod, Object target) {
     compensationMethod.setAccessible(true);
-    contexts.put(compensationMethod.toString(), new CompensationContextInternal(target, compensationMethod));
+    contexts.put(compensationMethod.toString(), new CallbackContextInternal(target, compensationMethod));
   }
 
-  public void apply(String globalTxId, String localTxId, String compensationMethod, Object... payloads) {
-    CompensationContextInternal contextInternal = contexts.get(compensationMethod);
+  public void apply(String globalTxId, String localTxId, String callbackMethod, Object... payloads) {
+    CallbackContextInternal contextInternal = contexts.get(callbackMethod);
 
     String oldGlobalTxId = omegaContext.globalTxId();
     String oldLocalTxId= omegaContext.localTxId();
     try {
       omegaContext.setGlobalTxId(globalTxId);
       omegaContext.setLocalTxId(localTxId);
-      contextInternal.compensationMethod.invoke(contextInternal.target, payloads);
-      LOG.info("Compensated transaction with global tx id [{}], local tx id [{}]", globalTxId, localTxId);
+      contextInternal.callbackMethod.invoke(contextInternal.target, payloads);
+      LOG.info("Callback transaction with global tx id [{}], local tx id [{}]", globalTxId, localTxId);
     } catch (IllegalAccessException | InvocationTargetException e) {
       LOG.error(
-          "Pre-checking for compensation method " + contextInternal.compensationMethod.toString()
-              + " was somehow skipped, did you forget to configure compensable method checking on service startup?",
+          "Pre-checking for callback method " + contextInternal.callbackMethod.toString()
+              + " was somehow skipped, did you forget to configure callback method checking on service startup?",
           e);
     } finally {
       omegaContext.setGlobalTxId(oldGlobalTxId);
@@ -62,14 +61,14 @@ public class CallbackContext {
     }
   }
 
-  private static final class CompensationContextInternal {
+  private static final class CallbackContextInternal {
     private final Object target;
 
-    private final Method compensationMethod;
+    private final Method callbackMethod;
 
-    private CompensationContextInternal(Object target, Method compensationMethod) {
+    private CallbackContextInternal(Object target, Method callbackMethod) {
       this.target = target;
-      this.compensationMethod = compensationMethod;
+      this.callbackMethod = callbackMethod;
     }
   }
 }

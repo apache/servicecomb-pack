@@ -45,7 +45,7 @@ public abstract class MethodCheckingCallback implements MethodCallback {
     for (String each : candidates) {
       try {
         Method signature = bean.getClass().getDeclaredMethod(each, method.getParameterTypes());
-        callbackContext.addCompensationContext(signature, bean);
+        callbackContext.addCallbackContext(signature, bean);
         LOG.debug("Found callback method [{}] in {}", each, bean.getClass().getCanonicalName());
       } catch (NoSuchMethodException ex) {
         throw new OmegaException(
