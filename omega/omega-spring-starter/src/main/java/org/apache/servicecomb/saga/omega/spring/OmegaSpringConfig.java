@@ -18,7 +18,10 @@
 package org.apache.servicecomb.saga.omega.spring;
 
 import com.google.common.collect.ImmutableList;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
+import org.apache.servicecomb.saga.omega.connector.grpc.GrpcTccEventService;
 import org.apache.servicecomb.saga.omega.connector.grpc.LoadBalancedClusterMessageSender;
 import org.apache.servicecomb.saga.omega.context.CompensationContext;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
@@ -29,6 +32,7 @@ import org.apache.servicecomb.saga.omega.format.KryoMessageFormat;
 import org.apache.servicecomb.saga.omega.format.MessageFormat;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
+import org.apache.servicecomb.saga.omega.transaction.tcc.TccEventService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -98,5 +102,14 @@ class OmegaSpringConfig {
       }
     }));
     return sender;
+  }
+
+  // TODO should integrate with loadBalance message sender in future.
+  @Bean
+  TccEventService tccEventService(ServiceConfig serviceConfig,
+      @Lazy org.apache.servicecomb.saga.omega.transaction.tcc.MessageHandler coordinateMessageHandler,
+      @Value("${alpha.cluster.address:localhost:8080}") String address) {
+    ManagedChannel channel = ManagedChannelBuilder.forTarget(address).usePlaintext().build();
+    return new GrpcTccEventService(serviceConfig, channel, address, coordinateMessageHandler);
   }
 }
