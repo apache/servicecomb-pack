@@ -38,6 +38,7 @@ import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinatedEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccParticipatedEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccTransactionEndedEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccTransactionStartedEvent;
@@ -157,6 +158,9 @@ public class AlphaTccServerTest {
     assertThat(command.getMethod(), is("confirm"));
     assertThat(command.getGlobalTxId(), is(globalTxId));
     assertThat(command.getServiceName(), is(serviceName));
+
+    GrpcAck result = blockingStub.onTccCoordinated(newCoordinatedEvent("Succeed", "Confirm"));
+    assertThat(result.getAborted(), is(false));
   }
 
   @Test
@@ -255,6 +259,18 @@ public class AlphaTccServerTest {
         .setStatus(status)
         .build();
   }
+
+  private GrpcTccCoordinatedEvent newCoordinatedEvent(String status, String method) {
+    return GrpcTccCoordinatedEvent.newBuilder()
+        .setGlobalTxId(globalTxId)
+        .setLocalTxId(localTxId)
+        .setServiceName(serviceName)
+        .setInstanceId(instanceId)
+        .setMethodName(method)
+        .setStatus(status)
+        .build();
+  }
+
 
   private GrpcAck onReceivedCoordinateCommand(GrpcTccCoordinateCommand command) {
     return GrpcAck.newBuilder().setAborted(false).build();
