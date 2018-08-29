@@ -26,6 +26,10 @@ import org.apache.servicecomb.saga.alpha.core.TxEvent;
 import org.apache.servicecomb.saga.alpha.core.TxEventRepository;
 import org.springframework.data.domain.PageRequest;
 
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Segment;
+
+@EnableKamon
 class SpringTxEventRepository implements TxEventRepository {
   private static final PageRequest SINGLE_TX_EVENT_REQUEST = new PageRequest(0, 1);
   private final TxEventEnvelopeRepository eventRepo;
@@ -35,36 +39,43 @@ class SpringTxEventRepository implements TxEventRepository {
   }
 
   @Override
+  @Segment(name = "TxEventSave", category = "application", library = "kamon")
   public void save(TxEvent event) {
     eventRepo.save(event);
   }
 
   @Override
+  @Segment(name = "findFirstAbortedGloableTransaction", category = "application", library = "kamon")
   public Optional<List<TxEvent>> findFirstAbortedGlobalTransaction() {
     return eventRepo.findFirstAbortedGlobalTxByType();
   }
 
   @Override
+  @Segment(name = "findTimeoutEvents", category = "application", library = "kamon")
   public List<TxEvent> findTimeoutEvents() {
     return eventRepo.findTimeoutEvents(SINGLE_TX_EVENT_REQUEST);
   }
 
   @Override
+  @Segment(name = "findTxStartedEvent", category = "application", library = "kamon")
   public Optional<TxEvent> findTxStartedEvent(String globalTxId, String localTxId) {
     return eventRepo.findFirstStartedEventByGlobalTxIdAndLocalTxId(globalTxId, localTxId);
   }
 
   @Override
+  @Segment(name = "findTransactions", category = "application", library = "kamon")
   public List<TxEvent> findTransactions(String globalTxId, String type) {
     return eventRepo.findByEventGlobalTxIdAndEventType(globalTxId, type);
   }
 
   @Override
+  @Segment(name = "findFirstUncompensatedEventByIdGreaterThan", category = "application", library = "kamon")
   public List<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id, String type) {
     return eventRepo.findFirstByTypeAndSurrogateIdGreaterThan(type, id, SINGLE_TX_EVENT_REQUEST);
   }
 
   @Override
+  @Segment(name = "findFirstCompensatedEventByIdGreaterThan", category = "application", library = "kamon")
   public Optional<TxEvent> findFirstCompensatedEventByIdGreaterThan(long id) {
     return eventRepo.findFirstByTypeAndSurrogateIdGreaterThan(TxCompensatedEvent.name(), id);
   }

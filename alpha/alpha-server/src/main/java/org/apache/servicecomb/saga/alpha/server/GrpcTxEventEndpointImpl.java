@@ -79,7 +79,7 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
   }
 
   @Override
-  @Trace("ontransactionEvent")
+  @Trace("onTransactionEvent")
   public void onTxEvent(GrpcTxEvent message, StreamObserver<GrpcAck> responseObserver) {
     boolean ok = txConsistentService.handle(new TxEvent(
         message.getServiceName(),

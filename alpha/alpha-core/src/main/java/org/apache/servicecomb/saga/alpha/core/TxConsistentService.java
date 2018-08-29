@@ -28,6 +28,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Segment;
+
+@EnableKamon
 public class TxConsistentService {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -38,7 +42,7 @@ public class TxConsistentService {
   public TxConsistentService(TxEventRepository eventRepository) {
     this.eventRepository = eventRepository;
   }
-
+  @Segment(name = "handleTxEvent", category = "application", library = "kamon")
   public boolean handle(TxEvent event) {
     if (types.contains(event.type()) && isGlobalTxAborted(event)) {
       LOG.info("Transaction event {} rejected, because its parent with globalTxId {} was already aborted",
@@ -51,6 +55,7 @@ public class TxConsistentService {
     return true;
   }
 
+  @Segment(name = "isGlobalTxAborted", category = "application", library = "kamon")
   private boolean isGlobalTxAborted(TxEvent event) {
     return !eventRepository.findTransactions(event.globalTxId(), TxAbortedEvent.name()).isEmpty();
   }
