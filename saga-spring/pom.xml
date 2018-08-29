@@ -218,14 +218,38 @@
           <artifactId>kamon-statsd_2.12</artifactId>
         </dependency>
         <dependency>
-          <groupId>io.kamon</groupId>
-          <artifactId>kamon-autoweave_2.12</artifactId>
-        </dependency>
-        <dependency>
           <groupId>org.aspectj</groupId>
           <artifactId>aspectjweaver</artifactId>
         </dependency>
       </dependencies>
+      <!-- copy the aspectj file -->
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>aspectj.copy</id>
+                <phase>process-test-resources</phase>
+                <goals>
+                  <goal>copy</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.aspectj</groupId>
+                      <artifactId>aspectjweaver</artifactId>
+                    </artifactItem>
+                  </artifactItems>
+                  <outputDirectory>${project.build.directory}/saga</outputDirectory>
+                  <stripVersion>true</stripVersion>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 
