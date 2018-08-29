@@ -25,7 +25,7 @@ import org.springframework.util.ReflectionUtils.MethodCallback;
 public class ParticipateMethodCheckingCallback extends MethodCheckingCallback implements MethodCallback {
 
   public ParticipateMethodCheckingCallback(Object bean, CallbackContext callbackContext) {
-    super(bean, callbackContext);
+    super(bean, callbackContext, "coordinate");
   }
 
   @Override

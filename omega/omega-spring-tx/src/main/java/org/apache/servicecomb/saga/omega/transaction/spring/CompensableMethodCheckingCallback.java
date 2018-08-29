@@ -25,7 +25,7 @@ import org.springframework.util.ReflectionUtils.MethodCallback;
 class CompensableMethodCheckingCallback extends MethodCheckingCallback implements MethodCallback {
 
   public CompensableMethodCheckingCallback(Object bean, CallbackContext callbackContext) {
-    super(bean, callbackContext);
+    super(bean, callbackContext, "compensation");
   }
 
   @Override
