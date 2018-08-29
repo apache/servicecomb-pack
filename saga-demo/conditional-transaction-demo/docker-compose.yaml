@@ -34,31 +34,31 @@ services:
         retries: 5
 
   payment:
-    image: "payment:0.0.3-SNAPSHOT"
+    image: "payment:0.3.0-SNAPSHOT"
     hostname: payment
     ports:
       - "8080"
 
   membership:
-    image: "membership:0.0.3-SNAPSHOT"
+    image: "membership:0.3.0-SNAPSHOT"
     hostname: membership
     ports:
       - "8080"
 
   inventory:
-    image: "inventory:0.0.3-SNAPSHOT"
+    image: "inventory:0.3.0-SNAPSHOT"
     hostname: inventory
     ports:
       - "8080"
 
   supplier:
-    image: "supplier:0.0.3-SNAPSHOT"
+    image: "supplier:0.3.0-SNAPSHOT"
     hostname: supplier
     ports:
       - "8080"
 
   saga:
-    image: "saga-spring:0.0.3-SNAPSHOT"
+    image: "saga-spring:0.3.0-SNAPSHOT"
     hostname: saga
     links:
       - "postgres:postgres.servicecomb.io"
