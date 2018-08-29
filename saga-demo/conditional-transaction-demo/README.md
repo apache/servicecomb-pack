@@ -42,12 +42,7 @@ when the recovery policy if backward recovery.
 	mvn package -DskipTests -Pdocker -Pdemo
 	```
 
-2. start application up in saga/saga-demo/conditional-transaction-demo with the following command
-    ```
-    chmod +x conditional-transaction-demo.sh
-    ./conditional-transaction-demo.sh up
-    ```
-3. stop application
+2. stop application
    ```
    ./conditional-transaction-demo.sh down
    ```

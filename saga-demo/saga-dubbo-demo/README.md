@@ -19,12 +19,7 @@ You will need:
    ```
    mvn clean install -DskipTests -Pdocker -Pdemo
    ```
-2. Enter the saga dubbo demo directory and give permissions to script
-   ```
-   cd ./saga-demo/saga-dubbo-demo
-   chmod +x saga-dubbo-demo.sh
-   ```
-3. start the whole application up(including alpha server and three demo services)
+2. start the whole application up(including alpha server and three demo services)
    ```
    ./saga-dubbo-demo.sh up
    ```

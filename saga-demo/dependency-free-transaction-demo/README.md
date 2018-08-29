@@ -28,13 +28,7 @@ User ---> Saga -----> flight booking service
 	```
 	mvn package -DskipTests -Pdocker -Pdemo
 	```
-
-2. start application up in saga/saga-demo/dependency-free-transaction-demo with the following command
-    ```
-    chmod +x dependency-free-transaction-demo.sh
-    ./dependency-free-transaction-demo.sh up
-    ```
-3. stop application
+2. stop application
    ```
    ./dependency-free-transaction-demo.sh down
    ```
