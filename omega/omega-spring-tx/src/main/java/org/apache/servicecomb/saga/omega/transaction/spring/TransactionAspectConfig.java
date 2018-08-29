@@ -24,6 +24,10 @@ import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.SagaStartAspect;
 import org.apache.servicecomb.saga.omega.transaction.TransactionAspect;
+import org.apache.servicecomb.saga.omega.transaction.tcc.CoordinateMessageHandler;
+import org.apache.servicecomb.saga.omega.transaction.tcc.TccEventService;
+import org.apache.servicecomb.saga.omega.transaction.tcc.TccParticipatorAspect;
+import org.apache.servicecomb.saga.omega.transaction.tcc.TccStartAspect;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -54,5 +58,23 @@ public class TransactionAspectConfig {
   CompensableAnnotationProcessor compensableAnnotationProcessor(OmegaContext omegaContext,
       CompensationContext compensationContext) {
     return new CompensableAnnotationProcessor(omegaContext, compensationContext);
+  }
+
+  @Bean
+  org.apache.servicecomb.saga.omega.transaction.tcc.MessageHandler coordinateMessageHandler(
+      TccEventService tccEventService) {
+    return new CoordinateMessageHandler(tccEventService);
+  }
+
+  @Order(2)
+  @Bean
+  TccStartAspect tccStartAspect(TccEventService tccEventService, OmegaContext context) {
+    return new TccStartAspect(tccEventService, context);
+  }
+
+  @Order(3)
+  @Bean
+  TccParticipatorAspect tccParticipatorAspect(TccEventService tccEventService, OmegaContext context) {
+    return new TccParticipatorAspect(tccEventService, context);
   }
 }
