@@ -6,6 +6,8 @@
 ## Saga
 - [*] [SCB-665](https://issues.apache.org/jira/browse/SCB-665) Support TCC (epic)
 - [] [SCB-16](https://issues.apache.org/jira/browse/SCB-16) Using MQ to increase the availability (epic)
+- [] [SCB-878](https://issues.apache.org/jira/browse/SCB-878) Pack Performance Tuning (epic)
+
 
 ### DEMO
 - [*] [SCB-244](https://issues.apache.org/jira/browse/SCB-244) Add demo to use pack with Java-Chassis (new++)
