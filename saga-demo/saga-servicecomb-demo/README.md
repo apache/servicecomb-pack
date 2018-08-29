@@ -26,11 +26,19 @@ You can run the demo using either docker compose or executable files.
    ```
    mvn clean package -DskipTests -Pdocker -Pdemo
    ```
-2. start the whole application up(including alpha server and three demo services)
+2. Enter the saga servicecomb demo directory and give permissions to script
    ```
-   docker-compose up
+   cd ./saga-demo/saga-servicecomb-demo
+   chmod +x saga-servicecomb-demo.sh
    ```
-
+3. start the whole application up(including alpha server and three demo services)
+    ```
+    ./saga-servicecomb-demo.sh up
+    ```
+4. stop application
+   ```
+   ./saga-servicecomb-demo.sh down
+   ```
 ## User Requests by command line tools
 1. Booking 2 rooms and 2 cars, this booking will be OK.
 ```

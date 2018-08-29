@@ -25,14 +25,19 @@ User ---> Saga -----> flight booking service
 
 ## Running Demo
 1. run the following command to create docker images in saga project root folder.
-```
-mvn package -DskipTests -Pdocker -Pdemo
-```
+	```
+	mvn package -DskipTests -Pdocker -Pdemo
+	```
 
 2. start application up in saga/saga-demo/dependency-free-transaction-demo with the following command
-```
-docker-compose up
-```
+    ```
+    chmod +x dependency-free-transaction-demo.sh
+    ./dependency-free-transaction-demo.sh up
+    ```
+3. stop application
+   ```
+   ./dependency-free-transaction-demo.sh down
+   ```
 
 ## User Requests
 A user normally expects to make payment only when transactions with all three services are completed successfully. So Saga

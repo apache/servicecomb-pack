@@ -38,14 +38,19 @@ when the recovery policy if backward recovery.
 
 ## Running Demo
 1. run the following command to create docker images in saga project root folder.
-```
-mvn package -DskipTests -Pdocker -Pdemo
-```
+	```
+	mvn package -DskipTests -Pdocker -Pdemo
+	```
 
 2. start application up in saga/saga-demo/conditional-transaction-demo with the following command
-```
-docker-compose up
-```
+    ```
+    chmod +x conditional-transaction-demo.sh
+    ./conditional-transaction-demo.sh up
+    ```
+3. stop application
+   ```
+   ./conditional-transaction-demo.sh down
+   ```
 
 ## User Requests
 The request JSON to ensure the workflow order looks like the following:
