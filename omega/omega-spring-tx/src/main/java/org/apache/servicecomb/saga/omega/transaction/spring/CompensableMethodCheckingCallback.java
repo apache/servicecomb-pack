@@ -17,26 +17,15 @@
 
 package org.apache.servicecomb.saga.omega.transaction.spring;
 
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
-
-import org.apache.servicecomb.saga.omega.context.CompensationContext;
-import org.apache.servicecomb.saga.omega.transaction.OmegaException;
+import org.apache.servicecomb.saga.omega.context.CallbackContext;
 import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 
-class CompensableMethodCheckingCallback implements MethodCallback {
-  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+class CompensableMethodCheckingCallback extends MethodCheckingCallback implements MethodCallback {
 
-  private final Object bean;
-
-  private final CompensationContext compensationContext;
-
-  CompensableMethodCheckingCallback(Object bean, CompensationContext compensationContext) {
-    this.bean = bean;
-    this.compensationContext = compensationContext;
+  public CompensableMethodCheckingCallback(Object bean, CallbackContext callbackContext) {
+    super(bean, callbackContext);
   }
 
   @Override
@@ -44,21 +33,7 @@ class CompensableMethodCheckingCallback implements MethodCallback {
     if (!method.isAnnotationPresent(Compensable.class)) {
       return;
     }
-
     String compensationMethod = method.getAnnotation(Compensable.class).compensationMethod();
-
-    try {
-      compensationContext.addCompensationContext(method, bean);
-
-      if (!compensationMethod.isEmpty()) {
-        Method signature = bean.getClass().getDeclaredMethod(compensationMethod, method.getParameterTypes());
-        compensationContext.addCompensationContext(signature, bean);
-        LOG.debug("Found compensation method [{}] in {}", compensationMethod, bean.getClass().getCanonicalName());
-      }
-    } catch (NoSuchMethodException e) {
-      throw new OmegaException(
-          "No such compensation method [" + compensationMethod + "] found in " + bean.getClass().getCanonicalName(),
-          e);
-    }
+    loadMethodContext(method, compensationMethod);
   }
 }

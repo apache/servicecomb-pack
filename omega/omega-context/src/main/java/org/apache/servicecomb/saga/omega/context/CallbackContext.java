@@ -26,13 +26,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CompensationContext {
+public class CallbackContext {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final Map<String, CompensationContextInternal> contexts = new ConcurrentHashMap<>();
   private final OmegaContext omegaContext;
 
-  public CompensationContext(OmegaContext omegaContext) {
+  public CallbackContext(OmegaContext omegaContext) {
     this.omegaContext = omegaContext;
   }
 

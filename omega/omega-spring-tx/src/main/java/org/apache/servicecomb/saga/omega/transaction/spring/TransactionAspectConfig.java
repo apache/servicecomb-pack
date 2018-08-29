@@ -17,7 +17,7 @@
 
 package org.apache.servicecomb.saga.omega.transaction.spring;
 
-import org.apache.servicecomb.saga.omega.context.CompensationContext;
+import org.apache.servicecomb.saga.omega.context.CallbackContext;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.CompensationMessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
@@ -28,6 +28,7 @@ import org.apache.servicecomb.saga.omega.transaction.tcc.CoordinateMessageHandle
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccEventService;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccParticipatorAspect;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccStartAspect;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -38,7 +39,8 @@ import org.springframework.core.annotation.Order;
 public class TransactionAspectConfig {
 
   @Bean
-  MessageHandler messageHandler(MessageSender sender, CompensationContext context, OmegaContext omegaContext) {
+  MessageHandler messageHandler(MessageSender sender,
+      @Qualifier("compensationContext") CallbackContext context, OmegaContext omegaContext) {
     return new CompensationMessageHandler(sender, context);
   }
 
@@ -56,7 +58,7 @@ public class TransactionAspectConfig {
 
   @Bean
   CompensableAnnotationProcessor compensableAnnotationProcessor(OmegaContext omegaContext,
-      CompensationContext compensationContext) {
+      @Qualifier("compensationContext") CallbackContext compensationContext) {
     return new CompensableAnnotationProcessor(omegaContext, compensationContext);
   }
 
@@ -76,5 +78,11 @@ public class TransactionAspectConfig {
   @Bean
   TccParticipatorAspect tccParticipatorAspect(TccEventService tccEventService, OmegaContext context) {
     return new TccParticipatorAspect(tccEventService, context);
+  }
+
+  @Bean
+  ParticipateAnnotationProcessor participateAnnotationProcessor(OmegaContext omegaContext,
+      @Qualifier("coordinateContext") CallbackContext coordinateContext) {
+    return new ParticipateAnnotationProcessor(omegaContext, coordinateContext);
   }
 }
