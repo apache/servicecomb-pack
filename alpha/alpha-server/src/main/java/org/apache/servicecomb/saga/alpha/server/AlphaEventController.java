@@ -34,6 +34,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Trace;
+
+@EnableKamon
 @Controller
 @RequestMapping("/")
 class AlphaEventController {
@@ -45,6 +49,7 @@ class AlphaEventController {
     this.eventRepository = eventRepository;
   }
 
+  @Trace("getEvents")
   @GetMapping(value = "/events")
   ResponseEntity<Collection<TxEventVo>> events() {
     LOG.info("Get the events request");
@@ -57,6 +62,7 @@ class AlphaEventController {
     return ResponseEntity.ok(eventVos);
   }
 
+  @Trace("deleteEvents")
   @DeleteMapping("/events")
   ResponseEntity<String> clear() {
     eventRepository.deleteAll();
