@@ -43,16 +43,13 @@ You can run the demo using either docker compose or executable files.
             <artifactId>mysql-connector-java</artifactId>
           </dependency>
       ```
-   2. remove alpha server's docker image
-      ```bash
-      docker rmi -f $(docker images | grep alpha-server | awk '{print $3}')
-      ```
-   3. re-generate saga's docker images
+   2. re-generate saga's docker images in saga project root folder
       ```bash
       mvn package -DskipTests -Pdocker -Pdemo
       ```
-   4. start application up in `saga-demo/booking` with the following command
+   3. start application up in `saga-demo/booking` with the following command
       ```
+	  cd ./saga-demo/saga-spring-demo
       ./saga-demo.sh up-mysql
       ```
 
