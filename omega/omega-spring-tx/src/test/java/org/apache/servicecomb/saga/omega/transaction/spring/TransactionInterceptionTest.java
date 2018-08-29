@@ -53,6 +53,11 @@ import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxStartedEvent;
 import org.apache.servicecomb.saga.omega.transaction.spring.TransactionInterceptionTest.MessageConfig;
 import org.apache.servicecomb.saga.omega.transaction.spring.annotations.OmegaContextAware;
+import org.apache.servicecomb.saga.omega.transaction.tcc.TccEventService;
+import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent;
+import org.apache.servicecomb.saga.omega.transaction.tcc.events.ParticipatedEvent;
+import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccEndedEvent;
+import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccStartedEvent;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -407,8 +412,13 @@ public class TransactionInterceptionTest {
   static class MessageConfig {
     private final List<String> messages = new ArrayList<>();
 
-    @Bean
-    CallbackContext recoveryContext(OmegaContext omegaContext) {
+    @Bean(name = "compensationContext")
+    CallbackContext recoveryCompensationContext(OmegaContext omegaContext) {
+      return new CallbackContext(omegaContext);
+    }
+
+    @Bean(name = "coordinateContext")
+    CallbackContext recoveryCoordinateContext(OmegaContext omegaContext) {
       return new CallbackContext(omegaContext);
     }
 
@@ -449,6 +459,49 @@ public class TransactionInterceptionTest {
         public AlphaResponse send(TxEvent event) {
           messages.add(event.toString());
           return new AlphaResponse(false);
+        }
+      };
+    }
+
+    @Bean
+    TccEventService tccEventService() {
+      return new TccEventService() {
+        @Override
+        public void onConnected() {
+        }
+
+        @Override
+        public void onDisconnected() {
+
+        }
+
+        @Override
+        public void close() {
+        }
+
+        @Override
+        public String target() {
+          return "UNKNOWN";
+        }
+
+        @Override
+        public AlphaResponse participate(ParticipatedEvent participateEvent) {
+          return null;
+        }
+
+        @Override
+        public AlphaResponse tccTransactionStart(TccStartedEvent tccStartEvent) {
+          return null;
+        }
+
+        @Override
+        public AlphaResponse tccTransactionStop(TccEndedEvent tccEndEvent) {
+          return null;
+        }
+
+        @Override
+        public AlphaResponse coordinate(CoordinatedEvent coordinatedEvent) {
+          return null;
         }
       };
     }

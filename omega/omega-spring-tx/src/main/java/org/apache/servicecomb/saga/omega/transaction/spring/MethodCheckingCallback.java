@@ -33,9 +33,12 @@ public abstract class MethodCheckingCallback implements MethodCallback {
 
   private final CallbackContext callbackContext;
 
-  public MethodCheckingCallback(Object bean, CallbackContext callbackContext) {
+  private final String callbackType;
+
+  public MethodCheckingCallback(Object bean, CallbackContext callbackContext, String callbackType) {
     this.bean = bean;
     this.callbackContext = callbackContext;
+    this.callbackType = callbackType;
   }
 
   protected void loadMethodContext(Method method, String ... candidates) {
@@ -46,7 +49,7 @@ public abstract class MethodCheckingCallback implements MethodCallback {
         LOG.debug("Found callback method [{}] in {}", each, bean.getClass().getCanonicalName());
       } catch (NoSuchMethodException ex) {
         throw new OmegaException(
-            "No such callback method [" + each + "] found in " + bean.getClass().getCanonicalName(), ex);
+            "No such " + callbackType + " method [" + each + "] found in " + bean.getClass().getCanonicalName(), ex);
       }
     }
   }
