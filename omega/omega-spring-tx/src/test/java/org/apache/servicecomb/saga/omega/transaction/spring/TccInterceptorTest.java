@@ -113,7 +113,7 @@ public class TccInterceptorTest {
     omegaContext.setParameters(newLocalTxId, user);
     omegaContext.setParameters(anotherLocalTxId, jack);
     coordinateMessageHandler.onReceive(globalTxId, newLocalTxId, globalTxId, confirmMethod);
-    coordinateMessageHandler.onReceive(globalTxId, newLocalTxId, anotherLocalTxId, confirmMethod);
+    coordinateMessageHandler.onReceive(globalTxId, anotherLocalTxId, globalTxId, confirmMethod);
 
     assertArrayEquals(
         new String[] {
