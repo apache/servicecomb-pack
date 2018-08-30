@@ -39,7 +39,7 @@ public class CoordinateMessageHandler implements MessageHandler {
 
   @Override
   public void onReceive(String globalTxId, String localTxId, String parentTxId, String methodName) {
-    callbackContext.apply(globalTxId, localTxId, methodName, omegaContext.parameters());
+    callbackContext.apply(globalTxId, localTxId, methodName, omegaContext.parameters(localTxId));
     tccEventService.coordinate(new CoordinatedEvent(globalTxId, localTxId, parentTxId, methodName, TransactionStatus.Succeed));
   }
 }

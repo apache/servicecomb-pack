@@ -17,23 +17,23 @@
 
 package org.apache.servicecomb.saga.omega.transaction.spring;
 
-import java.lang.reflect.Method;
-import org.apache.servicecomb.saga.omega.context.CallbackContext;
-import org.apache.servicecomb.saga.omega.transaction.annotations.Participate;
+import org.apache.servicecomb.saga.omega.context.annotations.TccStart;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public class ParticipateMethodCheckingCallback extends MethodCheckingCallback {
+@Component
+public class TccUserServiceMain {
 
-  public ParticipateMethodCheckingCallback(Object bean, CallbackContext callbackContext) {
-    super(bean, callbackContext, "coordinate");
+  @Autowired
+  private TccUserService tccUserService;
+
+  void resetCount() {
+    tccUserService.resetCount();
   }
 
-  @Override
-  public void doWith(Method method) throws IllegalArgumentException {
-    if (!method.isAnnotationPresent(Participate.class)) {
-      return;
-    }
-    String confirmMethod = method.getAnnotation(Participate.class).confirmMethod();
-    String cancelMethod = method.getAnnotation(Participate.class).cancelMethod();
-    loadMethodContext(method, confirmMethod, cancelMethod);
+  @TccStart
+  void add(User A, User B) {
+    tccUserService.add(A);
+    tccUserService.add(B);
   }
 }

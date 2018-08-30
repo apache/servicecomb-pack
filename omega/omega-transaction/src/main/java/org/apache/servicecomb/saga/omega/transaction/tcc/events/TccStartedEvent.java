@@ -31,4 +31,12 @@ public class TccStartedEvent {
     this.globalTxId = globalTxId;
     this.localTxId = localTxId;
   }
+
+  @Override
+  public String toString() {
+    return "TccStartedEvent{" +
+        "globalTxId='" + globalTxId + '\'' +
+        ", localTxId='" + localTxId + '\'' +
+        '}';
+  }
 }

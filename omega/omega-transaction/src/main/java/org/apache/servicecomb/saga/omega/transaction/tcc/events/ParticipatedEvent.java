@@ -62,4 +62,16 @@ public class ParticipatedEvent {
   public TransactionStatus getStatus() {
     return status;
   }
+
+  @Override
+  public String toString() {
+    return "ParticipatedEvent{" +
+        "globalTxId='" + globalTxId + '\'' +
+        ", localTxId='" + localTxId + '\'' +
+        ", parentTxId='" + parentTxId + '\'' +
+        ", confirmMethod='" + confirmMethod + '\'' +
+        ", cancelMethod='" + cancelMethod + '\'' +
+        ", status=" + status +
+        '}';
+  }
 }

@@ -20,9 +20,8 @@ package org.apache.servicecomb.saga.omega.transaction.spring;
 import java.lang.reflect.Method;
 import org.apache.servicecomb.saga.omega.context.CallbackContext;
 import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
-import org.springframework.util.ReflectionUtils.MethodCallback;
 
-class CompensableMethodCheckingCallback extends MethodCheckingCallback implements MethodCallback {
+class CompensableMethodCheckingCallback extends MethodCheckingCallback {
 
   public CompensableMethodCheckingCallback(Object bean, CallbackContext callbackContext) {
     super(bean, callbackContext, "compensation");

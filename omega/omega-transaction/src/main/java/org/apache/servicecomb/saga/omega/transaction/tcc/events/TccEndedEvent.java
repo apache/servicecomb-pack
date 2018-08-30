@@ -42,4 +42,13 @@ public class TccEndedEvent {
     this.localTxId = localTxId;
     this.status = status;
   }
+
+  @Override
+  public String toString() {
+    return "TccEndedEvent{" +
+        "globalTxId='" + globalTxId + '\'' +
+        ", localTxId='" + localTxId + '\'' +
+        ", status=" + status +
+        '}';
+  }
 }
