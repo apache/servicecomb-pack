@@ -58,7 +58,12 @@ You can run the demo using either docker compose or executable files.
       ```bash
           ./saga-demo.sh up-alpha
       ```
-   2. when alpha server started complatelly, then start the demo services
+      start alpha server with performance monitor and grafana
+      ```bash
+          ./saga-demo.sh up-alpha-perf
+      ```
+
+   2. when alpha server started completely, then start the demo services
       ```bash
           ./saga-demo.sh up-demo
       ```
