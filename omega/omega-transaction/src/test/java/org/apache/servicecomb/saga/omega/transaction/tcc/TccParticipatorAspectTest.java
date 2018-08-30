@@ -18,16 +18,14 @@
 package org.apache.servicecomb.saga.omega.transaction.tcc;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
@@ -52,6 +50,8 @@ public class TccParticipatorAspectTest {
 
   private final List<ParticipatedEvent> participatedEvents = new ArrayList<>();
   private final AlphaResponse response = new AlphaResponse(false);
+  private String confirmMethod;
+  private String cancelMethod;
   private final TccEventService eventService = new TccEventService() {
     @Override
     public void onConnected() {
@@ -117,6 +117,9 @@ public class TccParticipatorAspectTest {
 
     omegaContext.setGlobalTxId(globalTxId);
     omegaContext.setLocalTxId(localTxId);
+
+    confirmMethod = TccParticipatorAspectTest.class.getDeclaredMethod("confirmMethod").toString();
+    cancelMethod = TccParticipatorAspectTest.class.getDeclaredMethod("cancelMethod").toString();
   }
 
   @Test
@@ -130,8 +133,8 @@ public class TccParticipatorAspectTest {
     assertThat(participatedEvent.getParentTxId(), is(localTxId));
     assertThat(participatedEvent.getLocalTxId(), is(newLocalTxId));
     assertThat(participatedEvent.getStatus(), is(TransactionStatus.Succeed));
-    assertThat(participatedEvent.getCancelMethod(), is("cancelMethod"));
-    assertThat(participatedEvent.getConfirmMethod(), is("confirmMethod"));
+    assertThat(participatedEvent.getCancelMethod(), is(cancelMethod));
+    assertThat(participatedEvent.getConfirmMethod(), is(confirmMethod));
 
     assertThat(omegaContext.globalTxId(), is(globalTxId));
     assertThat(omegaContext.localTxId(), is(localTxId));
@@ -157,8 +160,8 @@ public class TccParticipatorAspectTest {
     assertThat(participatedEvent.getParentTxId(), is(localTxId));
     assertThat(participatedEvent.getLocalTxId(), is(newLocalTxId));
     assertThat(participatedEvent.getStatus(), is(TransactionStatus.Failed));
-    assertThat(participatedEvent.getCancelMethod(), is("cancelMethod"));
-    assertThat(participatedEvent.getConfirmMethod(), is("confirmMethod"));
+    assertThat(participatedEvent.getCancelMethod(), is(cancelMethod));
+    assertThat(participatedEvent.getConfirmMethod(), is(confirmMethod));
 
 
     assertThat(omegaContext.globalTxId(), is(globalTxId));
@@ -167,6 +170,14 @@ public class TccParticipatorAspectTest {
 
   private String doNothing() {
     return "doNothing";
+  }
+
+  private String cancelMethod() {
+    return "cancelMethod";
+  }
+
+  private String confirmMethod() {
+    return "confirmMethod";
   }
 
 }
