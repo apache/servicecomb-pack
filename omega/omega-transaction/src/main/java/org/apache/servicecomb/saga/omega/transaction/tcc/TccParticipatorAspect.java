@@ -19,14 +19,8 @@ package org.apache.servicecomb.saga.omega.transaction.tcc;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
-
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
-import org.apache.servicecomb.saga.omega.transaction.MessageSender;
-import org.apache.servicecomb.saga.omega.transaction.OmegaException;
-import org.apache.servicecomb.saga.omega.transaction.RecoveryPolicy;
-import org.apache.servicecomb.saga.omega.transaction.RecoveryPolicyFactory;
-import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
 import org.apache.servicecomb.saga.omega.transaction.annotations.Participate;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.ParticipatedEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -52,8 +46,8 @@ public class TccParticipatorAspect {
   Object advise(ProceedingJoinPoint joinPoint, Participate participate) throws Throwable {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
     String localTxId = context.localTxId();
-    String cancelMethod = participate.cancelMethod();
-    String confirmMethod = participate.confirmMethod();
+    String cancelMethod = callbackMethodSignature(joinPoint, participate.cancelMethod(), method);
+    String confirmMethod = callbackMethodSignature(joinPoint, participate.confirmMethod(), method);
     
     context.newLocalTxId();
     LOG.debug("Updated context {} for participate method {} ", context, method.toString());
@@ -74,5 +68,13 @@ public class TccParticipatorAspect {
     } finally {
       context.setLocalTxId(localTxId);
     }
+  }
+
+  String callbackMethodSignature(ProceedingJoinPoint joinPoint, String callbackMethod, Method tryMethod) throws NoSuchMethodException {
+    return callbackMethod.isEmpty() ? "" :
+        joinPoint.getTarget()
+        .getClass()
+        .getDeclaredMethod(callbackMethod, tryMethod.getParameterTypes())
+        .toString();
   }
 }

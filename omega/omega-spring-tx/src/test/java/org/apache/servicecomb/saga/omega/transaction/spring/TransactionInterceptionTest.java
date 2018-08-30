@@ -33,60 +33,43 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-
-import org.apache.servicecomb.saga.omega.context.CallbackContext;
-import org.apache.servicecomb.saga.omega.context.IdGenerator;
-import org.apache.servicecomb.saga.omega.context.OmegaContext;
-import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
-import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
-import org.apache.servicecomb.saga.omega.transaction.MessageSender;
-import org.apache.servicecomb.saga.omega.transaction.TxAbortedEvent;
-import org.apache.servicecomb.saga.omega.transaction.TxCompensatedEvent;
-import org.apache.servicecomb.saga.omega.transaction.TxEndedEvent;
-import org.apache.servicecomb.saga.omega.transaction.TxEvent;
-import org.apache.servicecomb.saga.omega.transaction.TxStartedEvent;
-import org.apache.servicecomb.saga.omega.transaction.spring.TransactionInterceptionTest.MessageConfig;
-import org.apache.servicecomb.saga.omega.transaction.spring.annotations.OmegaContextAware;
-import org.apache.servicecomb.saga.omega.transaction.tcc.TccEventService;
-import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent;
-import org.apache.servicecomb.saga.omega.transaction.tcc.events.ParticipatedEvent;
-import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccEndedEvent;
-import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccStartedEvent;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import io.reactivex.Flowable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.japi.Creator;
 import akka.japi.pf.FI.UnitApply;
+import io.reactivex.Flowable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import org.apache.servicecomb.saga.omega.context.IdGenerator;
+import org.apache.servicecomb.saga.omega.context.OmegaContext;
+import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
+import org.apache.servicecomb.saga.omega.transaction.TxAbortedEvent;
+import org.apache.servicecomb.saga.omega.transaction.TxCompensatedEvent;
+import org.apache.servicecomb.saga.omega.transaction.TxEndedEvent;
+import org.apache.servicecomb.saga.omega.transaction.TxStartedEvent;
+import org.apache.servicecomb.saga.omega.transaction.spring.annotations.OmegaContextAware;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {TransactionTestMain.class, MessageConfig.class})
 @AutoConfigureMockMvc
 public class TransactionInterceptionTest {
   @SuppressWarnings("unchecked")
-  private static final IdGenerator<String> idGenerator = Mockito.mock(IdGenerator.class);
   private static final String globalTxId = UUID.randomUUID().toString();
   private final String newLocalTxId = UUID.randomUUID().toString();
   private final String anotherLocalTxId = UUID.randomUUID().toString();
@@ -101,6 +84,9 @@ public class TransactionInterceptionTest {
 
   @OmegaContextAware
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+
+  @Autowired
+  private IdGenerator<String> idGenerator;
 
   @Autowired
   private List<String> messages;
@@ -367,6 +353,11 @@ public class TransactionInterceptionTest {
     actorSystem.terminate();
   }
 
+  @Test
+  public void tccWorkflowTest() {
+
+  }
+
   private void waitTillSavedUser(final String username) {
     await().atMost(1000, MILLISECONDS).until(new Callable<Boolean>() {
       @Override
@@ -406,104 +397,5 @@ public class TransactionInterceptionTest {
 
   private String[] toArray(List<String> messages) {
     return messages.toArray(new String[messages.size()]);
-  }
-
-  @Configuration
-  static class MessageConfig {
-    private final List<String> messages = new ArrayList<>();
-
-    @Bean(name = "compensationContext")
-    CallbackContext recoveryCompensationContext(OmegaContext omegaContext) {
-      return new CallbackContext(omegaContext);
-    }
-
-    @Bean(name = "coordinateContext")
-    CallbackContext recoveryCoordinateContext(OmegaContext omegaContext) {
-      return new CallbackContext(omegaContext);
-    }
-
-    @Bean
-    OmegaContext omegaContext() {
-      return new OmegaContext(idGenerator);
-    }
-
-    @Bean
-    List<String> messages() {
-      return messages;
-    }
-
-    @Bean
-    MessageSender sender() {
-      return new MessageSender() {
-        @Override
-        public void onConnected() {
-
-        }
-
-        @Override
-        public void onDisconnected() {
-
-        }
-
-        @Override
-        public void close() {
-
-        }
-
-        @Override
-        public String target() {
-          return "UNKNOW";
-        }
-
-        @Override
-        public AlphaResponse send(TxEvent event) {
-          messages.add(event.toString());
-          return new AlphaResponse(false);
-        }
-      };
-    }
-
-    @Bean
-    TccEventService tccEventService() {
-      return new TccEventService() {
-        @Override
-        public void onConnected() {
-        }
-
-        @Override
-        public void onDisconnected() {
-
-        }
-
-        @Override
-        public void close() {
-        }
-
-        @Override
-        public String target() {
-          return "UNKNOWN";
-        }
-
-        @Override
-        public AlphaResponse participate(ParticipatedEvent participateEvent) {
-          return null;
-        }
-
-        @Override
-        public AlphaResponse tccTransactionStart(TccStartedEvent tccStartEvent) {
-          return null;
-        }
-
-        @Override
-        public AlphaResponse tccTransactionStop(TccEndedEvent tccEndEvent) {
-          return null;
-        }
-
-        @Override
-        public AlphaResponse coordinate(CoordinatedEvent coordinatedEvent) {
-          return null;
-        }
-      };
-    }
   }
 }

@@ -54,4 +54,15 @@ public class CoordinatedEvent {
   public TransactionStatus getStatus() {
     return status;
   }
+
+  @Override
+  public String toString() {
+    return "CoordinatedEvent{" +
+        "globalTxId='" + globalTxId + '\'' +
+        ", localTxId='" + localTxId + '\'' +
+        ", parentTxId='" + parentTxId + '\'' +
+        ", methodName='" + methodName + '\'' +
+        ", status=" + status +
+        '}';
+  }
 }

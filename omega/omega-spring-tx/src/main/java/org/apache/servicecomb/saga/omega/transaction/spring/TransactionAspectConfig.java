@@ -64,17 +64,19 @@ public class TransactionAspectConfig {
 
   @Bean
   org.apache.servicecomb.saga.omega.transaction.tcc.MessageHandler coordinateMessageHandler(
-      TccEventService tccEventService) {
-    return new CoordinateMessageHandler(tccEventService);
+      TccEventService tccEventService,
+      @Qualifier("coordinateContext") CallbackContext coordinateContext,
+      OmegaContext omegaContext) {
+    return new CoordinateMessageHandler(tccEventService, coordinateContext, omegaContext);
   }
 
-  @Order(2)
+  @Order(0)
   @Bean
   TccStartAspect tccStartAspect(TccEventService tccEventService, OmegaContext context) {
     return new TccStartAspect(tccEventService, context);
   }
 
-  @Order(3)
+  @Order(1)
   @Bean
   TccParticipatorAspect tccParticipatorAspect(TccEventService tccEventService, OmegaContext context) {
     return new TccParticipatorAspect(tccEventService, context);

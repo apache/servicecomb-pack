@@ -17,23 +17,44 @@
 
 package org.apache.servicecomb.saga.omega.transaction.spring;
 
-import java.lang.reflect.Method;
-import org.apache.servicecomb.saga.omega.context.CallbackContext;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 import org.apache.servicecomb.saga.omega.transaction.annotations.Participate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public class ParticipateMethodCheckingCallback extends MethodCheckingCallback {
+@Component
+class TccUserService {
+  static final String ILLEGAL_USER = "Illegal User";
+  private final UserRepository userRepository;
 
-  public ParticipateMethodCheckingCallback(Object bean, CallbackContext callbackContext) {
-    super(bean, callbackContext, "coordinate");
+  private int count = 0;
+
+  @Autowired
+  TccUserService(UserRepository userRepository) {
+    this.userRepository = userRepository;
   }
 
-  @Override
-  public void doWith(Method method) throws IllegalArgumentException {
-    if (!method.isAnnotationPresent(Participate.class)) {
-      return;
+  void resetCount() {
+    this.count = 0;
+  }
+
+  @Participate(confirmMethod = "confirm", cancelMethod = "cancel")
+  User add(User user) {
+    if (ILLEGAL_USER.equals(user.username())) {
+      throw new IllegalArgumentException("User is illegal");
     }
-    String confirmMethod = method.getAnnotation(Participate.class).confirmMethod();
-    String cancelMethod = method.getAnnotation(Participate.class).cancelMethod();
-    loadMethodContext(method, confirmMethod, cancelMethod);
+    return userRepository.save(user);
   }
+
+  void confirm(User user) {
+    userRepository.findByUsername(user.username());
+  }
+
+  void cancel(User user) {
+    userRepository.delete(user);
+  }
+
+
 }

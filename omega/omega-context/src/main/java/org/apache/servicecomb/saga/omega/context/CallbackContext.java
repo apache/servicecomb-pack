@@ -43,7 +43,7 @@ public class CallbackContext {
   public void apply(String globalTxId, String localTxId, String callbackMethod, Object... payloads) {
     CallbackContextInternal contextInternal = contexts.get(callbackMethod);
     String oldGlobalTxId = omegaContext.globalTxId();
-    String oldLocalTxId= omegaContext.localTxId();
+    String oldLocalTxId = omegaContext.localTxId();
     try {
       omegaContext.setGlobalTxId(globalTxId);
       omegaContext.setLocalTxId(localTxId);

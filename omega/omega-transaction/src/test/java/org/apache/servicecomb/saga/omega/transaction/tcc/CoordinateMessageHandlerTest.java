@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.servicecomb.saga.common.TransactionStatus;
+import org.apache.servicecomb.saga.omega.context.CallbackContext;
+import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.ParticipatedEvent;
@@ -33,6 +35,8 @@ import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccEndedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccStartedEvent;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 public class CoordinateMessageHandlerTest {
   private final List<CoordinatedEvent> coordinatedEvents = new ArrayList<>();
@@ -85,7 +89,9 @@ public class CoordinateMessageHandlerTest {
   private final String parentTxId = uniquify("parentTxId");
   private final String methodName= uniquify("Method");
 
-  private final CoordinateMessageHandler handler = new CoordinateMessageHandler(eventService);
+  private final CallbackContext callbackContext = Mockito.mock(CallbackContext.class);
+  private final OmegaContext omegaContext = Mockito.mock(OmegaContext.class);
+  private final CoordinateMessageHandler handler = new CoordinateMessageHandler(eventService, callbackContext, omegaContext);
 
   @Before
   public void setUp() {
