@@ -45,6 +45,13 @@ case $1 in
     exit $?
   ;;
 
+  up-alpha-perf)
+    fetch_version
+    echo "Starting ${service}:${version}"
+    TAG=$version docker-compose -f docker-compose-alpha.yaml up
+    exit $?
+  ;;
+
   up-demo)
     fetch_version
     echo "Starting ${service}:${version}"
