@@ -48,7 +48,7 @@ case $1 in
   up-alpha-perf)
     fetch_version
     echo "Starting ${service}:${version}"
-    TAG=$version docker-compose -f docker-compose-alpha.yaml up
+    TAG=$version docker-compose -f docker-compose-alpha-perf.yaml up
     exit $?
   ;;
 
@@ -65,17 +65,16 @@ case $1 in
     TAG=$version docker-compose -f docker-compose.yaml -f docker-compose.mysql.yaml up
     exit $?
   ;;
-  
+
   down)
     fetch_version
     echo "Stopping ${service}:${version}"
     TAG=$version docker-compose down
     exit $?
   ;;
-  
+
   *)
     show_usage
     exit 2
   ;;
 esac
-
