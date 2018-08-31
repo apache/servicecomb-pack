@@ -24,7 +24,7 @@ import org.apache.servicecomb.saga.omega.transaction.annotations.Participate;
 public class ParticipateMethodCheckingCallback extends MethodCheckingCallback {
 
   public ParticipateMethodCheckingCallback(Object bean, CallbackContext callbackContext) {
-    super(bean, callbackContext, "coordinate");
+    super(bean, callbackContext, CallbackType.Compensation);
   }
 
   @Override

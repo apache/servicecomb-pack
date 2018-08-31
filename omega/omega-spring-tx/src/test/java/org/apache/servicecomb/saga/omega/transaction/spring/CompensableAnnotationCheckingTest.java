@@ -37,7 +37,7 @@ public class CompensableAnnotationCheckingTest {
         expectFailing(BeanCreationException.class);
       }
     } catch (BeanCreationException e) {
-      assertThat(e.getCause().getMessage(), startsWith("No such compensation method [none]"));
+      assertThat(e.getCause().getMessage(), startsWith("No such Compensation method [none]"));
     }
   }
 

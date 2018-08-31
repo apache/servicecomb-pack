@@ -17,9 +17,13 @@
 
 package org.apache.servicecomb.saga.omega.transaction.spring;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.annotations.Participate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,19 +33,14 @@ class TccUserService {
   static final String ILLEGAL_USER = "Illegal User";
   private final UserRepository userRepository;
 
-  private int count = 0;
-
   @Autowired
   TccUserService(UserRepository userRepository) {
     this.userRepository = userRepository;
   }
 
-  void resetCount() {
-    this.count = 0;
-  }
-
   @Participate(confirmMethod = "confirm", cancelMethod = "cancel")
   User add(User user) {
+    // Only for the validation check
     if (ILLEGAL_USER.equals(user.username())) {
       throw new IllegalArgumentException("User is illegal");
     }
@@ -49,7 +48,9 @@ class TccUserService {
   }
 
   void confirm(User user) {
-    userRepository.findByUsername(user.username());
+    User result = userRepository.findByUsername(user.username());
+    // Just make sure we can get the resource and keep doing other business
+    assertThat(result, is(user));
   }
 
   void cancel(User user) {

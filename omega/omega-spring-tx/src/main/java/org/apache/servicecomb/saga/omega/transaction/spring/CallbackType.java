@@ -17,22 +17,13 @@
 
 package org.apache.servicecomb.saga.omega.transaction.spring;
 
-import java.lang.reflect.Method;
-import org.apache.servicecomb.saga.omega.context.CallbackContext;
-import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
-
-class CompensableMethodCheckingCallback extends MethodCheckingCallback {
-
-  public CompensableMethodCheckingCallback(Object bean, CallbackContext callbackContext) {
-    super(bean, callbackContext, CallbackType.Compensation);
-  }
-
-  @Override
-  public void doWith(Method method) throws IllegalArgumentException {
-    if (!method.isAnnotationPresent(Compensable.class)) {
-      return;
-    }
-    String compensationMethod = method.getAnnotation(Compensable.class).compensationMethod();
-    loadMethodContext(method, compensationMethod);
-  }
+public enum CallbackType {
+  /**
+   * Compensation is for the Saga pattern
+   */
+  Compensation,
+  /**
+   * Coordination is for the TCC pattern
+   */
+  Coordination
 }

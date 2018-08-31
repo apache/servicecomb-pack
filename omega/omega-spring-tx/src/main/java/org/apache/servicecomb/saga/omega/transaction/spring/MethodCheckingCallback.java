@@ -33,9 +33,9 @@ public abstract class MethodCheckingCallback implements MethodCallback {
 
   private final CallbackContext callbackContext;
 
-  private final String callbackType;
+  private final CallbackType callbackType;
 
-  public MethodCheckingCallback(Object bean, CallbackContext callbackContext, String callbackType) {
+  public MethodCheckingCallback(Object bean, CallbackContext callbackContext, CallbackType callbackType) {
     this.bean = bean;
     this.callbackContext = callbackContext;
     this.callbackType = callbackType;

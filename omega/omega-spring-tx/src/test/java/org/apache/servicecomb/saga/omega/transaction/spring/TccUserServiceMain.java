@@ -27,10 +27,6 @@ public class TccUserServiceMain {
   @Autowired
   private TccUserService tccUserService;
 
-  void resetCount() {
-    tccUserService.resetCount();
-  }
-
   @TccStart
   void add(User A, User B) {
     tccUserService.add(A);
