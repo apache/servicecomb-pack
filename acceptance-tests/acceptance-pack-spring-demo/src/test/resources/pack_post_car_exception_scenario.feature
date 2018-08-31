@@ -32,6 +32,7 @@ Feature: Alpha records transaction events
       | car     | TxEndedEvent       |
       | booking | TxAbortedEvent     |
       | car     | TxCompensatedEvent |
+      | car     | SagaEndedEvent     |
 
     Then Car Service contains the following booking orders
       | name | amount | confirmed | cancelled |
