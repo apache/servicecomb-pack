@@ -36,4 +36,4 @@ script:
 - mvn clean verify -f saga-demo -Pdemo -Pdocker -P${SPRING_BOOT_PROFILE} -Ddocker.useColor=false -Ddocker.showLogs
 - mvn clean verify -f acceptance-tests -Pdemo -Pdocker -P${SPRING_BOOT_PROFILE} -Ddocker.useColor=false -Ddocker.showLogs
 after_success:
-- if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash -x scripts/deploy.sh ; fi
+- if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then bash -x scripts/deploy.sh ; fi
