@@ -97,7 +97,6 @@ public class TccInterceptorTest {
     messages.clear();
     userRepository.deleteAll();
     omegaContext.clear();
-    tccUserServiceMain.resetCount();
   }
 
   @AfterClass
