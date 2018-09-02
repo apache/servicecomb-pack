@@ -30,16 +30,24 @@ public class CoordinateMessageHandler implements MessageHandler {
 
   private final OmegaContext omegaContext;
 
+  private final ParametersContext parametersContext;
+
   public CoordinateMessageHandler(TccEventService tccEventService,
-      CallbackContext callbackContext, OmegaContext omegaContext) {
+      CallbackContext callbackContext, OmegaContext omegaContext,
+      ParametersContext parametersContext) {
     this.tccEventService = tccEventService;
     this.callbackContext = callbackContext;
     this.omegaContext = omegaContext;
+    this.parametersContext = parametersContext;
   }
 
   @Override
   public void onReceive(String globalTxId, String localTxId, String parentTxId, String methodName) {
-    callbackContext.apply(globalTxId, localTxId, methodName, omegaContext.parameters(localTxId));
+    // TODO need to catch the exception and send the failed message
+    // The parameter need to be updated here
+    callbackContext.apply(globalTxId, localTxId, methodName, parametersContext.getParameters(localTxId));
     tccEventService.coordinate(new CoordinatedEvent(globalTxId, localTxId, parentTxId, methodName, TransactionStatus.Succeed));
+    // Need to remove the parameter
+    parametersContext.removeParameter(localTxId);
   }
 }

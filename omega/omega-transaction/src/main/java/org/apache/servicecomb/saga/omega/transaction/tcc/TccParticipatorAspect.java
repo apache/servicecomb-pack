@@ -36,10 +36,15 @@ public class TccParticipatorAspect {
 
   private final OmegaContext context;
   private final TccEventService tccEventService;
+  private final ParametersContext parametersContext;
 
-  public TccParticipatorAspect(TccEventService tccEventService, OmegaContext context) {
+  //We need to inject the CoordinateMessageHandler for the parameter map
+
+  public TccParticipatorAspect(TccEventService tccEventService, OmegaContext context,
+      ParametersContext parametersContext) {
     this.context = context;
     this.tccEventService = tccEventService;
+    this.parametersContext = parametersContext;
   }
 
   @Around("execution(@org.apache.servicecomb.saga.omega.transaction.annotations.Participate * *(..)) && @annotation(participate)")
@@ -57,6 +62,8 @@ public class TccParticipatorAspect {
       // Send the participate message back
       tccEventService.participate(new ParticipatedEvent(context.globalTxId(), context.localTxId(), localTxId, confirmMethod,
           cancelMethod, TransactionStatus.Succeed));
+      // Just store the parameters into the context
+      parametersContext.putParamters(context.localTxId(), joinPoint.getArgs());
       LOG.debug("Participate Transaction with context {} has finished.", context);
       return result;
     } catch (Throwable throwable) {

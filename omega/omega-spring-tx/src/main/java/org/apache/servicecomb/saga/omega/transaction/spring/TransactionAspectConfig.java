@@ -25,6 +25,7 @@ import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.SagaStartAspect;
 import org.apache.servicecomb.saga.omega.transaction.TransactionAspect;
 import org.apache.servicecomb.saga.omega.transaction.tcc.CoordinateMessageHandler;
+import org.apache.servicecomb.saga.omega.transaction.tcc.ParametersContext;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccEventService;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccParticipatorAspect;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccStartAspect;
@@ -66,8 +67,9 @@ public class TransactionAspectConfig {
   org.apache.servicecomb.saga.omega.transaction.tcc.MessageHandler coordinateMessageHandler(
       TccEventService tccEventService,
       @Qualifier("coordinateContext") CallbackContext coordinateContext,
-      OmegaContext omegaContext) {
-    return new CoordinateMessageHandler(tccEventService, coordinateContext, omegaContext);
+      OmegaContext omegaContext,
+      ParametersContext parametersContext) {
+    return new CoordinateMessageHandler(tccEventService, coordinateContext, omegaContext, parametersContext);
   }
 
   @Order(0)
@@ -78,8 +80,8 @@ public class TransactionAspectConfig {
 
   @Order(1)
   @Bean
-  TccParticipatorAspect tccParticipatorAspect(TccEventService tccEventService, OmegaContext context) {
-    return new TccParticipatorAspect(tccEventService, context);
+  TccParticipatorAspect tccParticipatorAspect(TccEventService tccEventService, OmegaContext context, ParametersContext parametersContext) {
+    return new TccParticipatorAspect(tccEventService, context, parametersContext);
   }
 
   @Bean

@@ -91,7 +91,8 @@ public class CoordinateMessageHandlerTest {
 
   private final CallbackContext callbackContext = Mockito.mock(CallbackContext.class);
   private final OmegaContext omegaContext = Mockito.mock(OmegaContext.class);
-  private final CoordinateMessageHandler handler = new CoordinateMessageHandler(eventService, callbackContext, omegaContext);
+  private final ParametersContext parametersContext = Mockito.mock(ParametersContext.class);
+  private final CoordinateMessageHandler handler = new CoordinateMessageHandler(eventService, callbackContext, omegaContext, parametersContext);
 
   @Before
   public void setUp() {

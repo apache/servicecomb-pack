@@ -25,6 +25,8 @@ import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
+import org.apache.servicecomb.saga.omega.transaction.tcc.DefaultParametersContext;
+import org.apache.servicecomb.saga.omega.transaction.tcc.ParametersContext;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccEventService;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.ParticipatedEvent;
@@ -51,6 +53,11 @@ public class MessageConfig {
   @Bean(name = "coordinateContext")
   CallbackContext coordinateContext(OmegaContext omegaContext) {
     return new CallbackContext(omegaContext);
+  }
+
+  @Bean
+  ParametersContext parametersContext() {
+    return new DefaultParametersContext();
   }
 
   @Bean

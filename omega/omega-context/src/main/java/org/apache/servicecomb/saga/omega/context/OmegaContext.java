@@ -30,12 +30,6 @@ public class OmegaContext {
   private final ThreadLocal<String> globalTxId = new InheritableThreadLocal<>();
   private final ThreadLocal<String> localTxId = new InheritableThreadLocal<>();
   private final IdGenerator<String> idGenerator;
-  private final ThreadLocal<Map<String, Object[]>> parameters = new InheritableThreadLocal<Map<String, Object[]>>() {
-    @Override
-    protected Map<String, Object[]> initialValue() {
-      return new HashMap<>();
-    }
-  };
 
   public OmegaContext(IdGenerator<String> idGenerator) {
     this.idGenerator = idGenerator;
@@ -69,18 +63,9 @@ public class OmegaContext {
     return localTxId.get();
   }
 
-  public void setParameters(String localTxId, Object ... parameters) {
-    this.parameters.get().put(localTxId, parameters);
-  }
-
-  public Object[] parameters(String localTxId) {
-    return parameters.get().get(localTxId);
-  }
-
   public void clear() {
     globalTxId.remove();
     localTxId.remove();
-    parameters.remove();
   }
 
   @Override

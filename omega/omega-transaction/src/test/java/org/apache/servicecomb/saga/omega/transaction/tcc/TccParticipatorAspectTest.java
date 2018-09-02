@@ -101,8 +101,9 @@ public class TccParticipatorAspectTest {
 
   private final OmegaContext omegaContext = new OmegaContext(idGenerator);
   private final Participate participate = mock(Participate.class);
+  private final ParametersContext parametersContext = new DefaultParametersContext();
 
-  private final TccParticipatorAspect aspect = new TccParticipatorAspect(eventService, omegaContext);
+  private final TccParticipatorAspect aspect = new TccParticipatorAspect(eventService, omegaContext, parametersContext);
 
 
   @Before

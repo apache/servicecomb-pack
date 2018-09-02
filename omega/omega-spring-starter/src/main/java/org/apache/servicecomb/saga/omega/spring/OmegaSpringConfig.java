@@ -32,6 +32,8 @@ import org.apache.servicecomb.saga.omega.format.KryoMessageFormat;
 import org.apache.servicecomb.saga.omega.format.MessageFormat;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
+import org.apache.servicecomb.saga.omega.transaction.tcc.DefaultParametersContext;
+import org.apache.servicecomb.saga.omega.transaction.tcc.ParametersContext;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccEventService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,6 +67,11 @@ class OmegaSpringConfig {
   @Bean
   ServiceConfig serviceConfig(@Value("${spring.application.name}") String serviceName) {
     return new ServiceConfig(serviceName);
+  }
+
+  @Bean
+  ParametersContext parametersContext() {
+    return new DefaultParametersContext();
   }
 
   @Bean

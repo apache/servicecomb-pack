@@ -86,8 +86,6 @@ public class TccInterceptorTest {
   @Before
   public void setUp() throws Exception {
     when(idGenerator.nextId()).thenReturn(globalTxId, newLocalTxId, anotherLocalTxId);
-//    omegaContext.setGlobalTxId(globalTxId);
-//    omegaContext.setLocalTxId(globalTxId);
     confirmMethod = TccUserService.class.getDeclaredMethod("confirm", User.class).toString();
     cancelMethod = TccUserService.class.getDeclaredMethod("cancel", User.class).toString();
   }
@@ -107,10 +105,6 @@ public class TccInterceptorTest {
   public void tccWorkflowSucceed() {
     tccUserServiceMain.add(user, jack);
 
-    // TODO could't get parameters, for OmegaContext has been cleared after sending TccEndedEvent synchronous.
-    // TODO CoordinateCommand will be send from alpha asynchronous.
-    omegaContext.setParameters(newLocalTxId, user);
-    omegaContext.setParameters(anotherLocalTxId, jack);
     coordinateMessageHandler.onReceive(globalTxId, newLocalTxId, globalTxId, confirmMethod);
     coordinateMessageHandler.onReceive(globalTxId, anotherLocalTxId, globalTxId, confirmMethod);
 
@@ -144,10 +138,6 @@ public class TccInterceptorTest {
 
     }
 
-    // TODO could't get parameters, for OmegaContext has been cleared after sending TccEndedEvent synchronous.
-    // TODO CoordinateCommand will be send from alpha asynchronous.
-    omegaContext.setParameters(newLocalTxId, user);
-    omegaContext.setParameters(anotherLocalTxId, illegalUser);
     coordinateMessageHandler.onReceive(globalTxId, newLocalTxId, globalTxId, cancelMethod);
     assertArrayEquals(
         new String[] {
