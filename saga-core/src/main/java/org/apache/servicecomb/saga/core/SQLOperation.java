@@ -23,18 +23,18 @@ import java.util.List;
 public class SQLOperation implements Operation {
 
   private final String sql;
-  private final List<List<Object>> params;
+  private final List<List<String>> params;
 
-  public SQLOperation(String sql, List<List<Object>> params) {
+  public SQLOperation(String sql, List<List<String>> params) {
     this.sql = sql;
-    this.params = params == null ? Collections.<List<Object>>emptyList() : params;
+    this.params = params == null ? Collections.<List<String>>emptyList() : params;
   }
 
   public String sql() {
     return sql;
   }
 
-  public List<List<Object>> params() {
+  public List<List<String>> params() {
     return params;
   }
 

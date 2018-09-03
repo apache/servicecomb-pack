@@ -107,14 +107,14 @@ public class JacksonFromJsonFormatForSQLTest {
 
   private final SQLTransport sqlTransport = new SQLTransport() {
     @Override
-    public SagaResponse with(String datasource, String sql, List<List<Object>> params) {
+    public SagaResponse with(String datasource, String sql, List<List<String>> params) {
       if (null == sql || sql.trim().length() == 0) {
         return responseDefault;
       }
 
-      for (List<Object> each : params) {
-        for (Object param : each) {
-          sql = sql.replaceFirst("\\?", param.toString());
+      for (List<String> each : params) {
+        for (String param : each) {
+          sql = sql.replaceFirst("\\?", param);
         }
       }
 
