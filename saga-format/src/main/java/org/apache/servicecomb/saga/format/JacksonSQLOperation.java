@@ -32,7 +32,7 @@ public class JacksonSQLOperation extends SQLOperation implements TransportAware<
   @JsonIgnore
   private SQLTransport transport;
 
-  public JacksonSQLOperation(String sql, List<List<Object>> params) {
+  public JacksonSQLOperation(String sql, List<List<String>> params) {
     super(sql, params);
   }
 

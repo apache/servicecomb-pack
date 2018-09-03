@@ -24,6 +24,6 @@ import org.apache.servicecomb.saga.core.Transport;
 
 public interface SQLTransport extends Transport {
 
-  SagaResponse with(String datasource, String sql, List<List<Object>> params);
+  SagaResponse with(String datasource, String sql, List<List<String>> params);
 
 }
