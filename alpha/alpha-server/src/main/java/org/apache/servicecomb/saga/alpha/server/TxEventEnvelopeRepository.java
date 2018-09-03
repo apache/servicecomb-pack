@@ -114,13 +114,18 @@ interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
 
   Optional<TxEvent> findFirstByTypeAndSurrogateIdGreaterThan(String type, long surrogateId);
 
+  @Query("SELECT t FROM TxEvent t "
+      + "WHERE t.type = ?1 AND EXISTS ( "
+      + "  SELECT t1.surrogateId"
+      + "  FROM TxEvent t1 "
+      + "  WHERE t1.globalTxId = t.globalTxId "
+      + "  AND t1.localTxId = t.localTxId "
+      + "  AND t1.type = t.type "
+      + "  AND t1.surrogateId > t.surrogateId )")
+  List<TxEvent> findDuplicateEventsByType(String type);
+
   @Transactional
   @Modifying(clearAutomatically = true)
-  @Query("DELETE FROM TxEvent t "
-      + "WHERE t.type = ?1 AND t.surrogateId NOT IN ("
-      + " SELECT MAX(t1.surrogateId) FROM TxEvent t1 "
-      + " WHERE t1.type = ?1 "
-      + " GROUP BY t1.globalTxId"
-      + ")")
-  void deleteByType(String type);
+  @Query("DELETE FROM TxEvent WHERE surrogateId = ?1 ")
+  void deleteBySurrogateId(Long surrogateId);
 }
