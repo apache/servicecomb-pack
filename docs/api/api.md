@@ -213,13 +213,13 @@ There are a `maven` example
       "transaction": {
         "sql": "",
         "params": [
-
+          []
         ]
       },
       "compensation": {
         "sql": "",
         "params": [
-
+          []
         ]
       }
     }
