@@ -29,7 +29,7 @@ public class JacksonSQLTransaction extends JacksonSQLOperation implements Transa
   @JsonCreator
   public JacksonSQLTransaction(
       @JsonProperty("sql") String sql,
-      @JsonProperty("params") List<String> params) {
+      @JsonProperty("params") List<List<Object>> params) {
     super(sql, params);
   }
 }
