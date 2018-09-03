@@ -28,14 +28,14 @@ public class JacksonSQLCompensation extends JacksonSQLOperation implements Compe
 
   private final int retries;
 
-  public JacksonSQLCompensation(String sql, List<String> params) {
+  public JacksonSQLCompensation(String sql, List<List<Object>> params) {
     this(sql, params, DEFAULT_RETRIES);
   }
 
   @JsonCreator
   public JacksonSQLCompensation(
       @JsonProperty("sql") String sql,
-      @JsonProperty("params") List<String> params,
+      @JsonProperty("params") List<List<Object>> params,
       @JsonProperty("retries") int retries) {
     super(sql, params);
     this.retries = retries <= 0? DEFAULT_RETRIES : retries;
