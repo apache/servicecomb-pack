@@ -51,11 +51,11 @@ public class JacksonFromJsonFormatForSQLTest {
       + "            \"parents\":[],\n"
       + "            \"transaction\":{\n"
       + "                \"sql\":\"INSERT INTO TABLE ds_0.tb_0 (id, value) values (?, ?)\",\n"
-      + "                \"params\":[\"1\", \"xxx\"]\n"
+      + "                \"params\":[[\"1\", \"xxx\"]]\n"
       + "            },\n"
       + "            \"compensation\":{\n"
       + "                \"sql\":\"DELETE FROM ds_0.tb_0 WHERE id=?\",\n"
-      + "                \"params\":[\"1\"]\n"
+      + "                \"params\":[[\"1\"]]\n"
       + "            }\n"
       + "        },\n"
       + "        {\n"
@@ -65,11 +65,11 @@ public class JacksonFromJsonFormatForSQLTest {
       + "            \"parents\":[],\n"
       + "            \"transaction\":{\n"
       + "                \"sql\":\"INSERT INTO TABLE ds_0.tb_1 (id, value) values (?, ?)\",\n"
-      + "                \"params\":[\"2\", \"xxx\"]\n"
+      + "                \"params\":[[\"2\", \"xxx\"]]\n"
       + "            },\n"
       + "            \"compensation\":{\n"
       + "                \"sql\":\"DELETE FROM ds_0.tb_1 WHERE id=?\",\n"
-      + "                \"params\":[\"2\"]\n"
+      + "                \"params\":[[\"2\"]]\n"
       + "            }\n"
       + "        },\n"
       + "        {\n"
@@ -79,11 +79,11 @@ public class JacksonFromJsonFormatForSQLTest {
       + "            \"parents\":[\"first-sql-sharding-1\",\"first-sql-sharding-2\"],\n"
       + "            \"transaction\":{\n"
       + "                \"sql\":\"INSERT INTO TABLE ds_1.tb_2 (id, value) values (?, ?)\",\n"
-      + "                \"params\":[\"3\", \"xxx\"]\n"
+      + "                \"params\":[[\"3\", \"xxx\"]]\n"
       + "            },\n"
       + "            \"compensation\":{\n"
       + "                \"sql\":\"DELETE FROM ds_1.tb_2 WHERE id=?\",\n"
-      + "                \"params\":[\"3\"]\n"
+      + "                \"params\":[[\"3\"]]\n"
       + "            }\n"
       + "        },\n"
       + "        {\n"
@@ -93,11 +93,11 @@ public class JacksonFromJsonFormatForSQLTest {
       + "            \"parents\":[\"first-sql-sharding-1\",\"first-sql-sharding-2\"],\n"
       + "            \"transaction\":{\n"
       + "                \"sql\":\"INSERT INTO TABLE ds_1.tb_3 (id, value) values (?, ?)\",\n"
-      + "                \"params\":[\"4\", \"xxx\"]\n"
+      + "                \"params\":[[\"4\", \"xxx\"]]\n"
       + "            },\n"
       + "            \"compensation\":{\n"
       + "                \"sql\":\"DELETE FROM ds_1.tb_3 WHERE id=?\",\n"
-      + "                \"params\":[\"4\"]\n"
+      + "                \"params\":[[\"4\"]]\n"
       + "            }\n"
       + "        }\n"
       + "    ]\n"
@@ -107,13 +107,15 @@ public class JacksonFromJsonFormatForSQLTest {
 
   private final SQLTransport sqlTransport = new SQLTransport() {
     @Override
-    public SagaResponse with(String datasource, String sql, List<String> params) {
+    public SagaResponse with(String datasource, String sql, List<List<Object>> params) {
       if (null == sql || sql.trim().length() == 0) {
         return responseDefault;
       }
 
-      for (String param : params) {
-        sql = sql.replaceFirst("\\?", param);
+      for (List<Object> each : params) {
+        for (Object param : each) {
+          sql = sql.replaceFirst("\\?", param.toString());
+        }
       }
 
       return new SuccessfulSagaResponse(datasource + " execute sql : " + sql);
