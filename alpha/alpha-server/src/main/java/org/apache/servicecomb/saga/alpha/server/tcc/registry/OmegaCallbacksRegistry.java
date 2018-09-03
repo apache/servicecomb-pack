@@ -77,9 +77,14 @@ public final class OmegaCallbacksRegistry {
     return result;
   }
 
-  public static void removeByValue(String serviceName, OmegaCallback omegaCallback) {
-    Map<String, OmegaCallback> callbackMap = REGISTRY.getOrDefault(serviceName, emptyMap());
-    callbackMap.values().remove(omegaCallback);
+  /**
+   * Remove omega TCC callback by service name and instance id.
+   *
+   * @param serviceName service name
+   * @param instanceId instance id
+   */
+  public static void remove(String serviceName, String instanceId) {
+    REGISTRY.getOrDefault(serviceName, emptyMap()).remove(instanceId);
   }
 
   /**

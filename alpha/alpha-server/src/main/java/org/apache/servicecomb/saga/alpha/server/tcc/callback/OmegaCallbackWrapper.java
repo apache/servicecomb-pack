@@ -29,7 +29,7 @@ public class OmegaCallbackWrapper implements OmegaCallback {
     try {
       omegaCallback.invoke(event, status);
     } catch (Exception ex) {
-      OmegaCallbacksRegistry.removeByValue(event.getServiceName(), omegaCallback);
+      OmegaCallbacksRegistry.remove(event.getServiceName(), event.getInstanceId());
       throw ex;
     }
   }
