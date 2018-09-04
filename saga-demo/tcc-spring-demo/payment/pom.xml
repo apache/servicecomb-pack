@@ -24,7 +24,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>Tcc-Payment</artifactId>
+  <artifactId>tcc-payment</artifactId>
   <name>Saga::Demo::Tcc-Spring-Demo::Tcc-Payment</name>
 
   <dependencies>

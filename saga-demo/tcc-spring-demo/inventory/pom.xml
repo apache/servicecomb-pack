@@ -26,7 +26,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>Tcc-Inventory</artifactId>
+  <artifactId>tcc-inventory</artifactId>
   <name>Saga::Demo::Tcc-Spring-Demo::Tcc-Inventory</name>
 
   <dependencies>

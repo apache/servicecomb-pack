@@ -26,7 +26,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>Tcc-Ordering</artifactId>
+  <artifactId>tcc-ordering</artifactId>
   <name>Saga::Demo::Tcc-Spring-Demo::Tcc-Ordering</name>
 
   <dependencies>
