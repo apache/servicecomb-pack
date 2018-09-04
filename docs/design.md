@@ -16,7 +16,8 @@ The process of Inter-Service Communication is similar to [Zipkin](https://github
 ![Inter-Service Communication](static_files/inter-service_communication.png)
 
 ## Workflow Saga
-Saga处理场景是要求相关的子事务提供事务处理函数同时也提供补偿函数。Saga协调器alpha会根据事务的执行情况向omega发送相关的指令，确定是否向前重试或者向后恢复。
+In Saga workflow, the sub transaction need to provide the compensation method. If something is wrong, the Coordinator will send the command to the omega to do the forward or backward recovery.
+
 ### Successful Scenario
 In a successful scenario, all started events will have a corresponding ended event.
 
