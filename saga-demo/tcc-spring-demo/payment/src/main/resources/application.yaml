@@ -16,12 +16,20 @@
 ## ---------------------------------------------------------------------------
 spring:
   application:
-    name: hotel
+    name: payment
   datasource:
     url: jdbc:h2:mem:payment-test
   h2:
     console:
       enabled: true
+  jpa:
+    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create-drop
+      naming:
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
 alpha:
   cluster:
     address: alpha-server.servicecomb.io:8080

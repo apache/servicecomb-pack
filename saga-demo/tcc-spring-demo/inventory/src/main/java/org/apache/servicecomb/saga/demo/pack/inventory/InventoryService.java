@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.apache.servicecomb.saga.demo.pack.inventory;
 
 import java.util.Objects;
@@ -15,7 +31,8 @@ public class InventoryService {
    *
    * @param productId Product ID
    * @param requiredCount Required product count
-   * @return return the reserved count, 0 if nothing is available.
+   * @return return the reserved count, 0 if nothing is available. returns negative value if
+   * insufficient.
    */
   @Participate(confirmMethod = "confirm", cancelMethod = "cancel")
   public Integer reserve(Long productId, int requiredCount) {
@@ -25,25 +42,22 @@ public class InventoryService {
     }
 
     // if it is sufficient
-    if (product.getAvailable() > requiredCount) {
-      product.setReserved(product.getReserved() + requiredCount); // reserve some product in stock
+    if (product.getInStock() > requiredCount) {
+      product.setInStock(product.getInStock() - requiredCount);
       productDao.save(product);
       return requiredCount;
     } else {
-      return product.getAvailable() - requiredCount;
+      return product.getInStock() - requiredCount;
     }
   }
 
   public void confirm(Long productId, int requiredCount) {
-    Product product = productDao.findOne(productId);
-    product.setInStock(product.getInStock() - requiredCount); // actually reduce the in stock count
-    product.setReserved(product.getReserved() - requiredCount); // and remove the reserved count
-    productDao.save(product);
+    // empty body
   }
 
   public void cancel(Long productId, int requiredCount) {
     Product product = productDao.findOne(productId);
-    product.setReserved(product.getReserved() - requiredCount); // remove the reserved count
+    product.setInStock(product.getInStock() + requiredCount);
     productDao.save(product);
   }
 

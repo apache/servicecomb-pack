@@ -32,9 +32,9 @@ public class TccInventoryApplication {
   }
 
   @Bean
-  CommandLineRunner kickStart(ProductDao productDao) {
+  CommandLineRunner kickOff(ProductDao productDao) {
     return args -> {
-      productDao.save(new Product("Bottled water", 100, 20));
+      productDao.save(new Product("Bottled water", 100));
     };
   }
 }
