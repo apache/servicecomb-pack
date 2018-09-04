@@ -14,9 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.servicecomb.saga.demo.pack.inventory;
 
-import java.io.Serializable;
+package org.apache.servicecomb.saga.demo.pack.payment;
+
+import java.math.BigDecimal;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -24,26 +26,34 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "t_product")
-public class Product implements Serializable {
+@Table(name = "t_account")
+public class Account {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
 
-  private String name;
+  @Column(nullable = false, unique = true)
+  private String username;
 
-  /**
-   * Total count in stock
-   */
-  private Integer inStock;
+  @Column(nullable = false)
+  private BigDecimal balance;
 
-  Product() {
+  @Column(nullable = false)
+  private BigDecimal reservedAmount;
+
+  public Account() {
+    this(null, BigDecimal.ZERO, BigDecimal.ZERO);
   }
 
-  Product(String name, Integer inStock) {
-    this.name = name;
-    this.inStock = inStock;
+  public Account(String username) {
+    this(username, BigDecimal.ZERO, BigDecimal.ZERO);
+  }
+
+  public Account(String username, BigDecimal balance, BigDecimal reservedAmount) {
+    this.username = username;
+    this.balance = balance;
+    this.reservedAmount = reservedAmount;
   }
 
   public Long getId() {
@@ -54,19 +64,27 @@ public class Product implements Serializable {
     this.id = id;
   }
 
-  public String getName() {
-    return name;
+  public String getUsername() {
+    return username;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setUsername(String username) {
+    this.username = username;
   }
 
-  public Integer getInStock() {
-    return inStock;
+  public BigDecimal getBalance() {
+    return balance;
   }
 
-  public void setInStock(Integer inStock) {
-    this.inStock = inStock;
+  public void setBalance(BigDecimal balance) {
+    this.balance = balance;
+  }
+
+  public BigDecimal getReservedAmount() {
+    return reservedAmount;
+  }
+
+  public void setReservedAmount(BigDecimal reservedAmount) {
+    this.reservedAmount = reservedAmount;
   }
 }

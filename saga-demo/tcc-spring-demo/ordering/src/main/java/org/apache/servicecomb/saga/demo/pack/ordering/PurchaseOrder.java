@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.servicecomb.saga.demo.pack.inventory;
+package org.apache.servicecomb.saga.demo.pack.ordering;
 
-import java.io.Serializable;
+import java.math.BigDecimal;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -24,26 +24,24 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "t_product")
-public class Product implements Serializable {
+@Table(name = "t_order")
+public class PurchaseOrder {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
 
-  private String name;
+  private String username;
 
-  /**
-   * Total count in stock
-   */
-  private Integer inStock;
+  private BigDecimal amount;
 
-  Product() {
+  public PurchaseOrder() {
+    this("", BigDecimal.ZERO);
   }
 
-  Product(String name, Integer inStock) {
-    this.name = name;
-    this.inStock = inStock;
+  public PurchaseOrder(String username, BigDecimal amount) {
+    this.username = username;
+    this.amount = amount;
   }
 
   public Long getId() {
@@ -54,19 +52,19 @@ public class Product implements Serializable {
     this.id = id;
   }
 
-  public String getName() {
-    return name;
+  public BigDecimal getAmount() {
+    return amount;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setAmount(BigDecimal amount) {
+    this.amount = amount;
   }
 
-  public Integer getInStock() {
-    return inStock;
+  public String getUsername() {
+    return username;
   }
 
-  public void setInStock(Integer inStock) {
-    this.inStock = inStock;
+  public void setUsername(String username) {
+    this.username = username;
   }
 }

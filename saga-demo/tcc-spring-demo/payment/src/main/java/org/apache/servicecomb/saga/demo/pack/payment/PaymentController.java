@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.servicecomb.saga.demo.pack.inventory;
+package org.apache.servicecomb.saga.demo.pack.payment;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Controller;
 
-public interface ProductDao extends JpaRepository<Product, Long> {
+@Controller
+public class PaymentController {
 
 }

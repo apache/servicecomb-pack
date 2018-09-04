@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.servicecomb.saga.demo.pack.inventory;
+package org.apache.servicecomb.saga.demo.pack.ordering;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ProductDao extends JpaRepository<Product, Long> {
+public interface PurchaseOrderDao extends JpaRepository<PurchaseOrder, Long> {
 
 }
