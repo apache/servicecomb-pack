@@ -15,15 +15,9 @@
  *  limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.server.tcc.callback;
+package org.apache.servicecomb.saga.alpha.server.tcc.jpa;
 
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
-import org.apache.servicecomb.saga.common.TransactionStatus;
+import org.springframework.data.repository.CrudRepository;
 
-public interface OmegaCallback {
-
-  void invoke(ParticipatedEvent event, TransactionStatus status);
-
-  default void disconnect() {
-  }
+public interface FinishedEventRepository extends CrudRepository<FinishedEvent, Long> {
 }

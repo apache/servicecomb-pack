@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.server.tcc.event;
+package org.apache.servicecomb.saga.alpha.server.tcc.jpa;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +24,9 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface ParticipateEventRepository extends CrudRepository<ParticipatedEvent, Long> {
 
-  @Query(value = "SELECT t FROM TccParticipateEvent AS t WHERE t.globalTxId = ?1")
+  @Query(value = "SELECT t FROM ParticipatedEvent AS t WHERE t.globalTxId = ?1")
   Optional<List<ParticipatedEvent>> findByGlobalTxId(String globalTxId);
+
+  @Query(value = "SELECT t FROM ParticipatedEvent AS t WHERE t.globalTxId = ?1 and t.localTxId = ?2")
+  Optional<ParticipatedEvent> findByGlobalTxIdAndLocalTxId(String globalTxId, String localTxId);
 }

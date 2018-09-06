@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.server.tcc.event;
+package org.apache.servicecomb.saga.alpha.server.tcc.jpa;
 
 import java.util.Date;
 import javax.persistence.Entity;
@@ -42,6 +42,9 @@ public class FinishedEvent {
   private Date creationTime;
   private Date lastModified;
 
+  private FinishedEvent() {
+  }
+
   public FinishedEvent(String globalTxId, String localTxId, String parentTxId, String serviceName,
       String instanceId, String confirmMethod, String cancelMethod, String status) {
     this.globalTxId = globalTxId;
@@ -54,53 +57,5 @@ public class FinishedEvent {
     this.status = status;
     this.creationTime = new Date();
     this.lastModified = new Date();
-  }
-
-  public String getGlobalTxId() {
-    return globalTxId;
-  }
-
-  public String getLocalTxId() {
-    return localTxId;
-  }
-
-  public String getParentTxId() {
-    return parentTxId;
-  }
-
-  public String getServiceName() {
-    return serviceName;
-  }
-
-  public String getInstanceId() {
-    return instanceId;
-  }
-
-  public String getConfirmMethod() {
-    return confirmMethod;
-  }
-
-  public String getCancelMethod() {
-    return cancelMethod;
-  }
-
-  public String getStatus() {
-    return status;
-  }
-
-  public Date getCreationTime() {
-    return creationTime;
-  }
-
-  public void setCreationTime(Date creationTime) {
-    this.creationTime = creationTime;
-  }
-
-  public Date getLastModified() {
-    return lastModified;
-  }
-
-  public void setLastModified(Date lastModified) {
-    this.lastModified = lastModified;
   }
 }

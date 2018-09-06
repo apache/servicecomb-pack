@@ -15,32 +15,35 @@
  *  limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.server.tcc.registry;
+package org.apache.servicecomb.saga.alpha.server.tcc;
 
 import java.lang.invoke.MethodHandles;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.servicecomb.saga.alpha.server.tcc.event.ParticipatedEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * Manage TCC transaction event.
  */
-public final class TransactionEventRegistry {
+@Component("defaultTransactionEventService")
+public final class DefaultTransactionEventService implements TransactionEventService {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private final static Map<String, Set<ParticipatedEvent>> REGISTRY = new ConcurrentHashMap<>();
+  private final Map<String, Set<ParticipatedEvent>> REGISTRY = new ConcurrentHashMap<>();
 
   /**
    * Register participate event.
    *
    * @param participateEvent participate event
    */
-  public static void register(ParticipatedEvent participateEvent) {
+  @Override
+  public void addEvent(ParticipatedEvent participateEvent) {
     REGISTRY
         .computeIfAbsent(participateEvent.getGlobalTxId(), key -> new LinkedHashSet<>())
         .add(participateEvent);
@@ -58,7 +61,12 @@ public final class TransactionEventRegistry {
    * @param globalTxId global transaction id
    * @return participate events
    */
-  public static Set<ParticipatedEvent> retrieve(String globalTxId) {
+  @Override
+  public Set<ParticipatedEvent> getEventByGlobalTxId(String globalTxId) {
     return REGISTRY.get(globalTxId);
+  }
+
+  @Override
+  public void migration(String globalTxId, String localTxId) {
   }
 }

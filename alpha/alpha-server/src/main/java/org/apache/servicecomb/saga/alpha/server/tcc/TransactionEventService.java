@@ -15,9 +15,17 @@
  *  limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.server.tcc.event;
+package org.apache.servicecomb.saga.alpha.server.tcc;
 
-import org.springframework.data.repository.CrudRepository;
+import java.util.Set;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 
-public interface FinishedEventRepository extends CrudRepository<FinishedEvent, Long> {
+public interface TransactionEventService {
+
+  void addEvent(ParticipatedEvent participateEvent);
+
+  Set<ParticipatedEvent> getEventByGlobalTxId(String globalTxId);
+
+  void migration(String globalTxId, String localTxId);
+
 }
