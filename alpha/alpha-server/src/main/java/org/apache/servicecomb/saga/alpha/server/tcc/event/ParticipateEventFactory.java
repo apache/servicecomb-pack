@@ -17,7 +17,6 @@
 
 package org.apache.servicecomb.saga.alpha.server.tcc.event;
 
-import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccParticipatedEvent;
 
 public class ParticipateEventFactory {
@@ -31,7 +30,7 @@ public class ParticipateEventFactory {
         request.getInstanceId(),
         request.getConfirmMethod(),
         request.getCancelMethod(),
-        TransactionStatus.valueOf(request.getStatus())
+        request.getStatus()
     );
   }
 }
