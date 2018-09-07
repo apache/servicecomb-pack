@@ -18,6 +18,7 @@
 package org.apache.servicecomb.saga.alpha.server.tcc.jpa;
 
 import java.util.Date;
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -113,5 +114,30 @@ public class ParticipatedEvent {
 
   public void setLastModified(Date lastModified) {
     this.lastModified = lastModified;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ParticipatedEvent that = (ParticipatedEvent) o;
+    return Objects.equals(globalTxId, that.globalTxId) &&
+        Objects.equals(localTxId, that.localTxId) &&
+        Objects.equals(parentTxId, that.parentTxId) &&
+        Objects.equals(serviceName, that.serviceName) &&
+        Objects.equals(instanceId, that.instanceId) &&
+        Objects.equals(confirmMethod, that.confirmMethod) &&
+        Objects.equals(cancelMethod, that.cancelMethod) &&
+        Objects.equals(status, that.status);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects
+        .hash(globalTxId, localTxId, parentTxId, serviceName, instanceId, confirmMethod, cancelMethod, status);
   }
 }

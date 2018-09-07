@@ -57,8 +57,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(classes = {AlphaApplication.class},
     properties = {
         "alpha.server.host=0.0.0.0",
-        "alpha.server.port=8090",
-        "spring.jpa.show-sql=true"
+        "alpha.server.port=8090"
+//        "spring.profiles.active=mysql",
+//        "spring.datasource.url=jdbc:mysql://localhost:3306/saga?useSSL=false",
+//        "spring.datasource.username=root",
+//        "spring.datasource.password="
     })
 public class AlphaTccServerTest {
 
@@ -137,6 +140,7 @@ public class AlphaTccServerTest {
   public void assertOnParticipated() {
     asyncStub.onConnected(serviceConfig, commandStreamObserver);
     awaitUntilConnected();
+    blockingStub.participate(newParticipatedEvent("Succeed"));
     blockingStub.participate(newParticipatedEvent("Succeed"));
     assertThat(transactionEventService.getEventByGlobalTxId(globalTxId).size(),  is(1));
     ParticipatedEvent event = transactionEventService.getEventByGlobalTxId(globalTxId).iterator().next();

@@ -15,17 +15,20 @@
  *  limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.server.tcc;
+package org.apache.servicecomb.saga.alpha.tcc.server;
 
-import java.util.Set;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
+import org.apache.servicecomb.saga.alpha.server.AlphaApplication;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
-public interface TransactionEventService {
-
-  boolean addEvent(ParticipatedEvent participateEvent);
-
-  Set<ParticipatedEvent> getEventByGlobalTxId(String globalTxId);
-
-  void migration(String globalTxId, String localTxId);
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = {AlphaApplication.class},
+    properties = {
+        "alpha.server.host=0.0.0.0",
+        "alpha.server.port=8090",
+        "alpha.server.storage=local"
+    })
+public class MemoryAlphaTccServerTest extends AlphaTccServerTest{
 
 }

@@ -43,7 +43,7 @@ public final class DefaultTransactionEventService implements TransactionEventSer
    * @param participateEvent participate event
    */
   @Override
-  public void addEvent(ParticipatedEvent participateEvent) {
+  public boolean addEvent(ParticipatedEvent participateEvent) {
     REGISTRY
         .computeIfAbsent(participateEvent.getGlobalTxId(), key -> new LinkedHashSet<>())
         .add(participateEvent);
@@ -53,6 +53,7 @@ public final class DefaultTransactionEventService implements TransactionEventSer
         participateEvent.getGlobalTxId(), participateEvent.getLocalTxId(), participateEvent.getParentTxId(),
         participateEvent.getConfirmMethod(), participateEvent.getCancelMethod(), participateEvent.getStatus(),
         participateEvent.getServiceName(), participateEvent.getInstanceId());
+    return true;
   }
 
   /**

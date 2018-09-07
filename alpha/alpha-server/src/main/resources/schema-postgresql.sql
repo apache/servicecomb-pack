@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS TccParticipateEvent (
   lastModified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS tcc_participate_event_index ON TccParticipateEvent (globalTxId, localTxId, parentTxId);
+CREATE UNIQUE INDEX IF NOT EXISTS tcc_participate_event_index ON TccParticipateEvent (globalTxId, localTxId, parentTxId);
 
 CREATE TABLE IF NOT EXISTS TccFinishedEvent (
   id BIGSERIAL PRIMARY KEY,
@@ -99,4 +99,4 @@ CREATE TABLE IF NOT EXISTS TccFinishedEvent (
   lastModified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS tcc_finished_event_index ON TccFinishedEvent (globalTxId, localTxId, parentTxId);
+CREATE UNIQUE INDEX IF NOT EXISTS tcc_finished_event_index ON TccFinishedEvent (globalTxId, localTxId, parentTxId);

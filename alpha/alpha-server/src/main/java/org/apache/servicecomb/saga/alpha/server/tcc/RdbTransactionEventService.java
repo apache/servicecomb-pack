@@ -44,8 +44,17 @@ public class RdbTransactionEventService implements TransactionEventService {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
-  public void addEvent(ParticipatedEvent participateEvent) {
-    participateEventRepository.save(participateEvent);
+  public boolean addEvent(ParticipatedEvent event) {
+    try {
+      if (!participateEventRepository.findByGlobalTxIdAndLocalTxId(
+          event.getGlobalTxId(), event.getLocalTxId()).isPresent()) {
+        participateEventRepository.save(event);
+      }
+    } catch (Exception ex) {
+      LOG.warn("add event triggered exception: ", ex);
+      return false;
+    }
+    return true;
   }
 
   @Override

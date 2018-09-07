@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS TccParticipateEvent (
   creationTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lastModified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  INDEX tcc_participate_event_index (globalTxId, localTxId, parentTxId)
+  UNIQUE INDEX tcc_participate_event_index (globalTxId, localTxId, parentTxId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS TccFinishedEvent (
@@ -96,5 +96,5 @@ CREATE TABLE IF NOT EXISTS TccFinishedEvent (
   creationTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lastModified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  INDEX tcc_finished_event_index (globalTxId, localTxId, parentTxId)
+  UNIQUE INDEX tcc_finished_event_index (globalTxId, localTxId, parentTxId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
