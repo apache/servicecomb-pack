@@ -16,76 +16,53 @@
  */
 package org.apache.servicecomb.saga.demo.pack.inventory;
 
-import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+@RequestMapping("/products")
 @Controller
-@RequestMapping("/product")
 public class ProductController {
-
+  @Autowired
   private InventoryService inventoryService;
 
-  @PostMapping("/product")
-  public Response updateInventory(@RequestParam("productId") Long productId,
-      @RequestParam("requiredCount") Integer requiredCount) {
-    return new Response(0, "OK",
-        ImmutableList.of(inventoryService.reserve(productId, requiredCount)));
+  private final AtomicInteger id = new AtomicInteger(0);
+
+  @PostMapping("/order/{userName}/{productName}/{amount}")
+  @ResponseBody
+  public ProductOrder updateInventory(@PathVariable String userName,
+      @PathVariable String productName, @PathVariable Integer amount) {
+    ProductOrder order = new ProductOrder();
+    order.setId(id.incrementAndGet());
+    order.setUserName(userName);
+    order.setProductName(productName);
+    order.setAmount(amount);
+    inventoryService.reserve(order);
+    return order;
   }
 
-  @ExceptionHandler
-  public Response exceptionHandler(Exception e) {
-    return new Response(-1, e.getMessage(),
-        ImmutableList.of(e.getStackTrace()));
+  @CrossOrigin
+  @GetMapping("/orders")
+  @ResponseBody
+  List<ProductOrder> getAll() {
+    return new ArrayList<>(inventoryService.getAllOrders());
   }
 
-  @Autowired
-  public void setInventoryService(
-      InventoryService inventoryService) {
-    this.inventoryService = inventoryService;
+  @DeleteMapping("/orders")
+  void clear() {
+    inventoryService.clearAllOrders();
+    id.set(0);
   }
+
 }
 
-class Response {
-
-  private int code;
-
-  private String message;
-
-  private List<Object> objects;
-
-  Response(int code, String message, List<Object> objects) {
-    this.code = code;
-    this.message = message;
-    this.objects = objects;
-  }
-
-  public int getCode() {
-    return code;
-  }
-
-  public void setCode(int code) {
-    this.code = code;
-  }
-
-  public String getMessage() {
-    return message;
-  }
-
-  public void setMessage(String message) {
-    this.message = message;
-  }
-
-  public List<Object> getObjects() {
-    return objects;
-  }
-
-  public void setObjects(List<Object> objects) {
-    this.objects = objects;
-  }
-}

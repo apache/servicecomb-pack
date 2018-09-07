@@ -22,6 +22,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
+
 
 @Entity
 @Table(name = "t_product")
@@ -37,6 +39,9 @@ public class Product implements Serializable {
    * Total count in stock
    */
   private Integer inStock;
+
+  @Version
+  private Integer version;
 
   Product() {
   }
