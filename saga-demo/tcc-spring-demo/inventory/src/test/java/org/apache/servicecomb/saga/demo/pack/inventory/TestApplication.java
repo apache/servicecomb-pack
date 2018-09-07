@@ -14,15 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.servicecomb.saga.demo.pack.inventory;
 
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-
-public interface ProductDao extends JpaRepository<Product, Long> {
-
-  @Query("select p from Product p where p.name =?1 ")
-  Product findProduceByName(String ProductName);
-
+@SpringBootApplication
+public class TestApplication {
+  // Just for testing
 }

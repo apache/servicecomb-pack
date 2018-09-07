@@ -22,8 +22,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 
 @SpringBootApplication
+@Profile("prd")
 @EnableOmega
 public class TccInventoryApplication {
 
@@ -34,7 +36,10 @@ public class TccInventoryApplication {
   @Bean
   CommandLineRunner kickOff(ProductDao productDao) {
     return args -> {
-      productDao.save(new Product("Bottled water", 100));
+      // Set up the inventory
+      productDao.save(new Product("ProductA", 100));
+      productDao.save(new Product("ProductB", 10));
+      productDao.save(new Product("ProductC", 1));
     };
   }
 }

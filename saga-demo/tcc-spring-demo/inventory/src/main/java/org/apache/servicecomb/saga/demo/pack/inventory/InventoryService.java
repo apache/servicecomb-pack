@@ -16,7 +16,13 @@
  */
 package org.apache.servicecomb.saga.demo.pack.inventory;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.transaction.Transactional;
+
 import org.apache.servicecomb.saga.omega.transaction.annotations.Participate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,45 +30,54 @@ import org.springframework.stereotype.Service;
 @Service
 public class InventoryService {
 
+  private Map<Integer, ProductOrder> orders = new ConcurrentHashMap<>();
+  @Autowired
   private ProductDao productDao;
 
-  /**
-   * Find the product with specific product Id.
-   *
-   * @param productId Product ID
-   * @param requiredCount Required product count
-   * @return return the reserved count, 0 if nothing is available. returns negative value if
-   * insufficient.
-   */
   @Participate(confirmMethod = "confirm", cancelMethod = "cancel")
-  public Integer reserve(Long productId, int requiredCount) {
-    Product product = productDao.findOne(productId);
-    if (Objects.isNull(product)) {
-      throw new IllegalArgumentException("Product not exists at all");
-    }
-
-    // if it is sufficient
-    if (product.getInStock() > requiredCount) {
-      product.setInStock(product.getInStock() - requiredCount);
-      productDao.save(product);
-      return requiredCount;
+  @Transactional
+  public void reserve(ProductOrder order) {
+    Product product = getProduct(order.getProductName());
+    if (product.getInStock() > order.getAmount()) {
+      product.setInStock(product.getInStock() - order.getAmount());
+      productDao.saveAndFlush(product);
+      orders.put(order.getId(), order);
     } else {
-      return product.getInStock() - requiredCount;
+      throw new IllegalArgumentException("The Product is out of stock!");
     }
   }
 
-  public void confirm(Long productId, int requiredCount) {
-    // empty body
+  public void confirm(ProductOrder order) {
+    order.setConfirmed(true);
   }
 
-  public void cancel(Long productId, int requiredCount) {
-    Product product = productDao.findOne(productId);
-    product.setInStock(product.getInStock() + requiredCount);
-    productDao.save(product);
+  @Transactional
+  public void cancel(ProductOrder order) {
+    Product product = productDao.findProduceByName(order.getProductName());
+    product.setInStock(product.getInStock() + order.getAmount());
+    productDao.saveAndFlush(product);
+    order.setCancelled(true);
   }
 
-  @Autowired
-  public void setProductDao(ProductDao productDao) {
-    this.productDao = productDao;
+  @Transactional
+  private Product getProduct(String productName) {
+    Product product = productDao.findProduceByName(productName);
+    if (Objects.isNull(product)) {
+      throw new IllegalArgumentException("Product not exists at all!");
+    }
+    return product;
+  }
+  
+  Integer getInventory(String productName) {
+    Product product = getProduct(productName);
+    return product.getInStock();
+  }
+
+  Collection<ProductOrder> getAllOrders() {
+    return orders.values();
+  }
+
+  void clearAllOrders() {
+    orders.clear();
   }
 }
