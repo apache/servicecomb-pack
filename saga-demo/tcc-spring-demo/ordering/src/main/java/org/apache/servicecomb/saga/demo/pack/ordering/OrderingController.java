@@ -16,37 +16,42 @@
  */
 package org.apache.servicecomb.saga.demo.pack.ordering;
 
-
-import java.math.BigDecimal;
 import org.apache.servicecomb.saga.omega.context.annotations.TccStart;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 @Controller
 @RequestMapping("/ordering")
 public class OrderingController {
+  @Value("${inventory.service.address:http://inventory.servicecomb.io:8080}")
+  private String inventoryServiceUrl;
 
+  @Value("${payment.service.address:http://payment.servicecomb.io:8080}")
+  private String paymentServiceUrl;
+
+  @Autowired
   private RestTemplate restTemplate;
 
-  private PurchaseOrderDao purchaseOrderDao;
-
   @TccStart
-  @PostMapping("/{productId}")
+  @PostMapping("/order/{userName}/{productName}/{productUnit}/{unitPrice}")
   public String ordering(
-      @RequestParam("requiredCount") Integer requiredCount) {
-    // place an order
-    purchaseOrderDao.save(new PurchaseOrder("Foo", BigDecimal.TEN));
-    // try to reserve some product
+      @PathVariable String userName,
+      @PathVariable String productName, @PathVariable Integer productUnit, @PathVariable Integer unitPrice) {
 
-    // create a purchase order and do the payment
+    restTemplate.postForEntity(
+        inventoryServiceUrl + "/products/order/{userName}/{producetName}/{productUnit}",
+        null, String.class, userName, productName, productUnit);
 
-    // create delivery order
 
-    return "";
+    restTemplate.postForEntity(paymentServiceUrl + "/payments/pay/{userName}/{amount}",
+        null, String.class, userName, productUnit * unitPrice);
+
+    return userName + " ordering " + productName + " with " + productUnit + " OK";
   }
 
   @Autowired
@@ -54,9 +59,5 @@ public class OrderingController {
     this.restTemplate = restTemplate;
   }
 
-  @Autowired
-  public void setPurchaseOrderDao(
-      PurchaseOrderDao purchaseOrderDao) {
-    this.purchaseOrderDao = purchaseOrderDao;
-  }
+
 }
