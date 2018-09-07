@@ -17,8 +17,6 @@
 
 package org.apache.servicecomb.saga.demo.pack.payment;
 
-import java.math.BigDecimal;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -33,27 +31,20 @@ public class Account {
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
 
-  @Column(nullable = false, unique = true)
-  private String username;
+  private String userName;
 
-  @Column(nullable = false)
-  private BigDecimal balance;
+  private Integer balance;
 
-  @Column(nullable = false)
-  private BigDecimal reservedAmount;
+  private Integer credit;
 
   public Account() {
-    this(null, BigDecimal.ZERO, BigDecimal.ZERO);
+    
   }
 
-  public Account(String username) {
-    this(username, BigDecimal.ZERO, BigDecimal.ZERO);
-  }
-
-  public Account(String username, BigDecimal balance, BigDecimal reservedAmount) {
-    this.username = username;
+  public Account(String userName, Integer balance, Integer credit) {
+    this.userName = userName;
     this.balance = balance;
-    this.reservedAmount = reservedAmount;
+    this.credit = credit;
   }
 
   public Long getId() {
@@ -64,27 +55,27 @@ public class Account {
     this.id = id;
   }
 
-  public String getUsername() {
-    return username;
+  public String getUserName() {
+    return userName;
   }
 
-  public void setUsername(String username) {
-    this.username = username;
+  public void setUserName(String userName) {
+    this.userName = userName;
   }
 
-  public BigDecimal getBalance() {
+  public Integer getBalance() {
     return balance;
   }
 
-  public void setBalance(BigDecimal balance) {
+  public void setBalance(Integer balance) {
     this.balance = balance;
   }
 
-  public BigDecimal getReservedAmount() {
-    return reservedAmount;
+  public void setCredit(Integer credit) {
+    this.credit = credit;
   }
 
-  public void setReservedAmount(BigDecimal reservedAmount) {
-    this.reservedAmount = reservedAmount;
+  public Integer getCredit() {
+    return credit;
   }
 }

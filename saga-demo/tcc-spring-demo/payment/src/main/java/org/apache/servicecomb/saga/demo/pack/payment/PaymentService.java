@@ -16,7 +16,11 @@
  */
 package org.apache.servicecomb.saga.demo.pack.payment;
 
-import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.apache.servicecomb.saga.omega.transaction.annotations.Participate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,65 +29,61 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class PaymentService {
 
+  @Autowired
   private AccountDao accountDao;
+
+  private Map<Integer, Payment> payments = new ConcurrentHashMap<>();
 
   @Transactional
   @Participate(confirmMethod = "confirm", cancelMethod = "cancel")
-  public BigDecimal execute(String username, BigDecimal amount) {
-    Account account = accountDao.findByUsername(username);
-
-    if (account.getBalance()
-        .subtract(account.getReservedAmount())
-        .compareTo(amount) > 0) {
-
-      account.setReservedAmount(account.getReservedAmount().add(amount));
-      accountDao.save(account);
-      return amount;
+  public void pay(Payment payment) {
+    Account account = getAccount(payment);
+    if (account.getCredit() >= payment.getAmount()) {
+      account.setCredit(account.getCredit() - payment.getAmount());
+      accountDao.saveAndFlush(account);
+      payments.put(payment.getId(), payment);
     } else {
-      throw new AccountException("Insufficient funds");
+      throw new IllegalArgumentException("Insufficient funds!");
     }
   }
 
   @Transactional
-  public void confirm(String username, BigDecimal amount) {
-    Account account = accountDao.findByUsername(username);
-    account.setReservedAmount(account.getReservedAmount().subtract(amount));
-    account.setBalance(account.getBalance().subtract(amount));
-    accountDao.save(account);
+  Account getAccount(Payment payment) {
+    Account account = accountDao.findByUserName(payment.getUserName());
+    if (Objects.isNull(account)) {
+      throw new IllegalArgumentException("Cannot find the account!");
+    }
+    return account;
   }
 
   @Transactional
-  public void cancel(String username, BigDecimal amount) {
-    Account account = accountDao.findByUsername(username);
-    account.setReservedAmount(account.getReservedAmount().subtract(amount));
-    accountDao.save(account);
+  public void confirm(Payment payment) {
+    Account account = getAccount(payment);
+    accountDao.saveAndFlush(account);
+    payment.setConfirmed(true);
+    payment.setCancelled(false);
+    account.setBalance(account.getBalance() - payment.getAmount());
+    payment.setBalance(account.getBalance());
+
   }
 
-  @Autowired
-  public void setAccountDao(AccountDao accountDao) {
-    this.accountDao = accountDao;
-  }
-}
+  @Transactional
+  public void cancel(Payment payment) {
+    Account account = getAccount(payment);
+    account.setCredit(account.getCredit() + payment.getAmount());
+    accountDao.saveAndFlush(account);
+    payment.setBalance(account.getBalance());
+    payment.setConfirmed(false);
+    payment.setCancelled(true);
 
-class AccountException extends RuntimeException {
-
-  public AccountException() {
-  }
-
-  public AccountException(String message) {
-    super(message);
   }
 
-  public AccountException(String message, Throwable cause) {
-    super(message, cause);
+  public Collection<Payment> getAllTransactions() {
+    return payments.values();
   }
 
-  public AccountException(Throwable cause) {
-    super(cause);
-  }
-
-  public AccountException(String message, Throwable cause, boolean enableSuppression,
-      boolean writableStackTrace) {
-    super(message, cause, enableSuppression, writableStackTrace);
+  public void clearAllTransactions() {
+    payments.clear();
   }
 }
+
