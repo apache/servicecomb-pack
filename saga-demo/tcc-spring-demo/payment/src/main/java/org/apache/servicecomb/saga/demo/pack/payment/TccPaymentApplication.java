@@ -20,8 +20,10 @@ package org.apache.servicecomb.saga.demo.pack.payment;
 import org.apache.servicecomb.saga.omega.spring.EnableOmega;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Profile;
 
 @SpringBootApplication
+@Profile("prd")
 @EnableOmega
 public class TccPaymentApplication {
   public static void main(String[] args) {

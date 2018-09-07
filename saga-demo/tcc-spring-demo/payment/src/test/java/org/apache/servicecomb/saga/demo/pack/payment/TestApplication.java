@@ -14,13 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.servicecomb.saga.demo.pack.payment;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-public interface AccountDao extends JpaRepository<Account, Long> {
-
-  @Query("select a from Account a where a.userName =?1 ")
-  Account findByUserName(String userName);
+@SpringBootApplication
+public class TestApplication {
+  // Just for testing
 }

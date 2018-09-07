@@ -16,9 +16,51 @@
  */
 package org.apache.servicecomb.saga.demo.pack.payment;
 
-import org.springframework.stereotype.Controller;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@RequestMapping("/payments")
 @Controller
 public class PaymentController {
+  @Autowired
+  private PaymentService paymentService;
+
+  private final AtomicInteger id = new AtomicInteger(0);
+
+  @PostMapping("/pay/{userName}/{amount}")
+  @ResponseBody
+  public Payment pay(@PathVariable String userName,
+      @PathVariable Integer amount) {
+    Payment payment = new Payment();
+    payment.setId(id.incrementAndGet());
+    payment.setUserName(userName);
+    payment.setAmount(amount);
+    paymentService.pay(payment);
+    return payment;
+  }
+
+  @CrossOrigin
+  @GetMapping("/transactions")
+  @ResponseBody
+  List<Payment> getAll() {
+    return new ArrayList<>(paymentService.getAllTransactions());
+  }
+
+  @DeleteMapping("/transactions")
+  void clear() {
+    paymentService.clearAllTransactions();
+    id.set(0);
+  }
 
 }
