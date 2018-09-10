@@ -18,31 +18,35 @@
 version: '2.1'
 
 services:
-  hotel:
-    image: "hotel:${TAG}"
-    hostname: hotel
+  payment:
+    image: "tcc-payment:${TAG}"
+    hostname: payment
     external_links:
       - "alpha:alpha-server.servicecomb.io"
+    environment:
+      - JAVA_OPTS=-Dspring.profiles.active=prd
     ports:
       - "8081:8080"
 
-  car:
-    image: "car:${TAG}"
-    hostname: car
+  inventory:
+    image: "tcc-inventory:${TAG}"
+    hostname: inventory
     external_links:
       - "alpha:alpha-server.servicecomb.io"
+    environment:
+      - JAVA_OPTS=-Dspring.profiles.active=prd
     ports:
       - "8082:8080"
 
-  booking:
-    image: "booking:${TAG}"
-    hostname: booking
+  ordering:
+    image: "tcc-ordering:${TAG}"
+    hostname: ordering
     external_links:
       - "alpha:alpha-server.servicecomb.io"
-      - "hotel:hotel.servicecomb.io"
-      - "car:car.servicecomb.io"
+      - "payment:payment.servicecomb.io"
+      - "inventory:inventory.servicecomb.io"
     ports:
       - "8083:8080"
     depends_on:
-      - hotel
-      - car
+      - payment
+      - inventory

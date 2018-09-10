@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-service=saga-demo
+service=tcc-spring-demo
 
 show_usage() {
   echo "Usage: $0 {up|up-alpha|up-demo|up-mysql|down}" >&2
