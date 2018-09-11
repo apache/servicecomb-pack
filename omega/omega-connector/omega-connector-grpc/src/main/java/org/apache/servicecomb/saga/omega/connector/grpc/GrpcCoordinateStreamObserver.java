@@ -45,7 +45,7 @@ public class GrpcCoordinateStreamObserver implements StreamObserver<GrpcTccCoord
 
   @Override
   public void onError(Throwable t) {
-    //TODO need to find a way to handle the error
+    //TODO need to find a way to handle the error and create connection again
     LOG.error("Failed to process grpc coordinate command.", t);
   }
 
