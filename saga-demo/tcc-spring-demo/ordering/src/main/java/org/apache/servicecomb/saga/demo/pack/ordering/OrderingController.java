@@ -46,12 +46,12 @@ public class OrderingController {
       @PathVariable String productName, @PathVariable Integer productUnit, @PathVariable Integer unitPrice) {
 
     restTemplate.postForEntity(
-        inventoryServiceUrl + "/products/order/{userName}/{productName}/{productUnit}",
+        inventoryServiceUrl + "/order/{userName}/{productName}/{productUnit}",
         null, String.class, userName, productName, productUnit);
 
     int amount = productUnit * unitPrice;
     
-    restTemplate.postForEntity(paymentServiceUrl + "/payments/pay/{userName}/{amount}",
+    restTemplate.postForEntity(paymentServiceUrl + "/pay/{userName}/{amount}",
         null, String.class, userName, amount);
 
     return userName + " ordering " + productName + " with " + productUnit + " OK";

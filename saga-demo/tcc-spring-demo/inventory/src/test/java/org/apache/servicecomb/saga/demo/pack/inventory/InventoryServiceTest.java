@@ -61,7 +61,7 @@ public class InventoryServiceTest {
   public void testInventoryServiceWithConfirmation() {
     order.setId(1);
     order.setUserName("user1");
-    order.setAmount(10);
+    order.setUnits(10);
     order.setProductName("ProductA");
     inventoryService.reserve(order);
     assertThat(inventoryService.getInventory("ProductA"), is(90));
@@ -76,7 +76,7 @@ public class InventoryServiceTest {
   @Test
   public void getNoExitProductFromInventoryService() {
     order.setId(1);
-    order.setAmount(10);
+    order.setUnits(10);
     order.setProductName("Product");
     try {
       inventoryService.reserve(order);
@@ -89,7 +89,7 @@ public class InventoryServiceTest {
 
   @Test
   public void getProductOutOfStockFromInventoryService() {
-    order.setAmount(10);
+    order.setUnits(10);
     order.setProductName("ProductC");
     try {
       inventoryService.reserve(order);
@@ -103,7 +103,7 @@ public class InventoryServiceTest {
   @Test
   public void testInventoryServiceWithCancel() {order.setUserName("user1");
     order.setId(1);
-    order.setAmount(10);
+    order.setUnits(10);
     order.setProductName("ProductA");
     inventoryService.reserve(order);
     assertThat(inventoryService.getInventory("ProductA"), is(90));

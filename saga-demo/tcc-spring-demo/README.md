@@ -94,29 +94,29 @@ You can run the demo using either docker compose or executable files.
 ## User Requests by command line tools
 1. Ordering 2 units ProductA with the unit price 1 from UserA account, this ordering will be OK.
 ```
-curl -X POST http://${host_address}:8083/ordering/order/UserA/ProductA/3/1
+curl -X POST http://${host_address}:8083/order/UserA/ProductA/3/1
 ```
 Check the Inventory orders status with
 ```
-curl http://${host_address}:8081/products/orders
+curl http://${host_address}:8081/orderings
 ```
 Check the Payment transaction status with
 ```
-curl http://${host_address}:8082/payments/transactions
+curl http://${host_address}:8082/transactions
 
 ```
 
 2. Ordering 2 units of ProductA with the unit price 2 from UserB account , this ordering will cause the payment failed and trigger the cancel operation with inventory ordering.
 ```
-curl -X POST http://${host_address}:8083/ordering/order/UserB/ProductA/3/1
+curl -X POST http://${host_address}:8083/order/UserB/ProductA/3/1
 ```
 Check the hotel booking status with
 ```
-curl http://${host_address}:8081/products/orders
+curl http://${host_address}:8081/orderings
 ```
 Check the car booking status with
 ```
-curl http://${host_address}:8082/payments/transactions
+curl http://${host_address}:8082/transactions
 ```
 The second car booking will be marked with **cancel:true**
 
