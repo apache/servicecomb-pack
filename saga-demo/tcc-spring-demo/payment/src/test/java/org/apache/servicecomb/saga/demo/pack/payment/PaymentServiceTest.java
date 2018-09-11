@@ -18,8 +18,12 @@
 package org.apache.servicecomb.saga.demo.pack.payment;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.fail;
+
+
+import org.hamcrest.core.IsNull;
 
 import org.junit.After;
 import org.junit.Before;
@@ -74,6 +78,26 @@ public class PaymentServiceTest {
     assertThat(paymentService.getAccount(payment).getBalance(), is(90));
     assertThat(payment.getBalance(), is(90));
   }
+
+  @Test
+  public void testPaymentServicePaymentJustAsCredit() {
+    payment.setId(1);
+    payment.setUserName("UserB");
+    payment.setAmount(10);
+    paymentService.pay(payment);
+    assertThat(payment.getBalance(), IsNull.nullValue());
+    assertThat(paymentService.getAccount(payment).getCredit(), is(0));
+    assertThat(paymentService.getAccount(payment).getBalance(), is(10));
+    assertThat(paymentService.getAllTransactions().size(), is(1));
+
+    paymentService.confirm(payment);
+    assertThat(payment.isCancelled(), is(false));
+    assertThat(payment.isConfirmed(), is(true));
+    assertThat(paymentService.getAccount(payment).getCredit(), is(0));
+    assertThat(paymentService.getAccount(payment).getBalance(), is(0));
+    assertThat(payment.getBalance(), is(0));
+  }
+
 
   @Test
   public void getNoExitUserFromPaymentService() {

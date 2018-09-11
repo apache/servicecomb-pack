@@ -23,6 +23,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 @Controller
@@ -39,25 +40,21 @@ public class OrderingController {
 
   @TccStart
   @PostMapping("/order/{userName}/{productName}/{productUnit}/{unitPrice}")
+  @ResponseBody
   public String ordering(
       @PathVariable String userName,
       @PathVariable String productName, @PathVariable Integer productUnit, @PathVariable Integer unitPrice) {
 
     restTemplate.postForEntity(
-        inventoryServiceUrl + "/products/order/{userName}/{producetName}/{productUnit}",
+        inventoryServiceUrl + "/products/order/{userName}/{productName}/{productUnit}",
         null, String.class, userName, productName, productUnit);
 
-
+    int amount = productUnit * unitPrice;
+    
     restTemplate.postForEntity(paymentServiceUrl + "/payments/pay/{userName}/{amount}",
-        null, String.class, userName, productUnit * unitPrice);
+        null, String.class, userName, amount);
 
     return userName + " ordering " + productName + " with " + productUnit + " OK";
   }
-
-  @Autowired
-  public void setRestTemplate(RestTemplate restTemplate) {
-    this.restTemplate = restTemplate;
-  }
-
 
 }

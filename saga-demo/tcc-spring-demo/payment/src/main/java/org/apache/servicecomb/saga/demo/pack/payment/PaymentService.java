@@ -34,8 +34,8 @@ public class PaymentService {
 
   private Map<Integer, Payment> payments = new ConcurrentHashMap<>();
 
-  @Transactional
   @Participate(confirmMethod = "confirm", cancelMethod = "cancel")
+  @Transactional
   public void pay(Payment payment) {
     Account account = getAccount(payment);
     if (account.getCredit() >= payment.getAmount()) {
@@ -59,11 +59,12 @@ public class PaymentService {
   @Transactional
   public void confirm(Payment payment) {
     Account account = getAccount(payment);
-    accountDao.saveAndFlush(account);
     payment.setConfirmed(true);
     payment.setCancelled(false);
     account.setBalance(account.getBalance() - payment.getAmount());
     payment.setBalance(account.getBalance());
+    accountDao.saveAndFlush(account);
+
 
   }
 
