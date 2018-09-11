@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.servicecomb.saga.alpha.server.tcc.event.ParticipatedEvent;
+import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,18 +39,21 @@ public final class TransactionEventRegistry {
   /**
    * Register participate event.
    *
-   * @param participateEvent participate event
+   * @param participatedEvent participated event
    */
-  public static void register(ParticipatedEvent participateEvent) {
-    REGISTRY
-        .computeIfAbsent(participateEvent.getGlobalTxId(), key -> new LinkedHashSet<>())
-        .add(participateEvent);
+  public static void register(ParticipatedEvent participatedEvent) {
+    // Only register the Succeed participatedEvent
+    if (TransactionStatus.Succeed.equals(participatedEvent.getStatus())) {
+      REGISTRY
+          .computeIfAbsent(participatedEvent.getGlobalTxId(), key -> new LinkedHashSet<>())
+          .add(participatedEvent);
 
-    LOG.info("Registered participated event, global tx: {}, local tx: {}, parent id: {}, "
-            + "confirm: {}, cancel: {}, status: {}, service [{}] instanceId [{}]",
-        participateEvent.getGlobalTxId(), participateEvent.getLocalTxId(), participateEvent.getParentTxId(),
-        participateEvent.getConfirmMethod(), participateEvent.getCancelMethod(), participateEvent.getStatus(),
-        participateEvent.getServiceName(), participateEvent.getInstanceId());
+      LOG.info("Registered participated event, global tx: {}, local tx: {}, parent id: {}, "
+              + "confirm: {}, cancel: {}, status: {}, service [{}] instanceId [{}]",
+          participatedEvent.getGlobalTxId(), participatedEvent.getLocalTxId(), participatedEvent.getParentTxId(),
+          participatedEvent.getConfirmMethod(), participatedEvent.getCancelMethod(), participatedEvent.getStatus(),
+          participatedEvent.getServiceName(), participatedEvent.getInstanceId());
+    }
   }
 
   /**
