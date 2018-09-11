@@ -122,6 +122,17 @@ class OmegaSpringConfig {
       @Lazy org.apache.servicecomb.saga.omega.transaction.tcc.MessageHandler coordinateMessageHandler,
       @Value("${alpha.cluster.address:localhost:8080}") String address) {
     ManagedChannel channel = ManagedChannelBuilder.forTarget(address).usePlaintext().build();
-    return new GrpcTccEventService(serviceConfig, channel, address, coordinateMessageHandler);
+    final GrpcTccEventService service = new GrpcTccEventService(serviceConfig, channel, address, coordinateMessageHandler);
+    // Need to register it self first
+    service.onConnected();
+
+    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+      @Override
+      public void run() {
+        service.onDisconnected();
+        service.close();
+      }
+    }));
+    return service;
   }
 }
