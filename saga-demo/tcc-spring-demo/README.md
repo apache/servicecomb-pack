@@ -1,8 +1,8 @@
 # Booking Demo
-This demo simulates a booking application including three services:
-* booking
-* car
-* hotel
+This demo simulates a ordering application including three services:
+* ordering
+* inventory
+* payment
 
 ## Prerequisites
 You will need:
@@ -76,55 +76,49 @@ You can run the demo using either docker compose or executable files.
 2. follow the instructions in the [How to run](https://github.com/apache/incubator-servicecomb-saga/blob/master/docs/user_guide.md#how-to-run) section in User Guide to run postgreSQL and alpha server.
 
 3. start application up
-   1. start hotel service. The executable jar file should be in `saga-demo/booking/hotel/target/saga`.
+   1. start inventory service. The executable jar file should be in `saga-demo/tcc-spring-demo/inventory/target/saga`.
    ```bash
-   java -Dserver.port=8081 -Dalpha.cluster.address=${alpha_address}:8080 -jar hotel-${saga_version}-exec.jar
+   java -Dserver.port=8081 -Dalpha.cluster.address=${alpha_address}:8080 -jar tcc-inventory-${saga_version}-exec.jar
    ```
 
-   2. start car service. The executable jar file should be in `saga-demo/booking/car/target/saga`.
+   2. start payment service. The executable jar file should be in `saga-demo/tcc-spring-demo/payment/target/saga`.
    ```bash
-   java -Dserver.port=8082 -Dalpha.cluster.address=${alpha_address}:8080 -jar car-${saga_version}-exec.jar
+   java -Dserver.port=8082 -Dalpha.cluster.address=${alpha_address}:8080 -jar tcc-payment-${saga_version}-exec.jar
    ```
 
-   3. start booking service. The executable jar file should be in `saga-demo/booking/booking/target/saga`.
+   3. start ordering service. The executable jar file should be in `saga-demo/tcc-spring-demo/ordering/target/saga`.
    ```bash
-   java -Dserver.port=8083 -Dalpha.cluster.address=${alpha_address}:8080 -Dcar.service.address=${host_address}:8082 -Dhotel.service.address=${host_address}:8081  -jar booking-${saga_version}-exec.jar
+   java -Dserver.port=8083 -Dalpha.cluster.address=${alpha_address}:8080 -Dinventory.service.address=${host_address}:8082 -Dpayment.service.address=${host_address}:8081  -jar tcc-ordering-${saga_version}-exec.jar
    ```
 
 ## User Requests by command line tools
-1. Booking 2 rooms and 2 cars, this booking will be OK.
+1. Ordering 2 units ProductA with the unit price 1 from UserA account, this ordering will be OK.
 ```
-curl -X POST http://${host_address}:8083/booking/test/2/2
+curl -X POST http://${host_address}:8083/ordering/order/UserA/ProductA/3/1
 ```
-Check the hotel booking status with
+Check the Inventory orders status with
 ```
-curl http://${host_address}:8081/bookings
+curl http://${host_address}:8081/products/orders
 ```
-Check the car booking status with
+Check the Payment transaction status with
 ```
-curl http://${host_address}:8082/bookings
+curl http://${host_address}:8082/payments/transactions
 
 ```
 
-2. Booking 3 rooms and 2 cars, this booking will cause the hotel order failed and trigger the compensate operation with car booking.
+2. Ordering 2 units of ProductA with the unit price 2 from UserB account , this ordering will cause the payment failed and trigger the cancel operation with inventory ordering.
 ```
-curl -X POST http://${host_address}:8083/booking/test/3/2
+curl -X POST http://${host_address}:8083/ordering/order/UserB/ProductA/3/1
 ```
 Check the hotel booking status with
 ```
-curl http://${host_address}:8081/bookings
+curl http://${host_address}:8081/products/orders
 ```
 Check the car booking status with
 ```
-curl http://${host_address}:8082/bookings
+curl http://${host_address}:8082/payments/transactions
 ```
 The second car booking will be marked with **cancel:true**
-
-## User Requests by html page
-
-Open a browser with URL http://127.0.0.1:8083, You will get a html page. You can use this page to invoke test cases, and then get results.
-
-**Note** transactions and compensations implemented by services must be idempotent.
 
 ## Debugging
 
