@@ -18,8 +18,10 @@
 package org.apache.servicecomb.saga.demo.pack.payment;
 
 import org.apache.servicecomb.saga.omega.spring.EnableOmega;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 
 @SpringBootApplication
@@ -28,5 +30,15 @@ import org.springframework.context.annotation.Profile;
 public class TccPaymentApplication {
   public static void main(String[] args) {
     SpringApplication.run(TccPaymentApplication.class, args);
+  }
+
+  @Bean
+  CommandLineRunner kickOff(AccountDao accountDao) {
+    return args -> {
+      // Set up the account information
+      accountDao.save(new Account("UserA", 100, 90));
+      accountDao.save(new Account("UserB", 10, 10));
+      accountDao.save(new Account("UserC", 1, 1));
+    };
   }
 }

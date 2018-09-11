@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+
 @Service
 class CarBookingService {
   private Map<Integer, CarBooking> bookings = new ConcurrentHashMap<>();
