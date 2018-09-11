@@ -27,7 +27,7 @@ public class ProductOrder {
   private Integer id;
   private String userName;
   private String productName;
-  private Integer amount;
+  private Integer units;
   private boolean confirmed;
   private boolean cancelled;
 
@@ -48,12 +48,12 @@ public class ProductOrder {
     this.productName = productName;
   }
 
-  public Integer getAmount() {
-    return amount;
+  public Integer getUnits() {
+    return units;
   }
 
-  public void setAmount(Integer amount) {
-    this.amount = amount;
+  public void setUnits(Integer units) {
+    this.units = units;
   }
 
   public boolean isConfirmed() {

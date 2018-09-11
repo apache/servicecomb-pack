@@ -38,8 +38,8 @@ public class InventoryService {
   @Transactional
   public void reserve(ProductOrder order) {
     Product product = getProduct(order.getProductName());
-    if (product.getInStock() > order.getAmount()) {
-      product.setInStock(product.getInStock() - order.getAmount());
+    if (product.getInStock() > order.getUnits()) {
+      product.setInStock(product.getInStock() - order.getUnits());
       productDao.saveAndFlush(product);
       orders.put(order.getId(), order);
     } else {
@@ -54,7 +54,7 @@ public class InventoryService {
   @Transactional
   public void cancel(ProductOrder order) {
     Product product = productDao.findProduceByName(order.getProductName());
-    product.setInStock(product.getInStock() + order.getAmount());
+    product.setInStock(product.getInStock() + order.getUnits());
     productDao.saveAndFlush(product);
     order.setCancelled(true);
   }

@@ -21,6 +21,7 @@ import static java.util.Collections.singletonList;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -53,7 +54,7 @@ public class PaymentControllerTest {
 
   @Test
   public void retrievesPaymentsFromRepo() throws Exception {
-    mockMvc.perform(get("/payments/transactions"))
+    mockMvc.perform(get("/transactions"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(1)))
         .andExpect(jsonPath("$.[0].userName", is(somePayment.getUserName())))
@@ -61,6 +62,12 @@ public class PaymentControllerTest {
         .andExpect(jsonPath("$.[0].confirmed", is(somePayment.isConfirmed())))
         .andExpect(jsonPath("$.[0].cancelled", is(somePayment.isCancelled())))
         .andExpect(jsonPath("$.[0].amount", is(somePayment.getAmount())));
+  }
+
+  @Test
+  public void verifyDeletingOrders() throws Exception {
+    mockMvc.perform(delete("/transactions"))
+        .andExpect(status().isOk());
   }
 
   private Payment somePayment() {

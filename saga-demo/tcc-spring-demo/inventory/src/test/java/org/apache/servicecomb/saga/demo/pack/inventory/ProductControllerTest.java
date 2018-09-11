@@ -21,6 +21,7 @@ import static java.util.Collections.singletonList;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -53,14 +54,20 @@ public class ProductControllerTest {
 
   @Test
   public void retrievesOrdersFromRepo() throws Exception {
-    mockMvc.perform(get("/products/orders"))
+    mockMvc.perform(get("/orderings"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(1)))
         .andExpect(jsonPath("$.[0].userName", is(someOrder.getUserName())))
         .andExpect(jsonPath("$.[0].productName", is(someOrder.getProductName())))
         .andExpect(jsonPath("$.[0].confirmed", is(someOrder.isConfirmed())))
         .andExpect(jsonPath("$.[0].cancelled", is(someOrder.isCancelled())))
-        .andExpect(jsonPath("$.[0].amount", is(someOrder.getAmount())));
+        .andExpect(jsonPath("$.[0].units", is(someOrder.getUnits())));
+  }
+
+  @Test
+  public void verifyDeletingOrders() throws Exception {
+    mockMvc.perform(delete("/orderings"))
+        .andExpect(status().isOk());
   }
 
   private ProductOrder someOrder() {
@@ -68,7 +75,7 @@ public class ProductControllerTest {
     order.setId(1);
     order.setProductName("ProductName1");
     order.setUserName("UserName");
-    order.setAmount(100);
+    order.setUnits(100);
     order.setCancelled(false);
     order.setConfirmed(true);
     return order;

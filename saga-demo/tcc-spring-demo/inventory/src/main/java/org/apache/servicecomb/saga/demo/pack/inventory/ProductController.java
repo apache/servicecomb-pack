@@ -22,15 +22,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-@RequestMapping("/products")
 @Controller
 public class ProductController {
   @Autowired
@@ -38,30 +35,31 @@ public class ProductController {
 
   private final AtomicInteger id = new AtomicInteger(0);
 
-  @PostMapping("/order/{userName}/{productName}/{amount}")
+  @PostMapping("/order/{userName}/{productName}/{units}")
   @ResponseBody
   public ProductOrder updateInventory(@PathVariable String userName,
-      @PathVariable String productName, @PathVariable Integer amount) {
+      @PathVariable String productName, @PathVariable Integer units) {
     ProductOrder order = new ProductOrder();
     order.setId(id.incrementAndGet());
     order.setUserName(userName);
     order.setProductName(productName);
-    order.setAmount(amount);
+    order.setUnits(units);
     inventoryService.reserve(order);
     return order;
   }
 
-  @CrossOrigin
-  @GetMapping("/orders")
+  @GetMapping("/orderings")
   @ResponseBody
   List<ProductOrder> getAll() {
     return new ArrayList<>(inventoryService.getAllOrders());
   }
 
-  @DeleteMapping("/orders")
-  void clear() {
+  @DeleteMapping("/orderings")
+  @ResponseBody
+  String clear() {
     inventoryService.clearAllOrders();
     id.set(0);
+    return "OK";
   }
 
 }

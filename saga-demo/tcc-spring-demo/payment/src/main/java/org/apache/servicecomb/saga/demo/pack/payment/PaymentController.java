@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-@RequestMapping("/payments")
 @Controller
 public class PaymentController {
   @Autowired
@@ -49,8 +48,7 @@ public class PaymentController {
     paymentService.pay(payment);
     return payment;
   }
-
-  @CrossOrigin
+  
   @GetMapping("/transactions")
   @ResponseBody
   List<Payment> getAll() {
@@ -58,9 +56,11 @@ public class PaymentController {
   }
 
   @DeleteMapping("/transactions")
-  void clear() {
+  @ResponseBody
+  String clear() {
     paymentService.clearAllTransactions();
     id.set(0);
+    return "OK";
   }
 
 }
