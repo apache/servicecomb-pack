@@ -79,8 +79,8 @@ CREATE TABLE IF NOT EXISTS TccParticipateEvent (
   confirmMethod varchar(256) NOT NULL,
   cancelMethod varchar(256) NOT NULL,
   status varchar(50) NOT NULL,
-  creationTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  lastModified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+  creationTime timestamp(6) NOT NULL DEFAULT CURRENT_DATE,
+  lastModified timestamp(6) NOT NULL DEFAULT CURRENT_DATE
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS tcc_participate_event_index ON TccParticipateEvent (globalTxId, localTxId, parentTxId);
@@ -95,8 +95,8 @@ CREATE TABLE IF NOT EXISTS TccFinishedEvent (
   confirmMethod varchar(256) NOT NULL,
   cancelMethod varchar(256) NOT NULL,
   status varchar(50) NOT NULL,
-  creationTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  lastModified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+  creationTime timestamp(6) NOT NULL DEFAULT CURRENT_DATE,
+  lastModified timestamp(6) NOT NULL DEFAULT CURRENT_DATE
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS tcc_finished_event_index ON TccFinishedEvent (globalTxId, localTxId, parentTxId);
