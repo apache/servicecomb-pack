@@ -19,7 +19,7 @@ package org.apache.servicecomb.saga.alpha.server.tcc.jpa;
 
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccParticipatedEvent;
 
-public class ParticipateEventFactory {
+public class ParticipatedEventFactory {
 
   public static ParticipatedEvent create(GrpcTccParticipatedEvent request) {
     return new ParticipatedEvent(

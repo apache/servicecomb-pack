@@ -22,7 +22,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
-public interface ParticipateEventRepository extends CrudRepository<ParticipatedEvent, Long> {
+public interface ParticipatedEventRepository extends CrudRepository<ParticipatedEvent, Long> {
 
   @Query(value = "SELECT t FROM ParticipatedEvent AS t WHERE t.globalTxId = ?1")
   Optional<List<ParticipatedEvent>> findByGlobalTxId(String globalTxId);

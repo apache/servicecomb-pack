@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.FinishedEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.FinishedEventRepository;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipateEventRepository;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEventRepository;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RdbTransactionEventService implements TransactionEventService {
 
   @Autowired
-  private ParticipateEventRepository participateEventRepository;
+  private ParticipatedEventRepository participatedEventRepository;
 
   @Autowired
   private FinishedEventRepository finishedEventRepository;
@@ -46,9 +46,9 @@ public class RdbTransactionEventService implements TransactionEventService {
   @Override
   public boolean addEvent(ParticipatedEvent event) {
     try {
-      if (!participateEventRepository.findByGlobalTxIdAndLocalTxId(
+      if (!participatedEventRepository.findByGlobalTxIdAndLocalTxId(
           event.getGlobalTxId(), event.getLocalTxId()).isPresent()) {
-        participateEventRepository.save(event);
+        participatedEventRepository.save(event);
       }
     } catch (Exception ex) {
       LOG.warn("add event triggered exception: ", ex);
@@ -59,15 +59,15 @@ public class RdbTransactionEventService implements TransactionEventService {
 
   @Override
   public Set<ParticipatedEvent> getEventByGlobalTxId(String globalTxId) {
-    Optional<List<ParticipatedEvent>> list = participateEventRepository.findByGlobalTxId(globalTxId);
+    Optional<List<ParticipatedEvent>> list = participatedEventRepository.findByGlobalTxId(globalTxId);
     return list.map(Sets::newHashSet).orElseGet(Sets::newHashSet);
   }
 
   @Override
   @Transactional
   public void migration(String globalTxId, String localTxId) {
-    participateEventRepository.findByGlobalTxIdAndLocalTxId(globalTxId, localTxId).ifPresent( e -> {
-      participateEventRepository.delete(e.getId());
+    participatedEventRepository.findByGlobalTxIdAndLocalTxId(globalTxId, localTxId).ifPresent( e -> {
+      participatedEventRepository.delete(e.getId());
       FinishedEvent finishedEvent = new FinishedEvent(
           e.getGlobalTxId(),
           e.getLocalTxId(),

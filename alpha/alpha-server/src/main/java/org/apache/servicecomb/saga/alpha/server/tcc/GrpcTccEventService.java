@@ -21,7 +21,7 @@ import io.grpc.stub.StreamObserver;
 import java.lang.invoke.MethodHandles;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallback;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.TccCallbackEngine;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipateEventFactory;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEventFactory;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallbacksRegistry;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
@@ -70,7 +70,7 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
 
   @Override
   public void participate(GrpcTccParticipatedEvent request, StreamObserver<GrpcAck> responseObserver) {
-    boolean ok = transactionEventService.addEvent(ParticipateEventFactory.create(request));
+    boolean ok = transactionEventService.addEvent(ParticipatedEventFactory.create(request));
     responseObserver.onNext(ok ? ALLOW : REJECT);
     responseObserver.onCompleted();
   }
