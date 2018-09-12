@@ -15,15 +15,17 @@
  *  limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.server.tcc.callback;
+package org.apache.servicecomb.saga.alpha.server.tcc;
 
+import java.util.Set;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
-import org.apache.servicecomb.saga.common.TransactionStatus;
 
-public interface OmegaCallback {
+public interface TransactionEventService {
 
-  void invoke(ParticipatedEvent event, TransactionStatus status);
+  boolean addEvent(ParticipatedEvent participateEvent);
 
-  default void disconnect() {
-  }
+  Set<ParticipatedEvent> getEventByGlobalTxId(String globalTxId);
+
+  void migration(String globalTxId, String localTxId);
+
 }

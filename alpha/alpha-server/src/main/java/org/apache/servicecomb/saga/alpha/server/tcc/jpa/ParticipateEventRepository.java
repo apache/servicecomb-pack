@@ -15,15 +15,18 @@
  *  limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.server.tcc.callback;
+package org.apache.servicecomb.saga.alpha.server.tcc.jpa;
 
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
-import org.apache.servicecomb.saga.common.TransactionStatus;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
 
-public interface OmegaCallback {
+public interface ParticipateEventRepository extends CrudRepository<ParticipatedEvent, Long> {
 
-  void invoke(ParticipatedEvent event, TransactionStatus status);
+  @Query(value = "SELECT t FROM ParticipatedEvent AS t WHERE t.globalTxId = ?1")
+  Optional<List<ParticipatedEvent>> findByGlobalTxId(String globalTxId);
 
-  default void disconnect() {
-  }
+  @Query(value = "SELECT t FROM ParticipatedEvent AS t WHERE t.globalTxId = ?1 and t.localTxId = ?2")
+  Optional<ParticipatedEvent> findByGlobalTxIdAndLocalTxId(String globalTxId, String localTxId);
 }

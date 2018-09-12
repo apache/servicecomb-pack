@@ -66,3 +66,35 @@ CREATE TABLE IF NOT EXISTS TxTimeout (
   PRIMARY KEY (surrogateId),
   INDEX saga_timeouts_index (surrogateId, expiryTime, globalTxId, localTxId, status)
 ) DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS TccParticipateEvent (
+  id bigint NOT NULL AUTO_INCREMENT,
+  serviceName varchar(36) NOT NULL,
+  instanceId varchar(36) NOT NULL,
+  globalTxId varchar(36) NOT NULL,
+  localTxId varchar(36) NOT NULL,
+  parentTxId varchar(36) DEFAULT NULL,
+  confirmMethod varchar(256) NOT NULL,
+  cancelMethod varchar(256) NOT NULL,
+  status varchar(50) NOT NULL,
+  creationTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  lastModified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE INDEX tcc_participate_event_index (globalTxId, localTxId, parentTxId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS TccFinishedEvent (
+  id bigint NOT NULL AUTO_INCREMENT,
+  serviceName varchar(36) NOT NULL,
+  instanceId varchar(36) NOT NULL,
+  globalTxId varchar(36) NOT NULL,
+  localTxId varchar(36) NOT NULL,
+  parentTxId varchar(36) DEFAULT NULL,
+  confirmMethod varchar(256) NOT NULL,
+  cancelMethod varchar(256) NOT NULL,
+  status varchar(50) NOT NULL,
+  creationTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  lastModified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE INDEX tcc_finished_event_index (globalTxId, localTxId, parentTxId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

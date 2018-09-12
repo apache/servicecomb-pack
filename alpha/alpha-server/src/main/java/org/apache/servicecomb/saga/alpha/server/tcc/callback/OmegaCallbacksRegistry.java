@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.server.tcc.registry;
+package org.apache.servicecomb.saga.alpha.server.tcc.callback;
 
 import static java.util.Collections.emptyMap;
 

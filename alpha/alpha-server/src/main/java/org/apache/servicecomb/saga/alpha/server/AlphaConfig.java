@@ -37,6 +37,8 @@ import org.apache.servicecomb.saga.alpha.core.TxTimeoutRepository;
 import org.apache.servicecomb.saga.alpha.server.tcc.GrpcTccEventService;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallbackWrapper;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.TccCallbackEngine;
+import org.apache.servicecomb.saga.alpha.server.tcc.TransactionEventService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
@@ -100,11 +102,30 @@ class AlphaConfig {
   }
 
   @Bean
+  TransactionEventService transactionEventService(
+      @Value("${alpha.server.storage:rdb}") String storage,
+      @Qualifier("defaultTransactionEventService") TransactionEventService defaultTransactionEventService,
+      @Qualifier("rdbTransactionEventService") TransactionEventService rdbTransactionEventService) {
+    return "rdb".equals(storage) ? rdbTransactionEventService : defaultTransactionEventService;
+  }
+
+  @Bean
+  TccCallbackEngine tccCallbackEngine(TransactionEventService transactionEventService) {
+    return new TccCallbackEngine(new OmegaCallbackWrapper(), transactionEventService);
+  }
+
+  @Bean
+  GrpcTccEventService grpcTccEventService(
+      TransactionEventService transactionEventService,
+      TccCallbackEngine tccCallbackEngine) {
+    return new GrpcTccEventService(tccCallbackEngine, transactionEventService);
+  }
+
+  @Bean
   ServerStartable serverStartable(GrpcServerConfig serverConfig, TxConsistentService txConsistentService,
-      Map<String, Map<String, OmegaCallback>> omegaCallbacks) {
+      Map<String, Map<String, OmegaCallback>> omegaCallbacks, GrpcTccEventService grpcTccEventService) {
     ServerStartable bootstrap = new GrpcStartable(serverConfig,
-        new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks),
-        new GrpcTccEventService(new TccCallbackEngine(new OmegaCallbackWrapper())));
+        new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks), grpcTccEventService);
     new Thread(bootstrap::start).start();
     return bootstrap;
   }

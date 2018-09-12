@@ -18,8 +18,8 @@
 package org.apache.servicecomb.saga.alpha.server.tcc.callback;
 
 import java.lang.invoke.MethodHandles;
-import org.apache.servicecomb.saga.alpha.server.tcc.registry.TransactionEventRegistry;
-import org.apache.servicecomb.saga.alpha.server.tcc.event.ParticipatedEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.TransactionEventService;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccTransactionEndedEvent;
 import org.slf4j.Logger;
@@ -31,14 +31,19 @@ public class TccCallbackEngine implements CallbackEngine {
 
   private final OmegaCallbackWrapper omegaCallbackWrapper;
 
-  public TccCallbackEngine(OmegaCallbackWrapper omegaCallbackWrapper) {
+  private final TransactionEventService transactionEventService;
+
+  public TccCallbackEngine(
+      OmegaCallbackWrapper omegaCallbackWrapper,
+      TransactionEventService transactionEventService) {
     this.omegaCallbackWrapper = omegaCallbackWrapper;
+    this.transactionEventService = transactionEventService;
   }
 
   @Override
   public boolean execute(GrpcTccTransactionEndedEvent request) {
     boolean result = true;
-    for (ParticipatedEvent event : TransactionEventRegistry.retrieve(request.getGlobalTxId())) {
+    for (ParticipatedEvent event : transactionEventService.getEventByGlobalTxId(request.getGlobalTxId())) {
       try {
         omegaCallbackWrapper.invoke(event, TransactionStatus.valueOf(request.getStatus()));
       } catch (Exception ex) {

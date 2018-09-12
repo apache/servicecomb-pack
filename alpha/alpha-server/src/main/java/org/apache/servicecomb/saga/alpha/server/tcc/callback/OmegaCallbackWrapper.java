@@ -17,8 +17,7 @@
 
 package org.apache.servicecomb.saga.alpha.server.tcc.callback;
 
-import org.apache.servicecomb.saga.alpha.server.tcc.event.ParticipatedEvent;
-import org.apache.servicecomb.saga.alpha.server.tcc.registry.OmegaCallbacksRegistry;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 
 public class OmegaCallbackWrapper implements OmegaCallback {

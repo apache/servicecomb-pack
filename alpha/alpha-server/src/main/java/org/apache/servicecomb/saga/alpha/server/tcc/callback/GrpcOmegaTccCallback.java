@@ -18,8 +18,7 @@
 package org.apache.servicecomb.saga.alpha.server.tcc.callback;
 
 import io.grpc.stub.StreamObserver;
-import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallback;
-import org.apache.servicecomb.saga.alpha.server.tcc.event.ParticipatedEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
 

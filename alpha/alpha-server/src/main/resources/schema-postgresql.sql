@@ -68,3 +68,35 @@ CREATE TABLE IF NOT EXISTS TxTimeout (
 );
 
 CREATE INDEX IF NOT EXISTS saga_timeouts_index ON TxTimeout (surrogateId, expiryTime, globalTxId, localTxId, status);
+
+CREATE TABLE IF NOT EXISTS TccParticipateEvent (
+  id BIGSERIAL PRIMARY KEY,
+  serviceName varchar(36) NOT NULL,
+  instanceId varchar(36) NOT NULL,
+  globalTxId varchar(36) NOT NULL,
+  localTxId varchar(36) NOT NULL,
+  parentTxId varchar(36) DEFAULT NULL,
+  confirmMethod varchar(256) NOT NULL,
+  cancelMethod varchar(256) NOT NULL,
+  status varchar(50) NOT NULL,
+  creationTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  lastModified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS tcc_participate_event_index ON TccParticipateEvent (globalTxId, localTxId, parentTxId);
+
+CREATE TABLE IF NOT EXISTS TccFinishedEvent (
+  id BIGSERIAL PRIMARY KEY,
+  serviceName varchar(36) NOT NULL,
+  instanceId varchar(36) NOT NULL,
+  globalTxId varchar(36) NOT NULL,
+  localTxId varchar(36) NOT NULL,
+  parentTxId varchar(36) DEFAULT NULL,
+  confirmMethod varchar(256) NOT NULL,
+  cancelMethod varchar(256) NOT NULL,
+  status varchar(50) NOT NULL,
+  creationTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  lastModified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS tcc_finished_event_index ON TccFinishedEvent (globalTxId, localTxId, parentTxId);

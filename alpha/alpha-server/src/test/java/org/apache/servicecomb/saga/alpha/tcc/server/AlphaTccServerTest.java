@@ -31,10 +31,9 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.servicecomb.saga.alpha.server.AlphaApplication;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.GrpcOmegaTccCallback;
-import org.apache.servicecomb.saga.alpha.server.tcc.event.ParticipatedEvent;
-import org.apache.servicecomb.saga.alpha.server.tcc.registry.OmegaCallbacksRegistry;
-import org.apache.servicecomb.saga.alpha.server.tcc.registry.TransactionEventRegistry;
-import org.apache.servicecomb.saga.common.TransactionStatus;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallbacksRegistry;
+import org.apache.servicecomb.saga.alpha.server.tcc.TransactionEventService;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
@@ -50,6 +49,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -62,6 +62,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class AlphaTccServerTest {
 
   private static final int port = 8090;
+
   protected static ManagedChannel clientChannel;
 
   private final TccEventServiceStub asyncStub = TccEventServiceGrpc.newStub(clientChannel);
@@ -87,6 +88,9 @@ public class AlphaTccServerTest {
       .setServiceName(serviceName)
       .setInstanceId(instanceId)
       .build();
+
+  @Autowired
+  private TransactionEventService transactionEventService;
 
   @BeforeClass
   public static void setupClientChannel() {
@@ -133,15 +137,16 @@ public class AlphaTccServerTest {
     asyncStub.onConnected(serviceConfig, commandStreamObserver);
     awaitUntilConnected();
     blockingStub.participate(newParticipatedEvent("Succeed"));
-    assertThat(TransactionEventRegistry.retrieve(globalTxId).size(),  is(1));
-    ParticipatedEvent event = TransactionEventRegistry.retrieve(globalTxId).iterator().next();
+    blockingStub.participate(newParticipatedEvent("Succeed"));
+    assertThat(transactionEventService.getEventByGlobalTxId(globalTxId).size(),  is(1));
+    ParticipatedEvent event = transactionEventService.getEventByGlobalTxId(globalTxId).iterator().next();
     assertThat(event.getGlobalTxId(), is(globalTxId));
     assertThat(event.getLocalTxId(), is(localTxId));
     assertThat(event.getInstanceId(), is(instanceId));
     assertThat(event.getServiceName(), is(serviceName));
     assertThat(event.getConfirmMethod(), is(confirmMethod));
     assertThat(event.getCancelMethod(), is(cancelMethod));
-    assertThat(event.getStatus(), is(TransactionStatus.Succeed));
+    assertThat(event.getStatus(), is("Succeed"));
   }
 
   @Test
@@ -270,7 +275,6 @@ public class AlphaTccServerTest {
         .setStatus(status)
         .build();
   }
-
 
   private GrpcAck onReceivedCoordinateCommand(GrpcTccCoordinateCommand command) {
     return GrpcAck.newBuilder().setAborted(false).build();

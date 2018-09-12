@@ -21,9 +21,8 @@ import io.grpc.stub.StreamObserver;
 import java.lang.invoke.MethodHandles;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallback;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.TccCallbackEngine;
-import org.apache.servicecomb.saga.alpha.server.tcc.event.ParticipateEventFactory;
-import org.apache.servicecomb.saga.alpha.server.tcc.registry.OmegaCallbacksRegistry;
-import org.apache.servicecomb.saga.alpha.server.tcc.registry.TransactionEventRegistry;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipateEventFactory;
+import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallbacksRegistry;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
@@ -48,9 +47,12 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
 
   private final TccCallbackEngine tccCallbackEngine;
 
-  public GrpcTccEventService(
-      TccCallbackEngine tccCallbackEngine) {
+  private final TransactionEventService transactionEventService;
+
+  public GrpcTccEventService(TccCallbackEngine tccCallbackEngine,
+      TransactionEventService transactionEventService) {
     this.tccCallbackEngine = tccCallbackEngine;
+    this.transactionEventService = transactionEventService;
   }
 
   @Override
@@ -68,8 +70,8 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
 
   @Override
   public void participate(GrpcTccParticipatedEvent request, StreamObserver<GrpcAck> responseObserver) {
-    TransactionEventRegistry.register(ParticipateEventFactory.create(request));
-    responseObserver.onNext(ALLOW);
+    boolean ok = transactionEventService.addEvent(ParticipateEventFactory.create(request));
+    responseObserver.onNext(ok ? ALLOW : REJECT);
     responseObserver.onCompleted();
   }
 
@@ -86,6 +88,7 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
             + "method: {}, status: {}, service [{}] instanceId [{}]",
         request.getGlobalTxId(), request.getLocalTxId(), request.getParentTxId(),
         request.getMethodName(), request.getStatus(), request.getServiceName(), request.getInstanceId());
+    transactionEventService.migration(request.getGlobalTxId(), request.getLocalTxId());
     responseObserver.onNext(ALLOW);
     responseObserver.onCompleted();
   }
