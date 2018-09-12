@@ -48,17 +48,16 @@ public final class DefaultTransactionEventService implements TransactionEventSer
   @Override
   public boolean addEvent(ParticipatedEvent participatedEvent) {
 
-    if (TransactionStatus.Succeed.equals(participatedEvent.getStatus())) {
-      REGISTRY
-          .computeIfAbsent(participatedEvent.getGlobalTxId(), key -> new LinkedHashSet<>())
-          .add(participatedEvent);
+    REGISTRY
+        .computeIfAbsent(participatedEvent.getGlobalTxId(), key -> new LinkedHashSet<>())
+        .add(participatedEvent);
 
-      LOG.info("Registered participated event, global tx: {}, local tx: {}, parent id: {}, "
-              + "confirm: {}, cancel: {}, status: {}, service [{}] instanceId [{}]",
-          participatedEvent.getGlobalTxId(), participatedEvent.getLocalTxId(), participatedEvent.getParentTxId(),
-          participatedEvent.getConfirmMethod(), participatedEvent.getCancelMethod(), participatedEvent.getStatus(),
-          participatedEvent.getServiceName(), participatedEvent.getInstanceId());
-    }
+    LOG.info("Registered participated event, global tx: {}, local tx: {}, parent id: {}, "
+            + "confirm: {}, cancel: {}, status: {}, service [{}] instanceId [{}]",
+        participatedEvent.getGlobalTxId(), participatedEvent.getLocalTxId(), participatedEvent.getParentTxId(),
+        participatedEvent.getConfirmMethod(), participatedEvent.getCancelMethod(), participatedEvent.getStatus(),
+        participatedEvent.getServiceName(), participatedEvent.getInstanceId());
+
     // TODO We need to updated the event which transactionStatus is failed.
     return true;
   }

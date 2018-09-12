@@ -70,6 +70,8 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
 
   @Override
   public void participate(GrpcTccParticipatedEvent request, StreamObserver<GrpcAck> responseObserver) {
+    LOG.info("Received participated event from service {} , global tx id: {}, local tx id: {}", request.getServiceName(),
+        request.getGlobalTxId(), request.getLocalTxId()) ;
     boolean ok = transactionEventService.addEvent(ParticipatedEventFactory.create(request));
     responseObserver.onNext(ok ? ALLOW : REJECT);
     responseObserver.onCompleted();

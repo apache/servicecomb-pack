@@ -45,7 +45,10 @@ public class TccCallbackEngine implements CallbackEngine {
     boolean result = true;
     for (ParticipatedEvent event : transactionEventService.getEventByGlobalTxId(request.getGlobalTxId())) {
       try {
-        omegaCallbackWrapper.invoke(event, TransactionStatus.valueOf(request.getStatus()));
+        // only invoke the event is succeed
+        if (event.getStatus().equals(TransactionStatus.Succeed.toString())) {
+          omegaCallbackWrapper.invoke(event, TransactionStatus.valueOf(request.getStatus()));
+        }
       } catch (Exception ex) {
         logError(event, ex);
         result = false;
