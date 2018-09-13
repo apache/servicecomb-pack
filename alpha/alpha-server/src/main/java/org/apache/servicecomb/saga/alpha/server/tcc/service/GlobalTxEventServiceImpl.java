@@ -17,10 +17,17 @@
 
 package org.apache.servicecomb.saga.alpha.server.tcc.service;
 
+import com.google.common.collect.Sets;
 import java.lang.invoke.MethodHandles;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEventHistory;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEventHistoryRepository;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEventRepository;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEventHistory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +38,9 @@ public class GlobalTxEventServiceImpl implements GlobalTxEventService {
 
   @Autowired
   private GlobalTxEventRepository hotRepository;
+
+  @Autowired
+  private GlobalTxEventHistoryRepository coldRepository;
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -51,11 +61,27 @@ public class GlobalTxEventServiceImpl implements GlobalTxEventService {
 
   @Override
   public Set<GlobalTxEvent> getEventByGlobalTxId(String globalTxId) {
-    return null;
+    Optional<List<GlobalTxEvent>> list = hotRepository.findByGlobalTxId(globalTxId);
+    return list.map(Sets::newHashSet).orElseGet(Sets::newHashSet);
   }
 
   @Override
   public void migration(String globalTxId, String localTxId) {
-
+    hotRepository.findByGlobalTxId(globalTxId).ifPresent(list ->
+      list.forEach((e) -> {
+        hotRepository.delete(e.getId());
+        GlobalTxEventHistory finishedEvent = new GlobalTxEventHistory(
+            e.getGlobalTxId(),
+            e.getLocalTxId(),
+            e.getParentTxId(),
+            e.getServiceName(),
+            e.getInstanceId(),
+            e.getTxType(),
+            e.getCreationTime(),
+            e.getLastModified()
+        );
+        coldRepository.save(finishedEvent);
+      })
+    );
   }
 }

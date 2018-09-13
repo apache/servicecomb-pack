@@ -82,6 +82,19 @@ CREATE TABLE IF NOT EXISTS tcc_global_tx_event (
 )
 CREATE UNIQUE INDEX IF NOT EXISTS tcc_global_tx_event_index ON tcc_global_tx_event (globalTxId, localTxId, parentTxId, txType);
 
+CREATE TABLE IF NOT EXISTS tcc_global_tx_event_history (
+  id BIGSERIAL PRIMARY KEY,
+  globalTxId varchar(36) NOT NULL,
+  localTxId varchar(36) NOT NULL,
+  parentTxId varchar(36) DEFAULT NULL,
+  serviceName varchar(36) NOT NULL,
+  instanceId varchar(36) NOT NULL,
+  txType varchar(12),
+  creationTime timestamp(6) NOT NULL DEFAULT CURRENT_DATE,
+  lastModified timestamp(6) NOT NULL DEFAULT CURRENT_DATE
+)
+CREATE UNIQUE INDEX IF NOT EXISTS tcc_global_tx_event_history_index ON tcc_global_tx_event_history (globalTxId, localTxId, parentTxId, txType);
+
 CREATE TABLE IF NOT EXISTS tcc_participate_event (
   id BIGSERIAL PRIMARY KEY,
   serviceName varchar(36) NOT NULL,
