@@ -19,5 +19,5 @@ package org.apache.servicecomb.saga.alpha.server.tcc.jpa;
 
 import org.springframework.data.repository.CrudRepository;
 
-public interface FinishedEventRepository extends CrudRepository<FinishedEvent, Long> {
+public interface ParticipatedEventHistoryRepository extends CrudRepository<ParticipatedEventHistory, Long> {
 }

@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS tcc_global_tx_event (
   UNIQUE INDEX tcc_global_tx_event_index (globalTxId, localTxId, parentTxId, txType)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS TccParticipateEvent (
+CREATE TABLE IF NOT EXISTS tcc_participate_event (
   id bigint NOT NULL AUTO_INCREMENT,
   serviceName varchar(36) NOT NULL,
   instanceId varchar(36) NOT NULL,
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS TccParticipateEvent (
   UNIQUE INDEX tcc_participate_event_index (globalTxId, localTxId, parentTxId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS TccFinishedEvent (
+CREATE TABLE IF NOT EXISTS tcc_participate_event_history (
   id bigint NOT NULL AUTO_INCREMENT,
   serviceName varchar(36) NOT NULL,
   instanceId varchar(36) NOT NULL,

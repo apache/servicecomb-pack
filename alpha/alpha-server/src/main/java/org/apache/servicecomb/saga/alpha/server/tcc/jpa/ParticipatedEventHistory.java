@@ -25,8 +25,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "TccFinishedEvent")
-public class FinishedEvent {
+@Table(name = "tcc_participate_event_history")
+public class ParticipatedEventHistory {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,10 +42,10 @@ public class FinishedEvent {
   private Date creationTime;
   private Date lastModified;
 
-  private FinishedEvent() {
+  private ParticipatedEventHistory() {
   }
 
-  public FinishedEvent(String globalTxId, String localTxId, String parentTxId, String serviceName,
+  public ParticipatedEventHistory(String globalTxId, String localTxId, String parentTxId, String serviceName,
       String instanceId, String confirmMethod, String cancelMethod, String status) {
     this.globalTxId = globalTxId;
     this.localTxId = localTxId;

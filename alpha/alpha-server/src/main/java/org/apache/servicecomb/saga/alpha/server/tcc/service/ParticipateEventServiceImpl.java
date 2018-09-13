@@ -22,11 +22,10 @@ import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.FinishedEvent;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.FinishedEventRepository;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEventHistory;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEventHistoryRepository;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEventRepository;
-import org.apache.servicecomb.saga.alpha.server.tcc.service.ParticipateEventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +39,7 @@ public class ParticipateEventServiceImpl implements ParticipateEventService {
   private ParticipatedEventRepository participatedEventRepository;
 
   @Autowired
-  private FinishedEventRepository finishedEventRepository;
+  private ParticipatedEventHistoryRepository finishedEventRepository;
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -69,7 +68,7 @@ public class ParticipateEventServiceImpl implements ParticipateEventService {
   public void migration(String globalTxId, String localTxId) {
     participatedEventRepository.findByGlobalTxIdAndLocalTxId(globalTxId, localTxId).ifPresent( e -> {
       participatedEventRepository.delete(e.getId());
-      FinishedEvent finishedEvent = new FinishedEvent(
+      ParticipatedEventHistory finishedEvent = new ParticipatedEventHistory(
           e.getGlobalTxId(),
           e.getLocalTxId(),
           e.getParentTxId(),

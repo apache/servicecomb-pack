@@ -26,7 +26,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "TccParticipateEvent")
+@Table(name = "tcc_participate_event")
 public class ParticipatedEvent {
 
   @Id
