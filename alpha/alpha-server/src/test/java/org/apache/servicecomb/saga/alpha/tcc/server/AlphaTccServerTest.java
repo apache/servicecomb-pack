@@ -33,7 +33,7 @@ import org.apache.servicecomb.saga.alpha.server.AlphaApplication;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.GrpcOmegaTccCallback;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallbacksRegistry;
-import org.apache.servicecomb.saga.alpha.server.tcc.TransactionEventService;
+import org.apache.servicecomb.saga.alpha.server.tcc.TccTxEventFacade;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
@@ -90,7 +90,7 @@ public class AlphaTccServerTest {
       .build();
 
   @Autowired
-  private TransactionEventService transactionEventService;
+  private TccTxEventFacade tccTxEventFacade;
 
   @BeforeClass
   public static void setupClientChannel() {
@@ -138,8 +138,8 @@ public class AlphaTccServerTest {
     awaitUntilConnected();
     blockingStub.participate(newParticipatedEvent("Succeed"));
     blockingStub.participate(newParticipatedEvent("Succeed"));
-    assertThat(transactionEventService.getEventByGlobalTxId(globalTxId).size(),  is(1));
-    ParticipatedEvent event = transactionEventService.getEventByGlobalTxId(globalTxId).iterator().next();
+    assertThat(tccTxEventFacade.getParticipateEventByGlobalTxId(globalTxId).size(),  is(1));
+    ParticipatedEvent event = tccTxEventFacade.getParticipateEventByGlobalTxId(globalTxId).iterator().next();
     assertThat(event.getGlobalTxId(), is(globalTxId));
     assertThat(event.getLocalTxId(), is(localTxId));
     assertThat(event.getInstanceId(), is(instanceId));

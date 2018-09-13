@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.server.tcc;
+package org.apache.servicecomb.saga.alpha.server.tcc.service;
 
 import com.google.common.collect.Sets;
 import java.lang.invoke.MethodHandles;
@@ -24,16 +24,17 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.FinishedEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.FinishedEventRepository;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEventRepository;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEventRepository;
+import org.apache.servicecomb.saga.alpha.server.tcc.service.ParticipateEventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component("rdbTransactionEventService")
-public class RdbTransactionEventService implements TransactionEventService {
+@Component
+public class ParticipateEventServiceImpl implements ParticipateEventService {
 
   @Autowired
   private ParticipatedEventRepository participatedEventRepository;

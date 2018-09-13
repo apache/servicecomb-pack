@@ -47,12 +47,12 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
 
   private final TccCallbackEngine tccCallbackEngine;
 
-  private final TransactionEventService transactionEventService;
+  private final TccTxEventFacade tccTxEventFacade;
 
   public GrpcTccEventService(TccCallbackEngine tccCallbackEngine,
-      TransactionEventService transactionEventService) {
+      TccTxEventFacade tccTxEventFacade) {
     this.tccCallbackEngine = tccCallbackEngine;
-    this.transactionEventService = transactionEventService;
+    this.tccTxEventFacade = tccTxEventFacade;
   }
 
   @Override
@@ -72,7 +72,7 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
   public void participate(GrpcTccParticipatedEvent request, StreamObserver<GrpcAck> responseObserver) {
     LOG.info("Received participated event from service {} , global tx id: {}, local tx id: {}", request.getServiceName(),
         request.getGlobalTxId(), request.getLocalTxId()) ;
-    boolean ok = transactionEventService.addEvent(ParticipatedEventFactory.create(request));
+    boolean ok = tccTxEventFacade.addParticipateEvent(ParticipatedEventFactory.create(request));
     responseObserver.onNext(ok ? ALLOW : REJECT);
     responseObserver.onCompleted();
   }
@@ -90,7 +90,7 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
             + "method: {}, status: {}, service [{}] instanceId [{}]",
         request.getGlobalTxId(), request.getLocalTxId(), request.getParentTxId(),
         request.getMethodName(), request.getStatus(), request.getServiceName(), request.getInstanceId());
-    transactionEventService.migration(request.getGlobalTxId(), request.getLocalTxId());
+    tccTxEventFacade.migrationParticipateEvent(request.getGlobalTxId(), request.getLocalTxId());
     responseObserver.onNext(ALLOW);
     responseObserver.onCompleted();
   }

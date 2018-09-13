@@ -37,7 +37,7 @@ import org.apache.servicecomb.saga.alpha.core.TxTimeoutRepository;
 import org.apache.servicecomb.saga.alpha.server.tcc.GrpcTccEventService;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallbackWrapper;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.TccCallbackEngine;
-import org.apache.servicecomb.saga.alpha.server.tcc.TransactionEventService;
+import org.apache.servicecomb.saga.alpha.server.tcc.TccTxEventFacade;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -102,23 +102,23 @@ class AlphaConfig {
   }
 
   @Bean
-  TransactionEventService transactionEventService(
+  TccTxEventFacade tccTxEventFacade(
       @Value("${alpha.server.storage:rdb}") String storage,
-      @Qualifier("defaultTransactionEventService") TransactionEventService defaultTransactionEventService,
-      @Qualifier("rdbTransactionEventService") TransactionEventService rdbTransactionEventService) {
-    return "rdb".equals(storage) ? rdbTransactionEventService : defaultTransactionEventService;
+      @Qualifier("defaultTccTxEventFacade") TccTxEventFacade defaultTccTxEventFacade,
+      @Qualifier("rdbTccTxEventFacade") TccTxEventFacade rdbTccTxEventFacade) {
+    return "rdb".equals(storage) ? rdbTccTxEventFacade : defaultTccTxEventFacade;
   }
 
   @Bean
-  TccCallbackEngine tccCallbackEngine(TransactionEventService transactionEventService) {
-    return new TccCallbackEngine(new OmegaCallbackWrapper(), transactionEventService);
+  TccCallbackEngine tccCallbackEngine(TccTxEventFacade tccTxEventFacade) {
+    return new TccCallbackEngine(new OmegaCallbackWrapper(), tccTxEventFacade);
   }
 
   @Bean
   GrpcTccEventService grpcTccEventService(
-      TransactionEventService transactionEventService,
+      TccTxEventFacade tccTxEventFacade,
       TccCallbackEngine tccCallbackEngine) {
-    return new GrpcTccEventService(tccCallbackEngine, transactionEventService);
+    return new GrpcTccEventService(tccCallbackEngine, tccTxEventFacade);
   }
 
   @Bean

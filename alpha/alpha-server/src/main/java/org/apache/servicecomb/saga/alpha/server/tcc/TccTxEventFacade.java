@@ -20,12 +20,12 @@ package org.apache.servicecomb.saga.alpha.server.tcc;
 import java.util.Set;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 
-public interface TransactionEventService {
+public interface TccTxEventFacade {
 
-  boolean addEvent(ParticipatedEvent participateEvent);
+  boolean addParticipateEvent(ParticipatedEvent participateEvent);
 
-  Set<ParticipatedEvent> getEventByGlobalTxId(String globalTxId);
+  Set<ParticipatedEvent> getParticipateEventByGlobalTxId(String globalTxId);
 
-  void migration(String globalTxId, String localTxId);
+  void migrationParticipateEvent(String globalTxId, String localTxId);
 
 }

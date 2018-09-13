@@ -19,7 +19,7 @@ package org.apache.servicecomb.saga.alpha.server.tcc.callback;
 
 import java.lang.invoke.MethodHandles;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
-import org.apache.servicecomb.saga.alpha.server.tcc.TransactionEventService;
+import org.apache.servicecomb.saga.alpha.server.tcc.TccTxEventFacade;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccTransactionEndedEvent;
 import org.slf4j.Logger;
@@ -31,19 +31,19 @@ public class TccCallbackEngine implements CallbackEngine {
 
   private final OmegaCallbackWrapper omegaCallbackWrapper;
 
-  private final TransactionEventService transactionEventService;
+  private final TccTxEventFacade tccTxEventFacade;
 
   public TccCallbackEngine(
       OmegaCallbackWrapper omegaCallbackWrapper,
-      TransactionEventService transactionEventService) {
+      TccTxEventFacade tccTxEventFacade) {
     this.omegaCallbackWrapper = omegaCallbackWrapper;
-    this.transactionEventService = transactionEventService;
+    this.tccTxEventFacade = tccTxEventFacade;
   }
 
   @Override
   public boolean execute(GrpcTccTransactionEndedEvent request) {
     boolean result = true;
-    for (ParticipatedEvent event : transactionEventService.getEventByGlobalTxId(request.getGlobalTxId())) {
+    for (ParticipatedEvent event : tccTxEventFacade.getParticipateEventByGlobalTxId(request.getGlobalTxId())) {
       try {
         // only invoke the event is succeed
         if (event.getStatus().equals(TransactionStatus.Succeed.toString())) {

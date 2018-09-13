@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
-import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -32,8 +31,8 @@ import org.springframework.stereotype.Component;
 /**
  * Manage TCC transaction event.
  */
-@Component("defaultTransactionEventService")
-public final class DefaultTransactionEventService implements TransactionEventService {
+@Component("defaultTccTxEventFacade")
+public final class DefaultTccTxEventFacadeImpl implements TccTxEventFacade {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -46,7 +45,7 @@ public final class DefaultTransactionEventService implements TransactionEventSer
    */
 
   @Override
-  public boolean addEvent(ParticipatedEvent participatedEvent) {
+  public boolean addParticipateEvent(ParticipatedEvent participatedEvent) {
 
     REGISTRY
         .computeIfAbsent(participatedEvent.getGlobalTxId(), key -> new LinkedHashSet<>())
@@ -69,11 +68,11 @@ public final class DefaultTransactionEventService implements TransactionEventSer
    * @return participate events
    */
   @Override
-  public Set<ParticipatedEvent> getEventByGlobalTxId(String globalTxId) {
+  public Set<ParticipatedEvent> getParticipateEventByGlobalTxId(String globalTxId) {
     return REGISTRY.get(globalTxId);
   }
 
   @Override
-  public void migration(String globalTxId, String localTxId) {
+  public void migrationParticipateEvent(String globalTxId, String localTxId) {
   }
 }
