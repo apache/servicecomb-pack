@@ -15,23 +15,19 @@
  *  limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.server.tcc;
+package org.apache.servicecomb.saga.alpha.server.tcc.jpa;
 
-import java.util.Set;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
 
-public interface TccTxEventFacade {
+public interface GlobalTxEventRepository extends CrudRepository<GlobalTxEvent, Long> {
 
-  boolean addGlobalTxEvent(GlobalTxEvent globalTxEvent);
+  @Query(value = "SELECT t FROM GlobalTxEvent AS t WHERE t.globalTxId = ?1")
+  Optional<List<GlobalTxEvent>> findByGlobalTxId(String globalTxId);
 
-  Set<GlobalTxEvent> getGlobalTxEventByGlobalTxId(String globalTxId);
+  @Query(value = "SELECT t FROM GlobalTxEvent AS t WHERE t.globalTxId = ?1 and t.localTxId = ?2 and t.txType = ?3")
+  Optional<GlobalTxEvent> findByUniqueKey(String globalTxId, String localTxId, String txType);
 
-  void migrationGlobalTxEvent(String globalTxId, String localTxId);
-
-  boolean addParticipateEvent(ParticipatedEvent participateEvent);
-
-  Set<ParticipatedEvent> getParticipateEventByGlobalTxId(String globalTxId);
-
-  void migrationParticipateEvent(String globalTxId, String localTxId);
 }

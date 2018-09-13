@@ -19,7 +19,9 @@ package org.apache.servicecomb.saga.alpha.server.tcc;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Set;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.service.GlobalTxEventService;
 import org.apache.servicecomb.saga.alpha.server.tcc.service.ParticipateEventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +34,25 @@ public class RdbTccTxEventFacadeImpl implements TccTxEventFacade {
   @Autowired
   private ParticipateEventService participateEventService;
 
+  @Autowired
+  private GlobalTxEventService globalTxEventService;
+
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+  @Override
+  public boolean addGlobalTxEvent(GlobalTxEvent globalTxEvent) {
+    return globalTxEventService.addEvent(globalTxEvent);
+  }
+
+  @Override
+  public Set<GlobalTxEvent> getGlobalTxEventByGlobalTxId(String globalTxId) {
+    return globalTxEventService.getEventByGlobalTxId(globalTxId);
+  }
+
+  @Override
+  public void migrationGlobalTxEvent(String globalTxId, String localTxId) {
+    globalTxEventService.migration(globalTxId, localTxId);
+  }
 
   @Override
   public boolean addParticipateEvent(ParticipatedEvent event) {

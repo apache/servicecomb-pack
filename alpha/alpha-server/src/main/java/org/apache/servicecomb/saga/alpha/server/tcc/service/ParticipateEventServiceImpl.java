@@ -36,22 +36,24 @@ import org.springframework.transaction.annotation.Transactional;
 public class ParticipateEventServiceImpl implements ParticipateEventService {
 
   @Autowired
-  private ParticipatedEventRepository participatedEventRepository;
+  private ParticipatedEventRepository hotRepository;
 
   @Autowired
-  private ParticipatedEventHistoryRepository finishedEventRepository;
+  private ParticipatedEventHistoryRepository coldRepository;
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
+  @Transactional
   public boolean addEvent(ParticipatedEvent event) {
     try {
-      if (!participatedEventRepository.findByGlobalTxIdAndLocalTxId(
+      if (!hotRepository.findByUniqueKey(
           event.getGlobalTxId(), event.getLocalTxId()).isPresent()) {
-        participatedEventRepository.save(event);
+        hotRepository.save(event);
       }
     } catch (Exception ex) {
-      LOG.warn("add event triggered exception: ", ex);
+      LOG.warn("Add participateEvent triggered exception, globalTxId:{}, localTxId:{}, ",
+          event.getGlobalTxId(), event.getLocalTxId(), ex);
       return false;
     }
     return true;
@@ -59,15 +61,15 @@ public class ParticipateEventServiceImpl implements ParticipateEventService {
 
   @Override
   public Set<ParticipatedEvent> getEventByGlobalTxId(String globalTxId) {
-    Optional<List<ParticipatedEvent>> list = participatedEventRepository.findByGlobalTxId(globalTxId);
+    Optional<List<ParticipatedEvent>> list = hotRepository.findByGlobalTxId(globalTxId);
     return list.map(Sets::newHashSet).orElseGet(Sets::newHashSet);
   }
 
   @Override
   @Transactional
   public void migration(String globalTxId, String localTxId) {
-    participatedEventRepository.findByGlobalTxIdAndLocalTxId(globalTxId, localTxId).ifPresent( e -> {
-      participatedEventRepository.delete(e.getId());
+    hotRepository.findByUniqueKey(globalTxId, localTxId).ifPresent( e -> {
+      hotRepository.delete(e.getId());
       ParticipatedEventHistory finishedEvent = new ParticipatedEventHistory(
           e.getGlobalTxId(),
           e.getLocalTxId(),
@@ -78,7 +80,7 @@ public class ParticipateEventServiceImpl implements ParticipateEventService {
           e.getCancelMethod(),
           e.getStatus()
       );
-      finishedEventRepository.save(finishedEvent);
+      coldRepository.save(finishedEvent);
     });
   }
 }

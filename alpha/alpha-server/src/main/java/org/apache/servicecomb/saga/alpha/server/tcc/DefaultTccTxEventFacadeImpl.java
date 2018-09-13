@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import java.util.stream.Collectors;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +38,35 @@ public final class DefaultTccTxEventFacadeImpl implements TccTxEventFacade {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private final Map<String, Set<ParticipatedEvent>> REGISTRY = new ConcurrentHashMap<>();
+  private final Map<String, Set<GlobalTxEvent>> globalTxMap = new ConcurrentHashMap<>();
+
+  private final Map<String, Set<ParticipatedEvent>> participateMap = new ConcurrentHashMap<>();
+
+  @Override
+  public boolean addGlobalTxEvent(GlobalTxEvent globalTxEvent) {
+    globalTxMap
+        .computeIfAbsent(globalTxEvent.getGlobalTxId(), key -> new LinkedHashSet<>())
+        .add(globalTxEvent);
+
+    LOG.info("Registered participated event, global tx: {}, local tx: {}, parent id: {}, "
+            + "txType: {}, service [{}] instanceId [{}]",
+        globalTxEvent.getGlobalTxId(), globalTxEvent.getLocalTxId(), globalTxEvent.getParentTxId(),
+        globalTxEvent.getTxType(), globalTxEvent.getServiceName(), globalTxEvent.getInstanceId());
+    return true;
+  }
+
+  @Override
+  public Set<GlobalTxEvent> getGlobalTxEventByGlobalTxId(String globalTxId) {
+    return globalTxMap.get(globalTxId);
+  }
+
+  @Override
+  public void migrationGlobalTxEvent(String globalTxId, String localTxId) {
+    Set<GlobalTxEvent> needRemoveSet = globalTxMap.get(globalTxId).stream()
+        .filter((e) -> globalTxId.equals(e.getGlobalTxId()) && localTxId.equals(e.getLocalTxId()))
+        .collect(Collectors.toSet());
+    globalTxMap.get(globalTxId).removeAll(needRemoveSet);
+  }
 
   /**
    * Register participate event.
@@ -46,8 +76,7 @@ public final class DefaultTccTxEventFacadeImpl implements TccTxEventFacade {
 
   @Override
   public boolean addParticipateEvent(ParticipatedEvent participatedEvent) {
-
-    REGISTRY
+    participateMap
         .computeIfAbsent(participatedEvent.getGlobalTxId(), key -> new LinkedHashSet<>())
         .add(participatedEvent);
 
@@ -69,10 +98,14 @@ public final class DefaultTccTxEventFacadeImpl implements TccTxEventFacade {
    */
   @Override
   public Set<ParticipatedEvent> getParticipateEventByGlobalTxId(String globalTxId) {
-    return REGISTRY.get(globalTxId);
+    return participateMap.get(globalTxId);
   }
 
   @Override
   public void migrationParticipateEvent(String globalTxId, String localTxId) {
+    Set<ParticipatedEvent> needRemoveSet = participateMap.get(globalTxId).stream()
+        .filter((e) -> globalTxId.equals(e.getGlobalTxId()) && localTxId.equals(e.getLocalTxId()))
+        .collect(Collectors.toSet());
+    participateMap.get(globalTxId).removeAll(needRemoveSet);
   }
 }

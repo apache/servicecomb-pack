@@ -28,5 +28,5 @@ public interface ParticipatedEventRepository extends CrudRepository<Participated
   Optional<List<ParticipatedEvent>> findByGlobalTxId(String globalTxId);
 
   @Query(value = "SELECT t FROM ParticipatedEvent AS t WHERE t.globalTxId = ?1 and t.localTxId = ?2")
-  Optional<ParticipatedEvent> findByGlobalTxIdAndLocalTxId(String globalTxId, String localTxId);
+  Optional<ParticipatedEvent> findByUniqueKey(String globalTxId, String localTxId);
 }
