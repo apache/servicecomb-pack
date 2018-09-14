@@ -17,14 +17,12 @@
 
 package org.apache.servicecomb.saga.alpha.server.tcc.service;
 
-import com.google.common.collect.Sets;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEventHistory;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEventHistoryRepository;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEventRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,9 +58,8 @@ public class ParticipateEventServiceImpl implements ParticipateEventService {
   }
 
   @Override
-  public Set<ParticipatedEvent> getEventByGlobalTxId(String globalTxId) {
-    Optional<List<ParticipatedEvent>> list = hotRepository.findByGlobalTxId(globalTxId);
-    return list.map(Sets::newHashSet).orElseGet(Sets::newHashSet);
+  public Optional<List<ParticipatedEvent>> getEventByGlobalTxId(String globalTxId) {
+    return hotRepository.findByGlobalTxId(globalTxId);
   }
 
   @Override

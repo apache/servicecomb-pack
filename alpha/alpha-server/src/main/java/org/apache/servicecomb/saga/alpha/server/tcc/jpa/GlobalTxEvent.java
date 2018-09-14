@@ -38,6 +38,7 @@ public class GlobalTxEvent {
   private String serviceName;
   private String instanceId;
   private String txType;
+  private String status;
   private Date creationTime;
   private Date lastModified;
 
@@ -45,15 +46,16 @@ public class GlobalTxEvent {
   }
 
   public GlobalTxEvent(String globalTxId, String localTxId, String parentTxId, String serviceName,
-      String instanceId, String txType, Date creationTime, Date lastModified) {
+      String instanceId, String txType, String status) {
     this.globalTxId = globalTxId;
     this.localTxId = localTxId;
     this.parentTxId = parentTxId;
     this.serviceName = serviceName;
     this.instanceId = instanceId;
     this.txType = txType;
-    this.creationTime = creationTime;
-    this.lastModified = lastModified;
+    this.status = status;
+    this.creationTime = new Date();
+    this.lastModified = new Date();
   }
 
   public Long getId() {
@@ -84,11 +86,39 @@ public class GlobalTxEvent {
     return txType;
   }
 
+  public String getStatus() {
+    return status;
+  }
+
   public Date getCreationTime() {
     return creationTime;
   }
 
   public Date getLastModified() {
     return lastModified;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    GlobalTxEvent that = (GlobalTxEvent) o;
+    return Objects.equals(globalTxId, that.globalTxId) &&
+        Objects.equals(localTxId, that.localTxId) &&
+        Objects.equals(parentTxId, that.parentTxId) &&
+        Objects.equals(serviceName, that.serviceName) &&
+        Objects.equals(instanceId, that.instanceId) &&
+        Objects.equals(txType, that.txType) &&
+        Objects.equals(status, that.status);
+  }
+
+  @Override
+  public int hashCode() {
+
+    return Objects.hash(globalTxId, localTxId, parentTxId, serviceName, instanceId, txType, status);
   }
 }

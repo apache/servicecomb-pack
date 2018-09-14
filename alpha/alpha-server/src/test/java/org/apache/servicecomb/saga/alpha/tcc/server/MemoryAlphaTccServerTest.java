@@ -32,18 +32,18 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(classes = {AlphaApplication.class},
     properties = {
         "alpha.server.host=0.0.0.0",
-        "alpha.server.port=8091",
-        "alpha.server.storage=rdb"
+        "alpha.server.port=8090",
+        "alpha.server.storage=local"
     })
-public class RdbAlphaTccServerTest extends AlphaTccServerTest {
+public class MemoryAlphaTccServerTest extends AlphaTccServerTest {
 
   @BeforeClass
   public static void setupClientChannel() {
-    clientChannel = NettyChannelBuilder.forAddress("localhost", 8091).usePlaintext().build();
+    clientChannel = NettyChannelBuilder.forAddress("localhost", 8090).usePlaintext().build();
   }
 
   @Autowired
-  @Qualifier("rdbTccTxEventFacade")
+  @Qualifier("defaultTccTxEventFacade")
   private TccTxEventFacade tccTxEventFacade;
 
   @Override

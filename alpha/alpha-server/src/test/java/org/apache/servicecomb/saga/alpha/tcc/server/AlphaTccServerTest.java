@@ -26,14 +26,18 @@ import static org.junit.Assert.assertThat;
 
 import io.grpc.ManagedChannel;
 import io.grpc.netty.NettyChannelBuilder;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import org.apache.servicecomb.saga.alpha.server.AlphaApplication;
-import org.apache.servicecomb.saga.alpha.server.tcc.callback.GrpcOmegaTccCallback;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
-import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallbacksRegistry;
 import org.apache.servicecomb.saga.alpha.server.tcc.TccTxEventFacade;
+import org.apache.servicecomb.saga.alpha.server.tcc.callback.GrpcOmegaTccCallback;
+import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallbacksRegistry;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxType;
+import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
@@ -48,20 +52,8 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = {AlphaApplication.class},
-    properties = {
-        "alpha.server.host=0.0.0.0",
-        "alpha.server.port=8090"
-    })
-public class AlphaTccServerTest {
-
-  private static final int port = 8090;
+public abstract class AlphaTccServerTest {
 
   protected static ManagedChannel clientChannel;
 
@@ -80,7 +72,6 @@ public class AlphaTccServerTest {
   private final String confirmMethod = "confirm";
   private final String cancelMethod = "cancel";
 
-
   private final String serviceName = uniquify("serviceName");
   private final String instanceId = uniquify("instanceId");
 
@@ -89,13 +80,7 @@ public class AlphaTccServerTest {
       .setInstanceId(instanceId)
       .build();
 
-  @Autowired
-  private TccTxEventFacade tccTxEventFacade;
-
-  @BeforeClass
-  public static void setupClientChannel() {
-    clientChannel = NettyChannelBuilder.forAddress("localhost", port).usePlaintext().build();
-  }
+  public abstract TccTxEventFacade getTccTxEventFacade();
 
   @AfterClass
   public static void tearDown() {
@@ -108,7 +93,6 @@ public class AlphaTccServerTest {
     blockingStub.onDisconnected(serviceConfig);
   }
 
-  @Test
   public void assertOnConnect() {
     asyncStub.onConnected(serviceConfig, commandStreamObserver);
     awaitUntilConnected();
@@ -117,7 +101,6 @@ public class AlphaTccServerTest {
     );
   }
 
-  @Test
   public void assertOnDisConnect() {
     asyncStub.onConnected(serviceConfig, commandStreamObserver);
     awaitUntilConnected();
@@ -132,14 +115,41 @@ public class AlphaTccServerTest {
     await().atMost(2, SECONDS).until(() -> null != (OmegaCallbacksRegistry.getRegistry().get(serviceName)));
   }
 
-  @Test
+  public void assertOnTransactionStart() {
+    asyncStub.onConnected(serviceConfig, commandStreamObserver);
+    awaitUntilConnected();
+    blockingStub.onTccTransactionStarted(newTxStart());
+    blockingStub.onTccTransactionStarted(newTxStart());
+    blockingStub.onTccTransactionEnded(newTxEnd("Succeed"));
+    List<GlobalTxEvent> events = getTccTxEventFacade().getGlobalTxEventByGlobalTxId(globalTxId);
+    assertThat(events.size(),  is(2));
+
+    Iterator<GlobalTxEvent> iterator = events.iterator();
+    GlobalTxEvent event = iterator.next();
+    assertThat(event.getGlobalTxId(), is(globalTxId));
+    assertThat(event.getLocalTxId(), is(localTxId));
+    assertThat(event.getInstanceId(), is(instanceId));
+    assertThat(event.getServiceName(), is(serviceName));
+    assertThat(event.getTxType(), is(TccTxType.TCC_START.name()));
+    assertThat(event.getStatus(), is(TransactionStatus.Succeed.name()));
+
+    event = iterator.next();
+    assertThat(event.getGlobalTxId(), is(globalTxId));
+    assertThat(event.getLocalTxId(), is(localTxId));
+    assertThat(event.getInstanceId(), is(instanceId));
+    assertThat(event.getServiceName(), is(serviceName));
+    assertThat(event.getTxType(), is(TccTxType.TCC_END.name()));
+    assertThat(event.getStatus(), is(TransactionStatus.Succeed.name()));
+  }
+
   public void assertOnParticipated() {
     asyncStub.onConnected(serviceConfig, commandStreamObserver);
     awaitUntilConnected();
     blockingStub.participate(newParticipatedEvent("Succeed"));
     blockingStub.participate(newParticipatedEvent("Succeed"));
-    assertThat(tccTxEventFacade.getParticipateEventByGlobalTxId(globalTxId).size(),  is(1));
-    ParticipatedEvent event = tccTxEventFacade.getParticipateEventByGlobalTxId(globalTxId).iterator().next();
+    List<ParticipatedEvent> events = getTccTxEventFacade().getParticipateEventByGlobalTxId(globalTxId);
+    assertThat(events.size(),  is(1));
+    ParticipatedEvent event = events.iterator().next();
     assertThat(event.getGlobalTxId(), is(globalTxId));
     assertThat(event.getLocalTxId(), is(localTxId));
     assertThat(event.getInstanceId(), is(instanceId));
@@ -168,7 +178,6 @@ public class AlphaTccServerTest {
     assertThat(result.getAborted(), is(false));
   }
 
-  @Test
   public void assertOnTccTransactionFailedEnded() {
     asyncStub.onConnected(serviceConfig, commandStreamObserver);
     awaitUntilConnected();
@@ -185,7 +194,6 @@ public class AlphaTccServerTest {
     assertThat(commandStreamObserver.isCompleted(), is(false));
   }
 
-  @Test
   public void assertOnCallbackNotExist() {
     asyncStub.onConnected(serviceConfig, commandStreamObserver);
     awaitUntilConnected();
@@ -197,7 +205,6 @@ public class AlphaTccServerTest {
     assertThat(result.getAborted(), is(true));
   }
 
-  @Test
   public void assertOnCallbacksExecuteError() {
     asyncStub.onConnected(serviceConfig, commandStreamObserver);
     awaitUntilConnected();
@@ -211,7 +218,6 @@ public class AlphaTccServerTest {
     assertThat(OmegaCallbacksRegistry.getRegistry().get(serviceName).size(), is(0));
   }
 
-  @Test
   public void assertOnSwitchOtherCallbackInstance() {
     asyncStub.onConnected(serviceConfig, commandStreamObserver);
     GrpcServiceConfig config = GrpcServiceConfig.newBuilder()
@@ -254,12 +260,18 @@ public class AlphaTccServerTest {
     return GrpcTccTransactionStartedEvent.newBuilder()
         .setGlobalTxId(globalTxId)
         .setLocalTxId(localTxId)
+        .setServiceName(serviceName)
+        .setInstanceId(instanceId)
+        .setLocalTxId(localTxId)
         .build();
   }
 
   private GrpcTccTransactionEndedEvent newTxEnd(String status) {
     return GrpcTccTransactionEndedEvent.newBuilder()
         .setGlobalTxId(globalTxId)
+        .setLocalTxId(localTxId)
+        .setServiceName(serviceName)
+        .setInstanceId(instanceId)
         .setLocalTxId(localTxId)
         .setStatus(status)
         .build();
@@ -279,5 +291,4 @@ public class AlphaTccServerTest {
   private GrpcAck onReceivedCoordinateCommand(GrpcTccCoordinateCommand command) {
     return GrpcAck.newBuilder().setAborted(false).build();
   }
-
 }

@@ -15,17 +15,18 @@
  *  limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.server.tcc.service;
+package org.apache.servicecomb.saga.alpha.server.tcc.callback;
 
 import java.util.List;
-import java.util.Optional;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.service.MemoryEventRegistry;
+import org.springframework.stereotype.Component;
 
-public interface GlobalTxEventService {
+@Component("memoryCallbackEngine")
+public class MemoryCallbackEngine extends TccCallbackEngine {
 
-  boolean addEvent(GlobalTxEvent globalTxEvent);
-
-  Optional<List<GlobalTxEvent>> getEventByGlobalTxId(String globalTxId);
-
-  void migration(String globalTxId, String localTxId);
+  @Override
+  protected List<ParticipatedEvent> findParticipate(String globalTxId) {
+    return MemoryEventRegistry.getParticipateEventByGlobalTxId(globalTxId);
+  }
 }

@@ -19,7 +19,9 @@ package org.apache.servicecomb.saga.alpha.server.tcc.callback;
 
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.apache.servicecomb.saga.common.TransactionStatus;
+import org.springframework.stereotype.Component;
 
+@Component
 public class OmegaCallbackWrapper implements OmegaCallback {
 
   @Override

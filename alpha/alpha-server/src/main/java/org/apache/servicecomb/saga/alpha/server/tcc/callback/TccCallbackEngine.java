@@ -18,32 +18,26 @@
 package org.apache.servicecomb.saga.alpha.server.tcc.callback;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
-import org.apache.servicecomb.saga.alpha.server.tcc.TccTxEventFacade;
 import org.apache.servicecomb.saga.common.TransactionStatus;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccTransactionEndedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
-public class TccCallbackEngine implements CallbackEngine {
+public abstract class TccCallbackEngine implements CallbackEngine {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private final OmegaCallbackWrapper omegaCallbackWrapper;
-
-  private final TccTxEventFacade tccTxEventFacade;
-
-  public TccCallbackEngine(
-      OmegaCallbackWrapper omegaCallbackWrapper,
-      TccTxEventFacade tccTxEventFacade) {
-    this.omegaCallbackWrapper = omegaCallbackWrapper;
-    this.tccTxEventFacade = tccTxEventFacade;
-  }
+  @Autowired
+  private OmegaCallbackWrapper omegaCallbackWrapper;
 
   @Override
-  public boolean execute(GrpcTccTransactionEndedEvent request) {
+  public boolean execute(GlobalTxEvent request) {
     boolean result = true;
-    for (ParticipatedEvent event : tccTxEventFacade.getParticipateEventByGlobalTxId(request.getGlobalTxId())) {
+    List<ParticipatedEvent> list = findParticipate(request.getGlobalTxId());
+    for (ParticipatedEvent event : list) {
       try {
         // only invoke the event is succeed
         if (event.getStatus().equals(TransactionStatus.Succeed.toString())) {
@@ -56,6 +50,8 @@ public class TccCallbackEngine implements CallbackEngine {
     }
     return result;
   }
+
+  protected abstract List<ParticipatedEvent> findParticipate(String globalTxId);
 
   private void logError(ParticipatedEvent event, Exception ex) {
     LOG.error(

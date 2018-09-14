@@ -17,21 +17,25 @@
 
 package org.apache.servicecomb.saga.alpha.server.tcc;
 
-import java.util.Set;
+import java.util.List;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 
 public interface TccTxEventFacade {
 
-  boolean addGlobalTxEvent(GlobalTxEvent globalTxEvent);
+  boolean onTccStartEvent(GlobalTxEvent globalTxEvent);
 
-  Set<GlobalTxEvent> getGlobalTxEventByGlobalTxId(String globalTxId);
+  boolean onParticipateEvent(ParticipatedEvent participateEvent);
 
+  boolean onTccEndEvent(GlobalTxEvent globalTxEvent);
+
+  void onCoordinatedEvent(String globalTxId, String localTxId);
+
+  List<GlobalTxEvent> getGlobalTxEventByGlobalTxId(String globalTxId);
+
+  List<ParticipatedEvent> getParticipateEventByGlobalTxId(String globalTxId);
+
+//  void migrationParticipateEvent(String globalTxId, String localTxId);
+//
   void migrationGlobalTxEvent(String globalTxId, String localTxId);
-
-  boolean addParticipateEvent(ParticipatedEvent participateEvent);
-
-  Set<ParticipatedEvent> getParticipateEventByGlobalTxId(String globalTxId);
-
-  void migrationParticipateEvent(String globalTxId, String localTxId);
 }

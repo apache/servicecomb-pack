@@ -17,9 +17,9 @@
 
 package org.apache.servicecomb.saga.alpha.server.tcc.callback;
 
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccTransactionEndedEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 
 public interface CallbackEngine {
 
-   boolean execute(GrpcTccTransactionEndedEvent request);
+   boolean execute(GlobalTxEvent request);
 }

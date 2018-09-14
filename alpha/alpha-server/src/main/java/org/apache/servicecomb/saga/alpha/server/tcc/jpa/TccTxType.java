@@ -17,20 +17,6 @@
 
 package org.apache.servicecomb.saga.alpha.server.tcc.jpa;
 
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccParticipatedEvent;
-
-public class ParticipatedEventFactory {
-
-  public static ParticipatedEvent create(GrpcTccParticipatedEvent request) {
-    return new ParticipatedEvent(
-        request.getGlobalTxId(),
-        request.getLocalTxId(),
-        request.getParentTxId(),
-        request.getServiceName(),
-        request.getInstanceId(),
-        request.getConfirmMethod(),
-        request.getCancelMethod(),
-        request.getStatus()
-    );
-  }
+public enum TccTxType {
+  TCC_START, TCC_END, TCC_END_TIMEOUT
 }

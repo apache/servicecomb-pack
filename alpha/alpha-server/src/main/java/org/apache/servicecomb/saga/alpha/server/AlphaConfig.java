@@ -110,15 +110,8 @@ class AlphaConfig {
   }
 
   @Bean
-  TccCallbackEngine tccCallbackEngine(TccTxEventFacade tccTxEventFacade) {
-    return new TccCallbackEngine(new OmegaCallbackWrapper(), tccTxEventFacade);
-  }
-
-  @Bean
-  GrpcTccEventService grpcTccEventService(
-      TccTxEventFacade tccTxEventFacade,
-      TccCallbackEngine tccCallbackEngine) {
-    return new GrpcTccEventService(tccCallbackEngine, tccTxEventFacade);
+  GrpcTccEventService grpcTccEventService(TccTxEventFacade tccTxEventFacade) {
+    return new GrpcTccEventService(tccTxEventFacade);
   }
 
   @Bean

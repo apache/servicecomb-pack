@@ -18,16 +18,15 @@
 package org.apache.servicecomb.saga.alpha.server.tcc;
 
 import java.lang.invoke.MethodHandles;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import java.util.stream.Collectors;
+import java.util.List;
+import org.apache.servicecomb.saga.alpha.server.tcc.callback.TccCallbackEngine;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.service.MemoryEventRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
@@ -38,34 +37,18 @@ public final class DefaultTccTxEventFacadeImpl implements TccTxEventFacade {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private final Map<String, Set<GlobalTxEvent>> globalTxMap = new ConcurrentHashMap<>();
-
-  private final Map<String, Set<ParticipatedEvent>> participateMap = new ConcurrentHashMap<>();
+  @Autowired
+  @Qualifier("memoryCallbackEngine")
+  private TccCallbackEngine tccCallbackEngine;
 
   @Override
-  public boolean addGlobalTxEvent(GlobalTxEvent globalTxEvent) {
-    globalTxMap
-        .computeIfAbsent(globalTxEvent.getGlobalTxId(), key -> new LinkedHashSet<>())
-        .add(globalTxEvent);
-
+  public boolean onTccStartEvent(GlobalTxEvent globalTxEvent) {
+    MemoryEventRegistry.addGlobalTxEvent(globalTxEvent);
     LOG.info("Registered participated event, global tx: {}, local tx: {}, parent id: {}, "
             + "txType: {}, service [{}] instanceId [{}]",
         globalTxEvent.getGlobalTxId(), globalTxEvent.getLocalTxId(), globalTxEvent.getParentTxId(),
         globalTxEvent.getTxType(), globalTxEvent.getServiceName(), globalTxEvent.getInstanceId());
     return true;
-  }
-
-  @Override
-  public Set<GlobalTxEvent> getGlobalTxEventByGlobalTxId(String globalTxId) {
-    return globalTxMap.get(globalTxId);
-  }
-
-  @Override
-  public void migrationGlobalTxEvent(String globalTxId, String localTxId) {
-    Set<GlobalTxEvent> needRemoveSet = globalTxMap.get(globalTxId).stream()
-        .filter((e) -> globalTxId.equals(e.getGlobalTxId()) && localTxId.equals(e.getLocalTxId()))
-        .collect(Collectors.toSet());
-    globalTxMap.get(globalTxId).removeAll(needRemoveSet);
   }
 
   /**
@@ -75,11 +58,8 @@ public final class DefaultTccTxEventFacadeImpl implements TccTxEventFacade {
    */
 
   @Override
-  public boolean addParticipateEvent(ParticipatedEvent participatedEvent) {
-    participateMap
-        .computeIfAbsent(participatedEvent.getGlobalTxId(), key -> new LinkedHashSet<>())
-        .add(participatedEvent);
-
+  public boolean onParticipateEvent(ParticipatedEvent participatedEvent) {
+    MemoryEventRegistry.addParticipateEvent(participatedEvent);
     LOG.info("Registered participated event, global tx: {}, local tx: {}, parent id: {}, "
             + "confirm: {}, cancel: {}, status: {}, service [{}] instanceId [{}]",
         participatedEvent.getGlobalTxId(), participatedEvent.getLocalTxId(), participatedEvent.getParentTxId(),
@@ -90,6 +70,22 @@ public final class DefaultTccTxEventFacadeImpl implements TccTxEventFacade {
     return true;
   }
 
+  @Override
+  public boolean onTccEndEvent(GlobalTxEvent globalTxEvent) {
+    MemoryEventRegistry.addGlobalTxEvent(globalTxEvent);
+    return tccCallbackEngine.execute(globalTxEvent);
+  }
+
+  @Override
+  public void onCoordinatedEvent(String globalTxId, String localTxId) {
+    MemoryEventRegistry.migrateParticipate(globalTxId, localTxId);
+  }
+
+  @Override
+  public List<GlobalTxEvent> getGlobalTxEventByGlobalTxId(String globalTxId) {
+    return MemoryEventRegistry.getGlobalTxEventByGlobalTxId(globalTxId);
+  }
+
   /**
    * Retrieve participate event from registry.
    *
@@ -97,15 +93,12 @@ public final class DefaultTccTxEventFacadeImpl implements TccTxEventFacade {
    * @return participate events
    */
   @Override
-  public Set<ParticipatedEvent> getParticipateEventByGlobalTxId(String globalTxId) {
-    return participateMap.get(globalTxId);
+  public List<ParticipatedEvent> getParticipateEventByGlobalTxId(String globalTxId) {
+    return MemoryEventRegistry.getParticipateEventByGlobalTxId(globalTxId);
   }
 
   @Override
-  public void migrationParticipateEvent(String globalTxId, String localTxId) {
-    Set<ParticipatedEvent> needRemoveSet = participateMap.get(globalTxId).stream()
-        .filter((e) -> globalTxId.equals(e.getGlobalTxId()) && localTxId.equals(e.getLocalTxId()))
-        .collect(Collectors.toSet());
-    participateMap.get(globalTxId).removeAll(needRemoveSet);
+  public void migrationGlobalTxEvent(String globalTxId, String localTxId) {
+    MemoryEventRegistry.migrationGlobalTxEvent(globalTxId, localTxId);
   }
 }

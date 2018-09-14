@@ -15,17 +15,23 @@
  *  limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.server.tcc.service;
+package org.apache.servicecomb.saga.alpha.server.tcc.callback;
 
+import com.google.common.collect.Lists;
 import java.util.List;
-import java.util.Optional;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.service.ParticipateEventService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public interface GlobalTxEventService {
+@Component("rdbCallbackEngine")
+public class RdbCallbackEngine extends TccCallbackEngine {
 
-  boolean addEvent(GlobalTxEvent globalTxEvent);
+  @Autowired
+  private ParticipateEventService participateEventService;
 
-  Optional<List<GlobalTxEvent>> getEventByGlobalTxId(String globalTxId);
-
-  void migration(String globalTxId, String localTxId);
+  @Override
+  protected List<ParticipatedEvent> findParticipate(String globalTxId) {
+    return participateEventService.getEventByGlobalTxId(globalTxId).orElse(Lists.newArrayList());
+  }
 }
