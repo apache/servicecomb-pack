@@ -30,7 +30,7 @@ public class ParticipatedEventHistory {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Long surrogateId;
   private String globalTxId;
   private String localTxId;
   private String parentTxId;

@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS TxTimeout (
 ) DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS tcc_global_tx_event (
-  id bigint NOT NULL AUTO_INCREMENT,
+  surrogateId bigint NOT NULL AUTO_INCREMENT,
   globalTxId varchar(36) NOT NULL,
   localTxId varchar(36) NOT NULL,
   parentTxId varchar(36) DEFAULT NULL,
@@ -77,12 +77,12 @@ CREATE TABLE IF NOT EXISTS tcc_global_tx_event (
   txType varchar(12),
   creationTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lastModified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
+  PRIMARY KEY (surrogateId),
   UNIQUE INDEX tcc_global_tx_event_index (globalTxId, localTxId, parentTxId, txType)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS tcc_global_tx_event_history (
-  id bigint NOT NULL AUTO_INCREMENT,
+  surrogateId bigint NOT NULL AUTO_INCREMENT,
   globalTxId varchar(36) NOT NULL,
   localTxId varchar(36) NOT NULL,
   parentTxId varchar(36) DEFAULT NULL,
@@ -92,12 +92,12 @@ CREATE TABLE IF NOT EXISTS tcc_global_tx_event_history (
   status varchar(12),
   creationTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lastModified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
+  PRIMARY KEY (surrogateId),
   UNIQUE INDEX tcc_global_tx_event_history_index (globalTxId, localTxId, parentTxId, txType)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS tcc_participate_event (
-  id bigint NOT NULL AUTO_INCREMENT,
+  surrogateId bigint NOT NULL AUTO_INCREMENT,
   serviceName varchar(36) NOT NULL,
   instanceId varchar(36) NOT NULL,
   globalTxId varchar(36) NOT NULL,
@@ -108,12 +108,12 @@ CREATE TABLE IF NOT EXISTS tcc_participate_event (
   status varchar(50) NOT NULL,
   creationTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lastModified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
+  PRIMARY KEY (surrogateId),
   UNIQUE INDEX tcc_participate_event_index (globalTxId, localTxId, parentTxId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS tcc_participate_event_history (
-  id bigint NOT NULL AUTO_INCREMENT,
+  surrogateId bigint NOT NULL AUTO_INCREMENT,
   serviceName varchar(36) NOT NULL,
   instanceId varchar(36) NOT NULL,
   globalTxId varchar(36) NOT NULL,
@@ -124,6 +124,6 @@ CREATE TABLE IF NOT EXISTS tcc_participate_event_history (
   status varchar(50) NOT NULL,
   creationTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lastModified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
+  PRIMARY KEY (surrogateId),
   UNIQUE INDEX tcc_finished_event_index (globalTxId, localTxId, parentTxId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

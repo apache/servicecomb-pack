@@ -31,7 +31,7 @@ public class ParticipatedEvent {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Long surrogateId;
   private String globalTxId;
   private String localTxId;
   private String parentTxId;
@@ -61,11 +61,7 @@ public class ParticipatedEvent {
   }
 
   public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
+    return surrogateId;
   }
 
   public String getGlobalTxId() {
