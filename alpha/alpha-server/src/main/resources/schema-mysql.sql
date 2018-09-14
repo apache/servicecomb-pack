@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS tcc_global_tx_event (
   serviceName varchar(36) NOT NULL,
   instanceId varchar(36) NOT NULL,
   txType varchar(12),
+  status varchar(12),
   creationTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lastModified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (surrogateId),
