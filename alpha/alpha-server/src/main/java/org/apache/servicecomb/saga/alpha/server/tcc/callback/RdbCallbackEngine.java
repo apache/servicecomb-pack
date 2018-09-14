@@ -20,7 +20,7 @@ package org.apache.servicecomb.saga.alpha.server.tcc.callback;
 import com.google.common.collect.Lists;
 import java.util.List;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
-import org.apache.servicecomb.saga.alpha.server.tcc.service.ParticipateEventService;
+import org.apache.servicecomb.saga.alpha.server.tcc.service.ParticipatedEventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -28,10 +28,10 @@ import org.springframework.stereotype.Component;
 public class RdbCallbackEngine extends TccCallbackEngine {
 
   @Autowired
-  private ParticipateEventService participateEventService;
+  private ParticipatedEventService participatedEventService;
 
   @Override
   protected List<ParticipatedEvent> findParticipate(String globalTxId) {
-    return participateEventService.getEventByGlobalTxId(globalTxId).orElse(Lists.newArrayList());
+    return participatedEventService.getEventByGlobalTxId(globalTxId).orElse(Lists.newArrayList());
   }
 }

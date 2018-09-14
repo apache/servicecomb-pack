@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class ParticipateEventServiceImpl implements ParticipateEventService {
+public class ParticipatedEventServiceImpl implements ParticipatedEventService {
 
   @Autowired
   private ParticipatedEventRepository hotRepository;

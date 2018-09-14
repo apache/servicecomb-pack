@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 
-public interface ParticipateEventService {
+public interface ParticipatedEventService {
 
   boolean addEvent(ParticipatedEvent participateEvent);
 

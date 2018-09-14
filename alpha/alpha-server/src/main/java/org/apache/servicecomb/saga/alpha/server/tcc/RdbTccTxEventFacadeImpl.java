@@ -24,7 +24,7 @@ import org.apache.servicecomb.saga.alpha.server.tcc.callback.TccCallbackEngine;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.service.GlobalTxEventService;
-import org.apache.servicecomb.saga.alpha.server.tcc.service.ParticipateEventService;
+import org.apache.servicecomb.saga.alpha.server.tcc.service.ParticipatedEventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ import org.springframework.stereotype.Component;
 public class RdbTccTxEventFacadeImpl implements TccTxEventFacade {
 
   @Autowired
-  private ParticipateEventService participateEventService;
+  private ParticipatedEventService participatedEventService;
 
   @Autowired
   private GlobalTxEventService globalTxEventService;
@@ -53,7 +53,7 @@ public class RdbTccTxEventFacadeImpl implements TccTxEventFacade {
 
   @Override
   public boolean onParticipateEvent(ParticipatedEvent event) {
-    return participateEventService.addEvent(event);
+    return participatedEventService.addEvent(event);
   }
 
   @Override
@@ -66,7 +66,7 @@ public class RdbTccTxEventFacadeImpl implements TccTxEventFacade {
 
   @Override
   public void onCoordinatedEvent(String globalTxId, String localTxId) {
-    participateEventService.migration(globalTxId, localTxId);
+    participatedEventService.migration(globalTxId, localTxId);
   }
 
   @Override
@@ -76,7 +76,7 @@ public class RdbTccTxEventFacadeImpl implements TccTxEventFacade {
 
   @Override
   public List<ParticipatedEvent> getParticipateEventByGlobalTxId(String globalTxId) {
-    return participateEventService.getEventByGlobalTxId(globalTxId).orElse(Lists.newArrayList());
+    return participatedEventService.getEventByGlobalTxId(globalTxId).orElse(Lists.newArrayList());
   }
 
   @Override
