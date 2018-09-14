@@ -35,7 +35,7 @@ import org.springframework.test.context.junit4.SpringRunner;
         "alpha.server.port=8090",
         "alpha.server.storage=local"
     })
-public class MemoryAlphaTccServerTest extends AlphaTccServerTest {
+public class MemoryAlphaTccServerTest extends AlphaTccServerTestBase {
 
   @BeforeClass
   public static void setupClientChannel() {
@@ -50,44 +50,5 @@ public class MemoryAlphaTccServerTest extends AlphaTccServerTest {
   public TccTxEventFacade getTccTxEventFacade() {
     return tccTxEventFacade;
   }
-
-  @Test
-    public void assertOnDisConnect() {
-        super.assertOnDisConnect();
-    }
-
-    @Test
-    public void assertOnTransactionStart() {
-        super.assertOnTransactionStart();
-    }
-
-    @Test
-    public void assertOnParticipated() {
-        super.assertOnParticipated();
-    }
-
-    @Test
-    public void assertOnTccTransactionSucceedEnded() {
-        super.assertOnTccTransactionSucceedEnded();
-    }
-
-    @Test
-    public void assertOnTccTransactionFailedEnded() {
-        super.assertOnTccTransactionFailedEnded();
-    }
-
-    @Test
-    public void assertOnCallbackNotExist() {
-        super.assertOnCallbackNotExist();
-    }
-
-    @Test
-    public void assertOnCallbacksExecuteError() {
-        super.assertOnCallbacksExecuteError();
-    }
-
-    @Test
-    public void assertOnSwitchOtherCallbackInstance() {
-        super.assertOnSwitchOtherCallbackInstance();
-    }
+  
 }

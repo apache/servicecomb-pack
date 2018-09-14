@@ -50,10 +50,9 @@ import org.apache.servicecomb.saga.pack.contract.grpc.TccEventServiceGrpc.TccEve
 import org.apache.servicecomb.saga.pack.contract.grpc.TccEventServiceGrpc.TccEventServiceStub;
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-public abstract class AlphaTccServerTest {
+public abstract class AlphaTccServerTestBase {
 
   protected static ManagedChannel clientChannel;
 
@@ -93,6 +92,7 @@ public abstract class AlphaTccServerTest {
     blockingStub.onDisconnected(serviceConfig);
   }
 
+  @Test
   public void assertOnConnect() {
     asyncStub.onConnected(serviceConfig, commandStreamObserver);
     awaitUntilConnected();
@@ -101,6 +101,7 @@ public abstract class AlphaTccServerTest {
     );
   }
 
+  @Test
   public void assertOnDisConnect() {
     asyncStub.onConnected(serviceConfig, commandStreamObserver);
     awaitUntilConnected();
@@ -115,6 +116,7 @@ public abstract class AlphaTccServerTest {
     await().atMost(2, SECONDS).until(() -> null != (OmegaCallbacksRegistry.getRegistry().get(serviceName)));
   }
 
+  @Test
   public void assertOnTransactionStart() {
     asyncStub.onConnected(serviceConfig, commandStreamObserver);
     awaitUntilConnected();
@@ -142,6 +144,7 @@ public abstract class AlphaTccServerTest {
     assertThat(event.getStatus(), is(TransactionStatus.Succeed.name()));
   }
 
+  @Test
   public void assertOnParticipated() {
     asyncStub.onConnected(serviceConfig, commandStreamObserver);
     awaitUntilConnected();
@@ -178,6 +181,7 @@ public abstract class AlphaTccServerTest {
     assertThat(result.getAborted(), is(false));
   }
 
+  @Test
   public void assertOnTccTransactionFailedEnded() {
     asyncStub.onConnected(serviceConfig, commandStreamObserver);
     awaitUntilConnected();
@@ -194,6 +198,7 @@ public abstract class AlphaTccServerTest {
     assertThat(commandStreamObserver.isCompleted(), is(false));
   }
 
+  @Test
   public void assertOnCallbackNotExist() {
     asyncStub.onConnected(serviceConfig, commandStreamObserver);
     awaitUntilConnected();
@@ -205,6 +210,7 @@ public abstract class AlphaTccServerTest {
     assertThat(result.getAborted(), is(true));
   }
 
+  @Test
   public void assertOnCallbacksExecuteError() {
     asyncStub.onConnected(serviceConfig, commandStreamObserver);
     awaitUntilConnected();
@@ -218,6 +224,7 @@ public abstract class AlphaTccServerTest {
     assertThat(OmegaCallbacksRegistry.getRegistry().get(serviceName).size(), is(0));
   }
 
+  @Test
   public void assertOnSwitchOtherCallbackInstance() {
     asyncStub.onConnected(serviceConfig, commandStreamObserver);
     GrpcServiceConfig config = GrpcServiceConfig.newBuilder()
