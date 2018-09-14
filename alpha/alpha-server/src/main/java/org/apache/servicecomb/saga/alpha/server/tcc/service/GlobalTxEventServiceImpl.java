@@ -64,7 +64,7 @@ public class GlobalTxEventServiceImpl implements GlobalTxEventService {
   public void migration(String globalTxId, String localTxId) {
     hotRepository.findByGlobalTxId(globalTxId).ifPresent(list ->
       list.forEach((e) -> {
-        hotRepository.delete(e.getId());
+        hotRepository.delete(e);
         GlobalTxEventHistory finishedEvent = new GlobalTxEventHistory(
             e.getGlobalTxId(),
             e.getLocalTxId(),

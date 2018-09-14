@@ -66,7 +66,7 @@ public class ParticipatedEventServiceImpl implements ParticipatedEventService {
   @Transactional
   public void migration(String globalTxId, String localTxId) {
     hotRepository.findByUniqueKey(globalTxId, localTxId).ifPresent( e -> {
-      hotRepository.delete(e.getId());
+      hotRepository.delete(e);
       ParticipatedEventHistory finishedEvent = new ParticipatedEventHistory(
           e.getGlobalTxId(),
           e.getLocalTxId(),
