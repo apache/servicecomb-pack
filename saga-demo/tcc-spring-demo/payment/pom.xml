@@ -47,6 +47,20 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate-entitymanager</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate-core</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicecomb.saga</groupId>
+      <artifactId>saga-persistence-jpa</artifactId>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
@@ -55,6 +69,10 @@
     <dependency>
       <groupId>javax.persistence</groupId>
       <artifactId>javax.persistence-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.persistence</groupId>
+      <artifactId>org.eclipse.persistence.jpa</artifactId>
     </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>
@@ -74,6 +92,10 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>com.ethlo.persistence.tools</groupId>
+        <artifactId>eclipselink-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
