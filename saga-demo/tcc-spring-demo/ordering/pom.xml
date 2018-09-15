@@ -46,7 +46,6 @@
       <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>omega-transport-resttemplate</artifactId>
     </dependency>
-    
   </dependencies>
 
   <build>

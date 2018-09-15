@@ -25,11 +25,7 @@ spring:
   jpa:
     show-sql: true
     generate-ddl: true
-    hibernate:
-      ddl-auto: create-drop
-      naming:
-        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
-        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+    
 alpha:
   cluster:
     address: alpha-server.servicecomb.io:8080

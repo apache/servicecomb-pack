@@ -23,9 +23,8 @@ spring:
     console:
       enabled: true
   jpa:
-    properties:
-      eclipselink:
-        ddl-generation: none
+      show-sql: true
+      generate-ddl: true
 
 alpha:
   cluster:
