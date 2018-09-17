@@ -84,38 +84,17 @@ public interface TxEventRepository {
    */
   List<TxEvent> findTransactions(String globalTxId, String type);
 
-  /**
-   * Find a {@link TxEvent} which satisfies below requirements:
-   * <ol>
-   *   <li>{@link TxEvent#type} equals to {@link EventType#TxEndedEvent}</li>
-   *   <li>{@link TxEvent#surrogateId} greater than param <code>id</code></li>
-   *   <li>{@link TxEvent#type} equals to param <code>type</code></li>
-   *   <li>There is a corresponding <code>TxAbortedEvent</code></li>
-   *   <li>There is no coresponding <code>TxCompensatedEvent</code></li>
-   * </ol>
-   *
-   * @param id
-   * @return
-   */
-  List<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id, String type);
+  List<TxEvent> findNeedToCompensateTxs();
 
-  /**
-   * Find a {@link TxEvent} which satisfies below requirements:
-   *
-   * <ol>
-   *   <li>{@link TxEvent#type} equals to {@link EventType#TxCompensatedEvent}</li>
-   *   <li>{@link TxEvent#surrogateId} greater than param <code>id</code></li>
-   * </ol>
-   *
-   * @param id
-   * @return
-   */
-  Optional<TxEvent> findFirstCompensatedEventByIdGreaterThan(long id);
+  List<TxEvent> findAllFinishedTxsForNoTxEnd();
 
+  List<TxEvent> findCompensatedDoneTxs(String globalTxId,String localTxId);
   /**
    * Delete duplicated {@link TxEvent}s which {@link TxEvent#type} equals param <code>type</code>.
    *
    * @param type event type
    */
   void deleteDuplicateEvents(String type);
+
+  void dumpColdEventData();
 }

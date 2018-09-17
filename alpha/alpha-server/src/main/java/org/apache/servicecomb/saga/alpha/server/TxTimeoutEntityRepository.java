@@ -35,30 +35,44 @@ interface TxTimeoutEntityRepository extends CrudRepository<TxTimeout, Long> {
   @Transactional
   @Modifying(clearAutomatically = true)
   @Query("UPDATE org.apache.servicecomb.saga.alpha.core.TxTimeout t "
-      + "SET t.status = :status "
-      + "WHERE t.globalTxId = :globalTxId "
-      + "  AND t.localTxId = :localTxId")
+          + "SET t.status = :status "
+          + "WHERE t.globalTxId = :globalTxId "
+          + "  AND t.localTxId = :localTxId")
   void updateStatusByGlobalTxIdAndLocalTxId(
-      @Param("status") String status,
-      @Param("globalTxId") String globalTxId,
-      @Param("localTxId") String localTxId);
+          @Param("status") String status,
+          @Param("globalTxId") String globalTxId,
+          @Param("localTxId") String localTxId);
 
   @Lock(LockModeType.OPTIMISTIC)
   @Query("SELECT t FROM TxTimeout AS t "
-      + "WHERE t.status = 'NEW' "
-      + "  AND t.expiryTime < CURRENT_TIMESTAMP "
-      + "ORDER BY t.expiryTime ASC")
-  List<TxTimeout> findFirstTimeoutTxOrderByExpireTimeAsc(Pageable pageable);
+          + "WHERE t.status != 'DONE' "
+          + "  AND t.expiryTime < CURRENT_TIMESTAMP AND NOT EXISTS ( "
+          +"   SELECT t1.globalTxId FROM TxEvent t1 "
+          + "    WHERE t1.globalTxId = t.globalTxId "
+          + "    AND t1.localTxId = t.localTxId "
+          + "    AND t1.type != t.type AND NOT EXISTS ( "
+          + "  SELECT t2.globalTxId FROM TxEvent t2  "
+          + "  WHERE t2.globalTxId = t1.globalTxId "
+          + "    AND t2.localTxId = t1.localTxId "
+          + "    AND t2.creationTime > t1.creationTime ) "
+          + ") ")
+  List<TxTimeout> findNotFinishedTimeoutTxs();
 
   @Transactional
   @Modifying(clearAutomatically = true)
   @Query("UPDATE TxTimeout t "
-      + "SET t.status = 'DONE' "
-      + "WHERE t.status != 'DONE' AND EXISTS ("
-      + "  SELECT t1.globalTxId FROM TxEvent t1 "
-      + "  WHERE t1.globalTxId = t.globalTxId "
-      + "    AND t1.localTxId = t.localTxId "
-      + "    AND t1.type != t.type"
-      + ")")
+          + "SET t.status = 'DONE' "
+          + "WHERE t.status != 'DONE' AND EXISTS ( "
+          + "  SELECT t1.globalTxId FROM TxEvent t1 "
+          + "  WHERE t1.globalTxId = t.globalTxId "
+          + "    AND t1.localTxId = t.localTxId "
+          + "    AND t1.type != t.type  AND NOT EXISTS ( "
+          + "  SELECT t2.globalTxId FROM TxEvent t2  "
+          + "  WHERE t2.globalTxId = t1.globalTxId "
+          + "    AND t2.localTxId = t1.localTxId "
+          + "    AND t2.creationTime > t1.creationTime ) "
+          + ") OR NOT EXISTS ( "
+          + "    SELECT t3 FROM TxEvent t3 "
+          + "      WHERE t3.globalTxId = t.globalTxId )")
   void updateStatusOfFinishedTx();
 }

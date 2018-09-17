@@ -19,12 +19,14 @@ package org.apache.servicecomb.saga.alpha.core;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.servicecomb.saga.alpha.core.TaskStatus.NEW;
+import static org.apache.servicecomb.saga.alpha.core.TaskStatus.PENDING;
 import static org.apache.servicecomb.saga.common.EventType.SagaEndedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxAbortedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxEndedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
 
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -52,16 +54,14 @@ public class EventScanner implements Runnable {
 
   private final int eventPollingInterval;
 
-  private long nextEndedEventId;
 
-  private long nextCompensatedEventId;
 
   public EventScanner(ScheduledExecutorService scheduler,
-      TxEventRepository eventRepository,
-      CommandRepository commandRepository,
-      TxTimeoutRepository timeoutRepository,
-      OmegaCallback omegaCallback,
-      int eventPollingInterval) {
+                      TxEventRepository eventRepository,
+                      CommandRepository commandRepository,
+                      TxTimeoutRepository timeoutRepository,
+                      OmegaCallback omegaCallback,
+                      int eventPollingInterval) {
     this.scheduler = scheduler;
     this.eventRepository = eventRepository;
     this.commandRepository = commandRepository;
@@ -77,52 +77,95 @@ public class EventScanner implements Runnable {
 
   private void pollEvents() {
     scheduler.scheduleWithFixedDelay(
-        () -> {
-          updateTimeoutStatus();
-          findTimeoutEvents();
-          abortTimeoutEvents();
-          saveUncompensatedEventsToCommands();
-          compensate();
-          updateCompensatedCommands();
-          deleteDuplicateSagaEndedEvents();
-          updateTransactionStatus();
-        },
-        0,
-        eventPollingInterval,
-        MILLISECONDS);
-  }
-
-  @Trace("findTimeoutEvents")
-  private void findTimeoutEvents() {
-    eventRepository.findTimeoutEvents()
-        .forEach(event -> {
-          LOG.info("Found timeout event {}", event);
-          timeoutRepository.save(txTimeoutOf(event));
-        });
+            () -> {
+              updateTimeoutStatus();
+              findAllTimeoutEvents();
+              abortTimeoutEvents();
+              saveUncompensatedEventsToCommands();
+              compensate();
+              updateCompensatedCommands();
+              markSagaEndedForNoTxEnd();
+              deleteDuplicateSagaEndedEvents();
+              //Temporarily comment it since  AlphaIntegration Test will failed.
+              //dumpColdData();
+            },
+            0,
+            eventPollingInterval,
+            MILLISECONDS);
   }
 
   private void updateTimeoutStatus() {
     timeoutRepository.markTimeoutAsDone();
   }
 
-  @Trace("saveUncompensatedEventsToCommands")
-  private void saveUncompensatedEventsToCommands() {
-    eventRepository.findFirstUncompensatedEventByIdGreaterThan(nextEndedEventId, TxEndedEvent.name())
-        .forEach(event -> {
-          LOG.info("Found uncompensated event {}", event);
-          nextEndedEventId = event.id();
-          commandRepository.saveCompensationCommands(event.globalTxId());
-        });
+  @Trace("findAllTimeoutEvents")
+  private void findAllTimeoutEvents() {
+    eventRepository.findTimeoutEvents()
+            .forEach(event -> {
+              LOG.info("Found timeout event {}", event);
+              timeoutRepository.save(txTimeoutOf(event));
+            });
   }
 
-  @Trace("updateCompensationStatus")
+  @Trace("abortTimeoutEvents")
+  private void abortTimeoutEvents() {
+    timeoutRepository.findTimeouts().forEach(timeout -> {
+      LOG.info("Found timeout event {} to abort", timeout);
+      eventRepository.save(toTxAbortedEvent(timeout));
+    });
+  }
+
+  @Trace("saveUncompensatedEventsToCommands")
+  private void saveUncompensatedEventsToCommands() {
+    eventRepository.findNeedToCompensateTxs()
+            .forEach(event -> {
+              LOG.info("Found uncompensated event {}", event);
+              commandRepository.saveCompensationCommands(event.globalTxId(),event.localTxId());
+            });
+  }
+
+  @Trace("compensate")
+  private void compensate() {
+    List<TxEvent>compensateTxEvents = new ArrayList<>();
+    commandRepository.findAllCommandsToCompensate()
+            .forEach(command ->
+                    compensateTxEvents.add(txStartedEventOf(command))
+            );
+    omegaCallback.compensateAllEvents(compensateTxEvents).forEach(event -> commandRepository.markCommandAsPending(event.globalTxId(),event.localTxId()));
+  }
+
+  private void markSagaEnded(TxEvent event) {
+    if (commandRepository.findUncompletedCommands(event.globalTxId()).isEmpty()) {
+      LOG.info("Marked end of transaction with globalTxId {}", event.globalTxId());
+      markGlobalTxEndWithEvent(event);
+    }
+  }
+  private void updateCompensationStatus(TxEvent event) {
+    commandRepository.markCommandAsDone(event.globalTxId(), event.localTxId());
+    LOG.info("Transaction with globalTxId {} and localTxId {} was compensated",
+            event.globalTxId(),
+            event.localTxId());
+    markSagaEnded(event);
+  }
+
+  @Trace("updateCompensatedCommands")
   private void updateCompensatedCommands() {
-    eventRepository.findFirstCompensatedEventByIdGreaterThan(nextCompensatedEventId)
-        .ifPresent(event -> {
-          LOG.info("Found compensated event {}", event);
-          nextCompensatedEventId = event.id();
-          updateCompensationStatus(event);
-        });
+    commandRepository.findPendingCommands().forEach(command ->
+            eventRepository.findCompensatedDoneTxs(command.globalTxId(),command.localTxId()).forEach(event->
+            {
+              LOG.info("Found compensated event {}", event);
+              updateCompensationStatus(event);
+            }));
+  }
+  private void markGlobalTxEndWithEvent(TxEvent event) {
+    eventRepository.save(toSagaEndedEvent(event));
+  }
+  private void markSagaEndedForNoTxEnd() {
+    eventRepository.findAllFinishedTxsForNoTxEnd().forEach(
+            event->{
+              LOG.info("Marked end of no tx end's transaction with globalTxId {}", event.globalTxId());
+              markGlobalTxEndWithEvent(event);
+            });
   }
 
   @Trace("deleteDuplicateSagaEndedEvents")
@@ -134,107 +177,63 @@ public class EventScanner implements Runnable {
     }
   }
 
-  private void updateCompensationStatus(TxEvent event) {
-    commandRepository.markCommandAsDone(event.globalTxId(), event.localTxId());
-    LOG.info("Transaction with globalTxId {} and localTxId {} was compensated",
-        event.globalTxId(),
-        event.localTxId());
-
-    markSagaEnded(event);
+  private void dumpColdData(){
+    eventRepository.dumpColdEventData();
   }
 
-  @Trace("abortTimeoutEvents")
-  private void abortTimeoutEvents() {
-    timeoutRepository.findFirstTimeout().forEach(timeout -> {
-      LOG.info("Found timeout event {} to abort", timeout);
 
-      eventRepository.save(toTxAbortedEvent(timeout));
 
-      if (timeout.type().equals(TxStartedEvent.name())) {
-        eventRepository.findTxStartedEvent(timeout.globalTxId(), timeout.localTxId())
-            .ifPresent(omegaCallback::compensate);
-      }
-    });
-  }
 
-  @Trace("updateTransactionStatus")
-  private void updateTransactionStatus() {
-    eventRepository.findFirstAbortedGlobalTransaction().ifPresent(this::markGlobalTxEndWithEvents);
-  }
 
-  private void markSagaEnded(TxEvent event) {
-    if (commandRepository.findUncompletedCommands(event.globalTxId()).isEmpty()) {
-      markGlobalTxEndWithEvent(event);
-    }
-  }
-
-  private void markGlobalTxEndWithEvent(TxEvent event) {
-    eventRepository.save(toSagaEndedEvent(event));
-    LOG.info("Marked end of transaction with globalTxId {}", event.globalTxId());
-  }
-
-  private void markGlobalTxEndWithEvents(List<TxEvent> events) {
-    events.forEach(this::markGlobalTxEndWithEvent);
-  }
 
   private TxEvent toTxAbortedEvent(TxTimeout timeout) {
     return new TxEvent(
-        timeout.serviceName(),
-        timeout.instanceId(),
-        timeout.globalTxId(),
-        timeout.localTxId(),
-        timeout.parentTxId(),
-        TxAbortedEvent.name(),
-        "",
-        ("Transaction timeout").getBytes());
+            timeout.serviceName(),
+            timeout.instanceId(),
+            timeout.globalTxId(),
+            timeout.localTxId(),
+            timeout.parentTxId(),
+            TxAbortedEvent.name(),
+            "",
+            ("Transaction timeout").getBytes());
   }
 
   private TxEvent toSagaEndedEvent(TxEvent event) {
     return new TxEvent(
-        event.serviceName(),
-        event.instanceId(),
-        event.globalTxId(),
-        event.globalTxId(),
-        null,
-        SagaEndedEvent.name(),
-        "",
-        EMPTY_PAYLOAD);
+            event.serviceName(),
+            event.instanceId(),
+            event.globalTxId(),
+            event.globalTxId(),
+            null,
+            SagaEndedEvent.name(),
+            "",
+            EMPTY_PAYLOAD);
   }
 
-  @Trace("compensate")
-  private void compensate() {
-    commandRepository.findFirstCommandToCompensate()
-        .forEach(command -> {
-          LOG.info("Compensating transaction with globalTxId {} and localTxId {}",
-              command.globalTxId(),
-              command.localTxId());
 
-          omegaCallback.compensate(txStartedEventOf(command));
-        });
-  }
 
   private TxEvent txStartedEventOf(Command command) {
     return new TxEvent(
-        command.serviceName(),
-        command.instanceId(),
-        command.globalTxId(),
-        command.localTxId(),
-        command.parentTxId(),
-        TxStartedEvent.name(),
-        command.compensationMethod(),
-        command.payloads());
+            command.serviceName(),
+            command.instanceId(),
+            command.globalTxId(),
+            command.localTxId(),
+            command.parentTxId(),
+            TxStartedEvent.name(),
+            command.compensationMethod(),
+            command.payloads());
   }
 
   private TxTimeout txTimeoutOf(TxEvent event) {
     return new TxTimeout(
-        event.id(),
-        event.serviceName(),
-        event.instanceId(),
-        event.globalTxId(),
-        event.localTxId(),
-        event.parentTxId(),
-        event.type(),
-        event.expiryTime(),
-        NEW.name());
+            event.id(),
+            event.serviceName(),
+            event.instanceId(),
+            event.globalTxId(),
+            event.localTxId(),
+            event.parentTxId(),
+            event.type(),
+            event.expiryTime(),
+            NEW.name());
   }
 }

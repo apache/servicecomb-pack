@@ -69,6 +69,20 @@ CREATE TABLE IF NOT EXISTS TxTimeout (
 
 CREATE INDEX IF NOT EXISTS saga_timeouts_index ON TxTimeout (surrogateId, expiryTime, globalTxId, localTxId, status);
 
+/*
+* For finished tx data
+*
+*/
+CREATE TABLE IF NOT EXISTS TxEventHistory AS SELECT * FROM TxEvent WHERE 1=2;
+CREATE INDEX IF NOT EXISTS saga_events_index ON TxEventHistory (surrogateId, globalTxId, localTxId, type, expiryTime);
+CREATE INDEX IF NOT EXISTS saga_global_tx_index ON TxEventHistory (globalTxId);
+
+CREATE TABLE IF NOT EXISTS CommandHistory AS SELECT * FROM Command WHERE 1=2;
+CREATE INDEX IF NOT EXISTS saga_commands_index ON CommandHistory (surrogateId, eventId, globalTxId, localTxId, status);
+
+CREATE TABLE IF NOT EXISTS TxTimeoutHistory AS SELECT * FROM TxTimeout WHERE 1=2;
+CREATE INDEX IF NOT EXISTS saga_timeouts_index ON TxTimeoutHistory (surrogateId, expiryTime, globalTxId, localTxId, status);
+
 CREATE TABLE IF NOT EXISTS tcc_global_tx_event (
   surrogateId BIGSERIAL PRIMARY KEY,
   globalTxId varchar(36) NOT NULL,

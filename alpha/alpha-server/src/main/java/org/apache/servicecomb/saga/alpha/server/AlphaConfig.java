@@ -18,15 +18,10 @@
 package org.apache.servicecomb.saga.alpha.server;
 
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.*;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import org.apache.servicecomb.saga.alpha.core.CommandRepository;
-import org.apache.servicecomb.saga.alpha.core.CompositeOmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.EventScanner;
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.PendingTaskRunner;
@@ -47,11 +42,9 @@ import org.springframework.context.annotation.Configuration;
 @EntityScan(basePackages = "org.apache.servicecomb.saga.alpha")
 @Configuration
 class AlphaConfig {
-  private final BlockingQueue<Runnable> pendingCompensations = new LinkedBlockingQueue<>();
   private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+  private final ExecutorService compensateExecutors = Executors.newCachedThreadPool();
 
-  @Value("${alpha.compensation.retry.delay:3000}")
-  private int delay;
 
   @Bean
   Map<String, Map<String, OmegaCallback>> omegaCallbacks() {
@@ -60,9 +53,9 @@ class AlphaConfig {
 
   @Bean
   OmegaCallback omegaCallback(Map<String, Map<String, OmegaCallback>> callbacks) {
-    return new PushBackOmegaCallback(pendingCompensations, new CompositeOmegaCallback(callbacks));
+    return new PushBackOmegaCallback(callbacks,compensateExecutors);
   }
-  
+
   @Bean
   TxEventRepository springTxEventRepository(TxEventEnvelopeRepository eventRepo) {
     return new SpringTxEventRepository(eventRepo);
@@ -88,24 +81,24 @@ class AlphaConfig {
 
   @Bean
   TxConsistentService txConsistentService(
-      @Value("${alpha.event.pollingInterval:500}") int eventPollingInterval,
-      ScheduledExecutorService scheduler,
-      TxEventRepository eventRepository,
-      CommandRepository commandRepository,
-      TxTimeoutRepository timeoutRepository,
-      OmegaCallback omegaCallback) {
-        new EventScanner(scheduler,
+          @Value("${alpha.event.pollingInterval:500}") int eventPollingInterval,
+          ScheduledExecutorService scheduler,
+          TxEventRepository eventRepository,
+          CommandRepository commandRepository,
+          TxTimeoutRepository timeoutRepository,
+          OmegaCallback omegaCallback) {
+    new EventScanner(scheduler,
             eventRepository, commandRepository, timeoutRepository,
             omegaCallback, eventPollingInterval).run();
-        TxConsistentService consistentService = new TxConsistentService(eventRepository);
-        return consistentService;
+    TxConsistentService consistentService = new TxConsistentService(eventRepository);
+    return consistentService;
   }
 
   @Bean
   TccTxEventFacade tccTxEventFacade(
-      @Value("${alpha.server.storage:rdb}") String storage,
-      @Qualifier("defaultTccTxEventFacade") TccTxEventFacade defaultTccTxEventFacade,
-      @Qualifier("rdbTccTxEventFacade") TccTxEventFacade rdbTccTxEventFacade) {
+          @Value("${alpha.server.storage:rdb}") String storage,
+          @Qualifier("defaultTccTxEventFacade") TccTxEventFacade defaultTccTxEventFacade,
+          @Qualifier("rdbTccTxEventFacade") TccTxEventFacade rdbTccTxEventFacade) {
     return "rdb".equals(storage) ? rdbTccTxEventFacade : defaultTccTxEventFacade;
   }
 
@@ -116,17 +109,15 @@ class AlphaConfig {
 
   @Bean
   ServerStartable serverStartable(GrpcServerConfig serverConfig, TxConsistentService txConsistentService,
-      Map<String, Map<String, OmegaCallback>> omegaCallbacks, GrpcTccEventService grpcTccEventService) {
+                                  Map<String, Map<String, OmegaCallback>> omegaCallbacks, GrpcTccEventService grpcTccEventService) {
     ServerStartable bootstrap = new GrpcStartable(serverConfig,
-        new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks), grpcTccEventService);
+            new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks), grpcTccEventService);
     new Thread(bootstrap::start).start();
     return bootstrap;
   }
 
   @PostConstruct
-  void init() {
-    new PendingTaskRunner(pendingCompensations, delay).run();
-  }
+  void init() { }
 
   @PreDestroy
   void shutdown() {

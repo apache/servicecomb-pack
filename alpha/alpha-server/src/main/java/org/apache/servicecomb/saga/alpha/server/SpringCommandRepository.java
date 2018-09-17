@@ -51,25 +51,16 @@ public class SpringCommandRepository implements CommandRepository {
 
   @Override
   @Segment(name = "saveCompensationCommands", category = "application", library = "kamon")
-  public void saveCompensationCommands(String globalTxId) {
-    List<TxEvent> events = eventRepository
-        .findStartedEventsWithMatchingEndedButNotCompensatedEvents(globalTxId);
+  public void saveCompensationCommands(String globalTxId,String localTxId) {
 
-    Map<String, Command> commands = new LinkedHashMap<>();
-
-    for (TxEvent event : events) {
-      commands.computeIfAbsent(event.localTxId(), k -> new Command(event));
-    }
-
-    for (Command command : commands.values()) {
-      LOG.info("Saving compensation command {}", command);
+    eventRepository.findLastStartedEvent(globalTxId,localTxId).forEach(event->{
+      Command command = new Command(event);
       try {
         commandRepository.save(command);
       } catch (Exception e) {
         LOG.warn("Failed to save some command {}", command);
       }
-      LOG.info("Saved compensation command {}", command);
-    }
+    });
   }
 
   @Override
@@ -79,25 +70,26 @@ public class SpringCommandRepository implements CommandRepository {
   }
 
   @Override
-  @Segment(name = "findUncompletedCommands", category = "application", library = "kamon")
-  public List<Command> findUncompletedCommands(String globalTxId) {
-    return commandRepository.findByGlobalTxIdAndStatus(globalTxId, NEW.name());
+  @Segment(name = "markCommandAsPending", category = "application", library = "kamon")
+  public void markCommandAsPending(String globalTxId, String localTxId) {
+    commandRepository.updateStatusByGlobalTxIdAndLocalTxId(PENDING.name(), globalTxId, localTxId);
   }
 
-  @Transactional
   @Override
-  @Segment(name = "findFirstCommandToCompensate", category = "application", library = "kamon")
-  public List<Command> findFirstCommandToCompensate() {
-    List<Command> commands = commandRepository
-        .findFirstGroupByGlobalTxIdWithoutPendingOrderByIdDesc();
+  @Segment(name = "findUncompletedCommands", category = "application", library = "kamon")
+  public List<Command> findUncompletedCommands(String globalTxId) {
+    return commandRepository.findUnfinishedCommandByGlobalTxId(globalTxId);
+  }
 
-    commands.forEach(command ->
-        commandRepository.updateStatusByGlobalTxIdAndLocalTxId(
-            NEW.name(),
-            PENDING.name(),
-            command.globalTxId(),
-            command.localTxId()));
+  @Override
+  @Segment(name = "findPendingCommands", category = "application", library = "kamon")
+  public List<Command> findPendingCommands() {
+    return commandRepository.findPendingCommands();
+  }
 
-    return commands;
+  @Override
+  @Segment(name = "findAllCommandsToCompensate", category = "application", library = "kamon")
+  public List<Command> findAllCommandsToCompensate() {
+    return commandRepository.findNewCommands();
   }
 }

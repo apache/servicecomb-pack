@@ -61,30 +61,32 @@ public class TxConsistentServiceTest {
     @Override
     public Optional<TxEvent> findTxStartedEvent(String globalTxId, String localTxId) {
       return events.stream()
-          .filter(event -> globalTxId.equals(event.globalTxId()) && localTxId.equals(event.localTxId()))
-          .findFirst();
+              .filter(event -> globalTxId.equals(event.globalTxId()) && localTxId.equals(event.localTxId()))
+              .findFirst();
     }
 
     @Override
     public List<TxEvent> findTransactions(String globalTxId, String type) {
       return events.stream()
-          .filter(event -> globalTxId.equals(event.globalTxId()) && type.equals(event.type()))
-          .collect(Collectors.toList());
+              .filter(event -> globalTxId.equals(event.globalTxId()) && type.equals(event.type()))
+              .collect(Collectors.toList());
     }
 
     @Override
-    public List<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id, String type) {
+    public List<TxEvent> findNeedToCompensateTxs(){
       return emptyList();
     }
-
     @Override
-    public Optional<TxEvent> findFirstCompensatedEventByIdGreaterThan(long id) {
-      return Optional.empty();
+    public List<TxEvent> findAllFinishedTxsForNoTxEnd(){ return emptyList();}
+    @Override
+    public List<TxEvent> findCompensatedDoneTxs(String globalTxId,String localTxId){
+      return emptyList();
     }
-
     @Override
     public void deleteDuplicateEvents(String type) {
     }
+    @Override
+    public void dumpColdEventData(){}
   };
 
   private final String globalTxId = UUID.randomUUID().toString();
@@ -106,11 +108,11 @@ public class TxConsistentServiceTest {
   @Test
   public void persistEventOnArrival() throws Exception {
     TxEvent[] events = {
-        newEvent(SagaStartedEvent),
-        newEvent(TxStartedEvent),
-        newEvent(TxEndedEvent),
-        newEvent(TxCompensatedEvent),
-        newEvent(SagaEndedEvent)};
+            newEvent(SagaStartedEvent),
+            newEvent(TxStartedEvent),
+            newEvent(TxEndedEvent),
+            newEvent(TxCompensatedEvent),
+            newEvent(SagaEndedEvent)};
 
     for (TxEvent event : events) {
       consistentService.handle(event);
@@ -147,17 +149,17 @@ public class TxConsistentServiceTest {
 
   private TxEvent newEvent(EventType eventType) {
     return new TxEvent(serviceName, instanceId, globalTxId, localTxId, parentTxId, eventType.name(), compensationMethod,
-        payloads);
+            payloads);
   }
 
   private TxEvent eventOf(EventType eventType, String localTxId) {
     return new TxEvent(serviceName,
-        instanceId,
-        globalTxId,
-        localTxId,
-        UUID.randomUUID().toString(),
-        eventType.name(),
-        compensationMethod,
-        payloads);
+            instanceId,
+            globalTxId,
+            localTxId,
+            UUID.randomUUID().toString(),
+            eventType.name(),
+            compensationMethod,
+            payloads);
   }
 }
