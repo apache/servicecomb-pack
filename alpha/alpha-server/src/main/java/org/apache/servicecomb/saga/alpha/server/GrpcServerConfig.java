@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class GrpcServerConfig {
+
   @Value("${alpha.server.host:0.0.0.0}")
   private String host;
 

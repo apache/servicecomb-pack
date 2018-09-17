@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 @EnableKamon
 public class EventScanner implements Runnable {
+
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private static final byte[] EMPTY_PAYLOAD = new byte[0];
@@ -55,13 +56,12 @@ public class EventScanner implements Runnable {
   private final int eventPollingInterval;
 
 
-
   public EventScanner(ScheduledExecutorService scheduler,
-                      TxEventRepository eventRepository,
-                      CommandRepository commandRepository,
-                      TxTimeoutRepository timeoutRepository,
-                      OmegaCallback omegaCallback,
-                      int eventPollingInterval) {
+      TxEventRepository eventRepository,
+      CommandRepository commandRepository,
+      TxTimeoutRepository timeoutRepository,
+      OmegaCallback omegaCallback,
+      int eventPollingInterval) {
     this.scheduler = scheduler;
     this.eventRepository = eventRepository;
     this.commandRepository = commandRepository;
@@ -77,21 +77,21 @@ public class EventScanner implements Runnable {
 
   private void pollEvents() {
     scheduler.scheduleWithFixedDelay(
-            () -> {
-              updateTimeoutStatus();
-              findAllTimeoutEvents();
-              abortTimeoutEvents();
-              saveUncompensatedEventsToCommands();
-              compensate();
-              updateCompensatedCommands();
-              markSagaEndedForNoTxEnd();
-              deleteDuplicateSagaEndedEvents();
-              //Temporarily comment it since  AlphaIntegration Test will failed.
-              //dumpColdData();
-            },
-            0,
-            eventPollingInterval,
-            MILLISECONDS);
+        () -> {
+          updateTimeoutStatus();
+          findAllTimeoutEvents();
+          abortTimeoutEvents();
+          saveUncompensatedEventsToCommands();
+          compensate();
+          updateCompensatedCommands();
+          markSagaEndedForNoTxEnd();
+          deleteDuplicateSagaEndedEvents();
+          //Temporarily comment it since  AlphaIntegration Test will failed.
+          //dumpColdData();
+        },
+        0,
+        eventPollingInterval,
+        MILLISECONDS);
   }
 
   private void updateTimeoutStatus() {
@@ -101,10 +101,10 @@ public class EventScanner implements Runnable {
   @Trace("findAllTimeoutEvents")
   private void findAllTimeoutEvents() {
     eventRepository.findTimeoutEvents()
-            .forEach(event -> {
-              LOG.info("Found timeout event {}", event);
-              timeoutRepository.save(txTimeoutOf(event));
-            });
+        .forEach(event -> {
+          LOG.info("Found timeout event {}", event);
+          timeoutRepository.save(txTimeoutOf(event));
+        });
   }
 
   @Trace("abortTimeoutEvents")
@@ -118,20 +118,21 @@ public class EventScanner implements Runnable {
   @Trace("saveUncompensatedEventsToCommands")
   private void saveUncompensatedEventsToCommands() {
     eventRepository.findNeedToCompensateTxs()
-            .forEach(event -> {
-              LOG.info("Found uncompensated event {}", event);
-              commandRepository.saveCompensationCommands(event.globalTxId(),event.localTxId());
-            });
+        .forEach(event -> {
+          LOG.info("Found uncompensated event {}", event);
+          commandRepository.saveCompensationCommands(event.globalTxId(), event.localTxId());
+        });
   }
 
   @Trace("compensate")
   private void compensate() {
-    List<TxEvent>compensateTxEvents = new ArrayList<>();
+    List<TxEvent> compensateTxEvents = new ArrayList<>();
     commandRepository.findAllCommandsToCompensate()
-            .forEach(command ->
-                    compensateTxEvents.add(txStartedEventOf(command))
-            );
-    omegaCallback.compensateAllEvents(compensateTxEvents).forEach(event -> commandRepository.markCommandAsPending(event.globalTxId(),event.localTxId()));
+        .forEach(command ->
+            compensateTxEvents.add(txStartedEventOf(command))
+        );
+    omegaCallback.compensateAllEvents(compensateTxEvents).forEach(
+        event -> commandRepository.markCommandAsPending(event.globalTxId(), event.localTxId()));
   }
 
   private void markSagaEnded(TxEvent event) {
@@ -140,32 +141,36 @@ public class EventScanner implements Runnable {
       markGlobalTxEndWithEvent(event);
     }
   }
+
   private void updateCompensationStatus(TxEvent event) {
     commandRepository.markCommandAsDone(event.globalTxId(), event.localTxId());
     LOG.info("Transaction with globalTxId {} and localTxId {} was compensated",
-            event.globalTxId(),
-            event.localTxId());
+        event.globalTxId(),
+        event.localTxId());
     markSagaEnded(event);
   }
 
   @Trace("updateCompensatedCommands")
   private void updateCompensatedCommands() {
     commandRepository.findPendingCommands().forEach(command ->
-            eventRepository.findCompensatedDoneTxs(command.globalTxId(),command.localTxId()).forEach(event->
+        eventRepository.findCompensatedDoneTxs(command.globalTxId(), command.localTxId())
+            .forEach(event ->
             {
               LOG.info("Found compensated event {}", event);
               updateCompensationStatus(event);
             }));
   }
+
   private void markGlobalTxEndWithEvent(TxEvent event) {
     eventRepository.save(toSagaEndedEvent(event));
   }
+
   private void markSagaEndedForNoTxEnd() {
     eventRepository.findAllFinishedTxsForNoTxEnd().forEach(
-            event->{
-              LOG.info("Marked end of no tx end's transaction with globalTxId {}", event.globalTxId());
-              markGlobalTxEndWithEvent(event);
-            });
+        event -> {
+          LOG.info("Marked end of no tx end's transaction with globalTxId {}", event.globalTxId());
+          markGlobalTxEndWithEvent(event);
+        });
   }
 
   @Trace("deleteDuplicateSagaEndedEvents")
@@ -177,63 +182,58 @@ public class EventScanner implements Runnable {
     }
   }
 
-  private void dumpColdData(){
+  private void dumpColdData() {
     eventRepository.dumpColdEventData();
   }
 
 
-
-
-
-
   private TxEvent toTxAbortedEvent(TxTimeout timeout) {
     return new TxEvent(
-            timeout.serviceName(),
-            timeout.instanceId(),
-            timeout.globalTxId(),
-            timeout.localTxId(),
-            timeout.parentTxId(),
-            TxAbortedEvent.name(),
-            "",
-            ("Transaction timeout").getBytes());
+        timeout.serviceName(),
+        timeout.instanceId(),
+        timeout.globalTxId(),
+        timeout.localTxId(),
+        timeout.parentTxId(),
+        TxAbortedEvent.name(),
+        "",
+        ("Transaction timeout").getBytes());
   }
 
   private TxEvent toSagaEndedEvent(TxEvent event) {
     return new TxEvent(
-            event.serviceName(),
-            event.instanceId(),
-            event.globalTxId(),
-            event.globalTxId(),
-            null,
-            SagaEndedEvent.name(),
-            "",
-            EMPTY_PAYLOAD);
+        event.serviceName(),
+        event.instanceId(),
+        event.globalTxId(),
+        event.globalTxId(),
+        null,
+        SagaEndedEvent.name(),
+        "",
+        EMPTY_PAYLOAD);
   }
-
 
 
   private TxEvent txStartedEventOf(Command command) {
     return new TxEvent(
-            command.serviceName(),
-            command.instanceId(),
-            command.globalTxId(),
-            command.localTxId(),
-            command.parentTxId(),
-            TxStartedEvent.name(),
-            command.compensationMethod(),
-            command.payloads());
+        command.serviceName(),
+        command.instanceId(),
+        command.globalTxId(),
+        command.localTxId(),
+        command.parentTxId(),
+        TxStartedEvent.name(),
+        command.compensationMethod(),
+        command.payloads());
   }
 
   private TxTimeout txTimeoutOf(TxEvent event) {
     return new TxTimeout(
-            event.id(),
-            event.serviceName(),
-            event.instanceId(),
-            event.globalTxId(),
-            event.localTxId(),
-            event.parentTxId(),
-            event.type(),
-            event.expiryTime(),
-            NEW.name());
+        event.id(),
+        event.serviceName(),
+        event.instanceId(),
+        event.globalTxId(),
+        event.localTxId(),
+        event.parentTxId(),
+        event.type(),
+        event.expiryTime(),
+        NEW.name());
   }
 }

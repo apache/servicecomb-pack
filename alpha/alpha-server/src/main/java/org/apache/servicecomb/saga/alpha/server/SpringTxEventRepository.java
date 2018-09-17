@@ -85,18 +85,20 @@ class SpringTxEventRepository implements TxEventRepository {
 
   @Override
   @Segment(name = "findCompensatedDoneTxs", category = "application", library = "kamon")
-  public List<TxEvent> findCompensatedDoneTxs(String globalTxId,String localTxId){
-    return eventRepo.findCompensatedDoneTxs(globalTxId,localTxId);
+  public List<TxEvent> findCompensatedDoneTxs(String globalTxId, String localTxId) {
+    return eventRepo.findCompensatedDoneTxs(globalTxId, localTxId);
   }
+
   @Override
   public void deleteDuplicateEvents(String type) {
-    eventRepo.findDuplicateEventsByType(type).forEach((txEvent) ->eventRepo.
-            deleteBySurrogateId(txEvent.id()));
+    eventRepo.findDuplicateEventsByType(type).forEach((txEvent) -> eventRepo.
+        deleteBySurrogateId(txEvent.id()));
   }
+
   @Transactional
   @Override
   public void dumpColdEventData() {
-    eventRepo.findEventsByType(SagaEndedEvent.name()).forEach(txEvent ->{
+    eventRepo.findEventsByType(SagaEndedEvent.name()).forEach(txEvent -> {
       eventRepo.copyToHistoryTable(txEvent.globalTxId());
       eventRepo.deleteByGlobalTxId(txEvent.globalTxId());
     });

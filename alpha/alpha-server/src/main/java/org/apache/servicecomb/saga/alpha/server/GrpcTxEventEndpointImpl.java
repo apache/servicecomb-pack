@@ -57,7 +57,8 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
 
   @Override
   @Trace("alphaConnected")
-  public void onConnected(GrpcServiceConfig request, StreamObserver<GrpcCompensateCommand> responseObserver) {
+  public void onConnected(GrpcServiceConfig request,
+      StreamObserver<GrpcCompensateCommand> responseObserver) {
     omegaCallbacks
         .computeIfAbsent(request.getServiceName(), key -> new ConcurrentHashMap<>())
         .put(request.getInstanceId(), new GrpcOmegaCallback(responseObserver));

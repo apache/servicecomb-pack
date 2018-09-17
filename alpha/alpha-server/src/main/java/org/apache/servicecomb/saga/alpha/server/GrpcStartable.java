@@ -48,7 +48,7 @@ public class GrpcStartable implements ServerStartable {
 
   public GrpcStartable(GrpcServerConfig serverConfig, BindableService... services) {
     ServerBuilder<?> serverBuilder;
-    if (serverConfig.isSslEnable()){
+    if (serverConfig.isSslEnable()) {
       serverBuilder = NettyServerBuilder.forAddress(
           new InetSocketAddress(serverConfig.getHost(), serverConfig.getPort()));
 

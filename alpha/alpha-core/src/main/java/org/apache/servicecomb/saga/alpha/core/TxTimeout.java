@@ -29,6 +29,7 @@ import javax.persistence.Version;
 @Entity
 @Table(name = "TxTimeout")
 public class TxTimeout {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long surrogateId;
@@ -49,8 +50,9 @@ public class TxTimeout {
   TxTimeout() {
   }
 
-  TxTimeout(long eventId, String serviceName, String instanceId, String globalTxId, String localTxId,
-            String parentTxId, String type, Date expiryTime, String status) {
+  TxTimeout(long eventId, String serviceName, String instanceId, String globalTxId,
+      String localTxId,
+      String parentTxId, String type, Date expiryTime, String status) {
     this.eventId = eventId;
     this.serviceName = serviceName;
     this.instanceId = instanceId;
@@ -61,7 +63,11 @@ public class TxTimeout {
     this.expiryTime = expiryTime;
     this.status = status;
   }
-  public Long id () { return surrogateId;}
+
+  public Long id() {
+    return surrogateId;
+  }
+
   public String serviceName() {
     return serviceName;
   }
@@ -97,15 +103,15 @@ public class TxTimeout {
   @Override
   public String toString() {
     return "TxTimeout{" +
-            "eventId=" + eventId +
-            ", serviceName='" + serviceName + '\'' +
-            ", instanceId='" + instanceId + '\'' +
-            ", globalTxId='" + globalTxId + '\'' +
-            ", localTxId='" + localTxId + '\'' +
-            ", parentTxId='" + parentTxId + '\'' +
-            ", type='" + type + '\'' +
-            ", expiryTime=" + expiryTime +
-            ", status=" + status +
-            '}';
+        "eventId=" + eventId +
+        ", serviceName='" + serviceName + '\'' +
+        ", instanceId='" + instanceId + '\'' +
+        ", globalTxId='" + globalTxId + '\'' +
+        ", localTxId='" + localTxId + '\'' +
+        ", parentTxId='" + parentTxId + '\'' +
+        ", type='" + type + '\'' +
+        ", expiryTime=" + expiryTime +
+        ", status=" + status +
+        '}';
   }
 }

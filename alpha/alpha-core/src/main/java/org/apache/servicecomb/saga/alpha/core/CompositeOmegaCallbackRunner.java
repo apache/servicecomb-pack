@@ -28,12 +28,14 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CompositeOmegaCallbackRunner implements OmegaCallback ,Callable<List<TxEvent>> {
+public class CompositeOmegaCallbackRunner implements OmegaCallback, Callable<List<TxEvent>> {
+
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final Map<String, Map<String, OmegaCallback>> callbacks;
   private final List<TxEvent> txEvents;
 
-  public CompositeOmegaCallbackRunner(Map<String, Map<String, OmegaCallback>> callbacks, List<TxEvent> txEvents) {
+  public CompositeOmegaCallbackRunner(Map<String, Map<String, OmegaCallback>> callbacks,
+      List<TxEvent> txEvents) {
     this.callbacks = callbacks;
     this.txEvents = txEvents;
   }
@@ -42,9 +44,11 @@ public class CompositeOmegaCallbackRunner implements OmegaCallback ,Callable<Lis
   public List<TxEvent> call() {
     return compensateAllEvents(txEvents);
   }
+
   @Override
   public void compensate(TxEvent event) {
-    Map<String, OmegaCallback> serviceCallbacks = callbacks.getOrDefault(event.serviceName(), emptyMap());
+    Map<String, OmegaCallback> serviceCallbacks = callbacks
+        .getOrDefault(event.serviceName(), emptyMap());
 
     if (serviceCallbacks.isEmpty()) {
       throw new AlphaException("No such omega callback found for service " + event.serviceName());
@@ -52,7 +56,8 @@ public class CompositeOmegaCallbackRunner implements OmegaCallback ,Callable<Lis
 
     OmegaCallback omegaCallback = serviceCallbacks.get(event.instanceId());
     if (omegaCallback == null) {
-      LOG.info("Cannot find the service with the instanceId {}, call the other instance.", event.instanceId());
+      LOG.info("Cannot find the service with the instanceId {}, call the other instance.",
+          event.instanceId());
       omegaCallback = serviceCallbacks.values().iterator().next();
     }
 
@@ -63,38 +68,37 @@ public class CompositeOmegaCallbackRunner implements OmegaCallback ,Callable<Lis
       throw e;
     }
   }
+
   @Override
-  public List<TxEvent> compensateAllEvents(List<TxEvent> txEvents){
+  public List<TxEvent> compensateAllEvents(List<TxEvent> txEvents) {
     List<TxEvent> resultTxEvents = new ArrayList<>();
-    for(TxEvent txEvent : txEvents)
-    {
-      try{
-        LOG.info("compensating event with globalTxId: {} localTxId: {}",txEvent.globalTxId(),txEvent.localTxId());
+    for (TxEvent txEvent : txEvents) {
+      try {
+        LOG.info("compensating event with globalTxId: {} localTxId: {}", txEvent.globalTxId(),
+            txEvent.localTxId());
         this.compensate(txEvent);
         resultTxEvents.add(txEvent);
-      }
-      catch (AlphaException ae)
-      {
-        LOG.error("compensate event with globalTxId: {} localTxId: {} failed,error message is {}",txEvent.globalTxId(),txEvent.localTxId(),ae);
+      } catch (AlphaException ae) {
+        LOG.error("compensate event with globalTxId: {} localTxId: {} failed,error message is {}",
+            txEvent.globalTxId(), txEvent.localTxId(), ae);
         break;
-      }
-      catch (Exception e)
-      {
-        logError(txEvent,e);
+      } catch (Exception e) {
+        logError(txEvent, e);
       }
     }
 
     return resultTxEvents;
   }
+
   private void logError(TxEvent event, Exception e) {
     LOG.error(
-            "Failed to {} service [{}] instance [{}] with method [{}], global tx id [{}] and local tx id [{}]",
-            event.retries() == 0 ? "compensate" : "retry",
-            event.serviceName(),
-            event.instanceId(),
-            event.retries() == 0 ? event.compensationMethod() : event.retryMethod(),
-            event.globalTxId(),
-            event.localTxId(),
-            e);
+        "Failed to {} service [{}] instance [{}] with method [{}], global tx id [{}] and local tx id [{}]",
+        event.retries() == 0 ? "compensate" : "retry",
+        event.serviceName(),
+        event.instanceId(),
+        event.retries() == 0 ? event.compensationMethod() : event.retryMethod(),
+        event.globalTxId(),
+        event.localTxId(),
+        e);
   }
 }

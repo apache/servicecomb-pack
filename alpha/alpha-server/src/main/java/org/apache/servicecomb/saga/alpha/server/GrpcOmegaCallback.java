@@ -42,12 +42,12 @@ class GrpcOmegaCallback implements OmegaCallback {
   @Override
   public void compensate(TxEvent event) {
     GrpcCompensateCommand command = GrpcCompensateCommand.newBuilder()
-            .setGlobalTxId(event.globalTxId())
-            .setLocalTxId(event.localTxId())
-            .setParentTxId(event.parentTxId() == null ? "" : event.parentTxId())
-            .setCompensationMethod(event.compensationMethod())
-            .setPayloads(ByteString.copyFrom(event.payloads()))
-            .build();
+        .setGlobalTxId(event.globalTxId())
+        .setLocalTxId(event.localTxId())
+        .setParentTxId(event.parentTxId() == null ? "" : event.parentTxId())
+        .setCompensationMethod(event.compensationMethod())
+        .setPayloads(ByteString.copyFrom(event.payloads()))
+        .build();
     observer.onNext(command);
   }
 
@@ -55,6 +55,9 @@ class GrpcOmegaCallback implements OmegaCallback {
   public void disconnect() {
     observer.onCompleted();
   }
+
   @Override
-  public List<TxEvent> compensateAllEvents(List<TxEvent> txEvents){ return Collections.emptyList(); }
+  public List<TxEvent> compensateAllEvents(List<TxEvent> txEvents) {
+    return Collections.emptyList();
+  }
 }

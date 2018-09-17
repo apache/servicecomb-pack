@@ -34,34 +34,34 @@ public interface CommandEntityRepository extends CrudRepository<Command, Long> {
   @Transactional
   @Modifying(clearAutomatically = true)
   @Query("UPDATE org.apache.servicecomb.saga.alpha.core.Command c "
-          + "SET c.status = :toStatus "
-          + "WHERE c.globalTxId = :globalTxId "
-          + "  AND c.localTxId = :localTxId "
-          + "  AND c.status = :fromStatus")
+      + "SET c.status = :toStatus "
+      + "WHERE c.globalTxId = :globalTxId "
+      + "  AND c.localTxId = :localTxId "
+      + "  AND c.status = :fromStatus")
   void updateStatusByGlobalTxIdAndLocalTxId(
-          @Param("fromStatus") String fromStatus,
-          @Param("toStatus") String toStatus,
-          @Param("globalTxId") String globalTxId,
-          @Param("localTxId") String localTxId);
+      @Param("fromStatus") String fromStatus,
+      @Param("toStatus") String toStatus,
+      @Param("globalTxId") String globalTxId,
+      @Param("localTxId") String localTxId);
 
   @Transactional
   @Modifying(clearAutomatically = true)
   @Query("UPDATE org.apache.servicecomb.saga.alpha.core.Command c "
-          + "SET c.status = :status "
-          + "WHERE c.globalTxId = :globalTxId "
-          + "  AND c.localTxId = :localTxId")
+      + "SET c.status = :status "
+      + "WHERE c.globalTxId = :globalTxId "
+      + "  AND c.localTxId = :localTxId")
   void updateStatusByGlobalTxIdAndLocalTxId(
-          @Param("status") String status,
-          @Param("globalTxId") String globalTxId,
-          @Param("localTxId") String localTxId);
+      @Param("status") String status,
+      @Param("globalTxId") String globalTxId,
+      @Param("localTxId") String localTxId);
 
   @Query(value = "SELECT c FROM Command AS c "
-          + " WHERE c.globalTxId = :globalTxId "
-          + " AND c.status != 'DONE' ")
+      + " WHERE c.globalTxId = :globalTxId "
+      + " AND c.status != 'DONE' ")
   List<Command> findUnfinishedCommandByGlobalTxId(@Param("globalTxId") String globalTxId);
 
   @Query(value = "SELECT c FROM Command AS c "
-          + " WHERE c.status = 'NEW' GROUP BY c")
+      + " WHERE c.status = 'NEW' GROUP BY c")
   List<Command> findNewCommands();
 
   @Query(value = "SELECT * FROM Command AS c WHERE c.status = 'PENDING' ", nativeQuery = true)

@@ -31,6 +31,7 @@ import javax.persistence.Transient;
 @Entity
 @Table(name = "TxEvent")
 public class TxEvent {
+
   @Transient
   public static final long MAX_TIMESTAMP = 253402214400000L; // 9999-12-31 00:00:00
 
@@ -56,100 +57,105 @@ public class TxEvent {
 
   public TxEvent(TxEvent event) {
     this(event.surrogateId,
-            event.serviceName,
-            event.instanceId,
-            event.creationTime,
-            event.globalTxId,
-            event.localTxId,
-            event.parentTxId,
-            event.type,
-            event.compensationMethod,
-            event.expiryTime,
-            event.retryMethod,
-            event.retries,
-            event.payloads);
+        event.serviceName,
+        event.instanceId,
+        event.creationTime,
+        event.globalTxId,
+        event.localTxId,
+        event.parentTxId,
+        event.type,
+        event.compensationMethod,
+        event.expiryTime,
+        event.retryMethod,
+        event.retries,
+        event.payloads);
   }
 
   public TxEvent(
-          String serviceName,
-          String instanceId,
-          String globalTxId,
-          String localTxId,
-          String parentTxId,
-          String type,
-          String compensationMethod,
-          byte[] payloads) {
-    this(serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type, compensationMethod, 0, "", 0,
-            payloads);
+      String serviceName,
+      String instanceId,
+      String globalTxId,
+      String localTxId,
+      String parentTxId,
+      String type,
+      String compensationMethod,
+      byte[] payloads) {
+    this(serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type,
+        compensationMethod, 0, "", 0,
+        payloads);
   }
 
   public TxEvent(
-          String serviceName,
-          String instanceId,
-          String globalTxId,
-          String localTxId,
-          String parentTxId,
-          String type,
-          String compensationMethod,
-          int timeout,
-          String retryMethod,
-          int retries,
-          byte[] payloads) {
-    this(-1L, serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type, compensationMethod, timeout,
-            retryMethod, retries, payloads);
+      String serviceName,
+      String instanceId,
+      String globalTxId,
+      String localTxId,
+      String parentTxId,
+      String type,
+      String compensationMethod,
+      int timeout,
+      String retryMethod,
+      int retries,
+      byte[] payloads) {
+    this(-1L, serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type,
+        compensationMethod, timeout,
+        retryMethod, retries, payloads);
   }
 
   public TxEvent(
-          String serviceName,
-          String instanceId,
-          Date creationTime,
-          String globalTxId,
-          String localTxId,
-          String parentTxId,
-          String type,
-          String compensationMethod,
-          int timeout,
-          String retryMethod,
-          int retries,
-          byte[] payloads) {
-    this(-1L, serviceName, instanceId, creationTime, globalTxId, localTxId, parentTxId, type, compensationMethod,
-            timeout, retryMethod, retries, payloads);
+      String serviceName,
+      String instanceId,
+      Date creationTime,
+      String globalTxId,
+      String localTxId,
+      String parentTxId,
+      String type,
+      String compensationMethod,
+      int timeout,
+      String retryMethod,
+      int retries,
+      byte[] payloads) {
+    this(-1L, serviceName, instanceId, creationTime, globalTxId, localTxId, parentTxId, type,
+        compensationMethod,
+        timeout, retryMethod, retries, payloads);
   }
 
   TxEvent(Long surrogateId,
-          String serviceName,
-          String instanceId,
-          Date creationTime,
-          String globalTxId,
-          String localTxId,
-          String parentTxId,
-          String type,
-          String compensationMethod,
-          int timeout,
-          String retryMethod,
-          int retries,
-          byte[] payloads) {
-    this(surrogateId, serviceName, instanceId, creationTime, globalTxId, localTxId, parentTxId, type,
-            compensationMethod,
-            timeout == 0 ? new Date(MAX_TIMESTAMP) : new Date(creationTime.getTime() + SECONDS.toMillis(timeout)),
-            retryMethod,
-            retries,
-            payloads);
+      String serviceName,
+      String instanceId,
+      Date creationTime,
+      String globalTxId,
+      String localTxId,
+      String parentTxId,
+      String type,
+      String compensationMethod,
+      int timeout,
+      String retryMethod,
+      int retries,
+      byte[] payloads) {
+    this(surrogateId, serviceName, instanceId, creationTime, globalTxId, localTxId, parentTxId,
+        type,
+        compensationMethod,
+        timeout == 0 ? new Date(MAX_TIMESTAMP)
+            : new Date(creationTime.getTime() + SECONDS.toMillis(timeout)),
+        retryMethod,
+        retries,
+        payloads);
   }
 
   TxEvent(Long surrogateId,
-          String serviceName,
-          String instanceId,
-          Date creationTime,
-          String globalTxId,
-          String localTxId,
-          String parentTxId,
-          String type,
-          String compensationMethod,
-          Date expiryTime,
-          String retryMethod,
-          int retries,
-          byte[] payloads) {
+      String serviceName,
+      String instanceId,
+      Date creationTime,
+      String globalTxId,
+      String localTxId,
+      String parentTxId,
+      String type,
+      String compensationMethod,
+      Date expiryTime,
+      String retryMethod,
+      int retries,
+      byte[] payloads) {
     this.surrogateId = surrogateId;
     this.serviceName = serviceName;
     this.instanceId = instanceId;
@@ -220,18 +226,18 @@ public class TxEvent {
   @Override
   public String toString() {
     return "TxEvent{" +
-            "surrogateId=" + surrogateId +
-            ", serviceName='" + serviceName + '\'' +
-            ", instanceId='" + instanceId + '\'' +
-            ", creationTime=" + creationTime +
-            ", globalTxId='" + globalTxId + '\'' +
-            ", localTxId='" + localTxId + '\'' +
-            ", parentTxId='" + parentTxId + '\'' +
-            ", type='" + type + '\'' +
-            ", compensationMethod='" + compensationMethod + '\'' +
-            ", expiryTime=" + expiryTime +
-            ", retryMethod='" + retryMethod + '\'' +
-            ", retries=" + retries +
-            '}';
+        "surrogateId=" + surrogateId +
+        ", serviceName='" + serviceName + '\'' +
+        ", instanceId='" + instanceId + '\'' +
+        ", creationTime=" + creationTime +
+        ", globalTxId='" + globalTxId + '\'' +
+        ", localTxId='" + localTxId + '\'' +
+        ", parentTxId='" + parentTxId + '\'' +
+        ", type='" + type + '\'' +
+        ", compensationMethod='" + compensationMethod + '\'' +
+        ", expiryTime=" + expiryTime +
+        ", retryMethod='" + retryMethod + '\'' +
+        ", retries=" + retries +
+        '}';
   }
 }

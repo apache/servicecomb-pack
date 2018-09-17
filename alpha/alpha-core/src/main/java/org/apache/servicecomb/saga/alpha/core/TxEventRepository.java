@@ -28,8 +28,6 @@ public interface TxEventRepository {
 
   /**
    * Save a {@link TxEvent}.
-   *
-   * @param event
    */
   void save(TxEvent event);
 
@@ -37,10 +35,10 @@ public interface TxEventRepository {
    * Find a {@link TxEvent} which satisfies below requirements:
    *
    * <ol>
-   *   <li>{@link TxEvent#type} is {@link EventType#TxAbortedEvent}</li>
-   *   <li>There are no {@link TxEvent} which has the same {@link TxEvent#globalTxId} and {@link TxEvent#type} is {@link EventType#TxEndedEvent} or {@link EventType#SagaEndedEvent}</li>
+   * <li>{@link TxEvent#type} is {@link EventType#TxAbortedEvent}</li>
+   * <li>There are no {@link TxEvent} which has the same {@link TxEvent#globalTxId} and {@link
+   * TxEvent#type} is {@link EventType#TxEndedEvent} or {@link EventType#SagaEndedEvent}</li>
    * </ol>
-   * @return
    */
   Optional<List<TxEvent>> findFirstAbortedGlobalTransaction();
 
@@ -48,25 +46,23 @@ public interface TxEventRepository {
    * Find timeout {@link TxEvent}s. A timeout TxEvent satisfies below requirements:
    *
    * <ol>
-   *  <li>{@link TxEvent#type} is {@link EventType#TxStartedEvent} or {@link EventType#SagaStartedEvent}</li>
-   *  <li>Current time greater than {@link TxEvent#expiryTime}</li>
-   *  <li>There are no corresponding {@link TxEvent} which type is <code>TxEndedEvent</code> or <code>SagaEndedEvent</code></li>
+   * <li>{@link TxEvent#type} is {@link EventType#TxStartedEvent} or {@link
+   * EventType#SagaStartedEvent}</li>
+   * <li>Current time greater than {@link TxEvent#expiryTime}</li>
+   * <li>There are no corresponding {@link TxEvent} which type is <code>TxEndedEvent</code> or
+   * <code>SagaEndedEvent</code></li>
    * </ol>
-   *
-   * @return
    */
   List<TxEvent> findTimeoutEvents();
 
   /**
    * Find a {@link TxEvent} which satisfies below requirements:
    * <ol>
-   *   <li>{@link TxEvent#type} is {@link EventType#TxStartedEvent}</li>
-   *   <li>{@link TxEvent#globalTxId} equals to param <code>globalTxId</code></li>
-   *   <li>{@link TxEvent#localTxId} equals to param <code>localTxId</code></li>
+   * <li>{@link TxEvent#type} is {@link EventType#TxStartedEvent}</li>
+   * <li>{@link TxEvent#globalTxId} equals to param <code>globalTxId</code></li>
+   * <li>{@link TxEvent#localTxId} equals to param <code>localTxId</code></li>
    * </ol>
    *
-   * @param globalTxId
-   * @param localTxId
    * @return {@link TxEvent}
    */
   Optional<TxEvent> findTxStartedEvent(String globalTxId, String localTxId);
@@ -74,13 +70,12 @@ public interface TxEventRepository {
   /**
    * Find {@link TxEvent}s which satisfy below requirements:
    * <ol>
-   *   <li>{@link TxEvent#globalTxId} equals to param <code>globalTxId</code></li>
-   *   <li>{@link TxEvent#type} equals to param <code>type</code></li>
+   * <li>{@link TxEvent#globalTxId} equals to param <code>globalTxId</code></li>
+   * <li>{@link TxEvent#type} equals to param <code>type</code></li>
    * </ol>
    *
    * @param globalTxId globalTxId to search for
-   * @param type       event type to search for
-   * @return
+   * @param type event type to search for
    */
   List<TxEvent> findTransactions(String globalTxId, String type);
 
@@ -88,7 +83,8 @@ public interface TxEventRepository {
 
   List<TxEvent> findAllFinishedTxsForNoTxEnd();
 
-  List<TxEvent> findCompensatedDoneTxs(String globalTxId,String localTxId);
+  List<TxEvent> findCompensatedDoneTxs(String globalTxId, String localTxId);
+
   /**
    * Delete duplicated {@link TxEvent}s which {@link TxEvent#type} equals param <code>type</code>.
    *

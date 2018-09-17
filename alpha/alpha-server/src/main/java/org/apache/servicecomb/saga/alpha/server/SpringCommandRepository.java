@@ -39,21 +39,23 @@ import kamon.annotation.Segment;
 
 @EnableKamon
 public class SpringCommandRepository implements CommandRepository {
+
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final TxEventEnvelopeRepository eventRepository;
   private final CommandEntityRepository commandRepository;
 
-  SpringCommandRepository(TxEventEnvelopeRepository eventRepository, CommandEntityRepository commandRepository) {
+  SpringCommandRepository(TxEventEnvelopeRepository eventRepository,
+      CommandEntityRepository commandRepository) {
     this.eventRepository = eventRepository;
     this.commandRepository = commandRepository;
   }
 
   @Override
   @Segment(name = "saveCompensationCommands", category = "application", library = "kamon")
-  public void saveCompensationCommands(String globalTxId,String localTxId) {
+  public void saveCompensationCommands(String globalTxId, String localTxId) {
 
-    eventRepository.findLastStartedEvent(globalTxId,localTxId).forEach(event->{
+    eventRepository.findLastStartedEvent(globalTxId, localTxId).forEach(event -> {
       Command command = new Command(event);
       try {
         commandRepository.save(command);

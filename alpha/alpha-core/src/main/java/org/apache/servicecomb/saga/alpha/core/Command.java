@@ -55,14 +55,14 @@ public class Command {
   }
 
   private Command(long id,
-                  String serviceName,
-                  String instanceId,
-                  String globalTxId,
-                  String localTxId,
-                  String parentTxId,
-                  String compensationMethod,
-                  byte[] payloads,
-                  String status) {
+      String serviceName,
+      String instanceId,
+      String globalTxId,
+      String localTxId,
+      String parentTxId,
+      String compensationMethod,
+      byte[] payloads,
+      String status) {
 
     this.eventId = id;
     this.serviceName = serviceName;
@@ -77,26 +77,27 @@ public class Command {
   }
 
   public Command(long id,
-                 String serviceName,
-                 String instanceId,
-                 String globalTxId,
-                 String localTxId,
-                 String parentTxId,
-                 String compensationMethod,
-                 byte[] payloads) {
+      String serviceName,
+      String instanceId,
+      String globalTxId,
+      String localTxId,
+      String parentTxId,
+      String compensationMethod,
+      byte[] payloads) {
 
-    this(id, serviceName, instanceId, globalTxId, localTxId, parentTxId, compensationMethod, payloads, NEW.name());
+    this(id, serviceName, instanceId, globalTxId, localTxId, parentTxId, compensationMethod,
+        payloads, NEW.name());
   }
 
   public Command(TxEvent event) {
     this(event.id(),
-            event.serviceName(),
-            event.instanceId(),
-            event.globalTxId(),
-            event.localTxId(),
-            event.parentTxId(),
-            event.compensationMethod(),
-            event.payloads());
+        event.serviceName(),
+        event.instanceId(),
+        event.globalTxId(),
+        event.localTxId(),
+        event.parentTxId(),
+        event.compensationMethod(),
+        event.payloads());
   }
 
   String serviceName() {
@@ -138,13 +139,13 @@ public class Command {
   @Override
   public String toString() {
     return "Command{" +
-            "eventId=" + eventId +
-            ", serviceName='" + serviceName + '\'' +
-            ", instanceId='" + instanceId + '\'' +
-            ", globalTxId='" + globalTxId + '\'' +
-            ", localTxId='" + localTxId + '\'' +
-            ", parentTxId='" + parentTxId + '\'' +
-            ", compensationMethod='" + compensationMethod + '\'' +
-            '}';
+        "eventId=" + eventId +
+        ", serviceName='" + serviceName + '\'' +
+        ", instanceId='" + instanceId + '\'' +
+        ", globalTxId='" + globalTxId + '\'' +
+        ", localTxId='" + localTxId + '\'' +
+        ", parentTxId='" + parentTxId + '\'' +
+        ", compensationMethod='" + compensationMethod + '\'' +
+        '}';
   }
 }
