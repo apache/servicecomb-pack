@@ -32,6 +32,7 @@ import java.util.UUID;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
+import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.ParticipatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccEndedEvent;
@@ -81,7 +82,7 @@ public class TccInterceptorTest {
   private String cancelMethod;
 
   @Autowired
-  private org.apache.servicecomb.saga.omega.transaction.tcc.MessageHandler coordinateMessageHandler;
+  private TccMessageHandler coordinateMessageHandler;
 
   @Before
   public void setUp() throws Exception {

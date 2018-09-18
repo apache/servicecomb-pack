@@ -20,9 +20,17 @@ package org.apache.servicecomb.saga.omega.spring;
 import com.google.common.collect.ImmutableList;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
+import org.apache.servicecomb.saga.omega.connector.grpc.FastestSender;
 import org.apache.servicecomb.saga.omega.connector.grpc.GrpcTccEventService;
 import org.apache.servicecomb.saga.omega.connector.grpc.LoadBalancedClusterMessageSender;
+import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContextBuilder;
+import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceSenderContext;
+import org.apache.servicecomb.saga.omega.connector.grpc.tcc.PendingTaskRunner;
+import org.apache.servicecomb.saga.omega.connector.grpc.tcc.TccLoadBalanceSender;
+import org.apache.servicecomb.saga.omega.connector.grpc.tcc.TransactionType;
 import org.apache.servicecomb.saga.omega.context.CallbackContext;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
@@ -35,6 +43,7 @@ import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.tcc.DefaultParametersContext;
 import org.apache.servicecomb.saga.omega.transaction.tcc.ParametersContext;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccEventService;
+import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageHandler;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -75,16 +84,15 @@ class OmegaSpringConfig {
   }
 
   @Bean
-  MessageSender grpcMessageSender(
+  AlphaClusterConfig alphaClusterConfig(
       @Value("${alpha.cluster.address:localhost:8080}") String[] addresses,
       @Value("${alpha.cluster.ssl.enable:false}") boolean enableSSL,
       @Value("${alpha.cluster.ssl.mutualAuth:false}") boolean mutualAuth,
       @Value("${alpha.cluster.ssl.cert:client.crt}") String cert,
       @Value("${alpha.cluster.ssl.key:client.pem}") String key,
       @Value("${alpha.cluster.ssl.certChain:ca.crt}") String certChain,
-      @Value("${omega.connection.reconnectDelay:3000}") int reconnectDelay,
-      ServiceConfig serviceConfig,
-      @Lazy MessageHandler handler) {
+      @Lazy MessageHandler handler,
+      @Lazy TccMessageHandler tccMessageHandler) {
 
     MessageFormat messageFormat = new KryoMessageFormat();
     AlphaClusterConfig clusterConfig = AlphaClusterConfig.builder()
@@ -97,10 +105,19 @@ class OmegaSpringConfig {
         .messageDeserializer(messageFormat)
         .messageSerializer(messageFormat)
         .messageHandler(handler)
+        .tccMessageHandler(tccMessageHandler)
         .build();
+    return clusterConfig;
+  }
+
+  @Bean(name = "sagaSender")
+  MessageSender grpcMessageSender(
+      AlphaClusterConfig alphaClusterConfig,
+      ServiceConfig serviceConfig,
+      @Value("${omega.connection.reconnectDelay:3000}") int reconnectDelay) {
 
     final MessageSender sender = new LoadBalancedClusterMessageSender(
-        clusterConfig,
+        alphaClusterConfig,
         serviceConfig,
         reconnectDelay);
 
@@ -116,10 +133,29 @@ class OmegaSpringConfig {
     return sender;
   }
 
+  @Bean
+  LoadBalanceSenderContext loadBalanceSenderContext(
+      AlphaClusterConfig alphaClusterConfig,
+      ServiceConfig serviceConfig,
+      @Value("${omega.connection.reconnectDelay:3000}") int reconnectDelay) {
+    LoadBalanceSenderContext loadBalanceSenderContext = new LoadBalanceContextBuilder(
+        TransactionType.TCC,
+        alphaClusterConfig,
+        serviceConfig,
+        reconnectDelay).build();
+    loadBalanceSenderContext.getPendingTaskRunner().start();
+    return loadBalanceSenderContext;
+  }
+
+  @Bean(name = "tccSender")
+  TccLoadBalanceSender tccLoadBalanceSender(LoadBalanceSenderContext loadBalanceSenderContext) {
+    return new TccLoadBalanceSender(loadBalanceSenderContext, new FastestSender());
+  }
+
   // TODO should integrate with loadBalance message sender in future.
   @Bean
   TccEventService tccEventService(ServiceConfig serviceConfig,
-      @Lazy org.apache.servicecomb.saga.omega.transaction.tcc.MessageHandler coordinateMessageHandler,
+      @Lazy TccMessageHandler coordinateMessageHandler,
       @Value("${alpha.cluster.address:localhost:8080}") String address) {
     ManagedChannel channel = ManagedChannelBuilder.forTarget(address).usePlaintext().build();
     final GrpcTccEventService service = new GrpcTccEventService(serviceConfig, channel, address, coordinateMessageHandler);

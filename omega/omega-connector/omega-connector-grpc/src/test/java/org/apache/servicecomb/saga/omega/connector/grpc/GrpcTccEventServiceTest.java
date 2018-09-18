@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verify;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
-import org.apache.servicecomb.saga.omega.transaction.tcc.MessageHandler;
+import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.ParticipatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccEndedEvent;
@@ -69,7 +69,7 @@ public class GrpcTccEventServiceTest {
 
   private final ServiceConfig serviceConfig = new ServiceConfig(uniquify("Service"));
   private final String address = uniquify("Address");
-  private final MessageHandler handler = mock(MessageHandler.class);
+  private final TccMessageHandler handler = mock(TccMessageHandler.class);
   private GrpcTccEventService service;
 
   @Before

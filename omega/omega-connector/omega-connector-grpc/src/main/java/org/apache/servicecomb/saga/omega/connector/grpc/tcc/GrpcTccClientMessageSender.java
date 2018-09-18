@@ -6,27 +6,26 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
-package org.apache.servicecomb.saga.omega.connector.grpc;
+package org.apache.servicecomb.saga.omega.connector.grpc.tcc;
 
-import org.apache.servicecomb.saga.omega.connector.grpc.tcc.GrpcCoordinateStreamObserver;
+import io.grpc.ManagedChannel;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
+import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageHandler;
-import org.apache.servicecomb.saga.omega.transaction.tcc.TccEventService;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.ParticipatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccEndedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccStartedEvent;
-
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinatedEvent;
@@ -37,25 +36,25 @@ import org.apache.servicecomb.saga.pack.contract.grpc.TccEventServiceGrpc;
 import org.apache.servicecomb.saga.pack.contract.grpc.TccEventServiceGrpc.TccEventServiceBlockingStub;
 import org.apache.servicecomb.saga.pack.contract.grpc.TccEventServiceGrpc.TccEventServiceStub;
 
-import io.grpc.ManagedChannel;
+public class GrpcTccClientMessageSender implements TccMessageSender {
 
-public class GrpcTccEventService implements TccEventService {
   private final GrpcServiceConfig serviceConfig;
   private final String target;
   private final TccEventServiceBlockingStub tccBlockingEventService;
   private final TccEventServiceStub tccAsyncEventService;
   private final GrpcCoordinateStreamObserver observer;
 
-  public GrpcTccEventService(ServiceConfig serviceConfig,
+  public GrpcTccClientMessageSender(ServiceConfig serviceConfig,
       ManagedChannel channel,
       String address,
-      TccMessageHandler handler
-      ) {
+      TccMessageHandler handler,
+      LoadBalanceSenderContext loadContext) {
     this.target = address;
     tccBlockingEventService = TccEventServiceGrpc.newBlockingStub(channel);
     tccAsyncEventService = TccEventServiceGrpc.newStub(channel);
     this.serviceConfig = serviceConfig(serviceConfig.serviceName(), serviceConfig.instanceId());
-    observer = new GrpcCoordinateStreamObserver(handler);
+    Runnable errorTask = ObserverErrorTaskFactory.createTask(this, loadContext);
+    observer = new GrpcCoordinateStreamObserver(errorTask, handler);
   }
 
   @Override
@@ -153,5 +152,10 @@ public class GrpcTccEventService implements TccEventService {
         .setConfirmMethod(participateEvent.getConfirmMethod())
         .setStatus(participateEvent.getStatus().toString())
         .build();
+  }
+
+  @Override
+  public AlphaResponse send(TxEvent event) {
+    return null;
   }
 }

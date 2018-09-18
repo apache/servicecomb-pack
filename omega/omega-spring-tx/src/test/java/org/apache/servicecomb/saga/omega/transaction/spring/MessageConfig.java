@@ -70,7 +70,7 @@ public class MessageConfig {
     return messages;
   }
 
-  @Bean
+  @Bean(name = "sagaSender")
   MessageSender sender() {
     return new MessageSender() {
       @Override

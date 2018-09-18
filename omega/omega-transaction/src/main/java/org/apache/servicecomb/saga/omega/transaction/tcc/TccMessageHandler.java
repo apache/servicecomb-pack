@@ -17,6 +17,6 @@
 
 package org.apache.servicecomb.saga.omega.transaction.tcc;
 
-public interface MessageHandler {
+public interface TccMessageHandler {
   void onReceive(String globalTxId, String localTxId, String parentTxId, String method);
 }
