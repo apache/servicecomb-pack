@@ -27,6 +27,7 @@ import org.apache.servicecomb.saga.omega.transaction.TransactionAspect;
 import org.apache.servicecomb.saga.omega.transaction.tcc.CoordinateMessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.tcc.ParametersContext;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccEventService;
+import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccParticipatorAspect;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccStartAspect;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -39,18 +40,18 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 public class TransactionAspectConfig {
 
   @Bean
-  MessageHandler messageHandler(MessageSender sender,
+  MessageHandler messageHandler(@Qualifier("sagaSender") MessageSender sender,
       @Qualifier("compensationContext") CallbackContext context, OmegaContext omegaContext) {
     return new CompensationMessageHandler(sender, context);
   }
 
   @Bean
-  SagaStartAspect sagaStartAspect(MessageSender sender, OmegaContext context) {
+  SagaStartAspect sagaStartAspect(@Qualifier("sagaSender")MessageSender sender, OmegaContext context) {
     return new SagaStartAspect(sender, context);
   }
 
   @Bean
-  TransactionAspect transactionAspect(MessageSender sender, OmegaContext context) {
+  TransactionAspect transactionAspect(@Qualifier("sagaSender")MessageSender sender, OmegaContext context) {
     return new TransactionAspect(sender, context);
   }
 
@@ -61,7 +62,7 @@ public class TransactionAspectConfig {
   }
 
   @Bean
-  org.apache.servicecomb.saga.omega.transaction.tcc.MessageHandler coordinateMessageHandler(
+  TccMessageHandler coordinateMessageHandler(
       TccEventService tccEventService,
       @Qualifier("coordinateContext") CallbackContext coordinateContext,
       OmegaContext omegaContext,

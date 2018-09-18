@@ -25,7 +25,7 @@ import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class PushBackReconnectRunnable implements Runnable {
+public class PushBackReconnectRunnable implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final MessageSender messageSender;
   private final Map<MessageSender, Long> senders;
@@ -33,7 +33,7 @@ class PushBackReconnectRunnable implements Runnable {
 
   private final BlockingQueue<MessageSender> connectedSenders;
 
-  PushBackReconnectRunnable(
+  public PushBackReconnectRunnable(
       MessageSender messageSender,
       Map<MessageSender, Long> senders,
       BlockingQueue<Runnable> pendingTasks,

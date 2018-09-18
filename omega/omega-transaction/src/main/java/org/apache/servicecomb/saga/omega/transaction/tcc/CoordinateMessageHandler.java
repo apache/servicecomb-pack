@@ -22,7 +22,7 @@ import org.apache.servicecomb.saga.omega.context.CallbackContext;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent;
 
-public class CoordinateMessageHandler implements MessageHandler {
+public class CoordinateMessageHandler implements TccMessageHandler {
 
   private final TccEventService tccEventService;
 

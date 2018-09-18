@@ -19,9 +19,11 @@ package org.apache.servicecomb.saga.omega.connector.grpc;
 
 import java.util.Collections;
 import java.util.List;
+import org.apache.servicecomb.saga.omega.connector.grpc.tcc.TccMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSerializer;
+import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageHandler;
 
 public class AlphaClusterConfig {
 
@@ -42,6 +44,8 @@ public class AlphaClusterConfig {
   private MessageDeserializer messageDeserializer;
 
   private MessageHandler messageHandler;
+
+  private TccMessageHandler tccMessageHandler;
 
   /**
    * @deprecated Use {@link Builder} instead.
@@ -65,7 +69,8 @@ public class AlphaClusterConfig {
       String cert, String key, String certChain,
       MessageSerializer messageSerializer,
       MessageDeserializer messageDeserializer,
-      MessageHandler messageHandler) {
+      MessageHandler messageHandler,
+      TccMessageHandler tccMessageHandler) {
     this.addresses = addresses;
     this.enableSSL = enableSSL;
     this.enableMutualAuth = enableMutualAuth;
@@ -75,6 +80,7 @@ public class AlphaClusterConfig {
     this.messageSerializer = messageSerializer;
     this.messageDeserializer = messageDeserializer;
     this.messageHandler = messageHandler;
+    this.tccMessageHandler = tccMessageHandler;
   }
 
   public static Builder builder() {
@@ -92,6 +98,7 @@ public class AlphaClusterConfig {
     private MessageSerializer messageSerializer;
     private MessageDeserializer messageDeserializer;
     private MessageHandler messageHandler;
+    private TccMessageHandler tccMessageHandler;
 
     public Builder addresses(List<String> addresses) {
       this.addresses = addresses;
@@ -138,6 +145,11 @@ public class AlphaClusterConfig {
       return this;
     }
 
+    public Builder tccMessageHandler(TccMessageHandler tccMessageHandler) {
+      this.tccMessageHandler = tccMessageHandler;
+      return this;
+    }
+
 
     public AlphaClusterConfig build() {
       return new AlphaClusterConfig(this.addresses,
@@ -148,7 +160,8 @@ public class AlphaClusterConfig {
           this.certChain,
           this.messageSerializer,
           this.messageDeserializer,
-          messageHandler);
+          messageHandler,
+          tccMessageHandler);
     }
   }
 
@@ -186,5 +199,9 @@ public class AlphaClusterConfig {
 
   public MessageHandler getMessageHandler() {
     return messageHandler;
+  }
+
+  public TccMessageHandler getTccMessageHandler() {
+    return tccMessageHandler;
   }
 }

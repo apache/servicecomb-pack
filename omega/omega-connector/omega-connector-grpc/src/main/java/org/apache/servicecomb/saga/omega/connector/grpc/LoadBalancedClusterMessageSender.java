@@ -240,26 +240,3 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
   }
 }
 
-/**
- * The strategy of picking the fastest {@link MessageSender}
- */
-class FastestSender implements MessageSenderPicker {
-
-  @Override
-  public MessageSender pick(Map<MessageSender, Long> messageSenders,
-      Supplier<MessageSender> defaultSender) {
-    Long min = Long.MAX_VALUE;
-    MessageSender sender = null;
-    for (Map.Entry<MessageSender, Long> entry : messageSenders.entrySet()) {
-      if (entry.getValue() != Long.MAX_VALUE && min > entry.getValue()) {
-        min = entry.getValue();
-        sender = entry.getKey();
-      }
-    }
-    if (sender == null) {
-      return defaultSender.get();
-    } else {
-      return sender;
-    }
-  }
-}
