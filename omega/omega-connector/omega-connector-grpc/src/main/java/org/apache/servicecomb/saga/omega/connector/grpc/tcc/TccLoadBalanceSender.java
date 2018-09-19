@@ -28,7 +28,7 @@ import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccStartedEvent;
 
 public class TccLoadBalanceSender extends LoadBalanceSenderAdapter implements TccMessageSender {
 
-  public TccLoadBalanceSender(LoadBalanceSenderContext loadContext,
+  public TccLoadBalanceSender(LoadBalanceContext loadContext,
       MessageSenderPicker senderPicker) {
     super(loadContext, senderPicker);
   }

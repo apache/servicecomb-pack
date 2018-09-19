@@ -36,7 +36,6 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.net.ssl.SSLException;
 import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
-import org.apache.servicecomb.saga.omega.connector.grpc.LoadBalancedClusterMessageSender;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 
@@ -58,7 +57,7 @@ public class LoadBalanceContextBuilder {
     this.reconnectDelay = reconnectDelay;
   }
 
-  public LoadBalanceSenderContext build() {
+  public LoadBalanceContext build() {
 
     if (clusterConfig.getAddresses().isEmpty()) {
       throw new IllegalArgumentException("No reachable cluster address provided");
@@ -67,7 +66,7 @@ public class LoadBalanceContextBuilder {
     Optional<SslContext> sslContext = buildSslContext(clusterConfig);
     Map<MessageSender, Long> senders = new ConcurrentHashMap<>();
     Collection<ManagedChannel> channels = new ArrayList<>(clusterConfig.getAddresses().size());
-    LoadBalanceSenderContext loadContext = new LoadBalanceSenderContext(senders, channels, reconnectDelay);
+    LoadBalanceContext loadContext = new LoadBalanceContext(senders, channels, reconnectDelay);
 
     for (String address : clusterConfig.getAddresses()) {
       ManagedChannel channel = buildChannel(address, sslContext);
@@ -93,7 +92,7 @@ public class LoadBalanceContextBuilder {
 
   private MessageSender buildSender(
       String address, ManagedChannel channel, AlphaClusterConfig clusterConfig,
-      ServiceConfig serviceConfig, LoadBalanceSenderContext loadContext) {
+      ServiceConfig serviceConfig, LoadBalanceContext loadContext) {
     switch (transactionType) {
       case TCC:
         return new GrpcTccClientMessageSender(
@@ -129,7 +128,7 @@ public class LoadBalanceContextBuilder {
 
     Properties prop = new Properties();
     try {
-      prop.load(LoadBalancedClusterMessageSender.class.getClassLoader().getResourceAsStream("ssl.properties"));
+      prop.load(LoadBalanceContextBuilder.class.getClassLoader().getResourceAsStream("ssl.properties"));
     } catch (IOException e) {
       throw new IllegalArgumentException("Unable to read ssl.properties.", e);
     }

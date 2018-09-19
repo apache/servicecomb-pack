@@ -26,9 +26,9 @@ public class PendingTaskRunner {
 
   private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-  private final LoadBalanceSenderContext loadContext;
+  private final LoadBalanceContext loadContext;
 
-  public PendingTaskRunner(LoadBalanceSenderContext loadContext) {
+  public PendingTaskRunner(LoadBalanceContext loadContext) {
     this.loadContext = loadContext;
   }
 

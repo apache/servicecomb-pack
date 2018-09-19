@@ -48,7 +48,7 @@ public class GrpcTccClientMessageSender implements TccMessageSender {
       ManagedChannel channel,
       String address,
       TccMessageHandler handler,
-      LoadBalanceSenderContext loadContext) {
+      LoadBalanceContext loadContext) {
     this.target = address;
     tccBlockingEventService = TccEventServiceGrpc.newBlockingStub(channel);
     tccAsyncEventService = TccEventServiceGrpc.newStub(channel);

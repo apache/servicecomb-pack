@@ -26,7 +26,7 @@ import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 
 public class SagaLoadBalanceSender extends LoadBalanceSenderAdapter {
 
-  public SagaLoadBalanceSender(LoadBalanceSenderContext loadContext,
+  public SagaLoadBalanceSender(LoadBalanceContext loadContext,
       MessageSenderPicker senderPicker) {
     super(loadContext, senderPicker);
   }

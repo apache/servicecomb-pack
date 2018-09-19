@@ -26,7 +26,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.servicecomb.saga.omega.connector.grpc.RetryableMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 
-public class LoadBalanceSenderContext {
+public class LoadBalanceContext {
 
   private final Map<MessageSender, Long> senders;
 
@@ -49,7 +49,7 @@ public class LoadBalanceSenderContext {
 
   private final PendingTaskRunner pendingTaskRunner = new PendingTaskRunner(this);
 
-  public LoadBalanceSenderContext(
+  public LoadBalanceContext(
       Map<MessageSender, Long> senders, Collection<ManagedChannel> channels, int reconnectDelay) {
     this.senders = senders;
     this.channels = channels;

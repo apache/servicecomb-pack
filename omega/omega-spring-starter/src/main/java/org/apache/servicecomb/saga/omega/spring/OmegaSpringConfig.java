@@ -20,15 +20,12 @@ package org.apache.servicecomb.saga.omega.spring;
 import com.google.common.collect.ImmutableList;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.saga.omega.connector.grpc.FastestSender;
 import org.apache.servicecomb.saga.omega.connector.grpc.GrpcTccEventService;
 import org.apache.servicecomb.saga.omega.connector.grpc.LoadBalancedClusterMessageSender;
 import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContextBuilder;
-import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceSenderContext;
-import org.apache.servicecomb.saga.omega.connector.grpc.tcc.PendingTaskRunner;
+import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContext;
 import org.apache.servicecomb.saga.omega.connector.grpc.tcc.TccLoadBalanceSender;
 import org.apache.servicecomb.saga.omega.connector.grpc.tcc.TransactionType;
 import org.apache.servicecomb.saga.omega.context.CallbackContext;
@@ -134,11 +131,11 @@ class OmegaSpringConfig {
   }
 
   @Bean
-  LoadBalanceSenderContext loadBalanceSenderContext(
+  LoadBalanceContext loadBalanceSenderContext(
       AlphaClusterConfig alphaClusterConfig,
       ServiceConfig serviceConfig,
       @Value("${omega.connection.reconnectDelay:3000}") int reconnectDelay) {
-    LoadBalanceSenderContext loadBalanceSenderContext = new LoadBalanceContextBuilder(
+    LoadBalanceContext loadBalanceSenderContext = new LoadBalanceContextBuilder(
         TransactionType.TCC,
         alphaClusterConfig,
         serviceConfig,
@@ -148,7 +145,7 @@ class OmegaSpringConfig {
   }
 
   @Bean(name = "tccSender")
-  TccLoadBalanceSender tccLoadBalanceSender(LoadBalanceSenderContext loadBalanceSenderContext) {
+  TccLoadBalanceSender tccLoadBalanceSender(LoadBalanceContext loadBalanceSenderContext) {
     return new TccLoadBalanceSender(loadBalanceSenderContext, new FastestSender());
   }
 
