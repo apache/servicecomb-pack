@@ -28,16 +28,16 @@ import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LoadBalanceSenderAdapter implements MessageSender {
+public abstract class LoadBalanceSenderAdapter implements MessageSender {
 
-  private final LoadBalanceSenderContext loadContext;
+  private final LoadBalanceContext loadContext;
 
   private final MessageSenderPicker senderPicker;
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   public LoadBalanceSenderAdapter(
-      LoadBalanceSenderContext loadContext,
+      LoadBalanceContext loadContext,
       MessageSenderPicker senderPicker) {
     this.loadContext = loadContext;
     this.senderPicker = senderPicker;

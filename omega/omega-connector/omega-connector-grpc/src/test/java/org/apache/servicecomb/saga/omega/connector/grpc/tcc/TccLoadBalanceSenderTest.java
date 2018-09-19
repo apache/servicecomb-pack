@@ -17,23 +17,30 @@
 
 package org.apache.servicecomb.saga.omega.connector.grpc.tcc;
 
-import org.apache.servicecomb.saga.omega.connector.grpc.PushBackReconnectRunnable;
-import org.apache.servicecomb.saga.omega.transaction.MessageSender;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ObserverErrorTaskFactory {
+public class TccLoadBalanceSenderTest {
 
-  static Runnable createTask(MessageSender messageSender, final LoadBalanceContext context) {
-    final Runnable runnable = new PushBackReconnectRunnable(
-        messageSender,
-        context.getSenders(),
-        context.getPendingTasks(),
-        context.getAvailableMessageSenders()
-    );
-    return new Runnable() {
-      @Override
-      public void run() {
-        context.getPendingTasks().offer(runnable);
-      }
-    };
+  @Before
+  public void setup() {
+
   }
+
+  @After
+  public void teardown() {
+
+  }
+
+  @Test
+  public void participatedSucceed() {
+
+  }
+
+  @Test
+  public void participateFailedThenRetry() {
+
+  }
+
 }
