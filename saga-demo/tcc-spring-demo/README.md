@@ -106,19 +106,19 @@ curl http://${host_address}:8081/transactions
 
 ```
 
-2. Ordering 2 units of ProductA with the unit price 2 from UserB account , this ordering will cause the payment failed and trigger the cancel operation with inventory ordering.
+2. Since the initial value of the payment of UserC is 1. Ordering 2 units of ProductA with the unit price 2 from UserC account , this ordering will cause the payment failed and trigger the cancel operation with inventory ordering.
 ```
-curl -X POST http://${host_address}:8083/ordering/order/UserB/ProductA/3/1
+curl -X POST http://${host_address}:8083/ordering/order/UserC/ProductA/2/2
 ```
-Check the hotel booking status with
+Check the Inventory orders status with
 ```
 curl http://${host_address}:8082/orderings
 ```
-Check the car booking status with
+Check the Payment transaction status with
 ```
 curl http://${host_address}:8081/transactions
 ```
-The second car booking will be marked with **cancel:true**
+The second order will be marked with **cancel:true**
 
 ## Debugging
 
