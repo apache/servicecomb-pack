@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -39,7 +40,9 @@ import kamon.annotation.Trace;
 
 @EnableKamon
 @Controller
-@RequestMapping("/")
+@RequestMapping("/saga")
+@Profile("test")
+// Only export this Controller for test
 class AlphaEventController {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
