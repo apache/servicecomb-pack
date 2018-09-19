@@ -94,7 +94,7 @@ public class DubboDemoStepdefs implements En {
         }
       };
 
-      dataMatches(System.getProperty(ALPHA_REST_ADDRESS) + "/events", dataTable, sortAndColumnStrippingConsumer);
+      dataMatches(System.getProperty(ALPHA_REST_ADDRESS) + "/saga/events", dataTable, sortAndColumnStrippingConsumer);
     });
 
     And("^(service[a-c]+) success update status$", (String serviceName, DataTable dataTable) -> {
@@ -115,7 +115,7 @@ public class DubboDemoStepdefs implements En {
 
     given()
         .when()
-        .delete(System.getProperty(ALPHA_REST_ADDRESS) + "/events")
+        .delete(System.getProperty(ALPHA_REST_ADDRESS) + "/saga/events")
         .then()
         .statusCode(is(200));
   }
