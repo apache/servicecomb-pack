@@ -38,7 +38,7 @@ public class InventoryService {
   @Transactional
   public void reserve(ProductOrder order) {
     Product product = getProduct(order.getProductName());
-    if (product.getInStock() > order.getUnits()) {
+    if (product.getInStock() >= order.getUnits()) {
       product.setInStock(product.getInStock() - order.getUnits());
       productDao.saveAndFlush(product);
       orders.put(order.getId(), order);
