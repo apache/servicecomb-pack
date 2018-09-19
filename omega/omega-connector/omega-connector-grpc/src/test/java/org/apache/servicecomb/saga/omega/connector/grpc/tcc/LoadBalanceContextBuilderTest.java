@@ -25,6 +25,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
+import io.grpc.ManagedChannel;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
 import java.io.IOException;
@@ -65,7 +66,9 @@ public class LoadBalanceContextBuilderTest {
   }
 
   @After
-  public void teardown() {}
+  public void teardown() {
+
+  }
 
   @Test
   public void buildTccLoadBalanceContextWithoutSsl() {
@@ -77,6 +80,8 @@ public class LoadBalanceContextBuilderTest {
     assertThat(loadContext.getSenders().keySet().iterator().next(), instanceOf(TccMessageSender.class));
     assertThat(loadContext.getSenders().values().iterator().next(), is(0l));
     assertThat(loadContext.getChannels().size(), is(2));
+    loadContext.getSenders().keySet().iterator().next().close();
+    shutdownChannels(loadContext);
   }
 
   @Test
@@ -91,6 +96,7 @@ public class LoadBalanceContextBuilderTest {
     assertThat(loadContext.getSenders().keySet().iterator().next(), instanceOf(TccMessageSender.class));
     assertThat(loadContext.getSenders().values().iterator().next(), is(0l));
     assertThat(loadContext.getChannels().size(), is(2));
+    shutdownChannels(loadContext);
   }
 
   @Test
@@ -103,4 +109,9 @@ public class LoadBalanceContextBuilderTest {
 
   }
 
+  private void shutdownChannels(LoadBalanceContext loadContext) {
+    for (ManagedChannel each : loadContext.getChannels()) {
+      each.shutdownNow();
+    }
+  }
 }

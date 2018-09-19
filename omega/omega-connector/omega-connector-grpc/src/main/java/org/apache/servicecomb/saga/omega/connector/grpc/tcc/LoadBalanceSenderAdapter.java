@@ -44,7 +44,7 @@ public abstract class LoadBalanceSenderAdapter implements MessageSender {
   }
 
   @SuppressWarnings("unchecked")
-  protected <T> T pickMessageSender() {
+  public <T> T pickMessageSender() {
     return (T) senderPicker.pick(loadContext.getSenders(), loadContext.getDefaultMessageSender());
   }
 
@@ -101,5 +101,9 @@ public abstract class LoadBalanceSenderAdapter implements MessageSender {
   @Override
   public AlphaResponse send(TxEvent event) {
     return null;
+  }
+
+  public MessageSenderPicker getSenderPicker() {
+    return senderPicker;
   }
 }

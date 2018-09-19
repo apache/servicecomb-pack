@@ -28,7 +28,7 @@ import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 
 public class LoadBalanceContext {
 
-  private final Map<MessageSender, Long> senders;
+  private Map<MessageSender, Long> senders;
 
   private final Collection<ManagedChannel> channels;
 
@@ -58,6 +58,10 @@ public class LoadBalanceContext {
 
   public Map<MessageSender, Long> getSenders() {
     return senders;
+  }
+
+  public void setSenders(Map<MessageSender, Long> senders) {
+    this.senders = senders;
   }
 
   public Collection<ManagedChannel> getChannels() {
