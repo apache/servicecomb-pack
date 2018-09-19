@@ -98,11 +98,11 @@ curl -X POST http://${host_address}:8083/ordering/order/UserA/ProductA/3/1
 ```
 Check the Inventory orders status with
 ```
-curl http://${host_address}:8081/orderings
+curl http://${host_address}:8082/orderings
 ```
 Check the Payment transaction status with
 ```
-curl http://${host_address}:8082/transactions
+curl http://${host_address}:8081/transactions
 
 ```
 
@@ -112,11 +112,11 @@ curl -X POST http://${host_address}:8083/ordering/order/UserB/ProductA/3/1
 ```
 Check the hotel booking status with
 ```
-curl http://${host_address}:8081/orderings
+curl http://${host_address}:8082/orderings
 ```
 Check the car booking status with
 ```
-curl http://${host_address}:8082/transactions
+curl http://${host_address}:8081/transactions
 ```
 The second car booking will be marked with **cancel:true**
 
