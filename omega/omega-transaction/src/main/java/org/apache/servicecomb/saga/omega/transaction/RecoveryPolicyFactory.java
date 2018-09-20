@@ -20,14 +20,13 @@ package org.apache.servicecomb.saga.omega.transaction;
 public class RecoveryPolicyFactory {
   private static final RecoveryPolicy DEFAULT_RECOVERY = new DefaultRecovery();
 
-  private static final RecoveryPolicy FORWARD_RECOVERY = new ForwardRecovery();
 
   /**
    * If retries == 0, use the default recovery to execute only once.
    * If retries > 0, it will use the forward recovery and retry the given times at most.
    * If retries == -1, it will use the forward recovery and retry forever until interrupted.
    */
-  static RecoveryPolicy getRecoveryPolicy(int retries) {
-    return retries != 0 ? FORWARD_RECOVERY : DEFAULT_RECOVERY;
+  static RecoveryPolicy getRecoveryPolicy() {
+    return DEFAULT_RECOVERY;
   }
 }

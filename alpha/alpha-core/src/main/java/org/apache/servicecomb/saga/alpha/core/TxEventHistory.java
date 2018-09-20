@@ -17,6 +17,8 @@
 
 package org.apache.servicecomb.saga.alpha.core;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -24,48 +26,78 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Version;
+import javax.persistence.Transient;
 
 @Entity
-@Table(name = "TxTimeout")
-public class TxTimeout {
+@Table(name = "TxEventHistory")
+public class TxEventHistory {
+
+  @Transient
+  public static final long MAX_TIMESTAMP = 253402214400000L; // 9999-12-31 00:00:00
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long surrogateId;
 
-  private long eventId;
   private String serviceName;
   private String instanceId;
+  private Date creationTime;
   private String globalTxId;
   private String localTxId;
   private String parentTxId;
   private String type;
+  private String compensationMethod;
   private Date expiryTime;
-  private String status;
+  private String retryMethod;
+  private int retries;
+  private byte[] payloads;
 
-  @Version
-  private long version;
-
-  TxTimeout() {
+  private TxEventHistory() {
   }
 
-  TxTimeout(long eventId, String serviceName, String instanceId, String globalTxId,
+  public TxEventHistory(TxEventHistory event) {
+    this(event.surrogateId,
+        event.serviceName,
+        event.instanceId,
+        event.creationTime,
+        event.globalTxId,
+        event.localTxId,
+        event.parentTxId,
+        event.type,
+        event.compensationMethod,
+        event.expiryTime,
+        event.retryMethod,
+        event.retries,
+        event.payloads);
+  }
+
+
+  TxEventHistory(Long surrogateId,
+      String serviceName,
+      String instanceId,
+      Date creationTime,
+      String globalTxId,
       String localTxId,
-      String parentTxId, String type, Date expiryTime, String status) {
-    this.eventId = eventId;
+      String parentTxId,
+      String type,
+      String compensationMethod,
+      Date expiryTime,
+      String retryMethod,
+      int retries,
+      byte[] payloads) {
+    this.surrogateId = surrogateId;
     this.serviceName = serviceName;
     this.instanceId = instanceId;
+    this.creationTime = creationTime;
     this.globalTxId = globalTxId;
     this.localTxId = localTxId;
     this.parentTxId = parentTxId;
     this.type = type;
+    this.compensationMethod = compensationMethod;
     this.expiryTime = expiryTime;
-    this.status = status;
-  }
-
-  public Long id() {
-    return surrogateId;
+    this.retryMethod = retryMethod;
+    this.retries = retries;
+    this.payloads = payloads;
   }
 
   public String serviceName() {
@@ -74,6 +106,10 @@ public class TxTimeout {
 
   public String instanceId() {
     return instanceId;
+  }
+
+  public Date creationTime() {
+    return creationTime;
   }
 
   public String globalTxId() {
@@ -92,26 +128,45 @@ public class TxTimeout {
     return type;
   }
 
+  public String compensationMethod() {
+    return compensationMethod;
+  }
+
+  public byte[] payloads() {
+    return payloads;
+  }
+
+  public long id() {
+    return surrogateId;
+  }
+
   public Date expiryTime() {
     return expiryTime;
   }
 
-  public String status() {
-    return status;
+  public String retryMethod() {
+    return retryMethod;
+  }
+
+  public int retries() {
+    return retries;
   }
 
   @Override
   public String toString() {
-    return "TxTimeout{" +
-        "eventId=" + eventId +
+    return "TxEventHistory{" +
+        "surrogateId=" + surrogateId +
         ", serviceName='" + serviceName + '\'' +
         ", instanceId='" + instanceId + '\'' +
+        ", creationTime=" + creationTime +
         ", globalTxId='" + globalTxId + '\'' +
         ", localTxId='" + localTxId + '\'' +
         ", parentTxId='" + parentTxId + '\'' +
         ", type='" + type + '\'' +
+        ", compensationMethod='" + compensationMethod + '\'' +
         ", expiryTime=" + expiryTime +
-        ", status=" + status +
+        ", retryMethod='" + retryMethod + '\'' +
+        ", retries=" + retries +
         '}';
   }
 }

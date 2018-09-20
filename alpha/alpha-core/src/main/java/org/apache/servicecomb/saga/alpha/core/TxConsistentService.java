@@ -33,6 +33,7 @@ import kamon.annotation.Segment;
 
 @EnableKamon
 public class TxConsistentService {
+
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final TxEventRepository eventRepository;
@@ -42,10 +43,12 @@ public class TxConsistentService {
   public TxConsistentService(TxEventRepository eventRepository) {
     this.eventRepository = eventRepository;
   }
+
   @Segment(name = "handleTxEvent", category = "application", library = "kamon")
   public boolean handle(TxEvent event) {
     if (types.contains(event.type()) && isGlobalTxAborted(event)) {
-      LOG.info("Transaction event {} rejected, because its parent with globalTxId {} was already aborted",
+      LOG.info(
+          "Transaction event {} rejected, because its parent with globalTxId {} was already aborted",
           event.type(), event.globalTxId());
       return false;
     }

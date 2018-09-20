@@ -41,6 +41,7 @@ import kamon.annotation.Trace;
 @Controller
 @RequestMapping("/")
 class AlphaEventController {
+
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final TxEventEnvelopeRepository eventRepository;
@@ -71,6 +72,7 @@ class AlphaEventController {
 
   @JsonAutoDetect(fieldVisibility = Visibility.ANY)
   private static class TxEventVo extends TxEvent {
+
     private TxEventVo(TxEvent event) {
       super(event);
     }

@@ -18,6 +18,7 @@
 package org.apache.servicecomb.saga.alpha.core;
 
 public class AlphaException extends RuntimeException {
+
   public AlphaException(String cause) {
     super(cause);
   }

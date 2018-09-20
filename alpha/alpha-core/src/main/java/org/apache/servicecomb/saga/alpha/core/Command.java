@@ -85,7 +85,8 @@ public class Command {
       String compensationMethod,
       byte[] payloads) {
 
-    this(id, serviceName, instanceId, globalTxId, localTxId, parentTxId, compensationMethod, payloads, NEW.name());
+    this(id, serviceName, instanceId, globalTxId, localTxId, parentTxId, compensationMethod,
+        payloads, NEW.name());
   }
 
   public Command(TxEvent event) {

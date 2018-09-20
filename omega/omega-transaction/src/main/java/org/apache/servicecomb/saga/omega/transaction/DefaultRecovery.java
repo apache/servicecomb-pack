@@ -64,13 +64,41 @@ public class DefaultRecovery implements RecoveryPolicy {
       throw new InvalidTransactionException("Abort sub transaction " + abortedLocalTxId +
           " because global transaction " + context.globalTxId() + " has already aborted.");
     }
-
+    int remains = retries;
     try {
-      Object result = joinPoint.proceed();
-      interceptor.postIntercept(parentTxId, compensationSignature);
+      while (true) {
+        try {
+          Object result = joinPoint.proceed();
+          interceptor.postIntercept(parentTxId, compensationSignature);
+          return result;
+        } catch (Throwable throwable) {
+          if (remains == 0){
+            throw throwable;
+          }
+          remains = remains == -1 ? -1 : remains - 1;
+          if (remains == 0) {
+            LOG.error(
+                "Retried sub tx failed maximum times, global tx id: {}, local tx id: {}, method: {}, retried times: {}",
+                context.globalTxId(), context.localTxId(), method.toString(), retries);
+            throw throwable;
+          }
 
-      return result;
-    } catch (Throwable throwable) {
+          LOG.warn(
+              "Retrying sub tx failed, global tx id: {}, local tx id: {}, method: {}, remains: {}",
+              context.globalTxId(), context.localTxId(), method.toString(), remains);
+          Thread.sleep(compensable.retryDelayInMilliseconds());
+        }
+      }
+    }
+    catch(InterruptedException e)
+    {
+      String errorMessage = "Failed to handle tx because it is interrupted, global tx id: " + context.globalTxId()
+          + ", local tx id: " + context.localTxId() + ", method: " + method.toString();
+      LOG.error(errorMessage);
+      interceptor.onError(parentTxId, compensationMethodSignature(joinPoint, compensable, method), e);
+      throw new OmegaException(errorMessage);
+    }
+    catch (Throwable throwable) {
       interceptor.onError(parentTxId, compensationSignature, throwable);
       throw throwable;
     }

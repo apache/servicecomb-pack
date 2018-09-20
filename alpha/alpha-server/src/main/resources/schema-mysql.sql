@@ -67,6 +67,10 @@ CREATE TABLE IF NOT EXISTS TxTimeout (
   INDEX saga_timeouts_index (surrogateId, expiryTime, globalTxId, localTxId, status)
 ) DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS TxEventHistory AS SELECT * FROM TxEvent WHERE 1=2;
+
+
+
 CREATE TABLE IF NOT EXISTS tcc_global_tx_event (
   surrogateId bigint NOT NULL AUTO_INCREMENT,
   globalTxId varchar(36) NOT NULL,

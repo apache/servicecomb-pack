@@ -20,9 +20,10 @@ package org.apache.servicecomb.saga.alpha.core;
 import java.util.List;
 
 public interface TxTimeoutRepository {
+
   void save(TxTimeout timeout);
 
   void markTimeoutAsDone();
 
-  List<TxTimeout> findFirstTimeout();
+  List<TxTimeout> findTimeouts();
 }

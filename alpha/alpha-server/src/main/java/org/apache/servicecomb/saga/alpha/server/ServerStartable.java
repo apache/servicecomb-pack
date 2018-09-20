@@ -21,5 +21,6 @@
 package org.apache.servicecomb.saga.alpha.server;
 
 public interface ServerStartable {
+
   void start();
 }

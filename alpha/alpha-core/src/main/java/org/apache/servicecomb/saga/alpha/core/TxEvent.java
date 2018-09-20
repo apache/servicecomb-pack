@@ -31,6 +31,7 @@ import javax.persistence.Transient;
 @Entity
 @Table(name = "TxEvent")
 public class TxEvent {
+
   @Transient
   public static final long MAX_TIMESTAMP = 253402214400000L; // 9999-12-31 00:00:00
 
@@ -79,7 +80,8 @@ public class TxEvent {
       String type,
       String compensationMethod,
       byte[] payloads) {
-    this(serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type, compensationMethod, 0, "", 0,
+    this(serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type,
+        compensationMethod, 0, "", 0,
         payloads);
   }
 
@@ -95,7 +97,8 @@ public class TxEvent {
       String retryMethod,
       int retries,
       byte[] payloads) {
-    this(-1L, serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type, compensationMethod, timeout,
+    this(-1L, serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type,
+        compensationMethod, timeout,
         retryMethod, retries, payloads);
   }
 
@@ -112,7 +115,8 @@ public class TxEvent {
       String retryMethod,
       int retries,
       byte[] payloads) {
-    this(-1L, serviceName, instanceId, creationTime, globalTxId, localTxId, parentTxId, type, compensationMethod,
+    this(-1L, serviceName, instanceId, creationTime, globalTxId, localTxId, parentTxId, type,
+        compensationMethod,
         timeout, retryMethod, retries, payloads);
   }
 
@@ -129,9 +133,11 @@ public class TxEvent {
       String retryMethod,
       int retries,
       byte[] payloads) {
-    this(surrogateId, serviceName, instanceId, creationTime, globalTxId, localTxId, parentTxId, type,
+    this(surrogateId, serviceName, instanceId, creationTime, globalTxId, localTxId, parentTxId,
+        type,
         compensationMethod,
-        timeout == 0 ? new Date(MAX_TIMESTAMP) : new Date(creationTime.getTime() + SECONDS.toMillis(timeout)),
+        timeout == 0 ? new Date(MAX_TIMESTAMP)
+            : new Date(creationTime.getTime() + SECONDS.toMillis(timeout)),
         retryMethod,
         retries,
         payloads);

@@ -33,16 +33,16 @@ public interface TxEventRepository {
    */
   void save(TxEvent event);
 
-  /**
-   * Find a {@link TxEvent} which satisfies below requirements:
-   *
-   * <ol>
-   *   <li>{@link TxEvent#type} is {@link EventType#TxAbortedEvent}</li>
-   *   <li>There are no {@link TxEvent} which has the same {@link TxEvent#globalTxId} and {@link TxEvent#type} is {@link EventType#TxEndedEvent} or {@link EventType#SagaEndedEvent}</li>
-   * </ol>
-   * @return
-   */
-  Optional<List<TxEvent>> findFirstAbortedGlobalTransaction();
+/**
+ * Find a {@link TxEvent} which satisfies below requirements:
+ *
+ * <ol>
+ *   <li>{@link TxEvent#type} is {@link EventType#TxAbortedEvent}</li>
+ *   <li>There are no {@link TxEvent} which has the same {@link TxEvent#globalTxId} and {@link TxEvent#type} is {@link EventType#TxEndedEvent} or {@link EventType#SagaEndedEvent}</li>
+ * </ol>
+ * @return
+ */
+Optional<List<TxEvent>> findFirstAbortedGlobalTransaction();
 
   /**
    * Find timeout {@link TxEvent}s. A timeout TxEvent satisfies below requirements:
@@ -71,51 +71,70 @@ public interface TxEventRepository {
    */
   Optional<TxEvent> findTxStartedEvent(String globalTxId, String localTxId);
 
+/**
+ * Find {@link TxEvent}s which satisfy below requirements:
+ * <ol>
+ *   <li>{@link TxEvent#globalTxId} equals to param <code>globalTxId</code></li>
+ *   <li>{@link TxEvent#type} equals to param <code>type</code></li>
+ * </ol>
+ *
+ * @param globalTxId globalTxId to search for
+ * @param type       event type to search for
+ * @return
+ */
+List<TxEvent> findTransactions(String globalTxId, String type);
+
+/**
+ * Find timeout {@link TxEvent}s. A TxEvent satisfies below requirements:
+ *
+ * <ol>
+ *  <li>{@link TxEvent#type} is the lasted event {@link TxEvent} which type is <code>TxEndedEvent</code></li>
+ *  <li>There are no unfinished event {@link TxEvent} which type is <code>TxStartedEvent</code></li>
+ *  <li>There are no corresponding {@link TxEvent} which type is <code>TxCompensatedEvent</code> </li>
+ *  <li>There are no corresponding {@link Command} in command table </li>
+ * </ol>
+ *
+ * @return
+ */
+List<TxEvent> findNeedToCompensateTxs();
+
+  /**
+   * Find timeout {@link TxEvent}s. A TxEvent satisfies below requirements:
+   *
+   * <ol>
+   *   <li>{@link TxEvent#type} is {@link EventType#TxAbortedEvent}</li>
+   *  <li>There are no unfinished event {@link TxEvent} which type is <code>TxStartedEvent</code></li>
+   *  <li>There are no unfinished retry {@link TxEvent} which type is <code>TxStartedEvent</code> </li>
+   *  <li>There are no corresponding {@link TxEvent} which type is <code>TxEndedEvent</code> or <code>SagaEndedEvent</code> </li>
+   * </ol>
+   *
+   * @return
+   */
+  List<TxEvent> findAllFinishedTxsForNoTxEnd();
+
   /**
    * Find {@link TxEvent}s which satisfy below requirements:
    * <ol>
    *   <li>{@link TxEvent#globalTxId} equals to param <code>globalTxId</code></li>
-   *   <li>{@link TxEvent#type} equals to param <code>type</code></li>
+   *   <li>{@link TxEvent#localTxId} equals to param <code>localTxId</code></li>
+   *   <li>{@link TxEvent#type} equals to param <code>TxCompensatedEvent</code></li>
    * </ol>
    *
    * @param globalTxId globalTxId to search for
-   * @param type       event type to search for
+   * @param localTxId  localTxId to search for
    * @return
    */
-  List<TxEvent> findTransactions(String globalTxId, String type);
-
-  /**
-   * Find a {@link TxEvent} which satisfies below requirements:
-   * <ol>
-   *   <li>{@link TxEvent#type} equals to {@link EventType#TxEndedEvent}</li>
-   *   <li>{@link TxEvent#surrogateId} greater than param <code>id</code></li>
-   *   <li>{@link TxEvent#type} equals to param <code>type</code></li>
-   *   <li>There is a corresponding <code>TxAbortedEvent</code></li>
-   *   <li>There is no coresponding <code>TxCompensatedEvent</code></li>
-   * </ol>
-   *
-   * @param id
-   * @return
-   */
-  List<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id, String type);
-
-  /**
-   * Find a {@link TxEvent} which satisfies below requirements:
-   *
-   * <ol>
-   *   <li>{@link TxEvent#type} equals to {@link EventType#TxCompensatedEvent}</li>
-   *   <li>{@link TxEvent#surrogateId} greater than param <code>id</code></li>
-   * </ol>
-   *
-   * @param id
-   * @return
-   */
-  Optional<TxEvent> findFirstCompensatedEventByIdGreaterThan(long id);
-
+  List<TxEvent> findCompensatedDoneTxs(String globalTxId,String localTxId);
   /**
    * Delete duplicated {@link TxEvent}s which {@link TxEvent#type} equals param <code>type</code>.
    *
    * @param type event type
    */
   void deleteDuplicateEvents(String type);
+
+/**
+ * dump finished {@link TxEvent}s to TxEventHistory.
+ *
+ */
+void dumpColdEventData();
 }

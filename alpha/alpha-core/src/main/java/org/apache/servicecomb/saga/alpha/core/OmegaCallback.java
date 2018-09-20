@@ -17,8 +17,13 @@
 
 package org.apache.servicecomb.saga.alpha.core;
 
+import java.util.List;
+
 public interface OmegaCallback {
+
   void compensate(TxEvent event);
+
+  List<TxEvent> compensateAllEvents(List<TxEvent> txEvents);
 
   default void disconnect() {
   }

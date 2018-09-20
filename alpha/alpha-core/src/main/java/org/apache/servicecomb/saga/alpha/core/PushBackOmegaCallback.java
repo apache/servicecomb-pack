@@ -18,41 +18,56 @@
 package org.apache.servicecomb.saga.alpha.core;
 
 import java.lang.invoke.MethodHandles;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.Collections.emptyMap;
+
 public class PushBackOmegaCallback implements OmegaCallback {
+
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private final BlockingQueue<Runnable> pendingCompensations;
-  private final OmegaCallback underlying;
+  private final Map<String, Map<String, OmegaCallback>> callbacks;
+  private final ExecutorService compensateExecutor;
 
-  public PushBackOmegaCallback(BlockingQueue<Runnable> pendingCompensations, OmegaCallback underlying) {
-    this.pendingCompensations = pendingCompensations;
-    this.underlying = underlying;
+  public PushBackOmegaCallback(Map<String, Map<String, OmegaCallback>> callbacks,
+      ExecutorService compensateExecutor) {
+    this.callbacks = callbacks;
+    this.compensateExecutor = compensateExecutor;
+  }
+
+  @Override
+  public List<TxEvent> compensateAllEvents(List<TxEvent> txEvents) {
+    List<Future<List<TxEvent>>> futures = new ArrayList<>();
+    List<TxEvent> result = new ArrayList<>();
+    Set<String> services = new HashSet<>();
+    txEvents.stream()
+        .filter(txEvent -> !callbacks.getOrDefault(txEvent.serviceName(), emptyMap()).isEmpty())
+        .forEach(event -> services.add(event.serviceName()));
+    services.forEach(service -> futures.add(compensateExecutor.submit(
+        new CompositeOmegaCallbackRunner(callbacks,
+            txEvents.stream().filter(txEvent -> txEvent.serviceName().equals(service))
+                .collect(Collectors.toList())))));
+    futures.forEach(f -> {
+      try {
+        result.addAll(f.get());
+      } catch (Exception e) {
+        LOG.error("Run compensate thread failed. Error message is {}.", e);
+      }
+    });
+    return result;
   }
 
   @Override
   public void compensate(TxEvent event) {
-    try {
-      underlying.compensate(event);
-    } catch (Exception e) {
-      logError(event, e);
-      pendingCompensations.offer(() -> compensate(event));
-    }
+
   }
 
-  private void logError(TxEvent event, Exception e) {
-    LOG.error(
-        "Failed to {} service [{}] instance [{}] with method [{}], global tx id [{}] and local tx id [{}]",
-        event.retries() == 0 ? "compensate" : "retry",
-        event.serviceName(),
-        event.instanceId(),
-        event.retries() == 0 ? event.compensationMethod() : event.retryMethod(),
-        event.globalTxId(),
-        event.localTxId(),
-        e);
-  }
+
 }

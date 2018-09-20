@@ -35,6 +35,7 @@ import kamon.annotation.Segment;
 
 @EnableKamon
 public class SpringTxTimeoutRepository implements TxTimeoutRepository {
+
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final TxTimeoutEntityRepository timeoutRepo;
@@ -59,13 +60,16 @@ public class SpringTxTimeoutRepository implements TxTimeoutRepository {
     timeoutRepo.updateStatusOfFinishedTx();
   }
 
+
   @Transactional
   @Override
-  @Segment(name = "findFirstTimeout", category = "application", library = "kamon")
-  public List<TxTimeout> findFirstTimeout() {
-    List<TxTimeout> timeoutEvents = timeoutRepo.findFirstTimeoutTxOrderByExpireTimeAsc(new PageRequest(0, 1));
-    timeoutEvents.forEach(event -> timeoutRepo
-        .updateStatusByGlobalTxIdAndLocalTxId(PENDING.name(), event.globalTxId(), event.localTxId()));
+  @Segment(name = "findTimeouts", category = "application", library = "kamon")
+  public List<TxTimeout> findTimeouts() {
+    List<TxTimeout> timeoutEvents = timeoutRepo.findNotFinishedTimeoutTxs();
+    timeoutEvents.stream().filter(event -> !event.status().equals(PENDING.name()))
+        .forEach(event -> timeoutRepo
+            .updateStatusByGlobalTxIdAndLocalTxId(PENDING.name(), event.globalTxId(),
+                event.localTxId()));
     return timeoutEvents;
   }
 }

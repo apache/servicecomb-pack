@@ -18,15 +18,10 @@
 package org.apache.servicecomb.saga.alpha.server;
 
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.*;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import org.apache.servicecomb.saga.alpha.core.CommandRepository;
-import org.apache.servicecomb.saga.alpha.core.CompositeOmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.EventScanner;
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.PendingTaskRunner;
@@ -47,11 +42,10 @@ import org.springframework.context.annotation.Configuration;
 @EntityScan(basePackages = "org.apache.servicecomb.saga.alpha")
 @Configuration
 class AlphaConfig {
-  private final BlockingQueue<Runnable> pendingCompensations = new LinkedBlockingQueue<>();
-  private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-  @Value("${alpha.compensation.retry.delay:3000}")
-  private int delay;
+  private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+  private final ExecutorService compensateExecutors = Executors.newCachedThreadPool();
+
 
   @Bean
   Map<String, Map<String, OmegaCallback>> omegaCallbacks() {
@@ -60,16 +54,17 @@ class AlphaConfig {
 
   @Bean
   OmegaCallback omegaCallback(Map<String, Map<String, OmegaCallback>> callbacks) {
-    return new PushBackOmegaCallback(pendingCompensations, new CompositeOmegaCallback(callbacks));
+    return new PushBackOmegaCallback(callbacks, compensateExecutors);
   }
-  
+
   @Bean
   TxEventRepository springTxEventRepository(TxEventEnvelopeRepository eventRepo) {
     return new SpringTxEventRepository(eventRepo);
   }
 
   @Bean
-  CommandRepository springCommandRepository(TxEventEnvelopeRepository eventRepo, CommandEntityRepository commandRepository) {
+  CommandRepository springCommandRepository(TxEventEnvelopeRepository eventRepo,
+      CommandEntityRepository commandRepository) {
     return new SpringCommandRepository(eventRepo, commandRepository);
   }
 
@@ -84,7 +79,9 @@ class AlphaConfig {
   }
 
   @Bean
-  GrpcServerConfig grpcServerConfig() { return new GrpcServerConfig(); }
+  GrpcServerConfig grpcServerConfig() {
+    return new GrpcServerConfig();
+  }
 
   @Bean
   TxConsistentService txConsistentService(
@@ -94,11 +91,11 @@ class AlphaConfig {
       CommandRepository commandRepository,
       TxTimeoutRepository timeoutRepository,
       OmegaCallback omegaCallback) {
-        new EventScanner(scheduler,
-            eventRepository, commandRepository, timeoutRepository,
-            omegaCallback, eventPollingInterval).run();
-        TxConsistentService consistentService = new TxConsistentService(eventRepository);
-        return consistentService;
+    new EventScanner(scheduler,
+        eventRepository, commandRepository, timeoutRepository,
+        omegaCallback, eventPollingInterval).run();
+    TxConsistentService consistentService = new TxConsistentService(eventRepository);
+    return consistentService;
   }
 
   @Bean
@@ -115,8 +112,10 @@ class AlphaConfig {
   }
 
   @Bean
-  ServerStartable serverStartable(GrpcServerConfig serverConfig, TxConsistentService txConsistentService,
-      Map<String, Map<String, OmegaCallback>> omegaCallbacks, GrpcTccEventService grpcTccEventService) {
+  ServerStartable serverStartable(GrpcServerConfig serverConfig,
+      TxConsistentService txConsistentService,
+      Map<String, Map<String, OmegaCallback>> omegaCallbacks,
+      GrpcTccEventService grpcTccEventService) {
     ServerStartable bootstrap = new GrpcStartable(serverConfig,
         new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks), grpcTccEventService);
     new Thread(bootstrap::start).start();
@@ -125,7 +124,6 @@ class AlphaConfig {
 
   @PostConstruct
   void init() {
-    new PendingTaskRunner(pendingCompensations, delay).run();
   }
 
   @PreDestroy
