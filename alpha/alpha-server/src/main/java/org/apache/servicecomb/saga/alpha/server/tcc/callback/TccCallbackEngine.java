@@ -19,39 +19,50 @@ package org.apache.servicecomb.saga.alpha.server.tcc.callback;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
+
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxType;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TxEventFactory;
+import org.apache.servicecomb.saga.alpha.server.tcc.service.TccTxEventRepository;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public abstract class TccCallbackEngine implements CallbackEngine {
+import com.google.common.collect.Lists;
+@Component
+public class TccCallbackEngine implements CallbackEngine {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Autowired
   private OmegaCallbackWrapper omegaCallbackWrapper;
 
+  @Autowired
+  private TccTxEventRepository tccTxEventRepository;
+
   @Override
   public boolean execute(GlobalTxEvent request) {
     boolean result = true;
-    List<ParticipatedEvent> list = findParticipate(request.getGlobalTxId());
-    for (ParticipatedEvent event : list) {
+    List<TccTxEvent> events = tccTxEventRepository.findByGlobalTxIdAndTxType(request.getGlobalTxId(), TccTxType.PARTICIPATED).orElse(
+        Lists.newArrayList());
+    for (TccTxEvent event : events) {
+      ParticipatedEvent participatedEvent = TxEventFactory.convertToParticipatedEvent(event);
       try {
         // only invoke the event is succeed
         if (event.getStatus().equals(TransactionStatus.Succeed.toString())) {
-          omegaCallbackWrapper.invoke(event, TransactionStatus.valueOf(request.getStatus()));
+          omegaCallbackWrapper.invoke(participatedEvent, TransactionStatus.valueOf(request.getStatus()));
         }
       } catch (Exception ex) {
-        logError(event, ex);
+        logError(participatedEvent, ex);
         result = false;
       }
     }
     return result;
   }
-
-  protected abstract List<ParticipatedEvent> findParticipate(String globalTxId);
 
   private void logError(ParticipatedEvent event, Exception ex) {
     LOG.error(

@@ -6,16 +6,16 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.tcc.server;
+package org.apache.servicecomb.saga.alpha.server.tcc;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -25,18 +25,22 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 import io.grpc.ManagedChannel;
-import io.grpc.netty.NettyChannelBuilder;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import org.apache.servicecomb.saga.alpha.server.tcc.TccTxEventFacade;
+
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.GrpcOmegaTccCallback;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallbacksRegistry;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxType;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TxEventFactory;
+import org.apache.servicecomb.saga.alpha.server.tcc.service.TccTxEventRepository;
+import org.apache.servicecomb.saga.alpha.server.tcc.service.TccTxEventService;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
@@ -51,6 +55,8 @@ import org.apache.servicecomb.saga.pack.contract.grpc.TccEventServiceGrpc.TccEve
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 public abstract class AlphaTccServerTestBase {
 
@@ -79,7 +85,9 @@ public abstract class AlphaTccServerTestBase {
       .setInstanceId(instanceId)
       .build();
 
-  public abstract TccTxEventFacade getTccTxEventFacade();
+  @Autowired
+  private TccTxEventRepository tccTxEventRepository;
+
 
   @AfterClass
   public static void tearDown() {
@@ -90,6 +98,7 @@ public abstract class AlphaTccServerTestBase {
   @After
   public void after() {
     blockingStub.onDisconnected(serviceConfig);
+    tccTxEventRepository.deleteAll();
   }
 
   @Test
@@ -123,16 +132,16 @@ public abstract class AlphaTccServerTestBase {
     blockingStub.onTccTransactionStarted(newTxStart());
     blockingStub.onTccTransactionStarted(newTxStart());
     blockingStub.onTccTransactionEnded(newTxEnd("Succeed"));
-    List<GlobalTxEvent> events = getTccTxEventFacade().getGlobalTxEventByGlobalTxId(globalTxId);
+    List<TccTxEvent> events = tccTxEventRepository.findByGlobalTxId(globalTxId).get();
     assertThat(events.size(),  is(2));
 
-    Iterator<GlobalTxEvent> iterator = events.iterator();
-    GlobalTxEvent event = iterator.next();
+    Iterator<TccTxEvent> iterator = events.iterator();
+    TccTxEvent event = iterator.next();
     assertThat(event.getGlobalTxId(), is(globalTxId));
     assertThat(event.getLocalTxId(), is(localTxId));
     assertThat(event.getInstanceId(), is(instanceId));
     assertThat(event.getServiceName(), is(serviceName));
-    assertThat(event.getTxType(), is(TccTxType.TCC_START.name()));
+    assertThat(event.getTxType(), is(TccTxType.STARTED.name()));
     assertThat(event.getStatus(), is(TransactionStatus.Succeed.name()));
 
     event = iterator.next();
@@ -140,7 +149,7 @@ public abstract class AlphaTccServerTestBase {
     assertThat(event.getLocalTxId(), is(localTxId));
     assertThat(event.getInstanceId(), is(instanceId));
     assertThat(event.getServiceName(), is(serviceName));
-    assertThat(event.getTxType(), is(TccTxType.TCC_END.name()));
+    assertThat(event.getTxType(), is(TccTxType.ENDED.name()));
     assertThat(event.getStatus(), is(TransactionStatus.Succeed.name()));
   }
 
@@ -150,15 +159,15 @@ public abstract class AlphaTccServerTestBase {
     awaitUntilConnected();
     blockingStub.participate(newParticipatedEvent("Succeed"));
     blockingStub.participate(newParticipatedEvent("Succeed"));
-    List<ParticipatedEvent> events = getTccTxEventFacade().getParticipateEventByGlobalTxId(globalTxId);
+    List<TccTxEvent> events = tccTxEventRepository.findByGlobalTxId(globalTxId).get();
     assertThat(events.size(),  is(1));
-    ParticipatedEvent event = events.iterator().next();
+    TccTxEvent event = events.iterator().next();
     assertThat(event.getGlobalTxId(), is(globalTxId));
     assertThat(event.getLocalTxId(), is(localTxId));
     assertThat(event.getInstanceId(), is(instanceId));
     assertThat(event.getServiceName(), is(serviceName));
-    assertThat(event.getConfirmMethod(), is(confirmMethod));
-    assertThat(event.getCancelMethod(), is(cancelMethod));
+    assertThat(TxEventFactory.getMethodName(event.getMethodInfo(), true), is(confirmMethod));
+    assertThat(TxEventFactory.getMethodName(event.getMethodInfo(), false), is(cancelMethod));
     assertThat(event.getStatus(), is("Succeed"));
   }
 

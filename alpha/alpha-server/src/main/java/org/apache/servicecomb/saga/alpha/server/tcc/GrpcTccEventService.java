@@ -22,6 +22,7 @@ import java.lang.invoke.MethodHandles;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallback;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallbacksRegistry;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TxEventFactory;
+import org.apache.servicecomb.saga.alpha.server.tcc.service.TccTxEventService;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
@@ -44,10 +45,10 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
   
   private static final GrpcAck REJECT = GrpcAck.newBuilder().setAborted(true).build();
 
-  private final TccTxEventFacade tccTxEventFacade;
+  private final TccTxEventService tccTxEventService;
 
-  public GrpcTccEventService(TccTxEventFacade tccTxEventFacade) {
-    this.tccTxEventFacade = tccTxEventFacade;
+  public GrpcTccEventService(TccTxEventService tccTxEventService) {
+    this.tccTxEventService = tccTxEventService;
   }
 
   @Override
@@ -59,7 +60,7 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
   @Override
   public void onTccTransactionStarted(GrpcTccTransactionStartedEvent request, StreamObserver<GrpcAck> responseObserver) {
     LOG.info("Received transaction start event, global tx id: {}", request.getGlobalTxId());
-    responseObserver.onNext(tccTxEventFacade.onTccStartEvent(TxEventFactory.create(request)) ? ALLOW : REJECT);
+    responseObserver.onNext(tccTxEventService.onTccStartedEvent(TxEventFactory.convertToGlobalTxEvent(request)) ? ALLOW : REJECT);
     responseObserver.onCompleted();
   }
 
@@ -67,14 +68,15 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
   public void participate(GrpcTccParticipatedEvent request, StreamObserver<GrpcAck> responseObserver) {
     LOG.info("Received participated event from service {} , global tx id: {}, local tx id: {}", request.getServiceName(),
         request.getGlobalTxId(), request.getLocalTxId()) ;
-    responseObserver.onNext(tccTxEventFacade.onParticipateEvent(TxEventFactory.create(request)) ? ALLOW : REJECT);
+    responseObserver.onNext(
+        tccTxEventService.onParticipatedEvent(TxEventFactory.convertToParticipatedEvent(request)) ? ALLOW : REJECT);
     responseObserver.onCompleted();
   }
 
   @Override
   public void onTccTransactionEnded(GrpcTccTransactionEndedEvent request, StreamObserver<GrpcAck> responseObserver) {
     LOG.info("Received transaction end event, global tx id: {}", request.getGlobalTxId());
-    responseObserver.onNext(tccTxEventFacade.onTccEndEvent(TxEventFactory.create(request)) ? ALLOW : REJECT);
+    responseObserver.onNext(tccTxEventService.onTccEndedEvent(TxEventFactory.convertToGlobalTxEvent(request)) ? ALLOW : REJECT);
     responseObserver.onCompleted();
   }
 
@@ -84,8 +86,7 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
             + "method: {}, status: {}, service [{}] instanceId [{}]",
         request.getGlobalTxId(), request.getLocalTxId(), request.getParentTxId(),
         request.getMethodName(), request.getStatus(), request.getServiceName(), request.getInstanceId());
-    tccTxEventFacade.onCoordinatedEvent(request.getGlobalTxId(), request.getLocalTxId());
-    responseObserver.onNext(ALLOW);
+    responseObserver.onNext(tccTxEventService.onCoordinatedEvent(TxEventFactory.convertToTccTxEvent(request)) ? ALLOW : REJECT);
     responseObserver.onCompleted();
   }
   

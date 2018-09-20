@@ -45,8 +45,7 @@ public class GlobalTxEvent {
   private GlobalTxEvent() {
   }
 
-  public GlobalTxEvent(String globalTxId, String localTxId, String parentTxId, String serviceName,
-      String instanceId, String txType, String status) {
+  public GlobalTxEvent(String serviceName, String instanceId, String globalTxId, String localTxId, String parentTxId,  String txType, String status) {
     this.globalTxId = globalTxId;
     this.localTxId = localTxId;
     this.parentTxId = parentTxId;
@@ -120,5 +119,21 @@ public class GlobalTxEvent {
   public int hashCode() {
 
     return Objects.hash(globalTxId, localTxId, parentTxId, serviceName, instanceId, txType, status);
+  }
+
+  @Override
+  public String toString() {
+    return "GlobalTxEvent{" +
+        "surrogateId=" + surrogateId +
+        ", globalTxId='" + globalTxId + '\'' +
+        ", localTxId='" + localTxId + '\'' +
+        ", parentTxId='" + parentTxId + '\'' +
+        ", serviceName='" + serviceName + '\'' +
+        ", instanceId='" + instanceId + '\'' +
+        ", txType='" + txType + '\'' +
+        ", status='" + status + '\'' +
+        ", creationTime=" + creationTime +
+        ", lastModified=" + lastModified +
+        '}';
   }
 }
