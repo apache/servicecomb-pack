@@ -38,6 +38,8 @@ import org.apache.servicecomb.saga.alpha.server.tcc.GrpcTccEventService;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallbackWrapper;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.TccCallbackEngine;
 import org.apache.servicecomb.saga.alpha.server.tcc.TccTxEventFacade;
+import org.apache.servicecomb.saga.alpha.server.tcc.service.TccTxEventRepository;
+import org.apache.servicecomb.saga.alpha.server.tcc.service.TccTxEventService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -102,16 +104,8 @@ class AlphaConfig {
   }
 
   @Bean
-  TccTxEventFacade tccTxEventFacade(
-      @Value("${alpha.server.storage:rdb}") String storage,
-      @Qualifier("defaultTccTxEventFacade") TccTxEventFacade defaultTccTxEventFacade,
-      @Qualifier("rdbTccTxEventFacade") TccTxEventFacade rdbTccTxEventFacade) {
-    return "rdb".equals(storage) ? rdbTccTxEventFacade : defaultTccTxEventFacade;
-  }
-
-  @Bean
-  GrpcTccEventService grpcTccEventService(TccTxEventFacade tccTxEventFacade) {
-    return new GrpcTccEventService(tccTxEventFacade);
+  GrpcTccEventService grpcTccEventService(TccTxEventService tccTxEventService) {
+    return new GrpcTccEventService(tccTxEventService);
   }
 
   @Bean

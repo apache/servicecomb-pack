@@ -18,5 +18,9 @@
 package org.apache.servicecomb.saga.alpha.server.tcc.jpa;
 
 public enum TccTxType {
-  TCC_START, TCC_END, TCC_END_TIMEOUT
+  STARTED,
+  ENDED,
+  END_TIMEOUT,
+  PARTICIPATED,
+  COORDINATED
 }

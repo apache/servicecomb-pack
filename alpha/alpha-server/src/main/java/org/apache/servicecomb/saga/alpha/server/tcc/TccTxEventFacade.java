@@ -17,9 +17,9 @@
 
 package org.apache.servicecomb.saga.alpha.server.tcc;
 
-import java.util.List;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEvent;
 
 public interface TccTxEventFacade {
 
@@ -29,13 +29,6 @@ public interface TccTxEventFacade {
 
   boolean onTccEndEvent(GlobalTxEvent globalTxEvent);
 
-  void onCoordinatedEvent(String globalTxId, String localTxId);
+  void onCoordinatedEvent(TccTxEvent event);
 
-  List<GlobalTxEvent> getGlobalTxEventByGlobalTxId(String globalTxId);
-
-  List<ParticipatedEvent> getParticipateEventByGlobalTxId(String globalTxId);
-
-//  void migrationParticipateEvent(String globalTxId, String localTxId);
-//
-  void migrationGlobalTxEvent(String globalTxId, String localTxId);
 }

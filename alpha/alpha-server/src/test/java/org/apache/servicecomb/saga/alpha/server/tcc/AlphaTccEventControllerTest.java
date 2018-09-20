@@ -15,11 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.alpha.server;
+package org.apache.servicecomb.saga.alpha.server.tcc;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.util.Collections.singletonList;
-import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
@@ -27,9 +26,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.UUID;
-
-import org.apache.servicecomb.saga.alpha.core.TxEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEventDBRepository;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxType;
+import org.apache.servicecomb.saga.alpha.server.tcc.service.TccTxEventRepository;
+import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,16 +42,16 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(AlphaEventController.class)
+@WebMvcTest(AlphaTccEventController.class)
 @ActiveProfiles("test")
-public class AlphaEventControllerTest {
-  private final TxEvent someEvent = someEvent();
+public class AlphaTccEventControllerTest {
+  private final TccTxEvent someEvent = someEvent();
 
   @Autowired
   private MockMvc mockMvc;
 
   @MockBean
-  private TxEventEnvelopeRepository eventRepository;
+  private TccTxEventRepository eventRepository;
 
   @Before
   public void setUp() throws Exception {
@@ -59,22 +60,27 @@ public class AlphaEventControllerTest {
 
   @Test
   public void retrievesEventsFromRepo() throws Exception {
-    mockMvc.perform(get("/saga/events"))
+    mockMvc.perform(get("/tcc/events"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(1)))
-        .andExpect(jsonPath("$.[0].globalTxId", is(someEvent.globalTxId())))
-        .andExpect(jsonPath("$.[0].localTxId", is(someEvent.localTxId())));
+        .andExpect(jsonPath("$.[0].globalTxId", is(someEvent.getGlobalTxId())))
+        .andExpect(jsonPath("$.[0].localTxId", is(someEvent.getLocalTxId())))
+        .andExpect(jsonPath("$.[0].serviceName", is(someEvent.getServiceName())))
+        .andExpect(jsonPath("$.[0].instanceId", is(someEvent.getInstanceId())))
+        .andExpect(jsonPath("$.[0].txType", is(someEvent.getTxType())))
+        .andExpect(jsonPath("$.[0].status", is(someEvent.getStatus())));
+
   }
 
-  private TxEvent someEvent() {
-    return new TxEvent(
+  private TccTxEvent someEvent() {
+    return new TccTxEvent(
         uniquify("serviceName"),
         uniquify("instanceId"),
         uniquify("globalTxId"),
         uniquify("localTxId"),
-        UUID.randomUUID().toString(),
-        TxStartedEvent.name(),
-        this.getClass().getCanonicalName(),
-        uniquify("blah").getBytes());
+        uniquify("parentTxId"),
+        TccTxType.STARTED.name(),
+        TransactionStatus.Succeed.name());
   }
+
 }

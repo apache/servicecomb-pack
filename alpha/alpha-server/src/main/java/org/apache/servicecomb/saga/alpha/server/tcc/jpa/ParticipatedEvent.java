@@ -46,8 +46,8 @@ public class ParticipatedEvent {
   private ParticipatedEvent() {
   }
 
-  public ParticipatedEvent(String globalTxId, String localTxId, String parentTxId, String serviceName,
-      String instanceId, String confirmMethod, String cancelMethod, String status) {
+  public ParticipatedEvent(String serviceName, String instanceId, String globalTxId, String localTxId,
+      String parentTxId,  String confirmMethod, String cancelMethod, String status, Date creationTime, Date lastModified) {
     this.globalTxId = globalTxId;
     this.localTxId = localTxId;
     this.parentTxId = parentTxId;
@@ -56,8 +56,13 @@ public class ParticipatedEvent {
     this.confirmMethod = confirmMethod;
     this.cancelMethod = cancelMethod;
     this.status = status;
-    this.creationTime = new Date();
-    this.lastModified = new Date();
+    this.creationTime = creationTime;
+    this.lastModified = lastModified;
+  }
+
+  public ParticipatedEvent(String serviceName, String instanceId, String globalTxId, String localTxId,
+      String parentTxId,  String confirmMethod, String cancelMethod, String status) {
+    this(serviceName, instanceId, globalTxId, localTxId, parentTxId, confirmMethod, cancelMethod, status, new Date(), new Date());
   }
 
   public Long getId() {
@@ -100,16 +105,8 @@ public class ParticipatedEvent {
     return creationTime;
   }
 
-  public void setCreationTime(Date creationTime) {
-    this.creationTime = creationTime;
-  }
-
   public Date getLastModified() {
     return lastModified;
-  }
-
-  public void setLastModified(Date lastModified) {
-    this.lastModified = lastModified;
   }
 
   @Override
@@ -135,5 +132,22 @@ public class ParticipatedEvent {
   public int hashCode() {
     return Objects
         .hash(globalTxId, localTxId, parentTxId, serviceName, instanceId, confirmMethod, cancelMethod, status);
+  }
+
+  @Override
+  public String toString() {
+    return "ParticipatedEvent{" +
+        "surrogateId=" + surrogateId +
+        ", globalTxId='" + globalTxId + '\'' +
+        ", localTxId='" + localTxId + '\'' +
+        ", parentTxId='" + parentTxId + '\'' +
+        ", serviceName='" + serviceName + '\'' +
+        ", instanceId='" + instanceId + '\'' +
+        ", confirmMethod='" + confirmMethod + '\'' +
+        ", cancelMethod='" + cancelMethod + '\'' +
+        ", status='" + status + '\'' +
+        ", creationTime=" + creationTime +
+        ", lastModified=" + lastModified +
+        '}';
   }
 }
