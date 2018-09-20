@@ -24,8 +24,8 @@ import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.saga.omega.connector.grpc.FastestSender;
 import org.apache.servicecomb.saga.omega.connector.grpc.GrpcTccEventService;
 import org.apache.servicecomb.saga.omega.connector.grpc.LoadBalancedClusterMessageSender;
-import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContextBuilder;
 import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContext;
+import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContextBuilder;
 import org.apache.servicecomb.saga.omega.connector.grpc.tcc.TccLoadBalanceSender;
 import org.apache.servicecomb.saga.omega.connector.grpc.tcc.TransactionType;
 import org.apache.servicecomb.saga.omega.context.CallbackContext;
@@ -140,7 +140,6 @@ class OmegaSpringConfig {
         alphaClusterConfig,
         serviceConfig,
         reconnectDelay).build();
-    loadBalanceSenderContext.getPendingTaskRunner().start();
     return loadBalanceSenderContext;
   }
 

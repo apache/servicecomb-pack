@@ -74,10 +74,6 @@ public class GrpcOnErrorHandler {
       return reconnectedSenders;
     }
 
-    public MessageSender getRetryMessageSender() {
-      return retryMessageSender;
-    }
-
     public Supplier<MessageSender> getDefaultMessageSender() {
       return defaultMessageSender;
     }

@@ -29,6 +29,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
 import java.io.IOException;
+import java.util.ArrayList;
 import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.tcc.CoordinateMessageHandler;
@@ -67,7 +68,6 @@ public class LoadBalanceContextBuilderTest {
 
   @After
   public void teardown() {
-
   }
 
   @Test
@@ -97,6 +97,12 @@ public class LoadBalanceContextBuilderTest {
     assertThat(loadContext.getSenders().values().iterator().next(), is(0l));
     assertThat(loadContext.getChannels().size(), is(2));
     shutdownChannels(loadContext);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void throwExceptionWhenAddressIsNotExist() {
+    when(clusterConfig.getAddresses()).thenReturn(new ArrayList<String>());
+    tccLoadBalanceContextBuilder.build();
   }
 
   @Test

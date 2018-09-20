@@ -17,8 +17,11 @@
 
 package org.apache.servicecomb.saga.omega.connector.grpc.tcc;
 
+import static org.junit.Assert.fail;
+
 import io.grpc.stub.StreamObserver;
 import java.lang.invoke.MethodHandles;
+import java.util.Queue;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
@@ -38,9 +41,21 @@ public class MyTccEventServiceImpl extends TccEventServiceGrpc.TccEventServiceIm
 
   private static final GrpcAck REJECT = GrpcAck.newBuilder().setAborted(true).build();
 
+  private final Queue<String> connected;
+  private final Queue<Object> events;
+  private final int delay;
+
+  public MyTccEventServiceImpl(Queue<String> connected, Queue<Object> events, int delay) {
+    this.connected = connected;
+    this.events = events;
+    this.delay = delay;
+  }
+
 
   @Override
   public void onConnected(GrpcServiceConfig request, StreamObserver<GrpcTccCoordinateCommand> responseObserver) {
+    connected.offer("Connected " + request.getServiceName());
+    sleep();
     LOG.info("Established connection service [{}] instanceId [{}].", request.getServiceName(), request.getInstanceId());
   }
 
@@ -48,6 +63,8 @@ public class MyTccEventServiceImpl extends TccEventServiceGrpc.TccEventServiceIm
   public void onTccTransactionStarted(GrpcTccTransactionStartedEvent request,
       StreamObserver<GrpcAck> responseObserver) {
     LOG.info("Received transaction start event, global tx id: {}", request.getGlobalTxId());
+    events.offer(request);
+    sleep();
     responseObserver.onNext(ALLOW);
     responseObserver.onCompleted();
   }
@@ -57,6 +74,8 @@ public class MyTccEventServiceImpl extends TccEventServiceGrpc.TccEventServiceIm
     LOG.info("Received participated event from service {} , global tx id: {}, local tx id: {}",
         request.getServiceName(),
         request.getGlobalTxId(), request.getLocalTxId());
+    events.offer(request);
+    sleep();
     responseObserver.onNext(ALLOW);
     responseObserver.onCompleted();
   }
@@ -64,6 +83,8 @@ public class MyTccEventServiceImpl extends TccEventServiceGrpc.TccEventServiceIm
   @Override
   public void onTccTransactionEnded(GrpcTccTransactionEndedEvent request, StreamObserver<GrpcAck> responseObserver) {
     LOG.info("Received transaction end event, global tx id: {}", request.getGlobalTxId());
+    events.offer(request);
+    sleep();
     responseObserver.onNext(ALLOW);
     responseObserver.onCompleted();
   }
@@ -74,13 +95,25 @@ public class MyTccEventServiceImpl extends TccEventServiceGrpc.TccEventServiceIm
             + "method: {}, status: {}, service [{}] instanceId [{}]",
         request.getGlobalTxId(), request.getLocalTxId(), request.getParentTxId(),
         request.getMethodName(), request.getStatus(), request.getServiceName(), request.getInstanceId());
+    events.offer(request);
+    sleep();
     responseObserver.onNext(ALLOW);
     responseObserver.onCompleted();
   }
 
   @Override
   public void onDisconnected(GrpcServiceConfig request, StreamObserver<GrpcAck> responseObserver) {
+    connected.add("Disconnected " + request.getServiceName());
+    sleep();
     responseObserver.onNext(ALLOW);
     responseObserver.onCompleted();
+  }
+
+  private void sleep() {
+    try {
+      Thread.sleep(delay);
+    } catch (InterruptedException e) {
+      fail(e.getMessage());
+    }
   }
 }

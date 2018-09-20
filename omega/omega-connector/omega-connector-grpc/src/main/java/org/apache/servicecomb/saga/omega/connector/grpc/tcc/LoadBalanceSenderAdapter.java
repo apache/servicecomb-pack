@@ -60,7 +60,7 @@ public abstract class LoadBalanceSenderAdapter implements MessageSender {
     } catch (Exception e) {
       LOG.error("Retry sending event {} due to failure", event, e);
       loadContext.getSenders().put(messageSender, Long.MAX_VALUE);
-      loadContext.getGrpcOnErrorHandler().handle(messageSender);
+//      loadContext.getGrpcOnErrorHandler().handle(messageSender);
     }
     return Optional.fromNullable(response);
   }
