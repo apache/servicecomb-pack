@@ -38,6 +38,7 @@ public class LoadBalanceContext {
     this.channels = channels;
     this.pendingTaskRunner = new PendingTaskRunner(reconnectDelay);
     this.grpcOnErrorHandler = new GrpcOnErrorHandler(pendingTaskRunner.getPendingTasks(), senders);
+    pendingTaskRunner.start();
   }
 
   public Map<MessageSender, Long> getSenders() {

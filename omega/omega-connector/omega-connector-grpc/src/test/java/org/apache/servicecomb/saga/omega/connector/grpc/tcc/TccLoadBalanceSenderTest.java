@@ -21,8 +21,10 @@ import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -37,6 +39,9 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.saga.omega.connector.grpc.FastestSender;
@@ -50,17 +55,18 @@ import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.ParticipatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccEndedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccStartedEvent;
+import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccParticipatedEvent;
 import org.hamcrest.core.Is;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TccLoadBalanceSenderTest {
+public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
   private final AlphaClusterConfig clusterConfig = mock(AlphaClusterConfig.class);
   private final TccMessageHandler tccMessageHandler = mock(CoordinateMessageHandler.class);
-  private final String serverName = uniquify("serviceName");
-  private final ServiceConfig serviceConfig = new ServiceConfig(serverName);
+
   protected final String[] addresses = {"localhost:8080", "localhost:8090"};
 
   private LoadBalanceContext loadContext;
@@ -74,6 +80,8 @@ public class TccLoadBalanceSenderTest {
   private final String cancelMethod = uniquify("cancleMethod");
   private final String serviceName = uniquify("serviceName");
 
+  private final ServiceConfig serviceConfig = new ServiceConfig(serviceName);
+
   private ParticipatedEvent participatedEvent;
   private TccStartedEvent tccStartedEvent;
   private TccEndedEvent tccEndedEvent;
@@ -81,16 +89,23 @@ public class TccLoadBalanceSenderTest {
 
   @BeforeClass
   public static void startServer() throws IOException {
-    startServerOnPort(8080);
-    startServerOnPort(8090);
+    for (Integer each : ports) {
+      startServerOnPort(each);
+    }
   }
 
-  private static void startServerOnPort(int port) throws IOException {
+  private static void startServerOnPort(int port) {
     ServerBuilder<?> serverBuilder = NettyServerBuilder.forAddress(
         new InetSocketAddress("127.0.0.1", port));
-    serverBuilder.addService(new MyTccEventServiceImpl());
+    serverBuilder.addService(new MyTccEventServiceImpl(connected.get(port), eventsMap.get(port), delays.get(port)));
     Server server = serverBuilder.build();
-    server.start();
+
+    try {
+      server.start();
+      servers.put(port, server);
+    } catch (Exception ex) {
+      fail(ex.getMessage());
+    }
   }
 
   @Before
@@ -111,6 +126,13 @@ public class TccLoadBalanceSenderTest {
   @After
   public void teardown() {
     tccLoadBalanceSender.close();
+
+    for (Queue<Object> queue :eventsMap.values()) {
+      queue.clear();
+    }
+    for (Queue<String> queue :connected.values()) {
+      queue.clear();
+    }
   }
 
   @Test
@@ -130,23 +152,51 @@ public class TccLoadBalanceSenderTest {
     AlphaResponse response = tccLoadBalanceSender.participate(participatedEvent);
     assertThat(loadContext.getSenders().get(actualSender), greaterThan(0L));
     assertThat(response.aborted(), is(false));
+
+    Integer expectPort = Integer.valueOf(expectSender.target().split(":")[1]);
+    GrpcTccParticipatedEvent result = (GrpcTccParticipatedEvent) eventsMap.get(expectPort).poll();
+    assertThat(result.getGlobalTxId(), is(globalTxId));
+    assertThat(result.getCancelMethod(), is(cancelMethod));
+    assertThat(result.getConfirmMethod(), is(confirmMethod));
+    assertThat(result.getServiceName(), is(serviceName));
+    assertThat(result.getInstanceId(), is(serviceConfig.instanceId()));
+    assertThat(result.getParentTxId(), is(parentTxId));
+    assertThat(result.getStatus(), is(TransactionStatus.Succeed.name()));
   }
 
   @Test
   public void participateFailedThenRetry() {
-    TccMessageSender failedSender = mock(GrpcTccClientMessageSender.class);
-    doThrow(new IllegalArgumentException()).when(failedSender).participate((ParticipatedEvent)any());
-    TccMessageSender succeedSender = mock(GrpcTccClientMessageSender.class);
-    when(succeedSender.participate((ParticipatedEvent) any())).thenReturn(new AlphaResponse(false));
+    tccLoadBalanceSender.onConnected();
+    await().atMost(2, TimeUnit.SECONDS).until(new Callable<Boolean>() {
+      @Override
+      public Boolean call() {
+        return connected.get(8080).size() == 1 && connected.get(8090).size() == 1;
+      }
+    });
+    assertThat((connected.get(8080).size() == 1 && connected.get(8090).size() == 1), is(true));
 
-    Map<MessageSender, Long> senders = Maps.newConcurrentMap();
-    senders.put(failedSender, 0l);
-    senders.put(succeedSender, 10l);
-    loadContext.setSenders(senders);
+    // due to 8090 is slow than 8080, so 8080 will be routed with 2 times.
+    tccLoadBalanceSender.participate(participatedEvent);
+    tccLoadBalanceSender.participate(participatedEvent);
+    tccLoadBalanceSender.participate(participatedEvent);
+    assertThat(eventsMap.get(8080).size(), is(2));
+    assertThat(eventsMap.get(8090).size(), is(1));
 
-    AlphaResponse response = tccLoadBalanceSender.participate(participatedEvent);
-    assertThat(response.aborted(), is(false));
-    assertThat(loadContext.getSenders().get(failedSender), is(Long.MAX_VALUE));
+    // when 8080 was shutdown, request will be routed to 8090 automatically.
+    servers.get(8080).shutdownNow();
+    tccLoadBalanceSender.participate(participatedEvent);
+    assertThat(eventsMap.get(8090).size(), is(2));
+
+    // when 8080 was recovery, it will be routed again.
+    startServerOnPort(8080);
+    await().atMost(2, TimeUnit.SECONDS).until(new Callable<Boolean>() {
+      @Override
+      public Boolean call() {
+        return connected.get(8080).size() == 3;
+      }
+    });
+    tccLoadBalanceSender.participate(participatedEvent);
+    assertThat(eventsMap.get(8080).size(), is(3));
   }
 
   @Test(expected = OmegaException.class)
@@ -206,13 +256,22 @@ public class TccLoadBalanceSenderTest {
   }
 
   @Test
-  public void onConnected() {
+  public void broadcastConnectionAndDisconnection() {
     tccLoadBalanceSender.onConnected();
+    await().atMost(1, SECONDS).until(new Callable<Boolean>() {
+
+      @Override
+      public Boolean call() throws Exception {
+        return !connected.get(8080).isEmpty() && !connected.get(8090).isEmpty();
+      }
+    });
+
+    Assert.assertThat(connected.get(8080), contains("Connected " + serviceName));
+    Assert.assertThat(connected.get(8090), contains("Connected " + serviceName));
+
+    tccLoadBalanceSender.onDisconnected();
+    Assert.assertThat(connected.get(8080), contains("Connected " + serviceName, "Disconnected " + serviceName));
+    Assert.assertThat(connected.get(8090), contains("Connected " + serviceName, "Disconnected " + serviceName));
   }
 
-  @Test
-  public void onDisconnect() {
-    tccLoadBalanceSender.onConnected();
-    tccLoadBalanceSender.onDisconnected();
-  }
 }
