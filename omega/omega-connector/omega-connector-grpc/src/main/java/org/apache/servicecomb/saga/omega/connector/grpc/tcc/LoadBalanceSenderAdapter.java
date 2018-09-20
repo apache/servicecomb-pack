@@ -45,7 +45,8 @@ public abstract class LoadBalanceSenderAdapter implements MessageSender {
 
   @SuppressWarnings("unchecked")
   public <T> T pickMessageSender() {
-    return (T) senderPicker.pick(loadContext.getSenders(), loadContext.getDefaultMessageSender());
+    return (T) senderPicker.pick(loadContext.getSenders(),
+        loadContext.getGrpcOnErrorHandler().getGrpcRetryContext().getDefaultMessageSender());
   }
 
   public <T> Optional<AlphaResponse> doGrpcSend(MessageSender messageSender, T event, SenderExecutor<T> executor) {
@@ -59,6 +60,7 @@ public abstract class LoadBalanceSenderAdapter implements MessageSender {
     } catch (Exception e) {
       LOG.error("Retry sending event {} due to failure", event, e);
       loadContext.getSenders().put(messageSender, Long.MAX_VALUE);
+      loadContext.getGrpcOnErrorHandler().handle(messageSender);
     }
     return Optional.fromNullable(response);
   }

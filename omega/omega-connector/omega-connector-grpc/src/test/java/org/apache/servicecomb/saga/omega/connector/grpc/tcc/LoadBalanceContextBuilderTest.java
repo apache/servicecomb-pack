@@ -75,7 +75,7 @@ public class LoadBalanceContextBuilderTest {
     when(clusterConfig.isEnableSSL()).thenReturn(false);
 
     LoadBalanceContext loadContext = tccLoadBalanceContextBuilder.build();
-    assertThat(loadContext.getReconnectDelay(), is(30));
+    assertThat(loadContext.getPendingTaskRunner().getReconnectDelay(), is(30));
     assertThat(loadContext.getSenders().size(), is(2));
     assertThat(loadContext.getSenders().keySet().iterator().next(), instanceOf(TccMessageSender.class));
     assertThat(loadContext.getSenders().values().iterator().next(), is(0l));
@@ -91,7 +91,7 @@ public class LoadBalanceContextBuilderTest {
     when(clusterConfig.getCertChain()).thenReturn(getClass().getClassLoader().getResource("ca.crt").getFile());
     when(clusterConfig.getKey()).thenReturn(getClass().getClassLoader().getResource("client.pem").getFile());
     LoadBalanceContext loadContext = tccLoadBalanceContextBuilder.build();
-    assertThat(loadContext.getReconnectDelay(), is(30));
+    assertThat(loadContext.getPendingTaskRunner().getReconnectDelay(), is(30));
     assertThat(loadContext.getSenders().size(), is(2));
     assertThat(loadContext.getSenders().keySet().iterator().next(), instanceOf(TccMessageSender.class));
     assertThat(loadContext.getSenders().values().iterator().next(), is(0l));
