@@ -55,7 +55,7 @@ public class GrpcTccEventService implements TccEventService {
     tccBlockingEventService = TccEventServiceGrpc.newBlockingStub(channel);
     tccAsyncEventService = TccEventServiceGrpc.newStub(channel);
     this.serviceConfig = serviceConfig(serviceConfig.serviceName(), serviceConfig.instanceId());
-    observer = new GrpcCoordinateStreamObserver(handler);
+    observer = new GrpcCoordinateStreamObserver(null, null, handler);
   }
 
   @Override

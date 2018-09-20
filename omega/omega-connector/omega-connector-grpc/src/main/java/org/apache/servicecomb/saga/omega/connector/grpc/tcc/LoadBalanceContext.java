@@ -17,13 +17,9 @@
 
 package org.apache.servicecomb.saga.omega.connector.grpc.tcc;
 
-import com.google.common.base.Supplier;
 import io.grpc.ManagedChannel;
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import org.apache.servicecomb.saga.omega.connector.grpc.RetryableMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 
 public class LoadBalanceContext {
@@ -32,63 +28,35 @@ public class LoadBalanceContext {
 
   private final Collection<ManagedChannel> channels;
 
-  private final int reconnectDelay;
+  private final PendingTaskRunner pendingTaskRunner;
 
-  private final BlockingQueue<Runnable> pendingTasks = new LinkedBlockingQueue<>();
+  private final GrpcOnErrorHandler grpcOnErrorHandler;
 
-  private final BlockingQueue<MessageSender> availableMessageSenders = new LinkedBlockingQueue<>();
-
-  private final MessageSender retryableMessageSender = new RetryableMessageSender(availableMessageSenders);
-
-  private final Supplier<MessageSender> defaultMessageSender = new Supplier<MessageSender>() {
-    @Override
-    public MessageSender get() {
-      return retryableMessageSender;
-    }
-  };
-
-  private final PendingTaskRunner pendingTaskRunner = new PendingTaskRunner(this);
-
-  public LoadBalanceContext(
-      Map<MessageSender, Long> senders, Collection<ManagedChannel> channels, int reconnectDelay) {
+  public LoadBalanceContext(Map<MessageSender, Long> senders,
+      Collection<ManagedChannel> channels, int reconnectDelay) {
     this.senders = senders;
     this.channels = channels;
-    this.reconnectDelay = reconnectDelay;
+    this.pendingTaskRunner = new PendingTaskRunner(reconnectDelay);
+    this.grpcOnErrorHandler = new GrpcOnErrorHandler(pendingTaskRunner.getPendingTasks(), senders);
   }
 
   public Map<MessageSender, Long> getSenders() {
     return senders;
   }
 
-  public void setSenders(Map<MessageSender, Long> senders) {
-    this.senders = senders;
-  }
-
   public Collection<ManagedChannel> getChannels() {
     return channels;
-  }
-
-  public int getReconnectDelay() {
-    return reconnectDelay;
-  }
-
-  public BlockingQueue<Runnable> getPendingTasks() {
-    return pendingTasks;
-  }
-
-  public BlockingQueue<MessageSender> getAvailableMessageSenders() {
-    return availableMessageSenders;
-  }
-
-  public MessageSender getRetryableMessageSender() {
-    return retryableMessageSender;
   }
 
   public PendingTaskRunner getPendingTaskRunner() {
     return pendingTaskRunner;
   }
 
-  public Supplier<MessageSender> getDefaultMessageSender() {
-    return defaultMessageSender;
+  public GrpcOnErrorHandler getGrpcOnErrorHandler() {
+    return grpcOnErrorHandler;
+  }
+
+  public void setSenders(Map<MessageSender, Long> senders) {
+    this.senders = senders;
   }
 }

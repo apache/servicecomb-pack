@@ -53,8 +53,7 @@ public class GrpcTccClientMessageSender implements TccMessageSender {
     tccBlockingEventService = TccEventServiceGrpc.newBlockingStub(channel);
     tccAsyncEventService = TccEventServiceGrpc.newStub(channel);
     this.serviceConfig = serviceConfig(serviceConfig.serviceName(), serviceConfig.instanceId());
-    Runnable errorTask = ObserverErrorTaskFactory.createTask(this, loadContext);
-    observer = new GrpcCoordinateStreamObserver(errorTask, handler);
+    observer = new GrpcCoordinateStreamObserver(loadContext, this, handler);
   }
 
   @Override

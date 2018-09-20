@@ -18,6 +18,7 @@
 package org.apache.servicecomb.saga.omega.connector.grpc.tcc;
 
 import java.lang.invoke.MethodHandles;
+import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageHandler;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
 import org.slf4j.Logger;
@@ -26,17 +27,13 @@ import org.slf4j.LoggerFactory;
 public class GrpcCoordinateStreamObserver extends ReconnectStreamObserver<GrpcTccCoordinateCommand> {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
   private final TccMessageHandler messageHandler;
 
-  public GrpcCoordinateStreamObserver(Runnable errorHandler,
-      TccMessageHandler messageHandler) {
-    super(errorHandler);
-    this.messageHandler = messageHandler;
-  }
-
   public GrpcCoordinateStreamObserver(
+      LoadBalanceContext loadBalanceContext, MessageSender messageSender,
       TccMessageHandler messageHandler) {
-    super(null);
+    super(loadBalanceContext, messageSender);
     this.messageHandler = messageHandler;
   }
 
