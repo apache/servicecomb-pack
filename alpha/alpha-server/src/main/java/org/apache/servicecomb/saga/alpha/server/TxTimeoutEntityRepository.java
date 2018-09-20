@@ -62,17 +62,17 @@ interface TxTimeoutEntityRepository extends CrudRepository<TxTimeout, Long> {
   @Modifying(clearAutomatically = true)
   @Query("UPDATE TxTimeout t "
       + "SET t.status = 'DONE' "
-      + "WHERE t.status != 'DONE' AND EXISTS ( "
+      + "WHERE t.status != 'DONE' AND EXISTS ("
       + "  SELECT t1.globalTxId FROM TxEvent t1 "
       + "  WHERE t1.globalTxId = t.globalTxId "
       + "    AND t1.localTxId = t.localTxId "
-      + "    AND t1.type != t.type  AND NOT EXISTS ( "
-      + "  SELECT t2.globalTxId FROM TxEvent t2  "
-      + "  WHERE t2.globalTxId = t1.globalTxId "
-      + "    AND t2.localTxId = t1.localTxId "
-      + "    AND t2.creationTime > t1.creationTime ) "
-      + ") OR NOT EXISTS ( "
-      + "    SELECT t3 FROM TxEvent t3 "
-      + "      WHERE t3.globalTxId = t.globalTxId )")
+      + "    AND t1.type != t.type"
+      + "    AND t1.surrogateId > t.eventId ) OR EXISTS ("
+      + "  SELECT t1.globalTxId FROM TxEventHistory t1 "
+      + "  WHERE t1.globalTxId = t.globalTxId "
+      + "    AND t1.localTxId = t.localTxId "
+      + "    AND t1.type != t.type"
+      + "    AND t1.surrogateId > t.eventId"
+      + ")")
   void updateStatusOfFinishedTx();
 }

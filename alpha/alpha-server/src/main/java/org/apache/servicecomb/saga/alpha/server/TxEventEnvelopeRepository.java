@@ -92,29 +92,6 @@ interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
       + "  AND t1.creationTime > t.creationTime ) ")
   List<TxEvent> findLastStartedEvent(String globalTxId, String localTxId);
 
-  @Query("SELECT t FROM TxEvent t "
-      + "WHERE t.type = ?1 AND t.surrogateId > ?2 AND EXISTS ( "
-      + "  SELECT t1.globalTxId FROM TxEvent t1 "
-      + "  WHERE t1.globalTxId = t.globalTxId "
-      + "    AND t1.type = 'TxAbortedEvent' AND NOT EXISTS ( "
-      + "    SELECT t2.globalTxId FROM TxEvent t2 "
-      + "    WHERE t2.globalTxId = t1.globalTxId "
-      + "      AND t2.localTxId = t1.localTxId "
-      + "      AND t2.type = 'TxStartedEvent' "
-      + "      AND t2.creationTime > t1.creationTime)) AND NOT EXISTS ( "
-      + "  SELECT t3.globalTxId FROM TxEvent t3 "
-      + "  WHERE t3.globalTxId = t.globalTxId "
-      + "    AND t3.localTxId = t.localTxId "
-      + "    AND t3.type = 'TxCompensatedEvent') AND ( "
-      + "  SELECT MIN(t4.retries) FROM TxEvent t4 "
-      + "  WHERE t4.globalTxId = t.globalTxId "
-      + "    AND t4.localTxId = t.localTxId "
-      + "    AND t4.type = 'TxStartedEvent' ) = 0 "
-      + "ORDER BY t.surrogateId ASC")
-  List<TxEvent> findFirstByTypeAndSurrogateIdGreaterThan(String type, long surrogateId,
-      Pageable pageable);
-
-  Optional<TxEvent> findFirstByTypeAndSurrogateIdGreaterThan(String type, long surrogateId);
 
   @Query("SELECT t FROM TxEvent t "
       + "WHERE t.type = 'TxEndedEvent' AND NOT EXISTS ( "
@@ -141,25 +118,16 @@ interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
       + "    AND c.localTxId = t.localTxId ) ")
   List<TxEvent> findNeedToCompensateTxs();
 
-  @Query(value = "SELECT t FROM TxEvent t "
-      + "WHERE t.type = 'TxAbortedEvent' AND NOT EXISTS ( "
-      + "  SELECT t1 FROM TxEvent t1 "
+  @Query("SELECT t FROM TxEvent t "
+      + "WHERE t.type = 'TxAbortedEvent' AND NOT EXISTS( "
+      + "  SELECT t1.globalTxId FROM TxEvent t1"
       + "  WHERE t1.globalTxId = t.globalTxId "
-      + "    AND t1.type = 'TxStartedEvent' AND NOT EXISTS ( "
-      + "    SELECT t2 FROM TxEvent t2 "
-      + "    WHERE t2.globalTxId = t1.globalTxId "
-      + "      AND t2.localTxId = t1.localTxId "
-      + "      AND t2.creationTime > t1.creationTime ) )  AND NOT EXISTS ( "
-      + "     SELECT t3 FROM TxEvent t3 "
-      + "      WHERE t3.globalTxId = t.globalTxId "
-      + "      AND t3.localTxId = t.localTxId "
-      + "      AND t3.type = 'TxStartedEvent' AND ("
-      + "        SELECT count(t4) FROM TxEvent t4 "
-      + "          WHERE t4.globalTxId = t3.globalTxId "
-      + "          AND t4.localTxId = t3.localTxId AND t4.type = t3.type ) < t3.retries  OR  t3.retries = -1 ) AND NOT EXISTS ( "
-      + "     SELECT t5 FROM TxEvent t5 "
-      + "      WHERE t5.globalTxId = t.globalTxId "
-      + "      AND t5.type in ('TxEndedEvent','SagaEndedEvent') )")
+      + "    AND t1.type IN ('TxEndedEvent', 'SagaEndedEvent')) AND NOT EXISTS ( "
+      + "  SELECT t3.globalTxId FROM TxEvent t3 "
+      + "  WHERE t3.globalTxId = t.globalTxId "
+      + "    AND t3.localTxId = t.localTxId "
+      + "    AND t3.surrogateId != t.surrogateId "
+      + "    AND t3.creationTime > t.creationTime) ")
   List<TxEvent> findAllFinishedTxsForNoTxEnd();
 
   @Query("SELECT t FROM TxEvent t "

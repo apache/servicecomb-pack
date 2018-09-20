@@ -86,8 +86,7 @@ public class EventScanner implements Runnable {
           updateCompensatedCommands();
           markSagaEndedForNoTxEnd();
           deleteDuplicateSagaEndedEvents();
-          //Temporarily comment it since  AlphaIntegration Test will failed.
-          //dumpColdData();
+          dumpColdData();
         },
         0,
         eventPollingInterval,

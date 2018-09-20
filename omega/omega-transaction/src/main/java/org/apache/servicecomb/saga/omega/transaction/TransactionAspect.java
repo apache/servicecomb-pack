@@ -50,7 +50,7 @@ public class TransactionAspect {
     LOG.debug("Updated context {} for compensable method {} ", context, method.toString());
 
     int retries = compensable.retries();
-    RecoveryPolicy recoveryPolicy = RecoveryPolicyFactory.getRecoveryPolicy(retries);
+    RecoveryPolicy recoveryPolicy = RecoveryPolicyFactory.getRecoveryPolicy();
     try {
       return recoveryPolicy.apply(joinPoint, compensable, interceptor, context, localTxId, retries);
     } finally {
