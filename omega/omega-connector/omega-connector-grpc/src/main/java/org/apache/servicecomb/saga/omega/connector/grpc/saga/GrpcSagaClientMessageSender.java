@@ -19,7 +19,7 @@ package org.apache.servicecomb.saga.omega.connector.grpc.saga;
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
-import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContext;
+import org.apache.servicecomb.saga.omega.connector.grpc.core.LoadBalanceContext;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;

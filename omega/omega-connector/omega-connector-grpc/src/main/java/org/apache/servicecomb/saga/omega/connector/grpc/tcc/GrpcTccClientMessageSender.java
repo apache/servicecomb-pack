@@ -18,6 +18,7 @@
 package org.apache.servicecomb.saga.omega.connector.grpc.tcc;
 
 import io.grpc.ManagedChannel;
+import org.apache.servicecomb.saga.omega.connector.grpc.core.LoadBalanceContext;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageHandler;

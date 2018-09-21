@@ -31,7 +31,11 @@ import io.grpc.testing.GrpcCleanupRule;
 import java.io.IOException;
 import java.util.ArrayList;
 import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
+import org.apache.servicecomb.saga.omega.connector.grpc.core.LoadBalanceContext;
+import org.apache.servicecomb.saga.omega.connector.grpc.core.LoadBalanceContextBuilder;
+import org.apache.servicecomb.saga.omega.connector.grpc.core.TransactionType;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
+import org.apache.servicecomb.saga.omega.transaction.SagaMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.tcc.CoordinateMessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageSender;
@@ -51,7 +55,7 @@ public class LoadBalanceContextBuilderTest {
   private final ServiceConfig serviceConfig = new ServiceConfig(serverName);
   protected final String[] addresses = {"localhost:8080", "localhost:8090"};
 
-  private  LoadBalanceContextBuilder tccLoadBalanceContextBuilder;
+  private LoadBalanceContextBuilder tccLoadBalanceContextBuilder;
   private  LoadBalanceContextBuilder sagaLoadBalanceContextBuilder;
 
   @Before
@@ -108,12 +112,29 @@ public class LoadBalanceContextBuilderTest {
 
   @Test
   public void buildSagaLoadBalanceContextWithoutSsl() {
-
+    LoadBalanceContext loadContext = sagaLoadBalanceContextBuilder.build();
+    assertThat(loadContext.getPendingTaskRunner().getReconnectDelay(), is(30));
+    assertThat(loadContext.getSenders().size(), is(2));
+    assertThat(loadContext.getSenders().keySet().iterator().next(), instanceOf(SagaMessageSender.class));
+    assertThat(loadContext.getSenders().values().iterator().next(), is(0l));
+    assertThat(loadContext.getChannels().size(), is(2));
+    loadContext.getSenders().keySet().iterator().next().close();
+    shutdownChannels(loadContext);
   }
 
   @Test
   public void buildSagaLoadBalanceContextWithSsl() {
-
+    when(clusterConfig.isEnableSSL()).thenReturn(true);
+    when(clusterConfig.getCert()).thenReturn(getClass().getClassLoader().getResource("client.crt").getFile());
+    when(clusterConfig.getCertChain()).thenReturn(getClass().getClassLoader().getResource("ca.crt").getFile());
+    when(clusterConfig.getKey()).thenReturn(getClass().getClassLoader().getResource("client.pem").getFile());
+    LoadBalanceContext loadContext = sagaLoadBalanceContextBuilder.build();
+    assertThat(loadContext.getPendingTaskRunner().getReconnectDelay(), is(30));
+    assertThat(loadContext.getSenders().size(), is(2));
+    assertThat(loadContext.getSenders().keySet().iterator().next(), instanceOf(SagaMessageSender.class));
+    assertThat(loadContext.getSenders().values().iterator().next(), is(0l));
+    assertThat(loadContext.getChannels().size(), is(2));
+    shutdownChannels(loadContext);
   }
 
   private void shutdownChannels(LoadBalanceContext loadContext) {

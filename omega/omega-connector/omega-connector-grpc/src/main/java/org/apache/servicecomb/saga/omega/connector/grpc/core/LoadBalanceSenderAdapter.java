@@ -15,12 +15,11 @@
  *  limitations under the License.
  */
 
-package org.apache.servicecomb.saga.omega.connector.grpc.tcc;
+package org.apache.servicecomb.saga.omega.connector.grpc.core;
 
 import com.google.common.base.Optional;
 import io.grpc.ManagedChannel;
 import java.lang.invoke.MethodHandles;
-import org.apache.servicecomb.saga.omega.connector.grpc.MessageSenderPicker;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
