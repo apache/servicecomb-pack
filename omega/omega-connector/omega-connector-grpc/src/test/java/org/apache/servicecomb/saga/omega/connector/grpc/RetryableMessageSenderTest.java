@@ -27,6 +27,7 @@ import static org.mockito.Mockito.verify;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.apache.servicecomb.saga.omega.connector.grpc.saga.RetryableMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
 import org.apache.servicecomb.saga.omega.transaction.SagaMessageSender;
