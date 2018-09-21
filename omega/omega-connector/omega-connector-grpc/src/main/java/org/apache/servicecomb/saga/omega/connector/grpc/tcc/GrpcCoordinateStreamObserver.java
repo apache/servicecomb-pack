@@ -18,6 +18,8 @@
 package org.apache.servicecomb.saga.omega.connector.grpc.tcc;
 
 import java.lang.invoke.MethodHandles;
+import org.apache.servicecomb.saga.omega.connector.grpc.core.LoadBalanceContext;
+import org.apache.servicecomb.saga.omega.connector.grpc.core.ReconnectStreamObserver;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageHandler;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;

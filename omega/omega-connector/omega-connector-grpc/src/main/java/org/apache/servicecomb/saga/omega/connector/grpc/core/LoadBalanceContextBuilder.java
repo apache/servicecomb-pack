@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.servicecomb.saga.omega.connector.grpc.tcc;
+package org.apache.servicecomb.saga.omega.connector.grpc.core;
 
 import com.google.common.base.Optional;
 import io.grpc.ManagedChannel;
@@ -37,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.net.ssl.SSLException;
 import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.saga.omega.connector.grpc.saga.GrpcSagaClientMessageSender;
+import org.apache.servicecomb.saga.omega.connector.grpc.tcc.GrpcTccClientMessageSender;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 

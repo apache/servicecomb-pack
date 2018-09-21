@@ -19,16 +19,14 @@ package org.apache.servicecomb.saga.omega.connector.grpc.saga;
 
 import java.lang.invoke.MethodHandles;
 
-import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContext;
-import org.apache.servicecomb.saga.omega.connector.grpc.tcc.ReconnectStreamObserver;
+import org.apache.servicecomb.saga.omega.connector.grpc.core.LoadBalanceContext;
+import org.apache.servicecomb.saga.omega.connector.grpc.core.ReconnectStreamObserver;
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.grpc.stub.StreamObserver;
 
 class GrpcCompensateStreamObserver extends ReconnectStreamObserver<GrpcCompensateCommand> {
 

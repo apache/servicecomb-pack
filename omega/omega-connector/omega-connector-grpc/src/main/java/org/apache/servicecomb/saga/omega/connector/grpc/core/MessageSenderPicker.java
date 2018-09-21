@@ -15,30 +15,27 @@
  *  limitations under the License.
  */
 
-package org.apache.servicecomb.saga.omega.connector.grpc;
+package org.apache.servicecomb.saga.omega.connector.grpc.core;
 
 import com.google.common.base.Supplier;
+import java.util.Collection;
 import java.util.Map;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 
 /**
- * The strategy of picking the fastest {@link MessageSender}
+ * The strategy of picking a specific {@link MessageSender} from a {@link Collection} of {@link
+ * MessageSender}s
  */
-public class FastestSender implements MessageSenderPicker {
-  @Override
-  public MessageSender pick(Map<? extends MessageSender, Long> messageSenders, Supplier<MessageSender> defaultSender) {
-    Long min = Long.MAX_VALUE;
-    MessageSender sender = null;
-    for (Map.Entry<? extends MessageSender, Long> entry : messageSenders.entrySet()) {
-      if (entry.getValue() != Long.MAX_VALUE && min > entry.getValue()) {
-        min = entry.getValue();
-        sender = entry.getKey();
-      }
-    }
-    if (sender == null) {
-      return defaultSender.get();
-    } else {
-      return sender;
-    }
-  }
+public interface MessageSenderPicker {
+
+  /**
+   * Pick one from the Collection. Return default sender if none is picked.
+   *
+   * @param messageSenders Candidates map, the Key Set of which is the collection of candidate
+   * senders.
+   * @param defaultSender Default sender provider
+   * @return The specified one.
+   */
+  MessageSender pick(Map<? extends MessageSender, Long> messageSenders,
+      Supplier<MessageSender> defaultSender);
 }
