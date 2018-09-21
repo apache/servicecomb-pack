@@ -42,7 +42,7 @@ public class TransactionAspectTest {
   private final String localTxId = UUID.randomUUID().toString();
   private final String newLocalTxId = UUID.randomUUID().toString();
 
-  private final MessageSender sender = new MessageSender() {
+  private final SagaMessageSender sender = new SagaMessageSender() {
     @Override
     public void onConnected() {
     }

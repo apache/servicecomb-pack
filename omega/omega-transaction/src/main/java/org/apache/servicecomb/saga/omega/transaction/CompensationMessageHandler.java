@@ -20,11 +20,11 @@ package org.apache.servicecomb.saga.omega.transaction;
 import org.apache.servicecomb.saga.omega.context.CallbackContext;
 
 public class CompensationMessageHandler implements MessageHandler {
-  private final MessageSender sender;
+  private final SagaMessageSender sender;
 
   private final CallbackContext context;
 
-  public CompensationMessageHandler(MessageSender sender, CallbackContext context) {
+  public CompensationMessageHandler(SagaMessageSender sender, CallbackContext context) {
     this.sender = sender;
     this.context = context;
   }

@@ -40,13 +40,14 @@ import java.util.concurrent.Callable;
 import javax.net.ssl.SSLException;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
+import org.apache.servicecomb.saga.omega.transaction.SagaMessageSender;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class LoadBalanceClusterMessageSenderWithTLSTest extends LoadBalancedClusterMessageSenderTestBase {
 
   @Override
-  protected MessageSender newMessageSender(String[] addresses) {
+  protected SagaMessageSender newMessageSender(String[] addresses) {
     ClassLoader classLoader = getClass().getClassLoader();
     AlphaClusterConfig clusterConfig = AlphaClusterConfig.builder()
         .addresses(ImmutableList.copyOf(addresses))

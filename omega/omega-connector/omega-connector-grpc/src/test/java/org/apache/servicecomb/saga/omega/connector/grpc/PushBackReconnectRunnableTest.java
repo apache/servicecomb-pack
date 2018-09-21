@@ -31,7 +31,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
-import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 

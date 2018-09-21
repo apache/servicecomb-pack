@@ -27,6 +27,7 @@ import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.MessageSerializer;
+import org.apache.servicecomb.saga.omega.transaction.SagaMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
@@ -40,7 +41,7 @@ import com.google.protobuf.ByteString;
 
 import io.grpc.ManagedChannel;
 
-public class GrpcClientMessageSender implements MessageSender {
+public class GrpcClientMessageSender implements SagaMessageSender {
   private final String target;
   private final TxEventServiceStub asyncEventService;
 

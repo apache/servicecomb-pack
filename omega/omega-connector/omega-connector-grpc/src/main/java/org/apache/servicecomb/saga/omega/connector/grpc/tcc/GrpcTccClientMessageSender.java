@@ -20,8 +20,8 @@ package org.apache.servicecomb.saga.omega.connector.grpc.tcc;
 import io.grpc.ManagedChannel;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
-import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageHandler;
+import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.ParticipatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccEndedEvent;
@@ -151,10 +151,5 @@ public class GrpcTccClientMessageSender implements TccMessageSender {
         .setConfirmMethod(participateEvent.getConfirmMethod())
         .setStatus(participateEvent.getStatus().toString())
         .build();
-  }
-
-  @Override
-  public AlphaResponse send(TxEvent event) {
-    return null;
   }
 }

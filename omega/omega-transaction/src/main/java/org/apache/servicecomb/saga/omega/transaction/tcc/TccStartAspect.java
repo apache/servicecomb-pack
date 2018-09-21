@@ -37,9 +37,9 @@ public class TccStartAspect {
 
   private final OmegaContext context;
 
-  public TccStartAspect(TccEventService tccEventServicer, OmegaContext context) {
+  public TccStartAspect(TccMessageSender tccMessageSender, OmegaContext context) {
     this.context = context;
-    this.tccStartAnnotationProcessor = new TccStartAnnotationProcessor(context, tccEventServicer);
+    this.tccStartAnnotationProcessor = new TccStartAnnotationProcessor(context, tccMessageSender);
   }
 
   @Around("execution(@org.apache.servicecomb.saga.omega.context.annotations.TccStart * *(..)) && @annotation(tccStart)")

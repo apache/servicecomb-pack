@@ -34,6 +34,7 @@ import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.tcc.CoordinateMessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageHandler;
+import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageSender;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

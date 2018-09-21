@@ -17,14 +17,7 @@
 
 package org.apache.servicecomb.saga.omega.transaction;
 
-public interface MessageSender {
+public interface SagaMessageSender extends MessageSender {
 
-  void onConnected();
-
-  void onDisconnected();
-
-  void close();
-
-  String target();
-
+  AlphaResponse send(TxEvent event);
 }

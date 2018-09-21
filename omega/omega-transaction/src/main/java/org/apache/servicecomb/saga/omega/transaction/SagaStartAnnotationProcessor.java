@@ -23,9 +23,9 @@ import org.apache.servicecomb.saga.omega.context.OmegaContext;
 class SagaStartAnnotationProcessor {
 
   private final OmegaContext omegaContext;
-  private final MessageSender sender;
+  private final SagaMessageSender sender;
 
-  SagaStartAnnotationProcessor(OmegaContext omegaContext, MessageSender sender) {
+  SagaStartAnnotationProcessor(OmegaContext omegaContext, SagaMessageSender sender) {
     this.omegaContext = omegaContext;
     this.sender = sender;
   }

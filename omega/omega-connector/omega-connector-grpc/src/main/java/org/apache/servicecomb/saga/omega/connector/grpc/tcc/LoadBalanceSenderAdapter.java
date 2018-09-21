@@ -24,7 +24,6 @@ import org.apache.servicecomb.saga.omega.connector.grpc.MessageSenderPicker;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
-import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +59,6 @@ public abstract class LoadBalanceSenderAdapter implements MessageSender {
     } catch (Exception e) {
       LOG.error("Retry sending event {} due to failure", event, e);
       loadContext.getSenders().put(messageSender, Long.MAX_VALUE);
-//      loadContext.getGrpcOnErrorHandler().handle(messageSender);
     }
     return Optional.fromNullable(response);
   }
@@ -98,11 +96,6 @@ public abstract class LoadBalanceSenderAdapter implements MessageSender {
   @Override
   public String target() {
     return "UNKNOWN";
-  }
-
-  @Override
-  public AlphaResponse send(TxEvent event) {
-    return null;
   }
 
   public MessageSenderPicker getSenderPicker() {

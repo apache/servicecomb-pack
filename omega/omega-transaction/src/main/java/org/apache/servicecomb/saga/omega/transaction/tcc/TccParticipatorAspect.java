@@ -35,15 +35,15 @@ public class TccParticipatorAspect {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final OmegaContext context;
-  private final TccEventService tccEventService;
+  private final TccMessageSender tccMessageSender;
   private final ParametersContext parametersContext;
 
   //We need to inject the CoordinateMessageHandler for the parameter map
 
-  public TccParticipatorAspect(TccEventService tccEventService, OmegaContext context,
+  public TccParticipatorAspect(TccMessageSender tccMessageSender, OmegaContext context,
       ParametersContext parametersContext) {
     this.context = context;
-    this.tccEventService = tccEventService;
+    this.tccMessageSender = tccMessageSender;
     this.parametersContext = parametersContext;
   }
 
@@ -60,7 +60,7 @@ public class TccParticipatorAspect {
     try {
       Object result = joinPoint.proceed();
       // Send the participate message back
-      tccEventService.participate(new ParticipatedEvent(context.globalTxId(), context.localTxId(), localTxId, confirmMethod,
+      tccMessageSender.participate(new ParticipatedEvent(context.globalTxId(), context.localTxId(), localTxId, confirmMethod,
           cancelMethod, TransactionStatus.Succeed));
       // Just store the parameters into the context
       parametersContext.putParamters(context.localTxId(), joinPoint.getArgs());
@@ -68,7 +68,7 @@ public class TccParticipatorAspect {
       return result;
     } catch (Throwable throwable) {
       // Now we don't handle the error message
-      tccEventService.participate(new ParticipatedEvent(context.globalTxId(), context.localTxId(), localTxId, confirmMethod,
+      tccMessageSender.participate(new ParticipatedEvent(context.globalTxId(), context.localTxId(), localTxId, confirmMethod,
           cancelMethod, TransactionStatus.Failed));
       LOG.error("Participate Transaction with context {} failed.", context, throwable);
       throw throwable;

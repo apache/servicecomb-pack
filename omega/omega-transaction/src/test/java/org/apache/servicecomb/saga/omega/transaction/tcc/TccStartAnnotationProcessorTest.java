@@ -53,7 +53,7 @@ public class TccStartAnnotationProcessorTest {
   private final IdGenerator<String> generator = mock(IdGenerator.class);
   private final OmegaContext context = new OmegaContext(generator);
   private final OmegaException exception = new OmegaException("exception", new RuntimeException("runtime exception"));
-  private final TccEventService eventService = new TccEventService() {
+  private final TccMessageSender tccMessageSender = new TccMessageSender() {
     @Override
     public void onConnected() {
 
@@ -100,7 +100,7 @@ public class TccStartAnnotationProcessorTest {
     }
   };
   private final TccStartAnnotationProcessor tccStartAnnotationProcessor = new TccStartAnnotationProcessor(context,
-      eventService);
+      tccMessageSender);
 
   @Before
   public void setUp() throws Exception {

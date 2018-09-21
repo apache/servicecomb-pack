@@ -35,14 +35,13 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 public class SagaStartAspectTest {
   private final List<TxEvent> messages = new ArrayList<>();
   private final String globalTxId = UUID.randomUUID().toString();
 
-  private final MessageSender sender = new MessageSender() {
+  private final SagaMessageSender sender = new SagaMessageSender() {
     @Override
     public void onConnected() {
     }

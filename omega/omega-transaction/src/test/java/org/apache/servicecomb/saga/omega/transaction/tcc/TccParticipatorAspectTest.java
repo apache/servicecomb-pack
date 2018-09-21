@@ -52,7 +52,7 @@ public class TccParticipatorAspectTest {
   private final AlphaResponse response = new AlphaResponse(false);
   private String confirmMethod;
   private String cancelMethod;
-  private final TccEventService eventService = new TccEventService() {
+  private final TccMessageSender tccMessageSender = new TccMessageSender() {
     @Override
     public void onConnected() {
 
@@ -103,7 +103,7 @@ public class TccParticipatorAspectTest {
   private final Participate participate = mock(Participate.class);
   private final ParametersContext parametersContext = new DefaultParametersContext();
 
-  private final TccParticipatorAspect aspect = new TccParticipatorAspect(eventService, omegaContext, parametersContext);
+  private final TccParticipatorAspect aspect = new TccParticipatorAspect(tccMessageSender, omegaContext, parametersContext);
 
 
   @Before

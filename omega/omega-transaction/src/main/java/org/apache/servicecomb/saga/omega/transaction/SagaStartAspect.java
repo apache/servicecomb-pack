@@ -36,7 +36,7 @@ public class SagaStartAspect {
 
   private final OmegaContext context;
 
-  public SagaStartAspect(MessageSender sender, OmegaContext context) {
+  public SagaStartAspect(SagaMessageSender sender, OmegaContext context) {
     this.context = context;
     this.sagaStartAnnotationProcessor = new SagaStartAnnotationProcessor(context, sender);
   }

@@ -27,9 +27,9 @@ import static org.mockito.Mockito.verify;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
+import org.apache.servicecomb.saga.omega.transaction.SagaMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.SagaStartedEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxStartedEvent;
@@ -38,7 +38,7 @@ import org.junit.Test;
 public class RetryableMessageSenderTest {
   @SuppressWarnings("unchecked")
   private final BlockingQueue<MessageSender> availableMessageSenders = new LinkedBlockingQueue<>();
-  private final MessageSender messageSender = new RetryableMessageSender(availableMessageSenders);
+  private final SagaMessageSender messageSender = new RetryableMessageSender(availableMessageSenders);
 
   private final String globalTxId = uniquify("globalTxId");
   private final String localTxId = uniquify("localTxId");
@@ -47,7 +47,7 @@ public class RetryableMessageSenderTest {
 
   @Test
   public void sendEventWhenSenderIsAvailable() {
-    MessageSender sender = mock(MessageSender.class);
+    SagaMessageSender sender = mock(SagaMessageSender.class);
     availableMessageSenders.add(sender);
 
     messageSender.send(event);

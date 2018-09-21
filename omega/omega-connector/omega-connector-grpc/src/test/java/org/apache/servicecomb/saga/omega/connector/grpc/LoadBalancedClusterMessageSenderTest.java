@@ -37,6 +37,7 @@ import java.util.concurrent.Callable;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
+import org.apache.servicecomb.saga.omega.transaction.SagaMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.TxAbortedEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.apache.servicecomb.saga.omega.transaction.TxStartedEvent;
@@ -46,7 +47,7 @@ import org.mockito.Mockito;
 
 public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMessageSenderTestBase {
   @Override
-  protected MessageSender newMessageSender(String[] addresses) {
+  protected SagaMessageSender newMessageSender(String[] addresses) {
     AlphaClusterConfig clusterConfig = AlphaClusterConfig.builder()
         .addresses(ImmutableList.copyOf(addresses))
         .enableSSL(false)
@@ -139,10 +140,10 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
 
   @Test(timeout = 1000)
   public void stopSendingOnInterruption() throws Exception {
-    MessageSender underlying = Mockito.mock(MessageSender.class);
+    SagaMessageSender underlying = Mockito.mock(SagaMessageSender.class);
     doThrow(RuntimeException.class).when(underlying).send(event);
 
-    final MessageSender messageSender = new LoadBalancedClusterMessageSender(underlying);
+    final SagaMessageSender messageSender = new LoadBalancedClusterMessageSender(underlying);
 
     Thread thread = new Thread(new Runnable() {
       @Override
@@ -182,12 +183,12 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
 
   @Test
   public void swallowException_UntilAllSendersConnected() throws Exception {
-    MessageSender underlying1 = Mockito.mock(MessageSender.class);
+    SagaMessageSender underlying1 = Mockito.mock(SagaMessageSender.class);
     doThrow(RuntimeException.class).when(underlying1).onConnected();
 
-    MessageSender underlying2 = Mockito.mock(MessageSender.class);
+    SagaMessageSender underlying2 = Mockito.mock(SagaMessageSender.class);
 
-    MessageSender sender = new LoadBalancedClusterMessageSender(underlying1, underlying2);
+    SagaMessageSender sender = new LoadBalancedClusterMessageSender(underlying1, underlying2);
 
     sender.onConnected();
 
@@ -197,10 +198,10 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
 
   @Test
   public void swallowException_UntilAllSendersDisconnected() throws Exception {
-    MessageSender underlying1 = Mockito.mock(MessageSender.class);
+    SagaMessageSender underlying1 = Mockito.mock(SagaMessageSender.class);
     doThrow(RuntimeException.class).when(underlying1).onDisconnected();
 
-    MessageSender underlying2 = Mockito.mock(MessageSender.class);
+    SagaMessageSender underlying2 = Mockito.mock(SagaMessageSender.class);
 
     MessageSender sender = new LoadBalancedClusterMessageSender(underlying1, underlying2);
 

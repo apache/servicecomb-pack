@@ -37,7 +37,7 @@ public class TransactionAspect {
 
   private final CompensableInterceptor interceptor;
 
-  public TransactionAspect(MessageSender sender, OmegaContext context) {
+  public TransactionAspect(SagaMessageSender sender, OmegaContext context) {
     this.context = context;
     this.interceptor = new CompensableInterceptor(context, sender);
   }

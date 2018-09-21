@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.servicecomb.saga.omega.connector.grpc.PushBackReconnectRunnable;
-import org.apache.servicecomb.saga.omega.connector.grpc.RetryableMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
+import org.apache.servicecomb.saga.omega.transaction.OmegaException;
 
 public class GrpcOnErrorHandler {
 
@@ -61,12 +61,14 @@ public class GrpcOnErrorHandler {
 
     private final BlockingQueue<MessageSender> reconnectedSenders = new LinkedBlockingQueue<>();
 
-    private final MessageSender retryMessageSender = new RetryableMessageSender(reconnectedSenders);
-
     private final Supplier<MessageSender> defaultMessageSender = new Supplier<MessageSender>() {
       @Override
       public MessageSender get() {
-        return retryMessageSender;
+        try {
+          return reconnectedSenders.take();
+        } catch (InterruptedException e) {
+          throw new OmegaException("Failed to get reconnected sender", e);
+        }
       }
     };
 
