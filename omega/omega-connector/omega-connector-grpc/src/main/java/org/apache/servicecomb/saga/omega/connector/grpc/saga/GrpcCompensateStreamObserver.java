@@ -19,27 +19,32 @@ package org.apache.servicecomb.saga.omega.connector.grpc.saga;
 
 import java.lang.invoke.MethodHandles;
 
+import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContext;
+import org.apache.servicecomb.saga.omega.connector.grpc.tcc.ReconnectStreamObserver;
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
+import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.grpc.stub.StreamObserver;
 
-class GrpcCompensateStreamObserver implements StreamObserver<GrpcCompensateCommand> {
+class GrpcCompensateStreamObserver extends ReconnectStreamObserver<GrpcCompensateCommand> {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private final MessageHandler messageHandler;
-  private final Runnable errorHandler;
-  private final MessageDeserializer deserializer;
-
-  GrpcCompensateStreamObserver(MessageHandler messageHandler, Runnable errorHandler, MessageDeserializer deserializer) {
+  public GrpcCompensateStreamObserver(LoadBalanceContext loadContext,
+      MessageSender messageSender,
+      MessageHandler messageHandler, MessageDeserializer deserializer) {
+    super(loadContext, messageSender);
     this.messageHandler = messageHandler;
-    this.errorHandler = errorHandler;
     this.deserializer = deserializer;
   }
+
+  private final MessageHandler messageHandler;
+  private final MessageDeserializer deserializer;
+
 
   @Override
   public void onNext(GrpcCompensateCommand command) {
@@ -52,16 +57,5 @@ class GrpcCompensateStreamObserver implements StreamObserver<GrpcCompensateComma
         command.getParentTxId().isEmpty() ? null : command.getParentTxId(),
         command.getCompensationMethod(),
         deserializer.deserialize(command.getPayloads().toByteArray()));
-  }
-
-  @Override
-  public void onError(Throwable t) {
-    LOG.error("Failed to process grpc compensate command.", t);
-    errorHandler.run();
-  }
-
-  @Override
-  public void onCompleted() {
-    // Do nothing here
   }
 }

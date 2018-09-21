@@ -38,16 +38,18 @@ import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 import javax.net.ssl.SSLException;
-import org.apache.servicecomb.saga.omega.connector.grpc.saga.LoadBalancedClusterMessageSender;
+import org.apache.servicecomb.saga.omega.connector.grpc.saga.SagaLoadBalanceSender;
+import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContext;
+import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContextBuilder;
+import org.apache.servicecomb.saga.omega.connector.grpc.tcc.TransactionType;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
-import org.apache.servicecomb.saga.omega.transaction.SagaMessageSender;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class LoadBalanceClusterMessageSenderWithTLSTest extends LoadBalancedClusterMessageSenderTestBase {
 
   @Override
-  protected SagaMessageSender newMessageSender(String[] addresses) {
+  protected SagaLoadBalanceSender newMessageSender(String[] addresses) {
     ClassLoader classLoader = getClass().getClassLoader();
     AlphaClusterConfig clusterConfig = AlphaClusterConfig.builder()
         .addresses(ImmutableList.copyOf(addresses))
@@ -61,10 +63,12 @@ public class LoadBalanceClusterMessageSenderWithTLSTest extends LoadBalancedClus
         .messageDeserializer(deserializer)
         .build();
 
-    return new LoadBalancedClusterMessageSender(
+    LoadBalanceContext loadContext = new LoadBalanceContextBuilder(
+        TransactionType.SAGA,
         clusterConfig,
-        new ServiceConfig(serviceName),
-        100);
+        new ServiceConfig(serviceName), 100).build();
+
+    return new SagaLoadBalanceSender(loadContext, new FastestSender());
   }
 
   @BeforeClass

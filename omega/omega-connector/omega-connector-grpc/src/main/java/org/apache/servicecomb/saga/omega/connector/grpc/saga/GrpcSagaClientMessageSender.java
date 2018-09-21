@@ -19,7 +19,7 @@ package org.apache.servicecomb.saga.omega.connector.grpc.saga;
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
-import org.apache.servicecomb.saga.omega.connector.grpc.saga.LoadBalancedClusterMessageSender.ErrorHandlerFactory;
+import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContext;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
@@ -35,8 +35,9 @@ import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc;
 import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceBlockingStub;
 import org.apache.servicecomb.saga.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceStub;
 
-public class GrpcClientMessageSender implements SagaMessageSender {
+public class GrpcSagaClientMessageSender implements SagaMessageSender {
   private final String target;
+
   private final TxEventServiceStub asyncEventService;
 
   private final MessageSerializer serializer;
@@ -44,23 +45,23 @@ public class GrpcClientMessageSender implements SagaMessageSender {
   private final TxEventServiceBlockingStub blockingEventService;
 
   private final GrpcCompensateStreamObserver compensateStreamObserver;
+
   private final GrpcServiceConfig serviceConfig;
 
-  public GrpcClientMessageSender(
+  public GrpcSagaClientMessageSender(
       String address,
       ManagedChannel channel,
       MessageSerializer serializer,
       MessageDeserializer deserializer,
       ServiceConfig serviceConfig,
-      ErrorHandlerFactory errorHandlerFactory,
-      MessageHandler handler) {
+      MessageHandler handler,
+      LoadBalanceContext loadContext) {
     this.target = address;
     this.asyncEventService = TxEventServiceGrpc.newStub(channel);
     this.blockingEventService = TxEventServiceGrpc.newBlockingStub(channel);
     this.serializer = serializer;
-
     this.compensateStreamObserver =
-        new GrpcCompensateStreamObserver(handler, errorHandlerFactory.getHandler(this), deserializer);
+        new GrpcCompensateStreamObserver(loadContext, this, handler, deserializer);
     this.serviceConfig = serviceConfig(serviceConfig.serviceName(), serviceConfig.instanceId());
   }
 

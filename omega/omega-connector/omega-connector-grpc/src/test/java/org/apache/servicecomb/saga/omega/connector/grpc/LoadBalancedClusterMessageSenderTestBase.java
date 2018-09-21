@@ -28,6 +28,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.servicecomb.saga.common.EventType;
+import org.apache.servicecomb.saga.omega.connector.grpc.saga.SagaLoadBalanceSender;
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
@@ -107,7 +108,7 @@ public abstract class LoadBalancedClusterMessageSenderTestBase {
 
   protected final String[] addresses = {"localhost:8080", "localhost:8090"};
 
-  protected final SagaMessageSender messageSender = newMessageSender(addresses);
+  protected final SagaLoadBalanceSender messageSender = newMessageSender(addresses);
 
   @AfterClass
   public static void tearDown() throws Exception {
@@ -116,7 +117,7 @@ public abstract class LoadBalancedClusterMessageSenderTestBase {
     }
   }
 
-  protected abstract SagaMessageSender newMessageSender(String[] addresses);
+  protected abstract SagaLoadBalanceSender newMessageSender(String[] addresses);
 
   @After
   public void after() throws Exception {
