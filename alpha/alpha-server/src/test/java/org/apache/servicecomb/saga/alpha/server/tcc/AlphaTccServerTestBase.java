@@ -34,13 +34,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.GrpcOmegaTccCallback;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallbacksRegistry;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxType;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TxEventFactory;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.EventConverter;
 import org.apache.servicecomb.saga.alpha.server.tcc.service.TccTxEventRepository;
-import org.apache.servicecomb.saga.alpha.server.tcc.service.TccTxEventService;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
@@ -56,7 +53,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 public abstract class AlphaTccServerTestBase {
 
@@ -166,8 +162,8 @@ public abstract class AlphaTccServerTestBase {
     assertThat(event.getLocalTxId(), is(localTxId));
     assertThat(event.getInstanceId(), is(instanceId));
     assertThat(event.getServiceName(), is(serviceName));
-    assertThat(TxEventFactory.getMethodName(event.getMethodInfo(), true), is(confirmMethod));
-    assertThat(TxEventFactory.getMethodName(event.getMethodInfo(), false), is(cancelMethod));
+    assertThat(EventConverter.getMethodName(event.getMethodInfo(), true), is(confirmMethod));
+    assertThat(EventConverter.getMethodName(event.getMethodInfo(), false), is(cancelMethod));
     assertThat(event.getStatus(), is("Succeed"));
   }
 

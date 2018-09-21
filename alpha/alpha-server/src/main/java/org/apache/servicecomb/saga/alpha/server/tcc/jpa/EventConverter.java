@@ -23,7 +23,7 @@ import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccParticipatedEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccTransactionEndedEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccTransactionStartedEvent;
 
-public class TxEventFactory {
+public class EventConverter {
 
   public static ParticipatedEvent convertToParticipatedEvent(GrpcTccParticipatedEvent request) {
     return new ParticipatedEvent(
