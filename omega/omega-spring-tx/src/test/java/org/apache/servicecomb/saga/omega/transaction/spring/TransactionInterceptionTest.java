@@ -202,19 +202,13 @@ public class TransactionInterceptionTest {
       fail("unexpected exception throw: " + e);
     }
 
-    assertThat(messages.size(), is(4));
+    assertThat(messages.size(), is(2));
 
     assertThat(messages.get(0),
         is(new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod2, 0, retryMethod, 2, user, 1)
             .toString()));
 
-    String abortedEvent = messages.get(1);
-    assertThat(abortedEvent, allOf(containsString("TxAbortedEvent"), containsString("Retry harder")));
-
-    assertThat(messages.get(2),
-        is(new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod2, 0, retryMethod, 1, user, 1)
-            .toString()));
-    assertThat(messages.get(3),
+    assertThat(messages.get(1),
         is(new TxEndedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod2).toString()));
 
     assertThat(userRepository.count(), is(1L));
@@ -233,7 +227,7 @@ public class TransactionInterceptionTest {
       assertThat(e.getMessage(), is("Retry harder"));
     }
 
-    assertThat(messages.size(), is(4));
+    assertThat(messages.size(), is(2));
     assertThat(messages.get(0),
         is(new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod2, 0, retryMethod, 2, user, 3)
             .toString()));
@@ -241,12 +235,6 @@ public class TransactionInterceptionTest {
     String abortedEvent1 = messages.get(1);
     assertThat(abortedEvent1, allOf(containsString("TxAbortedEvent"), containsString("Retry harder")));
 
-    assertThat(messages.get(2),
-        is(new TxStartedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod2, 0, retryMethod, 1, user, 3)
-            .toString()));
-
-    String abortedEvent2 = messages.get(3);
-    assertThat(abortedEvent2, allOf(containsString("TxAbortedEvent"), containsString("Retry harder")));
 
     assertThat(userRepository.count(), is(0L));
   }
