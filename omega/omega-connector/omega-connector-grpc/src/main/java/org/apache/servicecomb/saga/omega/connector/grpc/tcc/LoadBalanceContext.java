@@ -57,6 +57,7 @@ public class LoadBalanceContext {
     return grpcOnErrorHandler;
   }
 
+  // this is only for test
   public void setSenders(Map<MessageSender, Long> senders) {
     this.senders = senders;
   }

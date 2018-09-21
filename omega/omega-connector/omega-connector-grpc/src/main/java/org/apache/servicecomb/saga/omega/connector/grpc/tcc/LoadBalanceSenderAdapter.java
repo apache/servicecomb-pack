@@ -101,4 +101,8 @@ public abstract class LoadBalanceSenderAdapter implements MessageSender {
   public MessageSenderPicker getSenderPicker() {
     return senderPicker;
   }
+
+  public LoadBalanceContext getLoadContext() {
+    return loadContext;
+  }
 }

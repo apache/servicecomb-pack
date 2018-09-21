@@ -36,6 +36,7 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.net.ssl.SSLException;
 import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
+import org.apache.servicecomb.saga.omega.connector.grpc.saga.GrpcSagaClientMessageSender;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 
@@ -58,7 +59,6 @@ public class LoadBalanceContextBuilder {
   }
 
   public LoadBalanceContext build() {
-
     if (clusterConfig.getAddresses().isEmpty()) {
       throw new IllegalArgumentException("No reachable cluster address provided");
     }
@@ -101,16 +101,16 @@ public class LoadBalanceContextBuilder {
             address,
             clusterConfig.getTccMessageHandler(),
             loadContext);
-
       case SAGA:
-//        return new GrpcClientMessageSender(
-//            address,
-//            channel,
-//            clusterConfig.getMessageSerializer(),
-//            clusterConfig.getMessageDeserializer(),
-//            serviceConfig,
-//            new LoadBalancedClusterMessageSender()ErrorHandlerFactory(),
-//            clusterConfig.getMessageHandler());
+        return new GrpcSagaClientMessageSender(
+            address,
+            channel,
+            clusterConfig.getMessageSerializer(),
+            clusterConfig.getMessageDeserializer(),
+            serviceConfig,
+            clusterConfig.getMessageHandler(),
+            loadContext
+        );
         default:
     }
       return null;

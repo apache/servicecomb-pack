@@ -20,12 +20,10 @@ package org.apache.servicecomb.saga.omega.spring;
 import com.google.common.collect.ImmutableList;
 import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.saga.omega.connector.grpc.FastestSender;
-import org.apache.servicecomb.saga.omega.connector.grpc.saga.LoadBalancedClusterMessageSender;
+import org.apache.servicecomb.saga.omega.connector.grpc.saga.SagaLoadBalanceSender;
 import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContext;
 import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContextBuilder;
 import org.apache.servicecomb.saga.omega.connector.grpc.tcc.TccLoadBalanceSender;
-import org.apache.servicecomb.saga.omega.transaction.SagaMessageSender;
-import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageSender;
 import org.apache.servicecomb.saga.omega.connector.grpc.tcc.TransactionType;
 import org.apache.servicecomb.saga.omega.context.CallbackContext;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
@@ -35,9 +33,11 @@ import org.apache.servicecomb.saga.omega.context.UniqueIdGenerator;
 import org.apache.servicecomb.saga.omega.format.KryoMessageFormat;
 import org.apache.servicecomb.saga.omega.format.MessageFormat;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
+import org.apache.servicecomb.saga.omega.transaction.SagaMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.tcc.DefaultParametersContext;
 import org.apache.servicecomb.saga.omega.transaction.tcc.ParametersContext;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageHandler;
+import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageSender;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -104,30 +104,57 @@ class OmegaSpringConfig {
     return clusterConfig;
   }
 
-  @Bean
-  SagaMessageSender grpcMessageSender(
+  @Bean(name = "sagaLoadContext")
+  LoadBalanceContext sagaLoadBalanceSenderContext(
       AlphaClusterConfig alphaClusterConfig,
       ServiceConfig serviceConfig,
       @Value("${omega.connection.reconnectDelay:3000}") int reconnectDelay) {
-
-    final SagaMessageSender sender = new LoadBalancedClusterMessageSender(
+    LoadBalanceContext loadBalanceSenderContext = new LoadBalanceContextBuilder(
+        TransactionType.SAGA,
         alphaClusterConfig,
         serviceConfig,
-        reconnectDelay);
+        reconnectDelay).build();
+    return loadBalanceSenderContext;
+  }
 
-    sender.onConnected();
-    
+//  @Bean
+//  SagaMessageSender grpcMessageSender(
+//      AlphaClusterConfig alphaClusterConfig,
+//      ServiceConfig serviceConfig,
+//      @Value("${omega.connection.reconnectDelay:3000}") int reconnectDelay) {
+//
+//    final SagaMessageSender sender = new LoadBalancedClusterMessageSender(
+//        alphaClusterConfig,
+//        serviceConfig,
+//        reconnectDelay);
+//
+//    sender.onConnected();
+//
+//    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+//      @Override
+//      public void run() {
+//        sender.onDisconnected();
+//        sender.close();
+//      }
+//    }));
+//    return sender;
+//  }
+
+  @Bean
+  SagaMessageSender sagaLoadBalanceSender(@Qualifier("sagaLoadContext") LoadBalanceContext loadBalanceSenderContext) {
+    final SagaMessageSender sagaMessageSender = new SagaLoadBalanceSender(loadBalanceSenderContext, new FastestSender());
+    sagaMessageSender.onConnected();
     Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
       @Override
       public void run() {
-        sender.onDisconnected();
-        sender.close();
+        sagaMessageSender.onDisconnected();
+        sagaMessageSender.close();
       }
     }));
-    return sender;
+    return sagaMessageSender;
   }
 
-  @Bean
+  @Bean(name = "tccLoadContext")
   LoadBalanceContext loadBalanceSenderContext(
       AlphaClusterConfig alphaClusterConfig,
       ServiceConfig serviceConfig,
@@ -141,7 +168,7 @@ class OmegaSpringConfig {
   }
 
   @Bean
-  TccMessageSender tccLoadBalanceSender(LoadBalanceContext loadBalanceSenderContext) {
+  TccMessageSender tccLoadBalanceSender(@Qualifier("tccLoadContext") LoadBalanceContext loadBalanceSenderContext) {
     final TccMessageSender tccMessageSender = new TccLoadBalanceSender(loadBalanceSenderContext, new FastestSender());
     tccMessageSender.onConnected();
     Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {

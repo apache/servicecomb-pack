@@ -106,16 +106,16 @@ public class LoadBalancedClusterMessageSender implements SagaMessageSender {
             .build();
       }
       channels.add(channel);
-      senders.put(
-          new GrpcClientMessageSender(
-              address,
-              channel,
-              clusterConfig.getMessageSerializer(),
-              clusterConfig.getMessageDeserializer(),
-              serviceConfig,
-              new ErrorHandlerFactory(),
-              clusterConfig.getMessageHandler()),
-          0L);
+//      senders.put(
+//          new GrpcSagaClientMessageSender(
+//              address,
+//              channel,
+//              clusterConfig.getMessageSerializer(),
+//              clusterConfig.getMessageDeserializer(),
+//              serviceConfig,
+//              new ErrorHandlerFactory(),
+//              clusterConfig.getMessageHandler()),
+//          0L);
     }
 
     scheduleReconnectTask(reconnectDelay);

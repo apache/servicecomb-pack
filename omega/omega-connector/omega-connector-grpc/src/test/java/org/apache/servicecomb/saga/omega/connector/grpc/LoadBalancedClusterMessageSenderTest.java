@@ -33,8 +33,13 @@ import com.google.common.collect.ImmutableList;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
-import org.apache.servicecomb.saga.omega.connector.grpc.saga.LoadBalancedClusterMessageSender;
+import org.apache.servicecomb.saga.omega.connector.grpc.saga.SagaLoadBalanceSender;
+import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContext;
+import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContextBuilder;
+import org.apache.servicecomb.saga.omega.connector.grpc.tcc.TransactionType;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
@@ -48,7 +53,7 @@ import org.mockito.Mockito;
 
 public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMessageSenderTestBase {
   @Override
-  protected SagaMessageSender newMessageSender(String[] addresses) {
+  protected SagaLoadBalanceSender newMessageSender(String[] addresses) {
     AlphaClusterConfig clusterConfig = AlphaClusterConfig.builder()
         .addresses(ImmutableList.copyOf(addresses))
         .enableSSL(false)
@@ -57,10 +62,13 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
         .messageDeserializer(deserializer)
         .messageHandler(handler)
         .build();
-    return new LoadBalancedClusterMessageSender(
+
+    LoadBalanceContext loadContext = new LoadBalanceContextBuilder(
+        TransactionType.SAGA,
         clusterConfig,
-        new ServiceConfig(serviceName),
-        100);
+        new ServiceConfig(serviceName), 100).build();
+
+    return new SagaLoadBalanceSender(loadContext, new FastestSender());
   }
 
   @BeforeClass
@@ -139,13 +147,12 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
     });
   }
 
-  @Test(timeout = 1000)
+  @Test
   public void stopSendingOnInterruption() throws Exception {
     SagaMessageSender underlying = Mockito.mock(SagaMessageSender.class);
     doThrow(RuntimeException.class).when(underlying).send(event);
 
-    final SagaMessageSender messageSender = new LoadBalancedClusterMessageSender(underlying);
-
+    setSenders(underlying);
     Thread thread = new Thread(new Runnable() {
       @Override
       public void run() {
@@ -189,9 +196,9 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
 
     SagaMessageSender underlying2 = Mockito.mock(SagaMessageSender.class);
 
-    SagaMessageSender sender = new LoadBalancedClusterMessageSender(underlying1, underlying2);
+    setSenders(underlying1, underlying2);
 
-    sender.onConnected();
+    messageSender.onConnected();
 
     verify(underlying1).onConnected();
     verify(underlying2).onConnected();
@@ -204,9 +211,9 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
 
     SagaMessageSender underlying2 = Mockito.mock(SagaMessageSender.class);
 
-    MessageSender sender = new LoadBalancedClusterMessageSender(underlying1, underlying2);
+    setSenders(underlying1, underlying2);
 
-    sender.onDisconnected();
+    messageSender.onDisconnected();
 
     verify(underlying1).onDisconnected();
     verify(underlying2).onDisconnected();
@@ -318,5 +325,13 @@ public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMes
       }
     }
     throw new IllegalStateException("None of the servers received any message");
+  }
+
+  private void setSenders(SagaMessageSender ... underlyings) {
+    Map<MessageSender, Long> senders = new HashMap<>();
+    for (SagaMessageSender each : underlyings) {
+      senders.put(each, 0L);
+    }
+    messageSender.getLoadContext().setSenders(senders);
   }
 }
