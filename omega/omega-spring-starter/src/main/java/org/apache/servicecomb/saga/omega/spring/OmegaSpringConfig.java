@@ -20,7 +20,7 @@ package org.apache.servicecomb.saga.omega.spring;
 import com.google.common.collect.ImmutableList;
 import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.saga.omega.connector.grpc.FastestSender;
-import org.apache.servicecomb.saga.omega.connector.grpc.LoadBalancedClusterMessageSender;
+import org.apache.servicecomb.saga.omega.connector.grpc.saga.LoadBalancedClusterMessageSender;
 import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContext;
 import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContextBuilder;
 import org.apache.servicecomb.saga.omega.connector.grpc.tcc.TccLoadBalanceSender;

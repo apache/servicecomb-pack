@@ -34,6 +34,7 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import java.io.IOException;
 import java.util.concurrent.Callable;
+import org.apache.servicecomb.saga.omega.connector.grpc.saga.LoadBalancedClusterMessageSender;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
