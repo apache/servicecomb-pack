@@ -23,6 +23,14 @@ Feature: Alpha records transaction events
 
     When User UserC requests to order 2 units of ProductA with unit price 2 fail
 
+    Then Alpha records the following events
+      | serviceName  | txType             |
+      | ordering     | STARTED            |
+      | inventory    | PARTICIPATED       |
+      | payment      | PARTICIPATED       |
+      | ordering     | ENDED              |
+      | inventory    | COORDINATED        |
+
     Then Inventory Service contains the following booking orders
       | userName | productName | units | confirmed | cancelled |
       | UserC    | ProductA    |  2    | false     |  true     |
