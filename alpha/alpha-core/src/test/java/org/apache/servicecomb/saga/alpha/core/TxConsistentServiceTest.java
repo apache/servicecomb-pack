@@ -73,18 +73,21 @@ public class TxConsistentServiceTest {
     }
 
     @Override
-    public List<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id, String type) {
+    public List<TxEvent> findNeedToCompensateTxs(){
       return emptyList();
     }
-
     @Override
-    public Optional<TxEvent> findFirstCompensatedEventByIdGreaterThan(long id) {
-      return Optional.empty();
+    public List<TxEvent> findAllFinishedTxsForNoTxEnd(){ return emptyList();}
+    @Override
+    public List<TxEvent> findCompensatedDoneTxs(String globalTxId,String localTxId){
+      return emptyList();
     }
 
     @Override
     public void deleteDuplicateEvents(String type) {
     }
+    @Override
+    public void dumpColdEventData(){}
   };
 
   private final String globalTxId = UUID.randomUUID().toString();

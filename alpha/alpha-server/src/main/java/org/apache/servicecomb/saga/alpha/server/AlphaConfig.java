@@ -18,15 +18,10 @@
 package org.apache.servicecomb.saga.alpha.server;
 
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.*;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import org.apache.servicecomb.saga.alpha.core.CommandRepository;
-import org.apache.servicecomb.saga.alpha.core.CompositeOmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.EventScanner;
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.PendingTaskRunner;
@@ -44,11 +39,10 @@ import org.springframework.context.annotation.Configuration;
 @EntityScan(basePackages = "org.apache.servicecomb.saga.alpha")
 @Configuration
 class AlphaConfig {
-  private final BlockingQueue<Runnable> pendingCompensations = new LinkedBlockingQueue<>();
-  private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-  @Value("${alpha.compensation.retry.delay:3000}")
-  private int delay;
+  private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+  private final ExecutorService compensateExecutors = Executors.newCachedThreadPool();
+
 
   @Bean
   Map<String, Map<String, OmegaCallback>> omegaCallbacks() {
@@ -57,7 +51,7 @@ class AlphaConfig {
 
   @Bean
   OmegaCallback omegaCallback(Map<String, Map<String, OmegaCallback>> callbacks) {
-    return new PushBackOmegaCallback(pendingCompensations, new CompositeOmegaCallback(callbacks));
+    return new PushBackOmegaCallback(callbacks, compensateExecutors);
   }
   
   @Bean
@@ -114,7 +108,6 @@ class AlphaConfig {
 
   @PostConstruct
   void init() {
-    new PendingTaskRunner(pendingCompensations, delay).run();
   }
 
   @PreDestroy

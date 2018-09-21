@@ -21,11 +21,15 @@ import java.util.List;
 
 public interface CommandRepository {
 
-  void saveCompensationCommands(String globalTxId);
+  void saveCompensationCommands(String globalTxId, String localTxId);
 
   void markCommandAsDone(String globalTxId, String localTxId);
 
+  void markCommandAsPending(String globalTxId, String localTxId);
+
   List<Command> findUncompletedCommands(String globalTxId);
 
-  List<Command> findFirstCommandToCompensate();
+  List<Command> findAllCommandsToCompensate();
+
+  List<Command> findPendingCommands();
 }
