@@ -17,7 +17,6 @@
 package org.apache.servicecomb.saga.omega.transaction.tcc;
 
 import javax.transaction.TransactionalException;
-
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
@@ -28,30 +27,30 @@ import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccStartedEvent;
 public class TccStartAnnotationProcessor {
 
   private final OmegaContext omegaContext;
-  private final TccEventService eventService;
+  private final TccMessageSender tccMessageSender;
 
-  TccStartAnnotationProcessor(OmegaContext omegaContext, TccEventService eventService) {
+  TccStartAnnotationProcessor(OmegaContext omegaContext, TccMessageSender tccMessageSender) {
     this.omegaContext = omegaContext;
-    this.eventService = eventService;
+    this.tccMessageSender = tccMessageSender;
   }
 
   public AlphaResponse preIntercept(String parentTxId, String methodName, int timeout) {
     try {
-      return eventService.tccTransactionStart(new TccStartedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
+      return tccMessageSender.tccTransactionStart(new TccStartedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
     } catch (OmegaException e) {
       throw new TransactionalException(e.getMessage(), e.getCause());
     }
   }
 
   public void postIntercept(String parentTxId, String methodName) {
-    eventService.tccTransactionStop(new TccEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId(),
+    tccMessageSender.tccTransactionStop(new TccEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId(),
         TransactionStatus.Succeed));
   }
 
   public void onError(String parentTxId, String methodName, Throwable throwable) {
     // Send the cancel event
     // Do we need to wait for the alpha finish all the transaction
-    eventService.tccTransactionStop(new TccEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId(),
+    tccMessageSender.tccTransactionStop(new TccEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId(),
         TransactionStatus.Failed));
   }
 }

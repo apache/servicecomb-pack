@@ -24,7 +24,7 @@ import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent
 
 public class CoordinateMessageHandler implements TccMessageHandler {
 
-  private final TccEventService tccEventService;
+  private final TccMessageSender tccMessageSender;
 
   private final CallbackContext callbackContext;
 
@@ -32,10 +32,10 @@ public class CoordinateMessageHandler implements TccMessageHandler {
 
   private final ParametersContext parametersContext;
 
-  public CoordinateMessageHandler(TccEventService tccEventService,
+  public CoordinateMessageHandler(TccMessageSender tccMessageSender,
       CallbackContext callbackContext, OmegaContext omegaContext,
       ParametersContext parametersContext) {
-    this.tccEventService = tccEventService;
+    this.tccMessageSender = tccMessageSender;
     this.callbackContext = callbackContext;
     this.omegaContext = omegaContext;
     this.parametersContext = parametersContext;
@@ -46,7 +46,7 @@ public class CoordinateMessageHandler implements TccMessageHandler {
     // TODO need to catch the exception and send the failed message
     // The parameter need to be updated here
     callbackContext.apply(globalTxId, localTxId, methodName, parametersContext.getParameters(localTxId));
-    tccEventService.coordinate(new CoordinatedEvent(globalTxId, localTxId, parentTxId, methodName, TransactionStatus.Succeed));
+    tccMessageSender.coordinate(new CoordinatedEvent(globalTxId, localTxId, parentTxId, methodName, TransactionStatus.Succeed));
     // Need to remove the parameter
     parametersContext.removeParameter(localTxId);
   }

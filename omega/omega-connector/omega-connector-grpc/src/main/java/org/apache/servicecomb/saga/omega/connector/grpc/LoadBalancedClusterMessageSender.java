@@ -47,11 +47,12 @@ import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
+import org.apache.servicecomb.saga.omega.transaction.SagaMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LoadBalancedClusterMessageSender implements MessageSender {
+public class LoadBalancedClusterMessageSender implements SagaMessageSender {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final Map<MessageSender, Long> senders = new ConcurrentHashMap<>();
@@ -59,8 +60,7 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
 
   private final BlockingQueue<Runnable> pendingTasks = new LinkedBlockingQueue<>();
   private final BlockingQueue<MessageSender> availableMessageSenders = new LinkedBlockingQueue<>();
-  private final MessageSender retryableMessageSender = new RetryableMessageSender(
-      availableMessageSenders);
+  private final MessageSender retryableMessageSender = new RetryableMessageSender(availableMessageSenders);
 
   private final Supplier<MessageSender> defaultMessageSender = new Supplier<MessageSender>() {
     @Override
@@ -118,8 +118,8 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
   }
 
   // this is for test only
-  LoadBalancedClusterMessageSender(MessageSender... messageSenders) {
-    for (MessageSender sender : messageSenders) {
+  LoadBalancedClusterMessageSender(SagaMessageSender... messageSenders) {
+    for (SagaMessageSender sender : messageSenders) {
       senders.put(sender, 0L);
     }
     channels = emptyList();
@@ -167,7 +167,7 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
 
   AlphaResponse send(TxEvent event, MessageSenderPicker messageSenderPicker) {
     do {
-      MessageSender messageSender = messageSenderPicker.pick(senders, defaultMessageSender);
+      SagaMessageSender messageSender = (SagaMessageSender) messageSenderPicker.pick(senders, defaultMessageSender);
 
       try {
         long startTime = System.nanoTime();
@@ -202,9 +202,9 @@ public class LoadBalancedClusterMessageSender implements MessageSender {
   }
 
   class ErrorHandlerFactory {
-    Runnable getHandler(MessageSender messageSender) {
-      final Runnable runnable = new PushBackReconnectRunnable(messageSender, senders, pendingTasks,
-          availableMessageSenders);
+    Runnable getHandler(SagaMessageSender messageSender) {
+      final Runnable runnable = new PushBackReconnectRunnable(
+          messageSender, senders, pendingTasks, availableMessageSenders);
       return new Runnable() {
         @Override
         public void run() {

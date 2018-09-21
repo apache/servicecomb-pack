@@ -35,7 +35,6 @@ import com.google.common.collect.Maps;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.netty.NettyServerBuilder;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.Map;
@@ -51,6 +50,7 @@ import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
 import org.apache.servicecomb.saga.omega.transaction.tcc.CoordinateMessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageHandler;
+import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.ParticipatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccEndedEvent;
@@ -58,6 +58,7 @@ import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccStartedEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccParticipatedEvent;
 import org.hamcrest.core.Is;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -88,9 +89,16 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
   private CoordinatedEvent coordinatedEvent;
 
   @BeforeClass
-  public static void startServer() throws IOException {
+  public static void startServer() {
     for (Integer each : ports) {
       startServerOnPort(each);
+    }
+  }
+
+  @AfterClass
+  public static void shutdownServer() {
+    for(Server server: servers.values()) {
+      server.shutdown();
     }
   }
 

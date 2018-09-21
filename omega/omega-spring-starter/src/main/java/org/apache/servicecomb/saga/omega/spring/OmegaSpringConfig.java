@@ -27,6 +27,8 @@ import org.apache.servicecomb.saga.omega.connector.grpc.LoadBalancedClusterMessa
 import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContext;
 import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContextBuilder;
 import org.apache.servicecomb.saga.omega.connector.grpc.tcc.TccLoadBalanceSender;
+import org.apache.servicecomb.saga.omega.transaction.SagaMessageSender;
+import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageSender;
 import org.apache.servicecomb.saga.omega.connector.grpc.tcc.TransactionType;
 import org.apache.servicecomb.saga.omega.context.CallbackContext;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
@@ -107,13 +109,13 @@ class OmegaSpringConfig {
     return clusterConfig;
   }
 
-  @Bean(name = "sagaSender")
-  MessageSender grpcMessageSender(
+  @Bean
+  SagaMessageSender grpcMessageSender(
       AlphaClusterConfig alphaClusterConfig,
       ServiceConfig serviceConfig,
       @Value("${omega.connection.reconnectDelay:3000}") int reconnectDelay) {
 
-    final MessageSender sender = new LoadBalancedClusterMessageSender(
+    final SagaMessageSender sender = new LoadBalancedClusterMessageSender(
         alphaClusterConfig,
         serviceConfig,
         reconnectDelay);
@@ -143,9 +145,18 @@ class OmegaSpringConfig {
     return loadBalanceSenderContext;
   }
 
-  @Bean(name = "tccSender")
-  TccLoadBalanceSender tccLoadBalanceSender(LoadBalanceContext loadBalanceSenderContext) {
-    return new TccLoadBalanceSender(loadBalanceSenderContext, new FastestSender());
+  @Bean
+  TccMessageSender tccLoadBalanceSender(LoadBalanceContext loadBalanceSenderContext) {
+    final TccMessageSender tccMessageSender = new TccLoadBalanceSender(loadBalanceSenderContext, new FastestSender());
+    tccMessageSender.onConnected();
+    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+      @Override
+      public void run() {
+        tccMessageSender.onDisconnected();
+        tccMessageSender.close();
+      }
+    }));
+    return tccMessageSender;
   }
 
   // TODO should integrate with loadBalance message sender in future.

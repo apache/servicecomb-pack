@@ -21,7 +21,6 @@ import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,11 +28,11 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.servicecomb.saga.common.EventType;
-import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.MessageSerializer;
+import org.apache.servicecomb.saga.omega.transaction.SagaMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
@@ -108,7 +107,7 @@ public abstract class LoadBalancedClusterMessageSenderTestBase {
 
   protected final String[] addresses = {"localhost:8080", "localhost:8090"};
 
-  protected final MessageSender messageSender = newMessageSender(addresses);
+  protected final SagaMessageSender messageSender = newMessageSender(addresses);
 
   @AfterClass
   public static void tearDown() throws Exception {
@@ -117,7 +116,7 @@ public abstract class LoadBalancedClusterMessageSenderTestBase {
     }
   }
 
-  protected abstract MessageSender newMessageSender(String[] addresses);
+  protected abstract SagaMessageSender newMessageSender(String[] addresses);
 
   @After
   public void after() throws Exception {

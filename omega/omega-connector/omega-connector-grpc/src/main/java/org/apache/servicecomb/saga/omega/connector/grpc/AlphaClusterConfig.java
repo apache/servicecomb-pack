@@ -19,7 +19,6 @@ package org.apache.servicecomb.saga.omega.connector.grpc;
 
 import java.util.Collections;
 import java.util.List;
-import org.apache.servicecomb.saga.omega.connector.grpc.tcc.TccMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSerializer;

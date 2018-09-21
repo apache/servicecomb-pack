@@ -24,10 +24,12 @@ import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
+import org.apache.servicecomb.saga.omega.transaction.SagaMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.DefaultParametersContext;
 import org.apache.servicecomb.saga.omega.transaction.tcc.ParametersContext;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccEventService;
+import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.ParticipatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccEndedEvent;
@@ -71,8 +73,8 @@ public class MessageConfig {
   }
 
   @Bean(name = "sagaSender")
-  MessageSender sender() {
-    return new MessageSender() {
+  SagaMessageSender sender() {
+    return new SagaMessageSender() {
       @Override
       public void onConnected() {
 
@@ -102,8 +104,8 @@ public class MessageConfig {
   }
 
   @Bean
-  TccEventService tccEventService() {
-    return new TccEventService() {
+  TccMessageSender TccMessageSender() {
+    return new TccMessageSender() {
       @Override
       public void onConnected() {
       }

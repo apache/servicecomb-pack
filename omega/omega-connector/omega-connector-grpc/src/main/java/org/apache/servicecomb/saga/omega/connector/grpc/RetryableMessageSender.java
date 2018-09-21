@@ -20,13 +20,13 @@ package org.apache.servicecomb.saga.omega.connector.grpc;
 import static org.apache.servicecomb.saga.common.EventType.SagaStartedEvent;
 
 import java.util.concurrent.BlockingQueue;
-
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
+import org.apache.servicecomb.saga.omega.transaction.SagaMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 
-public class RetryableMessageSender implements MessageSender {
+public class RetryableMessageSender implements SagaMessageSender {
   private final BlockingQueue<MessageSender> availableMessageSenders;
 
   public RetryableMessageSender(BlockingQueue<MessageSender> availableMessageSenders) {
@@ -59,7 +59,7 @@ public class RetryableMessageSender implements MessageSender {
       throw new OmegaException("Failed to process subsequent requests because no alpha server is available");
     }
     try {
-      return availableMessageSenders.take().send(event);
+      return ((SagaMessageSender)availableMessageSenders.take()).send(event);
     } catch (InterruptedException e) {
       throw new OmegaException("Failed to send event " + event + " due to interruption", e);
     }

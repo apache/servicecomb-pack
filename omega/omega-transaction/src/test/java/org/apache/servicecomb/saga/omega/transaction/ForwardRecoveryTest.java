@@ -66,7 +66,7 @@ public class ForwardRecoveryTest {
 
   private final Compensable compensable = mock(Compensable.class);
 
-  private final MessageSender sender = new MessageSender() {
+  private final SagaMessageSender sender = new SagaMessageSender() {
     @Override
     public void onConnected() {
 
@@ -116,7 +116,7 @@ public class ForwardRecoveryTest {
 
   @Test
   public void forwardExceptionWhenGlobalTxAborted() {
-    MessageSender sender = mock(MessageSender.class);
+    SagaMessageSender sender = mock(SagaMessageSender.class);
     when(sender.send(any(TxEvent.class))).thenReturn(new AlphaResponse(true));
 
     CompensableInterceptor interceptor = new CompensableInterceptor(omegaContext, sender);

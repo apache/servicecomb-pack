@@ -36,6 +36,6 @@ public interface MessageSenderPicker {
    * @param defaultSender Default sender provider
    * @return The specified one.
    */
-  MessageSender pick(Map<MessageSender, Long> messageSenders,
+  MessageSender pick(Map<? extends MessageSender, Long> messageSenders,
       Supplier<MessageSender> defaultSender);
 }

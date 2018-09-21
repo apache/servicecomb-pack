@@ -21,13 +21,13 @@ import org.apache.servicecomb.saga.omega.context.CallbackContext;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.CompensationMessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
-import org.apache.servicecomb.saga.omega.transaction.MessageSender;
+import org.apache.servicecomb.saga.omega.transaction.SagaMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.SagaStartAspect;
 import org.apache.servicecomb.saga.omega.transaction.TransactionAspect;
 import org.apache.servicecomb.saga.omega.transaction.tcc.CoordinateMessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.tcc.ParametersContext;
-import org.apache.servicecomb.saga.omega.transaction.tcc.TccEventService;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageHandler;
+import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccParticipatorAspect;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccStartAspect;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,18 +40,18 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 public class TransactionAspectConfig {
 
   @Bean
-  MessageHandler messageHandler(@Qualifier("sagaSender") MessageSender sender,
+  MessageHandler messageHandler(SagaMessageSender sender,
       @Qualifier("compensationContext") CallbackContext context, OmegaContext omegaContext) {
     return new CompensationMessageHandler(sender, context);
   }
 
   @Bean
-  SagaStartAspect sagaStartAspect(@Qualifier("sagaSender")MessageSender sender, OmegaContext context) {
+  SagaStartAspect sagaStartAspect(SagaMessageSender sender, OmegaContext context) {
     return new SagaStartAspect(sender, context);
   }
 
   @Bean
-  TransactionAspect transactionAspect(@Qualifier("sagaSender")MessageSender sender, OmegaContext context) {
+  TransactionAspect transactionAspect(SagaMessageSender sender, OmegaContext context) {
     return new TransactionAspect(sender, context);
   }
 
@@ -63,21 +63,25 @@ public class TransactionAspectConfig {
 
   @Bean
   TccMessageHandler coordinateMessageHandler(
-      TccEventService tccEventService,
+      TccMessageSender tccMessageSender,
       @Qualifier("coordinateContext") CallbackContext coordinateContext,
       OmegaContext omegaContext,
       ParametersContext parametersContext) {
-    return new CoordinateMessageHandler(tccEventService, coordinateContext, omegaContext, parametersContext);
+    return new CoordinateMessageHandler(tccMessageSender, coordinateContext, omegaContext, parametersContext);
   }
 
   @Bean
-  TccStartAspect tccStartAspect(TccEventService tccEventService, OmegaContext context) {
-    return new TccStartAspect(tccEventService, context);
+  TccStartAspect tccStartAspect(
+      TccMessageSender tccMessageSender,
+      OmegaContext context) {
+    return new TccStartAspect(tccMessageSender, context);
   }
 
   @Bean
-  TccParticipatorAspect tccParticipatorAspect(TccEventService tccEventService, OmegaContext context, ParametersContext parametersContext) {
-    return new TccParticipatorAspect(tccEventService, context, parametersContext);
+  TccParticipatorAspect tccParticipatorAspect(
+      TccMessageSender tccMessageSender,
+      OmegaContext context, ParametersContext parametersContext) {
+    return new TccParticipatorAspect(tccMessageSender, context, parametersContext);
   }
 
   @Bean

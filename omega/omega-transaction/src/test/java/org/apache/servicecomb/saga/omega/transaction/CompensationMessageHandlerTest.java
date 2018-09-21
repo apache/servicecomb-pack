@@ -34,7 +34,7 @@ import org.junit.Test;
 public class CompensationMessageHandlerTest {
 
   private final List<TxEvent> events = new ArrayList<>();
-  private final MessageSender sender = new MessageSender() {
+  private final SagaMessageSender sender = new SagaMessageSender() {
     @Override
     public void onConnected() {
 

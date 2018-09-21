@@ -40,7 +40,7 @@ public class SagaStartAnnotationProcessorTest {
 
   private final List<TxEvent> messages = new ArrayList<>();
 
-  private final MessageSender sender = new MessageSender() {
+  private final SagaMessageSender sender = new SagaMessageSender() {
     @Override
     public void onConnected() {
 
@@ -116,7 +116,7 @@ public class SagaStartAnnotationProcessorTest {
 
   @Test
   public void transformInterceptedException() {
-    MessageSender sender = mock(MessageSender.class);
+    SagaMessageSender sender = mock(SagaMessageSender.class);
     SagaStartAnnotationProcessor sagaStartAnnotationProcessor = new SagaStartAnnotationProcessor(
         context, sender);
 

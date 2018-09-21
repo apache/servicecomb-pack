@@ -49,7 +49,7 @@ public class TccStartAspectTest {
   private final List<TccStartedEvent> startedEvents = new ArrayList<>();
   private final List<TccEndedEvent> endedEvents = new ArrayList<>();
   private final AlphaResponse response = new AlphaResponse(false);
-  private final TccEventService eventService = new TccEventService() {
+  private final TccMessageSender tccMessageSender = new TccMessageSender() {
     @Override
     public void onConnected() {
 
@@ -99,7 +99,7 @@ public class TccStartAspectTest {
   private final TccStart tccStart = Mockito.mock(TccStart.class);
 
   private final OmegaContext omegaContext = new OmegaContext(idGenerator);
-  private final TccStartAspect aspect = new TccStartAspect(eventService, omegaContext);
+  private final TccStartAspect aspect = new TccStartAspect(tccMessageSender, omegaContext);
 
   @Before
   public void setUp() throws Exception {

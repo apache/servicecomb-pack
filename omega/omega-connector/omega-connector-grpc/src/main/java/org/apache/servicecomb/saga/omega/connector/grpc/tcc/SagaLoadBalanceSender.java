@@ -20,11 +20,11 @@ package org.apache.servicecomb.saga.omega.connector.grpc.tcc;
 import com.google.common.base.Optional;
 import org.apache.servicecomb.saga.omega.connector.grpc.MessageSenderPicker;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
-import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
+import org.apache.servicecomb.saga.omega.transaction.SagaMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 
-public class SagaLoadBalanceSender extends LoadBalanceSenderAdapter {
+public class SagaLoadBalanceSender extends LoadBalanceSenderAdapter implements SagaMessageSender {
 
   public SagaLoadBalanceSender(LoadBalanceContext loadContext,
       MessageSenderPicker senderPicker) {
@@ -34,7 +34,7 @@ public class SagaLoadBalanceSender extends LoadBalanceSenderAdapter {
   @Override
   public AlphaResponse send(TxEvent event) {
     do {
-      final MessageSender messageSender = pickMessageSender();
+      final SagaMessageSender messageSender = pickMessageSender();
       Optional<AlphaResponse> response = doGrpcSend(messageSender, event, new SenderExecutor<TxEvent>() {
         @Override
         public AlphaResponse apply(TxEvent event) {
