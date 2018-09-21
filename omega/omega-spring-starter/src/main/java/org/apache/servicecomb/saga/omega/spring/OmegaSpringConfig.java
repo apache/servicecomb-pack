@@ -18,11 +18,8 @@
 package org.apache.servicecomb.saga.omega.spring;
 
 import com.google.common.collect.ImmutableList;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.saga.omega.connector.grpc.FastestSender;
-import org.apache.servicecomb.saga.omega.connector.grpc.GrpcTccEventService;
 import org.apache.servicecomb.saga.omega.connector.grpc.LoadBalancedClusterMessageSender;
 import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContext;
 import org.apache.servicecomb.saga.omega.connector.grpc.tcc.LoadBalanceContextBuilder;
@@ -38,10 +35,8 @@ import org.apache.servicecomb.saga.omega.context.UniqueIdGenerator;
 import org.apache.servicecomb.saga.omega.format.KryoMessageFormat;
 import org.apache.servicecomb.saga.omega.format.MessageFormat;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
-import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.tcc.DefaultParametersContext;
 import org.apache.servicecomb.saga.omega.transaction.tcc.ParametersContext;
-import org.apache.servicecomb.saga.omega.transaction.tcc.TccEventService;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageHandler;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -157,25 +152,5 @@ class OmegaSpringConfig {
       }
     }));
     return tccMessageSender;
-  }
-
-  // TODO should integrate with loadBalance message sender in future.
-  @Bean
-  TccEventService tccEventService(ServiceConfig serviceConfig,
-      @Lazy TccMessageHandler coordinateMessageHandler,
-      @Value("${alpha.cluster.address:localhost:8080}") String address) {
-    ManagedChannel channel = ManagedChannelBuilder.forTarget(address).usePlaintext().build();
-    final GrpcTccEventService service = new GrpcTccEventService(serviceConfig, channel, address, coordinateMessageHandler);
-    // Need to register it self first
-    service.onConnected();
-
-    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-      @Override
-      public void run() {
-        service.onDisconnected();
-        service.close();
-      }
-    }));
-    return service;
   }
 }

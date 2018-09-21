@@ -24,6 +24,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import org.apache.servicecomb.saga.common.TransactionStatus;
+import org.apache.servicecomb.saga.omega.connector.grpc.tcc.GrpcTccClientMessageSender;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageHandler;
@@ -53,7 +54,7 @@ import io.grpc.testing.GrpcCleanupRule;
 import io.grpc.util.MutableHandlerRegistry;
 
 @RunWith(JUnit4.class)
-public class GrpcTccEventServiceTest {
+public class GrpcTccClientMessageSenderTest {
   @Rule
   public final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
   private final MutableHandlerRegistry serviceRegistry = new MutableHandlerRegistry();
@@ -70,7 +71,7 @@ public class GrpcTccEventServiceTest {
   private final ServiceConfig serviceConfig = new ServiceConfig(uniquify("Service"));
   private final String address = uniquify("Address");
   private final TccMessageHandler handler = mock(TccMessageHandler.class);
-  private GrpcTccEventService service;
+  private GrpcTccClientMessageSender service;
 
   @Before
   public void setUp() throws Exception {
@@ -86,7 +87,7 @@ public class GrpcTccEventServiceTest {
         InProcessChannelBuilder.forName(serverName).directExecutor().build());
 
     // Create a TccEventServiceStub using the in-process channel;
-    service = new GrpcTccEventService(serviceConfig, channel, address, handler);
+    service = new GrpcTccClientMessageSender(serviceConfig, channel, address, handler, null);
   }
 
   @Test
