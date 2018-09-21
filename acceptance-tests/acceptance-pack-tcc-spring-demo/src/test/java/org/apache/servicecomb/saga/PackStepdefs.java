@@ -91,16 +91,15 @@ public class PackStepdefs implements En {
       // Need to wait for a while to let the confirm or cannel command finished.
       Thread.sleep(2000);
     });
-
-    //TODO need to check the events from the alpha
-    /*Then("^Alpha records the following events$", (DataTable dataTable) -> {
+    
+    Then("^Alpha records the following events$", (DataTable dataTable) -> {
       Consumer<Map<String, String>[]> columnStrippingConsumer = dataMap -> {
         for (Map<String, String> map : dataMap)
           map.keySet().retainAll(dataTable.topCells());
       };
 
-      dataMatches(System.getProperty(ALPHA_REST_ADDRESS) + "/events", dataTable, columnStrippingConsumer);
-    });*/
+      dataMatches(System.getProperty(ALPHA_REST_ADDRESS) + "/tcc/events", dataTable, columnStrippingConsumer);
+    });
 
     Then("^Inventory Service contains the following booking orders$", (DataTable dataTable) -> {
       dataMatches(System.getProperty(INVENTORY_SERVICE_ADDRESS) + INVENTORY_ORDERS_URI, dataTable, NO_OP_CONSUMER);
@@ -122,11 +121,11 @@ public class PackStepdefs implements En {
           .statusCode(is(200));
     }
 
-    /*given()
+    given()
         .when()
-        .delete(System.getProperty(ALPHA_REST_ADDRESS) + "/events")
+        .delete(System.getProperty(ALPHA_REST_ADDRESS) + "/tcc/events")
         .then()
-        .statusCode(is(200));*/
+        .statusCode(is(200));
 
   }
 
