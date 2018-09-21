@@ -24,7 +24,7 @@ import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxType;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TxEventFactory;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.EventConverter;
 import org.apache.servicecomb.saga.alpha.server.tcc.service.TccTxEventRepository;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.slf4j.Logger;
@@ -50,7 +50,7 @@ public class TccCallbackEngine implements CallbackEngine {
     List<TccTxEvent> events = tccTxEventRepository.findByGlobalTxIdAndTxType(request.getGlobalTxId(), TccTxType.PARTICIPATED).orElse(
         Lists.newArrayList());
     for (TccTxEvent event : events) {
-      ParticipatedEvent participatedEvent = TxEventFactory.convertToParticipatedEvent(event);
+      ParticipatedEvent participatedEvent = EventConverter.convertToParticipatedEvent(event);
       try {
         // only invoke the event is succeed
         if (event.getStatus().equals(TransactionStatus.Succeed.toString())) {

@@ -27,7 +27,7 @@ import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEventReposit
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEventDBRepository;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxType;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TxEventFactory;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.EventConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -49,14 +49,14 @@ public class RDBTxEventRepository implements TccTxEventRepository {
   public void saveGlobalTxEvent(GlobalTxEvent event) {
     globalTxEventRepository.save(event);
     // saveTccEventHere
-    tccTxEventDBRepository.save(TxEventFactory.convertToTccTxEvent(event));
+    tccTxEventDBRepository.save(EventConverter.convertToTccTxEvent(event));
   }
 
   @Override
   public void saveParticipatedEvent(ParticipatedEvent event) {
     participatedEventRepository.save(event);
     // saveTccEventHere
-    tccTxEventDBRepository.save(TxEventFactory.convertToTccTxEvent(event));
+    tccTxEventDBRepository.save(EventConverter.convertToTccTxEvent(event));
   }
 
   @Override

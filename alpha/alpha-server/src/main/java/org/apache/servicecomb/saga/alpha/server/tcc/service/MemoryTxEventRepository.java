@@ -31,7 +31,7 @@ import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxType;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TxEventFactory;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.EventConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -47,12 +47,12 @@ public class MemoryTxEventRepository implements TccTxEventRepository {
 
   @Override
   public void saveGlobalTxEvent(GlobalTxEvent event) {
-    save(TxEventFactory.convertToTccTxEvent(event));
+    save(EventConverter.convertToTccTxEvent(event));
   }
 
   @Override
   public void saveParticipatedEvent(ParticipatedEvent event) {
-    save(TxEventFactory.convertToTccTxEvent(event));
+    save(EventConverter.convertToTccTxEvent(event));
   }
 
   @Override

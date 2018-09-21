@@ -22,16 +22,16 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 
-public class TxEventFactoryTest {
+public class EventConverterTest {
 
   @Test
   public void getMethodInfo() {
-    assertThat(TxEventFactory.toMethodInfo("test1", "test2"), is("confirm=test1,cancel=test2"));
+    assertThat(EventConverter.toMethodInfo("test1", "test2"), is("confirm=test1,cancel=test2"));
   }
 
   @Test
   public void getMethodName() {
-    assertThat(TxEventFactory.getMethodName("confirm=text1,cancel=text2",true), is("text1"));
-    assertThat(TxEventFactory.getMethodName("confirm=text1,cancel=text2",false), is("text2"));
+    assertThat(EventConverter.getMethodName("confirm=text1,cancel=text2",true), is("text1"));
+    assertThat(EventConverter.getMethodName("confirm=text1,cancel=text2",false), is("text2"));
   }
 }
