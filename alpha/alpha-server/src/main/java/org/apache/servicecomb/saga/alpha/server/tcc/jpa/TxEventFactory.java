@@ -89,8 +89,8 @@ public class TxEventFactory {
         event.getGlobalTxId(),
         event.getLocalTxId(),
         event.getParentTxId(),
-        toMethodInfo(event.getCancelMethod(), event.getConfirmMethod()),
         TccTxType.PARTICIPATED.name(),
+        toMethodInfo(event.getCancelMethod(), event.getConfirmMethod()),
         event.getStatus());
   }
 
@@ -100,8 +100,8 @@ public class TxEventFactory {
         event.getGlobalTxId(),
         event.getLocalTxId(),
         event.getParentTxId(),
-        event.getMethodName(),
         TccTxType.COORDINATED.name(),
+        event.getMethodName(),
         event.getStatus());
   }
 

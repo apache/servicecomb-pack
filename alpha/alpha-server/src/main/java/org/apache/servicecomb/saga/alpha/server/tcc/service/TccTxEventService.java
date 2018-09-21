@@ -61,7 +61,7 @@ public class TccTxEventService {
   }
 
   public boolean onParticipatedEvent(ParticipatedEvent participatedEvent) {
-    LOG.info("Registered participated event, global tx: {}, local tx: {}, parent id: {}, "
+    LOG.info("Registered Participated event, global tx: {}, local tx: {}, parent id: {}, "
             + "confirm: {}, cancel: {}, status: {}, service [{}] instanceId [{}]",
         participatedEvent.getGlobalTxId(), participatedEvent.getLocalTxId(), participatedEvent.getParentTxId(),
         participatedEvent.getConfirmMethod(), participatedEvent.getCancelMethod(), participatedEvent.getStatus(),
@@ -96,7 +96,7 @@ public class TccTxEventService {
   }
 
   public boolean onCoordinatedEvent(TccTxEvent tccTxEvent) {
-    LOG.info("Registered TccStarted event, global tx: {}, local tx: {}, parent id: {}, "
+    LOG.info("Registered Coordinate event, global tx: {}, local tx: {}, parent id: {}, "
             + "txType: {}, service [{}] instanceId [{}]",
         tccTxEvent.getGlobalTxId(), tccTxEvent.getLocalTxId(), tccTxEvent.getParentTxId(),
         tccTxEvent.getTxType(), tccTxEvent.getServiceName(), tccTxEvent.getInstanceId());
