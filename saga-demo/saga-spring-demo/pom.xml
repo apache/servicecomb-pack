@@ -43,5 +43,39 @@
       <groupId>io.netty</groupId>
       <artifactId>netty-tcnative-boringssl-static</artifactId>
     </dependency>
+    <!-- for the performance monitor -->
+    <dependency>
+      <groupId>io.kamon</groupId>
+      <artifactId>kamon-core_2.12</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.kamon</groupId>
+      <artifactId>kamon-annotation_2.12</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-actor_2.12</artifactId>
+    </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>perf</id>
+      <dependencies>
+        <dependency>
+          <groupId>io.kamon</groupId>
+          <artifactId>kamon-log-reporter_2.12</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>io.kamon</groupId>
+          <artifactId>kamon-statsd_2.12</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.aspectj</groupId>
+          <artifactId>aspectjweaver</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+
 </project>

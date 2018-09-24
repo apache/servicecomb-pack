@@ -74,6 +74,22 @@
     </dependencies>
   </dependencyManagement>
 
+  <dependencies>
+    <!-- for the performance monitor -->
+    <dependency>
+      <groupId>io.kamon</groupId>
+      <artifactId>kamon-core_2.12</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.kamon</groupId>
+      <artifactId>kamon-annotation_2.12</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-actor_2.12</artifactId>
+    </dependency>
+  </dependencies>
+
   <build>
     <plugins>
       <!-- SCB-648 Just make sure the Omega is 1.7 compatible -->

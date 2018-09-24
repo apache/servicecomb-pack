@@ -29,6 +29,9 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Trace;
+
 /**
  * DefaultRecovery is used to execute business logic once.
  * The corresponding events will report to alpha server before and after the execution of business logic.
@@ -42,9 +45,11 @@ import org.slf4j.LoggerFactory;
  *                    ----------------------
  *                            alpha
  */
+@EnableKamon
 public class DefaultRecovery implements RecoveryPolicy {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+  @Trace("defaultRecovery")
   @Override
   public Object apply(ProceedingJoinPoint joinPoint, Compensable compensable, CompensableInterceptor interceptor,
       OmegaContext context, String parentTxId, int retries) throws Throwable {

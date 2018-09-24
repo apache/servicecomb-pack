@@ -26,6 +26,10 @@ import org.apache.servicecomb.saga.omega.transaction.OmegaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Trace;
+
+@EnableKamon
 public abstract class LoadBalanceSenderAdapter implements MessageSender {
 
   private final LoadBalanceContext loadContext;
@@ -47,6 +51,7 @@ public abstract class LoadBalanceSenderAdapter implements MessageSender {
         loadContext.getGrpcOnErrorHandler().getGrpcRetryContext().getDefaultMessageSender());
   }
 
+  @Trace("SendingGrpcEventsToAlpha")
   public <T> Optional<AlphaResponse> doGrpcSend(MessageSender messageSender, T event, SenderExecutor<T> executor) {
     AlphaResponse response = null;
     try {
@@ -62,6 +67,7 @@ public abstract class LoadBalanceSenderAdapter implements MessageSender {
     return Optional.fromNullable(response);
   }
 
+  @Trace("onConnectedAlphaServer")
   @Override
   public void onConnected() {
     for(MessageSender sender : loadContext.getSenders().keySet()){
@@ -73,6 +79,7 @@ public abstract class LoadBalanceSenderAdapter implements MessageSender {
     }
   }
 
+  @Trace("onDisConnectedAlphaServer")
   @Override
   public void onDisconnected() {
     for (MessageSender sender : loadContext.getSenders().keySet()) {

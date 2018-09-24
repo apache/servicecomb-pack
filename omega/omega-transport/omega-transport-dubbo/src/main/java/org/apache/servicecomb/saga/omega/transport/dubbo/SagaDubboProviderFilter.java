@@ -31,10 +31,14 @@ import java.lang.invoke.MethodHandles;
 import static org.apache.servicecomb.saga.omega.context.OmegaContext.GLOBAL_TX_ID_KEY;
 import static org.apache.servicecomb.saga.omega.context.OmegaContext.LOCAL_TX_ID_KEY;
 
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Trace;
+
 /**
  * get saga transaction id from dubbo invocation and set into omega context
  */
 @Activate(group = Constants.PROVIDER)
+@EnableKamon
 public class SagaDubboProviderFilter implements Filter {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -47,6 +51,7 @@ public class SagaDubboProviderFilter implements Filter {
     this.omegaContext = omegaContext;
   }
 
+  @Trace("sagaDubboProviderInvoke")
   @Override
   public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
     if (omegaContext != null) {

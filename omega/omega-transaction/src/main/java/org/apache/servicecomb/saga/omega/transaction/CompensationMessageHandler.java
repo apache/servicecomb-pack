@@ -19,6 +19,9 @@ package org.apache.servicecomb.saga.omega.transaction;
 
 import org.apache.servicecomb.saga.omega.context.CallbackContext;
 
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Trace;
+@EnableKamon
 public class CompensationMessageHandler implements MessageHandler {
   private final SagaMessageSender sender;
 
@@ -29,6 +32,7 @@ public class CompensationMessageHandler implements MessageHandler {
     this.context = context;
   }
 
+  @Trace("CompensationCallbackReceived")
   @Override
   public void onReceive(String globalTxId, String localTxId, String parentTxId, String compensationMethod,
       Object... payloads) {

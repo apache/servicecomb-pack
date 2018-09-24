@@ -20,11 +20,19 @@ package org.apache.servicecomb.saga.demo.pack.booking;
 import org.apache.servicecomb.saga.omega.spring.EnableOmega;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import kamon.Kamon;
+import javax.annotation.PreDestroy;
 
 @SpringBootApplication
 @EnableOmega
 public class Application {
   public static void main(String[] args) {
+    Kamon.start();
     SpringApplication.run(Application.class, args);
+  }
+
+  @PreDestroy
+  void shutdown() {
+    Kamon.shutdown();
   }
 }

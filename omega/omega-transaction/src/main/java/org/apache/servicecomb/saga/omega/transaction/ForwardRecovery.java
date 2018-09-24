@@ -29,15 +29,20 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Trace;
+
 /**
  * ForwardRecovery is used to execute business logic with the given retries times.
  * If retries is above 0, it will retry the given times at most.
  * If retries == -1, it will retry forever until interrupted.
  */
+@EnableKamon
 public class ForwardRecovery extends DefaultRecovery {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   // TODO: 2018/03/10 we do not support retry with timeout yet
+  @Trace("forwardRecovery")
   @Override
   public Object apply(ProceedingJoinPoint joinPoint, Compensable compensable, CompensableInterceptor interceptor,
       OmegaContext context, String parentTxId, int retries) throws Throwable {
