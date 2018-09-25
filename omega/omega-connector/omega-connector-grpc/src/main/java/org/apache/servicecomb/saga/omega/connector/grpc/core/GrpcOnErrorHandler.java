@@ -21,6 +21,7 @@ import com.google.common.base.Supplier;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
 
@@ -64,7 +65,11 @@ public class GrpcOnErrorHandler {
       @Override
       public MessageSender get() {
         try {
-          return reconnectedSenders.take();
+          MessageSender messageSender = reconnectedSenders.poll(5, TimeUnit.SECONDS);
+          if (null == messageSender) {
+            throw new OmegaException("Failed to get reconnected sender, all alpha server is down.");
+          }
+          return messageSender;
         } catch (InterruptedException e) {
           throw new OmegaException("Failed to get reconnected sender", e);
         }

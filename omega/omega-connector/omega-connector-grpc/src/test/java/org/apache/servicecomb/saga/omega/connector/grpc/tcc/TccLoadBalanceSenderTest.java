@@ -35,6 +35,7 @@ import com.google.common.collect.Maps;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.netty.NettyServerBuilder;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.Map;
@@ -211,6 +212,31 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
     assertThat(eventsMap.get(8080).size(), is(3));
   }
 
+  @Test
+  public void failFastWhenAllServerWasDown() throws IOException {
+    tccLoadBalanceSender.onConnected();
+    await().atMost(2, TimeUnit.SECONDS).until(new Callable<Boolean>() {
+      @Override
+      public Boolean call() {
+        return connected.get(8080).size() == 1 && connected.get(8090).size() == 1;
+      }
+    });
+    assertThat((connected.get(8080).size() == 1 && connected.get(8090).size() == 1), is(true));
+
+    for (Server each : servers.values()) {
+      each.shutdownNow();
+    }
+
+    try {
+      tccLoadBalanceSender.participate(participatedEvent);
+    } catch (OmegaException ex) {
+      assertThat(ex.getMessage().endsWith("all alpha server is down."), is(true));
+    }
+    for (Integer each : ports) {
+      startServerOnPort(each);
+    }
+  }
+
   @Test(expected = OmegaException.class)
   public void participateFailedThenAbort() {
     TccMessageSender failedSender = mock(GrpcTccClientMessageSender.class);
@@ -285,5 +311,4 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
     Assert.assertThat(connected.get(8080), contains("Connected " + serviceName, "Disconnected " + serviceName));
     Assert.assertThat(connected.get(8090), contains("Connected " + serviceName, "Disconnected " + serviceName));
   }
-
 }
