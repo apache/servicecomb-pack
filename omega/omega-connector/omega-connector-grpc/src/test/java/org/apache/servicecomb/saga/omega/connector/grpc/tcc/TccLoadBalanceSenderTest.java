@@ -128,7 +128,7 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
     when(clusterConfig.isEnableSSL()).thenReturn(false);
 
     loadContext =
-        new LoadBalanceContextBuilder(TransactionType.TCC, clusterConfig, serviceConfig, 30).build();
+        new LoadBalanceContextBuilder(TransactionType.TCC, clusterConfig, serviceConfig, 30, 4).build();
     tccLoadBalanceSender = new TccLoadBalanceSender(loadContext, new FastestSender());
     participatedEvent = new ParticipatedEvent(globalTxId, localTxId, parentTxId, confirmMethod, cancelMethod, TransactionStatus.Succeed);
     tccStartedEvent = new TccStartedEvent(globalTxId, localTxId);

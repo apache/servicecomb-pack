@@ -66,9 +66,9 @@ public class LoadBalanceContextBuilderTest {
     when(clusterConfig.getAddresses()).thenReturn(Lists.newArrayList(addresses));
     when(clusterConfig.getTccMessageHandler()).thenReturn(tccMessageHandler);
     tccLoadBalanceContextBuilder =
-        new LoadBalanceContextBuilder(TransactionType.TCC, clusterConfig, serviceConfig, 30);
+        new LoadBalanceContextBuilder(TransactionType.TCC, clusterConfig, serviceConfig, 30, 10);
     sagaLoadBalanceContextBuilder =
-        new LoadBalanceContextBuilder(TransactionType.SAGA, clusterConfig, serviceConfig, 30);
+        new LoadBalanceContextBuilder(TransactionType.SAGA, clusterConfig, serviceConfig, 30,10);
   }
 
   @After

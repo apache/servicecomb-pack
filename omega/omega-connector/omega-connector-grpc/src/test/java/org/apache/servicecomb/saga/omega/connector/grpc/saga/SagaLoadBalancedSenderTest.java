@@ -67,7 +67,7 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
     LoadBalanceContext loadContext = new LoadBalanceContextBuilder(
         TransactionType.SAGA,
         clusterConfig,
-        new ServiceConfig(serviceName), 100).build();
+        new ServiceConfig(serviceName), 100, 4).build();
 
     return new SagaLoadBalanceSender(loadContext, new FastestSender());
   }
@@ -157,7 +157,11 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
     Thread thread = new Thread(new Runnable() {
       @Override
       public void run() {
-        messageSender.send(event);
+        try {
+          messageSender.send(event);
+        } catch (Exception ex) {
+          assertThat(ex.getMessage().endsWith("Failed to get reconnected sender"), is(true));
+        }
       }
     });
     thread.start();
