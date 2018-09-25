@@ -18,7 +18,7 @@
 package org.apache.servicecomb.saga.omega.connector.grpc.saga;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
-import static java.lang.Thread.State.WAITING;
+import static java.lang.Thread.State.TERMINATED;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.contains;
@@ -254,16 +254,20 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
     final Thread thread = new Thread(new Runnable() {
       @Override
       public void run() {
-        messageSender.send(event);
+        try {
+          messageSender.send(event);
+        } catch (OmegaException ex) {
+          assertThat(ex.getMessage().endsWith("all alpha server is down."), is(true));
+        }
       }
     });
     thread.start();
 
     // we don't want to keep sending on cluster down
-    await().atMost(2, SECONDS).until(new Callable<Boolean>() {
+    await().atMost(10, SECONDS).until(new Callable<Boolean>() {
       @Override
       public Boolean call() throws Exception {
-        return thread.isAlive() && thread.getState().equals(WAITING);
+        return thread.getState().equals(TERMINATED);
       }
     });
 
@@ -276,12 +280,14 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
     startServerOnPort(8080);
     startServerOnPort(8090);
 
+   messageSender.send(event);
     await().atMost(2, SECONDS).until(new Callable<Boolean>() {
       @Override
       public Boolean call() throws Exception {
         return connected.get(8080).size() == 2 || connected.get(8090).size() == 2;
       }
     });
+
     await().atMost(2, SECONDS).until(new Callable<Boolean>() {
       @Override
       public Boolean call() throws Exception {
