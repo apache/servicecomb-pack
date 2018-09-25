@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.omega.connector.grpc.tcc;
+package org.apache.servicecomb.saga.omega.connector.grpc;
 
 import io.grpc.Server;
 import java.util.HashMap;

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.omega.connector.grpc;
+package org.apache.servicecomb.saga.omega.connector.grpc.saga;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static java.lang.Thread.State.WAITING;
@@ -36,11 +36,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.saga.omega.connector.grpc.core.FastestSender;
 import org.apache.servicecomb.saga.omega.connector.grpc.core.LoadBalanceContext;
 import org.apache.servicecomb.saga.omega.connector.grpc.core.LoadBalanceContextBuilder;
 import org.apache.servicecomb.saga.omega.connector.grpc.core.TransactionType;
-import org.apache.servicecomb.saga.omega.connector.grpc.saga.SagaLoadBalanceSender;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
@@ -52,7 +52,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class LoadBalancedClusterMessageSenderTest extends LoadBalancedClusterMessageSenderTestBase {
+public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
   @Override
   protected SagaLoadBalanceSender newMessageSender(String[] addresses) {
     AlphaClusterConfig clusterConfig = AlphaClusterConfig.builder()

@@ -43,6 +43,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
+import org.apache.servicecomb.saga.omega.connector.grpc.LoadBalanceSenderTestBase;
 import org.apache.servicecomb.saga.omega.connector.grpc.core.FastestSender;
 import org.apache.servicecomb.saga.omega.connector.grpc.core.LoadBalanceContext;
 import org.apache.servicecomb.saga.omega.connector.grpc.core.LoadBalanceContextBuilder;

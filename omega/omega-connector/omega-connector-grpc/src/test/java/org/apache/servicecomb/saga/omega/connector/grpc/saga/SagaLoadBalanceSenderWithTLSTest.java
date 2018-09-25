@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.omega.connector.grpc;
+package org.apache.servicecomb.saga.omega.connector.grpc.saga;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
@@ -38,16 +38,16 @@ import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 import javax.net.ssl.SSLException;
+import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.saga.omega.connector.grpc.core.FastestSender;
 import org.apache.servicecomb.saga.omega.connector.grpc.core.LoadBalanceContext;
 import org.apache.servicecomb.saga.omega.connector.grpc.core.LoadBalanceContextBuilder;
 import org.apache.servicecomb.saga.omega.connector.grpc.core.TransactionType;
-import org.apache.servicecomb.saga.omega.connector.grpc.saga.SagaLoadBalanceSender;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class LoadBalanceClusterMessageSenderWithTLSTest extends LoadBalancedClusterMessageSenderTestBase {
+public class SagaLoadBalanceSenderWithTLSTest extends SagaLoadBalancedSenderTestBase {
 
   @Override
   protected SagaLoadBalanceSender newMessageSender(String[] addresses) {
@@ -101,7 +101,7 @@ public class LoadBalanceClusterMessageSenderWithTLSTest extends LoadBalancedClus
   }
 
   private static SslContextBuilder getSslContextBuilder() {
-    ClassLoader classLoader = LoadBalanceClusterMessageSenderWithTLSTest.class.getClassLoader();
+    ClassLoader classLoader = SagaLoadBalanceSenderWithTLSTest.class.getClassLoader();
     SslContextBuilder sslClientContextBuilder = SslContextBuilder.forServer(
         new File(classLoader.getResource("server.crt").getFile()),
         new File(classLoader.getResource("server.pem").getFile()))
