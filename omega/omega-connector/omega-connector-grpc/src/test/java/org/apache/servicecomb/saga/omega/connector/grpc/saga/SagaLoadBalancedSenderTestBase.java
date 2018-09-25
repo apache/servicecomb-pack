@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.omega.connector.grpc;
+package org.apache.servicecomb.saga.omega.connector.grpc.saga;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static org.junit.Assert.fail;
@@ -46,7 +46,7 @@ import org.junit.AfterClass;
 import io.grpc.Server;
 import io.grpc.stub.StreamObserver;
 
-public abstract class LoadBalancedClusterMessageSenderTestBase {
+public abstract class SagaLoadBalancedSenderTestBase {
   protected static final int[] ports = {8080, 8090};
 
   protected static final Map<Integer, Server> servers = new HashMap<>();
