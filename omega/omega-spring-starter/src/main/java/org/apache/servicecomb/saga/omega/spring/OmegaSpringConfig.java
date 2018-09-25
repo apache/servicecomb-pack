@@ -108,12 +108,14 @@ class OmegaSpringConfig {
   LoadBalanceContext sagaLoadBalanceSenderContext(
       AlphaClusterConfig alphaClusterConfig,
       ServiceConfig serviceConfig,
-      @Value("${omega.connection.reconnectDelay:3000}") int reconnectDelay) {
+      @Value("${omega.connection.reconnectDelay:3000}") int reconnectDelay,
+      @Value("${omega.connection.sending.timeout:8}") int timeoutSeconds) {
     LoadBalanceContext loadBalanceSenderContext = new LoadBalanceContextBuilder(
         TransactionType.SAGA,
         alphaClusterConfig,
         serviceConfig,
-        reconnectDelay).build();
+        reconnectDelay,
+        timeoutSeconds).build();
     return loadBalanceSenderContext;
   }
 
@@ -135,12 +137,14 @@ class OmegaSpringConfig {
   LoadBalanceContext loadBalanceSenderContext(
       AlphaClusterConfig alphaClusterConfig,
       ServiceConfig serviceConfig,
-      @Value("${omega.connection.reconnectDelay:3000}") int reconnectDelay) {
+      @Value("${omega.connection.reconnectDelay:3000}") int reconnectDelay,
+      @Value("${omega.connection.sending.timeout:8}") int timeoutSeconds) {
     LoadBalanceContext loadBalanceSenderContext = new LoadBalanceContextBuilder(
         TransactionType.TCC,
         alphaClusterConfig,
         serviceConfig,
-        reconnectDelay).build();
+        reconnectDelay,
+        timeoutSeconds).build();
     return loadBalanceSenderContext;
   }
 

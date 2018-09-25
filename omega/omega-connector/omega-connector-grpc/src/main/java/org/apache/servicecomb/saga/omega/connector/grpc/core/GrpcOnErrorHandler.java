@@ -33,10 +33,11 @@ public class GrpcOnErrorHandler {
 
   private final GrpcRetryContext grpcRetryContext;
 
-  public GrpcOnErrorHandler(BlockingQueue<Runnable> pendingTasks, Map<MessageSender, Long> senders) {
+  public GrpcOnErrorHandler(BlockingQueue<Runnable> pendingTasks,
+      Map<MessageSender, Long> senders, int timeoutSeconds) {
     this.pendingTasks = pendingTasks;
     this.senders = senders;
-    this.grpcRetryContext = new GrpcRetryContext();
+    this.grpcRetryContext = new GrpcRetryContext(timeoutSeconds);
   }
 
   public void handle(MessageSender messageSender) {
@@ -59,13 +60,15 @@ public class GrpcOnErrorHandler {
 
   public static class GrpcRetryContext {
 
+    private final int timeoutSeconds;
+
     private final BlockingQueue<MessageSender> reconnectedSenders = new LinkedBlockingQueue<>();
 
     private final Supplier<MessageSender> defaultMessageSender = new Supplier<MessageSender>() {
       @Override
       public MessageSender get() {
         try {
-          MessageSender messageSender = reconnectedSenders.poll(5, TimeUnit.SECONDS);
+          MessageSender messageSender = reconnectedSenders.poll(timeoutSeconds, TimeUnit.SECONDS);
           if (null == messageSender) {
             throw new OmegaException("Failed to get reconnected sender, all alpha server is down.");
           }
@@ -75,6 +78,10 @@ public class GrpcOnErrorHandler {
         }
       }
     };
+
+    public GrpcRetryContext(int timeoutSeconds) {
+      this.timeoutSeconds = timeoutSeconds;
+    }
 
     public BlockingQueue<MessageSender> getReconnectedSenders() {
       return reconnectedSenders;

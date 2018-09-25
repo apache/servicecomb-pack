@@ -33,11 +33,11 @@ public class LoadBalanceContext {
   private final GrpcOnErrorHandler grpcOnErrorHandler;
 
   public LoadBalanceContext(Map<MessageSender, Long> senders,
-      Collection<ManagedChannel> channels, int reconnectDelay) {
+      Collection<ManagedChannel> channels, int reconnectDelay, int timeoutSeconds) {
     this.senders = senders;
     this.channels = channels;
     this.pendingTaskRunner = new PendingTaskRunner(reconnectDelay);
-    this.grpcOnErrorHandler = new GrpcOnErrorHandler(pendingTaskRunner.getPendingTasks(), senders);
+    this.grpcOnErrorHandler = new GrpcOnErrorHandler(pendingTaskRunner.getPendingTasks(), senders, timeoutSeconds);
     pendingTaskRunner.start();
   }
 

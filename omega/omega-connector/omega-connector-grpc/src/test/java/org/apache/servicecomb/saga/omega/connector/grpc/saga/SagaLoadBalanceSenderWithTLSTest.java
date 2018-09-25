@@ -67,7 +67,7 @@ public class SagaLoadBalanceSenderWithTLSTest extends SagaLoadBalancedSenderTest
     LoadBalanceContext loadContext = new LoadBalanceContextBuilder(
         TransactionType.SAGA,
         clusterConfig,
-        new ServiceConfig(serviceName), 100).build();
+        new ServiceConfig(serviceName), 100, 4).build();
 
     return new SagaLoadBalanceSender(loadContext, new FastestSender());
   }

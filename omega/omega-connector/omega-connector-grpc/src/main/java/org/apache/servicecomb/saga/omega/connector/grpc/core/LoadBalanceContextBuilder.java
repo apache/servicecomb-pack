@@ -49,14 +49,17 @@ public class LoadBalanceContextBuilder {
 
   private final int reconnectDelay;
 
+  private final int timeoutSeconds;
+
   private final TransactionType transactionType;
 
   public LoadBalanceContextBuilder(TransactionType transactionType,
-      AlphaClusterConfig clusterConfig, ServiceConfig serviceConfig, int reconnectDelay) {
+      AlphaClusterConfig clusterConfig, ServiceConfig serviceConfig, int reconnectDelay, int timeoutSeconds) {
     this.transactionType = transactionType;
     this.clusterConfig = clusterConfig;
     this.serviceConfig = serviceConfig;
     this.reconnectDelay = reconnectDelay;
+    this.timeoutSeconds = timeoutSeconds;
   }
 
   public LoadBalanceContext build() {
@@ -67,7 +70,7 @@ public class LoadBalanceContextBuilder {
     Optional<SslContext> sslContext = buildSslContext(clusterConfig);
     Map<MessageSender, Long> senders = new ConcurrentHashMap<>();
     Collection<ManagedChannel> channels = new ArrayList<>(clusterConfig.getAddresses().size());
-    LoadBalanceContext loadContext = new LoadBalanceContext(senders, channels, reconnectDelay);
+    LoadBalanceContext loadContext = new LoadBalanceContext(senders, channels, reconnectDelay, timeoutSeconds);
 
     for (String address : clusterConfig.getAddresses()) {
       ManagedChannel channel = buildChannel(address, sslContext);
