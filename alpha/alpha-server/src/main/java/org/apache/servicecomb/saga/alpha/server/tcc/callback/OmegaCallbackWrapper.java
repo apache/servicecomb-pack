@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.saga.alpha.server.tcc.callback;
 
+import java.util.concurrent.BlockingQueue;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.springframework.stereotype.Component;
@@ -24,14 +25,30 @@ import org.springframework.stereotype.Component;
 @Component
 public class OmegaCallbackWrapper implements OmegaCallback {
 
+  private final BlockingQueue<Runnable> pendingTasks;
+
+  public OmegaCallbackWrapper(
+      TccPendingTaskRunner tccPendingTaskRunner) {
+    this.pendingTasks = tccPendingTaskRunner.getPendingTasks();
+  }
+
+
   @Override
   public void invoke(ParticipatedEvent event, TransactionStatus status) {
-    OmegaCallback omegaCallback = OmegaCallbacksRegistry.retrieve(event.getServiceName(), event.getInstanceId());
+    OmegaCallback omegaCallback;
+    try {
+      omegaCallback = OmegaCallbacksRegistry.retrieve(event.getServiceName(), event.getInstanceId());
+    } catch (Exception e) {
+      pendingTasks.offer(() -> invoke(event, status));
+      throw e;
+    }
+
     try {
       omegaCallback.invoke(event, status);
-    } catch (Exception ex) {
+    } catch (Exception e) {
       OmegaCallbacksRegistry.remove(event.getServiceName(), event.getInstanceId());
-      throw ex;
+      pendingTasks.offer(() -> invoke(event, status));
+      throw e;
     }
   }
 }

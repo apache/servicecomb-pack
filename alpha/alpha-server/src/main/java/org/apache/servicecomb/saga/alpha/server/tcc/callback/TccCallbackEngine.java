@@ -47,6 +47,7 @@ public class TccCallbackEngine implements CallbackEngine {
   @Override
   public boolean execute(GlobalTxEvent request) {
     boolean result = true;
+    // TODO if tcc end event was triggered by many times, we should ensure coordinated event won't be invoke again.
     List<TccTxEvent> events = tccTxEventRepository.findByGlobalTxIdAndTxType(request.getGlobalTxId(), TccTxType.PARTICIPATED).orElse(
         Lists.newArrayList());
     for (TccTxEvent event : events) {
