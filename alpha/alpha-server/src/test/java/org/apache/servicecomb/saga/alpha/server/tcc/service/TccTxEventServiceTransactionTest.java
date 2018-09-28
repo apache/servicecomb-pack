@@ -18,16 +18,24 @@
 package org.apache.servicecomb.saga.alpha.server.tcc.service;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import io.grpc.stub.StreamObserver;
+import java.util.List;
+import java.util.Optional;
 import org.apache.servicecomb.saga.alpha.server.tcc.TccApplication;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallbacksRegistry;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEventRepository;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEventRepository;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEventDBRepository;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxType;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
@@ -38,14 +46,24 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {TccApplication.class})
-public class TccTxEventServiceTest {
+public class TccTxEventServiceTransactionTest {
 
   @Autowired
   private TccTxEventService tccTxEventService;
+
+  @MockBean
+  private TccTxEventDBRepository tccTxEventDBRepository;
+
+  @Autowired
+  private ParticipatedEventRepository participatedEventRepository;
+
+  @Autowired
+  private GlobalTxEventRepository globalTxEventRepository;
 
   private final String globalTxId = uniquify("globalTxId");
   private final String localTxId = uniquify("localTxId");
@@ -54,11 +72,6 @@ public class TccTxEventServiceTest {
   private final String cancelMethod = "cancel";
   private final String serviceName = uniquify("serviceName");
   private final String instanceId = uniquify("instanceId");
-
-  private final GrpcServiceConfig serviceConfig = GrpcServiceConfig.newBuilder()
-      .setServiceName(serviceName)
-      .setInstanceId(instanceId)
-      .build();
 
   private GlobalTxEvent tccStartEvent;
   private ParticipatedEvent participatedEvent;
@@ -85,19 +98,24 @@ public class TccTxEventServiceTest {
   }
 
   @Test
-  public void onlyCoordinateParticipatedEventOnce() {
-    StreamObserver<GrpcTccCoordinateCommand> observer = mock(StreamObserver.class);
-    OmegaCallbacksRegistry.register(serviceConfig, observer);
+  public void rollbackAfterSaveTccTxEventDbFailure() {
+    doThrow(NullPointerException.class).when(tccTxEventDBRepository).save((TccTxEvent) any());
 
     tccTxEventService.onTccStartedEvent(tccStartEvent);
+    Optional<List<GlobalTxEvent>> startEvents = globalTxEventRepository.findByGlobalTxId(globalTxId);
+    assertThat(startEvents.isPresent(), is(false));
+
     tccTxEventService.onParticipatedEvent(participatedEvent);
+    Optional<List<ParticipatedEvent>> participates = participatedEventRepository.findByGlobalTxId(globalTxId);
+    assertThat(participates.isPresent(), is(false));
+
     tccTxEventService.onTccEndedEvent(tccEndEvent);
+    Optional<List<GlobalTxEvent>> endEvents = globalTxEventRepository.findByGlobalTxId(globalTxId);
+    assertThat(endEvents.isPresent(), is(false));
+
+    participatedEventRepository.save(participatedEvent);
     tccTxEventService.onCoordinatedEvent(coordinateEvent);
-
-    verify(observer).onNext(any());
-
-    // if end command was send by twice, coordinate should only be executed once.
-    tccTxEventService.onTccEndedEvent(tccEndEvent);
-    verify(observer).onNext(any());
+    participates = participatedEventRepository.findByGlobalTxId(globalTxId);
+    assertThat(participates.isPresent(), is(true));
   }
 }

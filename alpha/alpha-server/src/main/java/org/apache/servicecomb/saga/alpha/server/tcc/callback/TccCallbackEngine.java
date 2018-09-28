@@ -17,22 +17,17 @@
 
 package org.apache.servicecomb.saga.alpha.server.tcc.callback;
 
+import com.google.common.collect.Lists;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
-
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEvent;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxType;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.EventConverter;
-import org.apache.servicecomb.saga.alpha.server.tcc.service.TccTxEventRepository;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEventRepository;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Lists;
 @Component
 public class TccCallbackEngine implements CallbackEngine {
 
@@ -42,23 +37,21 @@ public class TccCallbackEngine implements CallbackEngine {
   private OmegaCallbackWrapper omegaCallbackWrapper;
 
   @Autowired
-  private TccTxEventRepository tccTxEventRepository;
+  private ParticipatedEventRepository participatedEventRepository;
 
   @Override
   public boolean execute(GlobalTxEvent request) {
     boolean result = true;
-    // TODO if tcc end event was triggered by many times, we should ensure coordinated event won't be invoke again.
-    List<TccTxEvent> events = tccTxEventRepository.findByGlobalTxIdAndTxType(request.getGlobalTxId(), TccTxType.PARTICIPATED).orElse(
+    List<ParticipatedEvent> events = participatedEventRepository.findByGlobalTxId(request.getGlobalTxId()).orElse(
         Lists.newArrayList());
-    for (TccTxEvent event : events) {
-      ParticipatedEvent participatedEvent = EventConverter.convertToParticipatedEvent(event);
+    for (ParticipatedEvent event : events) {
       try {
         // only invoke the event is succeed
         if (event.getStatus().equals(TransactionStatus.Succeed.toString())) {
-          omegaCallbackWrapper.invoke(participatedEvent, TransactionStatus.valueOf(request.getStatus()));
+          omegaCallbackWrapper.invoke(event, TransactionStatus.valueOf(request.getStatus()));
         }
       } catch (Exception ex) {
-        logError(participatedEvent, ex);
+        logError(event, ex);
         result = false;
       }
     }

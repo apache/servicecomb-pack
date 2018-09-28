@@ -19,7 +19,7 @@ package org.apache.servicecomb.saga.alpha.server.tcc.service;
 
 import java.util.List;
 import java.util.Optional;
-
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.EventConverter;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEventRepository;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
@@ -27,10 +27,10 @@ import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEventReposit
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEventDBRepository;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxType;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.EventConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Profile("!memory")
@@ -46,6 +46,7 @@ public class RDBTxEventRepository implements TccTxEventRepository {
   TccTxEventDBRepository tccTxEventDBRepository;
 
   @Override
+  @Transactional
   public void saveGlobalTxEvent(GlobalTxEvent event) {
     globalTxEventRepository.save(event);
     // saveTccEventHere
@@ -53,10 +54,20 @@ public class RDBTxEventRepository implements TccTxEventRepository {
   }
 
   @Override
+  @Transactional
   public void saveParticipatedEvent(ParticipatedEvent event) {
     participatedEventRepository.save(event);
     // saveTccEventHere
     tccTxEventDBRepository.save(EventConverter.convertToTccTxEvent(event));
+  }
+
+  @Override
+  @Transactional
+  public void coordinated(TccTxEvent event) {
+    participatedEventRepository.findByUniqueKey(event.getGlobalTxId(), event.getLocalTxId()).ifPresent((e) -> {
+      participatedEventRepository.delete(e);
+      tccTxEventDBRepository.save(event);
+    });
   }
 
   @Override

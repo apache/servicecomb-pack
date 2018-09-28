@@ -56,6 +56,10 @@ public class MemoryTxEventRepository implements TccTxEventRepository {
   }
 
   @Override
+  public void coordinated(TccTxEvent event) {
+  }
+
+  @Override
   public void save(TccTxEvent event) {
     tccEventMap
         .computeIfAbsent(event.getGlobalTxId(), key-> new LinkedHashSet<>())
