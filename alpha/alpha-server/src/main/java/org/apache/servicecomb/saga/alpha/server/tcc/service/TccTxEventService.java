@@ -18,7 +18,6 @@
 package org.apache.servicecomb.saga.alpha.server.tcc.service;
 
 import java.lang.invoke.MethodHandles;
-
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.TccCallbackEngine;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
@@ -92,7 +91,6 @@ public class TccTxEventService {
     }
     // Just return the excution result back
     return tccCallbackEngine.execute(globalTxEvent);
-
   }
 
   public boolean onCoordinatedEvent(TccTxEvent tccTxEvent) {
@@ -101,7 +99,7 @@ public class TccTxEventService {
         tccTxEvent.getGlobalTxId(), tccTxEvent.getLocalTxId(), tccTxEvent.getParentTxId(),
         tccTxEvent.getTxType(), tccTxEvent.getServiceName(), tccTxEvent.getInstanceId());
     try {
-      tccTxEventRepository.save(tccTxEvent);
+      tccTxEventRepository.coordinated(tccTxEvent);
     } catch (Exception ex) {
       LOG.warn("Add coordinatedEvent triggered exception, globalTxId:{}, localTxId:{} ",
           tccTxEvent.getGlobalTxId(), tccTxEvent.getLocalTxId(), ex);

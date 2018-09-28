@@ -31,6 +31,8 @@ public interface TccTxEventRepository {
 
   void saveParticipatedEvent(ParticipatedEvent event);
 
+  void coordinated(TccTxEvent event);
+
   void save(TccTxEvent event);
 
   Optional<List<TccTxEvent>> findByGlobalTxId(String globalTxId);
