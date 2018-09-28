@@ -1,0 +1,31 @@
+[
+	{
+		"surrogateId": 1,
+		"serviceName": "booking",
+		"instanceId": "booking-172.23.0.7",
+		"creationTime": 1537269311897,
+		"globalTxId": "779749f8-c854-4156-96c0-0a5b31869d73",
+		"localTxId": "779749f8-c854-4156-96c0-0a5b31869d73",
+		"parentTxId": null,
+		"type": "SagaStartedEvent",
+		"compensationMethod": "",
+		"expiryTime": 253402214400000,
+		"retryMethod": "",
+		"retries": 0,
+		"payloads": "AQE="
+	}, {
+		"surrogateId": 2,
+		"serviceName": "car",
+		"instanceId": "car-172.23.0.5",
+		"creationTime": 1537269312398,
+		"globalTxId": "779749f8-c854-4156-96c0-0a5b31869d73",
+		"localTxId": "4cfed7d1-ade8-401c-a842-8d5a88dfb93c",
+		"parentTxId": "779749f8-c854-4156-96c0-0a5b31869d73",
+		"type": "TxStartedEvent",
+		"compensationMethod": "void org.apache.servicecomb.saga.demo.scb.car.CarBookingService.cancel(org.apache.servicecomb.saga.demo.scb.car.CarBooking)",
+		"expiryTime": 253402214400000,
+		"retryMethod": "",
+		"retries": 0,
+		"payloads": "AQIBAG9yZy5hcGFjaGUuc2VydmljZWNvbWIuc2FnYS5kZW1vLnNjYi5jYXIuQ2FyQm9va2lu5wEBBAAAAQIBdGVzdLI="
+	}
+]

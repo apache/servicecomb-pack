@@ -1,0 +1,20 @@
+<div class="row">
+  <div class="col-xxxl-12 col-md-12 mb-4">
+      <button title="Refresh" (click)="refresh()" class="float-left" nbButton shape="semi-round" outline status="info"><i class="fas  fa-sync-alt"></i></button>
+  </div>
+</div>
+<nb-card status="info">
+    <nb-card-header>
+        <div class="row">
+          <div class="col-4">
+            Transactions
+          </div>
+          <div class=" float-right offset-4 col-4">
+            Total Transactions: {{transactionsArr.length}}
+          </div>
+        </div>
+    </nb-card-header>
+    <nb-card-body>
+        <ng2-smart-table [settings]='settings' [source]='transactionsArr'></ng2-smart-table>
+    </nb-card-body>
+</nb-card>

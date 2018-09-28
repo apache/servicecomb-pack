@@ -1,0 +1,21 @@
+<div class="header-container"
+     [class.left]="position === 'normal'"
+     [class.right]="position === 'inverse'">
+  <div class="logo-containter mr-5">
+    <a (click)="toggleSidebar()" href="#" class="navigation"><i class="nb-menu"></i></a>
+    <div class="logo" (click)="goToHome()">ServiceComb<span> Saga</span></div>
+    
+  </div>
+  <small class="ml-5">
+         A transaction management system for servicecomb
+  </small>
+</div>
+
+<div class="header-container">
+  <ngx-theme-switcher></ngx-theme-switcher>
+  <nb-actions
+    size="medium"
+    [class.right]="position === 'normal'"
+    [class.left]="position === 'inverse'">
+  </nb-actions>
+</div>

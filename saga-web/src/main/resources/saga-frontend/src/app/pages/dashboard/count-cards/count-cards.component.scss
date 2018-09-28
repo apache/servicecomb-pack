@@ -1,0 +1,21 @@
+.count-card-icon-container {
+    border-radius: 3px;
+    background-color: #414141;
+    padding: 15px;
+    margin-top: -30px;
+    margin-right: 15px;
+    float: left;
+    box-shadow: 0 4px 20px 0 rgba(0,0,0,.14),0 7px 10px -5px rgba(255,152,0,.4);
+
+    .count-card-icon {
+        font-size: 1.25em;
+        color: #fff;
+    }
+    
+}
+.count-card-number{
+    font-size: 1.25em;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 1px 1px #7d7d7d;
+}
