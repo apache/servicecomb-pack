@@ -24,6 +24,7 @@ import static org.mockito.Mockito.verify;
 
 import io.grpc.stub.StreamObserver;
 import org.apache.servicecomb.saga.alpha.server.tcc.TccApplication;
+import org.apache.servicecomb.saga.alpha.server.tcc.TccConfiguration;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallbacksRegistry;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
@@ -41,7 +42,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {TccApplication.class})
+@SpringBootTest(classes = {TccApplication.class, TccConfiguration.class})
 public class TccTxEventServiceTest {
 
   @Autowired

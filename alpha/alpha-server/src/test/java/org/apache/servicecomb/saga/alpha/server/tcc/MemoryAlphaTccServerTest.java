@@ -25,26 +25,16 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {TccApplication.class},
+@SpringBootTest(classes = {TccApplication.class, TccConfiguration.class},
     properties = {
         "alpha.server.host=0.0.0.0",
-        "alpha.server.port=8090"
+        "alpha.server.port=8190"
     })
 @ActiveProfiles("memory")
 public class MemoryAlphaTccServerTest extends AlphaTccServerTestBase {
 
   @BeforeClass
   public static void setupClientChannel() {
-    clientChannel = NettyChannelBuilder.forAddress("localhost", 8090).usePlaintext().build();
+    clientChannel = NettyChannelBuilder.forAddress("localhost", 8190).usePlaintext().build();
   }
-
-  /*@Autowired
-  @Qualifier("defaultTccTxEventFacade")
-  private TccTxEventFacade tccTxEventFacade;
-
-  @Override
-  public TccTxEventFacade getTccTxEventFacade() {
-    return tccTxEventFacade;
-  }*/
-  
 }

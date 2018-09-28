@@ -21,15 +21,12 @@ import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyObject;
-import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import io.grpc.stub.StreamObserver;
 import java.util.UUID;
-import org.apache.servicecomb.saga.alpha.server.AlphaApplication;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallbacksRegistry;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.TccCallbackEngine;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
@@ -47,7 +44,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {TccApplication.class},
+@SpringBootTest(classes = {TccApplication.class, TccConfiguration.class},
     properties = {
         "alpha.server.host=0.0.0.0",
         "alpha.server.port=8092",

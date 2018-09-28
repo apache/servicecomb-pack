@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class TestConfiguration {
+public class TccConfiguration {
 
   @Value("${alpha.compensation.retry.delay:3000}")
   private int delay;

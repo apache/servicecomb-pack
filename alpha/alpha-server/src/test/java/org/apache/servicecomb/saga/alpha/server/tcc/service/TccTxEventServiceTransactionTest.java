@@ -22,14 +22,11 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
-import io.grpc.stub.StreamObserver;
 import java.util.List;
 import java.util.Optional;
 import org.apache.servicecomb.saga.alpha.server.tcc.TccApplication;
-import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallbacksRegistry;
+import org.apache.servicecomb.saga.alpha.server.tcc.TccConfiguration;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEventRepository;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
@@ -38,8 +35,6 @@ import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEventDBRepository;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxType;
 import org.apache.servicecomb.saga.common.TransactionStatus;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +45,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {TccApplication.class})
+@SpringBootTest(classes = {TccApplication.class, TccConfiguration.class})
 public class TccTxEventServiceTransactionTest {
 
   @Autowired
