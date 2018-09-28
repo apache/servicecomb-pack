@@ -18,14 +18,8 @@
 package org.apache.servicecomb.saga.alpha.server.tcc;
 
 import org.apache.servicecomb.saga.alpha.server.GrpcServerConfig;
-import org.apache.servicecomb.saga.alpha.server.GrpcStartable;
-import org.apache.servicecomb.saga.alpha.server.ServerStartable;
-import org.apache.servicecomb.saga.alpha.server.tcc.callback.TccPendingTaskRunner;
-import org.apache.servicecomb.saga.alpha.server.tcc.service.TccTxEventService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 @SpringBootApplication(scanBasePackageClasses = GrpcTccEventService.class)
@@ -33,27 +27,5 @@ import org.springframework.context.annotation.Import;
 public class TccApplication {
   public static void main(String[] args) {
     SpringApplication.run(TccApplication.class, args);
-  }
-
-  @Value("${alpha.compensation.retry.delay:3000}")
-  private int delay;
-
-  @Bean
-  TccPendingTaskRunner tccPendingTaskRunner() {
-    return new TccPendingTaskRunner(delay);
-  }
-
-  @Bean
-  GrpcTccEventService grpcTccEventService(TccTxEventService tccTxEventService, TccPendingTaskRunner tccPendingTaskRunner) {
-    tccPendingTaskRunner.start();
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> tccPendingTaskRunner.shutdown()));
-    return new GrpcTccEventService(tccTxEventService);
-  }
-
-  @Bean
-  ServerStartable serverStartable(GrpcServerConfig serverConfig, GrpcTccEventService grpcTccEventService) {
-    ServerStartable bootstrap = new GrpcStartable(serverConfig, grpcTccEventService);
-    new Thread(bootstrap::start).start();
-    return bootstrap;
   }
 }

@@ -26,12 +26,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.EventConverter;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxType;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.EventConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -77,6 +76,16 @@ public class MemoryTxEventRepository implements TccTxEventRepository {
   }
 
   @Override
+  public Optional<List<ParticipatedEvent>> findParticipatedByGlobalTxId(String globalTxId) {
+    return Optional.of(
+        findByGlobalTxId(globalTxId)
+            .orElse(new ArrayList<>()).stream()
+        .filter(e -> TccTxType.PARTICIPATED.name().equals(e.getTxType()))
+        .map(EventConverter::convertToParticipatedEvent).collect(Collectors.toList())
+    );
+  }
+
+  @Override
   public Optional<List<TccTxEvent>> findByGlobalTxIdAndTxType(String globalTxId, TccTxType tccTxType) {
     Set<TccTxEvent> events = tccEventMap.get(globalTxId);
     if ( events != null) {
@@ -101,8 +110,8 @@ public class MemoryTxEventRepository implements TccTxEventRepository {
   @Override
   public Iterable<TccTxEvent> findAll() {
     List<TccTxEvent> events = new ArrayList<>();
-    for (String golableTxId : tccEventMap.keySet()) {
-      events.addAll(tccEventMap.get(golableTxId));
+    for (String globalTxId : tccEventMap.keySet()) {
+      events.addAll(tccEventMap.get(globalTxId));
     }
     return events;
   }

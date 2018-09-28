@@ -37,6 +37,8 @@ public interface TccTxEventRepository {
 
   Optional<List<TccTxEvent>> findByGlobalTxId(String globalTxId);
 
+  Optional<List<ParticipatedEvent>> findParticipatedByGlobalTxId(String globalTxId);
+
   Optional<List<TccTxEvent>> findByGlobalTxIdAndTxType(String globalTxId, TccTxType tccTxType);
 
   Optional<TccTxEvent> findByUniqueKey(String globalTxId, String localTxId, TccTxType tccTxType);

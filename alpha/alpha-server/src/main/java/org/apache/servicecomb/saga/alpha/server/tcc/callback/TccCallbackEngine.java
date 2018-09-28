@@ -17,12 +17,13 @@
 
 package org.apache.servicecomb.saga.alpha.server.tcc.callback;
 
-import com.google.common.collect.Lists;
 import java.lang.invoke.MethodHandles;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEventRepository;
+import org.apache.servicecomb.saga.alpha.server.tcc.service.TccTxEventRepository;
 import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,25 +38,23 @@ public class TccCallbackEngine implements CallbackEngine {
   private OmegaCallbackWrapper omegaCallbackWrapper;
 
   @Autowired
-  private ParticipatedEventRepository participatedEventRepository;
+  private TccTxEventRepository tccTxEventRepository;
 
   @Override
   public boolean execute(GlobalTxEvent request) {
-    boolean result = true;
-    List<ParticipatedEvent> events = participatedEventRepository.findByGlobalTxId(request.getGlobalTxId()).orElse(
-        Lists.newArrayList());
-    for (ParticipatedEvent event : events) {
-      try {
-        // only invoke the event is succeed
-        if (event.getStatus().equals(TransactionStatus.Succeed.toString())) {
-          omegaCallbackWrapper.invoke(event, TransactionStatus.valueOf(request.getStatus()));
-        }
-      } catch (Exception ex) {
-        logError(event, ex);
-        result = false;
-      }
-    }
-    return result;
+    AtomicBoolean result = new AtomicBoolean(true);
+    tccTxEventRepository.findParticipatedByGlobalTxId(request.getGlobalTxId())
+        .orElseGet(ArrayList::new).stream()
+        .filter(e -> e.getStatus().equals(TransactionStatus.Succeed.toString()))
+        .collect(Collectors.toList()).forEach(e -> {
+          try {
+            omegaCallbackWrapper.invoke(e, TransactionStatus.valueOf(request.getStatus()));
+          } catch (Exception ex) {
+            logError(e, ex);
+            result.set(false);
+          }
+        });
+    return result.get();
   }
 
   private void logError(ParticipatedEvent event, Exception ex) {

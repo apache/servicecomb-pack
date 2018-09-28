@@ -81,6 +81,11 @@ public class RDBTxEventRepository implements TccTxEventRepository {
   }
 
   @Override
+  public Optional<List<ParticipatedEvent>> findParticipatedByGlobalTxId(String globalTxId) {
+    return participatedEventRepository.findByGlobalTxId(globalTxId);
+  }
+
+  @Override
   public Optional<List<TccTxEvent>> findByGlobalTxIdAndTxType(String globalTxId, TccTxType tccTxType) {
     return tccTxEventDBRepository.findByGlobalTxIdAndTxType(globalTxId, tccTxType.name());
   }
