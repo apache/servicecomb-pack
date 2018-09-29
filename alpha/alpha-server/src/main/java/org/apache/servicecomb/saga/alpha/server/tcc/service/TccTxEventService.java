@@ -18,13 +18,16 @@
 package org.apache.servicecomb.saga.alpha.server.tcc.service;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Date;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.TccCallbackEngine;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxType;
+import org.apache.servicecomb.saga.common.TransactionStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -89,7 +92,7 @@ public class TccTxEventService {
           globalTxEvent.getGlobalTxId(), globalTxEvent.getLocalTxId(), globalTxEvent.getTxType(), ex);
       return false;
     }
-    // Just return the excution result back
+    // Just return the execution result back
     return tccCallbackEngine.execute(globalTxEvent);
   }
 
@@ -106,6 +109,25 @@ public class TccTxEventService {
       return false;
     }
     return true;
+  }
+
+  public void handleTimeoutTx(Date deadLine, int size) {
+    tccTxEventRepository.findTimeoutGlobalTx(deadLine, TccTxType.STARTED.name(), new PageRequest(0, size))
+        .ifPresent(e -> e.forEach(t -> {
+          GlobalTxEvent globalTxEvent = new GlobalTxEvent(
+              t.getServiceName(),
+              t.getInstanceId(),
+              t.getGlobalTxId(),
+              t.getLocalTxId(),
+              t.getParentTxId(),
+              TccTxType.END_TIMEOUT.name(),
+              TransactionStatus.Failed.name());
+          onTccEndedEvent(globalTxEvent);
+        }));
+  }
+
+  public void clearCompletedGlobalTx(int size) {
+    tccTxEventRepository.clearCompletedGlobalTx(new PageRequest(0, size));
   }
 
 }

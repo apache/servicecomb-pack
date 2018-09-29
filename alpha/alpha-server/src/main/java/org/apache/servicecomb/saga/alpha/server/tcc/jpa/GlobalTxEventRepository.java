@@ -17,8 +17,12 @@
 
 package org.apache.servicecomb.saga.alpha.server.tcc.jpa;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import javax.transaction.Transactional;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
@@ -29,5 +33,18 @@ public interface GlobalTxEventRepository extends CrudRepository<GlobalTxEvent, L
 
   @Query(value = "SELECT t FROM GlobalTxEvent AS t WHERE t.globalTxId = ?1 and t.localTxId = ?2 and t.txType = ?3")
   Optional<GlobalTxEvent> findByUniqueKey(String globalTxId, String localTxId, String txType);
+
+  @Query(value = "SELECT t FROM GlobalTxEvent AS t WHERE t.creationTime < ?1 and t.txType = ?2 order by t.creationTime asc")
+  Optional<List<GlobalTxEvent>> findTimeoutGlobalTx(Date deadLine, String txType, Pageable pageable);
+
+  @Query(value = "SELECT t.globalTxId from GlobalTxEvent as t GROUP BY t.globalTxId HAVING COUNT(t.globalTxId) = 2 "
+      + "AND NOT EXISTS (select 1 from  ParticipatedEvent as b where b.globalTxId = t.globalTxId)"
+  )
+  Optional<List<String>> findCompletedGlobalTx(Pageable pageable);
+
+  @Transactional
+  @Modifying(clearAutomatically = true)
+  @Query(value = "DELETE FROM GlobalTxEvent as t where t.globalTxId in (?1)")
+  void deleteByGlobalId(String globalTxId);
 
 }
