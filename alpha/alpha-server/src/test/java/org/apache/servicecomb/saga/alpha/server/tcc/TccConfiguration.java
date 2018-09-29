@@ -21,6 +21,7 @@ import org.apache.servicecomb.saga.alpha.server.GrpcServerConfig;
 import org.apache.servicecomb.saga.alpha.server.GrpcStartable;
 import org.apache.servicecomb.saga.alpha.server.ServerStartable;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.TccPendingTaskRunner;
+import org.apache.servicecomb.saga.alpha.server.tcc.service.TccEventScanner;
 import org.apache.servicecomb.saga.alpha.server.tcc.service.TccTxEventService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -32,23 +33,37 @@ public class TccConfiguration {
   @Value("${alpha.compensation.retry.delay:3000}")
   private int delay;
 
+  @Value("${alpha.tx.timeout-seconds:600}")
+  private int globalTxTimeoutSeconds;
+
   @Bean
   TccPendingTaskRunner tccPendingTaskRunner() {
     return new TccPendingTaskRunner(delay);
   }
 
   @Bean
-  GrpcTccEventService grpcTccEventService(TccTxEventService tccTxEventService, TccPendingTaskRunner tccPendingTaskRunner) {
-    tccPendingTaskRunner.start();
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> tccPendingTaskRunner.shutdown()));
+  GrpcTccEventService grpcTccEventService(TccTxEventService tccTxEventService) {
     return new GrpcTccEventService(tccTxEventService);
   }
 
   @Bean
-  ServerStartable serverStartable(GrpcServerConfig serverConfig, GrpcTccEventService grpcTccEventService) {
-    ServerStartable bootstrap = new GrpcStartable(serverConfig, grpcTccEventService);
-    new Thread(bootstrap::start).start();
-    return bootstrap;
+  TccEventScanner tccEventScanner(TccTxEventService tccTxEventService) {
+    return new TccEventScanner(tccTxEventService, delay, globalTxTimeoutSeconds);
   }
 
+  @Bean
+  ServerStartable serverStartable(GrpcServerConfig serverConfig, GrpcTccEventService grpcTccEventService,
+      TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner) {
+    ServerStartable bootstrap = new GrpcStartable(serverConfig, grpcTccEventService);
+    new Thread(bootstrap::start).start();
+
+    tccPendingTaskRunner.start();
+    tccEventScanner.start();
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      tccPendingTaskRunner.shutdown();
+      tccEventScanner.shutdown();
+    }));
+
+    return bootstrap;
+  }
 }
