@@ -17,13 +17,14 @@
 
 package org.apache.servicecomb.saga.alpha.server.tcc.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxType;
+import org.springframework.data.domain.Pageable;
 
 public interface TccTxEventRepository {
 
@@ -42,6 +43,10 @@ public interface TccTxEventRepository {
   Optional<List<TccTxEvent>> findByGlobalTxIdAndTxType(String globalTxId, TccTxType tccTxType);
 
   Optional<TccTxEvent> findByUniqueKey(String globalTxId, String localTxId, TccTxType tccTxType);
+
+  Optional<List<GlobalTxEvent>> findTimeoutGlobalTx(Date deadLine, String txType, Pageable pageable);
+
+  void clearCompletedGlobalTx(Pageable pageable);
 
   Iterable<TccTxEvent> findAll();
 

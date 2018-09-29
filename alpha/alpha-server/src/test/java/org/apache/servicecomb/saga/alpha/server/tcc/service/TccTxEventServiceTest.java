@@ -18,16 +18,24 @@
 package org.apache.servicecomb.saga.alpha.server.tcc.service;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import io.grpc.stub.StreamObserver;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import org.apache.servicecomb.saga.alpha.server.tcc.TccApplication;
 import org.apache.servicecomb.saga.alpha.server.tcc.TccConfiguration;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallbacksRegistry;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEventRepository;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
+import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEventRepository;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxType;
 import org.apache.servicecomb.saga.common.TransactionStatus;
@@ -42,11 +50,22 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {TccApplication.class, TccConfiguration.class})
+@SpringBootTest(classes = {TccApplication.class, TccConfiguration.class}, properties = {
+    "spring.jpa.show-sql=true"
+})
 public class TccTxEventServiceTest {
 
   @Autowired
   private TccTxEventService tccTxEventService;
+
+  @Autowired
+  private TccTxEventRepository tccTxEventRepository;
+
+  @Autowired
+  private GlobalTxEventRepository globalTxEventRepository;
+
+  @Autowired
+  private ParticipatedEventRepository participatedEventRepository;
 
   private final String globalTxId = uniquify("globalTxId");
   private final String localTxId = uniquify("localTxId");
@@ -68,17 +87,10 @@ public class TccTxEventServiceTest {
 
   @Before
   public void setup() {
-    tccStartEvent = new GlobalTxEvent(serviceName, instanceId, globalTxId,
-        localTxId, parentTxId, TccTxType.STARTED.name(), TransactionStatus.Succeed.name());
-
-    participatedEvent = new ParticipatedEvent(serviceName, instanceId, globalTxId, localTxId,
-        parentTxId, confirmMethod, cancelMethod, TransactionStatus.Succeed.name());
-
-    tccEndEvent = new GlobalTxEvent(serviceName, instanceId, globalTxId,
-        localTxId, parentTxId, TccTxType.ENDED.name(), TransactionStatus.Succeed.name());
-
-    coordinateEvent = new TccTxEvent(serviceName, instanceId, globalTxId,
-        localTxId, parentTxId, TccTxType.COORDINATED.name(), TransactionStatus.Succeed.name());
+    tccStartEvent = newGlobalTxEvent(TccTxType.STARTED, globalTxId, TransactionStatus.Succeed);
+    participatedEvent = newParticipateEvent(globalTxId, TransactionStatus.Succeed);
+    tccEndEvent = newGlobalTxEvent(TccTxType.ENDED, globalTxId, TransactionStatus.Succeed);
+    coordinateEvent = newTccTxEvent(TccTxType.COORDINATED, globalTxId, TransactionStatus.Succeed);
   }
 
   @After
@@ -100,5 +112,97 @@ public class TccTxEventServiceTest {
     // if end command was send by twice, coordinate should only be executed once.
     tccTxEventService.onTccEndedEvent(tccEndEvent);
     verify(observer).onNext(any());
+  }
+
+  @Test
+  public void handleTimeoutGlobalTraction() throws InterruptedException {
+    StreamObserver<GrpcTccCoordinateCommand> observer = mock(StreamObserver.class);
+    OmegaCallbacksRegistry.register(serviceConfig, observer);
+
+    tccTxEventService.onTccStartedEvent(tccStartEvent);
+    tccTxEventService.onParticipatedEvent(participatedEvent);
+
+    Thread.sleep(3000l);
+    Date deadLine = new Date(System.currentTimeMillis() - SECONDS.toMillis(2));
+    tccTxEventService.handleTimeoutTx(deadLine, 1);
+
+    // global tx has timeout, so participated event will be coordinated through cancel.
+    Optional<GlobalTxEvent> timeoutEvent = globalTxEventRepository.findByUniqueKey(globalTxId, localTxId, TccTxType.END_TIMEOUT.name());
+    assertThat(timeoutEvent.isPresent(), is(true));
+    assertThat(timeoutEvent.get().getStatus(), is(TransactionStatus.Failed.name()));
+    assertThat(timeoutEvent.get().getTxType(), is(TccTxType.END_TIMEOUT.name()));
+    assertThat(timeoutEvent.get().getGlobalTxId(), is(globalTxId));
+    assertThat(timeoutEvent.get().getLocalTxId(), is(localTxId));
+    assertThat(timeoutEvent.get().getParentTxId(), is(parentTxId));
+    assertThat(timeoutEvent.get().getServiceName(), is(serviceName));
+    verify(observer).onNext(any());
+
+    Optional<List<TccTxEvent>> events = tccTxEventRepository.findByGlobalTxId(globalTxId);
+    assertThat(events.get().size(), is(3));
+  }
+
+  @Test
+  public void clearUpCompletedTxFromGlobalTxTable() {
+    StreamObserver<GrpcTccCoordinateCommand> observer = mock(StreamObserver.class);
+    OmegaCallbacksRegistry.register(serviceConfig, observer);
+
+    tccTxEventService.onTccStartedEvent(tccStartEvent);
+    tccTxEventService.onParticipatedEvent(participatedEvent);
+    tccTxEventService.onTccEndedEvent(tccEndEvent);
+    tccTxEventService.onCoordinatedEvent(coordinateEvent);
+
+    tccTxEventService.clearCompletedGlobalTx(1);
+
+    assertThat(participatedEventRepository.findByGlobalTxId(globalTxId).isPresent(), is(false));
+    assertThat(globalTxEventRepository.findByGlobalTxId(globalTxId).isPresent(), is(false));
+
+    Optional<List<TccTxEvent>> events = tccTxEventRepository.findByGlobalTxId(globalTxId);
+    assertThat(events.get().size(), is(4));
+  }
+
+  @Test
+  public void clearUpCompletedTxFromGlobalTxTableMoreThanOne() {
+    StreamObserver<GrpcTccCoordinateCommand> observer = mock(StreamObserver.class);
+    OmegaCallbacksRegistry.register(serviceConfig, observer);
+
+    // one global tx
+    tccTxEventService.onTccStartedEvent(tccStartEvent);
+    tccTxEventService.onParticipatedEvent(participatedEvent);
+    tccTxEventService.onTccEndedEvent(tccEndEvent);
+    tccTxEventService.onCoordinatedEvent(coordinateEvent);
+
+    // another global tx
+    String globalTxId_2 = uniquify("globalTxId");
+    tccTxEventService.onTccStartedEvent(newGlobalTxEvent(TccTxType.STARTED, globalTxId_2, TransactionStatus.Succeed));
+    tccTxEventService.onParticipatedEvent(newParticipateEvent(globalTxId_2, TransactionStatus.Succeed));
+    tccTxEventService.onTccEndedEvent(newGlobalTxEvent(TccTxType.ENDED, globalTxId_2, TransactionStatus.Succeed));
+    tccTxEventService.onCoordinatedEvent(newTccTxEvent(TccTxType.COORDINATED, globalTxId_2, TransactionStatus.Succeed));
+
+    tccTxEventService.clearCompletedGlobalTx(2);
+
+    assertThat(participatedEventRepository.findByGlobalTxId(globalTxId).isPresent(), is(false));
+    assertThat(globalTxEventRepository.findByGlobalTxId(globalTxId).isPresent(), is(false));
+
+    Optional<List<TccTxEvent>> events = tccTxEventRepository.findByGlobalTxId(globalTxId);
+    assertThat(events.get().size(), is(4));
+
+    events = tccTxEventRepository.findByGlobalTxId(globalTxId_2);
+    assertThat(events.get().size(), is(4));
+
+  }
+
+  private ParticipatedEvent newParticipateEvent(String globalTxId, TransactionStatus transactionStatus) {
+    return new ParticipatedEvent(serviceName, instanceId, globalTxId, localTxId,
+        parentTxId, confirmMethod, cancelMethod, transactionStatus.name());
+  }
+
+  private GlobalTxEvent newGlobalTxEvent(TccTxType tccTxType, String globalTxId, TransactionStatus transactionStatus) {
+    return new GlobalTxEvent(serviceName, instanceId, globalTxId,
+        localTxId, parentTxId, tccTxType.name(), transactionStatus.name());
+  }
+
+  private TccTxEvent newTccTxEvent(TccTxType tccTxType, String globalTxId, TransactionStatus transactionStatus) {
+    return new TccTxEvent(serviceName, instanceId, globalTxId,
+        localTxId, parentTxId, tccTxType.name(), transactionStatus.name());
   }
 }

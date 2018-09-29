@@ -19,6 +19,7 @@ package org.apache.servicecomb.saga.alpha.server.tcc.service;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -105,6 +107,16 @@ public class MemoryTxEventRepository implements TccTxEventRepository {
     } else {
       return Optional.empty();
     }
+  }
+
+  @Override
+  public Optional<List<GlobalTxEvent>> findTimeoutGlobalTx(Date deadLine, String txType, Pageable pageable) {
+    return Optional.empty();
+  }
+
+  @Override
+  public void clearCompletedGlobalTx(Pageable pageable) {
+
   }
 
   @Override

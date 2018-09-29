@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.saga.alpha.server.tcc.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.EventConverter;
@@ -29,6 +30,7 @@ import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEventDBRepository;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -94,6 +96,17 @@ public class RDBTxEventRepository implements TccTxEventRepository {
   public Optional<TccTxEvent> findByUniqueKey(String globalTxId, String localTxId, TccTxType tccTxType) {
     return tccTxEventDBRepository.findByUniqueKey(globalTxId, localTxId, tccTxType.name());
   }
+
+  @Override
+  public Optional<List<GlobalTxEvent>> findTimeoutGlobalTx(Date deadLine, String txType, Pageable pageable) {
+    return globalTxEventRepository.findTimeoutGlobalTx(deadLine, txType, pageable);
+  }
+
+  @Override
+  public void clearCompletedGlobalTx(Pageable pageable) {
+    globalTxEventRepository.findCompletedGlobalTx(pageable).ifPresent(e -> e.forEach(t ->
+        globalTxEventRepository.deleteByGlobalId(t)));
+    }
 
   @Override
   public Iterable<TccTxEvent> findAll() {
