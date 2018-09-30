@@ -28,6 +28,9 @@ import com.google.protobuf.ByteString;
 
 import io.grpc.stub.StreamObserver;
 
+import java.util.Collections;
+import java.util.List;
+
 class GrpcOmegaCallback implements OmegaCallback {
 
   private final StreamObserver<GrpcCompensateCommand> observer;
@@ -51,5 +54,10 @@ class GrpcOmegaCallback implements OmegaCallback {
   @Override
   public void disconnect() {
     observer.onCompleted();
+  }
+
+  @Override
+  public List<TxEvent> compensateAllEvents(List<TxEvent> txEvents) {
+    return Collections.emptyList();
   }
 }

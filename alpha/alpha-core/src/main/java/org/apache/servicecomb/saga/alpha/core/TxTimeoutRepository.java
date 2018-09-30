@@ -24,5 +24,5 @@ public interface TxTimeoutRepository {
 
   void markTimeoutAsDone();
 
-  List<TxTimeout> findFirstTimeout();
+  List<TxTimeout> findTimeouts();
 }

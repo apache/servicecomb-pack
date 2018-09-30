@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.saga.alpha.server;
 
+import static org.apache.servicecomb.saga.common.EventType.SagaEndedEvent;
 import static org.apache.servicecomb.saga.common.EventType.TxCompensatedEvent;
 
 import java.util.List;
@@ -28,10 +29,11 @@ import org.springframework.data.domain.PageRequest;
 
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
+import org.springframework.transaction.annotation.Transactional;
 
 @EnableKamon
 class SpringTxEventRepository implements TxEventRepository {
-  private static final PageRequest SINGLE_TX_EVENT_REQUEST = new PageRequest(0, 1);
+
   private final TxEventEnvelopeRepository eventRepo;
 
   SpringTxEventRepository(TxEventEnvelopeRepository eventRepo) {
@@ -53,7 +55,7 @@ class SpringTxEventRepository implements TxEventRepository {
   @Override
   @Segment(name = "findTimeoutEvents", category = "application", library = "kamon")
   public List<TxEvent> findTimeoutEvents() {
-    return eventRepo.findTimeoutEvents(SINGLE_TX_EVENT_REQUEST);
+    return eventRepo.findTimeoutEvents();
   }
 
   @Override
@@ -69,20 +71,36 @@ class SpringTxEventRepository implements TxEventRepository {
   }
 
   @Override
-  @Segment(name = "findFirstUncompensatedEventByIdGreaterThan", category = "application", library = "kamon")
-  public List<TxEvent> findFirstUncompensatedEventByIdGreaterThan(long id, String type) {
-    return eventRepo.findFirstByTypeAndSurrogateIdGreaterThan(type, id, SINGLE_TX_EVENT_REQUEST);
+  @Segment(name = "findNeedToCompensateTxs", category = "application", library = "kamon")
+  public List<TxEvent> findNeedToCompensateTxs() {
+    return eventRepo.findNeedToCompensateTxs();
   }
 
   @Override
-  @Segment(name = "findFirstCompensatedEventByIdGreaterThan", category = "application", library = "kamon")
-  public Optional<TxEvent> findFirstCompensatedEventByIdGreaterThan(long id) {
-    return eventRepo.findFirstByTypeAndSurrogateIdGreaterThan(TxCompensatedEvent.name(), id);
+  @Segment(name = "findAllFinishedTxsForNoTxEnd", category = "application", library = "kamon")
+  public List<TxEvent> findAllFinishedTxsForNoTxEnd() {
+    return eventRepo.findAllFinishedTxsForNoTxEnd();
+  }
+
+
+  @Override
+  @Segment(name = "findCompensatedDoneTxs", category = "application", library = "kamon")
+  public List<TxEvent> findCompensatedDoneTxs(String globalTxId, String localTxId) {
+    return eventRepo.findCompensatedDoneTxs(globalTxId, localTxId);
   }
 
   @Override
   public void deleteDuplicateEvents(String type) {
-    eventRepo.findDuplicateEventsByType(type).forEach((txEvent) ->eventRepo.
-            deleteBySurrogateId(txEvent.id()));
+    eventRepo.findDuplicateEventsByType(type).forEach((txEvent) -> eventRepo.
+        deleteBySurrogateId(txEvent.id()));
+  }
+
+  @Transactional
+  @Override
+  public void dumpColdEventData() {
+    eventRepo.findEventsByType(SagaEndedEvent.name()).forEach(txEvent -> {
+      eventRepo.copyToHistoryTable(txEvent.globalTxId());
+      eventRepo.deleteByGlobalTxId(txEvent.globalTxId());
+    });
   }
 }

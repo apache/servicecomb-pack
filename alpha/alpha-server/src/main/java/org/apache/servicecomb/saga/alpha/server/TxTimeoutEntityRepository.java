@@ -45,10 +45,18 @@ interface TxTimeoutEntityRepository extends CrudRepository<TxTimeout, Long> {
 
   @Lock(LockModeType.OPTIMISTIC)
   @Query("SELECT t FROM TxTimeout AS t "
-      + "WHERE t.status = 'NEW' "
-      + "  AND t.expiryTime < CURRENT_TIMESTAMP "
-      + "ORDER BY t.expiryTime ASC")
-  List<TxTimeout> findFirstTimeoutTxOrderByExpireTimeAsc(Pageable pageable);
+      + "WHERE t.status != 'DONE' "
+      + "  AND t.expiryTime < CURRENT_TIMESTAMP AND NOT EXISTS ( "
+      + "   SELECT t1.globalTxId FROM TxEvent t1 "
+      + "    WHERE t1.globalTxId = t.globalTxId "
+      + "    AND t1.localTxId = t.localTxId "
+      + "    AND t1.type != t.type AND NOT EXISTS ( "
+      + "  SELECT t2.globalTxId FROM TxEvent t2  "
+      + "  WHERE t2.globalTxId = t1.globalTxId "
+      + "    AND t2.localTxId = t1.localTxId "
+      + "    AND t2.creationTime > t1.creationTime ) "
+      + ") ")
+  List<TxTimeout> findNotFinishedTimeoutTxs();
 
   @Transactional
   @Modifying(clearAutomatically = true)
@@ -59,6 +67,12 @@ interface TxTimeoutEntityRepository extends CrudRepository<TxTimeout, Long> {
       + "  WHERE t1.globalTxId = t.globalTxId "
       + "    AND t1.localTxId = t.localTxId "
       + "    AND t1.type != t.type"
+      + "    AND t1.surrogateId > t.eventId ) OR EXISTS ("
+      + "  SELECT t1.globalTxId FROM TxEventHistory t1 "
+      + "  WHERE t1.globalTxId = t.globalTxId "
+      + "    AND t1.localTxId = t.localTxId "
+      + "    AND t1.type != t.type"
+      + "    AND t1.surrogateId > t.eventId"
       + ")")
   void updateStatusOfFinishedTx();
 }
