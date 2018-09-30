@@ -18,9 +18,7 @@
 package org.apache.servicecomb.saga.alpha.server.tcc.callback;
 
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.service.TccTxEventRepository;
@@ -43,17 +41,16 @@ public class TccCallbackEngine implements CallbackEngine {
   @Override
   public boolean execute(GlobalTxEvent request) {
     AtomicBoolean result = new AtomicBoolean(true);
-    tccTxEventRepository.findParticipatedByGlobalTxId(request.getGlobalTxId())
-        .orElseGet(ArrayList::new).stream()
-        .filter(e -> e.getStatus().equals(TransactionStatus.Succeed.toString()))
-        .collect(Collectors.toList()).forEach(e -> {
+    tccTxEventRepository.findParticipatedByGlobalTxId(request.getGlobalTxId()).ifPresent(e ->
+        e.stream().filter(d -> d.getStatus().equals(TransactionStatus.Succeed.name())).forEach(p -> {
           try {
-            omegaCallbackWrapper.invoke(e, TransactionStatus.valueOf(request.getStatus()));
+            omegaCallbackWrapper.invoke(p, TransactionStatus.valueOf(request.getStatus()));
           } catch (Exception ex) {
-            logError(e, ex);
+            logError(p, ex);
             result.set(false);
           }
-        });
+        })
+    );
     return result.get();
   }
 

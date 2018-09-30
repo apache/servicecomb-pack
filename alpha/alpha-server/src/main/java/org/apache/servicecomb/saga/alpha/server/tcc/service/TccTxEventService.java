@@ -129,5 +129,4 @@ public class TccTxEventService {
   public void clearCompletedGlobalTx(int size) {
     tccTxEventRepository.clearCompletedGlobalTx(new PageRequest(0, size));
   }
-
 }
