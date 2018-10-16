@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 ## ---------------------------------------------------------------------------
 ## Licensed to the Apache Software Foundation (ASF) under one or more
 ## contributor license agreements.  See the NOTICE file distributed with
@@ -14,22 +15,9 @@
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
 ## ---------------------------------------------------------------------------
-
-sudo: required
-
-cache:
-  directories:
-  - "$HOME/.m2"
-language: java
-
-install: true
-jdk:
-- oraclejdk8
-env:
-  # dummy profile
-  - SPRING_BOOT_PROFILE=spring-boot-1
-  # use spring-boot-2 profile
-  - SPRING_BOOT_PROFILE=spring-boot-2
-script: ./scripts/test.sh
-after_success:
-- if [ "$TRAVIS_EVENT_TYPE" == "cron" ] && [ "$SPRING_BOOT_PROFILE" == "spring-boot-1" ]; then bash -x scripts/deploy.sh ; fi
+#bin/sh
+if ["$TRAVIS_EVENT_TYPE" != "cron" ]; then
+  mvn clean install -Pjacoco -Pdocker -P${SPRING_BOOT_PROFILE} coveralls:report
+  mvn clean verify -f saga-demo -Pdemo -Pdocker -P${SPRING_BOOT_PROFILE} -Ddocker.useColor=false -Ddocker.showLogs
+  mvn clean verify -f acceptance-tests -Pdemo -Pdocker -P${SPRING_BOOT_PROFILE} -Ddocker.useColor=false -Ddocker.showLogs
+fi
