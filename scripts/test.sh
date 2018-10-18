@@ -16,7 +16,12 @@
 ## limitations under the License.
 ## ---------------------------------------------------------------------------
 #bin/sh
-if ["$TRAVIS_EVENT_TYPE" != "cron" ]; then
+echo "$TRAVIS_EVENT_TYPE"
+if [[ "$TRAVIS_EVENT_TYPE" == "cron" ]]
+then
+  echo "Don't do anything here for the cron job!"
+else
+  echo "Running the unit tests and integration tests here!"
   mvn clean install -Pjacoco -Pdocker -P${SPRING_BOOT_PROFILE} coveralls:report
   mvn clean verify -f saga-demo -Pdemo -Pdocker -P${SPRING_BOOT_PROFILE} -Ddocker.useColor=false -Ddocker.showLogs
   mvn clean verify -f acceptance-tests -Pdemo -Pdocker -P${SPRING_BOOT_PROFILE} -Ddocker.useColor=false -Ddocker.showLogs
