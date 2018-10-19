@@ -35,9 +35,9 @@ public class CallbackContext {
     this.omegaContext = omegaContext;
   }
 
-  public void addCallbackContext(Method compensationMethod, Object target) {
+  public void addCallbackContext(String key, Method compensationMethod, Object target) {
     compensationMethod.setAccessible(true);
-    contexts.put(compensationMethod.toString(), new CallbackContextInternal(target, compensationMethod));
+    contexts.put(key, new CallbackContextInternal(target, compensationMethod));
   }
 
   public void apply(String globalTxId, String localTxId, String callbackMethod, Object... payloads) {

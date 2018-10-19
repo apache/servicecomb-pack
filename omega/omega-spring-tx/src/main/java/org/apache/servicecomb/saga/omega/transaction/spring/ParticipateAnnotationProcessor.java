@@ -36,13 +36,13 @@ class ParticipateAnnotationProcessor implements BeanPostProcessor {
 
   @Override
   public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-    checkMethod(bean);
-    checkFields(bean);
     return bean;
   }
 
   @Override
   public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+    checkMethod(bean);
+    checkFields(bean);
     return bean;
   }
 
