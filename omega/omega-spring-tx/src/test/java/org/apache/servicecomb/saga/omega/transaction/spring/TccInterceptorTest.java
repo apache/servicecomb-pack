@@ -69,9 +69,6 @@ public class TccInterceptorTest {
   private List<String> messages;
 
   @Autowired
-  private OmegaContext omegaContext;
-
-  @Autowired
   private TccUserServiceMain tccUserServiceMain;
 
   @Autowired
@@ -95,7 +92,6 @@ public class TccInterceptorTest {
   public void tearDown() throws Exception {
     messages.clear();
     userRepository.deleteAll();
-    omegaContext.clear();
   }
 
   @AfterClass
@@ -152,7 +148,8 @@ public class TccInterceptorTest {
     );
 
     User result = userRepository.findByUsername(user.username());
-    assertThat(result, is(nullValue()));
+    assertThat(result.username(), is(user.username()));
+    assertThat(result.email(), is(user.email()));
 
     result = userRepository.findByUsername(jack.username());
     assertThat(result, is(nullValue()));

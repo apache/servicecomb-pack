@@ -20,26 +20,28 @@ package org.apache.servicecomb.saga.omega.transaction.spring;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.servicecomb.saga.omega.context.OmegaContext;
+import javax.annotation.Resource;
 import org.apache.servicecomb.saga.omega.transaction.annotations.Participate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
-class TccUserService {
+@Transactional
+public class TccUserService {
   static final String ILLEGAL_USER = "Illegal User";
-  private final UserRepository userRepository;
+
 
   @Autowired
   TccUserService(UserRepository userRepository) {
     this.userRepository = userRepository;
   }
 
+  @Resource
+  private UserRepository userRepository;
+
   @Participate(confirmMethod = "confirm", cancelMethod = "cancel")
-  User add(User user) {
+  public User add(User user) {
     // Only for the validation check
     if (ILLEGAL_USER.equals(user.username())) {
       throw new IllegalArgumentException("User is illegal");
@@ -47,15 +49,14 @@ class TccUserService {
     return userRepository.save(user);
   }
 
-  void confirm(User user) {
+  public void confirm(User user) {
     User result = userRepository.findByUsername(user.username());
     // Just make sure we can get the resource and keep doing other business
     assertThat(result, is(user));
   }
 
-  void cancel(User user) {
+  public void cancel(User user) {
     userRepository.delete(user);
+    throw new RuntimeException("transaction test");
   }
-
-
 }
