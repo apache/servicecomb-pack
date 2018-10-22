@@ -93,10 +93,12 @@ public class JacksonFromJsonFormatForSQLTest {
       + "            \"parents\":[\"first-sql-sharding-1\",\"first-sql-sharding-2\"],\n"
       + "            \"transaction\":{\n"
       + "                \"sql\":\"INSERT INTO TABLE ds_1.tb_3 (id, value) values (?, ?)\",\n"
+      + "                \"retries\":5,\n"
       + "                \"params\":[[\"4\", \"xxx\"]]\n"
       + "            },\n"
       + "            \"compensation\":{\n"
       + "                \"sql\":\"DELETE FROM ds_1.tb_3 WHERE id=?\",\n"
+      + "                \"retries\":10,\n"
       + "                \"params\":[[\"4\"]]\n"
       + "            }\n"
       + "        }\n"
@@ -152,6 +154,20 @@ public class JacksonFromJsonFormatForSQLTest {
     }
   };
 
+  private final Function<SagaRequest, Integer> getTransactionRetries = new Function<SagaRequest, Integer>() {
+    @Override
+    public Integer apply(SagaRequest sagaRequest) {
+      return sagaRequest.transaction().retries();
+    }
+  };
+
+  private final Function<SagaRequest, Integer> getCompensationRetries = new Function<SagaRequest, Integer>() {
+    @Override
+    public Integer apply(SagaRequest sagaRequest) {
+      return sagaRequest.compensation().retries();
+    }
+  };
+
   @Test
   public void addTransportToDeserializedRequests() {
     SagaRequest[] requests = format.fromJson(requestJson).requests();
@@ -161,6 +177,8 @@ public class JacksonFromJsonFormatForSQLTest {
     assertThat(collect(requests, getRequestServiceName), contains("ds_0", "ds_0", "ds_1", "ds_1"));
     assertThat(collect(requests, getRequestType),
         contains(Operation.TYPE_SQL, Operation.TYPE_SQL, Operation.TYPE_SQL, Operation.TYPE_SQL));
+    assertThat(collect(requests, getTransactionRetries), contains(-1, -1, -1, 5));
+    assertThat(collect(requests, getCompensationRetries), contains(3, 3 ,3 ,10));
 
     SagaResponse sagaResponse = null;
 

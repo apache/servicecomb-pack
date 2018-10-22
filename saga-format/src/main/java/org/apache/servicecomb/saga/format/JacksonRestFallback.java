@@ -28,11 +28,21 @@ class JacksonRestFallback extends JacksonRestOperation implements JacksonFallbac
 
   private final String type;
 
+  public JacksonRestFallback(
+      String type,
+      String path,
+      String method,
+      Map<String, Map<String, String>> params) {
+    super(path, method, params);
+    this.type = type;
+  }
+
   @JsonCreator
   public JacksonRestFallback(
       @JsonProperty("type") String type,
       @JsonProperty("path") String path,
       @JsonProperty("method") String method,
+      @JsonProperty("retries") int retries,
       @JsonProperty("params") Map<String, Map<String, String>> params) {
     super(path, method, params);
     this.type = type;

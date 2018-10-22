@@ -28,7 +28,7 @@ public class ForwardRecovery implements RecoveryPolicy {
   @Override
   public SagaResponse apply(SagaTask task, SagaRequest request, SagaResponse parentResponse) {
     try {
-      do {
+      for(int i = 0; isRetryable(i, request.transaction()); i++) {
         try {
           return request.transaction().send(request.serviceName(), parentResponse);
         } catch (Exception e) {
@@ -40,7 +40,7 @@ public class ForwardRecovery implements RecoveryPolicy {
           );
           Thread.sleep(request.failRetryDelayMilliseconds());
         }
-      } while (true);
+      }
     } catch (InterruptedException ignored) {
       log.warn("Applying {} interrupted in transaction {} of service {}",
           description(),
@@ -49,6 +49,15 @@ public class ForwardRecovery implements RecoveryPolicy {
           ignored);
       throw new TransactionFailedException(ignored);
     }
+    throw new TransactionAbortedException(
+        String.format(
+            "Too many failures in transaction %s of service %s, abort the transaction!",
+            request.transaction(),
+            request.serviceName()));
+  }
+
+  private boolean isRetryable(int i, Transaction transaction) {
+    return transaction.retries() <= 0 || i <= transaction.retries();
   }
 
   @Override

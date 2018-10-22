@@ -21,6 +21,11 @@ public interface Transaction extends Operation {
 
   Transaction SAGA_START_TRANSACTION = new Transaction() {
     @Override
+    public int retries() {
+      return INFINITE_RETRY;
+    }
+
+    @Override
     public SagaResponse send(String address) {
       return SUCCESSFUL_SAGA_RESPONSE;
     }
@@ -33,6 +38,11 @@ public interface Transaction extends Operation {
 
   Transaction SAGA_END_TRANSACTION = new Transaction() {
     @Override
+    public int retries() {
+      return INFINITE_RETRY;
+    }
+
+    @Override
     public SagaResponse send(String address) {
       return SUCCESSFUL_SAGA_RESPONSE;
     }
@@ -42,4 +52,6 @@ public interface Transaction extends Operation {
       return send(address);
     }
   };
+
+  int INFINITE_RETRY = -1;
 }

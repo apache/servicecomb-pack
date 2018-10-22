@@ -24,4 +24,9 @@ public class TransactionImpl extends RestOperation implements Transaction {
   public TransactionImpl(String path, String method, Map<String, Map<String, String>> params) {
     super(path, method, params);
   }
+
+  @Override
+  public int retries() {
+    return INFINITE_RETRY;
+  }
 }

@@ -371,6 +371,7 @@ public class ActorBasedSagaIntegrationTest {
 
     when(transaction2.send(request2.serviceName(), transactionResponse1))
         .thenThrow(exception).thenThrow(exception).thenReturn(transactionResponse2);
+    when(transaction2.retries()).thenReturn(-1);
 
     saga.run();
 

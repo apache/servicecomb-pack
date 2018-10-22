@@ -34,8 +34,13 @@ class JacksonRestOperation extends RestOperation implements TransportAware<RestT
   private RestTransport transport;
 
   JacksonRestOperation(String path, String method, Map<String, Map<String, String>> params) {
-    super(path, method, params);
+    this(path, method, DEFAULT_RETRIES, params);
   }
+
+  JacksonRestOperation(String path, String method, int retries, Map<String, Map<String, String>> params) {
+    super(path, method, retries, params);
+  }
+
 
   @Override
   public JacksonRestOperation with(TransportFactory<RestTransport> transport) {

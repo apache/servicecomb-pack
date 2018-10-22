@@ -26,10 +26,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class JacksonSQLTransaction extends JacksonSQLOperation implements Transaction {
 
+  public JacksonSQLTransaction(String sql, List<List<String>> params) {
+    this(INFINITE_RETRY, sql, params);
+  }
+
   @JsonCreator
   public JacksonSQLTransaction(
+      @JsonProperty("retries") int retries,
       @JsonProperty("sql") String sql,
       @JsonProperty("params") List<List<String>> params) {
-    super(sql, params);
+    super(sql, retries <= 0? INFINITE_RETRY : retries, params);
   }
 }

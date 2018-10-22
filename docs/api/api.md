@@ -21,6 +21,7 @@ POST /requests
       "transaction": {
         "method": "",
         "path": "",
+        "retries": "",
         "params": {
 
         }
@@ -28,6 +29,7 @@ POST /requests
       "compensation": {
         "method": "",
         "path": "",
+        "retries": "",
         "params": {
 
         }
@@ -46,10 +48,12 @@ JSON parameters:
   - transaction - user-defined transaction that executed by the Saga.
     - method - user-defined, HTTP method.
     - path - user-defined, HTTP path.
+    - retries - int, optional, default -1. The max retry times for transaction. If this parameter is less than or equal to 0, transaction will retry infinitely.
     - params - support `form`,`json`,`body`,`query`.
   - compensation - user-defined compensation that executed by the Saga.
     - method - user-defined, HTTP method.
     - path - user-defined, HTTP path.
+    - retries - int, optional, default 3. The max retry times for compensation.
     - params - support `form`,`json`,`body`,`query`.
 
 2. Set content type to `text/plain`.
@@ -212,12 +216,14 @@ There are a `maven` example
       ],
       "transaction": {
         "sql": "",
+        "retries": "",
         "params": [
           []
         ]
       },
       "compensation": {
         "sql": "",
+        "retries": "",
         "params": [
           []
         ]
@@ -235,9 +241,11 @@ JSON parameters:
   - parents - request ids. It means this request is only executed after all requests in the parents field are completed.
   - transaction - user-defined transaction that executed by the Saga.
     - sql - user-defined, forward sql.
+    - retries - int, optional, default -1. The max retry times for transaction. If this parameter is less than or equal to 0, transaction will retry infinitely.
     - params - parameters for forward sql.
   - compensation - user-defined compensation that executed by the Saga.
     - sql - user-defined, backward sql.
+    - retries - int, optional, default 3. The max retry times for compensation.
     - params - parameters for backward sql.
 
 4. Invoke `SagaExecutionComponent.run(String json)` function to execute saga.

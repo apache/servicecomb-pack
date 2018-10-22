@@ -24,13 +24,19 @@ public class RestOperation implements Operation {
 
   private final String path;
   private final String method;
+  private final int retries;
   private final Map<String, Map<String, String>> params;
 
   public RestOperation(String path, String method, Map<String, Map<String, String>> params) {
+    this(path, method, DEFAULT_RETRIES, params);
+  }
+
+  public RestOperation(String path, String method, int retries, Map<String, Map<String, String>> params) {
     RestRequestChecker.checkParameters(method, params);
 
     this.path = path;
     this.method = method;
+    this.retries = retries;
     this.params = params == null? java.util.Collections.<String, Map<String, String>>emptyMap() : params;
   }
 
@@ -63,5 +69,10 @@ public class RestOperation implements Operation {
   @Override
   public SagaResponse send(String address, SagaResponse response) {
     return send(address);
+  }
+
+  @Override
+  public int retries() {
+    return this.retries;
   }
 }

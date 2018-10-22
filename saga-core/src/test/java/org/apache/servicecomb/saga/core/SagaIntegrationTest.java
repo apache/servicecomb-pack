@@ -53,6 +53,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 
+import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -371,6 +372,7 @@ public class SagaIntegrationTest {
     RequestProcessTask processTask = requestProcessTask(new ForwardRecovery());
     tasks.put(SAGA_REQUEST_TASK, processTask);
 
+    when(transaction2.retries()).thenReturn(-1);
     when(transaction2.send(request2.serviceName(), transactionResponse1))
         .thenThrow(exception).thenThrow(exception).thenReturn(transactionResponse2);
 
@@ -383,6 +385,36 @@ public class SagaIntegrationTest {
         eventWith(sagaId, transaction2, TransactionStartedEvent.class),
         eventWith(sagaId, transaction2, TransactionEndedEvent.class),
         eventWith(sagaId, SAGA_END_TRANSACTION, SagaEndedEvent.class)
+    ));
+
+    verify(transaction1).send(request1.serviceName(), EMPTY_RESPONSE);
+    verify(transaction2, times(3)).send(request2.serviceName(), transactionResponse1);
+
+    verify(compensation1, never()).send(anyString(), any(SagaResponse.class));
+    verify(compensation2, never()).send(anyString(), any(SagaResponse.class));
+  }
+
+  @Test
+  public void retriesFailedTransactionTillMaximum() {
+    RequestProcessTask processTask = requestProcessTask(new ForwardRecovery());
+    tasks.put(SAGA_REQUEST_TASK, processTask);
+
+    when(transaction2.send(request2.serviceName(), transactionResponse1)).thenThrow(exception);
+    when(transaction2.retries()).thenReturn(2);
+    when(transaction2.toString()).thenReturn("transaction2");
+
+    try {
+      saga.run();
+    } catch (TransactionAbortedException e) {
+      assertThat(e.getMessage(),
+          Is.is("Too many failures in transaction transaction2 of service " + request2.serviceName() + ", stop transaction!"));
+    }
+
+    assertThat(eventStore, contains(
+        eventWith(sagaId, SAGA_START_TRANSACTION, SagaStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionStartedEvent.class),
+        eventWith(sagaId, transaction1, TransactionEndedEvent.class),
+        eventWith(sagaId, transaction2, TransactionStartedEvent.class)
     ));
 
     verify(transaction1).send(request1.serviceName(), EMPTY_RESPONSE);
