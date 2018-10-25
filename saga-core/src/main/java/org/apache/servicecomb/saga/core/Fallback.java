@@ -34,6 +34,11 @@ public interface Fallback extends Operation {
     public SagaResponse send(String address, SagaResponse response) {
       return send(address);
     }
+
+    @Override
+    public int retries() {
+      return 0;
+    }
   };
 
   String type();

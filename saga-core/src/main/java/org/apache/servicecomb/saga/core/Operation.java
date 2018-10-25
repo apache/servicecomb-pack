@@ -19,6 +19,7 @@ package org.apache.servicecomb.saga.core;
 
 public interface Operation {
 
+  int DEFAULT_RETRIES = 3;
   String TYPE_NOP = "NOP";
   String TYPE_REST = "rest";
   String TYPE_SQL = "sql";
@@ -27,4 +28,6 @@ public interface Operation {
   SagaResponse send(String address);
 
   SagaResponse send(String address, SagaResponse response);
+
+  int retries();
 }

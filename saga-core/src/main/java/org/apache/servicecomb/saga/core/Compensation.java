@@ -52,8 +52,4 @@ public interface Compensation extends Operation {
       return DEFAULT_RETRIES;
     }
   };
-
-  int DEFAULT_RETRIES = 3;
-
-  int retries();
 }

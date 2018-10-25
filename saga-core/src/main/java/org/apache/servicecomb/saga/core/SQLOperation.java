@@ -23,10 +23,12 @@ import java.util.List;
 public class SQLOperation implements Operation {
 
   private final String sql;
+  private final int retries;
   private final List<List<String>> params;
 
-  public SQLOperation(String sql, List<List<String>> params) {
+  public SQLOperation(String sql, int retries, List<List<String>> params) {
     this.sql = sql;
+    this.retries = retries;
     this.params = params == null ? Collections.<List<String>>emptyList() : params;
   }
 
@@ -54,5 +56,10 @@ public class SQLOperation implements Operation {
   @Override
   public SagaResponse send(String datasource, SagaResponse response) {
     return send(datasource);
+  }
+
+  @Override
+  public int retries() {
+    return this.retries;
   }
 }

@@ -17,6 +17,9 @@
 
 package org.apache.servicecomb.saga.core;
 
+import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -31,6 +34,7 @@ public class ForwardRecoveryTest {
   private final SagaTask sagaTask = mock(SagaTask.class);
 
   private final Transaction transaction = mock(Transaction.class);
+
   private final SagaRequest sagaRequest = mock(SagaRequest.class);
   private final SagaResponse parentResponse = mock(SagaResponse.class);
 
@@ -38,11 +42,15 @@ public class ForwardRecoveryTest {
 
   private final String serviceName = "aaa";
 
+  private final int numberOfRetries = 3;
+
   @Before
   public void setUp() {
     when(sagaRequest.serviceName()).thenReturn(serviceName);
     when(sagaRequest.transaction()).thenReturn(transaction);
     when(sagaRequest.failRetryDelayMilliseconds()).thenReturn(300);
+    when(transaction.retries()).thenReturn(numberOfRetries);
+    when(transaction.toString()).thenReturn(serviceName);
   }
 
   @Test
@@ -60,5 +68,19 @@ public class ForwardRecoveryTest {
     t.interrupt();
 
     verify(transaction, times(2)).send(serviceName, parentResponse);
+  }
+
+  @Test
+  public void retriesTransportForSpecifiedTimes() {
+    doThrow(Exception.class).when(transaction).send(serviceName, parentResponse);
+
+    try {
+      forwardRecovery.apply(sagaTask, sagaRequest, parentResponse);
+      expectFailing(TransactionFailedException.class);
+    } catch (TransactionAbortedException e) {
+      assertThat(e.getMessage(), is("Too many failures in transaction aaa of service aaa, abort the transaction!"));
+    }
+
+    verify(transaction, times(4)).send(serviceName, parentResponse);
   }
 }

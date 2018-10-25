@@ -26,8 +26,6 @@ import org.apache.servicecomb.saga.core.Compensation;
 
 public class JacksonRestCompensation extends JacksonRestOperation implements Compensation {
 
-  private final int retries;
-
   public JacksonRestCompensation(
     String path,
     String method,
@@ -41,12 +39,6 @@ public class JacksonRestCompensation extends JacksonRestOperation implements Com
       @JsonProperty("path") String path,
       @JsonProperty("method") String method,
       @JsonProperty("params") Map<String, Map<String, String>> params) {
-    super(path, method, params);
-    this.retries = retries <= 0? DEFAULT_RETRIES : retries;
-  }
-
-  @Override
-  public int retries() {
-    return retries;
+    super(path, method, retries <= 0 ? DEFAULT_RETRIES : retries, params);
   }
 }

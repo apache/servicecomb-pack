@@ -15,26 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.format;
+package org.apache.servicecomb.saga.core;
 
-import java.util.List;
+public class TransactionAbortedException extends RuntimeException{
+    public TransactionAbortedException(Throwable throwable) {
+        super(throwable);
+    }
 
-import org.apache.servicecomb.saga.core.Compensation;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-public class JacksonSQLCompensation extends JacksonSQLOperation implements Compensation {
-
-  public JacksonSQLCompensation(String sql, List<List<String>> params) {
-    this(sql, params, DEFAULT_RETRIES);
-  }
-
-  @JsonCreator
-  public JacksonSQLCompensation(
-      @JsonProperty("sql") String sql,
-      @JsonProperty("params") List<List<String>> params,
-      @JsonProperty("retries") int retries) {
-    super(sql, retries <= 0? DEFAULT_RETRIES : retries, params);
-  }
+    public TransactionAbortedException(String cause) {
+        super(cause);
+    }
 }

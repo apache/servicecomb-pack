@@ -26,11 +26,19 @@ import org.apache.servicecomb.saga.core.Transaction;
 
 public class JacksonRestTransaction extends JacksonRestOperation implements Transaction {
 
+  public JacksonRestTransaction(
+      String path,
+      String method,
+      Map<String, Map<String, String>> params) {
+    this(INFINITE_RETRY, path, method, params);
+  }
+
   @JsonCreator
   public JacksonRestTransaction(
+      @JsonProperty("retries") int retries,
       @JsonProperty("path") String path,
       @JsonProperty("method") String method,
       @JsonProperty("params") Map<String, Map<String, String>> params) {
-    super(path, method, params);
+    super(path, method, retries <= 0? INFINITE_RETRY : retries, params);
   }
 }

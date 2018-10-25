@@ -72,5 +72,10 @@ public interface JacksonFallback<T extends Transport> extends Fallback, Transpor
     public SagaResponse send(String address, SagaResponse response) {
       return send(address);
     }
+
+    @Override
+    public int retries() {
+      return 0;
+    }
   }
 }

@@ -99,6 +99,10 @@ public class GraphBasedSaga implements Saga {
             tasks.get(request.task()).compensate(request);
           }
         });
+      } catch (TransactionAbortedException e) {
+        response = new FailedSagaResponse(e);
+        log.error("Transaction aborted ", e);
+        break;
       }
     } while (currentTaskRunner.hasNext());
     log.info("Completed Saga");
