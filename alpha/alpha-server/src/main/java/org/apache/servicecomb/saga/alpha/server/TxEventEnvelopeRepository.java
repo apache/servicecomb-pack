@@ -28,7 +28,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
-interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
+public interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
   List<TxEvent> findByGlobalTxId(String globalTxId);
 
   @Query("SELECT t FROM TxEvent t "
@@ -123,6 +123,141 @@ interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
       + "  AND t1.type = t.type "
       + "  AND t1.surrogateId > t.surrogateId )")
   List<TxEvent> findDuplicateEventsByType(String type);
+
+  List<TxEvent> findByServiceName(String serviceName);
+
+  @Query("SELECT count(t) FROM TxEvent t" +
+      " WHERE t.type = 'SagaStartedEvent' " +
+      "AND NOT EXISTS(  SELECT t1.globalTxId FROM TxEvent t1 " +
+      "WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('SagaEndedEvent')) " +
+      "AND EXISTS(  SELECT t1.globalTxId FROM TxEvent t1 " +
+      "WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('TxAbortedEvent'))")
+  int findCountOfCompensatingEvents();
+
+  @Query("SELECT t FROM TxEvent t" +
+      " WHERE t.type = 'SagaStartedEvent' " +
+      "AND NOT EXISTS(  SELECT t1.globalTxId FROM TxEvent t1 " +
+      "WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('SagaEndedEvent')) " +
+      "AND EXISTS(  SELECT t1.globalTxId FROM TxEvent t1 " +
+      "WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('TxAbortedEvent')) " +
+      "ORDER BY t.surrogateId DESC")
+  List<TxEvent> findCompensatingEvents();
+
+  @Query("SELECT t FROM TxEvent t" +
+      " WHERE t.type = 'SagaStartedEvent' " +
+      "AND NOT EXISTS(  SELECT t1.globalTxId FROM TxEvent t1 " +
+      "WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('SagaEndedEvent')) " +
+      "AND EXISTS(  SELECT t1.globalTxId FROM TxEvent t1 " +
+      "WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('TxAbortedEvent')) " +
+      "ORDER BY t.surrogateId DESC")
+  List<TxEvent> findCompensatingEvents(Pageable pageable);
+
+  @Query("SELECT count(t) FROM TxEvent t " +
+      "WHERE t.type = 'SagaStartedEvent' " +
+      "AND NOT EXISTS(  SELECT t1.globalTxId FROM TxEvent t1 " +
+      "WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('TxAbortedEvent', 'TxCompensatedEvent')) " +
+      "AND EXISTS(  SELECT t1.globalTxId FROM TxEvent t1 " +
+      "WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('SagaEndedEvent'))\n")
+  int findCountOfCommittedEvents();
+
+
+  @Query("SELECT t FROM TxEvent t " +
+      "WHERE t.type = 'SagaStartedEvent' " +
+      "AND NOT EXISTS(  SELECT t1.globalTxId FROM TxEvent t1 " +
+      "WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('TxAbortedEvent', 'TxCompensatedEvent')) " +
+      "AND EXISTS(  SELECT t1.globalTxId FROM TxEvent t1 " +
+      "WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('SagaEndedEvent')) " +
+      "ORDER BY t.surrogateId DESC")
+  List<TxEvent> findCommittedEvents();
+
+  @Query("SELECT t FROM TxEvent t " +
+      "WHERE t.type = 'SagaStartedEvent' " +
+      "AND NOT EXISTS(  SELECT t1.globalTxId FROM TxEvent t1 " +
+      "WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('TxAbortedEvent', 'TxCompensatedEvent')) " +
+      "AND EXISTS(  SELECT t1.globalTxId FROM TxEvent t1 " +
+      "WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('SagaEndedEvent')) " +
+      "ORDER BY t.surrogateId DESC")
+  List<TxEvent> findCommittedEvents(Pageable pageable);
+
+  @Query("SELECT count(t) FROM TxEvent t " +
+      "WHERE t.type = 'SagaStartedEvent' " +
+      "AND NOT EXISTS(  SELECT t1.globalTxId " +
+      "FROM TxEvent t1 WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('SagaEndedEvent'))\n")
+  int findCountOfPendingEvents();
+
+
+  @Query("SELECT t FROM TxEvent t " +
+      "WHERE t.type = 'SagaStartedEvent' " +
+      "AND NOT EXISTS(  SELECT t1.globalTxId " +
+      "FROM TxEvent t1 WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('SagaEndedEvent')) " +
+      "ORDER BY t.surrogateId DESC")
+  List<TxEvent> findPendingEvents();
+
+  @Query("SELECT t FROM TxEvent t " +
+      "WHERE t.type = 'SagaStartedEvent' " +
+      "AND NOT EXISTS(  SELECT t1.globalTxId " +
+      "FROM TxEvent t1 WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('SagaEndedEvent')) " +
+      "ORDER BY t.surrogateId DESC")
+  List<TxEvent> findPendingEvents(Pageable pageable);
+
+  @Query("SELECT count(t) FROM TxEvent t " +
+      "WHERE t.type = 'SagaStartedEvent' " +
+      "AND EXISTS(  SELECT t1.globalTxId " +
+      "FROM TxEvent t1 WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('TxAbortedEvent')) " +
+      "AND EXISTS(  SELECT t1.globalTxId FROM " +
+      "TxEvent t1 WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('SagaEndedEvent')) " +
+      "AND EXISTS(  SELECT t1.globalTxId FROM TxEvent t1 " +
+      "WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('TxCompensatedEvent'))\n")
+  int findCountOfRollBackedEvents();
+
+  @Query("SELECT t FROM TxEvent t " +
+      "WHERE t.type = 'SagaStartedEvent' " +
+      "AND EXISTS(  SELECT t1.globalTxId " +
+      "FROM TxEvent t1 WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('TxAbortedEvent')) " +
+      "AND EXISTS(  SELECT t1.globalTxId FROM " +
+      "TxEvent t1 WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('SagaEndedEvent')) " +
+      "AND EXISTS(  SELECT t1.globalTxId FROM TxEvent t1 " +
+      "WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('TxCompensatedEvent')) " +
+      "ORDER BY t.surrogateId DESC")
+  List<TxEvent> findRollBackedEvents();
+
+  @Query("SELECT t FROM TxEvent t " +
+      "WHERE t.type = 'SagaStartedEvent' " +
+      "AND EXISTS(  SELECT t1.globalTxId " +
+      "FROM TxEvent t1 WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('TxAbortedEvent')) " +
+      "AND EXISTS(  SELECT t1.globalTxId FROM " +
+      "TxEvent t1 WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('SagaEndedEvent')) " +
+      "AND EXISTS(  SELECT t1.globalTxId FROM TxEvent t1 " +
+      "WHERE t1.globalTxId = t.globalTxId  " +
+      "AND t1.type IN ('TxCompensatedEvent')) " +
+      "ORDER BY t.surrogateId DESC")
+  List<TxEvent> findRollBackedEvents(Pageable pageable);
+
+  @Query("SELECT count(DISTINCT t.globalTxId) FROM TxEvent t")
+  int findTotalCountOfTransactions();
 
   @Transactional
   @Modifying(clearAutomatically = true)
