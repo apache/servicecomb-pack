@@ -40,7 +40,11 @@ Now we have different lanaguage implementation of Omega
 * Build the source demo docker images and run the accept tests
    ```bash
       $ mvn clean install -Pdemo,docker
-   ```   
+   ```
+* Build the source code and docker images without running tests
+   ```bash
+      $ mvn clean install -DskipTests=true -Pdemo,docker
+   ```     
 * Current Saga code supports Spring Boot 1.x and Spring Boot 2.x at the same time, saga uses Spring Boot 1.x by default, you can use *-Pspring-boot-2* to switch Spring Boot version to 2.x.
 Since Spring Boot supports JDK9 since 2.x, if you want to build and run test the Saga with JDK9 or JDK10, you need to use the spring-boot-2 profile. 
    ```bash
