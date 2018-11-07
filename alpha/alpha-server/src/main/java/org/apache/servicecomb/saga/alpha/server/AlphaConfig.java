@@ -94,13 +94,13 @@ class AlphaConfig {
   @Bean
   TxConsistentService txConsistentService(
       @Value("${alpha.event.pollingInterval:500}") int eventPollingInterval,
-      @Value("${alpha.event.scanner.enabled:true}") boolean eventScanner,
+      @Value("${alpha.event.scanner.enabled:true}") boolean eventScannerEnabled,
       ScheduledExecutorService scheduler,
       TxEventRepository eventRepository,
       CommandRepository commandRepository,
       TxTimeoutRepository timeoutRepository,
       OmegaCallback omegaCallback) {
-        if (eventScanner) {
+        if (eventScannerEnabled) {
           new EventScanner(scheduler,
               eventRepository, commandRepository, timeoutRepository,
               omegaCallback, eventPollingInterval).run();
