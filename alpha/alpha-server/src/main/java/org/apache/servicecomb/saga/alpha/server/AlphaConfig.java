@@ -38,6 +38,8 @@ import org.apache.servicecomb.saga.alpha.server.tcc.GrpcTccEventService;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.TccPendingTaskRunner;
 import org.apache.servicecomb.saga.alpha.server.tcc.service.TccEventScanner;
 import org.apache.servicecomb.saga.alpha.server.tcc.service.TccTxEventService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
@@ -46,6 +48,7 @@ import org.springframework.context.annotation.Configuration;
 @EntityScan(basePackages = "org.apache.servicecomb.saga.alpha")
 @Configuration
 class AlphaConfig {
+  private static final Logger LOG = LoggerFactory.getLogger(AlphaConfig.class);
   private final BlockingQueue<Runnable> pendingCompensations = new LinkedBlockingQueue<>();
   private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -91,14 +94,18 @@ class AlphaConfig {
   @Bean
   TxConsistentService txConsistentService(
       @Value("${alpha.event.pollingInterval:500}") int eventPollingInterval,
+      @Value("${alpha.event.scanner.enabled:true}") boolean eventScanner,
       ScheduledExecutorService scheduler,
       TxEventRepository eventRepository,
       CommandRepository commandRepository,
       TxTimeoutRepository timeoutRepository,
       OmegaCallback omegaCallback) {
-        new EventScanner(scheduler,
-            eventRepository, commandRepository, timeoutRepository,
-            omegaCallback, eventPollingInterval).run();
+        if (eventScanner) {
+          new EventScanner(scheduler,
+              eventRepository, commandRepository, timeoutRepository,
+              omegaCallback, eventPollingInterval).run();
+          LOG.info("Starting the EventScanner.");
+          }
         TxConsistentService consistentService = new TxConsistentService(eventRepository);
         return consistentService;
   }
