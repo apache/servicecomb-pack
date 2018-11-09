@@ -1,6 +1,6 @@
 ### Load testing saga with Kubernetes
 
-First make sure a [saga-demo](https://github.com/apache/incubator-servicecomb-saga/tree/master/saga-demo) is running in the kubernetes cluster(you can find useful info at [saga's k8s demo](https://github.com/apache/incubator-servicecomb-saga/tree/master/saga-demo/saga-k8s-resources)), here we take the [saga-spring-demo](https://github.com/apache/incubator-servicecomb-saga/tree/master/saga-demo/saga-spring-demo) as an example.
+First make sure a [saga-demo](https://github.com/apache/servicecomb-saga/tree/master/saga-demo) is running in the kubernetes cluster(you can find useful info at [saga's k8s demo](https://github.com/apache/servicecomb-saga/tree/master/saga-demo/saga-k8s-resources)), here we take the [saga-spring-demo](https://github.com/apache/servicecomb-saga/tree/master/saga-demo/saga-spring-demo) as an example.
 
 Navigate to `saga-demo/saga-k8s-resources/spring-demo/test`, there is a jmeter service and corresponding configmap where jmeter's
 

@@ -17,7 +17,7 @@ You will need:
 [maven]: https://maven.apache.org/install.html
 [docker]: https://www.docker.com/get-docker
 [docker_compose]: https://docs.docker.com/compose/install/
-[alpha_server]: https://github.com/apache/incubator-servicecomb-saga/tree/master/alpha
+[alpha_server]: https://github.com/apache/servicecomb-saga/tree/master/alpha
 
 ## Running Demo
 You can run the demo using either docker compose or executable files.

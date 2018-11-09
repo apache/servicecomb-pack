@@ -22,14 +22,14 @@ You will need:
 [maven]: https://maven.apache.org/install.html
 [docker]: https://www.docker.com/get-docker
 [postgres]: https://www.postgresql.org/download/
-[service_center]: https://github.com/apache/incubator-servicecomb-service-center
+[service_center]: https://github.com/apache/servicecomb-service-center
 [docker_compose]: https://docs.docker.com/compose/install/
 [docker_machine]: https://docs.docker.com/machine/install-machine/
 
 ## Building
 Download the source code.
 ```
-git clone https://github.com/apache/incubator-servicecomb-saga.git
+git clone https://github.com/apache/servicecomb-saga.git
 ```
 
 Enter the Saga root directory,build Saga project by maven command and generate a docker image named saga-spring in local.
@@ -50,4 +50,4 @@ docker-compose up
 See [Saga API](docs/api/api.md) for details.
 
 ## Example
-See [Saga demo](https://github.com/apache/incubator-servicecomb-saga/tree/master/saga-demo) for details.
+See [Saga demo](https://github.com/apache/servicecomb-saga/tree/master/saga-demo) for details.

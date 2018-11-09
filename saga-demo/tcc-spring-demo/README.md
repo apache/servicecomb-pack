@@ -16,7 +16,7 @@ You will need:
 [maven]: https://maven.apache.org/install.html
 [docker]: https://www.docker.com/get-docker
 [docker_compose]: https://docs.docker.com/compose/install/
-[alpha_server]: https://github.com/apache/incubator-servicecomb-saga/tree/master/alpha
+[alpha_server]: https://github.com/apache/servicecomb-saga/tree/master/alpha
 
 ## Running Demo
 You can run the demo using either docker compose or executable files.
@@ -73,7 +73,7 @@ You can run the demo using either docker compose or executable files.
    mvn clean package -DskipTests -Pdemo
    ```
 
-2. follow the instructions in the [How to run](https://github.com/apache/incubator-servicecomb-saga/blob/master/docs/user_guide.md#how-to-run) section in User Guide to run postgreSQL and alpha server.
+2. follow the instructions in the [How to run](https://github.com/apache/servicecomb-saga/blob/master/docs/user_guide.md#how-to-run) section in User Guide to run postgreSQL and alpha server.
 
 3. start application up
    1. start inventory service. The executable jar file should be in `saga-demo/tcc-spring-demo/inventory/target/saga`.

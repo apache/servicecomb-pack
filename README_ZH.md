@@ -1,5 +1,5 @@
-# Saga | [English](README.md) [![Build Status](https://travis-ci.org/apache/incubator-servicecomb-saga.svg?branch=master)](https://travis-ci.org/apache/incubator-servicecomb-saga?branch=master) [![Coverage Status](https://coveralls.io/repos/github/apache/incubator-servicecomb-saga/badge.svg?branch=master)](https://coveralls.io/github/apache/incubator-servicecomb-saga?branch=master) [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html) [![Gitter](https://img.shields.io/badge/ServiceComb-Gitter-ff69b4.svg)](https://gitter.im/ServiceCombUsers/Saga)
-Apache ServiceComb (incubating) Saga 是一个微服务应用的数据最终一致性解决方案。
+# Saga | [English](README.md) [![Build Status](https://travis-ci.org/apache/servicecomb-saga.svg?branch=master)](https://travis-ci.org/apache/servicecomb-saga?branch=master) [![Coverage Status](https://coveralls.io/repos/github/apache/servicecomb-saga/badge.svg?branch=master)](https://coveralls.io/github/apache/servicecomb-saga?branch=master) [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html) [![Gitter](https://img.shields.io/badge/ServiceComb-Gitter-ff69b4.svg)](https://gitter.im/ServiceCombUsers/Saga)
+Apache ServiceComb Saga 是一个微服务应用的数据最终一致性解决方案。
 
 ## 特性
 * 高可用。支持集群模式。
@@ -59,17 +59,17 @@ JDK9或者JDK10 来编译Saga并运行测试的话，你需要使用 spring-boot
 
 ## 获取最新发行版本
 
-[下载Saga](http://servicecomb.incubator.apache.org/release/saga-downloads/)
+[下载Saga](http://servicecomb.apache.org/release/saga-downloads/)
 
 ## [常见问题](FAQ_ZH.md)
 
 ## 联系我们
 * [提交issues](https://issues.apache.org/jira/browse/SCB)
 * [gitter聊天室](https://gitter.im/ServiceCombUsers/Saga)
-* 邮件列表: [订阅](mailto:dev-subscribe@servicecomb.incubator.apache.org) [浏览](https://lists.apache.org/list.html?dev@servicecomb.apache.org)
+* 邮件列表: [订阅](mailto:dev-subscribe@servicecomb.apache.org) [浏览](https://lists.apache.org/list.html?dev@servicecomb.apache.org)
 
 ## 贡献
-详情可浏览[代码提交指南](http://servicecomb.incubator.apache.org/cn/developers/submit-codes/)。
+详情可浏览[代码提交指南](http://servicecomb.apache.org/cn/developers/submit-codes/)。
 
 ## License
-[Apache 2.0 license](https://github.com/apache/incubator-servicecomb-saga/blob/master/LICENSE)。
+[Apache 2.0 license](https://github.com/apache/servicecomb-saga/blob/master/LICENSE)。

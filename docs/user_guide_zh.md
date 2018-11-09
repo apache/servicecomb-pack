@@ -14,8 +14,8 @@
 
 获取源码：
 ```bash
-$ git clone https://github.com/apache/incubator-servicecomb-saga.git
-$ cd incubator-servicecomb-saga
+$ git clone https://github.com/apache/servicecomb-saga.git
+$ cd servicecomb-saga
 ```
 
 Saga可通过以下任一方式进行构建：
@@ -96,7 +96,7 @@ Saga可通过以下任一方式进行构建：
 
 4. 对转入服务重复第三步即可。
 
-5. 从Saga-0.3.0, 你可以在服务函数或者取消函数中通过访问 [OmegaContext](https://github.com/apache/incubator-servicecomb-saga/blob/master/omega/omega-context/src/main/java/org/apache/servicecomb/saga/omega/context/OmegaContext.java) 来获取 gloableTxId 以及 localTxId 信息。
+5. 从Saga-0.3.0, 你可以在服务函数或者取消函数中通过访问 [OmegaContext](https://github.com/apache/servicecomb-saga/blob/master/omega/omega-context/src/main/java/org/apache/servicecomb/saga/omega/context/OmegaContext.java) 来获取 gloableTxId 以及 localTxId 信息。
 
 
 ## 如何运行
@@ -104,7 +104,7 @@ Saga可通过以下任一方式进行构建：
    ```bash
    docker run -d -e "POSTGRES_DB=saga" -e "POSTGRES_USER=saga" -e "POSTGRES_PASSWORD=password" -p 5432:5432 postgres
    ```
-   如果你想使用MySQL做为后台数据库，可以参考 [此文档](https://github.com/apache/incubator-servicecomb-saga/blob/master/docs/faq/en/how_to_use_mysql_as_alpha_backend_database.md)。
+   如果你想使用MySQL做为后台数据库，可以参考 [此文档](https://github.com/apache/servicecomb-saga/blob/master/docs/faq/en/how_to_use_mysql_as_alpha_backend_database.md)。
 
 
 2. 运行alpha。在运行alpha前，请确保postgreSQL已正常启动。可通过docker或可执行文件的方式来启动alpha。

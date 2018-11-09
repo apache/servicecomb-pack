@@ -12,7 +12,7 @@ You will need:
 
 [jdk]: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
 [maven]: https://maven.apache.org/install.html
-[alpha_server]: https://github.com/apache/incubator-servicecomb-saga/tree/master/alpha
+[alpha_server]: https://github.com/apache/servicecomb-saga/tree/master/alpha
 
 ## Running Demo
 1. run the following command to create docker images in saga project root folder.
