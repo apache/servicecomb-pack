@@ -69,6 +69,9 @@ public class SagaStartAspect {
   }
 
   private void initializeOmegaContext() {
+    if (context.globalTxId() != null) {
+      context.setParentTxId(context.globalTxId());
+    }
     context.setLocalTxId(context.newGlobalTxId());
   }
 }

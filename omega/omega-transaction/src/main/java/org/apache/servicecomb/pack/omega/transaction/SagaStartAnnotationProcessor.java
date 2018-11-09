@@ -33,7 +33,7 @@ class SagaStartAnnotationProcessor {
   AlphaResponse preIntercept(int timeout) {
     try {
       return sender
-          .send(new SagaStartedEvent(omegaContext.globalTxId(), omegaContext.localTxId(), timeout));
+          .send(new SagaStartedEvent(omegaContext.globalTxId(), omegaContext.localTxId(), omegaContext.parentTxId(), timeout));
     } catch (OmegaException e) {
       throw new TransactionalException(e.getMessage(), e.getCause());
     }
@@ -41,7 +41,7 @@ class SagaStartAnnotationProcessor {
 
   void postIntercept(String parentTxId) {
     AlphaResponse response = sender
-        .send(new SagaEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
+        .send(new SagaEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId(), omegaContext.parentTxId()));
     if (response.aborted()) {
       throw new OmegaException("transaction " + parentTxId + " is aborted");
     }

@@ -94,7 +94,7 @@ public interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long>
   @Query("SELECT t FROM TxEvent t "
       + "WHERE t.type = ?1 AND t.surrogateId > ?2 AND EXISTS ( "
       + "  SELECT t1.globalTxId FROM TxEvent t1 "
-      + "  WHERE t1.globalTxId = t.globalTxId "
+      + "  WHERE (t1.globalTxId = t.globalTxId OR t1.globalTxId = t.parentTxId)"
       + "    AND t1.type = 'TxAbortedEvent' AND NOT EXISTS ( "
       + "    SELECT t2.globalTxId FROM TxEvent t2 "
       + "    WHERE t2.globalTxId = t1.globalTxId "

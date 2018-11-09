@@ -58,7 +58,7 @@ public class RetryableMessageSenderTest {
 
   @Test
   public void blowsUpWhenEventIsSagaStarted() {
-    TxEvent event = new SagaStartedEvent(globalTxId, localTxId, 0);
+    TxEvent event = new SagaStartedEvent(globalTxId, localTxId, null, 0);
 
     try {
       messageSender.send(event);

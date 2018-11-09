@@ -21,9 +21,11 @@ package org.apache.servicecomb.pack.omega.context;
  * OmegaContext holds the globalTxId and localTxId which are used to build the invocation map
  */
 public class OmegaContext {
+  public static final String PARENT_TX_ID_KEY = "X-Pack-Parent-Transaction-Id";
   public static final String GLOBAL_TX_ID_KEY = "X-Pack-Global-Transaction-Id";
   public static final String LOCAL_TX_ID_KEY = "X-Pack-Local-Transaction-Id";
 
+  private final ThreadLocal<String> parentTxId = new InheritableThreadLocal<>();
   private final ThreadLocal<String> globalTxId = new InheritableThreadLocal<>();
   private final ThreadLocal<String> localTxId = new InheritableThreadLocal<>();
   private final IdGenerator<String> idGenerator;
@@ -36,6 +38,14 @@ public class OmegaContext {
     String id = idGenerator.nextId();
     globalTxId.set(id);
     return id;
+  }
+
+  public void setParentTxId(String txId) {
+    parentTxId.set(txId);
+  }
+
+  public String parentTxId() {
+    return parentTxId.get();
   }
 
   public void setGlobalTxId(String txId) {
@@ -61,6 +71,7 @@ public class OmegaContext {
   }
 
   public void clear() {
+    parentTxId.remove();
     globalTxId.remove();
     localTxId.remove();
   }
@@ -68,6 +79,7 @@ public class OmegaContext {
   @Override
   public String toString() {
     return "OmegaContext{" +
+        "parentTxId=" + parentTxId.get() +
         "globalTxId=" + globalTxId.get() +
         ", localTxId=" + localTxId.get() +
         '}';
