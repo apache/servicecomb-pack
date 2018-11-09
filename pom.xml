@@ -78,7 +78,7 @@
 
   <name>ServiceComb Saga</name>
   <description>Eventual consistency component for distributed systems</description>
-  <url>https://github.com/apache/incubator-servicecomb-saga</url>
+  <url>https://github.com/apache/servicecomb-saga</url>
 
   <licenses>
     <license>
@@ -121,9 +121,9 @@
   </organization>
 
   <scm>
-    <connection>scm:git:https://github.com/apache/incubator-servicecomb-saga.git</connection>
-    <developerConnection>scm:git:https://github.com/apache/incubator-servicecomb-saga.git</developerConnection>
-    <url>https://github.com/apache/incubator-servicecomb-saga</url>
+    <connection>scm:git:https://github.com/apache/servicecomb-saga.git</connection>
+    <developerConnection>scm:git:https://github.com/apache/servicecomb-saga.git</developerConnection>
+    <url>https://github.com/apache/servicecomb-saga</url>
     <tag>${project.version}</tag>
   </scm>
 
