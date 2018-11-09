@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  *   <li>is idempotent</li>
  *   <li>the object instance which @Compensable method resides in should be stateless</li>
  *   <li>if compensationMethod exists, both methods must be commutative, see this
- *   <a href="https://servicecomb.incubator.apache.org/docs/distributed_saga_2/">link</a>.</li>
+ *   <a href="https://servicecomb.apache.org/docs/distributed_saga_2/">link</a>.</li>
  * </ol>
  */
 @Target(ElementType.METHOD)
