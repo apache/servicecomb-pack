@@ -28,22 +28,7 @@
   <name>Saga::Demo::Tcc-Spring-Demo::Tcc-Payment</name>
 
   <dependencies>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.servicecomb.saga</groupId>
-      <artifactId>omega-spring-starter</artifactId>
-    </dependency>
-    <dependency>
-       <groupId>org.apache.servicecomb.saga</groupId>
-       <artifactId>omega-transport-resttemplate</artifactId>
-    </dependency>
+    <!-- Add the JPA starter -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -58,22 +43,17 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <!-- Added the eclipse link JPA configuration-->
     <dependency>
       <groupId>org.apache.servicecomb.saga</groupId>
       <artifactId>saga-persistence-jpa</artifactId>
     </dependency>
+    <!-- Added the driver of h2 -->
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
     </dependency>
-    <dependency>
-      <groupId>javax.persistence</groupId>
-      <artifactId>javax.persistence-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.persistence</groupId>
-      <artifactId>org.eclipse.persistence.jpa</artifactId>
-    </dependency>
+    <!-- Added the test dependencies -->
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-all</artifactId>

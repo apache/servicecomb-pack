@@ -29,25 +29,6 @@
   <artifactId>tcc-ordering</artifactId>
   <name>Saga::Demo::Tcc-Spring-Demo::Tcc-Ordering</name>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.servicecomb.saga</groupId>
-      <artifactId>omega-spring-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.servicecomb.saga</groupId>
-      <artifactId>omega-transport-resttemplate</artifactId>
-    </dependency>
-  </dependencies>
-
   <build>
     <plugins>
       <!-- mixin plugin configurations declared in another pom,
