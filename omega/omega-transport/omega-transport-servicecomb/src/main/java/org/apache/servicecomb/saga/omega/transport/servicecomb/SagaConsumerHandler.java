@@ -30,9 +30,7 @@ import org.apache.servicecomb.swagger.invocation.AsyncResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kamon.annotation.EnableKamon;
-import kamon.annotation.Trace;
-@EnableKamon
+
 public class SagaConsumerHandler implements Handler {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -53,7 +51,6 @@ public class SagaConsumerHandler implements Handler {
     this.omegaContext = omegaContext;
   }
 
-  @Trace("sagaServiceCombConsumerHandlerInvoke")
   @Override
   public void handle(Invocation invocation, AsyncResponse asyncResponse) throws Exception {
     if (omegaContext != null && omegaContext.globalTxId() != null) {

@@ -36,14 +36,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.apache.servicecomb.saga.omega.context.OmegaContext.GLOBAL_TX_ID_KEY;
 import static org.apache.servicecomb.saga.omega.context.OmegaContext.LOCAL_TX_ID_KEY;
 
-import kamon.annotation.EnableKamon;
-import kamon.annotation.Trace;
-
 /**
  * add saga transaction id to dubbo invocation
  */
 @Activate(group = {Constants.CONSUMER})
-@EnableKamon
 public class SagaDubboConsumerFilter implements Filter {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   
@@ -55,7 +51,6 @@ public class SagaDubboConsumerFilter implements Filter {
     this.omegaContext = omegaContext;
   }
 
-  @Trace("sagaDubboConsumerInvoke")
   public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
     if (omegaContext != null) {
       invocation.getAttachments().put(GLOBAL_TX_ID_KEY, omegaContext.globalTxId());
