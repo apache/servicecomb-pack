@@ -40,7 +40,7 @@ if [ "$TAGGEDCOMMIT" ==   "true" ]; then
 		fi
 else
 		echo "Deploy a Non-Signed Staging Release"
-		mvn deploy -DskipTests --settings .travis.settings.xml
+		mvn deploy -Ddocker.skip -DskipTests --settings .travis.settings.xml
     if [ $? == 0 ]; then
 			echo "${green}Snapshot Deployment is Success, please log on to Nexus Repo to see the snapshot release..${reset}"
 		else
