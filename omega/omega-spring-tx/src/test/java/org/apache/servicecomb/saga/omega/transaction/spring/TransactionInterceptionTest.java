@@ -353,11 +353,6 @@ public class TransactionInterceptionTest {
     actorSystem.terminate();
   }
 
-  @Test
-  public void tccWorkflowTest() {
-
-  }
-
   private void waitTillSavedUser(final String username) {
     await().atMost(1000, MILLISECONDS).until(new Callable<Boolean>() {
       @Override
