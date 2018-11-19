@@ -31,8 +31,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * ForwardRecovery is used to execute business logic with the given retries times.
- * If retries is above 0, it will retry the given times at most.
- * If retries == -1, it will retry forever until interrupted.
+ * If retries == 0, use the default recovery to execute only once.
+ * If retries > 0, it will use the forward recovery and retry the given times at most.
+ * If retries < 0, it will use the forward recovery and retry forever until interrupted.
  */
 public class ForwardRecovery extends DefaultRecovery {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -52,8 +53,9 @@ public class ForwardRecovery extends DefaultRecovery {
             throw throwable;
           }
 
-          remains = remains == -1 ? -1 : remains - 1;
-          if (remains == 0) {
+          if (remains > 0) {
+            remains--;
+          } else if (remains == 0 ) {
             LOG.error(
                 "Retried sub tx failed maximum times, global tx id: {}, local tx id: {}, method: {}, retried times: {}",
                 context.globalTxId(), context.localTxId(), method.toString(), retries);
