@@ -34,8 +34,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
-import sun.rmi.runtime.Log;
-
 @Controller
 @RequestMapping("/")
 class AlphaEventController {
