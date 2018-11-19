@@ -18,6 +18,7 @@
 package org.apache.servicecomb.saga.omega.transaction.spring;
 
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import org.apache.servicecomb.saga.omega.context.CompensationContext;
@@ -25,6 +26,9 @@ import org.apache.servicecomb.saga.omega.transaction.OmegaException;
 import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.framework.AdvisedSupport;
+import org.springframework.aop.framework.AopProxy;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 
 class CompensableMethodCheckingCallback implements MethodCallback {
@@ -48,17 +52,47 @@ class CompensableMethodCheckingCallback implements MethodCallback {
     String compensationMethod = method.getAnnotation(Compensable.class).compensationMethod();
 
     try {
-      compensationContext.addCompensationContext(method, bean);
-
       if (!compensationMethod.isEmpty()) {
         Method signature = bean.getClass().getDeclaredMethod(compensationMethod, method.getParameterTypes());
-        compensationContext.addCompensationContext(signature, bean);
+        String key = getTargetBean(bean).getClass().getDeclaredMethod(compensationMethod, method.getParameterTypes()).toString();
+        compensationContext.addCompensationContext(key, signature, bean);
         LOG.debug("Found compensation method [{}] in {}", compensationMethod, bean.getClass().getCanonicalName());
       }
-    } catch (NoSuchMethodException e) {
+    } catch (Exception e) {
       throw new OmegaException(
           "No such compensation method [" + compensationMethod + "] found in " + bean.getClass().getCanonicalName(),
           e);
     }
+  }
+
+  private Object getTargetBean(Object proxy) throws Exception {
+    if(!AopUtils.isAopProxy(proxy)) {
+      return proxy;
+    }
+    if(AopUtils.isJdkDynamicProxy(proxy)) {
+      return getJdkDynamicProxyTargetObject(proxy);
+    } else {
+      return getCglibProxyTargetObject(proxy);
+    }
+  }
+
+  private Object getCglibProxyTargetObject(Object proxy) throws Exception {
+    Field h = proxy.getClass().getDeclaredField("CGLIB$CALLBACK_0");
+    h.setAccessible(true);
+    Object dynamicAdvisedInterceptor = h.get(proxy);
+    Field advised = dynamicAdvisedInterceptor.getClass().getDeclaredField("advised");
+    advised.setAccessible(true);
+    Object result = ((AdvisedSupport)advised.get(dynamicAdvisedInterceptor)).getTargetSource().getTarget();
+    return result;
+  }
+  
+  private Object getJdkDynamicProxyTargetObject(Object proxy) throws Exception {
+    Field h = proxy.getClass().getSuperclass().getDeclaredField("h");
+    h.setAccessible(true);
+    AopProxy aopProxy = (AopProxy) h.get(proxy);
+    Field advised = aopProxy.getClass().getDeclaredField("advised");
+    advised.setAccessible(true);
+    Object result = ((AdvisedSupport)advised.get(aopProxy)).getTargetSource().getTarget();
+    return result;
   }
 }

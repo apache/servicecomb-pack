@@ -20,9 +20,11 @@ package org.apache.servicecomb.saga.omega.transaction.spring;
 import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
-class TransactionalUserService {
+@Transactional
+public class TransactionalUserService {
   static final String ILLEGAL_USER = "Illegal User";
   private final UserRepository userRepository;
 
@@ -38,19 +40,19 @@ class TransactionalUserService {
   }
 
   @Compensable(compensationMethod = "delete")
-  User add(User user) {
+  public User add(User user) {
     if (ILLEGAL_USER.equals(user.username())) {
       throw new IllegalArgumentException("User is illegal");
     }
     return userRepository.save(user);
   }
 
-  void delete(User user) {
+  public void delete(User user) {
     userRepository.delete(user);
   }
 
   @Compensable(retries = 2, compensationMethod = "delete")
-  User add(User user, int count) {
+  public User add(User user, int count) {
     if (this.count < count) {
       this.count += 1;
       throw new IllegalStateException("Retry harder");
@@ -59,7 +61,7 @@ class TransactionalUserService {
     return userRepository.save(user);
   }
 
-  void delete(User user, int count) {
+  public void delete(User user, int count) {
     resetCount();
     userRepository.delete(user);
   }

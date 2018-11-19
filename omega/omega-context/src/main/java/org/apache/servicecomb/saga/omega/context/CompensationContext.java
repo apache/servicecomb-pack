@@ -36,9 +36,9 @@ public class CompensationContext {
     this.omegaContext = omegaContext;
   }
 
-  public void addCompensationContext(Method compensationMethod, Object target) {
+  public void addCompensationContext(String key, Method compensationMethod, Object target) {
     compensationMethod.setAccessible(true);
-    contexts.put(compensationMethod.toString(), new CompensationContextInternal(target, compensationMethod));
+    contexts.put(key, new CompensationContextInternal(target, compensationMethod));
   }
 
   public void apply(String globalTxId, String localTxId, String compensationMethod, Object... payloads) {
