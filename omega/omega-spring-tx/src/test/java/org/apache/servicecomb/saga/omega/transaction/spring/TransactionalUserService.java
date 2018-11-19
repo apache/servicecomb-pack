@@ -65,4 +65,17 @@ public class TransactionalUserService {
     resetCount();
     userRepository.delete(user);
   }
+
+  @Compensable(compensationMethod = "deleteTransactional")
+  public User addTransactional(User user) {
+    if (ILLEGAL_USER.equals(user.username())) {
+      throw new IllegalArgumentException("User is illegal");
+    }
+    return userRepository.save(user);
+  }
+
+  public void deleteTransactional(User user) {
+    userRepository.delete(user);
+    throw new RuntimeException("saga compensation rollback test");
+  }
 }
