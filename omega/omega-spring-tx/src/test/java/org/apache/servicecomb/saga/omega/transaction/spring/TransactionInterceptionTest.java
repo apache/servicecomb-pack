@@ -284,7 +284,7 @@ public class TransactionInterceptionTest {
   @Test
   public void assertCompensationMethodTransactionAware() throws NoSuchMethodException {
     userService.add(user);
-    compensationMethod = TransactionalUserService.class.getDeclaredMethod("deleteTransactional", User.class).toString();
+    compensationMethod = TransactionalUserService.class.getDeclaredMethod("deleteWithTransactional", User.class).toString();
     messageHandler.onReceive(globalTxId, newLocalTxId, globalTxId, compensationMethod, user);
     User actualUser = userRepository.findByUsername(user.username());
     assertNotNull(actualUser);
