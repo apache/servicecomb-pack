@@ -23,7 +23,7 @@
   <parent>
     <artifactId>omega-transport</artifactId>
     <groupId>org.apache.servicecomb.saga</groupId>
-    <version>0.2.1-SNAPSHOT</version>
+    <version>0.2.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
