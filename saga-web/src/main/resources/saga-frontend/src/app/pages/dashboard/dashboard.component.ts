@@ -4,6 +4,7 @@ import { takeWhile } from 'rxjs/operators/takeWhile' ;
 import { SagaeventsService } from '../../@core/data/saga-events.service';
 import { UtilService } from '../../@core/utils/util.service';
 import * as _ from 'underscore';
+import { RecentTableComponent } from './recent-table/recent-table.component';
 
 interface CountCardSettings {
   title: string;
@@ -17,6 +18,7 @@ interface CountCardSettings {
 @Component({
   selector: 'ngx-dashboard',
   templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnDestroy {
 
@@ -24,15 +26,23 @@ export class DashboardComponent implements OnDestroy {
   private loading = false;
   succTransactionsArr = [];
   failedTransactionsArr = [];
+  committedTransArr =[];
+  pendingTransArr =[];
+  compensatingTransArr =[];
+  rollbackedTransArr =[];
   successTxSettings: any;
   failedTxSettings: any;
-  totalTx: number;
-  successTx: number;
-  failedTx: number;
   isGlobalTx: boolean = true;
+  committedTransactions: number;
+  compensatingTransactions: number;
+  failureRate: number;
+  pendingTransactions: number;
+  rollbackTransactions: number;
+  totalTransactions: number;
+  updatedAt: any;
 
   totalTxCard: CountCardSettings = {
-    title: 'Total Transactions',
+    title: 'Total',
     footer: 'Last updated few hours ago',
     type: 'info',
     number: 0,
@@ -40,8 +50,8 @@ export class DashboardComponent implements OnDestroy {
     footerIconClass: 'far fa-clock',
   };
 
-  successTxCard: CountCardSettings = {
-    title: 'Successful Transactions',
+  committedTxCard: CountCardSettings = {
+    title: 'Committed',
     footer: 'Last updated few hours ago',
     type: 'success',
     number: 0,
@@ -49,8 +59,26 @@ export class DashboardComponent implements OnDestroy {
     footerIconClass: 'far fa-clock',
   };
 
-  failedTxCard: CountCardSettings = {
-    title: 'Failed Transactions',
+  pendingTxCard: CountCardSettings = {
+    title: 'Pending',
+    footer: 'Last updated few hours ago',
+    type: 'danger',
+    number: 0,
+    iconClass: 'fas fa-exclamation-circle',
+    footerIconClass: 'far fa-clock',
+  };
+
+  compensatingTxCard: CountCardSettings = {
+    title: 'Compensating',
+    footer: 'Last updated few hours ago',
+    type: 'danger',
+    number: 0,
+    iconClass: 'fas fa-exclamation-circle',
+    footerIconClass: 'far fa-clock',
+  };
+
+  rollbackTxCard: CountCardSettings = {
+    title: 'Rollback',
     footer: 'Last updated few hours ago',
     type: 'danger',
     number: 0,
@@ -72,8 +100,10 @@ export class DashboardComponent implements OnDestroy {
 
   commonStatusCardsSet: CountCardSettings[] = [
     this.totalTxCard,
-    this.successTxCard,
-    this.failedTxCard,
+    this.committedTxCard,
+    this.pendingTxCard,
+    this.compensatingTxCard,
+    this.rollbackTxCard,
     this.rateTxCard,
   ];
 
@@ -90,11 +120,19 @@ export class DashboardComponent implements OnDestroy {
         type: 'info',
       },
       {
-        ...this.successTxCard,
+        ...this.committedTxCard,
         type: 'success',
       },
       {
-        ...this.failedTxCard,
+        ...this.pendingTxCard,
+        type: 'danger',
+      },
+      {
+        ...this.compensatingTxCard,
+        type: 'danger',
+      },
+      {
+        ...this.rollbackTxCard,
         type: 'danger',
       },
       {
@@ -110,38 +148,28 @@ export class DashboardComponent implements OnDestroy {
       .subscribe(theme => {
         this.statusCards = this.statusCardsByThemes[theme.name];
     });
-
-    this.getAllEvents();
+    this.getAllStats();
   }
   refresh(){
-    this.getAllEvents();
+    this.getAllStats();
   }
 
-  getAllEvents() {
+  //Get all stats
+  getAllStats(){
     this.loading = true;
-    this.events.getAllEvents().subscribe(data => {
-      //this.totalTx = data.body.length; // In case if real API response
-      this.totalTx = data.length; // In case of static json file
-      this.totalTxCard.number = this.totalTx;
-      this.succTransactionsArr = _.sortBy(data, function(item){
-        return -item['creationTime']; //Sorted by Create time
-      });
-      this.failedTransactionsArr = _.sortBy(data, function(item){
-        return -item['creationTime']; //Sorted by Create time
-      }); 
-      /* this.succTransactionsArr = _.sortBy(data.body, function(item){
-        return -item['creationTime']; //Sorted by Create time
-      });
-      this.failedTransactionsArr = _.sortBy(data.body, function(item){
-        return -item['creationTime']; //Sorted by Create time
-      }); */
+    this.events.getAllStats().subscribe(data =>{
+      this.totalTxCard.number = data.body.totalTransactions;
+      this.committedTxCard.number = data.body.committedTransactions;
+      this.pendingTxCard.number = data.body.pendingTransactions;
+      this.compensatingTxCard.number = data.body.compensatingTransactions;
+      this.rollbackTxCard.number = data.body.rollbackTransactions;
+      this.rateTxCard.number = data.body.failureRate;
+      this.updatedAt = new Date(data.body.updatedAt);
       this.loading = false;
-      this.util.success("Transactions fetched!", "All transactions have been fetched");
     },
     (error) => {
-      this.succTransactionsArr = [];
-      this.failedTransactionsArr = [];
-      this.util.error("Error!", "Something went wrong. The transactions could not be fetched.");
+      this.util.error("Error!", "Something went wrong. The stats could not be fetched.");
+      this.loading = false;
     });
   }
 

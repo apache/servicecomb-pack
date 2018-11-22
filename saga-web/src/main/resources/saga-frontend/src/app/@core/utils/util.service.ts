@@ -11,7 +11,7 @@ export class UtilService {
 
   config: ToasterConfig;
 
-  position = 'toast-top-right';
+  positions = 'toast-bottom-right';
   animationType = 'fade';
   timeout = 5000;
   toastsLimit = 5;
@@ -28,7 +28,7 @@ export class UtilService {
 
   success (title: string, body: string, params?: any) {
     this.config = new ToasterConfig({
-      positionClass: params && params.position?params.position:this.position,
+      positionClass: params && params.position?params.position:this.positions,
       timeout:  params && params.timeout?params.timeout:this.timeout,
       newestOnTop:  params && params.isNewestOnTop?params.isNewestOnTop:this.isNewestOnTop,
       tapToDismiss:  params && params.isHideOnClick?params.isHideOnClick:this.isHideOnClick,
@@ -49,7 +49,7 @@ export class UtilService {
 
   error (title: string, body: string, params?: any) {
     this.config = new ToasterConfig({
-      positionClass: params && params.position?params.position:this.position,
+      positionClass: params && params.position?params.position:this.positions,
       timeout:  params && params.timeout?params.timeout:this.timeout,
       newestOnTop:  params && params.isNewestOnTop?params.isNewestOnTop:this.isNewestOnTop,
       tapToDismiss:  params && params.isHideOnClick?params.isHideOnClick:this.isHideOnClick,
@@ -70,7 +70,7 @@ export class UtilService {
 
   warning (title: string, body: string, params?: any) {
     this.config = new ToasterConfig({
-      positionClass: params && params.position?params.position:this.position,
+      positionClass: params && params.position?params.position:this.positions,
       timeout:  params && params.timeout?params.timeout:this.timeout,
       newestOnTop:  params && params.isNewestOnTop?params.isNewestOnTop:this.isNewestOnTop,
       tapToDismiss:  params && params.isHideOnClick?params.isHideOnClick:this.isHideOnClick,
@@ -91,7 +91,7 @@ export class UtilService {
 
   info (title: string, body: string, params?: any) {
     this.config = new ToasterConfig({
-      positionClass: params && params.position?params.position:this.position,
+      positionClass: params && params.position?params.position:this.positions,
       timeout:  params && params.timeout?params.timeout:this.timeout,
       newestOnTop:  params && params.isNewestOnTop?params.isNewestOnTop:this.isNewestOnTop,
       tapToDismiss:  params && params.isHideOnClick?params.isHideOnClick:this.isHideOnClick,

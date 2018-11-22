@@ -18,6 +18,7 @@ import {
   NbPopoverModule,
   NbContextMenuModule,
   NbProgressBarModule,
+  NbSpinnerModule,
 } from '@nebular/theme';
 
 import { NbSecurityModule } from '@nebular/security';
@@ -36,6 +37,7 @@ import {
   RoundPipe,
   TimingPipe,
   NumberWithCommasPipe,
+  NoSanitizePipe
 } from './pipes';
 import {
   OneColumnLayoutComponent,
@@ -63,6 +65,7 @@ const NB_MODULES = [
   NgbModule,
   NbSecurityModule, // *nbIsGranted directive,
   NbProgressBarModule,
+  NbSpinnerModule
 ];
 
 const COMPONENTS = [
@@ -86,6 +89,7 @@ const PIPES = [
   RoundPipe,
   TimingPipe,
   NumberWithCommasPipe,
+  NoSanitizePipe,
 ];
 
 const NB_THEME_PROVIDERS = [

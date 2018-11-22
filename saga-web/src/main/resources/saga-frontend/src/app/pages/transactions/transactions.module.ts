@@ -3,9 +3,12 @@ import { CommonModule } from '@angular/common';
 import { NgxEchartsModule } from 'ngx-echarts';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { Ng2SmartTableModule } from 'ng2-smart-table';
+import { CustomRenderComponent } from './customRender.component';
 
 import { ThemeModule } from '../../@theme/theme.module';
-import { TransactionsComponent, SuccessTabComponent, FailedTabComponent } from './transactions.component';
+import { TransactionsTableComponent} from './transactionsTable.component';
+import { TransactionsComponent} from './transactions.component';
+import { FindTransactionComponent } from './findTransaction.component';
 
 @NgModule({
   imports: [
@@ -15,6 +18,7 @@ import { TransactionsComponent, SuccessTabComponent, FailedTabComponent } from '
     NgxChartsModule,
     Ng2SmartTableModule,
   ],
-  declarations: [TransactionsComponent , SuccessTabComponent, FailedTabComponent]
+  entryComponents: [CustomRenderComponent],
+  declarations: [TransactionsTableComponent , TransactionsComponent, FindTransactionComponent, CustomRenderComponent]
 })
 export class TransactionsModule { }

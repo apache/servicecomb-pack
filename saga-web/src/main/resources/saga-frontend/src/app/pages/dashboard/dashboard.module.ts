@@ -8,6 +8,7 @@ import { DashboardComponent } from './dashboard.component';
 
 import { ChartModule } from 'angular2-chartjs';
 import { CountCardsComponent } from './count-cards/count-cards.component';
+import { RecentTableComponent } from './recent-table/recent-table.component';
 
 @NgModule({
   imports: [
@@ -20,6 +21,7 @@ import { CountCardsComponent } from './count-cards/count-cards.component';
   declarations: [
     DashboardComponent,
     CountCardsComponent,
+    RecentTableComponent,
   ],
   providers: [
   ],

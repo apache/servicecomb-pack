@@ -3,7 +3,8 @@ import { NgModule } from '@angular/core';
 
 import { PagesComponent } from './pages.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
-import { TransactionsComponent, SuccessTabComponent, FailedTabComponent } from './transactions/transactions.component';
+import {TransactionsComponent} from './transactions/transactions.component';
+import {FindTransactionComponent} from './transactions/findTransaction.component'
 import { NotFoundComponent } from './miscellaneous/not-found/not-found.component';
 
 const routes: Routes = [{
@@ -15,18 +16,26 @@ const routes: Routes = [{
   },  {
     path: 'transactions',
     component: TransactionsComponent,
-    children: [{
-      path: '',
-      redirectTo: 'transactions',
-      pathMatch: 'full',
-    }, {
-      path: '/successTab',
-      component: SuccessTabComponent,
-    }, {
-      path: '/failedTab',
-      component: FailedTabComponent,
-    }],
-  }, 
+  },{
+    path: 'transactions/committed',
+    component: TransactionsComponent,
+  },
+  {
+    path: 'transactions/pending',
+    component: TransactionsComponent,
+  },
+  {
+    path: 'transactions/compensating',
+    component: TransactionsComponent,
+  },
+  {
+    path: 'transactions/rollbacked',
+    component: TransactionsComponent,
+  },
+  {
+    path: 'find',
+    component: FindTransactionComponent,
+  },
   {
     path: '',
     redirectTo: 'dashboard',

@@ -1,0 +1,33 @@
+  <nb-card [nbSpinner]="loading" nbSpinnerStatus="success" nbSpinnerSize="xxlarge" status="info">
+      <nb-card-header>
+          <div class="row">
+            <div class="col-4">
+              Find Transactions
+            </div>
+          </div>
+      </nb-card-header>
+      <nb-card-body>
+            <form>
+                <div class="form-group form-row align-items-center">
+                    <div class="col">
+                        <label class="sr-only" for="findGID">Global ID</label>
+                        <input [disabled]="hideGID" (change)="hideName=true;hideGID=false" [(ngModel)]="globalID" required nbInput  type="text" class="form-control mb-2" id="findGID" name="findGID" placeholder="Global ID">
+                    </div>
+                    <div class="col">
+                        <label class="sr-only" for="findName">Micro Service Name</label>
+                        <div class="input-group mb-2">
+                            <input [disabled]="hideName" (change)="hideGID=true;hideName=false" [(ngModel)]="serviceName" required nbInput type="text" class="form-control" id="findName" name="findName" placeholder="Micro Service Name">
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <input nbButton status="success" size="small" class="mb-2" (click)="findTransaction(globalID, serviceName)" value="Find"/>
+                        <input nbButton status="info" size="small" class="mb-2 ml-2" (click)="resetForm()" value="Clear" />
+                    </div>
+                </div>
+            </form>
+            <div>
+                <ngx-transactions-table [showTitle]="false" [title]="Transactions" [showCount]="false" [hideRefresh]="true" [tableData]= "transactionsArr"></ngx-transactions-table>
+            </div>
+
+      </nb-card-body>
+  </nb-card>

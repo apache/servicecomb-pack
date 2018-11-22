@@ -1,0 +1,46 @@
+<nb-card  status="info" class="recent-card">
+    <nb-card-header>
+      <div class="d-flex justify-content-between">
+        <div class="">
+          <span *ngIf="showTitle" class="card-header-title">Recent {{transactionStatus}} transactions</span>
+        </div>
+        <div class="">
+          <nb-actions *ngIf="showActions" size="small" inverse="true">
+            <nb-action nbPopover="View All Transactions" nbPopoverMode="hint" icon="fas fa-external-link-alt" (click)="showAll(transactionStatus)"></nb-action>
+            <nb-action nbPopover="Refresh" nbPopoverMode="hint" icon="fas fa-sync-alt" (click)="refreshTable()"></nb-action>
+          </nb-actions>
+        </div>
+      </div>
+    </nb-card-header>
+    <nb-card-body>
+      <div class="table-responsive-sm">
+        <table class="table">
+          <thead>
+            <tr class="d-flex">
+              <th class="col-1">ID</th>
+              <th class="col-1">Service Name</th>
+              <th class="col-1">Instance ID</th>
+              <th class="col-2">Global Tx ID</th>
+              <th class="col-2">Local Tx ID</th>
+              <th class="col-2">Created At</th>
+              <th class="col-3">Compensation Method</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="txCount">
+            <tr *ngFor="let event of recTransactionsArr | slice:0:5" class="d-flex">
+              <td class="col-1">{{event.surrogateId}}</td>
+              <td class="col-1">{{event.serviceName}}</td>
+              <td class="col-1">{{event.instanceId}}</td>
+              <td class="col-2">{{event.globalTxId}}</td>
+              <td class="col-2">{{event.localTxId}}</td>
+              <td class="col-2">{{event.creationTime | date:'MMMM d, y, h:mm:ss a zzzz'}}</td>
+              <td nbPopover="{{event.compensationMethod}}"  nbPopoverMode="hover" class="col-3 text-truncate">{{event.compensationMethod?event.compensationMethod:'-'}}</td>
+            </tr>
+          </tbody>
+          <tbody *ngIf='!txCount'>
+            <p class="d-flex justify-content-center align-items-center mt-5">No Data Available.</p>
+          </tbody>
+        </table>
+      </div>
+    </nb-card-body>
+  </nb-card>

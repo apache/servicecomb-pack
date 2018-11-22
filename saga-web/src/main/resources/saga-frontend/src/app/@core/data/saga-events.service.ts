@@ -16,20 +16,40 @@ export class SagaeventsService {
     
   }
 
-  public getAllEvents(): Observable<any> {
-    return this.http.get('../../../assets/data/events.json');
-/*     return this.http.get(API_URL + '/events', {observe: 'response'}); */
-  }
-
-  public getSagaEvents(type: string): Observable<any> {
-    let url = "";
-    if(type=="success"){
-      url = API_URL + '/events?type=success';
-    } else if(type=="failed"){
-      url = API_URL + '/events?type=failed';
-    } else {
-      url = API_URL + '/events';
+  public getRecentTransactions(status: any, count?: number): Observable<any> {
+    let url;
+    if(status && status.length){
+      if(count){
+        url = API_URL + '/saga/recent?status=' + status + '&count=' + count; 
+      } else{
+        url = API_URL + '/saga/recent?status=' + status + '&count=5';
+      }
     }
     return this.http.get(url, {observe: 'response'});
   }
+
+  public findTransaction(gid?: any, name?: string): Observable<any> {
+    let url;
+      if(gid){
+        url = API_URL + '/saga/findTransactions?globalTxID=' + gid ; 
+      } else if(name){
+        url = API_URL + '/saga/findTransactions?microServiceName=' + name ;
+      } else {
+        url = API_URL + '/saga/findTransactions';
+      }
+    return this.http.get(url, {observe: 'response'});
+  }
+
+  public getTransactions(status: any): Observable<any> {
+    let url;
+    if(status && status.length){
+      url = API_URL + '/saga/transactions?status=' + status;
+    }
+    return this.http.get(url, {observe: 'response'});
+  }
+
+  public getAllStats(): Observable<any> {
+    return this.http.get(API_URL + '/saga/stats', {observe: 'response'});
+  }
+
 }
