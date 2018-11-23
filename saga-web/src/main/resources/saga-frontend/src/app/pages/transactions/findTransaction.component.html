@@ -12,16 +12,17 @@
                     <div class="col">
                         <label class="sr-only" for="findGID">Global ID</label>
                         <input [disabled]="hideGID" (change)="hideName=true;hideGID=false" [(ngModel)]="globalID" required nbInput  type="text" class="form-control mb-2" id="findGID" name="findGID" placeholder="Global ID">
+                        <small class="form-text text-muted">Please enter either Global ID or Mcro Service Name.</small>
                     </div>
                     <div class="col">
                         <label class="sr-only" for="findName">Micro Service Name</label>
-                        <div class="input-group mb-2">
+                        <div class="input-group mb-4">
                             <input [disabled]="hideName" (change)="hideGID=true;hideName=false" [(ngModel)]="serviceName" required nbInput type="text" class="form-control" id="findName" name="findName" placeholder="Micro Service Name">
                         </div>
                     </div>
                     <div class="col-auto">
-                        <input nbButton status="success" size="small" class="mb-2" (click)="findTransaction(globalID, serviceName)" value="Find"/>
-                        <input nbButton status="info" size="small" class="mb-2 ml-2" (click)="resetForm()" value="Clear" />
+                        <input nbButton status="success" size="small" class="mb-4" (click)="findTransaction(globalID, serviceName)" value="Find"/>
+                        <input nbButton status="info" size="small" class="mb-4 ml-2" (click)="resetForm()" value="Clear" />
                     </div>
                 </div>
             </form>
