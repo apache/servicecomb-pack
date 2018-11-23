@@ -17,27 +17,15 @@
 
 package org.apache.servicecomb.saga.omega.transaction.spring;
 
-import java.lang.reflect.Method;
-import org.apache.servicecomb.saga.omega.context.CallbackContext;
 import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
-class CompensableMethodCheckingCallback extends MethodCheckingCallback {
+@Profile("annotation-retries-checking")
+@Component
+class MisconfiguredRetriesService {
 
-  public CompensableMethodCheckingCallback(Object bean, CallbackContext callbackContext) {
-    super(bean, callbackContext, CallbackType.Compensation);
-  }
-
-  @Override
-  public void doWith(Method method) throws IllegalArgumentException {
-    if (!method.isAnnotationPresent(Compensable.class)) {
-      return;
-    }
-    Compensable compensable = method.getAnnotation(Compensable.class);
-    String compensationMethod = compensable.compensationMethod();
-    // we don't support the retries number below -1.
-    if (compensable.retries() < -1) {
-      throw new IllegalArgumentException(String.format("Compensable %s of method %s, the retries should not below -1.", compensable, method.getName()));
-    }
-    loadMethodContext(method, compensationMethod);
+  @Compensable(retries = -2)
+  void doSomething() {
   }
 }

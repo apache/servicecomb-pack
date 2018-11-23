@@ -18,6 +18,7 @@
 package org.apache.servicecomb.saga.omega.transaction.spring;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
+import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -38,6 +39,19 @@ public class CompensableAnnotationCheckingTest {
       }
     } catch (BeanCreationException e) {
       assertThat(e.getCause().getMessage(), startsWith("No such Compensation method [none]"));
+    }
+  }
+
+  @Test
+  public void blowsUpWhenCompensateRetriesIsBelowNegativeOne() throws Exception {
+    try {
+      try (ConfigurableApplicationContext ignored = new SpringApplicationBuilder(TransactionTestMain.class)
+          .profiles("annotation-retries-checking")
+          .run()) {
+        expectFailing(BeanCreationException.class);
+      }
+    } catch (BeanCreationException e) {
+      assertThat(e.getCause().getMessage(), endsWith("the retries should not below -1."));
     }
   }
 

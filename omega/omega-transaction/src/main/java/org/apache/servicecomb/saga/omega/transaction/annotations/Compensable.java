@@ -24,6 +24,7 @@ import java.lang.annotation.Target;
 
 /**
  * Indicates the annotated method will start a sub-transaction. <br>
+ * It is suggested to use the Spring Transactional annotation to wrap the sub-transaction method.
  * A <code>@Compensable</code> method should satisfy below requirements:
  * <ol>
  *   <li>all parameters are serialized</li>
@@ -37,6 +38,15 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Compensable {
 
+  /**
+   * The retires number of the compensable method.
+   * Default value is 0, which means never retry it
+   * value is -1, which means retry it until succeed
+   * value > 0, which means the retry number
+   * value < -1, an IllegalArgumentException will be thrown
+   *
+   * @return
+   */
   int retries() default 0;
 
   /**
