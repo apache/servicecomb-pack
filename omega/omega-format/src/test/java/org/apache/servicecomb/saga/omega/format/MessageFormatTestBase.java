@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;
 import org.hamcrest.Matcher;
@@ -44,6 +45,22 @@ public class MessageFormatTestBase {
     Object[] message = format.deserialize(bytes);
 
     assertThat(asList(message).containsAll(asList("hello", "world")), is(true));
+  }
+
+  @Test
+  public void serializePOJOIntoBytes() {
+    Order order = new Order();
+    order.setOrderNumber("XXXXX001");
+    order.setUnits(20);
+    Product proudct = new Product();
+    proudct.setName("ProductA");
+    proudct.setPrice(2.2);
+    order.setProduct(proudct);
+
+    byte[] bytes = format.serialize(new Object[] {"order", order});
+    Object[] message = format.deserialize(bytes);
+    assertThat(asList(message).containsAll(asList("order", order)), is (true));
+
   }
 
   @Test
@@ -67,4 +84,95 @@ public class MessageFormatTestBase {
 
   static class EmptyClass {
   }
+
+  static class Product {
+    String name;
+    double price;
+
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    public double getPrice() {
+      return price;
+    }
+
+    public void setPrice(double price) {
+      this.price = price;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      Product product = (Product) o;
+      return Double.compare(product.price, price) == 0 &&
+          Objects.equals(name, product.name);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(name, price);
+    }
+  }
+
+  static class Order {
+    String orderNumber;
+    int units;
+    Product product;
+
+    public Product getProduct() {
+      return product;
+    }
+
+    public void setProduct(Product product) {
+      this.product = product;
+    }
+
+    String getOrderNumber() {
+      return orderNumber;
+    }
+
+    void setOrderNumber(String orderNumber) {
+      this.orderNumber = orderNumber;
+    }
+
+    int getUnits() {
+      return units;
+    }
+
+    void setUnits(int units) {
+      this.units = units;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      Order order = (Order) o;
+      return units == order.units &&
+          Objects.equals(orderNumber, order.orderNumber) &&
+          Objects.equals(product, order.product);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(orderNumber, units, product);
+    }
+  }
+
+
 }
