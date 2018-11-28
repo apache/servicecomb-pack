@@ -24,9 +24,9 @@ CREATE TABLE IF NOT EXISTS TxEvent (
   localTxId varchar(36) NOT NULL,
   parentTxId varchar(36) DEFAULT NULL,
   type varchar(50) NOT NULL,
-  compensationMethod varchar(256) NOT NULL,
+  compensationMethod varchar(512) NOT NULL,
   expiryTime timestamp(6) NOT NULL,
-  retryMethod varchar(256) NOT NULL,
+  retryMethod varchar(512) NOT NULL,
   retries int NOT NULL DEFAULT 0,
   payloads bytea
 );
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS Command (
   globalTxId varchar(36) NOT NULL,
   localTxId varchar(36) NOT NULL,
   parentTxId varchar(36) DEFAULT NULL,
-  compensationMethod varchar(256) NOT NULL,
+  compensationMethod varchar(512) NOT NULL,
   payloads bytea,
   status varchar(12),
   lastModified timestamp(6) NOT NULL DEFAULT CURRENT_DATE,
@@ -91,8 +91,8 @@ CREATE TABLE IF NOT EXISTS tcc_participate_event (
   globalTxId varchar(36) NOT NULL,
   localTxId varchar(36) NOT NULL,
   parentTxId varchar(36) DEFAULT NULL,
-  confirmMethod varchar(256) NOT NULL,
-  cancelMethod varchar(256) NOT NULL,
+  confirmMethod varchar(512) NOT NULL,
+  cancelMethod varchar(512) NOT NULL,
   status varchar(50) NOT NULL,
   creationTime timestamp(6) NOT NULL DEFAULT CURRENT_DATE,
   lastModified timestamp(6) NOT NULL DEFAULT CURRENT_DATE
