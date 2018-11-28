@@ -52,10 +52,10 @@ public class MessageFormatTestBase {
     Order order = new Order();
     order.setOrderNumber("XXXXX001");
     order.setUnits(20);
-    Product proudct = new Product();
-    proudct.setName("ProductA");
-    proudct.setPrice(2.2);
-    order.setProduct(proudct);
+    Product product = new Product();
+    product.setName("ProductA");
+    product.setPrice(2.2);
+    order.setProduct(product);
 
     byte[] bytes = format.serialize(new Object[] {"order", order});
     Object[] message = format.deserialize(bytes);
