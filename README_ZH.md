@@ -1,4 +1,4 @@
-# Saga | [English](README.md) [![Build Status](https://travis-ci.org/apache/servicecomb-saga.svg?branch=master)](https://travis-ci.org/apache/servicecomb-saga?branch=master) [![Coverage Status](https://coveralls.io/repos/github/apache/servicecomb-saga/badge.svg?branch=master)](https://coveralls.io/github/apache/servicecomb-saga?branch=master) [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html) [![Gitter](https://img.shields.io/badge/ServiceComb-Gitter-ff69b4.svg)](https://gitter.im/ServiceCombUsers/Saga)
+# Saga | [English](README.md) [![Build Status](https://travis-ci.org/apache/servicecomb-pack.svg?branch=master)](https://travis-ci.org/apache/servicecomb-pack?branch=master) [![Coverage Status](https://coveralls.io/repos/github/apache/servicecomb-pack/badge.svg?branch=master)](https://coveralls.io/github/apache/servicecomb-pack?branch=master) [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html) [![Gitter](https://img.shields.io/badge/ServiceComb-Gitter-ff69b4.svg)](https://gitter.im/ServiceCombUsers/Saga)
 Apache ServiceComb Saga 是一个微服务应用的数据最终一致性解决方案。
 
 ## 特性
@@ -11,14 +11,14 @@ Apache ServiceComb Saga 是一个微服务应用的数据最终一致性解决�
 * 扩展简单。基于Pack架构很容实现多种协调机制。
 
 ## 架构
-Saga Pack 架构是由 **alpha** 和 **omega**组成，其中：
+ServiceComb Pack 架构是由 **alpha** 和 **omega**组成，其中：
 * alpha充当协调者的角色，主要负责对事务进行管理和协调。
 * omega是微服务中内嵌的一个agent，负责对网络请求进行拦截并向alpha上报事务事件。
 
 下图展示了alpha, omega以及微服务三者的关系：
-![Saga Pack 架构](docs/static_files/pack.png)
+![ServiceComb Pack 架构](docs/static_files/pack.png)
 在此架构基础中我们除了实现saga协调协议以外，我们还可以很容易实现TCC协调协议。
-详情可浏览[Saga Pack 设计文档](docs/design_zh.md).
+详情可浏览[ServiceComb Pack 设计文档](docs/design_zh.md).
 
 同时社区也提供了多种语言的Omega实现:
 * Go语言版本Omega 可参见 https://github.com/jeremyxu2010/matrix-saga-go
@@ -46,7 +46,7 @@ Saga Pack 架构是由 **alpha** 和 **omega**组成，其中：
    ```bash
       $ mvn clean install -DskipTests=true -Pdemo,docker
    ```       
-* 当前Saga模块同时支持Spring Boot 1.x 以及 Spring Boot 2.x, 在缺省情况下Saga会使用Spring Boot 1.x来进行构建。
+* 当前ServiceComb Pack同时支持Spring Boot 1.x 以及 Spring Boot 2.x, 在缺省情况下ServiceComb Pack会使用Spring Boot 1.x来进行构建。
 你可以使用 *-Pspring-boot-2* 将Spring Boot版本转换到 2.x 上。 由于Spring Boot 只在2.x开始支持 JDK9，如果你想用
 JDK9或者JDK10 来编译Saga并运行测试的话，你需要使用 spring-boot-2 profile参数。
    ```bash
@@ -59,7 +59,7 @@ JDK9或者JDK10 来编译Saga并运行测试的话，你需要使用 spring-boot
 
 ## 获取最新发行版本
 
-[下载Saga](http://servicecomb.apache.org/release/saga-downloads/)
+[下载Pack](http://servicecomb.apache.org/release/saga-downloads/)
 
 ## [常见问题](FAQ_ZH.md)
 
@@ -72,4 +72,4 @@ JDK9或者JDK10 来编译Saga并运行测试的话，你需要使用 spring-boot
 详情可浏览[代码提交指南](http://servicecomb.apache.org/cn/developers/submit-codes/)。
 
 ## License
-[Apache 2.0 license](https://github.com/apache/servicecomb-saga/blob/master/LICENSE)。
+[Apache 2.0 license](https://github.com/apache/servicecomb-pack/blob/master/LICENSE)。

@@ -1,4 +1,4 @@
-# Saga | [中文](README_ZH.md) [![Build Status](https://travis-ci.org/apache/servicecomb-saga.svg?branch=master)](https://travis-ci.org/apache/servicecomb-saga?branch=master) [![Coverage Status](https://coveralls.io/repos/github/apache/servicecomb-saga/badge.svg?branch=master)](https://coveralls.io/github/apache/servicecomb-saga?branch=master)[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.servicecomb.saga/saga/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Corg.apache.servicecomb.saga) [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html) [![Gitter](https://img.shields.io/badge/ServiceComb-Gitter-ff69b4.svg)](https://gitter.im/ServiceCombUsers/Saga)
+# Saga | [中文](README_ZH.md) [![Build Status](https://travis-ci.org/apache/servicecomb-pack.svg?branch=master)](https://travis-ci.org/apache/servicecomb-pack?branch=master) [![Coverage Status](https://coveralls.io/repos/github/apache/servicecomb-pack/badge.svg?branch=master)](https://coveralls.io/github/apache/servicecomb-pack?branch=master)[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.servicecomb.saga/saga/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Corg.apache.servicecomb.saga) [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html) [![Gitter](https://img.shields.io/badge/ServiceComb-Gitter-ff69b4.svg)](https://gitter.im/ServiceCombUsers/Saga)
 Apache ServiceComb Saga is an eventually data consistency solution for micro-service applications.
 
 ## Features
@@ -11,15 +11,15 @@ Apache ServiceComb Saga is an eventually data consistency solution for micro-ser
 * Easy to extend other coordination protocol which is based on the Pack.
 
 ## Architecture
-Saga Pack is composed of  **alpha** and **omega**.
+ServiceComb Pack is composed of  **alpha** and **omega**.
 * The alpha plays as the coordinator. It is responsible for the management of transactions.
 * The omega plays as an agent inside the micro-service. It intercepts incoming/outgoing requests and reports transaction events to alpha.
 
 
 The following diagram shows the relationships among alpha, omega and services.
-![Saga Pack Architecture](docs/static_files/pack.png)
+![Pack Architecture](docs/static_files/pack.png)
 
-In this way, we can implement different coordination protocols, such as saga and TCC. See [Saga Pack Design](docs/design.md) for details.
+In this way, we can implement different coordination protocols, such as saga and TCC. See [ServiceComb Pack Design](docs/design.md) for details.
 
 Now we have different lanaguage implementation of Omega
 * Go lang version of Omega here https://github.com/jeremyxu2010/matrix-saga-go
@@ -45,7 +45,7 @@ Now we have different lanaguage implementation of Omega
    ```bash
       $ mvn clean install -DskipTests=true -Pdemo,docker
    ```     
-* Current Saga code supports Spring Boot 1.x and Spring Boot 2.x at the same time, saga uses Spring Boot 1.x by default, you can use *-Pspring-boot-2* to switch Spring Boot version to 2.x.
+* Current ServiceComb Pack code supports Spring Boot 1.x and Spring Boot 2.x at the same time, saga uses Spring Boot 1.x by default, you can use *-Pspring-boot-2* to switch Spring Boot version to 2.x.
 Since Spring Boot supports JDK9 since 2.x, if you want to build and run test the Saga with JDK9 or JDK10, you need to use the spring-boot-2 profile. 
    ```bash
       $ mvn clean install -Pdemo,docker,spring-boot-2
@@ -56,7 +56,7 @@ How to build and use can refer to [User Guide](docs/user_guide.md).
 
 ## Get The Latest Release
 
-[Download Saga](http://servicecomb.apache.org/release/saga-downloads/)
+[Download Pack](http://servicecomb.apache.org/release/saga-downloads/)
 
 ## [FAQ](FAQ.md)
 
@@ -69,7 +69,7 @@ How to build and use can refer to [User Guide](docs/user_guide.md).
 See [Pull Request Guide](http://servicecomb.apache.org/developers/submit-codes/) for details.
 
 ## Stargazers over time
-[![Stargazers over time](https://starcharts.herokuapp.com/apache/servicecomb-saga.svg)](https://starcharts.herokuapp.com/apache/servicecomb-saga)
+[![Stargazers over time](https://starcharts.herokuapp.com/apache/servicecomb-pack.svg)](https://starcharts.herokuapp.com/apache/servicecomb-pack)
       
 ## License
 Licensed under an [Apache 2.0 license](https://github.com/apache/servicecomb-saga/blob/master/LICENSE).
