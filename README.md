@@ -68,5 +68,8 @@ How to build and use can refer to [User Guide](docs/user_guide.md).
 ## Contributing
 See [Pull Request Guide](http://servicecomb.apache.org/developers/submit-codes/) for details.
 
+## Stargazers over time
+[![Stargazers over time](https://starcharts.herokuapp.com/apache/servicecomb-saga.svg)](https://starcharts.herokuapp.com/apache/servicecomb-saga)
+      
 ## License
 Licensed under an [Apache 2.0 license](https://github.com/apache/servicecomb-saga/blob/master/LICENSE).
