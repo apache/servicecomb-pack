@@ -1,5 +1,5 @@
-# Saga | [中文](README_ZH.md) [![Build Status](https://travis-ci.org/apache/servicecomb-pack.svg?branch=master)](https://travis-ci.org/apache/servicecomb-pack?branch=master) [![Coverage Status](https://coveralls.io/repos/github/apache/servicecomb-pack/badge.svg?branch=master)](https://coveralls.io/github/apache/servicecomb-pack?branch=master)[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.servicecomb.saga/saga/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Corg.apache.servicecomb.saga) [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html) [![Gitter](https://img.shields.io/badge/ServiceComb-Gitter-ff69b4.svg)](https://gitter.im/ServiceCombUsers/Saga)
-Apache ServiceComb Saga is an eventually data consistency solution for micro-service applications.
+# Pack | [中文](README_ZH.md) [![Build Status](https://travis-ci.org/apache/servicecomb-pack.svg?branch=master)](https://travis-ci.org/apache/servicecomb-pack?branch=master) [![Coverage Status](https://coveralls.io/repos/github/apache/servicecomb-pack/badge.svg?branch=master)](https://coveralls.io/github/apache/servicecomb-pack?branch=master)[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.servicecomb.saga/saga/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Corg.apache.servicecomb.saga) [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html) [![Gitter](https://img.shields.io/badge/ServiceComb-Gitter-ff69b4.svg)](https://gitter.im/ServiceCombUsers/Saga)
+Apache ServiceComb Pack is an eventually data consistency solution for micro-service applications.
 
 ## Features
 * High availability. The coordinator is stateless and thus can have multiple instances.
@@ -8,7 +8,7 @@ Apache ServiceComb Saga is an eventually data consistency solution for micro-ser
 * Low invasion. All you need to do is add 2-3 annotations and the corresponding compensate methods.
 * Easy to deploy. All components can boot via docker.
 * Support both forward(retry) and backward(compensate) recovery.
-* Easy to extend other coordination protocol which is based on the Pack.
+* Easy to extend other coordination protocol which is based on the Pack, now we have Saga and TCC support out of box.
 
 ## Architecture
 ServiceComb Pack is composed of  **alpha** and **omega**.

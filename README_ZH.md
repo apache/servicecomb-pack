@@ -1,5 +1,5 @@
-# Saga | [English](README.md) [![Build Status](https://travis-ci.org/apache/servicecomb-pack.svg?branch=master)](https://travis-ci.org/apache/servicecomb-pack?branch=master) [![Coverage Status](https://coveralls.io/repos/github/apache/servicecomb-pack/badge.svg?branch=master)](https://coveralls.io/github/apache/servicecomb-pack?branch=master) [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html) [![Gitter](https://img.shields.io/badge/ServiceComb-Gitter-ff69b4.svg)](https://gitter.im/ServiceCombUsers/Saga)
-Apache ServiceComb Saga 是一个微服务应用的数据最终一致性解决方案。
+# Pack | [English](README.md) [![Build Status](https://travis-ci.org/apache/servicecomb-pack.svg?branch=master)](https://travis-ci.org/apache/servicecomb-pack?branch=master) [![Coverage Status](https://coveralls.io/repos/github/apache/servicecomb-pack/badge.svg?branch=master)](https://coveralls.io/github/apache/servicecomb-pack?branch=master) [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html) [![Gitter](https://img.shields.io/badge/ServiceComb-Gitter-ff69b4.svg)](https://gitter.im/ServiceCombUsers/Saga)
+Apache ServiceComb Pack 是一个微服务应用的数据最终一致性解决方案。
 
 ## 特性
 * 高可用。支持集群模式。
@@ -8,7 +8,7 @@ Apache ServiceComb Saga 是一个微服务应用的数据最终一致性解决�
 * 低侵入。仅需2-3个注解和编写对应的补偿方法即可进行分布式事务。
 * 部署简单。可通过Docker快速部署。
 * 支持前向恢复（重试）及后向恢复（补偿）。
-* 扩展简单。基于Pack架构很容实现多种协调机制。
+* 扩展简单。基于Pack架构很容实现多种协调协议,目前支持TCC，Saga协议。
 
 ## 架构
 ServiceComb Pack 架构是由 **alpha** 和 **omega**组成，其中：
