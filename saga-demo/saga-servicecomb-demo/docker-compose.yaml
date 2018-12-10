@@ -32,7 +32,7 @@ services:
         retries: 5
 
   alpha:
-    image: "asifdiatm/alpha-server"
+    image: "alpha-server:${TAG}"
     hostname: alpha-server
     links:
       - "database:postgresql.servicecomb.io"
