@@ -33,11 +33,11 @@ public interface TccEventService {
 
   String target();
 
-  AlphaResponse participate(ParticipatedEvent participateEvent);
+  AlphaResponse participate(ParticipatedEvent participatedEvent);
 
-  AlphaResponse tccTransactionStart(TccStartedEvent tccStartEvent);
+  AlphaResponse tccTransactionStart(TccStartedEvent tccStartedEvent);
 
-  AlphaResponse tccTransactionStop(TccEndedEvent tccEndEvent);
+  AlphaResponse tccTransactionStop(TccEndedEvent tccEndedEvent);
 
   AlphaResponse coordinate(CoordinatedEvent coordinatedEvent);
   

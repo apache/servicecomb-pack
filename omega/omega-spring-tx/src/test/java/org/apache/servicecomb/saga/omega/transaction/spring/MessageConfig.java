@@ -23,12 +23,10 @@ import org.apache.servicecomb.saga.omega.context.CallbackContext;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
-import org.apache.servicecomb.saga.omega.transaction.MessageSender;
 import org.apache.servicecomb.saga.omega.transaction.SagaMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.TxEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.DefaultParametersContext;
 import org.apache.servicecomb.saga.omega.transaction.tcc.ParametersContext;
-import org.apache.servicecomb.saga.omega.transaction.tcc.TccEventService;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageSender;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.ParticipatedEvent;
@@ -125,20 +123,20 @@ public class MessageConfig {
       }
 
       @Override
-      public AlphaResponse participate(ParticipatedEvent participateEvent) {
-        messages.add(participateEvent.toString());
+      public AlphaResponse participate(ParticipatedEvent participatedEvent) {
+        messages.add(participatedEvent.toString());
         return new AlphaResponse(false);
       }
 
       @Override
-      public AlphaResponse tccTransactionStart(TccStartedEvent tccStartEvent) {
-        messages.add(tccStartEvent.toString());
+      public AlphaResponse tccTransactionStart(TccStartedEvent tccStartedEvent) {
+        messages.add(tccStartedEvent.toString());
         return new AlphaResponse(false);
       }
 
       @Override
-      public AlphaResponse tccTransactionStop(TccEndedEvent tccEndEvent) {
-        messages.add(tccEndEvent.toString());
+      public AlphaResponse tccTransactionStop(TccEndedEvent tccEndedEvent) {
+        messages.add(tccEndedEvent.toString());
         return new AlphaResponse(false);
       }
 
