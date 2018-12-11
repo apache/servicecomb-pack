@@ -262,7 +262,12 @@ org.slf4j:log4j-over-slf4j:jar:1.7.25
 This product bundles slf4j libraries which is licensed under the
 MIT license.
 For details, see http://www.slf4j.org
-You can find a copy of the License at licenses/LICENSE-slf4j
+You can find a copy of the License at licenses/LICENSE-slf4j  
+===========================================================================
+This product bundles ngx-admin libraries which is licensed under the
+MIT license.
+For details, see https://github.com/akveo/ngx-admin
+You can find a copy of the License at licenses/LICENSE-ngxadmin
 
 ===========================================================================
 For com.google.protobuf:protobuf-java:bundle:3.5.1
