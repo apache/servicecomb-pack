@@ -16,8 +16,6 @@
  */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NgxEchartsModule } from 'ngx-echarts';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { Ng2SmartTableModule } from 'ng2-smart-table';
 import { CustomRenderComponent } from './customRender.component';
 
@@ -30,8 +28,6 @@ import { FindTransactionComponent } from './findTransaction.component';
   imports: [
     CommonModule,
     ThemeModule,
-    NgxEchartsModule,
-    NgxChartsModule,
     Ng2SmartTableModule,
   ],
   entryComponents: [CustomRenderComponent],

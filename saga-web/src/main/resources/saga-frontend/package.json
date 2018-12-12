@@ -24,7 +24,6 @@
     "release:changelog": "npm run conventional-changelog -- -p angular -i CHANGELOG.md -s"
   },
   "dependencies": {
-    "@agm/core": "1.0.0-beta.2",
     "@angular/animations": "6.0.0",
     "@angular/common": "6.0.0",
     "@angular/compiler": "6.0.0",
@@ -38,7 +37,6 @@
     "@nebular/security": "2.0.0-rc.10",
     "@nebular/theme": "2.0.0-rc.10",
     "@ng-bootstrap/ng-bootstrap": "1.0.0",
-    "@swimlane/ngx-charts": "7.0.1",
     "angular2-toaster": "6.0.0",
     "bootstrap": "4.0.0",
     "classlist.js": "1.1.20150312",
