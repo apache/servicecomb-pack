@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.integration.pack.tests;
+package org.apache.servicecomb.pack.integration.tests;
 
 import org.apache.servicecomb.pack.omega.context.annotations.SagaStart;
 import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;

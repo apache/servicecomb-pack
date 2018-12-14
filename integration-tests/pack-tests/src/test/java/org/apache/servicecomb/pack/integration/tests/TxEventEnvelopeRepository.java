@@ -15,27 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.integration.pack.tests;
+package org.apache.servicecomb.pack.integration.tests;
 
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.List;
 
-import org.apache.servicecomb.pack.omega.spring.EnableOmega;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.context.annotation.Bean;
+import org.apache.servicecomb.pack.alpha.core.TxEvent;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
 
-@EnableOmega
-@SpringBootApplication
-@EntityScan(basePackages = "org.apache.servicecomb.saga.alpha")
-public class GreetingApplication {
-  public static void main(String[] args) {
-    SpringApplication.run(GreetingApplication.class, args);
-  }
+interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
+  List<TxEvent> findByGlobalTxIdOrderByCreationTime(String globalTxId);
 
-  @Bean
-  Queue<String> compensated() {
-    return new ConcurrentLinkedQueue<>();
-  }
+  @Query("SELECT DISTINCT(e.globalTxId) from TxEvent e")
+  List<String> findDistinctGlobalTxId();
 }

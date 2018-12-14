@@ -15,10 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.integration.pack.tests;
+package org.apache.servicecomb.pack.integration.tests;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.servicecomb.saga.integration.pack.tests.GreetingController.TRESPASSER;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -33,6 +32,7 @@ import java.util.Queue;
 
 import org.apache.servicecomb.pack.alpha.core.TxEvent;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -141,7 +141,7 @@ public class PackIT {
   public void compensatesFailedGlobalTransaction() throws Exception {
     ResponseEntity<String> entity = restTemplate.getForEntity("/greet?name={name}",
         String.class,
-        TRESPASSER);
+        GreetingController.TRESPASSER);
 
     assertThat(entity.getStatusCode(), is(INTERNAL_SERVER_ERROR));
 
@@ -178,7 +178,7 @@ public class PackIT {
     event = events.get(6);
     checkedLastTwoEvents(globalTxId, txStartedEvent1, event);
 
-    assertThat(compensatedMessages, contains("Goodbye, " + TRESPASSER));
+    assertThat(compensatedMessages, Matchers.contains("Goodbye, " + GreetingController.TRESPASSER));
   }
 
   private void checkedLastTwoEvents(String globalTxId, TxEvent txStartedEvent1, TxEvent event) {
@@ -285,7 +285,7 @@ public class PackIT {
     // retries 3 times and then compensate
     ResponseEntity<String> entity = restTemplate.getForEntity("/open?name={name}&retries={retries}",
         String.class,
-        TRESPASSER,
+        GreetingController.TRESPASSER,
         5);
 
     assertThat(entity.getStatusCode(), is(INTERNAL_SERVER_ERROR));
@@ -312,6 +312,6 @@ public class PackIT {
     assertThat(events.get(9).type(), is("TxAbortedEvent"));
     assertThat(events.get(10).type(), is("TxCompensatedEvent"));
     
-    assertThat(compensatedMessages, contains("Goodbye, " + TRESPASSER));
+    assertThat(compensatedMessages, Matchers.contains("Goodbye, " + GreetingController.TRESPASSER));
   }
 }
