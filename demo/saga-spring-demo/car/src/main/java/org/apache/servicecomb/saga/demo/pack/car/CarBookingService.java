@@ -17,7 +17,7 @@
 
 package org.apache.servicecomb.saga.demo.pack.car;
 
-import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
+import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;

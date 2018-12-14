@@ -17,7 +17,7 @@
 
 package org.apache.servicecomb.saga.demo.pack.car;
 
-import org.apache.servicecomb.saga.omega.spring.EnableOmega;
+import org.apache.servicecomb.pack.omega.spring.EnableOmega;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

@@ -17,7 +17,7 @@
 
 package org.apache.servicecomb.saga.demo.pack.booking;
 
-import org.apache.servicecomb.saga.omega.context.annotations.SagaStart;
+import org.apache.servicecomb.pack.omega.context.annotations.SagaStart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PathVariable;

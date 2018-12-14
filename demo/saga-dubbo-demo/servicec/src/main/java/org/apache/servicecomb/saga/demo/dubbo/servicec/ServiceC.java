@@ -21,7 +21,7 @@ import java.lang.invoke.MethodHandles;
 import org.apache.servicecomb.saga.demo.dubbo.api.IServiceC;
 import org.apache.servicecomb.saga.demo.dubbo.pub.AbsService;
 import org.apache.servicecomb.saga.demo.dubbo.pub.InvokeContext;
-import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
+import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;

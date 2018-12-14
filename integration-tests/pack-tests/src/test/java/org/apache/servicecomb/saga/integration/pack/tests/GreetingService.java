@@ -19,7 +19,7 @@ package org.apache.servicecomb.saga.integration.pack.tests;
 
 import java.util.Queue;
 
-import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
+import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
