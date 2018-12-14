@@ -20,46 +20,72 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <artifactId>tcc-spring-demo</artifactId>
-    <groupId>org.apache.servicecomb.saga.demo</groupId>
+    <artifactId>saga</artifactId>
+    <groupId>org.apache.servicecomb.pack</groupId>
     <version>0.3.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>tcc-inventory</artifactId>
-  <name>Pack::Demo::Tcc-Spring-Demo::Tcc-Inventory</name>
+  <artifactId>pack-web</artifactId>
+  <name>Pack::Web</name>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.servicecomb</groupId>
+        <artifactId>spring-boot-starter-provider</artifactId>
+        <version>${java.chassis.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>annotations</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.servicecomb</groupId>
+        <artifactId>spring-boot-starter-discovery</artifactId>
+        <version>${java.chassis.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>annotations</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.servicecomb</groupId>
+        <artifactId>java-chassis-dependencies</artifactId>
+        <version>${java.chassis.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring.boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
-   <!-- Add the JPA starter -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-jpa</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.hibernate</groupId>
-          <artifactId>hibernate-entitymanager</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.hibernate</groupId>
-          <artifactId>hibernate-core</artifactId>
-        </exclusion>
-      </exclusions>
+      <artifactId>spring-boot-starter</artifactId>
     </dependency>
-    <!-- Added the eclipse link JPA configuration-->
     <dependency>
-      <groupId>org.apache.servicecomb.saga</groupId>
-      <artifactId>saga-persistence-jpa</artifactId>
+      <groupId>org.apache.servicecomb</groupId>
+      <artifactId>spring-boot-starter-discovery</artifactId>
     </dependency>
-    <!-- Added the driver of h2 -->
     <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
+      <groupId>org.apache.servicecomb</groupId>
+      <artifactId>spring-boot-starter-servicecomb</artifactId>
     </dependency>
-    <!-- Added the test dependencies -->
     <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-all</artifactId>
-      <scope>test</scope>
+      <groupId>org.apache.servicecomb</groupId>
+      <artifactId>spring-cloud-zuul</artifactId>
     </dependency>
   </dependencies>
 
@@ -75,21 +101,12 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
-      <plugin>
-        <groupId>com.ethlo.persistence.tools</groupId>
-        <artifactId>eclipselink-maven-plugin</artifactId>
-      </plugin>
     </plugins>
   </build>
 
   <profiles>
     <profile>
       <id>docker</id>
-      <activation>
-        <file>
-          <exists>/var/run/docker.sock</exists>
-        </file>
-      </activation>
       <build>
         <plugins>
           <plugin>
@@ -99,17 +116,6 @@
           <plugin>
             <groupId>org.commonjava.maven.plugins</groupId>
             <artifactId>directory-maven-plugin</artifactId>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>demo</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
           </plugin>
         </plugins>
       </build>

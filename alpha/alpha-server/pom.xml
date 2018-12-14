@@ -90,7 +90,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.servicecomb.pack</groupId>
-      <artifactId>saga-persistence-jpa</artifactId>
+      <artifactId>persistence-jpa</artifactId>
     </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>

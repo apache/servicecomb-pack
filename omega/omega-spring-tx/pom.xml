@@ -76,7 +76,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.servicecomb.pack</groupId>
-      <artifactId>saga-persistence-jpa</artifactId>
+      <artifactId>persistence-jpa</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

@@ -46,7 +46,7 @@
     <!-- Added the eclipse link JPA configuration-->
     <dependency>
       <groupId>org.apache.servicecomb.saga</groupId>
-      <artifactId>saga-persistence-jpa</artifactId>
+      <artifactId>persistence-jpa</artifactId>
     </dependency>
     <!-- Added the driver of h2 -->
     <dependency>
