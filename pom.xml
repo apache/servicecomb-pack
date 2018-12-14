@@ -31,13 +31,7 @@
   <version>0.3.0-SNAPSHOT</version>
 
   <modules>
-    <module>saga-core</module>
-    <module>saga-core-akka</module>
-    <module>transports</module>
-    <module>saga-spring</module>
     <module>docker-build-config</module>
-    <module>saga-format</module>
-    <module>saga-discovery</module>
     <module>saga-web</module>
     <module>omega</module>
     <module>alpha</module>
@@ -247,32 +241,6 @@
         <version>0.3.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
-        <artifactId>saga-core</artifactId>
-        <version>0.3.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
-        <artifactId>saga-core-akka</artifactId>
-        <version>0.3.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
-        <artifactId>saga-core</artifactId>
-        <type>test-jar</type>
-        <version>0.3.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
-        <artifactId>saga-format</artifactId>
-        <version>0.3.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
-        <artifactId>saga-spring</artifactId>
-        <version>0.3.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
         <groupId>org.apache.servicecomb.saga.transports</groupId>
         <artifactId>transport-httpclient</artifactId>
         <version>0.3.0-SNAPSHOT</version>
@@ -357,6 +325,7 @@
         <artifactId>pack-common</artifactId>
         <version>0.3.0-SNAPSHOT</version>
       </dependency>
+      <!-- TODO rename this artifact -->
       <dependency>
        <groupId>org.apache.servicecomb.saga</groupId>
        <artifactId>saga-persistence-jpa</artifactId>
