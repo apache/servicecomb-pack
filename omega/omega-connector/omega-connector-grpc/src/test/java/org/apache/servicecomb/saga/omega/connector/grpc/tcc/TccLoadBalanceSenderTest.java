@@ -60,7 +60,7 @@ import org.apache.servicecomb.saga.omega.transaction.tcc.events.CoordinatedEvent
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.ParticipatedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccEndedEvent;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.TccStartedEvent;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccParticipatedEvent;
+import org.apache.servicecomb.pack.contract.grpc.GrpcTccParticipatedEvent;
 import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.AfterClass;

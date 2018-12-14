@@ -24,7 +24,7 @@ import org.apache.servicecomb.saga.omega.connector.grpc.core.ReconnectStreamObse
 import org.apache.servicecomb.saga.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.saga.omega.transaction.MessageHandler;
 import org.apache.servicecomb.saga.omega.transaction.MessageSender;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
+import org.apache.servicecomb.pack.contract.grpc.GrpcCompensateCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
