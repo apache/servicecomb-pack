@@ -17,8 +17,8 @@
 
 package org.apache.servicecomb.saga.integration.pack.tests;
 
-import org.apache.servicecomb.saga.omega.context.annotations.SagaStart;
-import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
+import org.apache.servicecomb.pack.omega.context.annotations.SagaStart;
+import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

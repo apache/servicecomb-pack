@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Queue;
 
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
-import org.apache.servicecomb.saga.omega.context.OmegaContext;
+import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;

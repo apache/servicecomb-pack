@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;
+import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
 import org.springframework.stereotype.Service;
 
 @Service

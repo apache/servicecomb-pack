@@ -16,7 +16,7 @@
  */
 package org.apache.servicecomb.saga.demo.pack.ordering;
 
-import org.apache.servicecomb.saga.omega.context.annotations.TccStart;
+import org.apache.servicecomb.pack.omega.context.annotations.TccStart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;

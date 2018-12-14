@@ -20,7 +20,7 @@ package org.apache.servicecomb.saga.integration.pack.tests;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.servicecomb.saga.omega.spring.EnableOmega;
+import org.apache.servicecomb.pack.omega.spring.EnableOmega;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;

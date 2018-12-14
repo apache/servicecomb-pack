@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.servicecomb.saga.omega.transaction.annotations.Participate;
+import org.apache.servicecomb.pack.omega.transaction.annotations.Participate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
