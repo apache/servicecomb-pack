@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.acceptance.dubbodemo;
+package org.apache.servicecomb.pack.acceptance.dubbodemo;
 
 import static io.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.SECONDS;

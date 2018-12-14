@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.acceptance.dubbodemo;
+package org.apache.servicecomb.pack;
 
 import org.junit.runner.RunWith;
 

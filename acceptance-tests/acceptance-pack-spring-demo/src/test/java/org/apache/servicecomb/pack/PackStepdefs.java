@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga;
+package org.apache.servicecomb.pack;
 
 import static io.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -26,10 +26,12 @@ import static org.hamcrest.core.Is.is;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.jboss.byteman.agent.submit.Submit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,91 +44,100 @@ public class PackStepdefs implements En {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private static final String ALPHA_REST_ADDRESS = "alpha.rest.address";
-  private static final String INVENTORY_SERVICE_ADDRESS = "inventory.service.address";
-  private static final String PAYMENT_SERVICE_ADDRESS = "payment.service.address";
-  private static final String ORDERING_SERVICE_ADDRESS = "ordering.service.address";
-  private static final String INVENTORY_ORDERS_URI = "/orderings";
-  private static final String PAYMENT_ORDERS_URI = "/transactions";
+  private static final String CAR_SERVICE_ADDRESS = "car.service.address";
+  private static final String HOTEL_SERVICE_ADDRESS = "hotel.service.address";
+  private static final String BOOKING_SERVICE_ADDRESS = "booking.service.address";
   private static final String INFO_SERVICE_URI = "info.service.uri";
-  private static final String[] addresses = {INVENTORY_SERVICE_ADDRESS, PAYMENT_SERVICE_ADDRESS};
-  private static final String[] uris = {INVENTORY_ORDERS_URI, PAYMENT_ORDERS_URI};
+  private static final String[] addresses = {CAR_SERVICE_ADDRESS, HOTEL_SERVICE_ADDRESS};
 
   private static final Consumer<Map<String, String>[]> NO_OP_CONSUMER = (dataMap) -> {
   };
 
+  private static final Map<String, Submit> submits = new HashMap<>();
+
   public PackStepdefs() {
-    Given("^Inventory Service is up and running$", () -> {
-      probe(System.getProperty(INVENTORY_SERVICE_ADDRESS));
+    Given("^Car Service is up and running$", () -> {
+      probe(System.getProperty(CAR_SERVICE_ADDRESS));
     });
 
-    And("^Payment Service is up and running$", () -> {
-      probe(System.getProperty(PAYMENT_SERVICE_ADDRESS));
+    And("^Hotel Service is up and running$", () -> {
+      probe(System.getProperty(HOTEL_SERVICE_ADDRESS));
     });
 
-    And("^Ordering Service is up and running$", () -> {
-      probe(System.getProperty(ORDERING_SERVICE_ADDRESS));
+    And("^Booking Service is up and running$", () -> {
+      probe(System.getProperty(BOOKING_SERVICE_ADDRESS));
     });
 
     And("^Alpha is up and running$", () -> {
       probe(System.getProperty(ALPHA_REST_ADDRESS));
     });
 
-    
-    When("^User ([A-Za-z]+) requests to order ([0-9]+) units of ([A-Za-z]+) with unit price ([0-9]+) (success|fail)$",
-        (userName, productUnits, productName, unitPrice, result) -> {
-      LOG.info("Received request from user {} to order {} units of {}  with unit price {}", userName, productUnits, productName, unitPrice);
+    Given("^Install the byteman script ([A-Za-z0-9_\\.]+) to ([A-Za-z]+) Service$", (String script, String service) -> {
+      LOG.info("Install the byteman script {} to {} service", script, service);
+      List<String> rules = new ArrayList<>();
+      rules.add("target/test-classes/" + script);
+      Submit bm = getBytemanSubmit(service);
+      bm.addRulesFromFiles(rules);
+    });
+
+    When("^User ([A-Za-z]+) requests to book ([0-9]+) cars and ([0-9]+) rooms (success|fail)$", (username, cars, rooms, result) -> {
+      LOG.info("Received request from user {} to book {} cars and {} rooms", username, cars, rooms);
 
       Response resp = given()
-          .pathParam("userName", userName)
-          .pathParam("productName", productName)
-          .pathParam("productUnits", productUnits)
-          .pathParam("unitPrice", unitPrice)
+          .pathParam("name", username)
+          .pathParam("rooms", rooms)
+          .pathParam("cars", cars)
           .when()
-          .post(System.getProperty(ORDERING_SERVICE_ADDRESS) + "/ordering/order/{userName}/{productName}/{productUnits}/{unitPrice}");
+          .post(System.getProperty("booking.service.address") + "/booking/{name}/{rooms}/{cars}");
       if (result.equals("success")) {
         resp.then().statusCode(is(200));
       } else if (result.equals("fail")) {
         resp.then().statusCode(is(500));
       }
-      // Need to wait for a while to let the confirm or cannel command finished.
-      Thread.sleep(2000);
     });
-    
+
     Then("^Alpha records the following events$", (DataTable dataTable) -> {
       Consumer<Map<String, String>[]> columnStrippingConsumer = dataMap -> {
         for (Map<String, String> map : dataMap)
           map.keySet().retainAll(dataTable.topCells());
       };
 
-      dataMatches(System.getProperty(ALPHA_REST_ADDRESS) + "/tcc/events", dataTable, columnStrippingConsumer);
+      dataMatches(System.getProperty(ALPHA_REST_ADDRESS) + "/saga/events", dataTable, columnStrippingConsumer);
     });
 
-    Then("^Inventory Service contains the following booking orders$", (DataTable dataTable) -> {
-      dataMatches(System.getProperty(INVENTORY_SERVICE_ADDRESS) + INVENTORY_ORDERS_URI, dataTable, NO_OP_CONSUMER);
+    And("^Car Service contains the following booking orders$", (DataTable dataTable) -> {
+      dataMatches(System.getProperty(CAR_SERVICE_ADDRESS) + "/bookings", dataTable, NO_OP_CONSUMER);
     });
 
-    And("^Payment Service contains the following booking orders$", (DataTable dataTable) -> {
-      dataMatches(System.getProperty(PAYMENT_SERVICE_ADDRESS) + PAYMENT_ORDERS_URI, dataTable, NO_OP_CONSUMER);
+    And("^Hotel Service contains the following booking orders$", (DataTable dataTable) -> {
+      dataMatches(System.getProperty(HOTEL_SERVICE_ADDRESS) + "/bookings", dataTable, NO_OP_CONSUMER);
     });
   }
 
   @After
   public void cleanUp() {
     LOG.info("Cleaning up services");
-    for (int i = 0; i < addresses.length; i++) {
+    for (String address : addresses) {
       given()
           .when()
-          .delete(System.getProperty(addresses[i]) + uris[i])
+          .delete(System.getProperty(address) + "/bookings")
           .then()
           .statusCode(is(200));
     }
 
     given()
         .when()
-        .delete(System.getProperty(ALPHA_REST_ADDRESS) + "/tcc/events")
+        .delete(System.getProperty(ALPHA_REST_ADDRESS) + "/saga/events")
         .then()
         .statusCode(is(200));
 
+    for (Submit bm : submits.values()) {
+      try {
+        bm.deleteAllRules();
+      } catch (Exception e) {
+        LOG.warn("Fail to delete the byteman rules " + e);
+      }
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -186,4 +197,15 @@ public class PackStepdefs implements En {
         .statusCode(is(200));
   }
 
+  private Submit getBytemanSubmit(String service) {
+    if (submits.containsKey(service)) {
+      return submits.get(service);
+    } else {
+      String address = System.getProperty("byteman.address");
+      String port = System.getProperty(service.toLowerCase() + ".byteman.port");
+      Submit bm = new Submit(address, Integer.parseInt(port));
+      submits.put(service, bm);
+      return bm;
+    }
+  }
 }

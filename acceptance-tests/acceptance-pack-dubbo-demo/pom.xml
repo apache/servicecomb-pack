@@ -25,7 +25,7 @@
     <version>0.3.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <name>Saga:Acceptance Tests::Pack::Dubbo</name>
+  <name>Pack:Acceptance Tests::Dubbo</name>
   <artifactId>acceptance-pack-dubbo</artifactId>
 
   <dependencies>
