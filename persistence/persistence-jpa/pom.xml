@@ -26,7 +26,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>saga-persistence-jpa</artifactId>
+  <name>Pack::Persistence::JPA</name>
+  <artifactId>persistence-jpa</artifactId>
 
   <dependencyManagement>
     <dependencies>
