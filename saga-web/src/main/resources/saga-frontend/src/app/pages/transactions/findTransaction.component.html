@@ -1,0 +1,48 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<nb-card [nbSpinner]="loading" nbSpinnerStatus="success" nbSpinnerSize="xxlarge" status="info">
+      <nb-card-header>
+          <div class="row">
+            <div class="col-4">
+              Find Transactions
+            </div>
+          </div>
+      </nb-card-header>
+      <nb-card-body>
+            <form>
+                <div class="form-group form-row align-items-center">
+                    <div class="col">
+                        <label class="sr-only" for="findGID">Global ID</label>
+                        <input [disabled]="hideGID" (change)="hideName=true;hideGID=false" [(ngModel)]="globalID" required nbInput  type="text" class="form-control mb-2" id="findGID" name="findGID" placeholder="Global ID">
+                        <small class="form-text text-muted">Please enter either Global ID or Micro Service Name.</small>
+                    </div>
+                    <div class="col">
+                        <label class="sr-only" for="findName">Micro Service Name</label>
+                        <div class="input-group mb-4">
+                            <input [disabled]="hideName" (change)="hideGID=true;hideName=false" [(ngModel)]="serviceName" required nbInput type="text" class="form-control" id="findName" name="findName" placeholder="Micro Service Name">
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <input nbButton status="success" size="small" class="mb-4" (click)="findTransaction(globalID, serviceName)" value="Find"/>
+                        <input nbButton status="info" size="small" class="mb-4 ml-2" (click)="resetForm()" value="Clear" />
+                    </div>
+                </div>
+            </form>
+            <div>
+                <ngx-transactions-table [showTitle]="false" [title]="Transactions" [showCount]="false" [hideRefresh]="true" [tableData]= "transactionsArr"></ngx-transactions-table>
+            </div>
+
+      </nb-card-body>
+  </nb-card>

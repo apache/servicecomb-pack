@@ -36,6 +36,8 @@ services:
     hostname: alpha-server
     links:
       - "database:postgresql.servicecomb.io"
+    ports:
+      - "8090:8090"
     environment:
       - JAVA_OPTS=-Dspring.profiles.active=prd
     healthcheck:
