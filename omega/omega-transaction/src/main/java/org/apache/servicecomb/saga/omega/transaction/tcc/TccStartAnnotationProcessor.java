@@ -17,7 +17,7 @@
 package org.apache.servicecomb.saga.omega.transaction.tcc;
 
 import javax.transaction.TransactionalException;
-import org.apache.servicecomb.saga.common.TransactionStatus;
+import org.apache.servicecomb.pack.common.TransactionStatus;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.OmegaException;

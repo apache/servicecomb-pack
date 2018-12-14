@@ -20,7 +20,7 @@ package org.apache.servicecomb.saga.omega.transaction;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import org.apache.servicecomb.saga.common.EventType;
+import org.apache.servicecomb.pack.common.EventType;
 
 public class TxAbortedEvent extends TxEvent {
 

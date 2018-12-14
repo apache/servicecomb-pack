@@ -16,7 +16,7 @@
  */
 package org.apache.servicecomb.saga.omega.transaction.tcc.events;
 
-import org.apache.servicecomb.saga.common.TransactionStatus;
+import org.apache.servicecomb.pack.common.TransactionStatus;
 
 public class TccEndedEvent {
   private final String globalTxId;

@@ -23,8 +23,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import org.apache.servicecomb.saga.common.TransactionStatus;
-import org.apache.servicecomb.saga.omega.connector.grpc.tcc.GrpcTccClientMessageSender;
+import org.apache.servicecomb.pack.common.TransactionStatus;
 import org.apache.servicecomb.saga.omega.context.ServiceConfig;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.saga.omega.transaction.tcc.TccMessageHandler;

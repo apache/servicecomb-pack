@@ -19,7 +19,7 @@ package org.apache.servicecomb.saga.omega.transaction;
 
 import java.util.Arrays;
 
-import org.apache.servicecomb.saga.common.EventType;
+import org.apache.servicecomb.pack.common.EventType;
 
 public class TxEvent {
 

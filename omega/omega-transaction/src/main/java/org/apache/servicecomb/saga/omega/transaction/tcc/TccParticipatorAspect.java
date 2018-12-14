@@ -19,7 +19,7 @@ package org.apache.servicecomb.saga.omega.transaction.tcc;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
-import org.apache.servicecomb.saga.common.TransactionStatus;
+import org.apache.servicecomb.pack.common.TransactionStatus;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.annotations.Participate;
 import org.apache.servicecomb.saga.omega.transaction.tcc.events.ParticipatedEvent;

@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verify;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.servicecomb.saga.common.EventType;
+import org.apache.servicecomb.pack.common.EventType;
 import org.apache.servicecomb.saga.omega.context.CallbackContext;
 import org.junit.Before;
 import org.junit.Test;

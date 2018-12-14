@@ -19,12 +19,12 @@ package org.apache.servicecomb.saga.alpha.server.console.saga;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.util.Collections.singletonList;
-import static org.apache.servicecomb.saga.common.EventType.SagaEndedEvent;
-import static org.apache.servicecomb.saga.common.EventType.SagaStartedEvent;
-import static org.apache.servicecomb.saga.common.EventType.TxAbortedEvent;
-import static org.apache.servicecomb.saga.common.EventType.TxCompensatedEvent;
-import static org.apache.servicecomb.saga.common.EventType.TxEndedEvent;
-import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
+import static org.apache.servicecomb.pack.common.EventType.SagaEndedEvent;
+import static org.apache.servicecomb.pack.common.EventType.SagaStartedEvent;
+import static org.apache.servicecomb.pack.common.EventType.TxAbortedEvent;
+import static org.apache.servicecomb.pack.common.EventType.TxCompensatedEvent;
+import static org.apache.servicecomb.pack.common.EventType.TxEndedEvent;
+import static org.apache.servicecomb.pack.common.EventType.TxStartedEvent;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;

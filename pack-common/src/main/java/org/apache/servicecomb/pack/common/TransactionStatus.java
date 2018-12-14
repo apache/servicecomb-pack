@@ -15,13 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.common;
+package org.apache.servicecomb.pack.common;
 
-public enum EventType {
-  SagaStartedEvent,
-  TxStartedEvent,
-  TxEndedEvent,
-  TxAbortedEvent,
-  TxCompensatedEvent,
-  SagaEndedEvent
+public enum TransactionStatus {
+  Succeed,
+  Failed
 }
