@@ -22,7 +22,7 @@
   <modelVersion>4.0.0</modelVersion>
   <dependencies>
     <dependency>
-      <groupId>org.apache.servicecomb.saga.demo</groupId>
+      <groupId>org.apache.servicecomb.pack.demo</groupId>
       <artifactId>service-api</artifactId>
       <version>0.3.0-SNAPSHOT</version>
       <scope>compile</scope>
@@ -30,7 +30,7 @@
   </dependencies>
 
   <parent>
-    <groupId>org.apache.servicecomb.saga.demo</groupId>
+    <groupId>org.apache.servicecomb.pack.demo</groupId>
     <artifactId>saga-dubbo-demo</artifactId>
     <version>0.3.0-SNAPSHOT</version>
   </parent>

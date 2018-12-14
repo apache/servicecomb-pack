@@ -71,11 +71,11 @@
       <artifactId>hibernate-validator</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.pack</groupId>
       <artifactId>omega-spring-starter</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.pack</groupId>
       <artifactId>omega-transport-servicecomb</artifactId>
     </dependency>
   </dependencies>
