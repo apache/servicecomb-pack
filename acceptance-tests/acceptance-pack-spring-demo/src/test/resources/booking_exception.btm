@@ -19,7 +19,7 @@
 ###############################################################
 
 RULE throw exception
-CLASS org.apache.servicecomb.saga.demo.pack.booking.BookingController
+CLASS org.apache.servicecomb.pack.demo.booking.BookingController
 METHOD postCarBooking
 AT ENTRY
 IF TRUE

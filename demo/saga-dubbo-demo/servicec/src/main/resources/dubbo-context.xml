@@ -23,6 +23,6 @@
   <!--localhost:2181-->
   <dubbo:registry address="zookeeper://${zookeeper.url}?client=zkclient"/>
   <dubbo:protocol name="dubbo" port="20883"/>
-  <dubbo:service interface="org.apache.servicecomb.saga.demo.dubbo.api.IServiceC" ref="servicec"/>
-  <bean id="servicec" class="org.apache.servicecomb.saga.demo.dubbo.servicec.ServiceC"/>
+  <dubbo:service interface="org.apache.servicecomb.pack.demo.dubbo.api.IServiceC" ref="servicec"/>
+  <bean id="servicec" class="org.apache.servicecomb.pack.demo.dubbo.servicec.ServiceC"/>
 </beans>
