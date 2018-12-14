@@ -27,7 +27,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>tcc-ordering</artifactId>
-  <name>Saga::Demo::Tcc-Spring-Demo::Tcc-Ordering</name>
+  <name>Pack::Demo::Tcc-Spring-Demo::Tcc-Ordering</name>
 
   <build>
     <plugins>

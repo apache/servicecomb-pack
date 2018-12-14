@@ -21,13 +21,13 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>alpha</artifactId>
-    <groupId>org.apache.servicecomb.saga</groupId>
+    <groupId>org.apache.servicecomb.pack</groupId>
     <version>0.3.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>alpha-server</artifactId>
-  <name>Saga::Alpha::Server</name>
+  <name>Pack::Alpha::Server</name>
 
   <dependencyManagement>
     <dependencies>
@@ -63,15 +63,15 @@
       <artifactId>grpc-netty</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.pack</groupId>
       <artifactId>pack-contract-grpc</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.pack</groupId>
       <artifactId>alpha-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.pack</groupId>
       <artifactId>pack-common</artifactId>
     </dependency>
     <dependency>
@@ -89,7 +89,7 @@
       <artifactId>spring-boot-starter-log4j2</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.servicecomb.saga</groupId>
+      <groupId>org.apache.servicecomb.pack</groupId>
       <artifactId>saga-persistence-jpa</artifactId>
     </dependency>
     <dependency>

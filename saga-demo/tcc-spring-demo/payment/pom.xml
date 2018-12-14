@@ -25,7 +25,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>tcc-payment</artifactId>
-  <name>Saga::Demo::Tcc-Spring-Demo::Tcc-Payment</name>
+  <name>Pack::Demo::Tcc-Spring-Demo::Tcc-Payment</name>
 
   <dependencies>
     <!-- Add the JPA starter -->

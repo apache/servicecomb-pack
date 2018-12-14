@@ -27,7 +27,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>tcc-inventory</artifactId>
-  <name>Saga::Demo::Tcc-Spring-Demo::Tcc-Inventory</name>
+  <name>Pack::Demo::Tcc-Spring-Demo::Tcc-Inventory</name>
 
   <dependencies>
    <!-- Add the JPA starter -->
