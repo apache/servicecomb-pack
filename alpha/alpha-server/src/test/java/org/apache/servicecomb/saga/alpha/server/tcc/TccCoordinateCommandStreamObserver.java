@@ -20,7 +20,7 @@ package org.apache.servicecomb.saga.alpha.server.tcc;
 import io.grpc.stub.StreamObserver;
 import java.util.Queue;
 import java.util.function.Consumer;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
+import org.apache.servicecomb.pack.contract.grpc.GrpcTccCoordinateCommand;
 
 public class TccCoordinateCommandStreamObserver implements StreamObserver<GrpcTccCoordinateCommand> {
 

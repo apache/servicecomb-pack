@@ -20,7 +20,7 @@ package org.apache.servicecomb.saga.alpha.server.tcc.callback;
 import io.grpc.stub.StreamObserver;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.apache.servicecomb.pack.common.TransactionStatus;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
+import org.apache.servicecomb.pack.contract.grpc.GrpcTccCoordinateCommand;
 
 /**
  * Grpc omega callback for TCC workflow.

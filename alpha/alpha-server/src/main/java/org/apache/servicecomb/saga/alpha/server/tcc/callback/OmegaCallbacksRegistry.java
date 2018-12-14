@@ -26,8 +26,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.servicecomb.saga.alpha.core.AlphaException;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.GrpcOmegaTccCallback;
 import org.apache.servicecomb.saga.alpha.server.tcc.callback.OmegaCallback;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcTccCoordinateCommand;
+import org.apache.servicecomb.pack.contract.grpc.GrpcServiceConfig;
+import org.apache.servicecomb.pack.contract.grpc.GrpcTccCoordinateCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

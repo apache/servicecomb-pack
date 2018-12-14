@@ -22,7 +22,7 @@ package org.apache.servicecomb.saga.alpha.server;
 
 import org.apache.servicecomb.saga.alpha.core.OmegaCallback;
 import org.apache.servicecomb.saga.alpha.core.TxEvent;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcCompensateCommand;
+import org.apache.servicecomb.pack.contract.grpc.GrpcCompensateCommand;
 
 import com.google.protobuf.ByteString;
 

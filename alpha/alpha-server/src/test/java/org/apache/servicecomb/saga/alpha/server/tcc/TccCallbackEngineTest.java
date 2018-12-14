@@ -34,7 +34,7 @@ import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxType;
 import org.apache.servicecomb.saga.alpha.server.tcc.service.TccTxEventService;
 import org.apache.servicecomb.pack.common.TransactionStatus;
-import org.apache.servicecomb.saga.pack.contract.grpc.GrpcServiceConfig;
+import org.apache.servicecomb.pack.contract.grpc.GrpcServiceConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
