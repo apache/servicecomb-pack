@@ -21,13 +21,13 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>saga-demo</artifactId>
-    <groupId>org.apache.servicecomb.saga.demo</groupId>
+    <groupId>org.apache.servicecomb.pack.demo</groupId>
     <version>0.3.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>saga-servicecomb-demo</artifactId>
-  <name>Saga::Demo::ServiceComb-Demo</name>
+  <name>Pack::Demo::ServiceComb-Demo</name>
   <packaging>pom</packaging>
 
 

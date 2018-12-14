@@ -25,7 +25,7 @@
     <version>18</version>
   </parent>
 
-  <groupId>org.apache.servicecomb.saga</groupId>
+  <groupId>org.apache.servicecomb.pack</groupId>
   <artifactId>saga</artifactId>
   <packaging>pom</packaging>
   <version>0.3.0-SNAPSHOT</version>
@@ -236,98 +236,83 @@
         <version>3.3.2.Final</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-transport-feign</artifactId>
         <version>0.3.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.servicecomb.saga.transports</groupId>
+        <groupId>org.apache.servicecomb.pack.transports</groupId>
         <artifactId>transport-httpclient</artifactId>
         <version>0.3.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.servicecomb.saga.transports</groupId>
-        <artifactId>transport-httpclient-spring</artifactId>
-        <version>0.3.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.servicecomb.saga.transports</groupId>
-        <artifactId>transport-resttemplate</artifactId>
-        <version>0.3.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.servicecomb.saga.discovery</groupId>
-        <artifactId>saga-discovery-servicecenter</artifactId>
-        <version>0.3.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-context</artifactId>
         <version>0.3.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-transaction</artifactId>
         <version>0.3.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-spring-tx</artifactId>
         <version>0.3.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-transport-resttemplate</artifactId>
         <version>0.3.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-transport-dubbo</artifactId>
         <version>0.3.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-transport-servicecomb</artifactId>
         <version>0.3.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-connector-grpc</artifactId>
         <version>0.3.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-spring-starter</artifactId>
         <version>0.3.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-format</artifactId>
         <version>0.3.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>alpha-core</artifactId>
         <version>0.3.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>alpha-server</artifactId>
         <version>0.3.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>pack-contract-grpc</artifactId>
         <version>0.3.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.servicecomb.saga</groupId>
+        <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>pack-common</artifactId>
         <version>0.3.0-SNAPSHOT</version>
       </dependency>
       <!-- TODO rename this artifact -->
       <dependency>
-       <groupId>org.apache.servicecomb.saga</groupId>
+       <groupId>org.apache.servicecomb.pack</groupId>
        <artifactId>saga-persistence-jpa</artifactId>
        <version>0.3.0-SNAPSHOT</version>
        </dependency>
@@ -622,7 +607,7 @@
           <configuration>
             <mixins>
               <mixin>
-                <groupId>org.apache.servicecomb.saga</groupId>
+                <groupId>org.apache.servicecomb.pack</groupId>
                 <artifactId>docker-build-config</artifactId>
                 <version>${project.version}</version>
               </mixin>
