@@ -15,17 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.integration.pack.tests;
+package org.apache.servicecomb.pack.alpha.core;
 
 import java.util.List;
 
-import org.apache.servicecomb.pack.alpha.core.TxEvent;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+public interface CommandRepository {
 
-interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
-  List<TxEvent> findByGlobalTxIdOrderByCreationTime(String globalTxId);
+  void saveCompensationCommands(String globalTxId);
 
-  @Query("SELECT DISTINCT(e.globalTxId) from TxEvent e")
-  List<String> findDistinctGlobalTxId();
+  void markCommandAsDone(String globalTxId, String localTxId);
+
+  List<Command> findUncompletedCommands(String globalTxId);
+
+  List<Command> findFirstCommandToCompensate();
 }

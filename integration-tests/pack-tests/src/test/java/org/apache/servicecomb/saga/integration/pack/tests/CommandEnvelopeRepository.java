@@ -17,7 +17,7 @@
 
 package org.apache.servicecomb.saga.integration.pack.tests;
 
-import org.apache.servicecomb.saga.alpha.core.Command;
+import org.apache.servicecomb.pack.alpha.core.Command;
 import org.springframework.data.repository.CrudRepository;
 
 interface CommandEnvelopeRepository extends CrudRepository<Command, Long> {

@@ -15,17 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.integration.pack.tests;
+package org.apache.servicecomb.pack.alpha.server.tcc.jpa;
 
-import java.util.List;
+import org.junit.Test;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
-import org.apache.servicecomb.pack.alpha.core.TxEvent;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 
-interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
-  List<TxEvent> findByGlobalTxIdOrderByCreationTime(String globalTxId);
+public class EventConverterTest {
 
-  @Query("SELECT DISTINCT(e.globalTxId) from TxEvent e")
-  List<String> findDistinctGlobalTxId();
+  @Test
+  public void getMethodInfo() {
+    assertThat(EventConverter.toMethodInfo("test1", "test2"), is("confirm=test1,cancel=test2"));
+  }
+
+  @Test
+  public void getMethodName() {
+    assertThat(EventConverter.getMethodName("confirm=text1,cancel=text2",true), is("text1"));
+    assertThat(EventConverter.getMethodName("confirm=text1,cancel=text2",false), is("text2"));
+  }
 }

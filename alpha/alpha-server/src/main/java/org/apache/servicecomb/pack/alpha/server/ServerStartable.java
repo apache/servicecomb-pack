@@ -1,4 +1,5 @@
 /*
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -13,19 +14,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ *
  */
 
-package org.apache.servicecomb.saga.integration.pack.tests;
+package org.apache.servicecomb.pack.alpha.server;
 
-import java.util.List;
-
-import org.apache.servicecomb.pack.alpha.core.TxEvent;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
-
-interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
-  List<TxEvent> findByGlobalTxIdOrderByCreationTime(String globalTxId);
-
-  @Query("SELECT DISTINCT(e.globalTxId) from TxEvent e")
-  List<String> findDistinctGlobalTxId();
+public interface ServerStartable {
+  void start();
 }

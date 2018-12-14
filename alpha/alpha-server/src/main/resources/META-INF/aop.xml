@@ -19,7 +19,7 @@
 
 <aspectj>
   <weaver options="-Xlint:ignore">
-    <include within="org.apache.servicecomb.saga..*"/>
+    <include within="org.apache.servicecomb.pack..*"/>
     <exclude within="org.aspectj.*"/>
   </weaver>
 </aspectj>

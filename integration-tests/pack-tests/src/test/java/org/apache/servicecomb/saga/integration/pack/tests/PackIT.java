@@ -31,7 +31,7 @@ import static org.springframework.http.HttpStatus.OK;
 import java.util.List;
 import java.util.Queue;
 
-import org.apache.servicecomb.saga.alpha.core.TxEvent;
+import org.apache.servicecomb.pack.alpha.core.TxEvent;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.junit.After;
 import org.junit.Test;

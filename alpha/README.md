@@ -1,7 +1,7 @@
 # alpha-server
 
 The alpha-server works as the pack leader to keep the consistency of transactions.
-For more information, see [saga pack design](https://github.com/apache/servicecomb-saga/blob/master/docs/design.md)
+For more information, see [pack design](https://github.com/apache/servicecomb-pack/blob/master/docs/design.md)
 
 ## Build and Run
 
