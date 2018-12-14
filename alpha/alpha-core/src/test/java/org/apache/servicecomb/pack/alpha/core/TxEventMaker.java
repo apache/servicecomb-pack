@@ -15,17 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.integration.pack.tests;
+package org.apache.servicecomb.pack.alpha.core;
 
-import java.util.List;
+import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
+import static org.apache.servicecomb.pack.common.EventType.TxStartedEvent;
 
-import org.apache.servicecomb.pack.alpha.core.TxEvent;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import java.util.UUID;
 
-interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
-  List<TxEvent> findByGlobalTxIdOrderByCreationTime(String globalTxId);
-
-  @Query("SELECT DISTINCT(e.globalTxId) from TxEvent e")
-  List<String> findDistinctGlobalTxId();
+class TxEventMaker {
+  static TxEvent someEvent() {
+    return new TxEvent(
+        uniquify("serviceName"),
+        uniquify("instanceId"),
+        uniquify("globalTxId"),
+        uniquify("localTxId"),
+        UUID.randomUUID().toString(),
+        TxStartedEvent.name(),
+        TxEventMaker.class.getCanonicalName(),
+        uniquify("blah").getBytes());
+  }
 }

@@ -15,17 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.integration.pack.tests;
+package org.apache.servicecomb.pack.alpha.server.tcc;
 
-import java.util.List;
+import org.apache.servicecomb.pack.alpha.server.GrpcServerConfig;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Import;
 
-import org.apache.servicecomb.pack.alpha.core.TxEvent;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
-
-interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
-  List<TxEvent> findByGlobalTxIdOrderByCreationTime(String globalTxId);
-
-  @Query("SELECT DISTINCT(e.globalTxId) from TxEvent e")
-  List<String> findDistinctGlobalTxId();
+@SpringBootApplication(scanBasePackageClasses = GrpcTccEventService.class)
+@Import(GrpcServerConfig.class)
+public class TccApplication {
+  public static void main(String[] args) {
+    SpringApplication.run(TccApplication.class, args);
+  }
 }

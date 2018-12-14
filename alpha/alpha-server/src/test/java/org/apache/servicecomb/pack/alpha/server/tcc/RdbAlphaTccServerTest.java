@@ -15,17 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.integration.pack.tests;
+package org.apache.servicecomb.pack.alpha.server.tcc;
 
-import java.util.List;
+import io.grpc.netty.NettyChannelBuilder;
+import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
-import org.apache.servicecomb.pack.alpha.core.TxEvent;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = {TccApplication.class, TccConfiguration.class},
+    properties = {
+        "alpha.server.host=0.0.0.0",
+        "alpha.server.port=8091"
+    })
+public class RdbAlphaTccServerTest extends AlphaTccServerTestBase {
 
-interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
-  List<TxEvent> findByGlobalTxIdOrderByCreationTime(String globalTxId);
-
-  @Query("SELECT DISTINCT(e.globalTxId) from TxEvent e")
-  List<String> findDistinctGlobalTxId();
+  @BeforeClass
+  public static void setupClientChannel() {
+    clientChannel = NettyChannelBuilder.forAddress("localhost", 8091).usePlaintext().build();
+  }
 }

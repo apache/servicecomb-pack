@@ -15,17 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.saga.integration.pack.tests;
+package org.apache.servicecomb.pack.alpha.server;
 
-import java.util.List;
+import javax.annotation.PreDestroy;
 
-import org.apache.servicecomb.pack.alpha.core.TxEvent;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import kamon.Kamon;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
-  List<TxEvent> findByGlobalTxIdOrderByCreationTime(String globalTxId);
+@SpringBootApplication
+public class AlphaApplication {
+  public static void main(String[] args) {
+    Kamon.start();
+    SpringApplication.run(AlphaApplication.class, args);
+  }
 
-  @Query("SELECT DISTINCT(e.globalTxId) from TxEvent e")
-  List<String> findDistinctGlobalTxId();
+  @PreDestroy
+  void shutdown() {
+    Kamon.shutdown();
+  }
 }
