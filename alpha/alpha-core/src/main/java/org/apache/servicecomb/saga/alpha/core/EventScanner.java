@@ -19,10 +19,10 @@ package org.apache.servicecomb.saga.alpha.core;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.servicecomb.saga.alpha.core.TaskStatus.NEW;
-import static org.apache.servicecomb.saga.common.EventType.SagaEndedEvent;
-import static org.apache.servicecomb.saga.common.EventType.TxAbortedEvent;
-import static org.apache.servicecomb.saga.common.EventType.TxEndedEvent;
-import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
+import static org.apache.servicecomb.pack.common.EventType.SagaEndedEvent;
+import static org.apache.servicecomb.pack.common.EventType.TxAbortedEvent;
+import static org.apache.servicecomb.pack.common.EventType.TxEndedEvent;
+import static org.apache.servicecomb.pack.common.EventType.TxStartedEvent;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;

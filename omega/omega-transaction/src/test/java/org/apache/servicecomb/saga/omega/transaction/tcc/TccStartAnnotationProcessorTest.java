@@ -28,7 +28,7 @@ import java.util.UUID;
 
 import javax.transaction.TransactionalException;
 
-import org.apache.servicecomb.saga.common.TransactionStatus;
+import org.apache.servicecomb.pack.common.TransactionStatus;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;

@@ -18,7 +18,7 @@
 package org.apache.servicecomb.saga.alpha.core;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
-import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
+import static org.apache.servicecomb.pack.common.EventType.TxStartedEvent;
 
 import java.util.UUID;
 

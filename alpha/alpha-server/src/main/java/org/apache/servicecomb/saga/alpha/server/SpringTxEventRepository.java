@@ -17,7 +17,7 @@
 
 package org.apache.servicecomb.saga.alpha.server;
 
-import static org.apache.servicecomb.saga.common.EventType.TxCompensatedEvent;
+import static org.apache.servicecomb.pack.common.EventType.TxCompensatedEvent;
 
 import java.util.List;
 import java.util.Optional;

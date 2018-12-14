@@ -17,7 +17,7 @@
 
 package org.apache.servicecomb.saga.omega.connector.grpc.saga;
 
-import static org.apache.servicecomb.saga.common.EventType.SagaStartedEvent;
+import static org.apache.servicecomb.pack.common.EventType.SagaStartedEvent;
 
 import java.util.concurrent.BlockingQueue;
 import org.apache.servicecomb.saga.omega.transaction.AlphaResponse;

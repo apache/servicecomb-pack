@@ -19,12 +19,12 @@ package org.apache.servicecomb.saga.alpha.core;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.util.Collections.emptyList;
-import static org.apache.servicecomb.saga.common.EventType.SagaEndedEvent;
-import static org.apache.servicecomb.saga.common.EventType.SagaStartedEvent;
-import static org.apache.servicecomb.saga.common.EventType.TxAbortedEvent;
-import static org.apache.servicecomb.saga.common.EventType.TxCompensatedEvent;
-import static org.apache.servicecomb.saga.common.EventType.TxEndedEvent;
-import static org.apache.servicecomb.saga.common.EventType.TxStartedEvent;
+import static org.apache.servicecomb.pack.common.EventType.SagaEndedEvent;
+import static org.apache.servicecomb.pack.common.EventType.SagaStartedEvent;
+import static org.apache.servicecomb.pack.common.EventType.TxAbortedEvent;
+import static org.apache.servicecomb.pack.common.EventType.TxCompensatedEvent;
+import static org.apache.servicecomb.pack.common.EventType.TxEndedEvent;
+import static org.apache.servicecomb.pack.common.EventType.TxStartedEvent;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -36,7 +36,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
 
-import org.apache.servicecomb.saga.common.EventType;
+import org.apache.servicecomb.pack.common.EventType;
 import org.junit.Before;
 import org.junit.Test;
 

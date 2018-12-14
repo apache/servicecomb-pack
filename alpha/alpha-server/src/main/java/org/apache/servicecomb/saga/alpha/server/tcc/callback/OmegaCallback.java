@@ -18,7 +18,7 @@
 package org.apache.servicecomb.saga.alpha.server.tcc.callback;
 
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.ParticipatedEvent;
-import org.apache.servicecomb.saga.common.TransactionStatus;
+import org.apache.servicecomb.pack.common.TransactionStatus;
 
 public interface OmegaCallback {
 

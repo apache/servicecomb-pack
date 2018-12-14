@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-import org.apache.servicecomb.saga.common.EventType;
+import org.apache.servicecomb.pack.common.EventType;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.junit.Before;

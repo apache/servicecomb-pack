@@ -19,7 +19,7 @@ package org.apache.servicecomb.saga.alpha.core;
 
 import java.util.List;
 import java.util.Optional;
-import org.apache.servicecomb.saga.common.EventType;
+import org.apache.servicecomb.pack.common.EventType;
 
 /**
  * Repository for {@link TxEvent}

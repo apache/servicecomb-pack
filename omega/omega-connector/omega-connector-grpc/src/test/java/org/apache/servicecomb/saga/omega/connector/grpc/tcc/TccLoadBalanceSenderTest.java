@@ -42,7 +42,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import org.apache.servicecomb.saga.common.TransactionStatus;
+import org.apache.servicecomb.pack.common.TransactionStatus;
 import org.apache.servicecomb.saga.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.saga.omega.connector.grpc.LoadBalanceSenderTestBase;
 import org.apache.servicecomb.saga.omega.connector.grpc.core.FastestSender;

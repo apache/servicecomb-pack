@@ -34,7 +34,7 @@ import java.util.UUID;
 
 import javax.transaction.InvalidTransactionException;
 
-import org.apache.servicecomb.saga.common.EventType;
+import org.apache.servicecomb.pack.common.EventType;
 import org.apache.servicecomb.saga.omega.context.IdGenerator;
 import org.apache.servicecomb.saga.omega.context.OmegaContext;
 import org.apache.servicecomb.saga.omega.transaction.annotations.Compensable;

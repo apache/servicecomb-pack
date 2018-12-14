@@ -27,10 +27,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEvent;
-import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxEventDBRepository;
 import org.apache.servicecomb.saga.alpha.server.tcc.jpa.TccTxType;
 import org.apache.servicecomb.saga.alpha.server.tcc.service.TccTxEventRepository;
-import org.apache.servicecomb.saga.common.TransactionStatus;
+import org.apache.servicecomb.pack.common.TransactionStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

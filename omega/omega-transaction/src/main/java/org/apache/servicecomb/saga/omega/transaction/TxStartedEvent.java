@@ -17,7 +17,7 @@
 
 package org.apache.servicecomb.saga.omega.transaction;
 
-import org.apache.servicecomb.saga.common.EventType;
+import org.apache.servicecomb.pack.common.EventType;
 
 public class TxStartedEvent extends TxEvent {
 
