@@ -20,6 +20,8 @@ package org.apache.servicecomb.saga.alpha.core;
 import static java.util.Collections.emptyMap;
 
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -37,14 +39,15 @@ public class CompositeOmegaCallback implements OmegaCallback {
   public void compensate(TxEvent event) {
     Map<String, OmegaCallback> serviceCallbacks = callbacks.getOrDefault(event.serviceName(), emptyMap());
 
-    if (serviceCallbacks.isEmpty()) {
-      throw new AlphaException("No such omega callback found for service " + event.serviceName());
-    }
-
     OmegaCallback omegaCallback = serviceCallbacks.get(event.instanceId());
     if (omegaCallback == null) {
       LOG.info("Cannot find the service with the instanceId {}, call the other instance.", event.instanceId());
-      omegaCallback = serviceCallbacks.values().iterator().next();
+
+      Iterator<OmegaCallback> iterator = new ArrayList<>(serviceCallbacks.values()).iterator();
+      if(iterator.hasNext()) omegaCallback=iterator.next();
+    }
+    if(omegaCallback==null){
+      throw new AlphaException("No such omega callback found for service " + event.serviceName());
     }
 
     try {
