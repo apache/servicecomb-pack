@@ -42,9 +42,11 @@ public class CompositeOmegaCallback implements OmegaCallback {
     OmegaCallback omegaCallback = serviceCallbacks.get(event.instanceId());
     if (omegaCallback == null) {
       LOG.info("Cannot find the service with the instanceId {}, call the other instance.", event.instanceId());
-
+      // TODO extract an Interface to let user define the serviceCallback instance pick strategy
       Iterator<OmegaCallback> iterator = new ArrayList<>(serviceCallbacks.values()).iterator();
-      if(iterator.hasNext()) omegaCallback=iterator.next();
+      if(iterator.hasNext()) {
+        omegaCallback = iterator.next();
+      }
     }
     if(omegaCallback==null){
       throw new AlphaException("No such omega callback found for service " + event.serviceName());
