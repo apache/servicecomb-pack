@@ -103,6 +103,9 @@
     </profile>
     <profile>
       <id>spring-boot-2</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
       <properties>
         <info.service.uri>/actuator/info</info.service.uri>
       </properties>

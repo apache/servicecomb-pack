@@ -109,6 +109,9 @@
     <profile>
       <id>spring-boot-2</id>
       <!-- Need to add the dependency of log4j jar to avoid no class found error -->
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
       <dependencies>
         <dependency>
           <artifactId>log4j</artifactId>
