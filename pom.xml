@@ -50,8 +50,9 @@
     <log4j.version>2.7</log4j.version>
     <disruptor.version>3.3.7</disruptor.version>
     <dubbo.version>2.6.1</dubbo.version>
-    <spring.boot.version>1.5.17.RELEASE</spring.boot.version>
+    <spring.boot1.version>1.5.17.RELEASE</spring.boot1.version>
     <spring.boot2.version>2.0.6.RELEASE</spring.boot2.version>
+    <spring.boot.version>${spring.boot2.version}</spring.boot.version>
     <java.chassis.version>1.0.0</java.chassis.version>
     <spring.version>4.3.18.RELEASE</spring.version>
     <akka.version>2.5.14</akka.version>
@@ -774,6 +775,18 @@
   </build>
 
   <profiles>
+    <profile>
+      <id>spring-boot-1</id>
+      <properties>
+        <spring.boot.version>${spring.boot1.version}</spring.boot.version>
+      </properties>
+    </profile>
+    <profile>
+      <id>spring-boot-2</id>
+      <properties>
+        <spring.boot.version>${spring.boot2.version}</spring.boot.version>
+      </properties>
+    </profile>
     <profile>
       <id>release</id>
       <modules>

@@ -122,9 +122,9 @@
   <profiles>
     <profile>
       <id>spring-boot-2</id>
-      <properties>
-        <spring.boot.version>${spring.boot2.version}</spring.boot.version>
-      </properties>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
       <!-- Need to add the dependency of log4j2 core -->
       <dependencies>
         <dependency>

@@ -108,9 +108,6 @@
   <profiles>
     <profile>
       <id>spring-boot-2</id>
-      <properties>
-        <spring.boot.version>${spring.boot2.version}</spring.boot.version>
-      </properties>
       <!-- Need to add the dependency of log4j jar to avoid no class found error -->
       <dependencies>
         <dependency>
