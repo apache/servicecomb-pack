@@ -130,12 +130,6 @@
 
   <profiles>
     <profile>
-      <id>spring-boot-2</id>
-      <properties>
-        <spring.boot.version>${spring.boot2.version}</spring.boot.version>
-      </properties>
-    </profile>
-    <profile>
       <id>docker</id>
       <activation>
         <file>
