@@ -53,6 +53,8 @@ class TransactionClientHttpRequestInterceptor implements ClientHttpRequestInterc
           omegaContext.globalTxId(),
           LOCAL_TX_ID_KEY,
           omegaContext.localTxId());
+    } else {
+      LOG.debug("Cannot inject transaction ID, as the OmegaContext is null or cannot get the globalTxId.");
     }
     return execution.execute(request, body);
   }

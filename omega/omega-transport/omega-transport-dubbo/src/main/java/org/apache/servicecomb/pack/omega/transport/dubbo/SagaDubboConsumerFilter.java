@@ -56,8 +56,10 @@ public class SagaDubboConsumerFilter implements Filter {
       invocation.getAttachments().put(LOCAL_TX_ID_KEY, omegaContext.localTxId());
     }
     if (omegaContext != null && omegaContext.globalTxId() != null) {
-      LOG.info("Added {} {} and {} {} to dubbo invocation", new Object[] {GLOBAL_TX_ID_KEY, omegaContext.globalTxId(),
+      LOG.debug("Added {} {} and {} {} to dubbo invocation", new Object[] {GLOBAL_TX_ID_KEY, omegaContext.globalTxId(),
           LOCAL_TX_ID_KEY, omegaContext.localTxId()});
+    } else {
+      LOG.debug("Cannot inject transaction ID, as the OmegaContext is null or cannot get the globalTxId.");
     }
 
     if (invoker != null) {
