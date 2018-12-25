@@ -49,11 +49,13 @@ class TransactionHandlerInterceptor implements HandlerInterceptor {
     if (omegaContext != null) {
       String globalTxId = request.getHeader(GLOBAL_TX_ID_KEY);
       if (globalTxId == null) {
-        LOG.debug("no such header: {}", GLOBAL_TX_ID_KEY);
+        LOG.debug("Cannot inject transaction ID, no such header: {}", GLOBAL_TX_ID_KEY);
       } else {
         omegaContext.setGlobalTxId(globalTxId);
         omegaContext.setLocalTxId(request.getHeader(LOCAL_TX_ID_KEY));
       }
+    } else {
+      LOG.debug("Cannot inject transaction ID, as the OmegaContext is null.");
     }
     return true;
   }

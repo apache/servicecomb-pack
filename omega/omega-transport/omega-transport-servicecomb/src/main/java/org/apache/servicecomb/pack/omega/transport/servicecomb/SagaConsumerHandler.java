@@ -62,7 +62,7 @@ public class SagaConsumerHandler implements Handler {
           LOCAL_TX_ID_KEY,
           omegaContext.localTxId());
     } else {
-      LOG.info("Cannot inject transaction ID, as the OmegaContext is null or cannot get the globalTxId.");
+      LOG.debug("Cannot inject transaction ID, as the OmegaContext is null or cannot get the globalTxId.");
     }
 
     invocation.next(asyncResponse);
