@@ -49,7 +49,7 @@
     <!-- using log4j 2.7 with Spring Boot 1.x -->
     <log4j.version>2.7</log4j.version>
     <disruptor.version>3.3.7</disruptor.version>
-    <dubbo.version>2.6.1</dubbo.version>
+    <dubbo.version>2.6.4</dubbo.version>
     <spring.boot1.version>1.5.17.RELEASE</spring.boot1.version>
     <spring.boot2.version>2.0.6.RELEASE</spring.boot2.version>
     <spring.boot.version>${spring.boot2.version}</spring.boot.version>
