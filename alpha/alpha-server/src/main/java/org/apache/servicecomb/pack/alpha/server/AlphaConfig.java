@@ -47,7 +47,7 @@ import org.springframework.context.annotation.Configuration;
 
 @EntityScan(basePackages = "org.apache.servicecomb.pack.alpha")
 @Configuration
-class AlphaConfig {
+public class AlphaConfig {
   private static final Logger LOG = LoggerFactory.getLogger(AlphaConfig.class);
   private final BlockingQueue<Runnable> pendingCompensations = new LinkedBlockingQueue<>();
   private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -87,9 +87,6 @@ class AlphaConfig {
   ScheduledExecutorService compensationScheduler() {
     return scheduler;
   }
-
-  @Bean
-  GrpcServerConfig grpcServerConfig() { return new GrpcServerConfig(); }
 
   @Bean
   TxConsistentService txConsistentService(

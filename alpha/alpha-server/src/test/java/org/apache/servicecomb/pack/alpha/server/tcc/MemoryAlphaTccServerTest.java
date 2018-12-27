@@ -25,12 +25,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {TccApplication.class, TccConfiguration.class},
+@SpringBootTest(classes = {TccApplication.class},
     properties = {
         "alpha.server.host=0.0.0.0",
         "alpha.server.port=8190"
     })
-@ActiveProfiles("memory")
+@ActiveProfiles("memory,tccTest")
 public class MemoryAlphaTccServerTest extends AlphaTccServerTestBase {
 
   @BeforeClass

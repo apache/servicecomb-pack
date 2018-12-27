@@ -26,8 +26,13 @@ import org.apache.servicecomb.pack.alpha.server.tcc.service.TccTxEventService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
+/**
+ * This configuration is just for speeding up the integration usage.
+ */
 @Configuration
+@Profile("tccTest")
 public class TccConfiguration {
 
   @Value("${alpha.compensation.retry.delay:3000}")

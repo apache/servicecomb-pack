@@ -51,10 +51,9 @@
     <disruptor.version>3.3.7</disruptor.version>
     <dubbo.version>2.6.4</dubbo.version>
     <spring.boot1.version>1.5.17.RELEASE</spring.boot1.version>
-    <spring.boot2.version>2.0.6.RELEASE</spring.boot2.version>
+    <spring.boot2.version>2.1.1.RELEASE</spring.boot2.version>
     <spring.boot.version>${spring.boot2.version}</spring.boot.version>
     <java.chassis.version>1.0.0</java.chassis.version>
-    <spring.version>4.3.18.RELEASE</spring.version>
     <akka.version>2.5.14</akka.version>
     <rat.version>0.12</rat.version>
     <maven.failsafe.version>2.19.1</maven.failsafe.version>
@@ -552,12 +551,6 @@
         <groupId>io.rest-assured</groupId>
         <artifactId>rest-assured</artifactId>
         <version>3.0.3</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-test</artifactId>
-        <version>${spring.version}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
