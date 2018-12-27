@@ -21,9 +21,10 @@ import org.apache.servicecomb.pack.alpha.server.GrpcServerConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootApplication(scanBasePackageClasses = GrpcTccEventService.class)
-@Import(GrpcServerConfig.class)
+@Import({GrpcServerConfig.class,TccConfiguration.class})
 public class TccApplication {
   public static void main(String[] args) {
     SpringApplication.run(TccApplication.class, args);
