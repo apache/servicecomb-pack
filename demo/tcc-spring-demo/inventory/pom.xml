@@ -114,6 +114,17 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <!-- Add the dependency of interceptor api for javadoc generation -->
+      <id>release</id>
+      <dependencies>
+        <dependency>
+          <groupId>javax.interceptor</groupId>
+          <artifactId>javax.interceptor-api</artifactId>
+          <version>1.2</version>
+        </dependency>
+      </dependencies>
+    </profile>
   </profiles>
 
 </project>
