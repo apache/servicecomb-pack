@@ -25,8 +25,8 @@
     </formats>
     <fileSets>
         <fileSet>
-            <directory>../saga-demo</directory>
-            <outputDirectory>/saga-demo</outputDirectory>
+            <directory>../demo</directory>
+            <outputDirectory>/demo</outputDirectory>
             <excludes>
                 <exclude>**/*.iml</exclude>
                 <exclude>**/eclipse-classes/**</exclude>

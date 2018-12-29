@@ -25,7 +25,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.apache.servicecomb.pack.demo</groupId>
-  <artifactId>saga-demo</artifactId>
+  <artifactId>pack-demo</artifactId>
   <name>Pack::Demo</name>
 
   <packaging>pom</packaging>
