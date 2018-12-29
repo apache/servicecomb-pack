@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-/**
+/*
  * Indicates the annotated method will start a sub-transaction. <br>
  * A <code>@Participate</code> method should satisfy below requirements:
  * <ol>
@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
  * </ol>
  */
 public @interface Participate {
-  /**
+  /*
    * Confirm method name.<br>
    * A confirm method should satisfy below requirements:
    * <ol>
@@ -47,7 +47,7 @@ public @interface Participate {
    */
   String confirmMethod() default "";
 
-  /**
+  /*
    * Cancel method name.<br>
    * A cancel method should satisfy below requirements:
    * <ol>

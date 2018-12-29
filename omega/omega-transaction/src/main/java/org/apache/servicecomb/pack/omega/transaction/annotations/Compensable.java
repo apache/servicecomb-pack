@@ -22,7 +22,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
+/*
  * Indicates the annotated method will start a sub-transaction. <br>
  * It is suggested to use the Spring Transactional annotation to wrap the sub-transaction method.
  * A <code>@Compensable</code> method should satisfy below requirements:
@@ -38,7 +38,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Compensable {
 
-  /**
+  /*
    * The retires number of the compensable method.
    * Default value is 0, which means never retry it
    * value is -1, which means retry it until succeed
@@ -49,7 +49,7 @@ public @interface Compensable {
    */
   int retries() default 0;
 
-  /**
+  /*
    * Compensation method name.<br>
    * A compensation method should satisfy below requirements:
    * <ol>
@@ -65,7 +65,7 @@ public @interface Compensable {
 
   int retryDelayInMilliseconds() default 0;
 
-  /**
+  /*
    * <code>@Compensable</code> method timeout, in seconds. <br>
    * Default value is 0, which means never timeout.
    *
