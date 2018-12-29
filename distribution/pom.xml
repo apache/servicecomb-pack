@@ -23,7 +23,7 @@
       <artifactId>saga</artifactId>
       <version>0.3.0-SNAPSHOT</version>
     </parent>
-    <artifactId>apache-servicecomb-incubating-saga-distribution</artifactId>
+    <artifactId>apache-servicecomb-pack-distribution</artifactId>
     <name>Pack::Distribution</name>
     <packaging>pom</packaging>
     <dependencies>
