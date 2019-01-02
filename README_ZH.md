@@ -57,7 +57,39 @@ JDK9或者JDK10 来编译Saga并运行测试的话，你需要使用 spring-boot
 ## 用户指南
 如何构建和使用可浏览[用户指南](docs/user_guide_zh.md)。
 
-## 获取最新发行版本
+## 获取最新版本
+
+获取最新发行版本:
+   
+* [下载软件包](http://servicecomb.apache.org/release/saga-downloads/)
+
+获取最新预览版本:
+
+*  最新的预览版本会发布到Apache nexus的仓库中，请将如下的仓库描述信息加到你的pom.xml文件中.
+   ```
+           <repositories>
+             <repository>
+               <releases />
+               <snapshots>
+                 <enabled>true</enabled>
+               </snapshots>
+               <id>repo.apache.snapshot</id>
+               <url>https://repository.apache.org/content/repositories/snapshots/</url>
+             </repository>
+           </repositories>
+           <pluginRepositories>
+             <pluginRepository>
+               <releases />
+               <snapshots>
+                 <enabled>true</enabled>
+               </snapshots>
+               <id>repo.apache.snapshot</id>
+               <url>https://repository.apache.org/content/repositories/snapshots/</url>
+             </pluginRepository>
+           </pluginRepositories>
+        
+             
+   ```    
 
 [下载Pack](http://servicecomb.apache.org/release/saga-downloads/)
 
