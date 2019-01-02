@@ -54,9 +54,39 @@ Since Spring Boot supports JDK9 since 2.x, if you want to build and run test the
 ## User Guide
 How to build and use can refer to [User Guide](docs/user_guide.md).
 
-## Get The Latest Release
+## Get The Latest Version
 
-[Download Pack](http://servicecomb.apache.org/release/saga-downloads/)
+Get released version:
+   
+* [Download Pack](http://servicecomb.apache.org/release/saga-downloads/)
+
+Get snapshot version:
+
+*  We publish the snapshot version to Apache nexus repo, please add below repositories into your pom.xml.
+   ```
+           <repositories>
+             <repository>
+               <releases />
+               <snapshots>
+                 <enabled>true</enabled>
+               </snapshots>
+               <id>repo.apache.snapshot</id>
+               <url>https://repository.apache.org/content/repositories/snapshots/</url>
+             </repository>
+           </repositories>
+           <pluginRepositories>
+             <pluginRepository>
+               <releases />
+               <snapshots>
+                 <enabled>true</enabled>
+               </snapshots>
+               <id>repo.apache.snapshot</id>
+               <url>https://repository.apache.org/content/repositories/snapshots/</url>
+             </pluginRepository>
+           </pluginRepositories>
+        
+             
+   ```    
 
 ## [FAQ](FAQ.md)
 
