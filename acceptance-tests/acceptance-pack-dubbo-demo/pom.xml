@@ -22,7 +22,7 @@
   <parent>
     <artifactId>acceptance-tests</artifactId>
     <groupId>org.apache.servicecomb.pack</groupId>
-    <version>0.3.0</version>
+    <version>0.3.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <name>Pack:Acceptance Tests::Dubbo</name>

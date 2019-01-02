@@ -24,7 +24,7 @@
     <dependency>
       <groupId>org.apache.servicecomb.pack.demo</groupId>
       <artifactId>service-api</artifactId>
-      <version>0.3.0</version>
+      <version>0.3.1-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
@@ -32,7 +32,7 @@
   <parent>
     <groupId>org.apache.servicecomb.pack.demo</groupId>
     <artifactId>saga-dubbo-demo</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>serviceb</artifactId>
