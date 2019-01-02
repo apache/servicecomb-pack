@@ -52,12 +52,23 @@ Saga可通过以下任一方式进行构建：
     </dependency>
 ```
 **注意**: 请将`${pack.version}`更改为实际的版本号。
+**版本迁移提示**: 从0.3.0 开始，整个项目的代码库名由servicecomb-saga改名为servicecomb-pack, 与此同时我们也更新了对应发布包的组名以及相关包名。
+如果你的项目是从saga 0.2.x 迁移过来，请按照下表所示进行修改。 
+
+|  name    |  0.2.x     |  0.3.x    |
+| ---- | ---- | ---- |
+|  groupId    | org.apache.servicecomb.saga     |  org.apache.servicecomb.pack   |
+| Package Name | org.apache.servicecomb.saga     |  org.apache.servicecomb.pack   |
+
 
 ### Saga 支持 
 添加Saga的注解及相应的补偿方法
 以一个转账应用为例：
 1. 在应用入口添加 `@EnableOmega` 的注解来初始化omega的配置并与alpha建立连接。
    ```java
+   import org.apache.servicecomb.pack.omega.spring.EnableOmega;
+   import org.springframework.boot.autoconfigure.SpringBootApplication;
+   
    @SpringBootApplication
    @EnableOmega
    public class Application {
@@ -69,6 +80,8 @@ Saga可通过以下任一方式进行构建：
 
 2. 在全局事务的起点添加 `@SagaStart` 的注解。
    ```java
+   import org.apache.servicecomb.pack.omega.context.annotations.SagaStart;
+
    @SagaStart(timeout=10)
    public boolean transferMoney(String from, String to, int amount) {
      transferOut(from, amount);
@@ -79,6 +92,9 @@ Saga可通过以下任一方式进行构建：
 
 3. 在子事务处添加 `@Compensable` 的注解并指明其对应的补偿方法。
    ```java
+   import javax.transaction.Transactional;
+   import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
+   
    @Compensable(timeout=5, compensationMethod="cancel")
    @Transactional
    public boolean transferOut(String from, int amount) {
@@ -106,6 +122,9 @@ Saga可通过以下任一方式进行构建：
  以一个转账应用为例：
 1. 在应用入口添加 `@EnableOmega` 的注解来初始化omega的配置并与alpha建立连接。
    ```java
+    import org.apache.servicecomb.pack.omega.spring.EnableOmega;
+    import org.springframework.boot.autoconfigure.SpringBootApplication;   
+   
     @SpringBootApplication
     @EnableOmega
     public class Application {
@@ -117,6 +136,8 @@ Saga可通过以下任一方式进行构建：
     
 2. 在全局事务的起点添加 `@TccStart` 的注解。
     ```java
+    import org.apache.servicecomb.pack.omega.context.annotations.TccStart;
+        
     @TccStart
     public boolean transferMoney(String from, String to, int amount) {
       transferOut(from, amount);
@@ -127,6 +148,9 @@ Saga可通过以下任一方式进行构建：
  
 3. 在子事务尝试方法处添加 `@Participate` 的注解并指明其对应的执行以及补偿方法名, 
     ```java
+    import javax.transaction.Transactional;
+    import org.apache.servicecomb.pack.omega.transaction.annotations.Participate;
+   
     @Participate(confirmMethod = "confirm", cancelMethod = "cancel")
     @Transactional
     public void transferOut(String from, int amount) {
