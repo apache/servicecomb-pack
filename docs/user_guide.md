@@ -51,13 +51,23 @@ After executing either one of the above command, you will find alpha server's ex
       <version>${pack.version}</version>
     </dependency>
 ```
-**Note**: Please change the `${pack.version}` to the actual version. Since 0.3.0 we update the package name of 
+**Note**: Please change the `${pack.version}` to the actual version. 
+
+**Migration Note**:Since 0.3.0 we rename the project repository name from saga to pack. Please update the group id and package name if you migrate your application from saga 0.2.x to pack 0.3.0. 
+
+|  name    |  0.2.x     |  0.3.x    |
+| ---- | ---- | ---- |
+|  groupId    | org.apache.servicecomb.saga     |  org.apache.servicecomb.pack   |
+| Package Name | org.apache.servicecomb.saga     |  org.apache.servicecomb.pack   |
 
 ### Saga Support
 Add saga annotations and corresponding compensation methods
 Take a transfer money application as an example:
 1. add `@EnableOmega` at application entry to initialize omega configurations and connect to alpha
    ```java
+   import org.apache.servicecomb.pack.omega.spring.EnableOmega;
+   import org.springframework.boot.autoconfigure.SpringBootApplication;
+
    @SpringBootApplication
    @EnableOmega
    public class Application {
@@ -69,6 +79,8 @@ Take a transfer money application as an example:
    
 2. add `@SagaStart` at the starting point of the global transaction
    ```java
+   import org.apache.servicecomb.pack.omega.context.annotations.SagaStart;
+
    @SagaStart(timeout=10)
    public boolean transferMoney(String from, String to, int amount) {
      transferOut(from, amount);
@@ -79,6 +91,9 @@ Take a transfer money application as an example:
 
 3. add `@Compensable` at the sub-transaction and specify its corresponding compensation method
    ```java
+   import javax.transaction.Transactional;
+   import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
+   
    @Compensable(timeout=5, compensationMethod="cancel")
    @Transactional
    public boolean transferOut(String from, int amount) {
@@ -107,6 +122,9 @@ Add TCC annotations and corresponding confirm and cancel methods
  Take a transfer money application as an example:
  1. add `@EnableOmega` at application entry to initialize omega configurations and connect to alpha
     ```java
+    import org.apache.servicecomb.pack.omega.spring.EnableOmega;
+    import org.springframework.boot.autoconfigure.SpringBootApplication;
+
     @SpringBootApplication
     @EnableOmega
     public class Application {
@@ -118,6 +136,8 @@ Add TCC annotations and corresponding confirm and cancel methods
     
  2. add `@TccStart` at the starting point of the global transaction
     ```java
+    import org.apache.servicecomb.pack.omega.context.annotations.TccStart;
+    
     @TccStart
     public boolean transferMoney(String from, String to, int amount) {
       transferOut(from, amount);
@@ -128,6 +148,9 @@ Add TCC annotations and corresponding confirm and cancel methods
  
  3. add `@Participate` at the sub-transaction and specify its corresponding compensation method
     ```java
+    import javax.transaction.Transactional;
+    import org.apache.servicecomb.pack.omega.transaction.annotations.Participate;
+
     @Participate(confirmMethod = "confirm", cancelMethod = "cancel")
     @Transactional
     public void transferOut(String from, int amount) {
