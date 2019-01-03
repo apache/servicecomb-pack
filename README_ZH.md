@@ -1,4 +1,4 @@
-# Pack | [English](README.md) [![Build Status](https://travis-ci.org/apache/servicecomb-pack.svg?branch=master)](https://travis-ci.org/apache/servicecomb-pack?branch=master) [![Coverage Status](https://coveralls.io/repos/github/apache/servicecomb-pack/badge.svg?branch=master)](https://coveralls.io/github/apache/servicecomb-pack?branch=master) [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html) [![Gitter](https://img.shields.io/badge/ServiceComb-Gitter-ff69b4.svg)](https://gitter.im/ServiceCombUsers/Saga)
+# Pack | [English](README.md) [![Build Status](https://travis-ci.org/apache/servicecomb-pack.svg?branch=master)](https://travis-ci.org/apache/servicecomb-pack?branch=master) [![Coverage Status](https://coveralls.io/repos/github/apache/servicecomb-pack/badge.svg?branch=master)](https://coveralls.io/github/apache/servicecomb-pack?branch=master)[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.servicecomb.pack/pack/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Corg.apache.servicecomb.pack) [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html) [![Gitter](https://img.shields.io/badge/ServiceComb-Gitter-ff69b4.svg)](https://gitter.im/ServiceCombUsers/Saga)
 Apache ServiceComb Pack 是一个微服务应用的数据最终一致性解决方案。
 
 ## 特性
@@ -102,6 +102,10 @@ JDK9或者JDK10 来编译Saga并运行测试的话，你需要使用 spring-boot
 
 ## 贡献
 详情可浏览[代码提交指南](http://servicecomb.apache.org/cn/developers/submit-codes/)。
+
+## Github加星之旅
+[![Stargazers over time](https://starcharts.herokuapp.com/apache/servicecomb-pack.svg)](https://starcharts.herokuapp.com/apache/servicecomb-pack)
+
 
 ## License
 [Apache 2.0 license](https://github.com/apache/servicecomb-pack/blob/master/LICENSE)。
