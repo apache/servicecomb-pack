@@ -1,6 +1,7 @@
 # Pack | [English](README.md) [![Build Status](https://travis-ci.org/apache/servicecomb-pack.svg?branch=master)](https://travis-ci.org/apache/servicecomb-pack?branch=master) [![Coverage Status](https://coveralls.io/repos/github/apache/servicecomb-pack/badge.svg?branch=master)](https://coveralls.io/github/apache/servicecomb-pack?branch=master)[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.servicecomb.pack/pack/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Corg.apache.servicecomb.pack) [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html) [![Gitter](https://img.shields.io/badge/ServiceComb-Gitter-ff69b4.svg)](https://gitter.im/ServiceCombUsers/Saga)
 Apache ServiceComb Pack 是一个微服务应用的数据最终一致性解决方案。
 
+
 ## 关键特性
 * 高可用：支持高可用的集群模式部署。
 * 高可靠：所有的关键事务事件都持久化存储在数据库中。
@@ -10,14 +11,15 @@ Apache ServiceComb Pack 是一个微服务应用的数据最终一致性解决�
 * 补偿机制灵活：支持前向恢复（重试）及后向恢复（补偿）功能。
 * 扩展简单：基于Pack架构很容实现多种协调协议，目前支持TCC、Saga协议，未来还可以添加其他协议支持。
 
+
 ## 架构
 ServiceComb Pack 架构是由 **alpha** 和 **omega**组成，其中：
 * alpha充当协调者的角色，主要负责对事务进行管理和协调。
-* omega是微服务中内嵌的一个agent，负责对网络请求进行拦截并向alpha上报事务事件。
+* omega是微服务中内嵌的一个agent，负责对调用请求进行拦截并向alpha上报事务事件。
 
 下图展示了alpha, omega以及微服务三者的关系：
 ![ServiceComb Pack 架构](docs/static_files/pack.png)
-在此架构基础中我们除了实现saga协调协议以外，我们还可以很容易实现TCC协调协议。
+在此架构基础上我们除了实现saga协调协议以外，还实现了TCC协调协议。
 详情可浏览[ServiceComb Pack 设计文档](docs/design_zh.md).
 
 同时社区也提供了多种语言的Omega实现:
@@ -26,7 +28,7 @@ ServiceComb Pack 架构是由 **alpha** 和 **omega**组成，其中：
 
 
 ## 快速入门
-* Saga在ServiceComb Java Chassis应用可以参考[出行预订](saga-demo/saga-servicecomb-demo/README.md)
+* Saga在ServiceComb Java Chassis的应用可以参考[出行预订](saga-demo/saga-servicecomb-demo/README.md)
 * Saga在Spring应用的用法可参考[出行预订示例](saga-demo/saga-spring-demo/README.md)。
 * Saga在Dubbo应用的用法可参考[Dubbo示例](saga-demo/saga-dubbo-demo/README.md).
 * TCC在Spring应用的用法可以参考[TCC示例](saga-demo/tcc-spring-demo/README.md)
@@ -46,16 +48,16 @@ ServiceComb Pack 架构是由 **alpha** 和 **omega**组成，其中：
    ```bash
       $ mvn clean install -DskipTests=true -Pdemo,docker
    ```       
-* 当前ServiceComb Pack同时支持Spring Boot 1.x 以及 Spring Boot 2.x, 在缺省情况下ServiceComb Pack会使用Spring Boot 1.x来进行构建。
+* 当前ServiceComb Pack同时支持Spring Boot 1.x以及Spring Boot 2.x，在缺省情况下ServiceComb Pack会使用Spring Boot 1.x来进行构建。
 你可以使用 *-Pspring-boot-2* 将Spring Boot版本转换到 2.x 上。 由于Spring Boot 只在2.x开始支持 JDK9，如果你想用
-JDK9或者JDK10 来编译Saga并运行测试的话，你需要使用 spring-boot-2 profile参数。
+JDK9或者JDK10来编译Saga并运行测试的话，你需要使用spring-boot-2 profile参数。
    ```bash
       $ mvn clean install -Pdemo,docker,spring-boot-2
    ```
 
-
 ## 用户指南
 如何构建和使用可浏览[用户指南](docs/user_guide_zh.md)。
+
 
 ## 获取最新版本
 
@@ -87,21 +89,22 @@ JDK9或者JDK10 来编译Saga并运行测试的话，你需要使用 spring-boot
                <url>https://repository.apache.org/content/repositories/snapshots/</url>
              </pluginRepository>
            </pluginRepositories>
-        
              
    ```    
 
-[下载Pack](http://servicecomb.apache.org/release/saga-downloads/)
 
 ## [常见问题](FAQ_ZH.md)
+
 
 ## 联系我们
 * [提交issues](https://issues.apache.org/jira/browse/SCB)
 * [gitter聊天室](https://gitter.im/ServiceCombUsers/Saga)
 * 邮件列表: [订阅](mailto:dev-subscribe@servicecomb.apache.org) [浏览](https://lists.apache.org/list.html?dev@servicecomb.apache.org)
 
+
 ## 贡献
 详情可浏览[代码提交指南](http://servicecomb.apache.org/cn/developers/submit-codes/)。
+
 
 ## Github加星之旅
 [![Stargazers over time](https://starcharts.herokuapp.com/apache/servicecomb-pack.svg)](https://starcharts.herokuapp.com/apache/servicecomb-pack)
