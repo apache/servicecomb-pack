@@ -1,14 +1,14 @@
 # Pack | [English](README.md) [![Build Status](https://travis-ci.org/apache/servicecomb-pack.svg?branch=master)](https://travis-ci.org/apache/servicecomb-pack?branch=master) [![Coverage Status](https://coveralls.io/repos/github/apache/servicecomb-pack/badge.svg?branch=master)](https://coveralls.io/github/apache/servicecomb-pack?branch=master)[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.servicecomb.pack/pack/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Corg.apache.servicecomb.pack) [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html) [![Gitter](https://img.shields.io/badge/ServiceComb-Gitter-ff69b4.svg)](https://gitter.im/ServiceCombUsers/Saga)
 Apache ServiceComb Pack 是一个微服务应用的数据最终一致性解决方案。
 
-## 特性
-* 高可用。支持集群模式。
-* 高可靠。所有的事务事件都持久存储在数据库中。
-* 高性能。事务事件是通过gRPC来上报的，且事务的请求信息是通过Kyro进行序列化和反序列化的。
-* 低侵入。仅需2-3个注解和编写对应的补偿方法即可进行分布式事务。
-* 部署简单。可通过Docker快速部署。
-* 支持前向恢复（重试）及后向恢复（补偿）。
-* 扩展简单。基于Pack架构很容实现多种协调协议,目前支持TCC，Saga协议。
+## 关键特性
+* 高可用：支持高可用的集群模式部署。
+* 高可靠：所有的关键事务事件都持久化存储在数据库中。
+* 高性能：事务事件是通过高性能gRPC来上报的，且事务的请求和响应消息都是通过Kyro进行序列化和反序列化。
+* 低侵入：仅需2-3个注解和编写对应的补偿方法即可引入分布式事务。
+* 部署简单：支持通过容器（Docker）进行快速部署和交付。
+* 补偿机制灵活：支持前向恢复（重试）及后向恢复（补偿）功能。
+* 扩展简单：基于Pack架构很容实现多种协调协议，目前支持TCC、Saga协议，未来还可以添加非侵入式协议。
 
 ## 架构
 ServiceComb Pack 架构是由 **alpha** 和 **omega**组成，其中：
