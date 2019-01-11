@@ -56,4 +56,4 @@ spring:
   jpa:
     properties:
       eclipselink:
-        ddl-generation: none
+        ddl-generation: create-or-extend-tables
