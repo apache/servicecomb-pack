@@ -67,7 +67,9 @@ public class RDBTxEventRepository implements TccTxEventRepository {
   @Override
   @Transactional
   public void updateParticipatedEventStatus(ParticipatedEvent event) {
-    // TODO: update the status to DB
+    participatedEventRepository.updateStatusByUniqueKey(event.getGlobalTxId(), event.getLocalTxId(), event.getStatus());
+    // saveTccEventHere
+    tccTxEventDBRepository.save(EventConverter.convertToTccTxEvent(event));
   }
 
   @Override
