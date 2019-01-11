@@ -88,7 +88,7 @@ public class PackStepdefs implements En {
       } else if (result.equals("fail")) {
         resp.then().statusCode(is(500));
       }
-      // Need to wait for a while to let the confirm or cannel command finished.
+      // Need to wait for a while to let the confirm or cancel command finished.
       Thread.sleep(2000);
     });
     

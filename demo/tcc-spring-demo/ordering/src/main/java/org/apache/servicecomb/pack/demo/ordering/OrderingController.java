@@ -41,7 +41,7 @@ public class OrderingController {
   @TccStart
   @PostMapping("/order/{userName}/{productName}/{productUnit}/{unitPrice}")
   @ResponseBody
-  public String ordering(
+  public String order(
       @PathVariable String userName,
       @PathVariable String productName, @PathVariable Integer productUnit, @PathVariable Integer unitPrice) {
 
