@@ -40,6 +40,12 @@ class CarBookingService {
     if (bookings.containsKey(id)) {
       bookings.get(id).cancel();
     }
+    // Just sleep a while to ensure the Compensated event is after ordering TxAbort event
+    try {
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+      // Just ignore the exception
+    }
   }
 
   Collection<CarBooking> getAllBookings() {
