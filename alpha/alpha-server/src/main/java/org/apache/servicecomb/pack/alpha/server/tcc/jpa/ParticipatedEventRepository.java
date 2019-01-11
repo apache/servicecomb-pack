@@ -35,7 +35,7 @@ public interface ParticipatedEventRepository extends CrudRepository<Participated
   @Query(value = "SELECT t FROM ParticipatedEvent AS t WHERE t.globalTxId = ?1 and t.localTxId = ?2")
   Optional<ParticipatedEvent> findByUniqueKey(String globalTxId, String localTxId);
 
-//  @Query(value = "UPDATE ParticipatedEvent t SET t.status = ?3 WHERE t.globalTxId = ?1 and t.localTxId = ?2 limit 1")
+//  @Query("UPDATE ParticipatedEvent t SET t.status = ?3 WHERE t.globalTxId = ?1 and t.localTxId = ?2 limit 1")
 //  void updateStatusByUniqueKey(String globalTxId, String localTxId, String status);
 
   @Transactional

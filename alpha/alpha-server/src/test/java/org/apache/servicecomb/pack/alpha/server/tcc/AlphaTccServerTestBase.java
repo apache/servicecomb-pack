@@ -151,8 +151,7 @@ public abstract class AlphaTccServerTestBase {
     blockingStub.onParticipationEnded(newParticipationEndedEvent("Succeed"));
     List<TccTxEvent> events = tccTxEventRepository.findByGlobalTxId(globalTxId).get();
     assertThat(events.size(),  is(2));
-    events.iterator().next();   // skip the first one
-    TccTxEvent event = events.iterator().next();
+    TccTxEvent event = events.get(1); // skip the first ParticipationStartedEvent.
     assertThat(event.getGlobalTxId(), is(globalTxId));
     assertThat(event.getLocalTxId(), is(localTxId));
     assertThat(event.getInstanceId(), is(instanceId));
