@@ -66,6 +66,12 @@ public class RDBTxEventRepository implements TccTxEventRepository {
 
   @Override
   @Transactional
+  public void updateParticipatedEventStatus(ParticipatedEvent event) {
+    // TODO: update the status to DB
+  }
+
+  @Override
+  @Transactional
   public void coordinated(TccTxEvent event) {
     participatedEventRepository.findByUniqueKey(event.getGlobalTxId(), event.getLocalTxId()).ifPresent((e) -> {
       participatedEventRepository.delete(e);

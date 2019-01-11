@@ -22,7 +22,8 @@ import java.lang.reflect.Method;
 import org.apache.servicecomb.pack.common.TransactionStatus;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.transaction.annotations.Participate;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipatedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationEndedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationStartedEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -58,18 +59,17 @@ public class TccParticipatorAspect {
     LOG.debug("Updated context {} for participate method {} ", context, method.toString());
 
     try {
+      tccMessageSender.participationStart(new ParticipationStartedEvent(context.globalTxId(), context.localTxId(), localTxId));
       Object result = joinPoint.proceed();
       // Send the participate message back
-      tccMessageSender.participate(new ParticipatedEvent(context.globalTxId(), context.localTxId(), localTxId, confirmMethod,
-          cancelMethod, TransactionStatus.Succeed));
+      tccMessageSender.participationEnd(new ParticipationEndedEvent(context.globalTxId(), context.localTxId(), localTxId, TransactionStatus.Succeed));
       // Just store the parameters into the context
       parametersContext.putParamters(context.localTxId(), joinPoint.getArgs());
       LOG.debug("Participate Transaction with context {} has finished.", context);
       return result;
     } catch (Throwable throwable) {
       // Now we don't handle the error message
-      tccMessageSender.participate(new ParticipatedEvent(context.globalTxId(), context.localTxId(), localTxId, confirmMethod,
-          cancelMethod, TransactionStatus.Failed));
+      tccMessageSender.participationEnd(new ParticipationEndedEvent(context.globalTxId(), context.localTxId(), localTxId, TransactionStatus.Failed));
       LOG.error("Participate Transaction with context {} failed.", context, throwable);
       throw throwable;
     } finally {

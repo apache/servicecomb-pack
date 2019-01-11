@@ -31,10 +31,7 @@ import java.util.UUID;
 import org.apache.servicecomb.pack.common.TransactionStatus;
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.CoordinatedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipatedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccEndedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccStartedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.*;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -106,8 +103,10 @@ public class TccInterceptorTest {
     assertArrayEquals(
         new String[] {
             new TccStartedEvent(globalTxId, globalTxId).toString(),
-            new ParticipatedEvent(globalTxId, newLocalTxId, globalTxId, confirmMethod, cancelMethod, TransactionStatus.Succeed).toString(),
-            new ParticipatedEvent(globalTxId, anotherLocalTxId, globalTxId, confirmMethod, cancelMethod, TransactionStatus.Succeed).toString(),
+            new ParticipationStartedEvent(globalTxId, newLocalTxId, globalTxId).toString(),
+            new ParticipationEndedEvent(globalTxId, newLocalTxId, globalTxId, TransactionStatus.Succeed).toString(),
+            new ParticipationStartedEvent(globalTxId, anotherLocalTxId, globalTxId).toString(),
+            new ParticipationEndedEvent(globalTxId, anotherLocalTxId, globalTxId, TransactionStatus.Succeed).toString(),
             new TccEndedEvent(globalTxId, globalTxId, TransactionStatus.Succeed).toString(),
             new CoordinatedEvent(globalTxId, newLocalTxId, globalTxId, confirmMethod, TransactionStatus.Succeed).toString(),
             new CoordinatedEvent(globalTxId, anotherLocalTxId, globalTxId, confirmMethod, TransactionStatus.Succeed).toString()
@@ -137,8 +136,10 @@ public class TccInterceptorTest {
     assertArrayEquals(
         new String[] {
             new TccStartedEvent(globalTxId, globalTxId).toString(),
-            new ParticipatedEvent(globalTxId, newLocalTxId, globalTxId, confirmMethod, cancelMethod, TransactionStatus.Succeed).toString(),
-            new ParticipatedEvent(globalTxId, anotherLocalTxId, globalTxId, confirmMethod, cancelMethod, TransactionStatus.Failed).toString(),
+            new ParticipationStartedEvent(globalTxId, newLocalTxId, globalTxId).toString(),
+            new ParticipationEndedEvent(globalTxId, newLocalTxId, globalTxId, TransactionStatus.Succeed).toString(),
+            new ParticipationStartedEvent(globalTxId, anotherLocalTxId, globalTxId).toString(),
+            new ParticipationEndedEvent(globalTxId, anotherLocalTxId, globalTxId, TransactionStatus.Failed).toString(),
             new TccEndedEvent(globalTxId, globalTxId, TransactionStatus.Failed).toString(),
             new CoordinatedEvent(globalTxId, newLocalTxId, globalTxId, cancelMethod, TransactionStatus.Succeed).toString()
         },

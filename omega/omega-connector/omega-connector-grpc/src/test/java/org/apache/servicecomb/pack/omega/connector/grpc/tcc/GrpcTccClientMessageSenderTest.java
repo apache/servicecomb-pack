@@ -24,20 +24,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import org.apache.servicecomb.pack.common.TransactionStatus;
+import org.apache.servicecomb.pack.contract.grpc.*;
 import org.apache.servicecomb.pack.omega.context.ServiceConfig;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.CoordinatedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipatedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccEndedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccStartedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcAck;
-import org.apache.servicecomb.pack.contract.grpc.GrpcServiceConfig;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccCoordinateCommand;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccCoordinatedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccParticipatedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccTransactionEndedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccTransactionStartedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.*;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationStartedEvent;
 import org.apache.servicecomb.pack.contract.grpc.TccEventServiceGrpc.TccEventServiceImplBase;
 import org.junit.Before;
 import org.junit.Rule;
@@ -63,8 +55,8 @@ public class GrpcTccClientMessageSenderTest {
   private final String localTxId = uniquify("localTxId");
   private final String parentTxId = uniquify("parentTxId");
   private final String methodName = uniquify("methodName");
-  private final String confirmMethod = uniquify("confirmMethod");
-  private final String cancelMethod = uniquify("cancleMethod");
+//  private final String confirmMethod = uniquify("confirmMethod");
+//  private final String cancelMethod = uniquify("cancleMethod");
   private final String serviceName = uniquify("serviceName");
 
   private final ServiceConfig serviceConfig = new ServiceConfig(uniquify("Service"));
@@ -198,14 +190,14 @@ public class GrpcTccClientMessageSenderTest {
   }
 
   @Test
-  public void serviceOnParticipateTest() {
+  public void serviceOnStartParticipateTest() {
 
-    final GrpcTccParticipatedEvent[] requestCaptor = new GrpcTccParticipatedEvent[1];
-    ParticipatedEvent event = new ParticipatedEvent(globalTxId,localTxId, parentTxId, confirmMethod, cancelMethod, TransactionStatus.Succeed);
+    final GrpcParticipationStartedEvent[] requestCaptor = new GrpcParticipationStartedEvent[1];
+    ParticipationStartedEvent event = new ParticipationStartedEvent(globalTxId,localTxId, parentTxId);
 
     TccEventServiceImplBase serviceImpl = new TccEventServiceImplBase() {
 
-      public void participate(GrpcTccParticipatedEvent request,
+      public void onParticipationStarted(GrpcParticipationStartedEvent request,
           StreamObserver<GrpcAck> responseObserver) {
         requestCaptor[0] = request;
         responseObserver.onNext(ack);
@@ -214,15 +206,40 @@ public class GrpcTccClientMessageSenderTest {
     };
 
     serviceRegistry.addService(serviceImpl);
-    AlphaResponse response =service.participate(event);
+    AlphaResponse response =service.participationStart(event);
 
     assertThat(requestCaptor[0].getServiceName(), is(serviceConfig.serviceName()));
     assertThat(requestCaptor[0].getInstanceId(), is(serviceConfig.instanceId()));
     assertThat(requestCaptor[0].getGlobalTxId(), is(globalTxId));
     assertThat(requestCaptor[0].getLocalTxId(), is(localTxId));
     assertThat(requestCaptor[0].getParentTxId(), is(parentTxId));
-    assertThat(requestCaptor[0].getCancelMethod(), is(cancelMethod));
-    assertThat(requestCaptor[0].getConfirmMethod(), is(confirmMethod));
+    assertThat(response.aborted(), is(false));
+  }
+
+  @Test
+  public void serviceOnEndParticipateTest() {
+
+    final GrpcParticipationEndedEvent[] requestCaptor = new GrpcParticipationEndedEvent[1];
+    ParticipationEndedEvent event = new ParticipationEndedEvent(globalTxId,localTxId, parentTxId, TransactionStatus.Succeed);
+
+    TccEventServiceImplBase serviceImpl = new TccEventServiceImplBase() {
+
+      public void onParticipationEnded(GrpcParticipationEndedEvent request,
+          StreamObserver<GrpcAck> responseObserver) {
+        requestCaptor[0] = request;
+        responseObserver.onNext(ack);
+        responseObserver.onCompleted();
+      }
+    };
+
+    serviceRegistry.addService(serviceImpl);
+    AlphaResponse response =service.participationEnd(event);
+
+    assertThat(requestCaptor[0].getServiceName(), is(serviceConfig.serviceName()));
+    assertThat(requestCaptor[0].getInstanceId(), is(serviceConfig.instanceId()));
+    assertThat(requestCaptor[0].getGlobalTxId(), is(globalTxId));
+    assertThat(requestCaptor[0].getLocalTxId(), is(localTxId));
+    assertThat(requestCaptor[0].getParentTxId(), is(parentTxId));
     assertThat(requestCaptor[0].getStatus(), is(TransactionStatus.Succeed.toString()));
     assertThat(response.aborted(), is(false));
   }

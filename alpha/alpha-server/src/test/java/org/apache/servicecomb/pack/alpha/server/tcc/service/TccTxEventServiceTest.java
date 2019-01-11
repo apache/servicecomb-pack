@@ -106,7 +106,7 @@ public class TccTxEventServiceTest {
     OmegaCallbacksRegistry.register(serviceConfig, observer);
 
     tccTxEventService.onTccStartedEvent(tccStartEvent);
-    tccTxEventService.onParticipatedEvent(participatedEvent);
+    tccTxEventService.onParticipationStartedEvent(participatedEvent);
     tccTxEventService.onTccEndedEvent(tccEndEvent);
     tccTxEventService.onCoordinatedEvent(coordinateEvent);
 
@@ -123,7 +123,7 @@ public class TccTxEventServiceTest {
     OmegaCallbacksRegistry.register(serviceConfig, observer);
 
     tccTxEventService.onTccStartedEvent(tccStartEvent);
-    tccTxEventService.onParticipatedEvent(participatedEvent);
+    tccTxEventService.onParticipationStartedEvent(participatedEvent);
 
     Thread.sleep(3000l);
     Date deadLine = new Date(System.currentTimeMillis() - SECONDS.toMillis(2));
@@ -150,7 +150,7 @@ public class TccTxEventServiceTest {
     OmegaCallbacksRegistry.register(serviceConfig, observer);
 
     tccTxEventService.onTccStartedEvent(tccStartEvent);
-    tccTxEventService.onParticipatedEvent(participatedEvent);
+    tccTxEventService.onParticipationStartedEvent(participatedEvent);
     tccTxEventService.onTccEndedEvent(tccEndEvent);
     tccTxEventService.onCoordinatedEvent(coordinateEvent);
 
@@ -170,14 +170,14 @@ public class TccTxEventServiceTest {
 
     // one global tx
     tccTxEventService.onTccStartedEvent(tccStartEvent);
-    tccTxEventService.onParticipatedEvent(participatedEvent);
+    tccTxEventService.onParticipationStartedEvent(participatedEvent);
     tccTxEventService.onTccEndedEvent(tccEndEvent);
     tccTxEventService.onCoordinatedEvent(coordinateEvent);
 
     // another global tx
     String globalTxId_2 = uniquify("globalTxId");
     tccTxEventService.onTccStartedEvent(newGlobalTxEvent(TccTxType.STARTED, globalTxId_2, TransactionStatus.Succeed));
-    tccTxEventService.onParticipatedEvent(newParticipateEvent(globalTxId_2, TransactionStatus.Succeed));
+    tccTxEventService.onParticipationStartedEvent(newParticipateEvent(globalTxId_2, TransactionStatus.Succeed));
     tccTxEventService.onTccEndedEvent(newGlobalTxEvent(TccTxType.ENDED, globalTxId_2, TransactionStatus.Succeed));
     tccTxEventService.onCoordinatedEvent(newTccTxEvent(TccTxType.COORDINATED, globalTxId_2, TransactionStatus.Succeed));
 

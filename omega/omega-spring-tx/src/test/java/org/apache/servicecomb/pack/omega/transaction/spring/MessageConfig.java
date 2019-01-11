@@ -28,10 +28,7 @@ import org.apache.servicecomb.pack.omega.transaction.TxEvent;
 import org.apache.servicecomb.pack.omega.transaction.tcc.DefaultParametersContext;
 import org.apache.servicecomb.pack.omega.transaction.tcc.ParametersContext;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageSender;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.CoordinatedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipatedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccEndedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccStartedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.*;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -123,8 +120,14 @@ public class MessageConfig {
       }
 
       @Override
-      public AlphaResponse participate(ParticipatedEvent participatedEvent) {
-        messages.add(participatedEvent.toString());
+      public AlphaResponse participationStart(ParticipationStartedEvent participationStartedEvent) {
+        messages.add(participationStartedEvent.toString());
+        return new AlphaResponse(false);
+      }
+
+      @Override
+      public AlphaResponse participationEnd(ParticipationEndedEvent participationEndedEvent) {
+        messages.add(participationEndedEvent.toString());
         return new AlphaResponse(false);
       }
 

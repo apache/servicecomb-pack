@@ -19,22 +19,13 @@ package org.apache.servicecomb.pack.omega.connector.grpc.tcc;
 
 import io.grpc.ManagedChannel;
 
+import org.apache.servicecomb.pack.contract.grpc.*;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
 import org.apache.servicecomb.pack.omega.context.ServiceConfig;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageSender;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.CoordinatedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipatedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccEndedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccStartedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcAck;
-import org.apache.servicecomb.pack.contract.grpc.GrpcServiceConfig;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccCoordinatedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccParticipatedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccTransactionEndedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccTransactionStartedEvent;
-import org.apache.servicecomb.pack.contract.grpc.TccEventServiceGrpc;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.*;
 import org.apache.servicecomb.pack.contract.grpc.TccEventServiceGrpc.TccEventServiceBlockingStub;
 import org.apache.servicecomb.pack.contract.grpc.TccEventServiceGrpc.TccEventServiceStub;
 
@@ -79,9 +70,15 @@ public class GrpcTccClientMessageSender implements TccMessageSender {
   }
 
   @Override
-  public AlphaResponse participate(ParticipatedEvent participateEvent) {
-    GrpcAck grpcAck = tccBlockingEventService.participate(convertTo(participateEvent));
+  public AlphaResponse participationStart(ParticipationStartedEvent participationStartedEvent) {
+    GrpcAck grpcAck = tccBlockingEventService.onParticipationStarted(convertTo(participationStartedEvent));
     return new AlphaResponse(grpcAck.getAborted());
+  }
+
+  @Override
+  public AlphaResponse participationEnd(ParticipationEndedEvent participationEndedEvent) {
+      GrpcAck grpcAck = tccBlockingEventService.onParticipationEnded(convertTo(participationEndedEvent));
+      return new AlphaResponse(grpcAck.getAborted());
   }
 
   @Override
@@ -142,16 +139,23 @@ public class GrpcTccClientMessageSender implements TccMessageSender {
         .build();
   }
 
-  private GrpcTccParticipatedEvent convertTo(ParticipatedEvent participateEvent) {
-    return GrpcTccParticipatedEvent.newBuilder()
+  private GrpcParticipationStartedEvent convertTo(ParticipationStartedEvent participationStartedEvent) {
+    return GrpcParticipationStartedEvent.newBuilder()
         .setServiceName(serviceConfig.getServiceName())
         .setInstanceId(serviceConfig.getInstanceId())
-        .setGlobalTxId(participateEvent.getGlobalTxId())
-        .setLocalTxId(participateEvent.getLocalTxId())
-        .setParentTxId(participateEvent.getParentTxId())
-        .setCancelMethod(participateEvent.getCancelMethod())
-        .setConfirmMethod(participateEvent.getConfirmMethod())
-        .setStatus(participateEvent.getStatus().toString())
+        .setGlobalTxId(participationStartedEvent.getGlobalTxId())
+        .setLocalTxId(participationStartedEvent.getLocalTxId())
+        .setParentTxId(participationStartedEvent.getParentTxId())
         .build();
+  }
+  private GrpcParticipationEndedEvent convertTo(ParticipationEndedEvent participationEndedEvent) {
+    return GrpcParticipationEndedEvent.newBuilder()
+      .setServiceName(serviceConfig.getServiceName())
+      .setInstanceId(serviceConfig.getInstanceId())
+      .setGlobalTxId(participationEndedEvent.getGlobalTxId())
+      .setLocalTxId(participationEndedEvent.getLocalTxId())
+      .setParentTxId(participationEndedEvent.getParentTxId())
+      .setStatus(participationEndedEvent.getStatus().toString())
+      .build();
   }
 }

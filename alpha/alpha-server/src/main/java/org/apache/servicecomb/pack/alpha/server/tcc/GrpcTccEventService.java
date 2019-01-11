@@ -23,14 +23,7 @@ import org.apache.servicecomb.pack.alpha.server.tcc.callback.OmegaCallback;
 import org.apache.servicecomb.pack.alpha.server.tcc.callback.OmegaCallbacksRegistry;
 import org.apache.servicecomb.pack.alpha.server.tcc.jpa.EventConverter;
 import org.apache.servicecomb.pack.alpha.server.tcc.service.TccTxEventService;
-import org.apache.servicecomb.pack.contract.grpc.GrpcAck;
-import org.apache.servicecomb.pack.contract.grpc.GrpcServiceConfig;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccCoordinateCommand;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccCoordinatedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccParticipatedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccTransactionEndedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccTransactionStartedEvent;
-import org.apache.servicecomb.pack.contract.grpc.TccEventServiceGrpc;
+import org.apache.servicecomb.pack.contract.grpc.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,11 +58,20 @@ public class GrpcTccEventService extends TccEventServiceGrpc.TccEventServiceImpl
   }
 
   @Override
-  public void participate(GrpcTccParticipatedEvent request, StreamObserver<GrpcAck> responseObserver) {
-    LOG.info("Received participated event from service {} , global tx id: {}, local tx id: {}", request.getServiceName(),
+  public void onParticipationStarted(GrpcParticipationStartedEvent request, StreamObserver<GrpcAck> responseObserver) {
+    LOG.info("Received participation started event from service {} , global tx id: {}, local tx id: {}", request.getServiceName(),
         request.getGlobalTxId(), request.getLocalTxId()) ;
     responseObserver.onNext(
-        tccTxEventService.onParticipatedEvent(EventConverter.convertToParticipatedEvent(request)) ? ALLOW : REJECT);
+        tccTxEventService.onParticipationStartedEvent(EventConverter.convertToParticipatedEvent(request)) ? ALLOW : REJECT);
+    responseObserver.onCompleted();
+  }
+
+  @Override
+  public void onParticipationEnded(GrpcParticipationEndedEvent request, StreamObserver<GrpcAck> responseObserver) {
+    LOG.info("Received participation ended event from service {} , global tx id: {}, local tx id: {}", request.getServiceName(),
+        request.getGlobalTxId(), request.getLocalTxId()) ;
+    responseObserver.onNext(
+            tccTxEventService.onParticipationEndedEvent(EventConverter.convertToParticipatedEvent(request)) ? ALLOW : REJECT);
     responseObserver.onCompleted();
   }
 

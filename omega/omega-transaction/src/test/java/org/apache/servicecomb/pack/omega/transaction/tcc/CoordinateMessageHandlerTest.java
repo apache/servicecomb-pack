@@ -28,10 +28,7 @@ import org.apache.servicecomb.pack.common.TransactionStatus;
 import org.apache.servicecomb.pack.omega.context.CallbackContext;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.CoordinatedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipatedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccEndedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccStartedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -61,7 +58,12 @@ public class CoordinateMessageHandlerTest {
     }
 
     @Override
-    public AlphaResponse participate(ParticipatedEvent participateEvent) {
+    public AlphaResponse participationStart(ParticipationStartedEvent participationStartedEvent) {
+      return null;
+    }
+
+    @Override
+    public AlphaResponse participationEnd(ParticipationEndedEvent participationEndedEvent) {
       return null;
     }
 

@@ -101,8 +101,8 @@ public class TccCallbackEngineTest {
     StreamObserver responseObserver = mock(StreamObserver.class);
     OmegaCallbacksRegistry.register(serviceConfig, responseObserver);
 
-    tccTxEventService.onParticipatedEvent(participatedEvent);
-    tccTxEventService.onParticipatedEvent(participatedEvent);
+    tccTxEventService.onParticipationStartedEvent(participatedEvent);
+    tccTxEventService.onParticipationEndedEvent(participatedEvent);
 
     tccTxEventService.onTccEndedEvent(tccEndEvent);
 
@@ -115,7 +115,7 @@ public class TccCallbackEngineTest {
     doThrow(IllegalArgumentException.class).when(responseObserver).onNext(any());
     OmegaCallbacksRegistry.register(serviceConfig, responseObserver);
 
-    tccTxEventService.onParticipatedEvent(participatedEvent);
+    tccTxEventService.onParticipationStartedEvent(participatedEvent);
     boolean result = tccCallbackEngine.execute(tccEndEvent);
     assertThat(result, is(false));
 
@@ -135,7 +135,7 @@ public class TccCallbackEngineTest {
     doThrow(IllegalArgumentException.class).when(failedResponseObserver).onNext(any());
     OmegaCallbacksRegistry.register(serviceConfig, failedResponseObserver);
 
-    tccTxEventService.onParticipatedEvent(participatedEvent);
+    tccTxEventService.onParticipationStartedEvent(participatedEvent);
     boolean result = tccCallbackEngine.execute(tccEndEvent);
     assertThat(result, is(false));
 

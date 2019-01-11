@@ -63,8 +63,8 @@ public class TccTxEventService {
     return true;
   }
 
-  public boolean onParticipatedEvent(ParticipatedEvent participatedEvent) {
-    LOG.info("Registered Participated event, global tx: {}, local tx: {}, parent id: {}, "
+  public boolean onParticipationStartedEvent(ParticipatedEvent participatedEvent) {
+    LOG.info("Registered Participation started event, global tx: {}, local tx: {}, parent id: {}, "
             + "confirm: {}, cancel: {}, status: {}, service [{}] instanceId [{}]",
         participatedEvent.getGlobalTxId(), participatedEvent.getLocalTxId(), participatedEvent.getParentTxId(),
         participatedEvent.getConfirmMethod(), participatedEvent.getCancelMethod(), participatedEvent.getStatus(),
@@ -76,6 +76,24 @@ public class TccTxEventService {
     } catch (Exception ex) {
       LOG.warn("Add participateEvent triggered exception, globalTxId:{}, localTxId:{}, ",
           participatedEvent.getGlobalTxId(), participatedEvent.getLocalTxId(), ex);
+      return false;
+    }
+    return true;
+  }
+
+  public boolean onParticipationEndedEvent(ParticipatedEvent participatedEvent) {
+    LOG.info("Registered Participation ended event, global tx: {}, local tx: {}, parent id: {}, "
+                    + "confirm: {}, cancel: {}, status: {}, service [{}] instanceId [{}]",
+            participatedEvent.getGlobalTxId(), participatedEvent.getLocalTxId(), participatedEvent.getParentTxId(),
+            participatedEvent.getConfirmMethod(), participatedEvent.getCancelMethod(), participatedEvent.getStatus(),
+            participatedEvent.getServiceName(), participatedEvent.getInstanceId());
+    try {
+      if (tccTxEventRepository.findByUniqueKey(participatedEvent.getGlobalTxId(), participatedEvent.getLocalTxId(), TccTxType.PARTICIPATED).isPresent()) {
+        tccTxEventRepository.updateParticipatedEventStatus(participatedEvent);
+      }
+    } catch (Exception ex) {
+      LOG.warn("Add participateEvent triggered exception, globalTxId:{}, localTxId:{}, ",
+              participatedEvent.getGlobalTxId(), participatedEvent.getLocalTxId(), ex);
       return false;
     }
     return true;

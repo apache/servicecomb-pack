@@ -58,6 +58,16 @@ public class MemoryTxEventRepository implements TccTxEventRepository {
   }
 
   @Override
+  public void updateParticipatedEventStatus(ParticipatedEvent event) {
+    Set<TccTxEvent> events = tccEventMap.get(event.getGlobalTxId());
+    if (events != null) {
+      events.stream().filter(e ->
+        event.getServiceName().equals(e.getTxType())
+          && event.getLocalTxId().equals(e.getLocalTxId())).findAny().get().setStatus(event.getStatus());
+    }
+  }
+
+  @Override
   public void coordinated(TccTxEvent event) {
   }
 

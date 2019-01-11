@@ -18,22 +18,32 @@
 package org.apache.servicecomb.pack.alpha.server.tcc.jpa;
 
 import org.apache.servicecomb.pack.common.TransactionStatus;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccCoordinatedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccParticipatedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccTransactionEndedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccTransactionStartedEvent;
+import org.apache.servicecomb.pack.contract.grpc.*;
 
 public class EventConverter {
 
-  public static ParticipatedEvent convertToParticipatedEvent(GrpcTccParticipatedEvent request) {
+  public static ParticipatedEvent convertToParticipatedEvent(GrpcParticipationStartedEvent request) {
     return new ParticipatedEvent(
         request.getServiceName(),
         request.getInstanceId(),
         request.getGlobalTxId(),
         request.getLocalTxId(),
         request.getParentTxId(),
-        request.getConfirmMethod(),
-        request.getCancelMethod(),
+        "",
+        "",
+        ""
+    );
+  }
+
+  public static ParticipatedEvent convertToParticipatedEvent(GrpcParticipationEndedEvent request) {
+    return new ParticipatedEvent(
+        request.getServiceName(),
+        request.getInstanceId(),
+        request.getGlobalTxId(),
+        request.getLocalTxId(),
+        request.getParentTxId(),
+        "",
+        "",
         request.getStatus()
     );
   }
@@ -83,14 +93,25 @@ public class EventConverter {
         event.getStatus());
   }
 
-  public static TccTxEvent convertToTccTxEvent(GrpcTccParticipatedEvent event) {
+  public static TccTxEvent convertToTccTxEvent(GrpcParticipationStartedEvent event) {
     return new TccTxEvent(event.getServiceName(),
         event.getInstanceId(),
         event.getGlobalTxId(),
         event.getLocalTxId(),
         event.getParentTxId(),
         TccTxType.PARTICIPATED.name(),
-        toMethodInfo(event.getCancelMethod(), event.getConfirmMethod()),
+        toMethodInfo("", ""),
+        "");
+  }
+
+  public static TccTxEvent convertToTccTxEvent(GrpcParticipationEndedEvent event) {
+    return new TccTxEvent(event.getServiceName(),
+        event.getInstanceId(),
+        event.getGlobalTxId(),
+        event.getLocalTxId(),
+        event.getParentTxId(),
+        TccTxType.PARTICIPATED.name(),
+        toMethodInfo("", ""),
         event.getStatus());
   }
 

@@ -33,6 +33,8 @@ public interface TccTxEventRepository {
 
   void saveParticipatedEvent(ParticipatedEvent event);
 
+  void updateParticipatedEventStatus(ParticipatedEvent event);
+
   void coordinated(TccTxEvent event);
 
   void save(TccTxEvent event);

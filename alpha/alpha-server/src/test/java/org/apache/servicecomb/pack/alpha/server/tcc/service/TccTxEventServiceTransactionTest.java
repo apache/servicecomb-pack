@@ -103,7 +103,7 @@ public class TccTxEventServiceTransactionTest {
     Optional<List<GlobalTxEvent>> startEvents = globalTxEventRepository.findByGlobalTxId(globalTxId);
     assertThat(startEvents.isPresent(), is(false));
 
-    tccTxEventService.onParticipatedEvent(participatedEvent);
+    tccTxEventService.onParticipationStartedEvent(participatedEvent);
     Optional<List<ParticipatedEvent>> participates = participatedEventRepository.findByGlobalTxId(globalTxId);
     assertThat(participates.isPresent(), is(false));
 
