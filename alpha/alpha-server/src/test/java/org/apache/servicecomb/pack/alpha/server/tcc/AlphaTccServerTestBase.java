@@ -150,14 +150,26 @@ public abstract class AlphaTccServerTestBase {
     blockingStub.onParticipationStarted(newParticipationStartedEvent());
     blockingStub.onParticipationEnded(newParticipationEndedEvent("Succeed"));
     List<TccTxEvent> events = tccTxEventRepository.findByGlobalTxId(globalTxId).get();
+
     assertThat(events.size(),  is(2));
-    TccTxEvent event = events.get(1); // skip the first ParticipationStartedEvent.
+
+    TccTxEvent event = events.get(0);
     assertThat(event.getGlobalTxId(), is(globalTxId));
     assertThat(event.getLocalTxId(), is(localTxId));
     assertThat(event.getInstanceId(), is(instanceId));
     assertThat(event.getServiceName(), is(serviceName));
-//    assertThat(EventConverter.getMethodName(event.getMethodInfo(), true), is(confirmMethod));
-//    assertThat(EventConverter.getMethodName(event.getMethodInfo(), false), is(cancelMethod));
+    assertThat(event.getTxType(), is(TccTxType.P_TX_STATED.name()));
+    assertThat(EventConverter.getMethodName(event.getMethodInfo(), true), is(confirmMethod));
+    assertThat(EventConverter.getMethodName(event.getMethodInfo(), false), is(cancelMethod));
+
+    event = events.get(1);
+    assertThat(event.getGlobalTxId(), is(globalTxId));
+    assertThat(event.getLocalTxId(), is(localTxId));
+    assertThat(event.getInstanceId(), is(instanceId));
+    assertThat(event.getServiceName(), is(serviceName));
+    assertThat(event.getTxType(), is(TccTxType.P_TX_ENDED.name()));
+    assertThat(EventConverter.getMethodName(event.getMethodInfo(), true), is(confirmMethod));
+    assertThat(EventConverter.getMethodName(event.getMethodInfo(), false), is(cancelMethod));
     assertThat(event.getStatus(), is("Succeed"));
   }
 
@@ -173,7 +185,7 @@ public abstract class AlphaTccServerTestBase {
     await().atMost(2, SECONDS).until(() -> !receivedCommands.isEmpty());
     assertThat(receivedCommands.size(), is(1));
     GrpcTccCoordinateCommand command = receivedCommands.poll();
-//    assertThat(command.getMethod(), is("confirm"));
+    assertThat(command.getMethod(), is("confirm"));
     assertThat(command.getGlobalTxId(), is(globalTxId));
     assertThat(command.getServiceName(), is(serviceName));
 
@@ -193,7 +205,7 @@ public abstract class AlphaTccServerTestBase {
     await().atMost(2, SECONDS).until(() -> !receivedCommands.isEmpty());
     assertThat(receivedCommands.size(), is(1));
     GrpcTccCoordinateCommand command = receivedCommands.poll();
-//    assertThat(command.getMethod(), is("cancel"));
+    assertThat(command.getMethod(), is("cancel"));
     assertThat(command.getGlobalTxId(), is(globalTxId));
     assertThat(command.getServiceName(), is(serviceName));
     assertThat(commandStreamObserver.isCompleted(), is(false));
@@ -248,7 +260,7 @@ public abstract class AlphaTccServerTestBase {
     await().atMost(2, SECONDS).until(() -> !receivedCommands.isEmpty());
     assertThat(receivedCommands.size(), is(1));
     GrpcTccCoordinateCommand command = receivedCommands.poll();
-//    assertThat(command.getMethod(), is("confirm"));
+    assertThat(command.getMethod(), is("confirm"));
     assertThat(command.getGlobalTxId(), is(globalTxId));
     assertThat(command.getServiceName(), is(serviceName));
 
@@ -261,6 +273,8 @@ public abstract class AlphaTccServerTestBase {
         .setLocalTxId(localTxId)
         .setServiceName(serviceName)
         .setInstanceId(instanceId)
+        .setConfirmMethod(confirmMethod)
+        .setCancelMethod(cancelMethod)
         .build();
   }
 
@@ -270,6 +284,8 @@ public abstract class AlphaTccServerTestBase {
             .setLocalTxId(localTxId)
             .setServiceName(serviceName)
             .setInstanceId(instanceId)
+            .setConfirmMethod(confirmMethod)
+            .setCancelMethod(cancelMethod)
             .setStatus(status)
             .build();
   }

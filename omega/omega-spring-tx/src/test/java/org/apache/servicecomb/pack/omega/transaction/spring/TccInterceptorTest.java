@@ -103,10 +103,12 @@ public class TccInterceptorTest {
     assertArrayEquals(
         new String[] {
             new TccStartedEvent(globalTxId, globalTxId).toString(),
-            new ParticipationStartedEvent(globalTxId, newLocalTxId, globalTxId).toString(),
-            new ParticipationEndedEvent(globalTxId, newLocalTxId, globalTxId, TransactionStatus.Succeed).toString(),
-            new ParticipationStartedEvent(globalTxId, anotherLocalTxId, globalTxId).toString(),
-            new ParticipationEndedEvent(globalTxId, anotherLocalTxId, globalTxId, TransactionStatus.Succeed).toString(),
+            new ParticipationStartedEvent(globalTxId, newLocalTxId, globalTxId, confirmMethod, cancelMethod).toString(),
+            new ParticipationEndedEvent(globalTxId, newLocalTxId, globalTxId, confirmMethod, cancelMethod,
+                TransactionStatus.Succeed).toString(),
+            new ParticipationStartedEvent(globalTxId, anotherLocalTxId, globalTxId, confirmMethod, cancelMethod).toString(),
+            new ParticipationEndedEvent(globalTxId, anotherLocalTxId, globalTxId, confirmMethod, cancelMethod,
+                TransactionStatus.Succeed).toString(),
             new TccEndedEvent(globalTxId, globalTxId, TransactionStatus.Succeed).toString(),
             new CoordinatedEvent(globalTxId, newLocalTxId, globalTxId, confirmMethod, TransactionStatus.Succeed).toString(),
             new CoordinatedEvent(globalTxId, anotherLocalTxId, globalTxId, confirmMethod, TransactionStatus.Succeed).toString()
@@ -136,10 +138,12 @@ public class TccInterceptorTest {
     assertArrayEquals(
         new String[] {
             new TccStartedEvent(globalTxId, globalTxId).toString(),
-            new ParticipationStartedEvent(globalTxId, newLocalTxId, globalTxId).toString(),
-            new ParticipationEndedEvent(globalTxId, newLocalTxId, globalTxId, TransactionStatus.Succeed).toString(),
-            new ParticipationStartedEvent(globalTxId, anotherLocalTxId, globalTxId).toString(),
-            new ParticipationEndedEvent(globalTxId, anotherLocalTxId, globalTxId, TransactionStatus.Failed).toString(),
+            new ParticipationStartedEvent(globalTxId, newLocalTxId, globalTxId, confirmMethod, cancelMethod).toString(),
+            new ParticipationEndedEvent(globalTxId, newLocalTxId, globalTxId, confirmMethod, cancelMethod,
+                TransactionStatus.Succeed).toString(),
+            new ParticipationStartedEvent(globalTxId, anotherLocalTxId, globalTxId, confirmMethod, cancelMethod).toString(),
+            new ParticipationEndedEvent(globalTxId, anotherLocalTxId, globalTxId, confirmMethod, cancelMethod,
+                TransactionStatus.Failed).toString(),
             new TccEndedEvent(globalTxId, globalTxId, TransactionStatus.Failed).toString(),
             new CoordinatedEvent(globalTxId, newLocalTxId, globalTxId, cancelMethod, TransactionStatus.Succeed).toString()
         },

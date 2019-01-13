@@ -51,6 +51,8 @@ message GrpcParticipationStartedEvent {
   string parentTxId = 4;
   string serviceName = 5;
   string instanceId = 6;
+  string confirmMethod = 7;
+  string cancelMethod = 8;
 }
 
 message GrpcParticipationEndedEvent {
@@ -60,6 +62,8 @@ message GrpcParticipationEndedEvent {
   string parentTxId = 4;
   string serviceName = 5;
   string instanceId = 6;
+  string confirmMethod = 7;
+  string cancelMethod = 8;
   string status = 9;
 }
 

@@ -130,7 +130,8 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
     loadContext =
         new LoadBalanceContextBuilder(TransactionType.TCC, clusterConfig, serviceConfig, 30, 4).build();
     tccLoadBalanceSender = new TccLoadBalanceSender(loadContext, new FastestSender());
-    participationStartedEvent = new ParticipationStartedEvent(globalTxId, localTxId, parentTxId);
+    participationStartedEvent = new ParticipationStartedEvent(globalTxId, localTxId, parentTxId, confirmMethod,
+        cancelMethod);
     tccStartedEvent = new TccStartedEvent(globalTxId, localTxId);
     tccEndedEvent = new TccEndedEvent(globalTxId, localTxId, TransactionStatus.Succeed);
     coordinatedEvent = new CoordinatedEvent(globalTxId, localTxId, parentTxId, methodName, TransactionStatus.Succeed);

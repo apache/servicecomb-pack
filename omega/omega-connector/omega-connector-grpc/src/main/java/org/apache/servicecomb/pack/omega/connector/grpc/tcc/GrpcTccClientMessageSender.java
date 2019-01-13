@@ -146,6 +146,8 @@ public class GrpcTccClientMessageSender implements TccMessageSender {
         .setGlobalTxId(participationStartedEvent.getGlobalTxId())
         .setLocalTxId(participationStartedEvent.getLocalTxId())
         .setParentTxId(participationStartedEvent.getParentTxId())
+        .setConfirmMethod(participationStartedEvent.getConfirmMethod())
+        .setCancelMethod(participationStartedEvent.getCancelMethod())
         .build();
   }
   private GrpcParticipationEndedEvent convertTo(ParticipationEndedEvent participationEndedEvent) {
@@ -155,6 +157,8 @@ public class GrpcTccClientMessageSender implements TccMessageSender {
       .setGlobalTxId(participationEndedEvent.getGlobalTxId())
       .setLocalTxId(participationEndedEvent.getLocalTxId())
       .setParentTxId(participationEndedEvent.getParentTxId())
+      .setConfirmMethod(participationEndedEvent.getConfirmMethod())
+      .setCancelMethod(participationEndedEvent.getCancelMethod())
       .setStatus(participationEndedEvent.getStatus().toString())
       .build();
   }

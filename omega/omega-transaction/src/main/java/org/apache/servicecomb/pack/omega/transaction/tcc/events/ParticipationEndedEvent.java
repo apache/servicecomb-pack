@@ -23,12 +23,17 @@ public class ParticipationEndedEvent
     private final String globalTxId;
     private final String localTxId;
     private final String parentTxId;
+    private final String confirmMethod;
+    private final String cancelMethod;
     private final TransactionStatus status;
 
-    public ParticipationEndedEvent(String globalTxId, String localTxId, String parentTxId, TransactionStatus status) {
+    public ParticipationEndedEvent(String globalTxId, String localTxId, String parentTxId,
+                                   String confirmMethod, String cancelMethod, TransactionStatus status) {
         this.globalTxId = globalTxId;
         this.localTxId = localTxId;
         this.parentTxId = parentTxId;
+        this.confirmMethod = confirmMethod;
+        this.cancelMethod = cancelMethod;
         this.status = status;
     }
 
@@ -44,6 +49,14 @@ public class ParticipationEndedEvent
         return parentTxId;
     }
 
+    public String getConfirmMethod() {
+        return confirmMethod;
+    }
+
+    public String getCancelMethod() {
+        return cancelMethod;
+    }
+
     public TransactionStatus getStatus() {
         return status;
     }
@@ -54,6 +67,8 @@ public class ParticipationEndedEvent
                 "globalTxId='" + globalTxId + '\'' +
                 ", localTxId='" + localTxId + '\'' +
                 ", parentTxId='" + parentTxId + '\'' +
+                ", confirmMethod='" + confirmMethod + '\'' +
+                ", cancelMethod='" + cancelMethod + '\'' +
                 ", status=" + status +
                 '}';
     }

@@ -21,6 +21,7 @@ public enum TccTxType {
   STARTED,
   ENDED,
   END_TIMEOUT,
-  PARTICIPATED,
+  P_TX_STATED,
+  P_TX_ENDED,
   COORDINATED
 }

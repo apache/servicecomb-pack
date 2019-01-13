@@ -43,6 +43,7 @@ public class TccCallbackEngine implements CallbackEngine {
   public boolean execute(GlobalTxEvent request) {
     AtomicBoolean result = new AtomicBoolean(true);
     tccTxEventRepository.findParticipatedByGlobalTxId(request.getGlobalTxId()).ifPresent(e ->
+        // Just call the confirm or cancel method of the omega instance
         e.stream().filter(d -> d.getStatus().equals(TransactionStatus.Succeed.name())).forEach(p -> {
           try {
             omegaCallbackWrapper.invoke(p, TransactionStatus.valueOf(request.getStatus()));

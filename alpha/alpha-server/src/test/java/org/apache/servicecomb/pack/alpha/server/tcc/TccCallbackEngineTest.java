@@ -81,10 +81,13 @@ public class TccCallbackEngineTest {
       .build();
 
   private ParticipatedEvent participatedEvent;
+  private ParticipatedEvent participationStartedEvent;
   private GlobalTxEvent tccEndEvent;
 
   @Before
   public void init() {
+    participationStartedEvent = new ParticipatedEvent(serviceName, instanceId, globalTxId, localTxId,
+        parentTxId, confirmMethod, cancelMethod, "");
     participatedEvent = new ParticipatedEvent(serviceName, instanceId, globalTxId, localTxId,
         parentTxId, confirmMethod, cancelMethod, TransactionStatus.Succeed.name());
 
@@ -101,7 +104,7 @@ public class TccCallbackEngineTest {
     StreamObserver responseObserver = mock(StreamObserver.class);
     OmegaCallbacksRegistry.register(serviceConfig, responseObserver);
 
-    tccTxEventService.onParticipationStartedEvent(participatedEvent);
+    tccTxEventService.onParticipationStartedEvent(participationStartedEvent);
     tccTxEventService.onParticipationEndedEvent(participatedEvent);
 
     tccTxEventService.onTccEndedEvent(tccEndEvent);
@@ -115,7 +118,8 @@ public class TccCallbackEngineTest {
     doThrow(IllegalArgumentException.class).when(responseObserver).onNext(any());
     OmegaCallbacksRegistry.register(serviceConfig, responseObserver);
 
-    tccTxEventService.onParticipationStartedEvent(participatedEvent);
+    tccTxEventService.onParticipationStartedEvent(participationStartedEvent);
+    tccTxEventService.onParticipationEndedEvent(participatedEvent);
     boolean result = tccCallbackEngine.execute(tccEndEvent);
     assertThat(result, is(false));
 
@@ -135,7 +139,8 @@ public class TccCallbackEngineTest {
     doThrow(IllegalArgumentException.class).when(failedResponseObserver).onNext(any());
     OmegaCallbacksRegistry.register(serviceConfig, failedResponseObserver);
 
-    tccTxEventService.onParticipationStartedEvent(participatedEvent);
+    tccTxEventService.onParticipationStartedEvent(participationStartedEvent);
+    tccTxEventService.onParticipationEndedEvent(participatedEvent);
     boolean result = tccCallbackEngine.execute(tccEndEvent);
     assertThat(result, is(false));
 

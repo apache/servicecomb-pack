@@ -38,6 +38,7 @@ public interface ParticipatedEventRepository extends CrudRepository<Participated
 //  @Query("UPDATE ParticipatedEvent t SET t.status = ?3 WHERE t.globalTxId = ?1 and t.localTxId = ?2 limit 1")
 //  void updateStatusByUniqueKey(String globalTxId, String localTxId, String status);
 
+  // TODO: Useless?
   @Transactional
   @Modifying(clearAutomatically = true)
   @Query("UPDATE ParticipatedEvent t SET t.status = :status WHERE t.globalTxId = :globalTxId and t.localTxId = :localTxId")

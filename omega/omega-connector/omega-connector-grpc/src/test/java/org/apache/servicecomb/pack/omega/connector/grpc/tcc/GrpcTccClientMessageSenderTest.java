@@ -55,8 +55,8 @@ public class GrpcTccClientMessageSenderTest {
   private final String localTxId = uniquify("localTxId");
   private final String parentTxId = uniquify("parentTxId");
   private final String methodName = uniquify("methodName");
-//  private final String confirmMethod = uniquify("confirmMethod");
-//  private final String cancelMethod = uniquify("cancleMethod");
+  private final String confirmMethod = uniquify("confirmMethod");
+  private final String cancelMethod = uniquify("cancleMethod");
   private final String serviceName = uniquify("serviceName");
 
   private final ServiceConfig serviceConfig = new ServiceConfig(uniquify("Service"));
@@ -193,7 +193,8 @@ public class GrpcTccClientMessageSenderTest {
   public void serviceOnStartParticipateTest() {
 
     final GrpcParticipationStartedEvent[] requestCaptor = new GrpcParticipationStartedEvent[1];
-    ParticipationStartedEvent event = new ParticipationStartedEvent(globalTxId,localTxId, parentTxId);
+    ParticipationStartedEvent event = new ParticipationStartedEvent(globalTxId,localTxId, parentTxId, confirmMethod,
+        cancelMethod);
 
     TccEventServiceImplBase serviceImpl = new TccEventServiceImplBase() {
 
@@ -220,7 +221,8 @@ public class GrpcTccClientMessageSenderTest {
   public void serviceOnEndParticipateTest() {
 
     final GrpcParticipationEndedEvent[] requestCaptor = new GrpcParticipationEndedEvent[1];
-    ParticipationEndedEvent event = new ParticipationEndedEvent(globalTxId,localTxId, parentTxId, TransactionStatus.Succeed);
+    ParticipationEndedEvent event = new ParticipationEndedEvent(globalTxId,localTxId, parentTxId, confirmMethod,
+        cancelMethod, TransactionStatus.Succeed);
 
     TccEventServiceImplBase serviceImpl = new TccEventServiceImplBase() {
 

@@ -59,17 +59,20 @@ public class TccParticipatorAspect {
     LOG.debug("Updated context {} for participate method {} ", context, method.toString());
 
     try {
-      tccMessageSender.participationStart(new ParticipationStartedEvent(context.globalTxId(), context.localTxId(), localTxId));
+      tccMessageSender.participationStart(new ParticipationStartedEvent(context.globalTxId(), context.localTxId(), localTxId,
+          confirmMethod, cancelMethod));
       Object result = joinPoint.proceed();
       // Send the participate message back
-      tccMessageSender.participationEnd(new ParticipationEndedEvent(context.globalTxId(), context.localTxId(), localTxId, TransactionStatus.Succeed));
+      tccMessageSender.participationEnd(new ParticipationEndedEvent(context.globalTxId(), context.localTxId(), localTxId,
+          confirmMethod, cancelMethod, TransactionStatus.Succeed));
       // Just store the parameters into the context
       parametersContext.putParamters(context.localTxId(), joinPoint.getArgs());
       LOG.debug("Participate Transaction with context {} has finished.", context);
       return result;
     } catch (Throwable throwable) {
       // Now we don't handle the error message
-      tccMessageSender.participationEnd(new ParticipationEndedEvent(context.globalTxId(), context.localTxId(), localTxId, TransactionStatus.Failed));
+      tccMessageSender.participationEnd(new ParticipationEndedEvent(context.globalTxId(), context.localTxId(), localTxId,
+          confirmMethod, cancelMethod, TransactionStatus.Failed));
       LOG.error("Participate Transaction with context {} failed.", context, throwable);
       throw throwable;
     } finally {

@@ -70,7 +70,7 @@ public class TccTxEventService {
         participatedEvent.getConfirmMethod(), participatedEvent.getCancelMethod(), participatedEvent.getStatus(),
         participatedEvent.getServiceName(), participatedEvent.getInstanceId());
     try {
-      if (!tccTxEventRepository.findByUniqueKey(participatedEvent.getGlobalTxId(), participatedEvent.getLocalTxId(), TccTxType.PARTICIPATED).isPresent()) {
+      if (!tccTxEventRepository.findByUniqueKey(participatedEvent.getGlobalTxId(), participatedEvent.getLocalTxId(), TccTxType.P_TX_STATED).isPresent()) {
         tccTxEventRepository.saveParticipatedEvent(participatedEvent);
       }
     } catch (Exception ex) {
@@ -88,7 +88,7 @@ public class TccTxEventService {
             participatedEvent.getConfirmMethod(), participatedEvent.getCancelMethod(), participatedEvent.getStatus(),
             participatedEvent.getServiceName(), participatedEvent.getInstanceId());
     try {
-      if (tccTxEventRepository.findByUniqueKey(participatedEvent.getGlobalTxId(), participatedEvent.getLocalTxId(), TccTxType.PARTICIPATED).isPresent()) {
+      if (!tccTxEventRepository.findByUniqueKey(participatedEvent.getGlobalTxId(), participatedEvent.getLocalTxId(), TccTxType.P_TX_ENDED).isPresent()) {
         tccTxEventRepository.updateParticipatedEventStatus(participatedEvent);
       }
     } catch (Exception ex) {

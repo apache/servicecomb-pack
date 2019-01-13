@@ -29,8 +29,8 @@ public class EventConverter {
         request.getGlobalTxId(),
         request.getLocalTxId(),
         request.getParentTxId(),
-        "",
-        "",
+        request.getConfirmMethod(),
+        request.getCancelMethod(),
         ""
     );
   }
@@ -42,8 +42,8 @@ public class EventConverter {
         request.getGlobalTxId(),
         request.getLocalTxId(),
         request.getParentTxId(),
-        "",
-        "",
+        request.getConfirmMethod(),
+        request.getCancelMethod(),
         request.getStatus()
     );
   }
@@ -99,8 +99,8 @@ public class EventConverter {
         event.getGlobalTxId(),
         event.getLocalTxId(),
         event.getParentTxId(),
-        TccTxType.PARTICIPATED.name(),
-        toMethodInfo("", ""),
+        TccTxType.P_TX_STATED.name(),
+        toMethodInfo(event.getConfirmMethod(), event.getCancelMethod()),
         "");
   }
 
@@ -110,8 +110,8 @@ public class EventConverter {
         event.getGlobalTxId(),
         event.getLocalTxId(),
         event.getParentTxId(),
-        TccTxType.PARTICIPATED.name(),
-        toMethodInfo("", ""),
+        TccTxType.P_TX_ENDED.name(),
+        toMethodInfo(event.getConfirmMethod(), event.getCancelMethod()),
         event.getStatus());
   }
 
@@ -137,12 +137,16 @@ public class EventConverter {
   }
 
   public static TccTxEvent convertToTccTxEvent(ParticipatedEvent event) {
+    // If the status is empty string
+    TccTxType txType = event.getStatus().isEmpty()?
+        TccTxType.P_TX_STATED: TccTxType.P_TX_ENDED;
+
     return new TccTxEvent(event.getServiceName(),
         event.getInstanceId(),
         event.getGlobalTxId(),
         event.getLocalTxId(),
         event.getParentTxId(),
-        TccTxType.PARTICIPATED.name(),
+        txType.name(),
         toMethodInfo(event.getConfirmMethod(), event.getCancelMethod()),
         event.getStatus());
   }

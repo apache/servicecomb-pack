@@ -59,15 +59,7 @@ public class MemoryTxEventRepository implements TccTxEventRepository {
 
   @Override
   public void updateParticipatedEventStatus(ParticipatedEvent event) {
-//    Set<TccTxEvent> events = tccEventMap.get(event.getGlobalTxId());
-//    if (events != null) {
-//      TccTxEvent ev = events.stream().filter(e ->
-//        event.getServiceName().equals(e.getServiceName())
-//          && "PARTICIPATED".equals(e.getTxType())
-//          && event.getLocalTxId().equals(e.getLocalTxId())).findAny().get();
-//      ev.setStatus(event.getStatus());
-//    }
-      save(EventConverter.convertToTccTxEvent(event));
+    save(EventConverter.convertToTccTxEvent(event));
   }
 
   @Override
@@ -96,7 +88,7 @@ public class MemoryTxEventRepository implements TccTxEventRepository {
     return Optional.of(
         findByGlobalTxId(globalTxId)
             .orElse(new ArrayList<>()).stream()
-        .filter(e -> TccTxType.PARTICIPATED.name().equals(e.getTxType()))
+        .filter(e -> TccTxType.P_TX_ENDED.name().equals(e.getTxType()))
         .map(EventConverter::convertToParticipatedEvent).collect(Collectors.toList())
     );
   }
