@@ -22,13 +22,10 @@ alpha:
     host: 0.0.0.0
     port: 8080
 
-# EclipseLink will attempt to create tables. If the table exists, EclipseLink will add any missing columns.
 spring:
-  jpa:
-    properties:
-      eclipselink:
-        ddl-generation: create-or-extend-tables
-
+  datasource:
+    initialization-mode: always
+    
 ---
 spring:
   profiles: ssl
@@ -49,7 +46,11 @@ spring:
     password: password
     url: jdbc:postgresql://postgresql.servicecomb.io:5432/saga?useSSL=false
     platform: postgresql
-    continue-on-error: true
+    continue-on-error: false
+  jpa:
+    properties:
+      eclipselink:
+        ddl-generation: none
 
 ---
 spring:
@@ -59,4 +60,8 @@ spring:
     password: password
     url: jdbc:mysql://mysql.servicecomb.io:3306/saga?useSSL=false
     platform: mysql
-    continue-on-error: true
+    continue-on-error: false
+  jpa:
+    properties:
+      eclipselink:
+        ddl-generation: none

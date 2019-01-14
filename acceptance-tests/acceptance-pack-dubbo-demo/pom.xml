@@ -94,7 +94,7 @@
                   <run>
                     <env>
                       <JAVA_OPTS>
-                        -Dspring.profiles.active=prd,test -Dspring.datasource.initialization-mode=always
+                        -Dspring.profiles.active=prd,test
                       </JAVA_OPTS>
                     </env>
                     <links>
