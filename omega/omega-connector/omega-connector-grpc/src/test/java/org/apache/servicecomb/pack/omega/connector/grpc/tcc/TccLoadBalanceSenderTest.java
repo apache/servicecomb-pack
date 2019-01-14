@@ -43,6 +43,7 @@ import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import org.apache.servicecomb.pack.common.TransactionStatus;
+import org.apache.servicecomb.pack.contract.grpc.GrpcParticipationStartedEvent;
 import org.apache.servicecomb.pack.omega.connector.grpc.LoadBalanceSenderTestBase;
 import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.FastestSender;
@@ -57,10 +58,9 @@ import org.apache.servicecomb.pack.omega.transaction.tcc.CoordinateMessageHandle
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageSender;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.CoordinatedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipatedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationStartedEvent;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccEndedEvent;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccStartedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccParticipatedEvent;
 import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -88,7 +88,7 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
 
   private final ServiceConfig serviceConfig = new ServiceConfig(serviceName);
 
-  private ParticipatedEvent participatedEvent;
+  private ParticipationStartedEvent participationStartedEvent;
   private TccStartedEvent tccStartedEvent;
   private TccEndedEvent tccEndedEvent;
   private CoordinatedEvent coordinatedEvent;
@@ -130,7 +130,8 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
     loadContext =
         new LoadBalanceContextBuilder(TransactionType.TCC, clusterConfig, serviceConfig, 30, 4).build();
     tccLoadBalanceSender = new TccLoadBalanceSender(loadContext, new FastestSender());
-    participatedEvent = new ParticipatedEvent(globalTxId, localTxId, parentTxId, confirmMethod, cancelMethod, TransactionStatus.Succeed);
+    participationStartedEvent = new ParticipationStartedEvent(globalTxId, localTxId, parentTxId, confirmMethod,
+        cancelMethod);
     tccStartedEvent = new TccStartedEvent(globalTxId, localTxId);
     tccEndedEvent = new TccEndedEvent(globalTxId, localTxId, TransactionStatus.Succeed);
     coordinatedEvent = new CoordinatedEvent(globalTxId, localTxId, parentTxId, methodName, TransactionStatus.Succeed);
@@ -162,19 +163,19 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
     TccMessageSender actualSender = tccLoadBalanceSender.pickMessageSender();
     assertThat(actualSender.target(), is(expectSender.target()));
 
-    AlphaResponse response = tccLoadBalanceSender.participate(participatedEvent);
+    AlphaResponse response = tccLoadBalanceSender.participationStart(participationStartedEvent);
     assertThat(loadContext.getSenders().get(actualSender), greaterThan(0L));
     assertThat(response.aborted(), is(false));
 
     Integer expectPort = Integer.valueOf(expectSender.target().split(":")[1]);
-    GrpcTccParticipatedEvent result = (GrpcTccParticipatedEvent) eventsMap.get(expectPort).poll();
+    GrpcParticipationStartedEvent result = (GrpcParticipationStartedEvent) eventsMap.get(expectPort).poll();
     assertThat(result.getGlobalTxId(), is(globalTxId));
-    assertThat(result.getCancelMethod(), is(cancelMethod));
-    assertThat(result.getConfirmMethod(), is(confirmMethod));
+//    assertThat(result.getCancelMethod(), is(cancelMethod));
+//    assertThat(result.getConfirmMethod(), is(confirmMethod));
     assertThat(result.getServiceName(), is(serviceName));
     assertThat(result.getInstanceId(), is(serviceConfig.instanceId()));
     assertThat(result.getParentTxId(), is(parentTxId));
-    assertThat(result.getStatus(), is(TransactionStatus.Succeed.name()));
+//    assertThat(result.getStatus(), is(TransactionStatus.Succeed.name()));
   }
 
   @Test
@@ -189,15 +190,15 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
     assertThat((connected.get(8080).size() == 1 && connected.get(8090).size() == 1), is(true));
 
     // due to 8090 is slow than 8080, so 8080 will be routed with 2 times.
-    tccLoadBalanceSender.participate(participatedEvent);
-    tccLoadBalanceSender.participate(participatedEvent);
-    tccLoadBalanceSender.participate(participatedEvent);
+    tccLoadBalanceSender.participationStart(participationStartedEvent);
+    tccLoadBalanceSender.participationStart(participationStartedEvent);
+    tccLoadBalanceSender.participationStart(participationStartedEvent);
     assertThat(eventsMap.get(8080).size(), is(2));
     assertThat(eventsMap.get(8090).size(), is(1));
 
     // when 8080 was shutdown, request will be routed to 8090 automatically.
     servers.get(8080).shutdownNow();
-    tccLoadBalanceSender.participate(participatedEvent);
+    tccLoadBalanceSender.participationStart(participationStartedEvent);
     assertThat(eventsMap.get(8090).size(), is(2));
 
     // when 8080 was recovery, it will be routed again.
@@ -208,7 +209,7 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
         return connected.get(8080).size() == 3;
       }
     });
-    tccLoadBalanceSender.participate(participatedEvent);
+    tccLoadBalanceSender.participationStart(participationStartedEvent);
     assertThat(eventsMap.get(8080).size(), is(3));
   }
 
@@ -228,7 +229,7 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
     }
 
     try {
-      tccLoadBalanceSender.participate(participatedEvent);
+      tccLoadBalanceSender.participationStart(participationStartedEvent);
     } catch (OmegaException ex) {
       assertThat(ex.getMessage().endsWith("all alpha server is down."), is(true));
     }
@@ -240,15 +241,15 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
   @Test(expected = OmegaException.class)
   public void participateFailedThenAbort() {
     TccMessageSender failedSender = mock(GrpcTccClientMessageSender.class);
-    doThrow(new OmegaException("omega exception")).when(failedSender).participate((ParticipatedEvent)any());
+    doThrow(new OmegaException("omega exception")).when(failedSender).participationStart((ParticipationStartedEvent)any());
     TccMessageSender succeedSender = mock(GrpcTccClientMessageSender.class);
-    when(succeedSender.participate((ParticipatedEvent) any())).thenReturn(new AlphaResponse(false));
+    when(succeedSender.participationStart((ParticipationStartedEvent) any())).thenReturn(new AlphaResponse(false));
 
     Map<MessageSender, Long> senders = Maps.newConcurrentMap();
     senders.put(failedSender, 0l);
     senders.put(succeedSender, 10l);
     loadContext.setSenders(senders);
-    tccLoadBalanceSender.participate(participatedEvent);
+    tccLoadBalanceSender.participationStart(participationStartedEvent);
   }
 
   @Test
@@ -258,7 +259,7 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
       public void run() {
         try {
           await().atLeast(1, SECONDS);
-          tccLoadBalanceSender.participate(participatedEvent);
+          tccLoadBalanceSender.participationStart(participationStartedEvent);
         } catch (OmegaException e) {
           assertThat(e.getMessage().endsWith("interruption"), Is.is(true));
         }

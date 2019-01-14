@@ -58,6 +58,11 @@ public class MemoryTxEventRepository implements TccTxEventRepository {
   }
 
   @Override
+  public void updateParticipatedEventStatus(ParticipatedEvent event) {
+    save(EventConverter.convertToTccTxEvent(event));
+  }
+
+  @Override
   public void coordinated(TccTxEvent event) {
   }
 
@@ -83,7 +88,7 @@ public class MemoryTxEventRepository implements TccTxEventRepository {
     return Optional.of(
         findByGlobalTxId(globalTxId)
             .orElse(new ArrayList<>()).stream()
-        .filter(e -> TccTxType.PARTICIPATED.name().equals(e.getTxType()))
+        .filter(e -> TccTxType.P_TX_ENDED.name().equals(e.getTxType()))
         .map(EventConverter::convertToParticipatedEvent).collect(Collectors.toList())
     );
   }

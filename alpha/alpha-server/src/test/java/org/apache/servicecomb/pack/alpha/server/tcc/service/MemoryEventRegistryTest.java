@@ -45,8 +45,8 @@ public class MemoryEventRegistryTest {
   @Before
   public void setup() {
     registry.save(someTccTxEvent(localTxId1, TccTxType.STARTED));
-    registry.save(someTccTxEvent(localTxId1, TccTxType.PARTICIPATED));
-    registry.save(someTccTxEvent(localTxId2, TccTxType.PARTICIPATED));
+    registry.save(someTccTxEvent(localTxId1, TccTxType.P_TX_STATED));
+    registry.save(someTccTxEvent(localTxId2, TccTxType.P_TX_ENDED));
   }
 
   private TccTxEvent someTccTxEvent(String localTxId, TccTxType tccTxType) {
@@ -65,9 +65,13 @@ public class MemoryEventRegistryTest {
 
   @Test
   public void testfindByGlobalTxIdAndTxType() {
-    Optional<List<TccTxEvent>> result = registry.findByGlobalTxIdAndTxType(gloableTxId, TccTxType.PARTICIPATED);
+    Optional<List<TccTxEvent>> result = registry.findByGlobalTxIdAndTxType(gloableTxId, TccTxType.P_TX_STATED);
     assertThat(result.isPresent(), is(true));
-    assertThat(result.get().size(), is(2));
+    assertThat(result.get().size(), is(1));
+
+    result = registry.findByGlobalTxIdAndTxType(gloableTxId, TccTxType.P_TX_ENDED);
+    assertThat(result.isPresent(), is(true));
+    assertThat(result.get().size(), is(1));
 
     result = registry.findByGlobalTxIdAndTxType(gloableTxId, TccTxType.STARTED);
     assertThat(result.isPresent(), is(true));
@@ -79,15 +83,15 @@ public class MemoryEventRegistryTest {
 
   @Test
   public void testfindByUniqueKey() {
-    Optional<TccTxEvent> result = registry.findByUniqueKey(gloableTxId, localTxId1, TccTxType.PARTICIPATED);
+    Optional<TccTxEvent> result = registry.findByUniqueKey(gloableTxId, localTxId1, TccTxType.P_TX_STATED);
     assertThat(result.isPresent(), is(true));
     assertThat(result.get().getLocalTxId(), is(localTxId1));
-    assertThat(result.get().getTxType(), is(TccTxType.PARTICIPATED.name()));
+    assertThat(result.get().getTxType(), is(TccTxType.P_TX_STATED.name()));
 
-    result = registry.findByUniqueKey(gloableTxId, localTxId2, TccTxType.PARTICIPATED);
+    result = registry.findByUniqueKey(gloableTxId, localTxId2, TccTxType.P_TX_ENDED);
     assertThat(result.isPresent(), is(true));
     assertThat(result.get().getLocalTxId(), is(localTxId2));
-    assertThat(result.get().getTxType(), is(TccTxType.PARTICIPATED.name()));
+    assertThat(result.get().getTxType(), is(TccTxType.P_TX_ENDED.name()));
 
     result = registry.findByUniqueKey(gloableTxId, localTxId1, TccTxType.ENDED);
     assertThat(result.isPresent(), is(false));
@@ -102,7 +106,7 @@ public class MemoryEventRegistryTest {
     for(TccTxEvent event : result) {
       events.add(event.getTxType());
     }
-    assertThat(events, contains("STARTED", "PARTICIPATED", "PARTICIPATED"));
+    assertThat(events, contains("STARTED", "P_TX_STATED", "P_TX_ENDED"));
   }
 
   @Test

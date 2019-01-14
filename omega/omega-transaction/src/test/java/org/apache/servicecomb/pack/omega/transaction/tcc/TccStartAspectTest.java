@@ -32,10 +32,7 @@ import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.context.annotations.TccStart;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.CoordinatedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipatedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccEndedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccStartedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.*;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.Before;
@@ -71,7 +68,12 @@ public class TccStartAspectTest {
     }
 
     @Override
-    public AlphaResponse participate(ParticipatedEvent participateEvent) {
+    public AlphaResponse participationStart(ParticipationStartedEvent participationStartedEvent) {
+      return null;
+    }
+
+    @Override
+    public AlphaResponse participationEnd(ParticipationEndedEvent participationEndedEvent) {
       return null;
     }
 

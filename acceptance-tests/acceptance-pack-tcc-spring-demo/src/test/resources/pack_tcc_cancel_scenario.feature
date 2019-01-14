@@ -26,8 +26,10 @@ Feature: Alpha records transaction events
     Then Alpha records the following events
       | serviceName  | txType             |
       | ordering     | STARTED            |
-      | inventory    | PARTICIPATED       |
-      | payment      | PARTICIPATED       |
+      | inventory    | P_TX_STATED        |
+      | inventory    | P_TX_ENDED         |
+      | payment      | P_TX_STATED        |
+      | payment      | P_TX_ENDED         |
       | ordering     | ENDED              |
       | inventory    | COORDINATED        |
 

@@ -39,14 +39,7 @@ import org.apache.servicecomb.pack.alpha.server.tcc.jpa.TccTxEvent;
 import org.apache.servicecomb.pack.alpha.server.tcc.jpa.EventConverter;
 import org.apache.servicecomb.pack.alpha.server.tcc.service.TccTxEventRepository;
 import org.apache.servicecomb.pack.common.TransactionStatus;
-import org.apache.servicecomb.pack.contract.grpc.GrpcAck;
-import org.apache.servicecomb.pack.contract.grpc.GrpcServiceConfig;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccCoordinateCommand;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccCoordinatedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccParticipatedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccTransactionEndedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccTransactionStartedEvent;
-import org.apache.servicecomb.pack.contract.grpc.TccEventServiceGrpc;
+import org.apache.servicecomb.pack.contract.grpc.*;
 import org.apache.servicecomb.pack.contract.grpc.TccEventServiceGrpc.TccEventServiceBlockingStub;
 import org.apache.servicecomb.pack.contract.grpc.TccEventServiceGrpc.TccEventServiceStub;
 import org.hamcrest.core.Is;
@@ -154,15 +147,27 @@ public abstract class AlphaTccServerTestBase {
   public void assertOnParticipated() {
     asyncStub.onConnected(serviceConfig, commandStreamObserver);
     awaitUntilConnected();
-    blockingStub.participate(newParticipatedEvent("Succeed"));
-    blockingStub.participate(newParticipatedEvent("Succeed"));
+    blockingStub.onParticipationStarted(newParticipationStartedEvent());
+    blockingStub.onParticipationEnded(newParticipationEndedEvent("Succeed"));
     List<TccTxEvent> events = tccTxEventRepository.findByGlobalTxId(globalTxId).get();
-    assertThat(events.size(),  is(1));
-    TccTxEvent event = events.iterator().next();
+
+    assertThat(events.size(),  is(2));
+
+    TccTxEvent event = events.get(0);
     assertThat(event.getGlobalTxId(), is(globalTxId));
     assertThat(event.getLocalTxId(), is(localTxId));
     assertThat(event.getInstanceId(), is(instanceId));
     assertThat(event.getServiceName(), is(serviceName));
+    assertThat(event.getTxType(), is(TccTxType.P_TX_STATED.name()));
+    assertThat(EventConverter.getMethodName(event.getMethodInfo(), true), is(confirmMethod));
+    assertThat(EventConverter.getMethodName(event.getMethodInfo(), false), is(cancelMethod));
+
+    event = events.get(1);
+    assertThat(event.getGlobalTxId(), is(globalTxId));
+    assertThat(event.getLocalTxId(), is(localTxId));
+    assertThat(event.getInstanceId(), is(instanceId));
+    assertThat(event.getServiceName(), is(serviceName));
+    assertThat(event.getTxType(), is(TccTxType.P_TX_ENDED.name()));
     assertThat(EventConverter.getMethodName(event.getMethodInfo(), true), is(confirmMethod));
     assertThat(EventConverter.getMethodName(event.getMethodInfo(), false), is(cancelMethod));
     assertThat(event.getStatus(), is("Succeed"));
@@ -173,7 +178,8 @@ public abstract class AlphaTccServerTestBase {
     asyncStub.onConnected(serviceConfig, commandStreamObserver);
     awaitUntilConnected();
     blockingStub.onTccTransactionStarted(newTxStart());
-    blockingStub.participate(newParticipatedEvent("Succeed"));
+    blockingStub.onParticipationStarted(newParticipationStartedEvent());
+    blockingStub.onParticipationEnded(newParticipationEndedEvent("Succeed"));
     blockingStub.onTccTransactionEnded(newTxEnd("Succeed"));
 
     await().atMost(2, SECONDS).until(() -> !receivedCommands.isEmpty());
@@ -192,7 +198,8 @@ public abstract class AlphaTccServerTestBase {
     asyncStub.onConnected(serviceConfig, commandStreamObserver);
     awaitUntilConnected();
     blockingStub.onTccTransactionStarted(newTxStart());
-    blockingStub.participate(newParticipatedEvent("Succeed"));
+    blockingStub.onParticipationStarted(newParticipationStartedEvent());
+    blockingStub.onParticipationEnded(newParticipationEndedEvent("Succeed"));
     blockingStub.onTccTransactionEnded(newTxEnd("Failed"));
 
     await().atMost(2, SECONDS).until(() -> !receivedCommands.isEmpty());
@@ -211,7 +218,8 @@ public abstract class AlphaTccServerTestBase {
 
     OmegaCallbacksRegistry.getRegistry().remove(serviceName);
     blockingStub.onTccTransactionStarted(newTxStart());
-    blockingStub.participate(newParticipatedEvent("Succeed"));
+    blockingStub.onParticipationStarted(newParticipationStartedEvent());
+    blockingStub.onParticipationEnded(newParticipationEndedEvent("Succeed"));
     GrpcAck result = blockingStub.onTccTransactionEnded(newTxEnd("Succeed"));
     assertThat(result.getAborted(), is(true));
   }
@@ -223,7 +231,8 @@ public abstract class AlphaTccServerTestBase {
 
     OmegaCallbacksRegistry.getRegistry().get(serviceName).put(instanceId, new GrpcOmegaTccCallback(null));
     blockingStub.onTccTransactionStarted(newTxStart());
-    blockingStub.participate(newParticipatedEvent("Succeed"));
+    blockingStub.onParticipationStarted(newParticipationStartedEvent());
+    blockingStub.onParticipationEnded(newParticipationEndedEvent("Succeed"));
     GrpcAck result = blockingStub.onTccTransactionEnded(newTxEnd("Succeed"));
 
     assertThat(result.getAborted(), is(true));
@@ -244,7 +253,8 @@ public abstract class AlphaTccServerTestBase {
 
     OmegaCallbacksRegistry.getRegistry().get(serviceName).remove(instanceId);
     blockingStub.onTccTransactionStarted(newTxStart());
-    blockingStub.participate(newParticipatedEvent("Succeed"));
+    blockingStub.onParticipationStarted(newParticipationStartedEvent());
+    blockingStub.onParticipationEnded(newParticipationEndedEvent("Succeed"));
     GrpcAck result = blockingStub.onTccTransactionEnded(newTxEnd("Succeed"));
 
     await().atMost(2, SECONDS).until(() -> !receivedCommands.isEmpty());
@@ -257,16 +267,27 @@ public abstract class AlphaTccServerTestBase {
     assertThat(result.getAborted(), is(false));
   }
 
-  private GrpcTccParticipatedEvent newParticipatedEvent(String status) {
-    return GrpcTccParticipatedEvent.newBuilder()
+  private GrpcParticipationStartedEvent newParticipationStartedEvent() {
+    return GrpcParticipationStartedEvent.newBuilder()
         .setGlobalTxId(globalTxId)
         .setLocalTxId(localTxId)
         .setServiceName(serviceName)
         .setInstanceId(instanceId)
-        .setCancelMethod(cancelMethod)
         .setConfirmMethod(confirmMethod)
-        .setStatus(status)
+        .setCancelMethod(cancelMethod)
         .build();
+  }
+
+  private GrpcParticipationEndedEvent newParticipationEndedEvent(String status) {
+    return GrpcParticipationEndedEvent.newBuilder()
+            .setGlobalTxId(globalTxId)
+            .setLocalTxId(localTxId)
+            .setServiceName(serviceName)
+            .setInstanceId(instanceId)
+            .setConfirmMethod(confirmMethod)
+            .setCancelMethod(cancelMethod)
+            .setStatus(status)
+            .build();
   }
 
   private GrpcTccTransactionStartedEvent newTxStart() {

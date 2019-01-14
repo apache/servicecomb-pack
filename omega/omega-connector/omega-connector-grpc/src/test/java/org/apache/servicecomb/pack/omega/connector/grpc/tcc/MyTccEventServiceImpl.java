@@ -22,14 +22,8 @@ import static org.junit.Assert.fail;
 import io.grpc.stub.StreamObserver;
 import java.lang.invoke.MethodHandles;
 import java.util.Queue;
-import org.apache.servicecomb.pack.contract.grpc.GrpcAck;
-import org.apache.servicecomb.pack.contract.grpc.GrpcServiceConfig;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccCoordinateCommand;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccCoordinatedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccParticipatedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccTransactionEndedEvent;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccTransactionStartedEvent;
-import org.apache.servicecomb.pack.contract.grpc.TccEventServiceGrpc;
+
+import org.apache.servicecomb.pack.contract.grpc.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,10 +64,21 @@ public class MyTccEventServiceImpl extends TccEventServiceGrpc.TccEventServiceIm
   }
 
   @Override
-  public void participate(GrpcTccParticipatedEvent request, StreamObserver<GrpcAck> responseObserver) {
-    LOG.info("Received participated event from service {} , global tx id: {}, local tx id: {}",
+  public void onParticipationStarted(GrpcParticipationStartedEvent request, StreamObserver<GrpcAck> responseObserver) {
+    LOG.info("Received participation started event from service {} , global tx id: {}, local tx id: {}",
         request.getServiceName(),
         request.getGlobalTxId(), request.getLocalTxId());
+    events.offer(request);
+    sleep();
+    responseObserver.onNext(ALLOW);
+    responseObserver.onCompleted();
+  }
+
+  @Override
+  public void onParticipationEnded(GrpcParticipationEndedEvent request, StreamObserver<GrpcAck> responseObserver) {
+    LOG.info("Received participation ended event from service {} , global tx id: {}, local tx id: {}",
+            request.getServiceName(),
+            request.getGlobalTxId(), request.getLocalTxId());
     events.offer(request);
     sleep();
     responseObserver.onNext(ALLOW);

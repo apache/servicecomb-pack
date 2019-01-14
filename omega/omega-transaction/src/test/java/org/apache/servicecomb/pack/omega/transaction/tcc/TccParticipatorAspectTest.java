@@ -31,10 +31,7 @@ import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.pack.omega.transaction.annotations.Participate;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.CoordinatedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipatedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccEndedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccStartedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.*;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.Before;
@@ -48,7 +45,8 @@ public class TccParticipatorAspectTest {
   private final String localTxId = UUID.randomUUID().toString();
   private final String newLocalTxId = UUID.randomUUID().toString();
 
-  private final List<ParticipatedEvent> participatedEvents = new ArrayList<>();
+  private final List<ParticipationStartedEvent> participationStartedEvents = new ArrayList<>();
+  private final List<ParticipationEndedEvent> participationEndedEvents = new ArrayList<>();
   private final AlphaResponse response = new AlphaResponse(false);
   private String confirmMethod;
   private String cancelMethod;
@@ -74,8 +72,14 @@ public class TccParticipatorAspectTest {
     }
 
     @Override
-    public AlphaResponse participate(ParticipatedEvent participateEvent) {
-      participatedEvents.add(participateEvent);
+    public AlphaResponse participationStart(ParticipationStartedEvent participationStartedEvent) {
+      participationStartedEvents.add(participationStartedEvent);
+      return response;
+    }
+
+    @Override
+    public AlphaResponse participationEnd(ParticipationEndedEvent participationEndedEvent) {
+      participationEndedEvents.add(participationEndedEvent);
       return response;
     }
 
@@ -127,15 +131,15 @@ public class TccParticipatorAspectTest {
   public void participateMethodIsCalledSuccessed() throws Throwable {
     aspect.advise(joinPoint, participate);
 
-    assertThat(participatedEvents.size(), is(1));
-    ParticipatedEvent participatedEvent = participatedEvents.get(0);
+    assertThat(participationStartedEvents.size(), is(1));
+    ParticipationStartedEvent participationStartedEvent = participationStartedEvents.get(0);
 
-    assertThat(participatedEvent.getGlobalTxId(), is(globalTxId));
-    assertThat(participatedEvent.getParentTxId(), is(localTxId));
-    assertThat(participatedEvent.getLocalTxId(), is(newLocalTxId));
-    assertThat(participatedEvent.getStatus(), is(TransactionStatus.Succeed));
-    assertThat(participatedEvent.getCancelMethod(), is(cancelMethod));
-    assertThat(participatedEvent.getConfirmMethod(), is(confirmMethod));
+    assertThat(participationStartedEvent.getGlobalTxId(), is(globalTxId));
+    assertThat(participationStartedEvent.getParentTxId(), is(localTxId));
+    assertThat(participationStartedEvent.getLocalTxId(), is(newLocalTxId));
+//    assertThat(participationStartedEvent.getStatus(), is(TransactionStatus.Succeed));
+//    assertThat(participationStartedEvent.getCancelMethod(), is(cancelMethod));
+//    assertThat(participationStartedEvent.getConfirmMethod(), is(confirmMethod));
 
     assertThat(omegaContext.globalTxId(), is(globalTxId));
     assertThat(omegaContext.localTxId(), is(localTxId));
@@ -154,15 +158,15 @@ public class TccParticipatorAspectTest {
       assertThat(e, is(oops));
     }
 
-    assertThat(participatedEvents.size(), is(1));
-    ParticipatedEvent participatedEvent = participatedEvents.get(0);
+    assertThat(participationStartedEvents.size(), is(1));
+    ParticipationStartedEvent participationStartedEvent = participationStartedEvents.get(0);
 
-    assertThat(participatedEvent.getGlobalTxId(), is(globalTxId));
-    assertThat(participatedEvent.getParentTxId(), is(localTxId));
-    assertThat(participatedEvent.getLocalTxId(), is(newLocalTxId));
-    assertThat(participatedEvent.getStatus(), is(TransactionStatus.Failed));
-    assertThat(participatedEvent.getCancelMethod(), is(cancelMethod));
-    assertThat(participatedEvent.getConfirmMethod(), is(confirmMethod));
+    assertThat(participationStartedEvent.getGlobalTxId(), is(globalTxId));
+    assertThat(participationStartedEvent.getParentTxId(), is(localTxId));
+    assertThat(participationStartedEvent.getLocalTxId(), is(newLocalTxId));
+//    assertThat(participationStartedEvent.getStatus(), is(TransactionStatus.Failed));
+//    assertThat(participationStartedEvent.getCancelMethod(), is(cancelMethod));
+//    assertThat(participationStartedEvent.getConfirmMethod(), is(confirmMethod));
 
 
     assertThat(omegaContext.globalTxId(), is(globalTxId));

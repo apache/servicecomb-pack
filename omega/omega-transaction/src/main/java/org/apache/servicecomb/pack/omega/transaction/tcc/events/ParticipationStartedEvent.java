@@ -16,27 +16,22 @@
  */
 package org.apache.servicecomb.pack.omega.transaction.tcc.events;
 
-
-import org.apache.servicecomb.pack.common.TransactionStatus;
-
-public class ParticipatedEvent {
+public class ParticipationStartedEvent {
   
   private final String globalTxId;
   private final String localTxId;
   private final String parentTxId;
   private final String confirmMethod;
   private final String cancelMethod;
-  private final TransactionStatus status;
 
 
-  public ParticipatedEvent(String globalTxId, String localTxId, String parentTxId, String confirmMethod,
-      String cancelMethod, TransactionStatus status) {
+  public ParticipationStartedEvent(String globalTxId, String localTxId, String parentTxId,
+                                   String confirmMethod, String cancelMethod) {
     this.globalTxId = globalTxId;
     this.localTxId = localTxId;
     this.parentTxId = parentTxId;
     this.confirmMethod = confirmMethod;
     this.cancelMethod = cancelMethod;
-    this.status = status;
   }
 
   public String getGlobalTxId() {
@@ -59,19 +54,14 @@ public class ParticipatedEvent {
     return cancelMethod;
   }
 
-  public TransactionStatus getStatus() {
-    return status;
-  }
-
   @Override
   public String toString() {
-    return "ParticipatedEvent{" +
+    return "ParticipationStartedEvent{" +
         "globalTxId='" + globalTxId + '\'' +
         ", localTxId='" + localTxId + '\'' +
         ", parentTxId='" + parentTxId + '\'' +
         ", confirmMethod='" + confirmMethod + '\'' +
         ", cancelMethod='" + cancelMethod + '\'' +
-        ", status=" + status +
         '}';
   }
 }

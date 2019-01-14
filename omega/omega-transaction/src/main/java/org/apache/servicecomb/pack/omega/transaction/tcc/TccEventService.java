@@ -18,7 +18,7 @@
 package org.apache.servicecomb.pack.omega.transaction.tcc;
 
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.CoordinatedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipatedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationStartedEvent;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccStartedEvent;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccEndedEvent;
@@ -33,7 +33,7 @@ public interface TccEventService {
 
   String target();
 
-  AlphaResponse participate(ParticipatedEvent participatedEvent);
+  AlphaResponse participate(ParticipationStartedEvent participationStartedEvent);
 
   AlphaResponse tccTransactionStart(TccStartedEvent tccStartedEvent);
 

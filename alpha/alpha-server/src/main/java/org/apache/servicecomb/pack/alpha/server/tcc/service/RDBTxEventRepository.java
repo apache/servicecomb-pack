@@ -59,6 +59,14 @@ public class RDBTxEventRepository implements TccTxEventRepository {
   @Override
   @Transactional
   public void saveParticipatedEvent(ParticipatedEvent event) {
+    // we dont need to save participation-started event to the participatedEventRepository
+    // saveTccEventHere
+    tccTxEventDBRepository.save(EventConverter.convertToTccTxEvent(event));
+  }
+
+  @Override
+  @Transactional
+  public void updateParticipatedEventStatus(ParticipatedEvent event) {
     participatedEventRepository.save(event);
     // saveTccEventHere
     tccTxEventDBRepository.save(EventConverter.convertToTccTxEvent(event));

@@ -35,7 +35,6 @@ import org.apache.servicecomb.pack.alpha.server.tcc.jpa.ParticipatedEvent;
 import org.apache.servicecomb.pack.alpha.server.tcc.jpa.ParticipatedEventRepository;
 import org.apache.servicecomb.pack.alpha.server.tcc.jpa.TccTxType;
 import org.apache.servicecomb.pack.alpha.server.tcc.TccApplication;
-import org.apache.servicecomb.pack.alpha.server.tcc.TccConfiguration;
 import org.apache.servicecomb.pack.alpha.server.tcc.callback.OmegaCallbacksRegistry;
 import org.apache.servicecomb.pack.alpha.server.tcc.jpa.GlobalTxEvent;
 import org.apache.servicecomb.pack.alpha.server.tcc.jpa.TccTxEvent;
@@ -84,14 +83,16 @@ public class TccTxEventServiceTest {
       .build();
 
   private GlobalTxEvent tccStartEvent;
-  private ParticipatedEvent participatedEvent;
+  private ParticipatedEvent participationStartedEvent;
+  private ParticipatedEvent participationEndedEvent;
   private GlobalTxEvent tccEndEvent;
   private TccTxEvent coordinateEvent;
 
   @Before
   public void setup() {
     tccStartEvent = newGlobalTxEvent(TccTxType.STARTED, globalTxId, TransactionStatus.Succeed);
-    participatedEvent = newParticipateEvent(globalTxId, TransactionStatus.Succeed);
+    participationStartedEvent = newParticipationStartedEvent(globalTxId);
+    participationEndedEvent = newParticipationEndedEvent(globalTxId, TransactionStatus.Succeed);
     tccEndEvent = newGlobalTxEvent(TccTxType.ENDED, globalTxId, TransactionStatus.Succeed);
     coordinateEvent = newTccTxEvent(TccTxType.COORDINATED, globalTxId, TransactionStatus.Succeed);
   }
@@ -106,7 +107,8 @@ public class TccTxEventServiceTest {
     OmegaCallbacksRegistry.register(serviceConfig, observer);
 
     tccTxEventService.onTccStartedEvent(tccStartEvent);
-    tccTxEventService.onParticipatedEvent(participatedEvent);
+    tccTxEventService.onParticipationStartedEvent(participationStartedEvent);
+    tccTxEventService.onParticipationEndedEvent(participationEndedEvent);
     tccTxEventService.onTccEndedEvent(tccEndEvent);
     tccTxEventService.onCoordinatedEvent(coordinateEvent);
 
@@ -123,7 +125,8 @@ public class TccTxEventServiceTest {
     OmegaCallbacksRegistry.register(serviceConfig, observer);
 
     tccTxEventService.onTccStartedEvent(tccStartEvent);
-    tccTxEventService.onParticipatedEvent(participatedEvent);
+    tccTxEventService.onParticipationStartedEvent(participationStartedEvent);
+    tccTxEventService.onParticipationEndedEvent(participationEndedEvent);
 
     Thread.sleep(3000l);
     Date deadLine = new Date(System.currentTimeMillis() - SECONDS.toMillis(2));
@@ -141,7 +144,7 @@ public class TccTxEventServiceTest {
     verify(observer).onNext(any());
 
     Optional<List<TccTxEvent>> events = tccTxEventRepository.findByGlobalTxId(globalTxId);
-    assertThat(events.get().size(), is(3));
+    assertThat(events.get().size(), is(4));
   }
 
   @Test
@@ -150,7 +153,8 @@ public class TccTxEventServiceTest {
     OmegaCallbacksRegistry.register(serviceConfig, observer);
 
     tccTxEventService.onTccStartedEvent(tccStartEvent);
-    tccTxEventService.onParticipatedEvent(participatedEvent);
+    tccTxEventService.onParticipationStartedEvent(participationStartedEvent);
+    tccTxEventService.onParticipationEndedEvent(participationEndedEvent);
     tccTxEventService.onTccEndedEvent(tccEndEvent);
     tccTxEventService.onCoordinatedEvent(coordinateEvent);
 
@@ -160,7 +164,7 @@ public class TccTxEventServiceTest {
     assertThat(globalTxEventRepository.findByGlobalTxId(globalTxId).isPresent(), is(false));
 
     Optional<List<TccTxEvent>> events = tccTxEventRepository.findByGlobalTxId(globalTxId);
-    assertThat(events.get().size(), is(4));
+    assertThat(events.get().size(), is(5));
   }
 
   @Test
@@ -170,14 +174,16 @@ public class TccTxEventServiceTest {
 
     // one global tx
     tccTxEventService.onTccStartedEvent(tccStartEvent);
-    tccTxEventService.onParticipatedEvent(participatedEvent);
+    tccTxEventService.onParticipationStartedEvent(participationStartedEvent);
+    tccTxEventService.onParticipationEndedEvent(participationEndedEvent);
     tccTxEventService.onTccEndedEvent(tccEndEvent);
     tccTxEventService.onCoordinatedEvent(coordinateEvent);
 
     // another global tx
     String globalTxId_2 = uniquify("globalTxId");
     tccTxEventService.onTccStartedEvent(newGlobalTxEvent(TccTxType.STARTED, globalTxId_2, TransactionStatus.Succeed));
-    tccTxEventService.onParticipatedEvent(newParticipateEvent(globalTxId_2, TransactionStatus.Succeed));
+    tccTxEventService.onParticipationStartedEvent(newParticipationStartedEvent(globalTxId_2));
+    tccTxEventService.onParticipationEndedEvent(newParticipationEndedEvent(globalTxId_2, TransactionStatus.Succeed));
     tccTxEventService.onTccEndedEvent(newGlobalTxEvent(TccTxType.ENDED, globalTxId_2, TransactionStatus.Succeed));
     tccTxEventService.onCoordinatedEvent(newTccTxEvent(TccTxType.COORDINATED, globalTxId_2, TransactionStatus.Succeed));
 
@@ -187,14 +193,19 @@ public class TccTxEventServiceTest {
     assertThat(globalTxEventRepository.findByGlobalTxId(globalTxId).isPresent(), is(false));
 
     Optional<List<TccTxEvent>> events = tccTxEventRepository.findByGlobalTxId(globalTxId);
-    assertThat(events.get().size(), is(4));
+    assertThat(events.get().size(), is(5));
 
     events = tccTxEventRepository.findByGlobalTxId(globalTxId_2);
-    assertThat(events.get().size(), is(4));
+    assertThat(events.get().size(), is(5));
 
   }
 
-  private ParticipatedEvent newParticipateEvent(String globalTxId, TransactionStatus transactionStatus) {
+  private ParticipatedEvent newParticipationStartedEvent(String globalTxId) {
+    return new ParticipatedEvent(serviceName, instanceId, globalTxId, localTxId,
+        parentTxId, confirmMethod, cancelMethod, "");
+  }
+
+  private ParticipatedEvent newParticipationEndedEvent(String globalTxId, TransactionStatus transactionStatus) {
     return new ParticipatedEvent(serviceName, instanceId, globalTxId, localTxId,
         parentTxId, confirmMethod, cancelMethod, transactionStatus.name());
   }
