@@ -80,10 +80,10 @@ public class LoadBalanceContextBuilderTest {
     when(clusterConfig.isEnableSSL()).thenReturn(false);
 
     LoadBalanceContext loadContext = tccLoadBalanceContextBuilder.build();
-    assertThat(loadContext.getPendingTaskRunner().getReconnectDelay(), is(30));
+    assertThat(loadContext.getPendingTaskRunner().getReconnectDelay(), is(30L));
     assertThat(loadContext.getSenders().size(), is(2));
     assertThat(loadContext.getSenders().keySet().iterator().next(), instanceOf(TccMessageSender.class));
-    assertThat(loadContext.getSenders().values().iterator().next(), is(0l));
+    assertThat(loadContext.getSenders().values().iterator().next(), is(0L));
     assertThat(loadContext.getChannels().size(), is(2));
     loadContext.getSenders().keySet().iterator().next().close();
     shutdownChannels(loadContext);
@@ -96,10 +96,10 @@ public class LoadBalanceContextBuilderTest {
     when(clusterConfig.getCertChain()).thenReturn(getClass().getClassLoader().getResource("ca.crt").getFile());
     when(clusterConfig.getKey()).thenReturn(getClass().getClassLoader().getResource("client.pem").getFile());
     LoadBalanceContext loadContext = tccLoadBalanceContextBuilder.build();
-    assertThat(loadContext.getPendingTaskRunner().getReconnectDelay(), is(30));
+    assertThat(loadContext.getPendingTaskRunner().getReconnectDelay(), is(30L));
     assertThat(loadContext.getSenders().size(), is(2));
     assertThat(loadContext.getSenders().keySet().iterator().next(), instanceOf(TccMessageSender.class));
-    assertThat(loadContext.getSenders().values().iterator().next(), is(0l));
+    assertThat(loadContext.getSenders().values().iterator().next(), is(0L));
     assertThat(loadContext.getChannels().size(), is(2));
     shutdownChannels(loadContext);
   }
@@ -113,10 +113,10 @@ public class LoadBalanceContextBuilderTest {
   @Test
   public void buildSagaLoadBalanceContextWithoutSsl() {
     LoadBalanceContext loadContext = sagaLoadBalanceContextBuilder.build();
-    assertThat(loadContext.getPendingTaskRunner().getReconnectDelay(), is(30));
+    assertThat(loadContext.getPendingTaskRunner().getReconnectDelay(), is(30L));
     assertThat(loadContext.getSenders().size(), is(2));
     assertThat(loadContext.getSenders().keySet().iterator().next(), instanceOf(SagaMessageSender.class));
-    assertThat(loadContext.getSenders().values().iterator().next(), is(0l));
+    assertThat(loadContext.getSenders().values().iterator().next(), is(0L));
     assertThat(loadContext.getChannels().size(), is(2));
     loadContext.getSenders().keySet().iterator().next().close();
     shutdownChannels(loadContext);
@@ -129,10 +129,10 @@ public class LoadBalanceContextBuilderTest {
     when(clusterConfig.getCertChain()).thenReturn(getClass().getClassLoader().getResource("ca.crt").getFile());
     when(clusterConfig.getKey()).thenReturn(getClass().getClassLoader().getResource("client.pem").getFile());
     LoadBalanceContext loadContext = sagaLoadBalanceContextBuilder.build();
-    assertThat(loadContext.getPendingTaskRunner().getReconnectDelay(), is(30));
+    assertThat(loadContext.getPendingTaskRunner().getReconnectDelay(), is(30L));
     assertThat(loadContext.getSenders().size(), is(2));
     assertThat(loadContext.getSenders().keySet().iterator().next(), instanceOf(SagaMessageSender.class));
-    assertThat(loadContext.getSenders().values().iterator().next(), is(0l));
+    assertThat(loadContext.getSenders().values().iterator().next(), is(0L));
     assertThat(loadContext.getChannels().size(), is(2));
     shutdownChannels(loadContext);
   }

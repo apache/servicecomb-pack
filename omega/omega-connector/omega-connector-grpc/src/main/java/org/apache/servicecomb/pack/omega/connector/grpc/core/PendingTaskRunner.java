@@ -30,9 +30,9 @@ public class PendingTaskRunner {
 
   private final BlockingQueue<Runnable> pendingTasks = new LinkedBlockingQueue<>();
 
-  private final int reconnectDelay;
+  private final long reconnectDelay;
 
-  public PendingTaskRunner(int reconnectDelay) {
+  public PendingTaskRunner(long reconnectDelay) {
     this.reconnectDelay = reconnectDelay;
   }
 
@@ -57,7 +57,7 @@ public class PendingTaskRunner {
     return pendingTasks;
   }
 
-  public int getReconnectDelay() {
+  public long getReconnectDelay() {
     return reconnectDelay;
   }
 }

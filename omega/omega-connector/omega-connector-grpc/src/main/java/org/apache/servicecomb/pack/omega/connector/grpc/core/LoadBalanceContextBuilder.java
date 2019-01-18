@@ -48,14 +48,14 @@ public class LoadBalanceContextBuilder {
 
   private final ServiceConfig serviceConfig;
 
-  private final int reconnectDelay;
+  private final long reconnectDelay;
 
-  private final int timeoutSeconds;
+  private final long timeoutSeconds;
 
   private final TransactionType transactionType;
 
   public LoadBalanceContextBuilder(TransactionType transactionType,
-      AlphaClusterConfig clusterConfig, ServiceConfig serviceConfig, int reconnectDelay, int timeoutSeconds) {
+      AlphaClusterConfig clusterConfig, ServiceConfig serviceConfig, long reconnectDelay, long timeoutSeconds) {
     this.transactionType = transactionType;
     this.clusterConfig = clusterConfig;
     this.serviceConfig = serviceConfig;

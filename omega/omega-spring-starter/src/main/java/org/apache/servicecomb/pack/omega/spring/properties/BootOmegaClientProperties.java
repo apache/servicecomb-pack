@@ -20,7 +20,6 @@ package org.apache.servicecomb.pack.omega.spring.properties;
 import org.apache.servicecomb.pack.omega.configuration.OmegaClientProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "oemgea.client")
+@ConfigurationProperties(prefix = "omega.client")
 public class BootOmegaClientProperties extends OmegaClientProperties {
-
 }

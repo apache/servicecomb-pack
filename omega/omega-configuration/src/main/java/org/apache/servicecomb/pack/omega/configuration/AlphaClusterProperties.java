@@ -22,16 +22,16 @@ import java.util.List;
 
 public class AlphaClusterProperties {
 
-  private List<String> addresses = Collections.singletonList("localhost:8080");
+  private List<String> address = Collections.singletonList("localhost:8080");
 
-  private AlphaSSLProperties ssl;
+  private AlphaSSLProperties ssl = new AlphaSSLProperties();
 
-  public List<String> getAddresses() {
-    return addresses;
+  public List<String> getAddress() {
+    return address;
   }
 
-  public void setAddresses(List<String> addresses) {
-    this.addresses = addresses;
+  public void setAddress(List<String> address) {
+    this.address = address;
   }
 
   public AlphaSSLProperties getSsl() {

@@ -1,0 +1,62 @@
+{
+  "groups": [
+    {
+      "name": "alpha.cluster",
+      "type": "org.apache.servicecomb.pack.omega.spring.properties.BootAlphaClusterProperties",
+      "sourceType": "org.apache.servicecomb.pack.omega.spring.properties.BootAlphaClusterProperties"
+    },
+    {
+      "name": "alpha.cluster.ssl",
+      "type": "org.apache.servicecomb.pack.omega.configuration.AlphaSSLProperties",
+      "sourceType": "org.apache.servicecomb.pack.omega.configuration.AlphaSSLProperties"
+    },
+    {
+      "name": "omega.client",
+      "type": "org.apache.servicecomb.pack.omega.spring.properties.BootOmegaClientProperties",
+      "sourceType": "org.apache.servicecomb.pack.omega.spring.properties.BootOmegaClientProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "alpha.cluster.address",
+      "type": "java.util.List<java.lang.String>",
+      "sourceType": "org.apache.servicecomb.pack.omega.spring.properties.BootAlphaClusterProperties"
+    },
+    {
+      "name": "alpha.cluster.ssl.enableSSL",
+      "type": "java.lang.Boolean",
+      "sourceType": "org.apache.servicecomb.pack.omega.configuration.AlphaSSLProperties"
+    },
+    {
+      "name": "alpha.cluster.ssl.mutualAuth",
+      "type": "java.lang.Boolean",
+      "sourceType": "org.apache.servicecomb.pack.omega.configuration.AlphaSSLProperties"
+    },
+    {
+      "name": "alpha.cluster.ssl.cert",
+      "type": "java.lang.String",
+      "sourceType": "org.apache.servicecomb.pack.omega.configuration.AlphaSSLProperties"
+    },
+    {
+      "name": "alpha.cluster.ssl.key",
+      "type": "java.lang.String",
+      "sourceType": "org.apache.servicecomb.pack.omega.configuration.AlphaSSLProperties"
+    },
+    {
+      "name": "alpha.cluster.ssl.certChain",
+      "type": "java.lang.String",
+      "sourceType": "org.apache.servicecomb.pack.omega.configuration.AlphaSSLProperties"
+    },
+    {
+      "name": "omega.client.reconnect-delay-milli-seconds",
+      "type": "java.lang.Long",
+      "sourceType": "org.apache.servicecomb.pack.omega.spring.properties.BootOmegaClientProperties"
+    },
+    {
+      "name": "omega.client.timeout-seconds",
+      "type": "java.lang.Long",
+      "sourceType": "org.apache.servicecomb.pack.omega.spring.properties.BootOmegaClientProperties"
+    }
+  ],
+  "hints": []
+}

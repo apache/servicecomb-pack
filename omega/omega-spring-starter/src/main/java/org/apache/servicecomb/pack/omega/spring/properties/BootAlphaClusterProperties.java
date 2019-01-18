@@ -22,5 +22,4 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "alpha.cluster")
 public class BootAlphaClusterProperties extends AlphaClusterProperties {
-
 }

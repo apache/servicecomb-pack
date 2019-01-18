@@ -18,6 +18,8 @@
 package org.apache.servicecomb.pack.omega.spring;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.servicecomb.pack.omega.configuration.AlphaSSLProperties;
+import org.apache.servicecomb.pack.omega.configuration.OmegaClientProperties;
 import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.FastestSender;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
@@ -32,6 +34,8 @@ import org.apache.servicecomb.pack.omega.context.ServiceConfig;
 import org.apache.servicecomb.pack.omega.context.UniqueIdGenerator;
 import org.apache.servicecomb.pack.omega.format.KryoMessageFormat;
 import org.apache.servicecomb.pack.omega.format.MessageFormat;
+import org.apache.servicecomb.pack.omega.spring.properties.BootAlphaClusterProperties;
+import org.apache.servicecomb.pack.omega.spring.properties.BootOmegaClientProperties;
 import org.apache.servicecomb.pack.omega.transaction.MessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.SagaMessageSender;
 import org.apache.servicecomb.pack.omega.transaction.tcc.DefaultParametersContext;
@@ -40,12 +44,26 @@ import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageSender;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
 @Configuration
+@EnableConfigurationProperties({
+    BootAlphaClusterProperties.class, BootOmegaClientProperties.class
+})
 class OmegaSpringConfig {
+
+  private final BootAlphaClusterProperties alphaClusterProperties;
+
+  private final BootOmegaClientProperties omegaClientProperties;
+
+  public OmegaSpringConfig(
+      BootAlphaClusterProperties alphaClusterProperties, BootOmegaClientProperties omegaClientProperties) {
+    this.alphaClusterProperties = alphaClusterProperties;
+    this.omegaClientProperties = omegaClientProperties;
+  }
 
   @Bean(name = {"omegaUniqueIdGenerator"})
   IdGenerator<String> idGenerator() {
@@ -78,24 +96,19 @@ class OmegaSpringConfig {
   }
 
   @Bean
-  AlphaClusterConfig alphaClusterConfig(
-      @Value("${alpha.cluster.address:localhost:8080}") String[] addresses,
-      @Value("${alpha.cluster.ssl.enable:false}") boolean enableSSL,
-      @Value("${alpha.cluster.ssl.mutualAuth:false}") boolean mutualAuth,
-      @Value("${alpha.cluster.ssl.cert:client.crt}") String cert,
-      @Value("${alpha.cluster.ssl.key:client.pem}") String key,
-      @Value("${alpha.cluster.ssl.certChain:ca.crt}") String certChain,
+  AlphaClusterConfig alphaClusterConfig(BootAlphaClusterProperties alphaClusterProperties,
       @Lazy MessageHandler handler,
       @Lazy TccMessageHandler tccMessageHandler) {
 
+    AlphaSSLProperties ssl = alphaClusterProperties.getSsl();
     MessageFormat messageFormat = new KryoMessageFormat();
     AlphaClusterConfig clusterConfig = AlphaClusterConfig.builder()
-        .addresses(ImmutableList.copyOf(addresses))
-        .enableSSL(enableSSL)
-        .enableMutualAuth(mutualAuth)
-        .cert(cert)
-        .key(key)
-        .certChain(certChain)
+        .addresses(ImmutableList.copyOf(alphaClusterProperties.getAddress()))
+        .enableSSL(ssl.isEnableSSL())
+        .enableMutualAuth(ssl.isMutualAuth())
+        .cert(ssl.getCert())
+        .key(ssl.getKey())
+        .certChain(ssl.getCertChain())
         .messageDeserializer(messageFormat)
         .messageSerializer(messageFormat)
         .messageHandler(handler)
@@ -106,16 +119,15 @@ class OmegaSpringConfig {
 
   @Bean(name = "sagaLoadContext")
   LoadBalanceContext sagaLoadBalanceSenderContext(
+      BootOmegaClientProperties omegaClientProperties,
       AlphaClusterConfig alphaClusterConfig,
-      ServiceConfig serviceConfig,
-      @Value("${omega.connection.reconnectDelay:3000}") int reconnectDelay,
-      @Value("${omega.connection.sending.timeout:8}") int timeoutSeconds) {
+      ServiceConfig serviceConfig) {
     LoadBalanceContext loadBalanceSenderContext = new LoadBalanceContextBuilder(
         TransactionType.SAGA,
         alphaClusterConfig,
         serviceConfig,
-        reconnectDelay,
-        timeoutSeconds).build();
+        omegaClientProperties.getReconnectDelayMilliSeconds(),
+        omegaClientProperties.getTimeoutSeconds()).build();
     return loadBalanceSenderContext;
   }
 
@@ -137,14 +149,13 @@ class OmegaSpringConfig {
   LoadBalanceContext loadBalanceSenderContext(
       AlphaClusterConfig alphaClusterConfig,
       ServiceConfig serviceConfig,
-      @Value("${omega.connection.reconnectDelay:3000}") int reconnectDelay,
-      @Value("${omega.connection.sending.timeout:8}") int timeoutSeconds) {
+      OmegaClientProperties omegaClientProperties) {
     LoadBalanceContext loadBalanceSenderContext = new LoadBalanceContextBuilder(
         TransactionType.TCC,
         alphaClusterConfig,
         serviceConfig,
-        reconnectDelay,
-        timeoutSeconds).build();
+        omegaClientProperties.getReconnectDelayMilliSeconds(),
+        omegaClientProperties.getTimeoutSeconds()).build();
     return loadBalanceSenderContext;
   }
 

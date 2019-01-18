@@ -27,13 +27,13 @@ import org.springframework.context.annotation.Import;
 
 import org.apache.servicecomb.pack.omega.transaction.spring.TransactionAspectConfig;
 
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Import({OmegaSpringConfig.class, TransactionAspectConfig.class})
 /**
  * Indicates create the OmegaContext and inject it into the interceptors
  * to pass the transactions id across the application.
  * @see OmegaContext
  */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Import({OmegaSpringConfig.class, TransactionAspectConfig.class})
 public @interface EnableOmega {
 }

@@ -34,7 +34,7 @@ public class GrpcOnErrorHandler {
   private final GrpcRetryContext grpcRetryContext;
 
   public GrpcOnErrorHandler(BlockingQueue<Runnable> pendingTasks,
-      Map<MessageSender, Long> senders, int timeoutSeconds) {
+      Map<MessageSender, Long> senders, long timeoutSeconds) {
     this.pendingTasks = pendingTasks;
     this.senders = senders;
     this.grpcRetryContext = new GrpcRetryContext(timeoutSeconds);
@@ -60,7 +60,7 @@ public class GrpcOnErrorHandler {
 
   public static class GrpcRetryContext {
 
-    private final int timeoutSeconds;
+    private final long timeoutSeconds;
 
     private final BlockingQueue<MessageSender> reconnectedSenders = new LinkedBlockingQueue<>();
 
@@ -79,7 +79,7 @@ public class GrpcOnErrorHandler {
       }
     };
 
-    public GrpcRetryContext(int timeoutSeconds) {
+    public GrpcRetryContext(long timeoutSeconds) {
       this.timeoutSeconds = timeoutSeconds;
     }
 
