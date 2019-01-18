@@ -17,7 +17,7 @@
 
 package org.apache.servicecomb.pack.omega.configuration;
 
-public class OmegaConfiguration {
+public class OmegaClientProperties {
 
   private static final long DEFAULT_RECONNECT_DELAY_MILLISECONDS = 3000;
 

@@ -17,12 +17,7 @@
 
 package org.apache.servicecomb.pack.omega.configuration;
 
-import java.util.Collections;
-import java.util.List;
-
-public class AlphaClusterConfiguration {
-
-  private List<String> addresses = Collections.singletonList("localhost:8080");
+public class AlphaSSLProperties {
 
   private boolean enableSSL;
 
@@ -33,14 +28,6 @@ public class AlphaClusterConfiguration {
   private String key = "client.pem";
 
   private String certChain = "ca.crt";
-
-  public List<String> getAddresses() {
-    return addresses;
-  }
-
-  public void setAddresses(List<String> addresses) {
-    this.addresses = addresses;
-  }
 
   public boolean isEnableSSL() {
     return enableSSL;
