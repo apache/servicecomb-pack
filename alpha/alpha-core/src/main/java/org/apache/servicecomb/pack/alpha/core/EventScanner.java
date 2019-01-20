@@ -71,7 +71,12 @@ public class EventScanner implements Runnable {
 
   @Override
   public void run() {
-    pollEvents();
+    try {
+      // Need to catch the exception to keep the event scanner running.
+      pollEvents();
+    } catch (Exception ex) {
+      LOG.warn("Got the exception {} when pollEvents.", ex.getMessage(), ex);
+    }
   }
 
   private void pollEvents() {
