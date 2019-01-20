@@ -19,6 +19,7 @@ package org.apache.servicecomb.pack.omega.connector.grpc.saga;
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
+import org.apache.servicecomb.pack.omega.connector.grpc.core.GrpcOnErrorHandler;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
 import org.apache.servicecomb.pack.omega.context.ServiceConfig;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
@@ -55,13 +56,12 @@ public class GrpcSagaClientMessageSender implements SagaMessageSender {
       MessageDeserializer deserializer,
       ServiceConfig serviceConfig,
       MessageHandler handler,
-      LoadBalanceContext loadContext) {
+      GrpcOnErrorHandler grpcOnErrorHandler) {
     this.target = address;
     this.asyncEventService = TxEventServiceGrpc.newStub(channel);
     this.blockingEventService = TxEventServiceGrpc.newBlockingStub(channel);
     this.serializer = serializer;
-    this.compensateStreamObserver =
-        new GrpcCompensateStreamObserver(loadContext, this, handler, deserializer);
+    this.compensateStreamObserver = new GrpcCompensateStreamObserver(deserializer, handler, grpcOnErrorHandler, this);
     this.serviceConfig = serviceConfig(serviceConfig.serviceName(), serviceConfig.instanceId());
   }
 

@@ -18,16 +18,26 @@
 package org.apache.servicecomb.pack.omega.connector.grpc.tcc;
 
 import io.grpc.ManagedChannel;
-
-import org.apache.servicecomb.pack.contract.grpc.*;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
+import org.apache.servicecomb.pack.contract.grpc.GrpcAck;
+import org.apache.servicecomb.pack.contract.grpc.GrpcParticipationEndedEvent;
+import org.apache.servicecomb.pack.contract.grpc.GrpcParticipationStartedEvent;
+import org.apache.servicecomb.pack.contract.grpc.GrpcServiceConfig;
+import org.apache.servicecomb.pack.contract.grpc.GrpcTccCoordinatedEvent;
+import org.apache.servicecomb.pack.contract.grpc.GrpcTccTransactionEndedEvent;
+import org.apache.servicecomb.pack.contract.grpc.GrpcTccTransactionStartedEvent;
+import org.apache.servicecomb.pack.contract.grpc.TccEventServiceGrpc;
+import org.apache.servicecomb.pack.contract.grpc.TccEventServiceGrpc.TccEventServiceBlockingStub;
+import org.apache.servicecomb.pack.contract.grpc.TccEventServiceGrpc.TccEventServiceStub;
+import org.apache.servicecomb.pack.omega.connector.grpc.core.GrpcOnErrorHandler;
 import org.apache.servicecomb.pack.omega.context.ServiceConfig;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageSender;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.*;
-import org.apache.servicecomb.pack.contract.grpc.TccEventServiceGrpc.TccEventServiceBlockingStub;
-import org.apache.servicecomb.pack.contract.grpc.TccEventServiceGrpc.TccEventServiceStub;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.CoordinatedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationEndedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationStartedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccEndedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccStartedEvent;
 
 public class GrpcTccClientMessageSender implements TccMessageSender {
 
@@ -41,12 +51,12 @@ public class GrpcTccClientMessageSender implements TccMessageSender {
       ManagedChannel channel,
       String address,
       TccMessageHandler handler,
-      LoadBalanceContext loadContext) {
+      GrpcOnErrorHandler grpcOnErrorHandler) {
     this.target = address;
     tccBlockingEventService = TccEventServiceGrpc.newBlockingStub(channel);
     tccAsyncEventService = TccEventServiceGrpc.newStub(channel);
     this.serviceConfig = serviceConfig(serviceConfig.serviceName(), serviceConfig.instanceId());
-    observer = new GrpcCoordinateStreamObserver(loadContext, this, handler);
+    observer = new GrpcCoordinateStreamObserver(handler, grpcOnErrorHandler, this);
   }
 
   @Override

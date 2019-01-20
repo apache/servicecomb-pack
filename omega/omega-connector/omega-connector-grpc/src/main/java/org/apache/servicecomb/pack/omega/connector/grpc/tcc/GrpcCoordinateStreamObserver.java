@@ -17,27 +17,30 @@
 
 package org.apache.servicecomb.pack.omega.connector.grpc.tcc;
 
+import io.grpc.stub.StreamObserver;
 import java.lang.invoke.MethodHandles;
-
-import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.ReconnectStreamObserver;
+import org.apache.servicecomb.pack.contract.grpc.GrpcTccCoordinateCommand;
+import org.apache.servicecomb.pack.omega.connector.grpc.core.GrpcOnErrorHandler;
 import org.apache.servicecomb.pack.omega.transaction.MessageSender;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;
-import org.apache.servicecomb.pack.contract.grpc.GrpcTccCoordinateCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GrpcCoordinateStreamObserver extends ReconnectStreamObserver<GrpcTccCoordinateCommand> {
+public class GrpcCoordinateStreamObserver implements StreamObserver<GrpcTccCoordinateCommand> {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final TccMessageHandler messageHandler;
 
-  public GrpcCoordinateStreamObserver(
-      LoadBalanceContext loadBalanceContext, MessageSender messageSender,
-      TccMessageHandler messageHandler) {
-    super(loadBalanceContext, messageSender);
+  private final GrpcOnErrorHandler grpcOnErrorHandler;
+
+  private final MessageSender messageSender;
+
+  public GrpcCoordinateStreamObserver(TccMessageHandler messageHandler,
+      GrpcOnErrorHandler grpcOnErrorHandler, MessageSender messageSender) {
     this.messageHandler = messageHandler;
+    this.grpcOnErrorHandler = grpcOnErrorHandler;
+    this.messageSender = messageSender;
   }
 
   @Override
@@ -45,5 +48,16 @@ public class GrpcCoordinateStreamObserver extends ReconnectStreamObserver<GrpcTc
     LOG.info("Received coordinate command, global tx id: {}, local tx id: {}, call method: {}",
         command.getGlobalTxId(), command.getLocalTxId(), command.getMethod());
     messageHandler.onReceive(command.getGlobalTxId(), command.getLocalTxId(), command.getParentTxId(), command.getMethod());
+  }
+
+  @Override
+  public void onError(Throwable t) {
+    LOG.error("Failed to process grpc coordinate command.", t);
+    grpcOnErrorHandler.handle(messageSender);
+  }
+
+  @Override
+  public void onCompleted() {
+    // Do nothing here
   }
 }

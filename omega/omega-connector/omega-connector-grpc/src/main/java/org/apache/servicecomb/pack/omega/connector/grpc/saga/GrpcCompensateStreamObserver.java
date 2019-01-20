@@ -17,43 +17,56 @@
 
 package org.apache.servicecomb.pack.omega.connector.grpc.saga;
 
+import io.grpc.stub.StreamObserver;
 import java.lang.invoke.MethodHandles;
-
-import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.ReconnectStreamObserver;
+import org.apache.servicecomb.pack.contract.grpc.GrpcCompensateCommand;
+import org.apache.servicecomb.pack.omega.connector.grpc.core.GrpcOnErrorHandler;
 import org.apache.servicecomb.pack.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.pack.omega.transaction.MessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.MessageSender;
-import org.apache.servicecomb.pack.contract.grpc.GrpcCompensateCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class GrpcCompensateStreamObserver extends ReconnectStreamObserver<GrpcCompensateCommand> {
+class GrpcCompensateStreamObserver implements StreamObserver<GrpcCompensateCommand> {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  public GrpcCompensateStreamObserver(LoadBalanceContext loadContext,
-      MessageSender messageSender,
-      MessageHandler messageHandler, MessageDeserializer deserializer) {
-    super(loadContext, messageSender);
-    this.messageHandler = messageHandler;
-    this.deserializer = deserializer;
-  }
-
-  private final MessageHandler messageHandler;
   private final MessageDeserializer deserializer;
 
+  private final MessageHandler messageHandler;
+
+  private final MessageSender messageSender;
+
+  private final GrpcOnErrorHandler grpcOnErrorHandler;
+
+  public GrpcCompensateStreamObserver(MessageDeserializer deserializer,
+      MessageHandler messageHandler, GrpcOnErrorHandler grpcOnErrorHandler, MessageSender messageSender) {
+    this.deserializer = deserializer;
+    this.messageHandler = messageHandler;
+    this.messageSender = messageSender;
+    this.grpcOnErrorHandler = grpcOnErrorHandler;
+  }
 
   @Override
   public void onNext(GrpcCompensateCommand command) {
     LOG.info("Received compensate command, global tx id: {}, local tx id: {}, compensation method: {}",
         command.getGlobalTxId(), command.getLocalTxId(), command.getCompensationMethod());
-
     messageHandler.onReceive(
         command.getGlobalTxId(),
         command.getLocalTxId(),
         command.getParentTxId().isEmpty() ? null : command.getParentTxId(),
         command.getCompensationMethod(),
         deserializer.deserialize(command.getPayloads().toByteArray()));
+  }
+
+  @Override
+  public void onError(Throwable t) {
+    LOG.error("Failed to process grpc coordinate command.", t);
+    grpcOnErrorHandler.handle(messageSender);
+  }
+
+  @Override
+  public void onCompleted() {
+    // Do nothing here
   }
 }

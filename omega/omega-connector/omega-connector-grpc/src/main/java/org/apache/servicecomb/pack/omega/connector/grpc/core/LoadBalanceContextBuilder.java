@@ -76,7 +76,7 @@ public class LoadBalanceContextBuilder {
     for (String address : clusterConfig.getAddresses()) {
       ManagedChannel channel = buildChannel(address, sslContext);
       channels.add(channel);
-      MessageSender messageSender = buildSender(address, channel, clusterConfig, serviceConfig, loadContext);
+      MessageSender messageSender = buildSender(address, channel, clusterConfig, serviceConfig, loadContext.getGrpcOnErrorHandler());
       senders.put(messageSender, 0L);
     }
     return loadContext;
@@ -97,7 +97,7 @@ public class LoadBalanceContextBuilder {
 
   private MessageSender buildSender(
       String address, ManagedChannel channel, AlphaClusterConfig clusterConfig,
-      ServiceConfig serviceConfig, LoadBalanceContext loadContext) {
+      ServiceConfig serviceConfig, GrpcOnErrorHandler grpcOnErrorHandler) {
     switch (transactionType) {
       case TCC:
         return new GrpcTccClientMessageSender(
@@ -105,7 +105,7 @@ public class LoadBalanceContextBuilder {
             channel,
             address,
             clusterConfig.getTccMessageHandler(),
-            loadContext);
+            grpcOnErrorHandler);
       case SAGA:
         return new GrpcSagaClientMessageSender(
             address,
@@ -114,7 +114,7 @@ public class LoadBalanceContextBuilder {
             clusterConfig.getMessageDeserializer(),
             serviceConfig,
             clusterConfig.getMessageHandler(),
-            loadContext
+            grpcOnErrorHandler
         );
         default:
     }
