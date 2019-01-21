@@ -20,7 +20,7 @@ package org.apache.servicecomb.pack.omega.connector.grpc.saga;
 import io.grpc.stub.StreamObserver;
 import java.lang.invoke.MethodHandles;
 import org.apache.servicecomb.pack.contract.grpc.GrpcCompensateCommand;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.GrpcOnErrorHandler;
+import org.apache.servicecomb.pack.omega.connector.grpc.core.ErrorHandleEngineManager;
 import org.apache.servicecomb.pack.omega.transaction.MessageDeserializer;
 import org.apache.servicecomb.pack.omega.transaction.MessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.MessageSender;
@@ -37,14 +37,11 @@ class GrpcCompensateStreamObserver implements StreamObserver<GrpcCompensateComma
 
   private final MessageSender messageSender;
 
-  private final GrpcOnErrorHandler grpcOnErrorHandler;
-
   public GrpcCompensateStreamObserver(MessageDeserializer deserializer,
-      MessageHandler messageHandler, GrpcOnErrorHandler grpcOnErrorHandler, MessageSender messageSender) {
+      MessageHandler messageHandler, MessageSender messageSender) {
     this.deserializer = deserializer;
     this.messageHandler = messageHandler;
     this.messageSender = messageSender;
-    this.grpcOnErrorHandler = grpcOnErrorHandler;
   }
 
   @Override
@@ -62,7 +59,7 @@ class GrpcCompensateStreamObserver implements StreamObserver<GrpcCompensateComma
   @Override
   public void onError(Throwable t) {
     LOG.error("Failed to process grpc coordinate command.", t);
-    grpcOnErrorHandler.handle(messageSender);
+    ErrorHandleEngineManager.getEngine().offerTask(messageSender);
   }
 
   @Override

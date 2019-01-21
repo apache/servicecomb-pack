@@ -160,7 +160,7 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
     TccMessageSender expectSender = (TccMessageSender) keySet.next();
 
     // assert expected message sender
-    TccMessageSender actualSender = tccLoadBalanceSender.pickMessageSender();
+    TccMessageSender actualSender = (TccMessageSender) tccLoadBalanceSender.pickMessageSender();
     assertThat(actualSender.target(), is(expectSender.target()));
 
     AlphaResponse response = tccLoadBalanceSender.participationStart(participationStartedEvent);
@@ -246,8 +246,8 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
     when(succeedSender.participationStart((ParticipationStartedEvent) any())).thenReturn(new AlphaResponse(false));
 
     Map<MessageSender, Long> senders = Maps.newConcurrentMap();
-    senders.put(failedSender, 0l);
-    senders.put(succeedSender, 10l);
+    senders.put(failedSender, 0L);
+    senders.put(succeedSender, 10L);
     loadContext.setSenders(senders);
     tccLoadBalanceSender.participationStart(participationStartedEvent);
   }
@@ -272,7 +272,7 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
 
   @Test
   public void TccStartSucceed() {
-    TccMessageSender actualSender = tccLoadBalanceSender.pickMessageSender();
+    TccMessageSender actualSender = (TccMessageSender) tccLoadBalanceSender.pickMessageSender();
     AlphaResponse response = tccLoadBalanceSender.tccTransactionStart(tccStartedEvent);
     assertThat(loadContext.getSenders().get(actualSender), greaterThan(0L));
     assertThat(response.aborted(), is(false));
@@ -280,7 +280,7 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
 
   @Test
   public void TccEndSucceed() {
-    TccMessageSender actualSender = tccLoadBalanceSender.pickMessageSender();
+    TccMessageSender actualSender = (TccMessageSender) tccLoadBalanceSender.pickMessageSender();
     AlphaResponse response = tccLoadBalanceSender.tccTransactionStop(tccEndedEvent);
     assertThat(loadContext.getSenders().get(actualSender), greaterThan(0L));
     assertThat(response.aborted(), is(false));
@@ -288,7 +288,7 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
 
   @Test
   public void TccCoordinatedSucceed() {
-    TccMessageSender actualSender = tccLoadBalanceSender.pickMessageSender();
+    TccMessageSender actualSender = (TccMessageSender) tccLoadBalanceSender.pickMessageSender();
     AlphaResponse response = tccLoadBalanceSender.coordinate(coordinatedEvent);
     assertThat(loadContext.getSenders().get(actualSender), greaterThan(0L));
     assertThat(response.aborted(), is(false));

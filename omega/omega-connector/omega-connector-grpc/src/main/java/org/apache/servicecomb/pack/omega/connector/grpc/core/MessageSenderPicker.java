@@ -17,7 +17,6 @@
 
 package org.apache.servicecomb.pack.omega.connector.grpc.core;
 
-import com.google.common.base.Supplier;
 import java.util.Collection;
 import java.util.Map;
 import org.apache.servicecomb.pack.omega.transaction.MessageSender;
@@ -29,13 +28,11 @@ import org.apache.servicecomb.pack.omega.transaction.MessageSender;
 public interface MessageSenderPicker {
 
   /**
-   * Pick one from the Collection. Return default sender if none is picked.
+   * Pick one from the Collection.
    *
    * @param messageSenders Candidates map, the Key Set of which is the collection of candidate
    * senders.
-   * @param defaultSender Default sender provider
    * @return The specified one.
    */
-  MessageSender pick(Map<? extends MessageSender, Long> messageSenders,
-      Supplier<MessageSender> defaultSender);
+  MessageSender pick(Map<? extends MessageSender, Long> messageSenders);
 }

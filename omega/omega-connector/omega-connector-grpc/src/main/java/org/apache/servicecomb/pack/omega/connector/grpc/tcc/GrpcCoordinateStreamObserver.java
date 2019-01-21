@@ -20,7 +20,7 @@ package org.apache.servicecomb.pack.omega.connector.grpc.tcc;
 import io.grpc.stub.StreamObserver;
 import java.lang.invoke.MethodHandles;
 import org.apache.servicecomb.pack.contract.grpc.GrpcTccCoordinateCommand;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.GrpcOnErrorHandler;
+import org.apache.servicecomb.pack.omega.connector.grpc.core.ErrorHandleEngineManager;
 import org.apache.servicecomb.pack.omega.transaction.MessageSender;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;
 import org.slf4j.Logger;
@@ -32,14 +32,10 @@ public class GrpcCoordinateStreamObserver implements StreamObserver<GrpcTccCoord
 
   private final TccMessageHandler messageHandler;
 
-  private final GrpcOnErrorHandler grpcOnErrorHandler;
-
   private final MessageSender messageSender;
 
-  public GrpcCoordinateStreamObserver(TccMessageHandler messageHandler,
-      GrpcOnErrorHandler grpcOnErrorHandler, MessageSender messageSender) {
+  public GrpcCoordinateStreamObserver(TccMessageHandler messageHandler, MessageSender messageSender) {
     this.messageHandler = messageHandler;
-    this.grpcOnErrorHandler = grpcOnErrorHandler;
     this.messageSender = messageSender;
   }
 
@@ -53,7 +49,7 @@ public class GrpcCoordinateStreamObserver implements StreamObserver<GrpcTccCoord
   @Override
   public void onError(Throwable t) {
     LOG.error("Failed to process grpc coordinate command.", t);
-    grpcOnErrorHandler.handle(messageSender);
+    ErrorHandleEngineManager.getEngine().offerTask(messageSender);
   }
 
   @Override

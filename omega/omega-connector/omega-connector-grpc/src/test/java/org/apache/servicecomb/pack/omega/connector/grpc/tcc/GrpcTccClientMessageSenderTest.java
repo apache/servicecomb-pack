@@ -78,7 +78,7 @@ public class GrpcTccClientMessageSenderTest {
         InProcessChannelBuilder.forName(serverName).directExecutor().build());
 
     // Create a TccEventServiceStub using the in-process channel;
-    service = new GrpcTccClientMessageSender(serviceConfig, channel, address, handler, null);
+    service = new GrpcTccClientMessageSender(serviceConfig, channel, address, handler);
   }
 
   @Test

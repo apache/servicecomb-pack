@@ -20,6 +20,8 @@ package org.apache.servicecomb.pack.omega.connector.grpc.core;
 import io.grpc.ManagedChannel;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.servicecomb.pack.omega.transaction.MessageSender;
 
 public class LoadBalanceContext {
@@ -28,17 +30,9 @@ public class LoadBalanceContext {
 
   private final Collection<ManagedChannel> channels;
 
-  private final PendingTaskRunner pendingTaskRunner;
-
-  private final GrpcOnErrorHandler grpcOnErrorHandler;
-
-  public LoadBalanceContext(Map<MessageSender, Long> senders,
-      Collection<ManagedChannel> channels, long reconnectDelay, long timeoutSeconds) {
+  public LoadBalanceContext(Map<MessageSender, Long> senders, Collection<ManagedChannel> channels) {
     this.senders = senders;
     this.channels = channels;
-    this.pendingTaskRunner = new PendingTaskRunner(reconnectDelay);
-    this.grpcOnErrorHandler = new GrpcOnErrorHandler(pendingTaskRunner.getPendingTasks(), senders, timeoutSeconds);
-    pendingTaskRunner.start();
   }
 
   public Map<MessageSender, Long> getSenders() {
@@ -47,14 +41,6 @@ public class LoadBalanceContext {
 
   public Collection<ManagedChannel> getChannels() {
     return channels;
-  }
-
-  public PendingTaskRunner getPendingTaskRunner() {
-    return pendingTaskRunner;
-  }
-
-  public GrpcOnErrorHandler getGrpcOnErrorHandler() {
-    return grpcOnErrorHandler;
   }
 
   // this is only for test

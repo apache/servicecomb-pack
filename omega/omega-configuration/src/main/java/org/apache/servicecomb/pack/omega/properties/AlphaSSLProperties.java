@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.omega.configuration;
+package org.apache.servicecomb.pack.omega.properties;
 
 public class AlphaSSLProperties {
 

@@ -17,7 +17,6 @@
 
 package org.apache.servicecomb.pack.omega.connector.grpc.core;
 
-import com.google.common.base.Supplier;
 import java.util.Map;
 import org.apache.servicecomb.pack.omega.transaction.MessageSender;
 
@@ -26,19 +25,15 @@ import org.apache.servicecomb.pack.omega.transaction.MessageSender;
  */
 public class FastestSender implements MessageSenderPicker {
   @Override
-  public MessageSender pick(Map<? extends MessageSender, Long> messageSenders, Supplier<MessageSender> defaultSender) {
+  public MessageSender pick(Map<? extends MessageSender, Long> messageSenders) {
     Long min = Long.MAX_VALUE;
-    MessageSender sender = null;
+    MessageSender result = null;
     for (Map.Entry<? extends MessageSender, Long> entry : messageSenders.entrySet()) {
       if (entry.getValue() != Long.MAX_VALUE && min > entry.getValue()) {
         min = entry.getValue();
-        sender = entry.getKey();
+        result = entry.getKey();
       }
     }
-    if (sender == null) {
-      return defaultSender.get();
-    } else {
-      return sender;
-    }
+    return result;
   }
 }

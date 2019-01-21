@@ -19,15 +19,6 @@ package org.apache.servicecomb.pack.omega.connector.grpc.saga;
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.GrpcOnErrorHandler;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
-import org.apache.servicecomb.pack.omega.context.ServiceConfig;
-import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
-import org.apache.servicecomb.pack.omega.transaction.MessageDeserializer;
-import org.apache.servicecomb.pack.omega.transaction.MessageHandler;
-import org.apache.servicecomb.pack.omega.transaction.MessageSerializer;
-import org.apache.servicecomb.pack.omega.transaction.SagaMessageSender;
-import org.apache.servicecomb.pack.omega.transaction.TxEvent;
 import org.apache.servicecomb.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.pack.contract.grpc.GrpcTxEvent;
@@ -35,6 +26,13 @@ import org.apache.servicecomb.pack.contract.grpc.GrpcTxEvent.Builder;
 import org.apache.servicecomb.pack.contract.grpc.TxEventServiceGrpc;
 import org.apache.servicecomb.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceBlockingStub;
 import org.apache.servicecomb.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceStub;
+import org.apache.servicecomb.pack.omega.context.ServiceConfig;
+import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
+import org.apache.servicecomb.pack.omega.transaction.MessageDeserializer;
+import org.apache.servicecomb.pack.omega.transaction.MessageHandler;
+import org.apache.servicecomb.pack.omega.transaction.MessageSerializer;
+import org.apache.servicecomb.pack.omega.transaction.SagaMessageSender;
+import org.apache.servicecomb.pack.omega.transaction.TxEvent;
 
 public class GrpcSagaClientMessageSender implements SagaMessageSender {
   private final String target;
@@ -55,13 +53,12 @@ public class GrpcSagaClientMessageSender implements SagaMessageSender {
       MessageSerializer serializer,
       MessageDeserializer deserializer,
       ServiceConfig serviceConfig,
-      MessageHandler handler,
-      GrpcOnErrorHandler grpcOnErrorHandler) {
+      MessageHandler handler) {
     this.target = address;
     this.asyncEventService = TxEventServiceGrpc.newStub(channel);
     this.blockingEventService = TxEventServiceGrpc.newBlockingStub(channel);
     this.serializer = serializer;
-    this.compensateStreamObserver = new GrpcCompensateStreamObserver(deserializer, handler, grpcOnErrorHandler, this);
+    this.compensateStreamObserver = new GrpcCompensateStreamObserver(deserializer, handler, this);
     this.serviceConfig = serviceConfig(serviceConfig.serviceName(), serviceConfig.instanceId());
   }
 

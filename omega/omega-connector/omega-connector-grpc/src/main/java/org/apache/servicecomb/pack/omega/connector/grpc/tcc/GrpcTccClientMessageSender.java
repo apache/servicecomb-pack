@@ -28,7 +28,6 @@ import org.apache.servicecomb.pack.contract.grpc.GrpcTccTransactionStartedEvent;
 import org.apache.servicecomb.pack.contract.grpc.TccEventServiceGrpc;
 import org.apache.servicecomb.pack.contract.grpc.TccEventServiceGrpc.TccEventServiceBlockingStub;
 import org.apache.servicecomb.pack.contract.grpc.TccEventServiceGrpc.TccEventServiceStub;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.GrpcOnErrorHandler;
 import org.apache.servicecomb.pack.omega.context.ServiceConfig;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;
@@ -50,13 +49,12 @@ public class GrpcTccClientMessageSender implements TccMessageSender {
   public GrpcTccClientMessageSender(ServiceConfig serviceConfig,
       ManagedChannel channel,
       String address,
-      TccMessageHandler handler,
-      GrpcOnErrorHandler grpcOnErrorHandler) {
+      TccMessageHandler handler) {
     this.target = address;
     tccBlockingEventService = TccEventServiceGrpc.newBlockingStub(channel);
     tccAsyncEventService = TccEventServiceGrpc.newStub(channel);
     this.serviceConfig = serviceConfig(serviceConfig.serviceName(), serviceConfig.instanceId());
-    observer = new GrpcCoordinateStreamObserver(handler, grpcOnErrorHandler, this);
+    observer = new GrpcCoordinateStreamObserver(handler, this);
   }
 
   @Override

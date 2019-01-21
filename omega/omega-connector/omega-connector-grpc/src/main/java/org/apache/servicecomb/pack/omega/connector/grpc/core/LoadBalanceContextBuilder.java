@@ -35,9 +35,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.net.ssl.SSLException;
-
-import org.apache.servicecomb.pack.omega.connector.grpc.saga.GrpcSagaClientMessageSender;
 import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterConfig;
+import org.apache.servicecomb.pack.omega.connector.grpc.saga.GrpcSagaClientMessageSender;
 import org.apache.servicecomb.pack.omega.connector.grpc.tcc.GrpcTccClientMessageSender;
 import org.apache.servicecomb.pack.omega.context.ServiceConfig;
 import org.apache.servicecomb.pack.omega.transaction.MessageSender;
@@ -71,12 +70,13 @@ public class LoadBalanceContextBuilder {
     Optional<SslContext> sslContext = buildSslContext(clusterConfig);
     Map<MessageSender, Long> senders = new ConcurrentHashMap<>();
     Collection<ManagedChannel> channels = new ArrayList<>(clusterConfig.getAddresses().size());
-    LoadBalanceContext loadContext = new LoadBalanceContext(senders, channels, reconnectDelay, timeoutSeconds);
+    ErrorHandleEngineManager.init(senders, reconnectDelay, timeoutSeconds);
+    LoadBalanceContext loadContext = new LoadBalanceContext(senders, channels);
 
     for (String address : clusterConfig.getAddresses()) {
       ManagedChannel channel = buildChannel(address, sslContext);
       channels.add(channel);
-      MessageSender messageSender = buildSender(address, channel, clusterConfig, serviceConfig, loadContext.getGrpcOnErrorHandler());
+      MessageSender messageSender = buildSender(address, channel, clusterConfig, serviceConfig);
       senders.put(messageSender, 0L);
     }
     return loadContext;
@@ -96,16 +96,14 @@ public class LoadBalanceContextBuilder {
   }
 
   private MessageSender buildSender(
-      String address, ManagedChannel channel, AlphaClusterConfig clusterConfig,
-      ServiceConfig serviceConfig, GrpcOnErrorHandler grpcOnErrorHandler) {
+      String address, ManagedChannel channel, AlphaClusterConfig clusterConfig, ServiceConfig serviceConfig) {
     switch (transactionType) {
       case TCC:
         return new GrpcTccClientMessageSender(
             serviceConfig,
             channel,
             address,
-            clusterConfig.getTccMessageHandler(),
-            grpcOnErrorHandler);
+            clusterConfig.getTccMessageHandler());
       case SAGA:
         return new GrpcSagaClientMessageSender(
             address,
@@ -113,8 +111,7 @@ public class LoadBalanceContextBuilder {
             clusterConfig.getMessageSerializer(),
             clusterConfig.getMessageDeserializer(),
             serviceConfig,
-            clusterConfig.getMessageHandler(),
-            grpcOnErrorHandler
+            clusterConfig.getMessageHandler()
         );
         default:
     }

@@ -42,7 +42,7 @@ public class TccLoadBalanceSender extends LoadBalanceSenderAdapter implements Tc
   @Override
   public AlphaResponse participationStart(ParticipationStartedEvent participationStartedEvent) {
     do {
-      final TccMessageSender messageSender = pickMessageSender();
+      final TccMessageSender messageSender = (TccMessageSender) pickMessageSender();
       Optional<AlphaResponse> response = doGrpcSend(messageSender, participationStartedEvent, new SenderExecutor<ParticipationStartedEvent>() {
         @Override
         public AlphaResponse apply(ParticipationStartedEvent event) {
@@ -58,7 +58,7 @@ public class TccLoadBalanceSender extends LoadBalanceSenderAdapter implements Tc
   @Override
   public AlphaResponse participationEnd(ParticipationEndedEvent participationEndedEvent) {
     do {
-      final TccMessageSender messageSender = pickMessageSender();
+      final TccMessageSender messageSender = (TccMessageSender) pickMessageSender();
       Optional<AlphaResponse> response = doGrpcSend(messageSender, participationEndedEvent, new SenderExecutor<ParticipationEndedEvent>() {
         @Override
         public AlphaResponse apply(ParticipationEndedEvent event) {
@@ -74,7 +74,7 @@ public class TccLoadBalanceSender extends LoadBalanceSenderAdapter implements Tc
   @Override
   public AlphaResponse tccTransactionStart(TccStartedEvent tccStartEvent) {
     do {
-      final TccMessageSender messageSender = pickMessageSender();
+      final TccMessageSender messageSender = (TccMessageSender) pickMessageSender();
       Optional<AlphaResponse> response = doGrpcSend(messageSender, tccStartEvent, new SenderExecutor<TccStartedEvent>() {
         @Override
         public AlphaResponse apply(TccStartedEvent event) {
@@ -90,7 +90,7 @@ public class TccLoadBalanceSender extends LoadBalanceSenderAdapter implements Tc
   @Override
   public AlphaResponse tccTransactionStop(TccEndedEvent tccEndEvent) {
     do {
-      final TccMessageSender messageSender = pickMessageSender();
+      final TccMessageSender messageSender = (TccMessageSender) pickMessageSender();
       Optional<AlphaResponse> response = doGrpcSend(messageSender, tccEndEvent, new SenderExecutor<TccEndedEvent>() {
         @Override
         public AlphaResponse apply(TccEndedEvent event) {
@@ -106,7 +106,7 @@ public class TccLoadBalanceSender extends LoadBalanceSenderAdapter implements Tc
   @Override
   public AlphaResponse coordinate(CoordinatedEvent coordinatedEvent) {
     do {
-      final TccMessageSender messageSender = pickMessageSender();
+      final TccMessageSender messageSender = (TccMessageSender) pickMessageSender();
       Optional<AlphaResponse> response = doGrpcSend(messageSender, coordinatedEvent, new SenderExecutor<CoordinatedEvent>() {
         @Override
         public AlphaResponse apply(CoordinatedEvent event) {

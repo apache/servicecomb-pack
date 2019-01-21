@@ -17,35 +17,31 @@
 
 package org.apache.servicecomb.pack.omega.connector.grpc.core;
 
-import io.grpc.stub.StreamObserver;
-import java.lang.invoke.MethodHandles;
-
+import java.util.Map;
 import org.apache.servicecomb.pack.omega.transaction.MessageSender;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public abstract class ReconnectStreamObserver<T> implements StreamObserver<T> {
+public class ErrorHandleEngineManager {
 
-  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private static GrpcOnErrorHandleEngine ENGINE;
 
-  private final LoadBalanceContext loadContext;
+  public static synchronized GrpcOnErrorHandleEngine init(final Map<MessageSender, Long> senders,
+      final long reconnectDelay, final long timeoutSeconds) {
+    if (null == ENGINE) {
+      ENGINE = new GrpcOnErrorHandleEngine(senders, reconnectDelay, timeoutSeconds);
+      ENGINE.start();
+    }
 
-  private final MessageSender messageSender;
-
-  public ReconnectStreamObserver(
-      LoadBalanceContext loadContext, MessageSender messageSender) {
-    this.loadContext = loadContext;
-    this.messageSender = messageSender;
+    return ENGINE;
   }
 
-  @Override
-  public void onError(Throwable t) {
-    LOG.error("Failed to process grpc coordinate command.", t);
-    loadContext.getGrpcOnErrorHandler().handle(messageSender);
+  public static GrpcOnErrorHandleEngine getEngine() {
+    return ENGINE;
   }
 
-  @Override
-  public void onCompleted() {
-    // Do nothing here
+  public static void shutdownEngine() {
+    if (null != ENGINE) {
+      ENGINE.close();
+      ENGINE = null;
+    }
   }
 }

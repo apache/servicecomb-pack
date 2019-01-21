@@ -28,7 +28,23 @@
   <artifactId>omega-configuration</artifactId>
   <name>Pack::Omega::Configuration</name>
 
-
-
+  <dependencies>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-netty</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-stub</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicecomb.pack</groupId>
+      <artifactId>omega-connector-grpc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicecomb.pack</groupId>
+      <artifactId>omega-format</artifactId>
+    </dependency>
+  </dependencies>
 
 </project>

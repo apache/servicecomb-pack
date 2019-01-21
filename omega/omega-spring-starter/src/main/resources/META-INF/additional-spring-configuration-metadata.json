@@ -7,8 +7,8 @@
     },
     {
       "name": "alpha.cluster.ssl",
-      "type": "org.apache.servicecomb.pack.omega.configuration.AlphaSSLProperties",
-      "sourceType": "org.apache.servicecomb.pack.omega.configuration.AlphaSSLProperties"
+      "type": "org.apache.servicecomb.pack.omega.properties.AlphaSSLProperties",
+      "sourceType": "org.apache.servicecomb.pack.omega.properties.AlphaSSLProperties"
     },
     {
       "name": "omega.client",
@@ -25,27 +25,27 @@
     {
       "name": "alpha.cluster.ssl.enableSSL",
       "type": "java.lang.Boolean",
-      "sourceType": "org.apache.servicecomb.pack.omega.configuration.AlphaSSLProperties"
+      "sourceType": "org.apache.servicecomb.pack.omega.properties.AlphaSSLProperties"
     },
     {
       "name": "alpha.cluster.ssl.mutualAuth",
       "type": "java.lang.Boolean",
-      "sourceType": "org.apache.servicecomb.pack.omega.configuration.AlphaSSLProperties"
+      "sourceType": "org.apache.servicecomb.pack.omega.properties.AlphaSSLProperties"
     },
     {
       "name": "alpha.cluster.ssl.cert",
       "type": "java.lang.String",
-      "sourceType": "org.apache.servicecomb.pack.omega.configuration.AlphaSSLProperties"
+      "sourceType": "org.apache.servicecomb.pack.omega.properties.AlphaSSLProperties"
     },
     {
       "name": "alpha.cluster.ssl.key",
       "type": "java.lang.String",
-      "sourceType": "org.apache.servicecomb.pack.omega.configuration.AlphaSSLProperties"
+      "sourceType": "org.apache.servicecomb.pack.omega.properties.AlphaSSLProperties"
     },
     {
       "name": "alpha.cluster.ssl.certChain",
       "type": "java.lang.String",
-      "sourceType": "org.apache.servicecomb.pack.omega.configuration.AlphaSSLProperties"
+      "sourceType": "org.apache.servicecomb.pack.omega.properties.AlphaSSLProperties"
     },
     {
       "name": "omega.client.reconnect-delay-milli-seconds",

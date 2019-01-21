@@ -38,7 +38,7 @@ public class SagaLoadBalanceSender extends LoadBalanceSenderAdapter implements S
   @Override
   public AlphaResponse send(TxEvent event) {
     do {
-      final SagaMessageSender messageSender = pickMessageSender();
+      final SagaMessageSender messageSender = (SagaMessageSender) pickMessageSender();
       Optional<AlphaResponse> response = doGrpcSend(messageSender, event, new SenderExecutor<TxEvent>() {
         @Override
         public AlphaResponse apply(TxEvent event) {

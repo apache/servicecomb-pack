@@ -28,11 +28,12 @@ public class PendingTaskRunner {
 
   private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-  private final BlockingQueue<Runnable> pendingTasks = new LinkedBlockingQueue<>();
+  private final BlockingQueue<Runnable> pendingTasks;
 
   private final long reconnectDelay;
 
-  public PendingTaskRunner(long reconnectDelay) {
+  public PendingTaskRunner(BlockingQueue<Runnable> pendingTasks, long reconnectDelay) {
+    this.pendingTasks = pendingTasks;
     this.reconnectDelay = reconnectDelay;
   }
 
@@ -51,10 +52,6 @@ public class PendingTaskRunner {
 
   public void shutdown() {
     scheduler.shutdown();
-  }
-
-  public BlockingQueue<Runnable> getPendingTasks() {
-    return pendingTasks;
   }
 
   public long getReconnectDelay() {

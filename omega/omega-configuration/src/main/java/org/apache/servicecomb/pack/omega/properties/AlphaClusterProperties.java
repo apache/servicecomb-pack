@@ -15,32 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.omega.configuration;
+package org.apache.servicecomb.pack.omega.properties;
 
-public class OmegaClientProperties {
+import java.util.Collections;
+import java.util.List;
 
-  private static final long DEFAULT_RECONNECT_DELAY_MILLISECONDS = 3000;
+public class AlphaClusterProperties {
 
-  private static final long DEFAULT_TIMEOUT_SECONDS = 8;
+  private List<String> address = Collections.singletonList("localhost:8080");
 
-  private long reconnectDelayMilliSeconds = DEFAULT_RECONNECT_DELAY_MILLISECONDS;
+  private AlphaSSLProperties ssl = new AlphaSSLProperties();
 
-  private long timeoutSeconds = DEFAULT_TIMEOUT_SECONDS;
-
-  public long getReconnectDelayMilliSeconds() {
-    return reconnectDelayMilliSeconds;
+  public List<String> getAddress() {
+    return address;
   }
 
-  public void setReconnectDelayMilliSeconds(long reconnectDelayMilliSeconds) {
-    this.reconnectDelayMilliSeconds = reconnectDelayMilliSeconds;
+  public void setAddress(List<String> address) {
+    this.address = address;
   }
 
-  public long getTimeoutSeconds() {
-    return timeoutSeconds;
+  public AlphaSSLProperties getSsl() {
+    return ssl;
   }
 
-  public void setTimeoutSeconds(long timeoutSeconds) {
-    this.timeoutSeconds = timeoutSeconds;
+  public void setSsl(AlphaSSLProperties ssl) {
+    this.ssl = ssl;
   }
 }
-

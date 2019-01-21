@@ -18,8 +18,8 @@
 package org.apache.servicecomb.pack.omega.spring;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.servicecomb.pack.omega.configuration.AlphaSSLProperties;
-import org.apache.servicecomb.pack.omega.configuration.OmegaClientProperties;
+import org.apache.servicecomb.pack.omega.properties.AlphaSSLProperties;
+import org.apache.servicecomb.pack.omega.properties.OmegaClientProperties;
 import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.FastestSender;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
@@ -103,7 +103,7 @@ class OmegaSpringConfig {
     AlphaSSLProperties ssl = alphaClusterProperties.getSsl();
     MessageFormat messageFormat = new KryoMessageFormat();
     AlphaClusterConfig clusterConfig = AlphaClusterConfig.builder()
-        .addresses(ImmutableList.copyOf(alphaClusterProperties.getAddress()))
+        .addresses(alphaClusterProperties.getAddress())
         .enableSSL(ssl.isEnableSSL())
         .enableMutualAuth(ssl.isMutualAuth())
         .cert(ssl.getCert())
@@ -115,7 +115,7 @@ class OmegaSpringConfig {
         .tccMessageHandler(tccMessageHandler)
         .build();
     return clusterConfig;
-  }
+}
 
   @Bean(name = "sagaLoadContext")
   LoadBalanceContext sagaLoadBalanceSenderContext(

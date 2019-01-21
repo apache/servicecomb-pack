@@ -42,9 +42,9 @@ public abstract class LoadBalanceSenderAdapter implements MessageSender {
   }
 
   @SuppressWarnings("unchecked")
-  public <T> T pickMessageSender() {
-    return (T) senderPicker.pick(loadContext.getSenders(),
-        loadContext.getGrpcOnErrorHandler().getGrpcRetryContext().getDefaultMessageSender());
+  public MessageSender pickMessageSender() {
+    MessageSender result = senderPicker.pick(loadContext.getSenders());
+    return null == result ? ErrorHandleEngineManager.getEngine().getDefaultSender() : result;
   }
 
   public <T> Optional<AlphaResponse> doGrpcSend(MessageSender messageSender, T event, SenderExecutor<T> executor) {
@@ -86,10 +86,10 @@ public abstract class LoadBalanceSenderAdapter implements MessageSender {
 
   @Override
   public void close() {
-    loadContext.getPendingTaskRunner().shutdown();
     for(ManagedChannel channel : loadContext.getChannels()) {
       channel.shutdownNow();
     }
+    ErrorHandleEngineManager.shutdownEngine();
   }
 
   @Override

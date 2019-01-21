@@ -250,7 +250,7 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
 
   @Test
   public void stopSendingWhenClusterIsDown() throws Exception {
-    for(Server server:servers.values()) {
+    for(Server server : servers.values()) {
       server.shutdownNow();
     }
     messageSender.onConnected();
