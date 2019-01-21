@@ -31,8 +31,8 @@ import org.apache.servicecomb.pack.omega.context.OmegaContext;
 @Configuration
 public class RestTemplateConfig {
 
-  @Bean
-  public RestTemplate restTemplate(@Autowired(required=false) OmegaContext context) {
+  @Bean(name = "omegaRestTemplate")
+  public RestTemplate omegaRestTemplate(@Autowired(required=false) OmegaContext context) {
     RestTemplate template = new RestTemplate();
     List<ClientHttpRequestInterceptor> interceptors = template.getInterceptors();
     interceptors.add(new TransactionClientHttpRequestInterceptor(context));
