@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @JsonAutoDetect(fieldVisibility = Visibility.ANY)
 class HotelBooking {
-  @JsonIgnore
   private Integer id;
   private String name;
   private Integer amount;
