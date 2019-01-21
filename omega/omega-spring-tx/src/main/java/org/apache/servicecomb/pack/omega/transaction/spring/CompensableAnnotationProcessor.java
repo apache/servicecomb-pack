@@ -29,30 +29,30 @@ class CompensableAnnotationProcessor implements BeanPostProcessor {
 
   private final CallbackContext compensationContext;
 
-  CompensableAnnotationProcessor(OmegaContext omegaContext, CallbackContext compensationContext) {
+  CompensableAnnotationProcessor(final OmegaContext omegaContext, final CallbackContext compensationContext) {
     this.omegaContext = omegaContext;
     this.compensationContext = compensationContext;
   }
 
   @Override
-  public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+  public Object postProcessBeforeInitialization(final Object bean, final String beanName) throws BeansException {
     return bean;
   }
 
   @Override
-  public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+  public Object postProcessAfterInitialization(final Object bean, final String beanName) throws BeansException {
     checkMethod(bean);
     checkFields(bean);
     return bean;
   }
 
-  private void checkMethod(Object bean) {
+  private void checkMethod(final Object bean) {
     ReflectionUtils.doWithMethods(
         bean.getClass(),
         new CompensableMethodCheckingCallback(bean, compensationContext));
   }
 
-  private void checkFields(Object bean) {
+  private void checkFields(final Object bean) {
     ReflectionUtils.doWithFields(bean.getClass(), new ExecutorFieldCallback(bean, omegaContext));
   }
 }

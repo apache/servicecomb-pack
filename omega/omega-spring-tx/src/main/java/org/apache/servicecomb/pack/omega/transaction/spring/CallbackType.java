@@ -22,6 +22,7 @@ public enum CallbackType {
    * Compensation is for the Saga pattern
    */
   Compensation,
+
   /**
    * Coordination is for the TCC pattern
    */

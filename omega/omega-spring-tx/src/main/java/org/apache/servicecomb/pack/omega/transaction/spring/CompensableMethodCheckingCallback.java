@@ -23,12 +23,12 @@ import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
 
 class CompensableMethodCheckingCallback extends MethodCheckingCallback {
 
-  public CompensableMethodCheckingCallback(Object bean, CallbackContext callbackContext) {
+  public CompensableMethodCheckingCallback(final Object bean, final CallbackContext callbackContext) {
     super(bean, callbackContext, CallbackType.Compensation);
   }
 
   @Override
-  public void doWith(Method method) throws IllegalArgumentException {
+  public void doWith(final Method method) throws IllegalArgumentException {
     if (!method.isAnnotationPresent(Compensable.class)) {
       return;
     }

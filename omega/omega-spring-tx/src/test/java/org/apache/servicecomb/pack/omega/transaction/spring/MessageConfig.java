@@ -24,11 +24,14 @@ import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.pack.omega.transaction.SagaMessageSender;
-import org.apache.servicecomb.pack.omega.transaction.TxEvent;
 import org.apache.servicecomb.pack.omega.transaction.tcc.DefaultParametersContext;
 import org.apache.servicecomb.pack.omega.transaction.tcc.ParametersContext;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageSender;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.*;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.CoordinatedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationEndedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationStartedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccEndedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccStartedEvent;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,6 +41,7 @@ public class MessageConfig {
   private final List<String> messages = new ArrayList<>();
 
   @Bean
+  @SuppressWarnings("unchecked")
   IdGenerator<String> idGenerator() {
     return Mockito.mock(IdGenerator.class);
   }

@@ -120,7 +120,7 @@ public class TransactionInterceptionTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     messages.clear();
     userRepository.deleteAll();
     omegaContext.clear();
@@ -128,11 +128,11 @@ public class TransactionInterceptionTest {
   }
 
   @AfterClass
-  public static void afterClass() throws Exception {
+  public static void afterClass() {
   }
 
   @Test
-  public void sendsUserToRemote_AroundTransaction() throws Exception {
+  public void sendsUserToRemote_AroundTransaction() {
     User user = userService.add(this.user);
 
     assertArrayEquals(
@@ -148,13 +148,13 @@ public class TransactionInterceptionTest {
   }
 
   @Test
-  public void sendsAbortEvent_OnSubTransactionFailure() throws Exception {
+  public void sendsAbortEvent_OnSubTransactionFailure() {
     Throwable throwable = null;
     try {
       userService.add(illegalUser);
       expectFailing(IllegalArgumentException.class);
-    } catch (IllegalArgumentException ignored) {
-      throwable = ignored;
+    } catch (final IllegalArgumentException ex) {
+      throwable = ex;
     }
 
     assertArrayEquals(
@@ -167,7 +167,7 @@ public class TransactionInterceptionTest {
   }
 
   @Test
-  public void compensateOnTransactionException() throws Exception {
+  public void compensateOnTransactionException() {
     User user = userService.add(this.user);
 
     // another sub transaction to the same service within the same global transaction
@@ -219,8 +219,8 @@ public class TransactionInterceptionTest {
 
     assertThat(userRepository.count(), is(1L));
     Iterable<User> users =  userRepository.findAll();
-    for(User user: users ) {
-      assertThat(user, is(this.user));
+    for (User each : users) {
+      assertThat(each, is(this.user));
     }
   }
 
@@ -252,7 +252,7 @@ public class TransactionInterceptionTest {
   }
 
   @Test
-  public void passesOmegaContextThroughDifferentThreads() throws Exception {
+  public void passesOmegaContextThroughDifferentThreads() {
     new Thread(new Runnable() {
       @Override
       public void run() {
@@ -304,7 +304,7 @@ public class TransactionInterceptionTest {
     String localTxId = omegaContext.newLocalTxId();
     executor.invokeAll(singletonList(new Callable<User>() {
       @Override
-      public User call() throws Exception {
+      public User call() {
         return userService.add(jack);
       }
     }));
@@ -322,14 +322,15 @@ public class TransactionInterceptionTest {
 
   // TODO: 2018/1/4 reactive is not supported yet, omega context won't be updated on shared threads
   @Test
-  public void passesOmegaContextThroughReactiveX() throws Exception {
+  @SuppressWarnings("unchecked")
+  public void passesOmegaContextThroughReactiveX() {
     Flowable.just(user)
         .parallel()
         .runOn(Schedulers.io())
         .doOnNext(new Consumer() {
           @Override
-          public void accept(Object user) throws Exception {
-            userService.add((User)user);
+          public void accept(final Object user) {
+            userService.add((User) user);
           }
         })
         .sequential()
@@ -347,7 +348,7 @@ public class TransactionInterceptionTest {
 
   // TODO: 2018/1/4 actor system is not supported yet
   @Test
-  public void passesOmegaContextAmongActors() throws Exception {
+  public void passesOmegaContextAmongActors() {
     ActorSystem actorSystem = ActorSystem.create();
 
     ActorRef actorRef = actorSystem.actorOf(UserServiceActor.props(userService));
@@ -367,7 +368,7 @@ public class TransactionInterceptionTest {
   private void waitTillSavedUser(final String username) {
     await().atMost(1000, MILLISECONDS).until(new Callable<Boolean>() {
       @Override
-      public Boolean call() throws Exception {
+      public Boolean call() {
         return userRepository.findByUsername(username) != null;
       }
     });
@@ -376,14 +377,17 @@ public class TransactionInterceptionTest {
   private static class UserServiceActor extends AbstractLoggingActor {
     private final TransactionalUserService userService;
 
-    private UserServiceActor(TransactionalUserService userService) {
+    private UserServiceActor(final TransactionalUserService userService) {
       this.userService = userService;
     }
 
     static Props props(final TransactionalUserService userService) {
       return Props.create(UserServiceActor.class, new Creator<UserServiceActor>() {
+
+        private static final long serialVersionUID = -8260703595110754007L;
+
         @Override
-        public UserServiceActor create() throws Exception {
+        public UserServiceActor create() {
           return new UserServiceActor(userService);
         }
       });
@@ -394,14 +398,14 @@ public class TransactionInterceptionTest {
       return receiveBuilder()
           .match(User.class, new UnitApply<User>() {
             @Override
-            public void apply(User user) throws Exception {
+            public void apply(final User user) {
               userService.add(user);
             }
           }).build();
     }
   }
 
-  private String[] toArray(List<String> messages) {
-    return messages.toArray(new String[messages.size()]);
+  private String[] toArray(final List<String> messages) {
+    return messages.toArray(new String[0]);
   }
 }

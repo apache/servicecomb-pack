@@ -40,13 +40,13 @@ class ExecutorFieldCallback implements FieldCallback {
   private final OmegaContext omegaContext;
   private final Object bean;
 
-  ExecutorFieldCallback(Object bean, OmegaContext omegaContext) {
+  ExecutorFieldCallback(final Object bean, final OmegaContext omegaContext) {
     this.omegaContext = omegaContext;
     this.bean = bean;
   }
 
   @Override
-  public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
+  public void doWith(final Field field) throws IllegalArgumentException, IllegalAccessException {
     if (!field.isAnnotationPresent(OmegaContextAware.class)) {
       return;
     }
@@ -71,7 +71,7 @@ class ExecutorFieldCallback implements FieldCallback {
     private final Object runnable;
     private final OmegaContext omegaContext;
 
-    private static Object newInstance(Object runnable, OmegaContext omegaContext) {
+    private static Object newInstance(final Object runnable, final OmegaContext omegaContext) {
       RunnableProxy runnableProxy = new RunnableProxy(omegaContext, runnable);
       return Proxy.newProxyInstance(
           runnable.getClass().getClassLoader(),
@@ -79,7 +79,7 @@ class ExecutorFieldCallback implements FieldCallback {
           runnableProxy);
     }
 
-    private RunnableProxy(OmegaContext omegaContext, Object runnable) {
+    private RunnableProxy(final OmegaContext omegaContext, final Object runnable) {
       this.omegaContext = omegaContext;
       this.globalTxId = omegaContext.globalTxId();
       this.localTxId = omegaContext.localTxId();
@@ -87,7 +87,7 @@ class ExecutorFieldCallback implements FieldCallback {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
       try {
         LOG.debug("Setting OmegaContext with globalTxId [{}] & localTxId [{}]",
             globalTxId,
@@ -129,6 +129,7 @@ class ExecutorFieldCallback implements FieldCallback {
       return method.invoke(target, augmentRunnablesWithOmegaContext(args));
     }
 
+    @SuppressWarnings("unchecked")
     private Object[] augmentRunnablesWithOmegaContext(Object[] args) {
       Object[] augmentedArgs = new Object[args.length];
 
