@@ -17,14 +17,11 @@
 
 package org.apache.servicecomb.pack.omega.spring;
 
-import com.google.common.collect.ImmutableList;
-import org.apache.servicecomb.pack.omega.properties.AlphaSSLProperties;
-import org.apache.servicecomb.pack.omega.properties.OmegaClientProperties;
 import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.FastestSender;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContextBuilder;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.TransactionType;
+import org.apache.servicecomb.pack.omega.context.TransactionType;
 import org.apache.servicecomb.pack.omega.connector.grpc.saga.SagaLoadBalanceSender;
 import org.apache.servicecomb.pack.omega.connector.grpc.tcc.TccLoadBalanceSender;
 import org.apache.servicecomb.pack.omega.context.CallbackContext;
@@ -34,9 +31,11 @@ import org.apache.servicecomb.pack.omega.context.ServiceConfig;
 import org.apache.servicecomb.pack.omega.context.UniqueIdGenerator;
 import org.apache.servicecomb.pack.omega.format.KryoMessageFormat;
 import org.apache.servicecomb.pack.omega.format.MessageFormat;
+import org.apache.servicecomb.pack.omega.properties.AlphaSSLProperties;
+import org.apache.servicecomb.pack.omega.properties.OmegaClientProperties;
 import org.apache.servicecomb.pack.omega.spring.properties.BootAlphaClusterProperties;
 import org.apache.servicecomb.pack.omega.spring.properties.BootOmegaClientProperties;
-import org.apache.servicecomb.pack.omega.transaction.MessageHandler;
+import org.apache.servicecomb.pack.omega.transaction.SagaMessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.SagaMessageSender;
 import org.apache.servicecomb.pack.omega.transaction.tcc.DefaultParametersContext;
 import org.apache.servicecomb.pack.omega.transaction.tcc.ParametersContext;
@@ -97,7 +96,7 @@ class OmegaSpringConfig {
 
   @Bean
   AlphaClusterConfig alphaClusterConfig(BootAlphaClusterProperties alphaClusterProperties,
-      @Lazy MessageHandler handler,
+      @Lazy SagaMessageHandler handler,
       @Lazy TccMessageHandler tccMessageHandler) {
 
     AlphaSSLProperties ssl = alphaClusterProperties.getSsl();

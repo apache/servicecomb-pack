@@ -17,23 +17,7 @@
 
 package org.apache.servicecomb.pack.omega.transaction;
 
-import org.apache.servicecomb.pack.omega.context.CallbackContext;
+public interface SagaMessageHandler extends MessageHandler {
 
-public class CompensationMessageHandler implements SagaMessageHandler {
-
-  private final SagaMessageSender sender;
-
-  private final CallbackContext context;
-
-  public CompensationMessageHandler(SagaMessageSender sender, CallbackContext context) {
-    this.sender = sender;
-    this.context = context;
-  }
-
-  @Override
-  public void onReceive(String globalTxId, String localTxId, String parentTxId, String compensationMethod,
-      Object... payloads) {
-    context.apply(globalTxId, localTxId, compensationMethod, payloads);
-    sender.send(new TxCompensatedEvent(globalTxId, localTxId, parentTxId, compensationMethod));
-  }
+  void onReceive(String globalTxId, String localTxId, String parentTxId, String compensationMethod, Object... payloads);
 }

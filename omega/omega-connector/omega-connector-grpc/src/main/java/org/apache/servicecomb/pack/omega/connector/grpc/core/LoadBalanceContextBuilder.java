@@ -39,6 +39,7 @@ import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.pack.omega.connector.grpc.saga.GrpcSagaClientMessageSender;
 import org.apache.servicecomb.pack.omega.connector.grpc.tcc.GrpcTccClientMessageSender;
 import org.apache.servicecomb.pack.omega.context.ServiceConfig;
+import org.apache.servicecomb.pack.omega.context.TransactionType;
 import org.apache.servicecomb.pack.omega.transaction.MessageSender;
 
 public class LoadBalanceContextBuilder {
@@ -98,19 +99,14 @@ public class LoadBalanceContextBuilder {
       String address, ManagedChannel channel, AlphaClusterConfig clusterConfig, ServiceConfig serviceConfig) {
     switch (transactionType) {
       case TCC:
-        return new GrpcTccClientMessageSender(
-            serviceConfig,
-            channel,
-            address,
-            clusterConfig.getTccMessageHandler());
+        return new GrpcTccClientMessageSender(serviceConfig, channel, address);
       case SAGA:
         return new GrpcSagaClientMessageSender(
             address,
             channel,
             clusterConfig.getMessageSerializer(),
             clusterConfig.getMessageDeserializer(),
-            serviceConfig,
-            clusterConfig.getMessageHandler()
+            serviceConfig
         );
         default:
     }

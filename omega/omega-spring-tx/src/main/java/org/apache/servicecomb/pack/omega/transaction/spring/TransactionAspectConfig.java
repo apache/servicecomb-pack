@@ -20,7 +20,7 @@ package org.apache.servicecomb.pack.omega.transaction.spring;
 import org.apache.servicecomb.pack.omega.context.CallbackContext;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.transaction.CompensationMessageHandler;
-import org.apache.servicecomb.pack.omega.transaction.MessageHandler;
+import org.apache.servicecomb.pack.omega.transaction.SagaMessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.SagaMessageSender;
 import org.apache.servicecomb.pack.omega.transaction.SagaStartAspect;
 import org.apache.servicecomb.pack.omega.transaction.TransactionAspect;
@@ -40,7 +40,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 public class TransactionAspectConfig {
 
   @Bean
-  MessageHandler messageHandler(SagaMessageSender sender,
+  SagaMessageHandler messageHandler(SagaMessageSender sender,
       @Qualifier("compensationContext") CallbackContext context, OmegaContext omegaContext) {
     return new CompensationMessageHandler(sender, context);
   }
@@ -71,9 +71,7 @@ public class TransactionAspectConfig {
   }
 
   @Bean
-  TccStartAspect tccStartAspect(
-      TccMessageSender tccMessageSender,
-      OmegaContext context) {
+  TccStartAspect tccStartAspect(TccMessageSender tccMessageSender, OmegaContext context) {
     return new TccStartAspect(tccMessageSender, context);
   }
 

@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.servicecomb.pack.common.EventType;
 import org.apache.servicecomb.pack.omega.transaction.MessageDeserializer;
-import org.apache.servicecomb.pack.omega.transaction.MessageHandler;
+import org.apache.servicecomb.pack.omega.transaction.SagaMessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.MessageSerializer;
 import org.apache.servicecomb.pack.omega.transaction.TxEvent;
 import org.apache.servicecomb.pack.contract.grpc.GrpcAck;
@@ -93,7 +93,7 @@ public abstract class SagaLoadBalancedSenderTestBase {
     }
   };
 
-  protected final MessageHandler handler = new MessageHandler() {
+  protected final SagaMessageHandler handler = new SagaMessageHandler() {
 
     @Override
     public void onReceive(String globalTxId, String localTxId, String parentTxId, String compensationMethod,

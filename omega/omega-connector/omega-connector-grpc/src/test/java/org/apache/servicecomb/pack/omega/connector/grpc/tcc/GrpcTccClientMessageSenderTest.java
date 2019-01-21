@@ -27,6 +27,7 @@ import org.apache.servicecomb.pack.common.TransactionStatus;
 import org.apache.servicecomb.pack.contract.grpc.*;
 import org.apache.servicecomb.pack.omega.context.ServiceConfig;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
+import org.apache.servicecomb.pack.omega.transaction.MessageHandlerManager;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.*;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationStartedEvent;
@@ -78,7 +79,8 @@ public class GrpcTccClientMessageSenderTest {
         InProcessChannelBuilder.forName(serverName).directExecutor().build());
 
     // Create a TccEventServiceStub using the in-process channel;
-    service = new GrpcTccClientMessageSender(serviceConfig, channel, address, handler);
+    service = new GrpcTccClientMessageSender(serviceConfig, channel, address);
+    MessageHandlerManager.register(handler);
   }
 
   @Test

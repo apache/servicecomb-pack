@@ -50,7 +50,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.transaction.spring.annotations.OmegaContextAware;
-import org.apache.servicecomb.pack.omega.transaction.MessageHandler;
+import org.apache.servicecomb.pack.omega.transaction.SagaMessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.TxAbortedEvent;
 import org.apache.servicecomb.pack.omega.transaction.TxCompensatedEvent;
 import org.apache.servicecomb.pack.omega.transaction.TxEndedEvent;
@@ -101,7 +101,7 @@ public class TransactionInterceptionTest {
   private UserRepository userRepository;
 
   @Autowired
-  private MessageHandler messageHandler;
+  private SagaMessageHandler messageHandler;
 
   private String compensationMethod;
 

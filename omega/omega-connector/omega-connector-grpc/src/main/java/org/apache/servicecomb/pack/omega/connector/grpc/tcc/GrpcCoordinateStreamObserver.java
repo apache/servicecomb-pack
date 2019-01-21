@@ -21,8 +21,8 @@ import io.grpc.stub.StreamObserver;
 import java.lang.invoke.MethodHandles;
 import org.apache.servicecomb.pack.contract.grpc.GrpcTccCoordinateCommand;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.ErrorHandleEngineManager;
-import org.apache.servicecomb.pack.omega.transaction.MessageSender;
-import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;
+import org.apache.servicecomb.pack.omega.connector.grpc.core.StreamObserverManager;
+import org.apache.servicecomb.pack.omega.transaction.MessageHandlerManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,26 +30,17 @@ public class GrpcCoordinateStreamObserver implements StreamObserver<GrpcTccCoord
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private final TccMessageHandler messageHandler;
-
-  private final MessageSender messageSender;
-
-  public GrpcCoordinateStreamObserver(TccMessageHandler messageHandler, MessageSender messageSender) {
-    this.messageHandler = messageHandler;
-    this.messageSender = messageSender;
-  }
-
   @Override
   public void onNext(GrpcTccCoordinateCommand command) {
     LOG.info("Received coordinate command, global tx id: {}, local tx id: {}, call method: {}",
         command.getGlobalTxId(), command.getLocalTxId(), command.getMethod());
-    messageHandler.onReceive(command.getGlobalTxId(), command.getLocalTxId(), command.getParentTxId(), command.getMethod());
+    MessageHandlerManager.getTccHandler().onReceive(command.getGlobalTxId(), command.getLocalTxId(), command.getParentTxId(), command.getMethod());
   }
 
   @Override
   public void onError(Throwable t) {
     LOG.error("Failed to process grpc coordinate command.", t);
-    ErrorHandleEngineManager.getEngine().offerTask(messageSender);
+    ErrorHandleEngineManager.getEngine().offerTask(StreamObserverManager.getMessageSender(this));
   }
 
   @Override

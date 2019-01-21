@@ -17,6 +17,9 @@
 
 package org.apache.servicecomb.pack.omega.transaction.tcc;
 
-public interface TccMessageHandler {
+import org.apache.servicecomb.pack.omega.transaction.MessageHandler;
+
+public interface TccMessageHandler extends MessageHandler {
+
   void onReceive(String globalTxId, String localTxId, String parentTxId, String method);
 }

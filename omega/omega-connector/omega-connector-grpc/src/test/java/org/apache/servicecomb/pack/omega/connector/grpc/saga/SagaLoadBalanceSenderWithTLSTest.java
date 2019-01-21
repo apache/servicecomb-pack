@@ -42,7 +42,7 @@ import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.FastestSender;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContextBuilder;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.TransactionType;
+import org.apache.servicecomb.pack.omega.context.TransactionType;
 import org.apache.servicecomb.pack.omega.context.ServiceConfig;
 import org.junit.BeforeClass;
 import org.junit.Test;

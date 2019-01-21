@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.omega.connector.grpc.core;
+package org.apache.servicecomb.pack.omega.context;
 
 public enum TransactionType {
   TCC, SAGA

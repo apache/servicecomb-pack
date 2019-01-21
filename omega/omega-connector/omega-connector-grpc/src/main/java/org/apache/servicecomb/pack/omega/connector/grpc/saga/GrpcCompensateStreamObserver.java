@@ -21,9 +21,9 @@ import io.grpc.stub.StreamObserver;
 import java.lang.invoke.MethodHandles;
 import org.apache.servicecomb.pack.contract.grpc.GrpcCompensateCommand;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.ErrorHandleEngineManager;
+import org.apache.servicecomb.pack.omega.connector.grpc.core.StreamObserverManager;
 import org.apache.servicecomb.pack.omega.transaction.MessageDeserializer;
-import org.apache.servicecomb.pack.omega.transaction.MessageHandler;
-import org.apache.servicecomb.pack.omega.transaction.MessageSender;
+import org.apache.servicecomb.pack.omega.transaction.MessageHandlerManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,22 +33,15 @@ class GrpcCompensateStreamObserver implements StreamObserver<GrpcCompensateComma
 
   private final MessageDeserializer deserializer;
 
-  private final MessageHandler messageHandler;
-
-  private final MessageSender messageSender;
-
-  public GrpcCompensateStreamObserver(MessageDeserializer deserializer,
-      MessageHandler messageHandler, MessageSender messageSender) {
+  public GrpcCompensateStreamObserver(MessageDeserializer deserializer) {
     this.deserializer = deserializer;
-    this.messageHandler = messageHandler;
-    this.messageSender = messageSender;
   }
 
   @Override
   public void onNext(GrpcCompensateCommand command) {
     LOG.info("Received compensate command, global tx id: {}, local tx id: {}, compensation method: {}",
         command.getGlobalTxId(), command.getLocalTxId(), command.getCompensationMethod());
-    messageHandler.onReceive(
+    MessageHandlerManager.getSagaHandler().onReceive(
         command.getGlobalTxId(),
         command.getLocalTxId(),
         command.getParentTxId().isEmpty() ? null : command.getParentTxId(),
@@ -59,7 +52,7 @@ class GrpcCompensateStreamObserver implements StreamObserver<GrpcCompensateComma
   @Override
   public void onError(Throwable t) {
     LOG.error("Failed to process grpc coordinate command.", t);
-    ErrorHandleEngineManager.getEngine().offerTask(messageSender);
+    ErrorHandleEngineManager.getEngine().offerTask(StreamObserverManager.getMessageSender(this));
   }
 
   @Override

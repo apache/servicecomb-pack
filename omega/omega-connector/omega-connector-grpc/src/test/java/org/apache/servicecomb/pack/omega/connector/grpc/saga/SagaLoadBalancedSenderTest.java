@@ -40,8 +40,9 @@ import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.FastestSender;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContextBuilder;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.TransactionType;
+import org.apache.servicecomb.pack.omega.context.TransactionType;
 import org.apache.servicecomb.pack.omega.context.ServiceConfig;
+import org.apache.servicecomb.pack.omega.transaction.MessageHandlerManager;
 import org.apache.servicecomb.pack.omega.transaction.MessageSender;
 import org.apache.servicecomb.pack.omega.transaction.OmegaException;
 import org.apache.servicecomb.pack.omega.transaction.SagaMessageSender;
@@ -61,8 +62,8 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
         .enableMutualAuth(false)
         .messageSerializer(serializer)
         .messageDeserializer(deserializer)
-        .messageHandler(handler)
         .build();
+    MessageHandlerManager.register(handler);
 
     LoadBalanceContext loadContext = new LoadBalanceContextBuilder(
         TransactionType.SAGA,

@@ -30,10 +30,9 @@ import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
 import java.io.IOException;
 
-import org.apache.servicecomb.pack.omega.connector.grpc.core.ErrorHandleEngineManager;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContextBuilder;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.TransactionType;
+import org.apache.servicecomb.pack.omega.context.TransactionType;
 import org.apache.servicecomb.pack.omega.context.ServiceConfig;
 import org.apache.servicecomb.pack.omega.transaction.tcc.CoordinateMessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;

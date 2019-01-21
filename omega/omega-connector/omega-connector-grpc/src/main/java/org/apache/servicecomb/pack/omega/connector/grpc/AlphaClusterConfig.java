@@ -20,7 +20,7 @@ package org.apache.servicecomb.pack.omega.connector.grpc;
 import java.util.Collections;
 import java.util.List;
 import org.apache.servicecomb.pack.omega.transaction.MessageDeserializer;
-import org.apache.servicecomb.pack.omega.transaction.MessageHandler;
+import org.apache.servicecomb.pack.omega.transaction.SagaMessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.MessageSerializer;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;
 
@@ -42,7 +42,7 @@ public class AlphaClusterConfig {
 
   private MessageDeserializer messageDeserializer;
 
-  private MessageHandler messageHandler;
+  private SagaMessageHandler messageHandler;
 
   private TccMessageHandler tccMessageHandler;
 
@@ -68,7 +68,7 @@ public class AlphaClusterConfig {
       String cert, String key, String certChain,
       MessageSerializer messageSerializer,
       MessageDeserializer messageDeserializer,
-      MessageHandler messageHandler,
+      SagaMessageHandler messageHandler,
       TccMessageHandler tccMessageHandler) {
     this.addresses = addresses;
     this.enableSSL = enableSSL;
@@ -96,7 +96,7 @@ public class AlphaClusterConfig {
     private String certChain;
     private MessageSerializer messageSerializer;
     private MessageDeserializer messageDeserializer;
-    private MessageHandler messageHandler;
+    private SagaMessageHandler messageHandler;
     private TccMessageHandler tccMessageHandler;
 
     public Builder addresses(List<String> addresses) {
@@ -139,7 +139,7 @@ public class AlphaClusterConfig {
       return this;
     }
 
-    public Builder messageHandler(MessageHandler messageHandler) {
+    public Builder messageHandler(SagaMessageHandler messageHandler) {
       this.messageHandler = messageHandler;
       return this;
     }
@@ -196,7 +196,7 @@ public class AlphaClusterConfig {
     return messageDeserializer;
   }
 
-  public MessageHandler getMessageHandler() {
+  public SagaMessageHandler getMessageHandler() {
     return messageHandler;
   }
 

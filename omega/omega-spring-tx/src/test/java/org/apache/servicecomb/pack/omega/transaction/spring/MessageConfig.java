@@ -91,7 +91,7 @@ public class MessageConfig {
       }
 
       @Override
-      public AlphaResponse send(TxEvent event) {
+      public AlphaResponse send(Object event) {
         messages.add(event.toString());
         return new AlphaResponse(false);
       }
@@ -108,6 +108,11 @@ public class MessageConfig {
       @Override
       public void onDisconnected() {
 
+      }
+
+      @Override
+      public AlphaResponse send(Object event) {
+        return null;
       }
 
       @Override

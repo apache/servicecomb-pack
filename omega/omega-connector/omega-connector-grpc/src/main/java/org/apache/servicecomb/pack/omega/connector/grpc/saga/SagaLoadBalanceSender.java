@@ -24,8 +24,7 @@ import org.apache.servicecomb.pack.omega.transaction.SagaMessageSender;
 
 public class SagaLoadBalanceSender extends LoadBalanceMessageSender implements SagaMessageSender {
 
-  public SagaLoadBalanceSender(LoadBalanceContext loadContext,
-      MessageSenderPicker senderPicker) {
+  public SagaLoadBalanceSender(LoadBalanceContext loadContext, MessageSenderPicker senderPicker) {
     super(loadContext, senderPicker);
   }
 }

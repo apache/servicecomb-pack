@@ -15,25 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.omega.transaction;
+package org.apache.servicecomb.pack.omega.connector.grpc.core;
 
-import org.apache.servicecomb.pack.omega.context.CallbackContext;
+import io.grpc.stub.StreamObserver;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.servicecomb.pack.omega.transaction.MessageSender;
 
-public class CompensationMessageHandler implements SagaMessageHandler {
+public class StreamObserverManager {
 
-  private final SagaMessageSender sender;
+  private static final Map<StreamObserver, MessageSender> SENDER_OBSERVER_MAP = new HashMap<>();
 
-  private final CallbackContext context;
-
-  public CompensationMessageHandler(SagaMessageSender sender, CallbackContext context) {
-    this.sender = sender;
-    this.context = context;
+  public static void register(final StreamObserver streamObserver, final MessageSender messageSender) {
+    SENDER_OBSERVER_MAP.put(streamObserver, messageSender);
   }
 
-  @Override
-  public void onReceive(String globalTxId, String localTxId, String parentTxId, String compensationMethod,
-      Object... payloads) {
-    context.apply(globalTxId, localTxId, compensationMethod, payloads);
-    sender.send(new TxCompensatedEvent(globalTxId, localTxId, parentTxId, compensationMethod));
+  public static MessageSender getMessageSender(final StreamObserver streamObserver) {
+    return SENDER_OBSERVER_MAP.get(streamObserver);
   }
 }

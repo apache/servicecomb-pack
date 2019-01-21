@@ -25,7 +25,7 @@ import org.apache.servicecomb.pack.omega.transaction.OmegaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class LoadBalanceMessageSender implements MessageSender {
+public class LoadBalanceMessageSender implements MessageSender {
 
   private final LoadBalanceContext loadContext;
 
@@ -33,9 +33,7 @@ public abstract class LoadBalanceMessageSender implements MessageSender {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  public LoadBalanceMessageSender(
-      LoadBalanceContext loadContext,
-      MessageSenderPicker senderPicker) {
+  public LoadBalanceMessageSender(LoadBalanceContext loadContext, MessageSenderPicker senderPicker) {
     this.loadContext = loadContext;
     this.senderPicker = senderPicker;
   }

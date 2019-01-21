@@ -49,9 +49,10 @@ import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.FastestSender;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContextBuilder;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.TransactionType;
+import org.apache.servicecomb.pack.omega.context.TransactionType;
 import org.apache.servicecomb.pack.omega.context.ServiceConfig;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
+import org.apache.servicecomb.pack.omega.transaction.MessageHandlerManager;
 import org.apache.servicecomb.pack.omega.transaction.MessageSender;
 import org.apache.servicecomb.pack.omega.transaction.OmegaException;
 import org.apache.servicecomb.pack.omega.transaction.tcc.CoordinateMessageHandler;
@@ -124,14 +125,13 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
   @Before
   public void setup() {
     when(clusterConfig.getAddresses()).thenReturn(Lists.newArrayList(addresses));
-    when(clusterConfig.getTccMessageHandler()).thenReturn(tccMessageHandler);
     when(clusterConfig.isEnableSSL()).thenReturn(false);
+    MessageHandlerManager.register(tccMessageHandler);
 
     loadContext =
         new LoadBalanceContextBuilder(TransactionType.TCC, clusterConfig, serviceConfig, 30, 4).build();
     tccLoadBalanceSender = new TccLoadBalanceSender(loadContext, new FastestSender());
-    participationStartedEvent = new ParticipationStartedEvent(globalTxId, localTxId, parentTxId, confirmMethod,
-        cancelMethod);
+    participationStartedEvent = new ParticipationStartedEvent(globalTxId, localTxId, parentTxId, confirmMethod, cancelMethod);
     tccStartedEvent = new TccStartedEvent(globalTxId, localTxId);
     tccEndedEvent = new TccEndedEvent(globalTxId, localTxId, TransactionStatus.Succeed);
     coordinatedEvent = new CoordinatedEvent(globalTxId, localTxId, parentTxId, methodName, TransactionStatus.Succeed);
