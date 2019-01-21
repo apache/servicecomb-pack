@@ -17,14 +17,10 @@
 
 package org.apache.servicecomb.pack.omega.connector.grpc.tcc;
 
-import com.google.common.base.Optional;
-
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceSenderAdapter;
+import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceMessageSender;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.MessageSenderPicker;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.SenderExecutor;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
-import org.apache.servicecomb.pack.omega.transaction.OmegaException;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageSender;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.CoordinatedEvent;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationEndedEvent;
@@ -32,90 +28,34 @@ import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationSta
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccEndedEvent;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccStartedEvent;
 
-public class TccLoadBalanceSender extends LoadBalanceSenderAdapter implements TccMessageSender {
+public class TccLoadBalanceSender extends LoadBalanceMessageSender implements TccMessageSender {
 
-  public TccLoadBalanceSender(LoadBalanceContext loadContext,
-      MessageSenderPicker senderPicker) {
+  public TccLoadBalanceSender(LoadBalanceContext loadContext, MessageSenderPicker senderPicker) {
     super(loadContext, senderPicker);
   }
 
   @Override
-  public AlphaResponse participationStart(ParticipationStartedEvent participationStartedEvent) {
-    do {
-      final TccMessageSender messageSender = (TccMessageSender) pickMessageSender();
-      Optional<AlphaResponse> response = doGrpcSend(messageSender, participationStartedEvent, new SenderExecutor<ParticipationStartedEvent>() {
-        @Override
-        public AlphaResponse apply(ParticipationStartedEvent event) {
-          return messageSender.participationStart(event);
-        }
-      });
-      if (response.isPresent()) return response.get();
-    } while (!Thread.currentThread().isInterrupted());
+  public AlphaResponse tccTransactionStart(TccStartedEvent tccStartEvent) {
+    return send(tccStartEvent);
+  }
 
-    throw new OmegaException("Failed to send event " + participationStartedEvent + " due to interruption");
+  @Override
+  public AlphaResponse participationStart(ParticipationStartedEvent participationStartedEvent) {
+    return send(participationStartedEvent);
   }
 
   @Override
   public AlphaResponse participationEnd(ParticipationEndedEvent participationEndedEvent) {
-    do {
-      final TccMessageSender messageSender = (TccMessageSender) pickMessageSender();
-      Optional<AlphaResponse> response = doGrpcSend(messageSender, participationEndedEvent, new SenderExecutor<ParticipationEndedEvent>() {
-        @Override
-        public AlphaResponse apply(ParticipationEndedEvent event) {
-          return messageSender.participationEnd(event);
-        }
-      });
-      if (response.isPresent()) return response.get();
-    } while (!Thread.currentThread().isInterrupted());
-
-    throw new OmegaException("Failed to send event " + participationEndedEvent + " due to interruption");
-  }
-
-  @Override
-  public AlphaResponse tccTransactionStart(TccStartedEvent tccStartEvent) {
-    do {
-      final TccMessageSender messageSender = (TccMessageSender) pickMessageSender();
-      Optional<AlphaResponse> response = doGrpcSend(messageSender, tccStartEvent, new SenderExecutor<TccStartedEvent>() {
-        @Override
-        public AlphaResponse apply(TccStartedEvent event) {
-          return messageSender.tccTransactionStart(event);
-        }
-      });
-      if (response.isPresent()) return response.get();
-    } while (!Thread.currentThread().isInterrupted());
-
-    throw new OmegaException("Failed to send event " + tccStartEvent + " due to interruption");
+    return send(participationEndedEvent);
   }
 
   @Override
   public AlphaResponse tccTransactionStop(TccEndedEvent tccEndEvent) {
-    do {
-      final TccMessageSender messageSender = (TccMessageSender) pickMessageSender();
-      Optional<AlphaResponse> response = doGrpcSend(messageSender, tccEndEvent, new SenderExecutor<TccEndedEvent>() {
-        @Override
-        public AlphaResponse apply(TccEndedEvent event) {
-          return messageSender.tccTransactionStop(event);
-        }
-      });
-      if (response.isPresent()) return response.get();
-    } while (!Thread.currentThread().isInterrupted());
-
-    throw new OmegaException("Failed to send event " + tccEndEvent + " due to interruption");
+    return send(tccEndEvent);
   }
 
   @Override
   public AlphaResponse coordinate(CoordinatedEvent coordinatedEvent) {
-    do {
-      final TccMessageSender messageSender = (TccMessageSender) pickMessageSender();
-      Optional<AlphaResponse> response = doGrpcSend(messageSender, coordinatedEvent, new SenderExecutor<CoordinatedEvent>() {
-        @Override
-        public AlphaResponse apply(CoordinatedEvent event) {
-          return messageSender.coordinate(event);
-        }
-      });
-      if (response.isPresent()) return response.get();
-    } while (!Thread.currentThread().isInterrupted());
-
-    throw new OmegaException("Failed to send event " + coordinatedEvent + " due to interruption");
+    return send(coordinatedEvent);
   }
 }

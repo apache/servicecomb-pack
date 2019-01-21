@@ -17,37 +17,15 @@
 
 package org.apache.servicecomb.pack.omega.connector.grpc.saga;
 
-import com.google.common.base.Optional;
-
-import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceSenderAdapter;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.MessageSenderPicker;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.SenderExecutor;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
-import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
-import org.apache.servicecomb.pack.omega.transaction.OmegaException;
+import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceMessageSender;
+import org.apache.servicecomb.pack.omega.connector.grpc.core.MessageSenderPicker;
 import org.apache.servicecomb.pack.omega.transaction.SagaMessageSender;
-import org.apache.servicecomb.pack.omega.transaction.TxEvent;
 
-public class SagaLoadBalanceSender extends LoadBalanceSenderAdapter implements SagaMessageSender {
+public class SagaLoadBalanceSender extends LoadBalanceMessageSender implements SagaMessageSender {
 
   public SagaLoadBalanceSender(LoadBalanceContext loadContext,
       MessageSenderPicker senderPicker) {
     super(loadContext, senderPicker);
-  }
-
-  @Override
-  public AlphaResponse send(TxEvent event) {
-    do {
-      final SagaMessageSender messageSender = (SagaMessageSender) pickMessageSender();
-      Optional<AlphaResponse> response = doGrpcSend(messageSender, event, new SenderExecutor<TxEvent>() {
-        @Override
-        public AlphaResponse apply(TxEvent event) {
-          return messageSender.send(event);
-        }
-      });
-      if (response.isPresent()) return response.get();
-    } while (!Thread.currentThread().isInterrupted());
-
-    throw new OmegaException("Failed to send event " + event + " due to interruption");
   }
 }

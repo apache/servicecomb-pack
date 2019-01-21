@@ -26,13 +26,13 @@ import org.apache.servicecomb.pack.omega.transaction.OmegaException;
 
 public class GrpcOnErrorHandleEngine implements AutoCloseable {
 
+  private final BlockingQueue<Runnable> pendingTasks = new LinkedBlockingQueue<>();
+
   private final PendingTaskRunner pendingTaskRunner;
 
   private final Map<MessageSender, Long> senders;
 
   private final long timeoutSeconds;
-
-  private final BlockingQueue<Runnable> pendingTasks = new LinkedBlockingQueue<>();
 
   private final BlockingQueue<MessageSender> reconnectedSenders = new LinkedBlockingQueue<>();
 
@@ -44,10 +44,6 @@ public class GrpcOnErrorHandleEngine implements AutoCloseable {
 
   public void start() {
     pendingTaskRunner.start();
-  }
-
-  public PendingTaskRunner getPendingTaskRunner() {
-    return pendingTaskRunner;
   }
 
   public void offerTask(final MessageSender messageSender) {
@@ -64,7 +60,7 @@ public class GrpcOnErrorHandleEngine implements AutoCloseable {
     }
   }
 
-  public MessageSender getDefaultSender() {
+  public MessageSender getReconnectedSender() {
     try {
       MessageSender messageSender = reconnectedSenders.poll(timeoutSeconds, TimeUnit.SECONDS);
       if (null == messageSender) {

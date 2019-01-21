@@ -73,6 +73,14 @@ public class GrpcSagaClientMessageSender implements SagaMessageSender {
   }
 
   @Override
+  public AlphaResponse send(Object event) {
+    if (event instanceof TxEvent) {
+      return sendMessage((TxEvent) event);
+    }
+    throw new UnsupportedOperationException("event type was not supported");
+  }
+
+  @Override
   public void close() {
     // just do nothing here
   }
@@ -82,8 +90,7 @@ public class GrpcSagaClientMessageSender implements SagaMessageSender {
     return target;
   }
 
-  @Override
-  public AlphaResponse send(TxEvent event) {
+  public AlphaResponse sendMessage(TxEvent event) {
     GrpcAck grpcAck = blockingEventService.onTxEvent(convertEvent(event));
     return new AlphaResponse(grpcAck.getAborted());
   }

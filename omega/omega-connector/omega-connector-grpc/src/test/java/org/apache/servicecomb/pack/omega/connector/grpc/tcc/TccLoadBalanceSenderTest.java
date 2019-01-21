@@ -241,9 +241,9 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
   @Test(expected = OmegaException.class)
   public void participateFailedThenAbort() {
     TccMessageSender failedSender = mock(GrpcTccClientMessageSender.class);
-    doThrow(new OmegaException("omega exception")).when(failedSender).participationStart((ParticipationStartedEvent)any());
+    doThrow(new OmegaException("omega exception")).when(failedSender).send(any());
     TccMessageSender succeedSender = mock(GrpcTccClientMessageSender.class);
-    when(succeedSender.participationStart((ParticipationStartedEvent) any())).thenReturn(new AlphaResponse(false));
+    when(succeedSender.send(any())).thenReturn(new AlphaResponse(false));
 
     Map<MessageSender, Long> senders = Maps.newConcurrentMap();
     senders.put(failedSender, 0L);

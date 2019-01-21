@@ -88,8 +88,8 @@ public class ForwardRecoveryTest {
     }
 
     @Override
-    public AlphaResponse send(TxEvent event) {
-      messages.add(event);
+    public AlphaResponse send(Object event) {
+      messages.add((TxEvent) event);
       return new AlphaResponse(false);
     }
   };

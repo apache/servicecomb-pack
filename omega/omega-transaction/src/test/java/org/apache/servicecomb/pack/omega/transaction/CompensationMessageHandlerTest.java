@@ -55,8 +55,8 @@ public class CompensationMessageHandlerTest {
       return "UNKNOWN"; }
 
     @Override
-    public AlphaResponse send(TxEvent event) {
-      events.add(event);
+    public AlphaResponse send(Object event) {
+      events.add((TxEvent) event);
       return new AlphaResponse(false);
     }
   };

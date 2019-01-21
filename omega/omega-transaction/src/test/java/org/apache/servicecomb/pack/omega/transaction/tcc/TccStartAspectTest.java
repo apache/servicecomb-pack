@@ -58,6 +58,11 @@ public class TccStartAspectTest {
     }
 
     @Override
+    public AlphaResponse send(Object event) {
+      return null;
+    }
+
+    @Override
     public void close() {
 
     }

@@ -23,8 +23,9 @@ public interface MessageSender {
 
   void onDisconnected();
 
+  AlphaResponse send(Object event);
+
   void close();
 
   String target();
-
 }

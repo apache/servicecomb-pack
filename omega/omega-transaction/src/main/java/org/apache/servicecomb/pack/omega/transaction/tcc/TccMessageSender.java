@@ -17,21 +17,21 @@
 
 package org.apache.servicecomb.pack.omega.transaction.tcc;
 
+import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
+import org.apache.servicecomb.pack.omega.transaction.MessageSender;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.CoordinatedEvent;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationEndedEvent;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationStartedEvent;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccStartedEvent;
-import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
-import org.apache.servicecomb.pack.omega.transaction.MessageSender;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccEndedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccStartedEvent;
 
 public interface TccMessageSender extends MessageSender {
+
+  AlphaResponse tccTransactionStart(TccStartedEvent tccStartEvent);
 
   AlphaResponse participationStart(ParticipationStartedEvent participationStartedEvent);
 
   AlphaResponse participationEnd(ParticipationEndedEvent participationEndedEvent);
-
-  AlphaResponse tccTransactionStart(TccStartedEvent tccStartEvent);
 
   AlphaResponse tccTransactionStop(TccEndedEvent tccEndEvent);
 

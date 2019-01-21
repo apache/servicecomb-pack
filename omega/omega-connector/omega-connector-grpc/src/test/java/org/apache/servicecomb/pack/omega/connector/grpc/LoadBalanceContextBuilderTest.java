@@ -79,7 +79,6 @@ public class LoadBalanceContextBuilderTest {
     when(clusterConfig.isEnableSSL()).thenReturn(false);
 
     LoadBalanceContext loadContext = tccLoadBalanceContextBuilder.build();
-    assertThat(ErrorHandleEngineManager.getEngine().getPendingTaskRunner().getReconnectDelay(), is(30L));
     assertThat(loadContext.getSenders().size(), is(2));
     assertThat(loadContext.getSenders().keySet().iterator().next(), instanceOf(TccMessageSender.class));
     assertThat(loadContext.getSenders().values().iterator().next(), is(0L));

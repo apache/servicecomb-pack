@@ -68,6 +68,22 @@ public class GrpcTccClientMessageSender implements TccMessageSender {
   }
 
   @Override
+  public AlphaResponse send(Object event) {
+    if (event instanceof TccStartedEvent) {
+      return tccTransactionStart((TccStartedEvent) event);
+    } else if (event instanceof ParticipationStartedEvent) {
+      return participationStart((ParticipationStartedEvent) event);
+    } else if (event instanceof ParticipationEndedEvent) {
+      return participationEnd((ParticipationEndedEvent) event);
+    } else if (event instanceof TccEndedEvent) {
+      return tccTransactionStop((TccEndedEvent) event);
+    } else if (event instanceof CoordinatedEvent) {
+      return coordinate((CoordinatedEvent) event);
+    }
+    throw new UnsupportedOperationException("event type was not supported");
+  }
+
+  @Override
   public void close() {
     // do nothing here
   }

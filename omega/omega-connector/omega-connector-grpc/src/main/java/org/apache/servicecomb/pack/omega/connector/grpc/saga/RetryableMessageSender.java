@@ -27,6 +27,7 @@ import org.apache.servicecomb.pack.omega.transaction.SagaMessageSender;
 import org.apache.servicecomb.pack.omega.transaction.TxEvent;
 
 public class RetryableMessageSender implements SagaMessageSender {
+
   private final BlockingQueue<MessageSender> availableMessageSenders;
 
   public RetryableMessageSender(BlockingQueue<MessageSender> availableMessageSenders) {
@@ -54,12 +55,16 @@ public class RetryableMessageSender implements SagaMessageSender {
   }
 
   @Override
-  public AlphaResponse send(TxEvent event) {
-    if (event.type() == SagaStartedEvent) {
+  public AlphaResponse send(Object event) {
+    TxEvent txEvent = null;
+    if (event instanceof TxEvent) {
+      txEvent = (TxEvent) event;
+    }
+    if (txEvent.type() == SagaStartedEvent) {
       throw new OmegaException("Failed to process subsequent requests because no alpha server is available");
     }
     try {
-      return ((SagaMessageSender)availableMessageSenders.take()).send(event);
+      return availableMessageSenders.take().send(event);
     } catch (InterruptedException e) {
       throw new OmegaException("Failed to send event " + event + " due to interruption", e);
     }

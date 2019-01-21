@@ -17,7 +17,6 @@
 
 package org.apache.servicecomb.pack.omega.connector.grpc.core;
 
-import com.google.common.base.Optional;
 import io.grpc.ManagedChannel;
 import java.lang.invoke.MethodHandles;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
@@ -26,7 +25,7 @@ import org.apache.servicecomb.pack.omega.transaction.OmegaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class LoadBalanceSenderAdapter implements MessageSender {
+public abstract class LoadBalanceMessageSender implements MessageSender {
 
   private final LoadBalanceContext loadContext;
 
@@ -34,24 +33,30 @@ public abstract class LoadBalanceSenderAdapter implements MessageSender {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  public LoadBalanceSenderAdapter(
+  public LoadBalanceMessageSender(
       LoadBalanceContext loadContext,
       MessageSenderPicker senderPicker) {
     this.loadContext = loadContext;
     this.senderPicker = senderPicker;
   }
 
-  @SuppressWarnings("unchecked")
-  public MessageSender pickMessageSender() {
-    MessageSender result = senderPicker.pick(loadContext.getSenders());
-    return null == result ? ErrorHandleEngineManager.getEngine().getDefaultSender() : result;
+  @Override
+  public AlphaResponse send(final Object event) {
+    do {
+      AlphaResponse response = doSend(event);
+      if (null != response) {
+        return response;
+      }
+    } while (!Thread.currentThread().isInterrupted());
+    throw new OmegaException("Failed to send event " + event + " due to interruption");
   }
 
-  public <T> Optional<AlphaResponse> doGrpcSend(MessageSender messageSender, T event, SenderExecutor<T> executor) {
-    AlphaResponse response = null;
+  private AlphaResponse doSend(final Object event) {
+    AlphaResponse result = null;
+    MessageSender messageSender = pickMessageSender();
     try {
       long startTime = System.nanoTime();
-      response = executor.apply(event);
+      result = messageSender.send(event);
       loadContext.getSenders().put(messageSender, System.nanoTime() - startTime);
     } catch (OmegaException e) {
       throw e;
@@ -59,7 +64,12 @@ public abstract class LoadBalanceSenderAdapter implements MessageSender {
       LOG.error("Retry sending event {} due to failure", event, e);
       loadContext.getSenders().put(messageSender, Long.MAX_VALUE);
     }
-    return Optional.fromNullable(response);
+    return result;
+  }
+
+  public MessageSender pickMessageSender() {
+    MessageSender result = senderPicker.pick(loadContext.getSenders());
+    return null == result ? ErrorHandleEngineManager.getEngine().getReconnectedSender() : result;
   }
 
   @Override
@@ -95,10 +105,6 @@ public abstract class LoadBalanceSenderAdapter implements MessageSender {
   @Override
   public String target() {
     return "UNKNOWN";
-  }
-
-  public MessageSenderPicker getSenderPicker() {
-    return senderPicker;
   }
 
   public LoadBalanceContext getLoadContext() {

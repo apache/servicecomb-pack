@@ -51,6 +51,7 @@ public class TccParticipatorAspectTest {
   private String confirmMethod;
   private String cancelMethod;
   private final TccMessageSender tccMessageSender = new TccMessageSender() {
+
     @Override
     public void onConnected() {
 
@@ -59,6 +60,11 @@ public class TccParticipatorAspectTest {
     @Override
     public void onDisconnected() {
 
+    }
+
+    @Override
+    public AlphaResponse send(Object event) {
+      return null;
     }
 
     @Override

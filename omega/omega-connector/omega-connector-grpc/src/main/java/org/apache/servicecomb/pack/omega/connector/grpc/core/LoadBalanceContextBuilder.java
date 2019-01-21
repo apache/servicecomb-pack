@@ -70,15 +70,14 @@ public class LoadBalanceContextBuilder {
     Optional<SslContext> sslContext = buildSslContext(clusterConfig);
     Map<MessageSender, Long> senders = new ConcurrentHashMap<>();
     Collection<ManagedChannel> channels = new ArrayList<>(clusterConfig.getAddresses().size());
-    ErrorHandleEngineManager.init(senders, reconnectDelay, timeoutSeconds);
     LoadBalanceContext loadContext = new LoadBalanceContext(senders, channels);
-
     for (String address : clusterConfig.getAddresses()) {
       ManagedChannel channel = buildChannel(address, sslContext);
       channels.add(channel);
       MessageSender messageSender = buildSender(address, channel, clusterConfig, serviceConfig);
       senders.put(messageSender, 0L);
     }
+    ErrorHandleEngineManager.init(senders, reconnectDelay, timeoutSeconds);
     return loadContext;
   }
 

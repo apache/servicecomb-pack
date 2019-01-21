@@ -18,6 +18,4 @@
 package org.apache.servicecomb.pack.omega.transaction;
 
 public interface SagaMessageSender extends MessageSender {
-
-  AlphaResponse send(TxEvent event);
 }
