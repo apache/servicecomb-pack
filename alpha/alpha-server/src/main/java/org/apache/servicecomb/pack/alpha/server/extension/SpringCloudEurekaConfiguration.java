@@ -16,7 +16,7 @@
  */
 
 /**
- * register alpah server to spring cloud eureka server
+ * registering to Spring Cloud Eureka
  *
  * spring.profiles.active: spring-cloud-eureka
  *
@@ -25,6 +25,8 @@
 
 package org.apache.servicecomb.pack.alpha.server.extension;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -35,9 +37,10 @@ import javax.annotation.PostConstruct;
 @Profile(value= {"spring-cloud-eureka"})
 @EnableEurekaClient
 public class SpringCloudEurekaConfiguration {
+    private static final Logger LOG = LoggerFactory.getLogger(SpringCloudEurekaConfiguration.class);
 
     @PostConstruct
     public void init(){
-        System.out.println("");
+        LOG.info("registering to spring cloud eureka enabled");
     }
 }
