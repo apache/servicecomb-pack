@@ -35,9 +35,9 @@ Feature: Alpha records transaction events
       | car     | SagaEndedEvent     |
 
     Then Car Service contains the following booking orders
-      | name | amount | confirmed | cancelled |
-      | Sean | 1      | false     | true      |
+      | id | name | amount | confirmed | cancelled |
+      | 1  | Sean | 1      | false     | true      |
 
     Then Hotel Service contains the following booking orders
-      | name | amount | confirmed | cancelled |
+      | id | name | amount | confirmed | cancelled |
     
