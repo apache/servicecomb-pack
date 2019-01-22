@@ -102,29 +102,45 @@ You can run the demo using either docker compose or executable files.
 ```
 curl -X POST http://${host_address}:8083/booking/test/2/2
 ```
+If everything is OK, "test booking 2 rooms and 2 cars OK" will be returned and it means everything is OK
+
 Check the hotel booking status with
 ```
 curl http://${host_address}:8081/bookings
 ```
+The hotel booking result is:
+[{"id":1,"name":"test","amount":2,"confirmed":true,"cancelled":false}]
+**"cancelled":false** means this booking is finished and confirmed status is true.
+
 Check the car booking status with
 ```
 curl http://${host_address}:8082/bookings
-
 ```
+the card booking result is:
+[{"id":1,"name":"test","amount":2,"confirmed":true,"cancelled":false}]
+**"confirmed":true,"cancelled":false** means everything is OK too.
+
 
 2. Booking 3 rooms and 2 cars, this booking will cause the hotel order failed and trigger the compensate operation with car booking.
 ```
 curl -X POST http://${host_address}:8083/booking/test/3/2
 ```
+Error message will returned because the room count is more than 2:
+{"timestamp":"2019-01-22T08:41:57.251+0000","status":500,"error":"Internal Server Error","message":"500 null","path":"/booking/test/3/2"}
+
 Check the hotel booking status with
 ```
 curl http://${host_address}:8081/bookings
 ```
+There is no more records because the room booking was failed.
+
 Check the car booking status with
 ```
 curl http://${host_address}:8082/bookings
 ```
-The second car booking will be marked with **cancel:true**
+The second car booking will be marked with **cancel:true**:
+[{"id":1,"name":"test","amount":2,"confirmed":true,"cancelled":false},
+{"id":2,"name":"test","amount":2,"confirmed":false,"cancelled":true}]
 
 ## User Requests by html page
 
