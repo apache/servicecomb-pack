@@ -162,6 +162,14 @@
       <groupId>io.netty</groupId>
       <artifactId>netty-tcnative-boringssl-static</artifactId>
     </dependency>
+
+    <!-- spring cloud -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+      <version>${spring.cloud.version}</version>
+    </dependency>
+
   </dependencies>
 
   <build>
