@@ -71,7 +71,6 @@ class OmegaSpringConfig {
   ServiceConfig serviceConfig(@Value("${spring.application.name}") String serviceName, @Value("${alpha.instance.instanceId:#{null}}") String instanceId) {
     return new ServiceConfig(serviceName,instanceId);
   }
-  
 
   @Bean
   ParametersContext parametersContext() {
