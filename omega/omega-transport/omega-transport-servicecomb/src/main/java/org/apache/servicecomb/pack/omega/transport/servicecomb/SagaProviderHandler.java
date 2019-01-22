@@ -30,6 +30,10 @@ import org.apache.servicecomb.swagger.invocation.AsyncResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This provider is setup the OmegaContext before the application invocation.
+ * Please make sure this handler is last one to use on the ServiceComb java-chassis application
+ */
 public class SagaProviderHandler implements Handler {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -63,7 +67,13 @@ public class SagaProviderHandler implements Handler {
     } else {
       LOG.debug("Cannot inject transaction ID, as the OmegaContext is null.");
     }
-
-    invocation.next(asyncResponse);
+    try {
+      invocation.next(asyncResponse);
+    } finally {
+      // Clean up the OmegaContext
+      if(omegaContext != null) {
+        omegaContext.clear();
+      }
+    }
   }
 }
