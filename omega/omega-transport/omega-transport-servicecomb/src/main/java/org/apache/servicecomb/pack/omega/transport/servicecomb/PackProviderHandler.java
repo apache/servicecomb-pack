@@ -30,41 +30,50 @@ import org.apache.servicecomb.swagger.invocation.AsyncResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SagaConsumerHandler implements Handler {
+/**
+ * This provider is setup the OmegaContext before the application invocation.
+ * Please make sure this handler is last one to use on the ServiceComb java-chassis application
+ */
+public class PackProviderHandler implements Handler {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final OmegaContext omegaContext;
 
-  public SagaConsumerHandler() {
+  public PackProviderHandler() {
     OmegaContext context = null;
     try {
       context = BeanUtils.getBean("omegaContext");
     } catch (NullPointerException npe) {
-      LOG.warn("SagaConsumerHandler cannot work rightly, please make sure omegaContext is in the spring application context.");
+      LOG.warn("SagaProviderHandler cannot work rightly, please make sure omegaContext is in the spring application context.\"");
     }
     this.omegaContext = context;
   }
 
-  public SagaConsumerHandler(OmegaContext omegaContext) {
+  public PackProviderHandler(OmegaContext omegaContext) {
     this.omegaContext = omegaContext;
   }
 
   @Override
   public void handle(Invocation invocation, AsyncResponse asyncResponse) throws Exception {
-    if (omegaContext != null && omegaContext.globalTxId() != null) {
-      invocation.getContext().put(GLOBAL_TX_ID_KEY, omegaContext.globalTxId());
-      invocation.getContext().put(LOCAL_TX_ID_KEY, omegaContext.localTxId());
-
-      LOG.debug("Added {} {} and {} {} to request header",
-          GLOBAL_TX_ID_KEY,
-          omegaContext.globalTxId(),
-          LOCAL_TX_ID_KEY,
-          omegaContext.localTxId());
+    if (omegaContext != null) {
+      String globalTxId = invocation.getContext().get(GLOBAL_TX_ID_KEY);
+      if (globalTxId == null) {
+        LOG.debug("Cannot inject transaction ID, no such header: {}", GLOBAL_TX_ID_KEY);
+      } else {
+        omegaContext.setGlobalTxId(globalTxId);
+        omegaContext.setLocalTxId(invocation.getContext().get(LOCAL_TX_ID_KEY));
+      }
     } else {
-      LOG.debug("Cannot inject transaction ID, as the OmegaContext is null or cannot get the globalTxId.");
+      LOG.debug("Cannot inject transaction ID, as the OmegaContext is null.");
     }
-
-    invocation.next(asyncResponse);
+    try {
+      invocation.next(asyncResponse);
+    } finally {
+      // Clean up the OmegaContext
+      if(omegaContext != null) {
+        omegaContext.clear();
+      }
+    }
   }
 }

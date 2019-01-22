@@ -15,39 +15,36 @@ package org.apache.servicecomb.pack.omega.transport.dubbo;/*
  * limitations under the License.
  */
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import com.alibaba.dubbo.rpc.Invocation;
-import com.alibaba.dubbo.rpc.Invoker;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class SagaDubboProviderFilterTest {
+public class PackDubboConsumerFilterTest {
 
   private static final String globalTxId = UUID.randomUUID().toString();
   private static final String localTxId = UUID.randomUUID().toString();
+
   private final OmegaContext omegaContext = new OmegaContext(new IdGenerator<String>() {
+
     @Override
     public String nextId() {
       return "ignored";
     }
   });
   private final Invocation invocation = mock(Invocation.class);
-  private final Invoker invoker = mock(Invoker.class);
-  
-  private final SagaDubboProviderFilter filter = new SagaDubboProviderFilter();
+  private final PackDubboConsumerFilter filter = new PackDubboConsumerFilter();
 
   @Before
   public void setUp() {
@@ -56,35 +53,26 @@ public class SagaDubboProviderFilterTest {
   }
 
   @Test
-  public void setUpOmegaContextInTransactionRequest() {
-    when(invocation.getAttachment(OmegaContext.GLOBAL_TX_ID_KEY)).thenReturn(globalTxId);
-    when(invocation.getAttachment(OmegaContext.LOCAL_TX_ID_KEY)).thenReturn(localTxId);
-
-    doAnswer(new Answer<Void>() {
-      // Just verify the context setting
-      @Override
-      public Void answer(InvocationOnMock invocation) throws Throwable {
-        assertThat(omegaContext.globalTxId(), is(globalTxId));
-        assertThat(omegaContext.localTxId(), is(localTxId));
-        return null;
-      }
-    }).when(invoker).invoke(invocation);
-
-    filter.invoke(invoker, invocation);
-
-    assertThat(omegaContext.globalTxId(), is(nullValue()));
-    assertThat(omegaContext.localTxId(), is(nullValue()));
-  }
-
-  @Test
-  public void doNothingInNonTransactionRequest() {
+  public void keepHeaderUnchangedIfContextAbsent() {
     when(invocation.getAttachment(OmegaContext.GLOBAL_TX_ID_KEY)).thenReturn(null);
     when(invocation.getAttachment(OmegaContext.LOCAL_TX_ID_KEY)).thenReturn(null);
 
-    filter.invoke(invoker, invocation);
+    filter.invoke(null, invocation);
 
-    assertThat(omegaContext.globalTxId(), is(nullValue()));
-    assertThat(omegaContext.localTxId(), is(nullValue()));
+    assertThat(invocation.getAttachments().isEmpty(), is(true));
   }
 
+  @Test
+  public void interceptTransactionIdInHeaderIfContextPresent() {
+    omegaContext.setGlobalTxId(globalTxId);
+    omegaContext.setLocalTxId(localTxId);
+
+    Map<String, String> attachMents = new HashMap<>();
+    when(invocation.getAttachments()).thenReturn(attachMents);
+
+    filter.invoke(null, invocation);
+
+    assertThat(invocation.getAttachments().get(OmegaContext.GLOBAL_TX_ID_KEY), is(globalTxId));
+    assertThat(invocation.getAttachments().get(OmegaContext.LOCAL_TX_ID_KEY), is(localTxId));
+  }
 }
