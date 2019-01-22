@@ -22,10 +22,8 @@ import org.apache.servicecomb.pack.omega.context.OmegaContextManager;
 import org.apache.servicecomb.pack.omega.context.TransactionType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 @Configuration
-@EnableAspectJAutoProxy
 public class TransactionAspectConfig {
 
   @Bean
