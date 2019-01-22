@@ -22,6 +22,7 @@ import static org.apache.servicecomb.pack.omega.context.OmegaContext.LOCAL_TX_ID
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,6 +37,9 @@ import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.swagger.invocation.AsyncResponse;
 import org.junit.Before;
 import org.junit.Test;
+
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 public class SagaProviderHandlerTest {
 
@@ -69,10 +73,22 @@ public class SagaProviderHandlerTest {
     context.put(LOCAL_TX_ID_KEY, localTxId);
     when(invocation.getContext()).thenReturn(context);
 
+    doAnswer(new Answer<Void>() {
+      // Just verify the context setting
+      @Override
+      public Void answer(InvocationOnMock invocation) throws Throwable {
+        assertThat(omegaContext.globalTxId(), is(globalTxId));
+        assertThat(omegaContext.localTxId(), is(localTxId));
+        return null;
+      }
+    }).when(invocation).next(asyncResponse);
+
+
     handler.handle(invocation, asyncResponse);
 
-    assertThat(omegaContext.globalTxId(), is(globalTxId));
-    assertThat(omegaContext.localTxId(), is(localTxId));
+    // Now the context should be clean
+    assertThat(omegaContext.globalTxId(), is(nullValue()));
+    assertThat(omegaContext.localTxId(), is(nullValue()));
   }
 
   @Test
