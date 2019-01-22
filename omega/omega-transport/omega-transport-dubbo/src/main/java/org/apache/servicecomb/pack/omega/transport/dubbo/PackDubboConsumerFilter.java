@@ -17,6 +17,9 @@
 
 package org.apache.servicecomb.pack.omega.transport.dubbo;
 
+import static org.apache.servicecomb.pack.omega.context.OmegaContext.GLOBAL_TX_ID_KEY;
+import static org.apache.servicecomb.pack.omega.context.OmegaContext.LOCAL_TX_ID_KEY;
+
 import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.extension.Activate;
 import com.alibaba.dubbo.rpc.Filter;
@@ -24,16 +27,11 @@ import com.alibaba.dubbo.rpc.Invocation;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.Result;
 import com.alibaba.dubbo.rpc.RpcException;
-
 import java.lang.invoke.MethodHandles;
-
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.apache.servicecomb.pack.omega.context.OmegaContextManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import static org.apache.servicecomb.pack.omega.context.OmegaContext.GLOBAL_TX_ID_KEY;
-import static org.apache.servicecomb.pack.omega.context.OmegaContext.LOCAL_TX_ID_KEY;
 
 /**
  * add saga transaction id to dubbo invocation
@@ -42,9 +40,7 @@ import static org.apache.servicecomb.pack.omega.context.OmegaContext.LOCAL_TX_ID
 public class PackDubboConsumerFilter implements Filter {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   
-  // As we use the spring to manage the omegaContext, the Autowired work out of box
-  @Autowired(required=false)
-  private OmegaContext omegaContext;
+  private OmegaContext omegaContext = OmegaContextManager.getContext();
 
   public void setOmegaContext(OmegaContext omegaContext) {
     this.omegaContext = omegaContext;
@@ -56,8 +52,8 @@ public class PackDubboConsumerFilter implements Filter {
       invocation.getAttachments().put(LOCAL_TX_ID_KEY, omegaContext.localTxId());
     }
     if (omegaContext != null && omegaContext.globalTxId() != null) {
-      LOG.debug("Added {} {} and {} {} to dubbo invocation", new Object[] {GLOBAL_TX_ID_KEY, omegaContext.globalTxId(),
-          LOCAL_TX_ID_KEY, omegaContext.localTxId()});
+      LOG.debug("Added {} {} and {} {} to dubbo invocation", GLOBAL_TX_ID_KEY, omegaContext.globalTxId(),
+          LOCAL_TX_ID_KEY, omegaContext.localTxId());
     } else {
       LOG.debug("Cannot inject transaction ID, as the OmegaContext is null or cannot get the globalTxId.");
     }

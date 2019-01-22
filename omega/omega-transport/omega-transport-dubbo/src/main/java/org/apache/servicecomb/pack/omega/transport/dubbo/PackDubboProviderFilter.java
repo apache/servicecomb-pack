@@ -21,6 +21,7 @@ import com.alibaba.dubbo.common.extension.Activate;
 import com.alibaba.dubbo.rpc.*;
 
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.apache.servicecomb.pack.omega.context.OmegaContextManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +39,7 @@ public class PackDubboProviderFilter implements Filter {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  // As we use the spring to manage the omegaContext, the Autowired work out of box
-  @Autowired(required=false)
-  private OmegaContext omegaContext;
+  private OmegaContext omegaContext = OmegaContextManager.getContext();
 
   public void setOmegaContext(OmegaContext omegaContext) {
     this.omegaContext = omegaContext;
@@ -55,8 +54,8 @@ public class PackDubboProviderFilter implements Filter {
       } else {
         omegaContext.setGlobalTxId(globalTxId);
         omegaContext.setLocalTxId(invocation.getAttachment(LOCAL_TX_ID_KEY));
-        LOG.debug("Added {} {} and {} {} to omegaContext", new Object[] {GLOBAL_TX_ID_KEY, omegaContext.globalTxId(),
-            LOCAL_TX_ID_KEY, omegaContext.localTxId()});
+        LOG.debug("Added {} {} and {} {} to omegaContext", GLOBAL_TX_ID_KEY, omegaContext.globalTxId(),
+            LOCAL_TX_ID_KEY, omegaContext.localTxId());
       }
       invocation.getAttachments().put(GLOBAL_TX_ID_KEY, null);
       invocation.getAttachments().put(LOCAL_TX_ID_KEY, null);
