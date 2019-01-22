@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.servicecomb.pack.omega.context.ServiceConfig;
 import org.apache.servicecomb.pack.omega.context.TransactionType;
-import org.apache.servicecomb.pack.omega.properties.AlphaClusterProperties;
-import org.apache.servicecomb.pack.omega.properties.OmegaClientProperties;
+import org.apache.servicecomb.pack.omega.config.property.AlphaClusterProperties;
+import org.apache.servicecomb.pack.omega.config.property.OmegaClientProperties;
 import org.apache.servicecomb.pack.omega.transaction.MessageSender;
 
 public class MessageSenderManager {

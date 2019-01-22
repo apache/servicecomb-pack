@@ -82,7 +82,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class AlphaIntegrationTest {
   private static final int port = 8090;
 
-  protected static ManagedChannel clientChannel;
+  private static ManagedChannel clientChannel;
 
   private final TxEventServiceStub asyncStub = TxEventServiceGrpc.newStub(clientChannel);
   private final TxEventServiceBlockingStub blockingStub = TxEventServiceGrpc.newBlockingStub(clientChannel);
@@ -141,7 +141,7 @@ public class AlphaIntegrationTest {
   }
 
   @AfterClass
-  public static void tearDown() throws Exception {
+  public static void tearDown() {
     clientChannel.shutdown();
     clientChannel = null;
   }
@@ -154,7 +154,7 @@ public class AlphaIntegrationTest {
   }
 
   @After
-  public void after() throws Exception {
+  public void after() {
     blockingStub.onDisconnected(serviceConfig);
     deleteAllTillSuccessful();
   }
@@ -234,7 +234,7 @@ public class AlphaIntegrationTest {
   }
 
   @Test
-  public void removeCallbackOnClientDown() throws Exception {
+  public void removeCallbackOnClientDown() {
     asyncStub.onConnected(serviceConfig, compensateResponseObserver);
     blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent));
     blockingStub.onTxEvent(someGrpcEvent(TxEndedEvent));
@@ -247,7 +247,7 @@ public class AlphaIntegrationTest {
   }
 
   @Test
-  public void compensateImmediatelyWhenGlobalTxAlreadyAborted() throws Exception {
+  public void compensateImmediatelyWhenGlobalTxAlreadyAborted() {
     asyncStub.onConnected(serviceConfig, compensateResponseObserver);
     blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent));
     blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
@@ -362,7 +362,7 @@ public class AlphaIntegrationTest {
     String anotherLocalTxId2 = UUID.randomUUID().toString();
     blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent, globalTxId, anotherLocalTxId2));
 
-    await().atMost(1, SECONDS).until(() -> eventRepo.count() == 7);
+    await().atMost(3, SECONDS).until(() -> eventRepo.count() == 7);
 
     blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent, globalTxId, anotherLocalTxId2));
     await().atMost(1, SECONDS).until(() -> !receivedCommands.isEmpty());
@@ -372,7 +372,7 @@ public class AlphaIntegrationTest {
   }
 
   @Test
-  public void sagaEndedEventIsAlwaysInTheEnd() throws Exception {
+  public void sagaEndedEventIsAlwaysInTheEnd() {
     asyncStub.onConnected(serviceConfig, compensateResponseObserver);
     blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent));
     blockingStub.onTxEvent(someGrpcEvent(TxEndedEvent));
@@ -447,7 +447,7 @@ public class AlphaIntegrationTest {
   }
 
   @Test
-  public void doNotCompensateRetryingEvents() throws InterruptedException {
+  public void doNotCompensateRetryingEvents() {
     asyncStub.onConnected(serviceConfig, compensateResponseObserver);
     blockingStub.onTxEvent(someGrpcEventWithRetry(TxStartedEvent, retryMethod, 1));
     blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));

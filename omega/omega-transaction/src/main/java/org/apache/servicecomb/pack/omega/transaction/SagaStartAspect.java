@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 @Aspect
 public class SagaStartAspect {
+
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final SagaStartAnnotationProcessor sagaStartAnnotationProcessor;

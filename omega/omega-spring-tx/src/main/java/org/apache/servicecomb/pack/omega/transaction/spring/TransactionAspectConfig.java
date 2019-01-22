@@ -28,28 +28,11 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @EnableAspectJAutoProxy
 public class TransactionAspectConfig {
 
-//  @Bean
-//  SagaMessageHandler messageHandler(SagaMessageSender sender,
-//      @Qualifier("compensationContext") CallbackContext context, OmegaContext omegaContext) {
-//    return new CompensationMessageHandler(sender, context);
-//  }
-
-//  @Bean
-//  SagaStartAspect sagaStartAspect() {
-//    return new SagaStartAspect(, context);
-//  }
-
-//  @Bean
-//  TransactionAspect transactionAspect(SagaMessageSender sender, OmegaContext context) {
-//    return new TransactionAspect(sender, context);
-//  }
-
   @Bean
   CompensableAnnotationProcessor compensableAnnotationProcessor() {
     return new CompensableAnnotationProcessor(OmegaContextManager.getContext(),
         CallbackContextManager.getContext(TransactionType.SAGA));
   }
-
 
   @Bean
   ParticipateAnnotationProcessor participateAnnotationProcessor() {

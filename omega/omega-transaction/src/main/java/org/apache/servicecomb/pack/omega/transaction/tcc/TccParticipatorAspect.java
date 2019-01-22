@@ -37,7 +37,9 @@ public class TccParticipatorAspect {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final OmegaContext context;
+
   private final TccMessageSender tccMessageSender;
+
   private final ParametersContext parametersContext;
 
   //We need to inject the CoordinateMessageHandler for the parameter map

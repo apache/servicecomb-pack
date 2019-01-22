@@ -42,28 +42,10 @@ import org.apache.servicecomb.pack.omega.context.ServiceConfig;
 import org.apache.servicecomb.pack.omega.context.TransactionType;
 import org.apache.servicecomb.pack.omega.transaction.MessageSender;
 
-public class LoadBalanceContextBuilder {
+public class LoadBalanceContextFactory {
 
-  private final AlphaClusterConfig clusterConfig;
-
-  private final ServiceConfig serviceConfig;
-
-  private final long reconnectDelay;
-
-  private final long timeoutSeconds;
-
-  private final TransactionType transactionType;
-
-  public LoadBalanceContextBuilder(TransactionType transactionType,
+  public static LoadBalanceContext newInstance(TransactionType transactionType,
       AlphaClusterConfig clusterConfig, ServiceConfig serviceConfig, long reconnectDelay, long timeoutSeconds) {
-    this.transactionType = transactionType;
-    this.clusterConfig = clusterConfig;
-    this.serviceConfig = serviceConfig;
-    this.reconnectDelay = reconnectDelay;
-    this.timeoutSeconds = timeoutSeconds;
-  }
-
-  public LoadBalanceContext build() {
     if (clusterConfig.getAddresses().isEmpty()) {
       throw new IllegalArgumentException("No reachable cluster address provided");
     }
@@ -74,14 +56,14 @@ public class LoadBalanceContextBuilder {
     for (String address : clusterConfig.getAddresses()) {
       ManagedChannel channel = buildChannel(address, sslContext);
       channels.add(channel);
-      MessageSender messageSender = buildSender(address, channel, clusterConfig, serviceConfig);
+      MessageSender messageSender = buildSender(transactionType, address, channel, clusterConfig, serviceConfig);
       senders.put(messageSender, 0L);
     }
     ErrorHandleEngineManager.init(senders, reconnectDelay, timeoutSeconds);
     return loadContext;
   }
 
-  private ManagedChannel buildChannel(String address, Optional<SslContext> sslContext) {
+  private static ManagedChannel buildChannel(final String address, final Optional<SslContext> sslContext) {
     if (sslContext.isPresent()) {
       return NettyChannelBuilder.forTarget(address)
           .negotiationType(NegotiationType.TLS)
@@ -94,8 +76,8 @@ public class LoadBalanceContextBuilder {
     }
   }
 
-  private MessageSender buildSender(
-      String address, ManagedChannel channel, AlphaClusterConfig clusterConfig, ServiceConfig serviceConfig) {
+  private static MessageSender buildSender(final TransactionType transactionType, final String address, final ManagedChannel channel,
+      final AlphaClusterConfig clusterConfig, final ServiceConfig serviceConfig) {
     switch (transactionType) {
       case TCC:
         return new GrpcTccClientMessageSender(serviceConfig, channel, address);
@@ -112,7 +94,7 @@ public class LoadBalanceContextBuilder {
       return null;
   }
 
-  private Optional<SslContext> buildSslContext(AlphaClusterConfig clusterConfig) {
+  private static Optional<SslContext> buildSslContext(final AlphaClusterConfig clusterConfig) {
     if (!clusterConfig.isEnableSSL()) {
       return Optional.absent();
     }
@@ -124,7 +106,7 @@ public class LoadBalanceContextBuilder {
 
     Properties prop = new Properties();
     try {
-      prop.load(LoadBalanceContextBuilder.class.getClassLoader().getResourceAsStream("ssl.properties"));
+      prop.load(LoadBalanceContextFactory.class.getClassLoader().getResourceAsStream("ssl.properties"));
     } catch (IOException e) {
       throw new IllegalArgumentException("Unable to read ssl.properties.", e);
     }

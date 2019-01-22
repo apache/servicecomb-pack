@@ -17,10 +17,13 @@
 
 package org.apache.servicecomb.pack.omega.config.sender;
 
+import org.apache.servicecomb.pack.omega.config.property.AlphaClusterProperties;
+import org.apache.servicecomb.pack.omega.config.property.AlphaSSLProperties;
+import org.apache.servicecomb.pack.omega.config.property.OmegaClientProperties;
 import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.FastestSender;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContextBuilder;
+import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContextFactory;
 import org.apache.servicecomb.pack.omega.connector.grpc.saga.SagaLoadBalanceSender;
 import org.apache.servicecomb.pack.omega.connector.grpc.tcc.TccLoadBalanceSender;
 import org.apache.servicecomb.pack.omega.context.CallbackContextManager;
@@ -29,9 +32,6 @@ import org.apache.servicecomb.pack.omega.context.ServiceConfig;
 import org.apache.servicecomb.pack.omega.context.TransactionType;
 import org.apache.servicecomb.pack.omega.format.KryoMessageFormat;
 import org.apache.servicecomb.pack.omega.format.MessageFormat;
-import org.apache.servicecomb.pack.omega.properties.AlphaClusterProperties;
-import org.apache.servicecomb.pack.omega.properties.AlphaSSLProperties;
-import org.apache.servicecomb.pack.omega.properties.OmegaClientProperties;
 import org.apache.servicecomb.pack.omega.transaction.CompensationMessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.MessageHandlerManager;
 import org.apache.servicecomb.pack.omega.transaction.MessageSender;
@@ -39,9 +39,9 @@ import org.apache.servicecomb.pack.omega.transaction.SagaMessageSender;
 import org.apache.servicecomb.pack.omega.transaction.tcc.CoordinateMessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageSender;
 
-public class MessageSenderFactory {
+class MessageSenderFactory {
 
-  public static MessageSender newInstance(final TransactionType transactionType,
+  static MessageSender newInstance(final TransactionType transactionType,
       final AlphaClusterProperties clusterProperties,
       final OmegaClientProperties clientProperties, ServiceConfig serviceConfig) {
     return createMessageSender(transactionType,
@@ -71,11 +71,9 @@ public class MessageSenderFactory {
       final AlphaClusterProperties clusterProperties,
       final OmegaClientProperties clientProperties,
       final ServiceConfig serviceConfig) {
-    AlphaClusterConfig alphaClusterConfig = createAlphaClusterConfig(clusterProperties);
-    return new LoadBalanceContextBuilder(
-        transactionType, alphaClusterConfig, serviceConfig,
-        clientProperties.getReconnectDelayMilliSeconds(), clientProperties.getTimeoutSeconds())
-        .build();
+    return LoadBalanceContextFactory.newInstance(
+        transactionType, createAlphaClusterConfig(clusterProperties), serviceConfig,
+        clientProperties.getReconnectDelayMilliSeconds(), clientProperties.getTimeoutSeconds());
   }
 
   private static AlphaClusterConfig createAlphaClusterConfig(final AlphaClusterProperties clusterProperties) {

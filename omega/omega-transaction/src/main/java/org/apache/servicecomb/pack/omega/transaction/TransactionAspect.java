@@ -19,7 +19,6 @@ package org.apache.servicecomb.pack.omega.transaction;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
-
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -31,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 @Aspect
 public class TransactionAspect {
+
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final OmegaContext context;

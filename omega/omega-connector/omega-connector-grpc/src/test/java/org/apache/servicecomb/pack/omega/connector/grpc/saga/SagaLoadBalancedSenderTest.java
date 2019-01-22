@@ -35,11 +35,12 @@ import io.grpc.ServerBuilder;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.FastestSender;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContextBuilder;
+import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContextFactory;
 import org.apache.servicecomb.pack.omega.context.TransactionType;
 import org.apache.servicecomb.pack.omega.context.ServiceConfig;
 import org.apache.servicecomb.pack.omega.transaction.MessageHandlerManager;
@@ -54,6 +55,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
+
   @Override
   protected SagaLoadBalanceSender newMessageSender(String[] addresses) {
     AlphaClusterConfig clusterConfig = AlphaClusterConfig.builder()
@@ -65,16 +67,14 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
         .build();
     MessageHandlerManager.register(handler);
 
-    LoadBalanceContext loadContext = new LoadBalanceContextBuilder(
-        TransactionType.SAGA,
-        clusterConfig,
-        new ServiceConfig(serviceName), 100, 4).build();
+    LoadBalanceContext loadContext = LoadBalanceContextFactory.newInstance(TransactionType.SAGA, clusterConfig,
+        new ServiceConfig(serviceName), 100, 4);
 
     return new SagaLoadBalanceSender(loadContext, new FastestSender());
   }
 
   @BeforeClass
-  public static void beforeClass() throws Exception {
+  public static void beforeClass() {
     for(int port: ports) {
       startServerOnPort(port);
     }
@@ -94,7 +94,7 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
   }
 
   @Test
-  public void resendToAnotherServerOnFailure() throws Exception {
+  public void resendToAnotherServerOnFailure() {
     messageSender.send(event);
 
     int deadPort = killServerReceivedMessage();
@@ -103,18 +103,18 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
     messageSender.send(event);
 
     assertThat(eventsMap.get(deadPort).size(), is(1));
-    assertThat(eventsMap.get(deadPort).peek().toString(), is(event.toString()));
+    assertThat(Objects.requireNonNull(eventsMap.get(deadPort).peek()).toString(), is(event.toString()));
 
     int livePort = deadPort == 8080 ? 8090 : 8080;
     assertThat(eventsMap.get(livePort).size(), is(2));
-    assertThat(eventsMap.get(livePort).peek().toString(), is(event.toString()));
+    assertThat(Objects.requireNonNull(eventsMap.get(livePort).peek()).toString(), is(event.toString()));
 
     // restart killed server in order not to affect other tests
     startServerOnPort(deadPort);
   }
 
   @Test
-  public void resetLatencyOnReconnection() throws Exception {
+  public void resetLatencyOnReconnection() {
     messageSender.onConnected();
     messageSender.send(event);
 
@@ -127,7 +127,7 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
     await().atMost(5, SECONDS).until(new Callable<Boolean>() {
 
       @Override
-      public Boolean call() throws Exception {
+      public Boolean call() {
         return connected.get(deadPort).size() == 3;
       }
     });
@@ -137,13 +137,13 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
 
     // restarted server gets priority, since it had no traffic
     assertThat(eventsMap.get(deadPort).size(), is(2));
-    assertThat(eventsMap.get(deadPort).poll().toString(), is(event.toString()));
-    assertThat(eventsMap.get(deadPort).poll().toString(), is(abortedEvent.toString()));
+    assertThat(Objects.requireNonNull(eventsMap.get(deadPort).poll()).toString(), is(event.toString()));
+    assertThat(Objects.requireNonNull(eventsMap.get(deadPort).poll()).toString(), is(abortedEvent.toString()));
 
     await().atMost(3, SECONDS).until(new Callable<Boolean>() {
 
       @Override
-      public Boolean call() throws Exception {
+      public Boolean call() {
         return compensated.contains(globalTxId);
       }
     });
@@ -177,12 +177,12 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
   }
 
   @Test
-  public void broadcastConnectionAndDisconnection() throws Exception {
+  public void broadcastConnectionAndDisconnection() {
     messageSender.onConnected();
     await().atMost(1, SECONDS).until(new Callable<Boolean>() {
 
       @Override
-      public Boolean call() throws Exception {
+      public Boolean call() {
         return !connected.get(8080).isEmpty() && !connected.get(8090).isEmpty();
       }
     });
@@ -196,7 +196,7 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
   }
 
   @Test
-  public void swallowException_UntilAllSendersConnected() throws Exception {
+  public void swallowException_UntilAllSendersConnected() {
     SagaMessageSender underlying1 = Mockito.mock(SagaMessageSender.class);
     doThrow(RuntimeException.class).when(underlying1).onConnected();
 
@@ -211,7 +211,7 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
   }
 
   @Test
-  public void swallowException_UntilAllSendersDisconnected() throws Exception {
+  public void swallowException_UntilAllSendersDisconnected() {
     SagaMessageSender underlying1 = Mockito.mock(SagaMessageSender.class);
     doThrow(RuntimeException.class).when(underlying1).onDisconnected();
 
@@ -226,7 +226,7 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
   }
 
   @Test
-  public void considerFasterServerFirst() throws Exception {
+  public void considerFasterServerFirst() {
     // we don't know which server is selected at first
     messageSender.send(event);
 
@@ -240,7 +240,7 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
   }
 
   @Test
-  public void blowsUpWhenNoServerAddressProvided() throws Exception {
+  public void blowsUpWhenNoServerAddressProvided() {
     try {
       newMessageSender(new String[0]);
       expectFailing(IllegalArgumentException.class);
@@ -271,7 +271,7 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
     // we don't want to keep sending on cluster down
     await().atMost(10, SECONDS).until(new Callable<Boolean>() {
       @Override
-      public Boolean call() throws Exception {
+      public Boolean call() {
         return thread.getState().equals(TERMINATED);
       }
     });
@@ -288,14 +288,14 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
    messageSender.send(event);
     await().atMost(2, SECONDS).until(new Callable<Boolean>() {
       @Override
-      public Boolean call() throws Exception {
+      public Boolean call() {
         return connected.get(8080).size() == 2 || connected.get(8090).size() == 2;
       }
     });
 
     await().atMost(2, SECONDS).until(new Callable<Boolean>() {
       @Override
-      public Boolean call() throws Exception {
+      public Boolean call() {
         return eventsMap.get(8080).size() == 1 || eventsMap.get(8090).size() == 1;
       }
     });

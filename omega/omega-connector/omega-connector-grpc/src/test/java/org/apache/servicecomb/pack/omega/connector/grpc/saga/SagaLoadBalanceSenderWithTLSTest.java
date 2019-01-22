@@ -36,14 +36,15 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import javax.net.ssl.SSLException;
 import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.FastestSender;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContextBuilder;
-import org.apache.servicecomb.pack.omega.context.TransactionType;
+import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContextFactory;
 import org.apache.servicecomb.pack.omega.context.ServiceConfig;
+import org.apache.servicecomb.pack.omega.context.TransactionType;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -56,24 +57,22 @@ public class SagaLoadBalanceSenderWithTLSTest extends SagaLoadBalancedSenderTest
         .addresses(ImmutableList.copyOf(addresses))
         .enableMutualAuth(true)
         .enableSSL(true)
-        .cert(classLoader.getResource("client.crt").getFile())
+        .cert(Objects.requireNonNull(classLoader.getResource("client.crt")).getFile())
         .messageHandler(handler)
-        .key(classLoader.getResource("client.pem").getFile())
-        .certChain(classLoader.getResource("ca.crt").getFile())
+        .key(Objects.requireNonNull(classLoader.getResource("client.pem")).getFile())
+        .certChain(Objects.requireNonNull(classLoader.getResource("ca.crt")).getFile())
         .messageSerializer(serializer)
         .messageDeserializer(deserializer)
         .build();
 
-    LoadBalanceContext loadContext = new LoadBalanceContextBuilder(
-        TransactionType.SAGA,
-        clusterConfig,
-        new ServiceConfig(serviceName), 100, 4).build();
+    LoadBalanceContext loadContext = LoadBalanceContextFactory.newInstance(TransactionType.SAGA, clusterConfig,
+        new ServiceConfig(serviceName), 100, 4);
 
     return new SagaLoadBalanceSender(loadContext, new FastestSender());
   }
 
   @BeforeClass
-  public static void beforeClass() throws Exception {
+  public static void beforeClass() {
     for(int port: ports) {
       System.out.println("Start the port " + port);
       startServerOnPort(port);
@@ -103,14 +102,15 @@ public class SagaLoadBalanceSenderWithTLSTest extends SagaLoadBalancedSenderTest
   private static SslContextBuilder getSslContextBuilder() {
     ClassLoader classLoader = SagaLoadBalanceSenderWithTLSTest.class.getClassLoader();
     SslContextBuilder sslClientContextBuilder = SslContextBuilder.forServer(
-        new File(classLoader.getResource("server.crt").getFile()),
-        new File(classLoader.getResource("server.pem").getFile()))
+        new File(Objects.requireNonNull(classLoader.getResource("server.crt")).getFile()),
+        new File(Objects.requireNonNull(classLoader.getResource("server.pem")).getFile()))
         .protocols("TLSv1.2","TLSv1.1")
         .ciphers(Arrays.asList("ECDHE-RSA-AES128-GCM-SHA256",
             "ECDHE-RSA-AES256-GCM-SHA384",
             "ECDHE-ECDSA-AES128-SHA256"));
 
-      sslClientContextBuilder.trustManager(new File(classLoader.getResource("client.crt").getFile()));
+      sslClientContextBuilder.trustManager(
+          new File(Objects.requireNonNull(classLoader.getResource("client.crt")).getFile()));
       sslClientContextBuilder.clientAuth(ClientAuth.REQUIRE);
 
     return GrpcSslContexts.configure(sslClientContextBuilder,
@@ -118,7 +118,7 @@ public class SagaLoadBalanceSenderWithTLSTest extends SagaLoadBalancedSenderTest
   }
 
   @Test
-  public void considerFasterServerFirst() throws Exception {
+  public void considerFasterServerFirst() {
     // we don't know which server is selected at first
     messageSender.send(event);
 
@@ -132,11 +132,11 @@ public class SagaLoadBalanceSenderWithTLSTest extends SagaLoadBalancedSenderTest
   }
 
   @Test
-  public void broadcastConnectionAndDisconnection() throws Exception {
+  public void broadcastConnectionAndDisconnection() {
     messageSender.onConnected();
     await().atMost(1, SECONDS).until( new Callable<Boolean>() {
       @Override
-      public Boolean call() throws Exception {
+      public Boolean call() {
         return !connected.get(8080).isEmpty() && !connected.get(8090).isEmpty();
       }
     });

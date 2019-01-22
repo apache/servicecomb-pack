@@ -62,7 +62,7 @@ public class PackIT {
   private GreetingService greetingService;
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     eventRepo.deleteAll();
     commandRepo.deleteAll();
     compensatedMessages.clear();
@@ -70,7 +70,7 @@ public class PackIT {
   }
 
   @Test(timeout = 5000)
-  public void updatesTxStateToAlpha() throws Exception {
+  public void updatesTxStateToAlpha() {
     ResponseEntity<String> entity = restTemplate.getForEntity("/greet?name={name}",
         String.class,
         "mike");
@@ -132,7 +132,7 @@ public class PackIT {
   }
 
   @Test(timeout = 5000)
-  public void compensatesFailedGlobalTransaction() throws Exception {
+  public void compensatesFailedGlobalTransaction() {
     ResponseEntity<String> entity = restTemplate.getForEntity("/greet?name={name}",
         String.class,
         GreetingController.TRESPASSER);
@@ -198,7 +198,7 @@ public class PackIT {
   }
 
   @Test(timeout = 5000)
-  public void updatesEmbeddedTxStateToAlpha() throws Exception {
+  public void updatesEmbeddedTxStateToAlpha() {
     ResponseEntity<String> entity = restTemplate.getForEntity("/goodMorning?name={name}",
         String.class,
         "mike");
@@ -275,7 +275,7 @@ public class PackIT {
   }
 
   @Test(timeout = 5000)
-  public void compensateWhenRetryReachesMaximum() throws InterruptedException {
+  public void compensateWhenRetryReachesMaximum() {
     // retries 3 times and then compensate
     ResponseEntity<String> entity = restTemplate.getForEntity("/open?name={name}&retries={retries}",
         String.class,

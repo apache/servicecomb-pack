@@ -21,8 +21,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
 /**
  * Indicates the annotated method will start a sub-transaction. <br>
  * A <code>@Participate</code> method should satisfy below requirements:
@@ -32,7 +30,10 @@ import java.lang.annotation.Target;
  *   <li>the object instance which @Participate method resides in should be stateless</li>
  * </ol>
  */
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD})
 public @interface Participate {
+
   /**
    * Confirm method name.<br>
    * A confirm method should satisfy below requirements:
@@ -43,7 +44,7 @@ public @interface Participate {
    *   <li>be in the same class as @Participate method is in</li>
    * </ol>
    *
-   * @return
+   * @return confirm method
    */
   String confirmMethod() default "";
 
@@ -57,7 +58,7 @@ public @interface Participate {
    *   <li>be in the same class as @Participate method is in</li>
    * </ol>
    *
-   * @return
+   * @return cancel method
    */
   String cancelMethod() default "";
 

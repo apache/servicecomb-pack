@@ -17,7 +17,7 @@
 
 package org.apache.servicecomb.pack.omega.spring.properties;
 
-import org.apache.servicecomb.pack.omega.properties.OmegaClientProperties;
+import org.apache.servicecomb.pack.omega.config.property.OmegaClientProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "omega.client")

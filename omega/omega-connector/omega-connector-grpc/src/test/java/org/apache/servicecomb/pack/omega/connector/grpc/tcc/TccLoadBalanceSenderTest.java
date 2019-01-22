@@ -39,18 +39,19 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import org.apache.servicecomb.pack.common.TransactionStatus;
 import org.apache.servicecomb.pack.contract.grpc.GrpcParticipationStartedEvent;
-import org.apache.servicecomb.pack.omega.connector.grpc.LoadBalanceSenderTestBase;
 import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterConfig;
+import org.apache.servicecomb.pack.omega.connector.grpc.LoadBalanceSenderTestBase;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.FastestSender;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContextBuilder;
-import org.apache.servicecomb.pack.omega.context.TransactionType;
+import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContextFactory;
 import org.apache.servicecomb.pack.omega.context.ServiceConfig;
+import org.apache.servicecomb.pack.omega.context.TransactionType;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.pack.omega.transaction.MessageHandlerManager;
 import org.apache.servicecomb.pack.omega.transaction.MessageSender;
@@ -74,7 +75,7 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
   private final AlphaClusterConfig clusterConfig = mock(AlphaClusterConfig.class);
   private final TccMessageHandler tccMessageHandler = mock(CoordinateMessageHandler.class);
 
-  protected final String[] addresses = {"localhost:8080", "localhost:8090"};
+  private final String[] addresses = {"localhost:8080", "localhost:8090"};
 
   private LoadBalanceContext loadContext;
   private TccLoadBalanceSender tccLoadBalanceSender;
@@ -128,8 +129,8 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
     when(clusterConfig.isEnableSSL()).thenReturn(false);
     MessageHandlerManager.register(tccMessageHandler);
 
-    loadContext =
-        new LoadBalanceContextBuilder(TransactionType.TCC, clusterConfig, serviceConfig, 30, 4).build();
+    loadContext = LoadBalanceContextFactory.newInstance(TransactionType.TCC,
+        clusterConfig, serviceConfig, 30, 4);
     tccLoadBalanceSender = new TccLoadBalanceSender(loadContext, new FastestSender());
     participationStartedEvent = new ParticipationStartedEvent(globalTxId, localTxId, parentTxId, confirmMethod, cancelMethod);
     tccStartedEvent = new TccStartedEvent(globalTxId, localTxId);
@@ -169,7 +170,7 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
 
     Integer expectPort = Integer.valueOf(expectSender.target().split(":")[1]);
     GrpcParticipationStartedEvent result = (GrpcParticipationStartedEvent) eventsMap.get(expectPort).poll();
-    assertThat(result.getGlobalTxId(), is(globalTxId));
+    assertThat(Objects.requireNonNull(result).getGlobalTxId(), is(globalTxId));
 //    assertThat(result.getCancelMethod(), is(cancelMethod));
 //    assertThat(result.getConfirmMethod(), is(confirmMethod));
     assertThat(result.getServiceName(), is(serviceName));
@@ -214,7 +215,7 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
   }
 
   @Test
-  public void failFastWhenAllServerWasDown() throws IOException {
+  public void failFastWhenAllServerWasDown() {
     tccLoadBalanceSender.onConnected();
     await().atMost(2, TimeUnit.SECONDS).until(new Callable<Boolean>() {
       @Override
@@ -300,7 +301,7 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
     await().atMost(1, SECONDS).until(new Callable<Boolean>() {
 
       @Override
-      public Boolean call() throws Exception {
+      public Boolean call() {
         return !connected.get(8080).isEmpty() && !connected.get(8090).isEmpty();
       }
     });
