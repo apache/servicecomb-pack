@@ -16,8 +16,8 @@
   -->
 
 <config>
-  <handler id="saga-consumer"
-    class="org.apache.servicecomb.pack.omega.transport.servicecomb.SagaConsumerHandler" />
-  <handler id="saga-provider"
-    class="org.apache.servicecomb.pack.omega.transport.servicecomb.SagaProviderHandler" />
+  <handler id="pack-consumer"
+    class="org.apache.servicecomb.pack.omega.transport.servicecomb.PackConsumerHandler" />
+  <handler id="pack-provider"
+    class="org.apache.servicecomb.pack.omega.transport.servicecomb.PackProviderHandler" />
 </config>

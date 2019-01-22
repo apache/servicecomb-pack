@@ -39,7 +39,7 @@ import static org.apache.servicecomb.pack.omega.context.OmegaContext.LOCAL_TX_ID
  * add saga transaction id to dubbo invocation
  */
 @Activate(group = {Constants.CONSUMER})
-public class SagaDubboConsumerFilter implements Filter {
+public class PackDubboConsumerFilter implements Filter {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   
   // As we use the spring to manage the omegaContext, the Autowired work out of box

@@ -39,8 +39,8 @@ servicecomb:
   rest:
     address: 0.0.0.0:8083
 
-  #Add Saga Handler
+  #Add Pack Handler
   handler:
     chain:
       Consumer:
-        default: loadbalance,saga-consumer
+        default: loadbalance,pack-consumer

@@ -14,5 +14,5 @@
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
 ## ---------------------------------------------------------------------------
-sagaDubboConsumerFilter=org.apache.servicecomb.pack.omega.transport.dubbo.SagaDubboConsumerFilter
-sageDubboProviderFilter=org.apache.servicecomb.pack.omega.transport.dubbo.SagaDubboProviderFilter
+packDubboConsumerFilter=org.apache.servicecomb.pack.omega.transport.dubbo.PackDubboConsumerFilter
+packDubboProviderFilter=org.apache.servicecomb.pack.omega.transport.dubbo.PackDubboProviderFilter

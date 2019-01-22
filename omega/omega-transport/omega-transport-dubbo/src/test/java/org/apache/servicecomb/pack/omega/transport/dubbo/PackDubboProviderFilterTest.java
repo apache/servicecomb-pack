@@ -1,4 +1,4 @@
-/*
+package org.apache.servicecomb.pack.omega.transport.dubbo;/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,10 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.omega.transport.servicecomb;
+import java.util.UUID;
 
-import static org.apache.servicecomb.pack.omega.context.OmegaContext.GLOBAL_TX_ID_KEY;
-import static org.apache.servicecomb.pack.omega.context.OmegaContext.LOCAL_TX_ID_KEY;
+import org.apache.servicecomb.pack.omega.context.IdGenerator;
+import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import com.alibaba.dubbo.rpc.Invocation;
+import com.alibaba.dubbo.rpc.Invoker;
+
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -26,52 +34,31 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import org.apache.servicecomb.core.Invocation;
-import org.apache.servicecomb.pack.omega.context.IdGenerator;
-import org.apache.servicecomb.pack.omega.context.OmegaContext;
-import org.apache.servicecomb.swagger.invocation.AsyncResponse;
-import org.junit.Before;
-import org.junit.Test;
-
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
-public class SagaProviderHandlerTest {
+public class PackDubboProviderFilterTest {
 
   private static final String globalTxId = UUID.randomUUID().toString();
-
   private static final String localTxId = UUID.randomUUID().toString();
-
   private final OmegaContext omegaContext = new OmegaContext(new IdGenerator<String>() {
-
     @Override
     public String nextId() {
       return "ignored";
     }
   });
-
   private final Invocation invocation = mock(Invocation.class);
-
-  private final AsyncResponse asyncResponse = mock(AsyncResponse.class);
-
-  private final SagaProviderHandler handler = new SagaProviderHandler(omegaContext);
+  private final Invoker invoker = mock(Invoker.class);
+  
+  private final PackDubboProviderFilter filter = new PackDubboProviderFilter();
 
   @Before
   public void setUp() {
     omegaContext.clear();
+    filter.setOmegaContext(omegaContext);
   }
 
   @Test
-  public void setUpOmegaContextInTransactionRequest() throws Exception {
-    Map<String, String> context = new HashMap<>();
-    context.put(GLOBAL_TX_ID_KEY, globalTxId);
-    context.put(LOCAL_TX_ID_KEY, localTxId);
-    when(invocation.getContext()).thenReturn(context);
+  public void setUpOmegaContextInTransactionRequest() {
+    when(invocation.getAttachment(OmegaContext.GLOBAL_TX_ID_KEY)).thenReturn(globalTxId);
+    when(invocation.getAttachment(OmegaContext.LOCAL_TX_ID_KEY)).thenReturn(localTxId);
 
     doAnswer(new Answer<Void>() {
       // Just verify the context setting
@@ -81,23 +68,23 @@ public class SagaProviderHandlerTest {
         assertThat(omegaContext.localTxId(), is(localTxId));
         return null;
       }
-    }).when(invocation).next(asyncResponse);
+    }).when(invoker).invoke(invocation);
 
+    filter.invoke(invoker, invocation);
 
-    handler.handle(invocation, asyncResponse);
-
-    // Now the context should be clean
     assertThat(omegaContext.globalTxId(), is(nullValue()));
     assertThat(omegaContext.localTxId(), is(nullValue()));
   }
 
   @Test
-  public void doNothingInNonTransactionRequest() throws Exception {
-    when(invocation.getContext()).thenReturn(Collections.EMPTY_MAP);
+  public void doNothingInNonTransactionRequest() {
+    when(invocation.getAttachment(OmegaContext.GLOBAL_TX_ID_KEY)).thenReturn(null);
+    when(invocation.getAttachment(OmegaContext.LOCAL_TX_ID_KEY)).thenReturn(null);
 
-    handler.handle(invocation, asyncResponse);
+    filter.invoke(invoker, invocation);
 
     assertThat(omegaContext.globalTxId(), is(nullValue()));
     assertThat(omegaContext.localTxId(), is(nullValue()));
   }
+
 }

@@ -34,7 +34,7 @@ import static org.apache.servicecomb.pack.omega.context.OmegaContext.LOCAL_TX_ID
  * get saga transaction id from dubbo invocation and set into omega context
  */
 @Activate(group = Constants.PROVIDER)
-public class SagaDubboProviderFilter implements Filter {
+public class PackDubboProviderFilter implements Filter {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
