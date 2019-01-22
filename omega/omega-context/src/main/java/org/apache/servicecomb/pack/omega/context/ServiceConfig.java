@@ -25,11 +25,19 @@ public class ServiceConfig {
   private final String instanceId;
 
   public ServiceConfig(String serviceName) {
+    this(serviceName,null);
+  }
+
+  public ServiceConfig(String serviceName,String instanceId) {
     this.serviceName = serviceName;
-    try {
-      instanceId = serviceName + "-" + InetAddress.getLocalHost().getHostAddress();
-    } catch (UnknownHostException e) {
-      throw new IllegalStateException(e);
+    if(instanceId == null || "".equalsIgnoreCase(instanceId.trim())){
+      try {
+        this.instanceId = serviceName + "-" + InetAddress.getLocalHost().getHostAddress();
+      } catch (UnknownHostException e) {
+        throw new IllegalStateException(e);
+      }
+    }else{
+      this.instanceId = instanceId;
     }
   }
 
