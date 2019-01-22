@@ -30,7 +30,7 @@ public class ServiceConfig {
 
   public ServiceConfig(String serviceName,String instanceId) {
     this.serviceName = serviceName;
-    if(instanceId == null || "".equalsIgnoreCase(instanceId)){
+    if(instanceId == null || "".equalsIgnoreCase(instanceId.trim())){
       try {
         this.instanceId = serviceName + "-" + InetAddress.getLocalHost().getHostAddress();
       } catch (UnknownHostException e) {
