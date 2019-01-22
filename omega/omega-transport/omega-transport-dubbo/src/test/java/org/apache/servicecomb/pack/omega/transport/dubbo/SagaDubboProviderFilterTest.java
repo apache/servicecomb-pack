@@ -21,12 +21,16 @@ import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import com.alibaba.dubbo.rpc.Invocation;
+import com.alibaba.dubbo.rpc.Invoker;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,6 +45,7 @@ public class SagaDubboProviderFilterTest {
     }
   });
   private final Invocation invocation = mock(Invocation.class);
+  private final Invoker invoker = mock(Invoker.class);
   
   private final SagaDubboProviderFilter filter = new SagaDubboProviderFilter();
 
@@ -55,10 +60,20 @@ public class SagaDubboProviderFilterTest {
     when(invocation.getAttachment(OmegaContext.GLOBAL_TX_ID_KEY)).thenReturn(globalTxId);
     when(invocation.getAttachment(OmegaContext.LOCAL_TX_ID_KEY)).thenReturn(localTxId);
 
-    filter.invoke(null, invocation);
+    doAnswer(new Answer<Void>() {
+      // Just verify the context setting
+      @Override
+      public Void answer(InvocationOnMock invocation) throws Throwable {
+        assertThat(omegaContext.globalTxId(), is(globalTxId));
+        assertThat(omegaContext.localTxId(), is(localTxId));
+        return null;
+      }
+    }).when(invoker).invoke(invocation);
 
-    assertThat(omegaContext.globalTxId(), is(globalTxId));
-    assertThat(omegaContext.localTxId(), is(localTxId));
+    filter.invoke(invoker, invocation);
+
+    assertThat(omegaContext.globalTxId(), is(nullValue()));
+    assertThat(omegaContext.localTxId(), is(nullValue()));
   }
 
   @Test
@@ -66,7 +81,7 @@ public class SagaDubboProviderFilterTest {
     when(invocation.getAttachment(OmegaContext.GLOBAL_TX_ID_KEY)).thenReturn(null);
     when(invocation.getAttachment(OmegaContext.LOCAL_TX_ID_KEY)).thenReturn(null);
 
-    filter.invoke(null, invocation);
+    filter.invoke(invoker, invocation);
 
     assertThat(omegaContext.globalTxId(), is(nullValue()));
     assertThat(omegaContext.localTxId(), is(nullValue()));

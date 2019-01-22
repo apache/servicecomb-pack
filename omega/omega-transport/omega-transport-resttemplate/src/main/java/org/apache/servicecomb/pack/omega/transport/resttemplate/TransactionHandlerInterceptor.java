@@ -62,6 +62,9 @@ class TransactionHandlerInterceptor implements HandlerInterceptor {
 
   @Override
   public void postHandle(HttpServletRequest request, HttpServletResponse response, Object o, ModelAndView mv) {
+    if (omegaContext != null) {
+        omegaContext.clear();
+    }
   }
 
   @Override
