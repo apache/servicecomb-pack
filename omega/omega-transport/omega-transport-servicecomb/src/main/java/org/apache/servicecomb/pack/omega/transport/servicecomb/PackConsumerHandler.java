@@ -21,11 +21,10 @@ import static org.apache.servicecomb.pack.omega.context.OmegaContext.GLOBAL_TX_I
 import static org.apache.servicecomb.pack.omega.context.OmegaContext.LOCAL_TX_ID_KEY;
 
 import java.lang.invoke.MethodHandles;
-
 import org.apache.servicecomb.core.Handler;
 import org.apache.servicecomb.core.Invocation;
-import org.apache.servicecomb.foundation.common.utils.BeanUtils;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.apache.servicecomb.pack.omega.context.OmegaContextManager;
 import org.apache.servicecomb.swagger.invocation.AsyncResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,13 +36,7 @@ public class PackConsumerHandler implements Handler {
   private final OmegaContext omegaContext;
 
   public PackConsumerHandler() {
-    OmegaContext context = null;
-    try {
-      context = BeanUtils.getBean("omegaContext");
-    } catch (NullPointerException npe) {
-      LOG.warn("SagaConsumerHandler cannot work rightly, please make sure omegaContext is in the spring application context.");
-    }
-    this.omegaContext = context;
+    this.omegaContext = OmegaContextManager.getContext();
   }
 
   public PackConsumerHandler(OmegaContext omegaContext) {

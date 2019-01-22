@@ -23,6 +23,7 @@ package org.apache.servicecomb.pack.omega.transport.resttemplate;
 import java.lang.invoke.MethodHandles;
 
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.apache.servicecomb.pack.omega.context.OmegaContextManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +40,8 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-
-  @Autowired
-  public WebConfig(@Autowired(required=false) OmegaContext omegaContext) {
-    this.omegaContext = omegaContext;
+  public WebConfig() {
+    this.omegaContext = OmegaContextManager.getContext();
   }
 
   @Override

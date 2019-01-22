@@ -15,21 +15,19 @@ package org.apache.servicecomb.pack.omega.transport.dubbo;/*
  * limitations under the License.
  */
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import org.apache.servicecomb.pack.omega.context.IdGenerator;
-import org.apache.servicecomb.pack.omega.context.OmegaContext;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.alibaba.dubbo.rpc.Invocation;
-
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import com.alibaba.dubbo.rpc.Invocation;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import org.apache.servicecomb.pack.omega.context.IdGenerator;
+import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.junit.Before;
+import org.junit.Test;
 
 public class PackDubboConsumerFilterTest {
 

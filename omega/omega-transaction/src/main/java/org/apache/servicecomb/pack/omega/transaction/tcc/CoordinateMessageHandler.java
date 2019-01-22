@@ -19,7 +19,7 @@ package org.apache.servicecomb.pack.omega.transaction.tcc;
 
 import org.apache.servicecomb.pack.common.TransactionStatus;
 import org.apache.servicecomb.pack.omega.context.CallbackContext;
-import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.apache.servicecomb.pack.omega.context.ParametersContext;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.CoordinatedEvent;
 
 public class CoordinateMessageHandler implements TccMessageHandler {
@@ -28,16 +28,12 @@ public class CoordinateMessageHandler implements TccMessageHandler {
 
   private final CallbackContext callbackContext;
 
-  private final OmegaContext omegaContext;
-
   private final ParametersContext parametersContext;
 
   public CoordinateMessageHandler(TccMessageSender tccMessageSender,
-      CallbackContext callbackContext, OmegaContext omegaContext,
-      ParametersContext parametersContext) {
+      CallbackContext callbackContext, ParametersContext parametersContext) {
     this.tccMessageSender = tccMessageSender;
     this.callbackContext = callbackContext;
-    this.omegaContext = omegaContext;
     this.parametersContext = parametersContext;
   }
 

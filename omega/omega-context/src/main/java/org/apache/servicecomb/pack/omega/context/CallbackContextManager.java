@@ -15,20 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.omega.transport.feign;
+package org.apache.servicecomb.pack.omega.context;
 
-import feign.RequestInterceptor;
-import org.apache.servicecomb.pack.omega.context.OmegaContextManager;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import java.util.HashMap;
+import java.util.Map;
 
-@Configuration
-public class FeignAutoConfiguration {
+public class CallbackContextManager {
 
-    @Bean
-    @ConditionalOnClass(RequestInterceptor.class)
-    public RequestInterceptor feignClientRequestInterceptor(){
-        return new FeignClientRequestInterceptor(OmegaContextManager.getContext());
+  private static final Map<TransactionType, CallbackContext> CALLBACK_CONTEXT_MAP = new HashMap<>();
+
+  static {
+    for (TransactionType each : TransactionType.values()) {
+      CALLBACK_CONTEXT_MAP.put(each, new CallbackContext(OmegaContextManager.getContext()));
     }
+  }
+
+  public static CallbackContext getContext(final TransactionType transactionType) {
+    return CALLBACK_CONTEXT_MAP.get(transactionType);
+  }
 }

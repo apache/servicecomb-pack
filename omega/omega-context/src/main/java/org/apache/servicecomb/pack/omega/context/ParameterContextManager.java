@@ -15,11 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.omega.connector.grpc.core;
+package org.apache.servicecomb.pack.omega.context;
 
-import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
+import java.util.HashMap;
+import java.util.Map;
 
-public interface SenderExecutor<T> {
+public class ParameterContextManager {
 
-  AlphaResponse apply(T event);
+  private static final Map<TransactionType, ParametersContext> PARAMETER_MAP = new HashMap<>();
+
+  static {
+    for (TransactionType each : TransactionType.values()) {
+      PARAMETER_MAP.put(each, new DefaultParametersContext());
+    }
+  }
+
+  public static ParametersContext getContext(final TransactionType transactionType) {
+    return PARAMETER_MAP.get(transactionType);
+  }
 }

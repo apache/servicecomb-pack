@@ -17,158 +17,52 @@
 
 package org.apache.servicecomb.pack.omega.spring;
 
-import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterConfig;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.FastestSender;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
-import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContextBuilder;
-import org.apache.servicecomb.pack.omega.context.TransactionType;
-import org.apache.servicecomb.pack.omega.connector.grpc.saga.SagaLoadBalanceSender;
-import org.apache.servicecomb.pack.omega.connector.grpc.tcc.TccLoadBalanceSender;
-import org.apache.servicecomb.pack.omega.context.CallbackContext;
-import org.apache.servicecomb.pack.omega.context.IdGenerator;
-import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.apache.servicecomb.pack.omega.config.sender.MessageSenderManager;
+import org.apache.servicecomb.pack.omega.context.OmegaContextManager;
+import org.apache.servicecomb.pack.omega.context.ParameterContextManager;
 import org.apache.servicecomb.pack.omega.context.ServiceConfig;
-import org.apache.servicecomb.pack.omega.context.UniqueIdGenerator;
-import org.apache.servicecomb.pack.omega.format.KryoMessageFormat;
-import org.apache.servicecomb.pack.omega.format.MessageFormat;
-import org.apache.servicecomb.pack.omega.properties.AlphaSSLProperties;
-import org.apache.servicecomb.pack.omega.properties.OmegaClientProperties;
+import org.apache.servicecomb.pack.omega.context.TransactionType;
 import org.apache.servicecomb.pack.omega.spring.properties.BootAlphaClusterProperties;
 import org.apache.servicecomb.pack.omega.spring.properties.BootOmegaClientProperties;
-import org.apache.servicecomb.pack.omega.transaction.SagaMessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.SagaMessageSender;
-import org.apache.servicecomb.pack.omega.transaction.tcc.DefaultParametersContext;
-import org.apache.servicecomb.pack.omega.transaction.tcc.ParametersContext;
-import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;
+import org.apache.servicecomb.pack.omega.transaction.TransactionAspect;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageSender;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.apache.servicecomb.pack.omega.transaction.tcc.TccParticipatorAspect;
+import org.apache.servicecomb.pack.omega.transaction.tcc.TccStartAspect;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 @Configuration
 @EnableConfigurationProperties({
     BootAlphaClusterProperties.class, BootOmegaClientProperties.class
 })
+@EnableAspectJAutoProxy
 class OmegaSpringConfig {
 
-  private final BootAlphaClusterProperties alphaClusterProperties;
-
-  private final BootOmegaClientProperties omegaClientProperties;
-
   public OmegaSpringConfig(
-      BootAlphaClusterProperties alphaClusterProperties, BootOmegaClientProperties omegaClientProperties) {
-    this.alphaClusterProperties = alphaClusterProperties;
-    this.omegaClientProperties = omegaClientProperties;
-  }
-
-  @Bean(name = {"omegaUniqueIdGenerator"})
-  IdGenerator<String> idGenerator() {
-    return new UniqueIdGenerator();
+      BootAlphaClusterProperties alphaClusterProperties, BootOmegaClientProperties omegaClientProperties,
+      @Value("${spring.application.name}") String serviceName, @Value("${omega.instance.instanceId:#{null}}") String instanceId) {
+    MessageSenderManager.register(alphaClusterProperties, omegaClientProperties, new ServiceConfig(serviceName, instanceId));
   }
 
   @Bean
-  OmegaContext omegaContext(@Qualifier("omegaUniqueIdGenerator") IdGenerator<String> idGenerator) {
-    return new OmegaContext(idGenerator);
-  }
-
-  @Bean(name = {"compensationContext"})
-  CallbackContext compensationContext(OmegaContext omegaContext) {
-    return new CallbackContext(omegaContext);
-  }
-
-  @Bean(name = {"coordinateContext"})
-  CallbackContext coordinateContext(OmegaContext omegaContext) {
-    return new CallbackContext(omegaContext);
+  TransactionAspect transactionAspect() {
+    return new TransactionAspect((SagaMessageSender) MessageSenderManager.getMessageSender(TransactionType.SAGA),
+        OmegaContextManager.getContext());
   }
 
   @Bean
-  ServiceConfig serviceConfig(@Value("${spring.application.name}") String serviceName, @Value("${omega.instance.instanceId:#{null}}") String instanceId) {
-    return new ServiceConfig(serviceName,instanceId);
+  TccStartAspect tccStartAspect() {
+    return new TccStartAspect((TccMessageSender) MessageSenderManager.getMessageSender(TransactionType.TCC),
+        OmegaContextManager.getContext());
   }
 
   @Bean
-  ParametersContext parametersContext() {
-    return new DefaultParametersContext();
-  }
-
-  @Bean
-  AlphaClusterConfig alphaClusterConfig(BootAlphaClusterProperties alphaClusterProperties,
-      @Lazy SagaMessageHandler handler,
-      @Lazy TccMessageHandler tccMessageHandler) {
-
-    AlphaSSLProperties ssl = alphaClusterProperties.getSsl();
-    MessageFormat messageFormat = new KryoMessageFormat();
-    AlphaClusterConfig clusterConfig = AlphaClusterConfig.builder()
-        .addresses(alphaClusterProperties.getAddress())
-        .enableSSL(ssl.isEnableSSL())
-        .enableMutualAuth(ssl.isMutualAuth())
-        .cert(ssl.getCert())
-        .key(ssl.getKey())
-        .certChain(ssl.getCertChain())
-        .messageDeserializer(messageFormat)
-        .messageSerializer(messageFormat)
-        .messageHandler(handler)
-        .tccMessageHandler(tccMessageHandler)
-        .build();
-    return clusterConfig;
-}
-
-  @Bean(name = "sagaLoadContext")
-  LoadBalanceContext sagaLoadBalanceSenderContext(
-      BootOmegaClientProperties omegaClientProperties,
-      AlphaClusterConfig alphaClusterConfig,
-      ServiceConfig serviceConfig) {
-    LoadBalanceContext loadBalanceSenderContext = new LoadBalanceContextBuilder(
-        TransactionType.SAGA,
-        alphaClusterConfig,
-        serviceConfig,
-        omegaClientProperties.getReconnectDelayMilliSeconds(),
-        omegaClientProperties.getTimeoutSeconds()).build();
-    return loadBalanceSenderContext;
-  }
-
-  @Bean
-  SagaMessageSender sagaLoadBalanceSender(@Qualifier("sagaLoadContext") LoadBalanceContext loadBalanceSenderContext) {
-    final SagaMessageSender sagaMessageSender = new SagaLoadBalanceSender(loadBalanceSenderContext, new FastestSender());
-    sagaMessageSender.onConnected();
-    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-      @Override
-      public void run() {
-        sagaMessageSender.onDisconnected();
-        sagaMessageSender.close();
-      }
-    }));
-    return sagaMessageSender;
-  }
-
-  @Bean(name = "tccLoadContext")
-  LoadBalanceContext loadBalanceSenderContext(
-      AlphaClusterConfig alphaClusterConfig,
-      ServiceConfig serviceConfig,
-      OmegaClientProperties omegaClientProperties) {
-    LoadBalanceContext loadBalanceSenderContext = new LoadBalanceContextBuilder(
-        TransactionType.TCC,
-        alphaClusterConfig,
-        serviceConfig,
-        omegaClientProperties.getReconnectDelayMilliSeconds(),
-        omegaClientProperties.getTimeoutSeconds()).build();
-    return loadBalanceSenderContext;
-  }
-
-  @Bean
-  TccMessageSender tccLoadBalanceSender(@Qualifier("tccLoadContext") LoadBalanceContext loadBalanceSenderContext) {
-    final TccMessageSender tccMessageSender = new TccLoadBalanceSender(loadBalanceSenderContext, new FastestSender());
-    tccMessageSender.onConnected();
-    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-      @Override
-      public void run() {
-        tccMessageSender.onDisconnected();
-        tccMessageSender.close();
-      }
-    }));
-    return tccMessageSender;
+  TccParticipatorAspect tccParticipatorAspect() {
+    return new TccParticipatorAspect((TccMessageSender) MessageSenderManager.getMessageSender(TransactionType.TCC),
+        OmegaContextManager.getContext(), ParameterContextManager.getContext(TransactionType.TCC));
   }
 }

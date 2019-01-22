@@ -20,8 +20,6 @@ package org.apache.servicecomb.pack.omega.connector.grpc.core;
 import io.grpc.ManagedChannel;
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.servicecomb.pack.omega.transaction.MessageSender;
 
 public class LoadBalanceContext {

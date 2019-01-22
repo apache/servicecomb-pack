@@ -19,20 +19,27 @@ package org.apache.servicecomb.pack.omega.transaction.spring;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.servicecomb.pack.omega.context.CallbackContext;
-import org.apache.servicecomb.pack.omega.context.IdGenerator;
-import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.apache.servicecomb.pack.omega.context.CallbackContextManager;
+import org.apache.servicecomb.pack.omega.context.OmegaContextManager;
+import org.apache.servicecomb.pack.omega.context.ParameterContextManager;
+import org.apache.servicecomb.pack.omega.context.TransactionType;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
+import org.apache.servicecomb.pack.omega.transaction.CompensationMessageHandler;
+import org.apache.servicecomb.pack.omega.transaction.SagaMessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.SagaMessageSender;
-import org.apache.servicecomb.pack.omega.transaction.tcc.DefaultParametersContext;
-import org.apache.servicecomb.pack.omega.transaction.tcc.ParametersContext;
+import org.apache.servicecomb.pack.omega.transaction.SagaStartAspect;
+import org.apache.servicecomb.pack.omega.transaction.TransactionAspect;
+import org.apache.servicecomb.pack.omega.transaction.tcc.CoordinateMessageHandler;
+import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageSender;
+import org.apache.servicecomb.pack.omega.transaction.tcc.TccParticipatorAspect;
+import org.apache.servicecomb.pack.omega.transaction.tcc.TccStartAspect;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.CoordinatedEvent;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationEndedEvent;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationStartedEvent;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccEndedEvent;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccStartedEvent;
-import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -40,31 +47,31 @@ import org.springframework.context.annotation.Configuration;
 public class MessageConfig {
   private final List<String> messages = new ArrayList<>();
 
-  @Bean
-  @SuppressWarnings("unchecked")
-  IdGenerator<String> idGenerator() {
-    return Mockito.mock(IdGenerator.class);
-  }
+//  @Bean
+//  @SuppressWarnings("unchecked")
+//  IdGenerator<String> idGenerator() {
+//    return Mockito.mock(IdGenerator.class);
+//  }
 
-  @Bean(name = "compensationContext")
-  CallbackContext recoveryCompensationContext(OmegaContext omegaContext) {
-    return new CallbackContext(omegaContext);
-  }
+//  @Bean
+//  OmegaContext omegaContext(IdGenerator<String> idGenerator) {
+//    return new OmegaContext(idGenerator);
+//  }
 
-  @Bean(name = "coordinateContext")
-  CallbackContext coordinateContext(OmegaContext omegaContext) {
-    return new CallbackContext(omegaContext);
-  }
+//  @Bean(name = "compensationContext")
+//  CallbackContext recoveryCompensationContext(OmegaContext omegaContext) {
+//    return new CallbackContext(omegaContext);
+//  }
 
-  @Bean
-  ParametersContext parametersContext() {
-    return new DefaultParametersContext();
-  }
-
-  @Bean
-  OmegaContext omegaContext(IdGenerator<String> idGenerator) {
-    return new OmegaContext(idGenerator);
-  }
+//  @Bean(name = "coordinateContext")
+//  CallbackContext coordinateContext(OmegaContext omegaContext) {
+//    return new CallbackContext(omegaContext);
+//  }
+//
+//  @Bean
+//  ParametersContext parametersContext() {
+//    return new DefaultParametersContext();
+//  }
 
   @Bean
   List<String> messages() {
@@ -102,7 +109,7 @@ public class MessageConfig {
     };
   }
 
-  @Bean
+  @Bean(name = "tccSender")
   TccMessageSender TccMessageSender() {
     return new TccMessageSender() {
       @Override
@@ -158,5 +165,38 @@ public class MessageConfig {
         return new AlphaResponse(false);
       }
     };
+  }
+
+  @Bean(name = "sagaHandler")
+  SagaMessageHandler messageHandler(
+      @Qualifier("sagaSender") SagaMessageSender sender) {
+    return new CompensationMessageHandler(sender, CallbackContextManager.getContext(TransactionType.SAGA));
+  }
+
+  @Bean(name = "tccHandler")
+  TccMessageHandler coordinateMessageHandler(
+      @Qualifier("tccSender") TccMessageSender tccMessageSender) {
+    return new CoordinateMessageHandler(tccMessageSender, CallbackContextManager.getContext(TransactionType.TCC),
+        ParameterContextManager.getContext(TransactionType.TCC));
+  }
+
+  @Bean
+  SagaStartAspect sagaStartAspect(@Qualifier("sagaSender") SagaMessageSender sagaSender) {
+    return new SagaStartAspect(sagaSender, OmegaContextManager.getContext());
+  }
+
+  @Bean
+  TransactionAspect transactionAspect(@Qualifier("sagaSender") SagaMessageSender sagaSender) {
+    return new TransactionAspect(sagaSender, OmegaContextManager.getContext());
+  }
+
+  @Bean
+  TccStartAspect tccStartAspect(@Qualifier("tccSender") TccMessageSender tccSender) {
+    return new TccStartAspect(tccSender, OmegaContextManager.getContext());
+  }
+
+  @Bean
+  TccParticipatorAspect tccParticipatorAspect(@Qualifier("tccSender") TccMessageSender tccSender) {
+    return new TccParticipatorAspect(tccSender, OmegaContextManager.getContext(), ParameterContextManager.getContext(TransactionType.TCC));
   }
 }

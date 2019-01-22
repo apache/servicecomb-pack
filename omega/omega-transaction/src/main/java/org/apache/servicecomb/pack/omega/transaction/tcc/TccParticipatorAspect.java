@@ -21,6 +21,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import org.apache.servicecomb.pack.common.TransactionStatus;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.apache.servicecomb.pack.omega.context.ParametersContext;
 import org.apache.servicecomb.pack.omega.transaction.annotations.Participate;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationEndedEvent;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationStartedEvent;
@@ -66,7 +67,7 @@ public class TccParticipatorAspect {
       tccMessageSender.participationEnd(new ParticipationEndedEvent(context.globalTxId(), context.localTxId(), localTxId,
           confirmMethod, cancelMethod, TransactionStatus.Succeed));
       // Just store the parameters into the context
-      parametersContext.putParamters(context.localTxId(), joinPoint.getArgs());
+      parametersContext.putParameters(context.localTxId(), joinPoint.getArgs());
       LOG.debug("Participate Transaction with context {} has finished.", context);
       return result;
     } catch (Throwable throwable) {

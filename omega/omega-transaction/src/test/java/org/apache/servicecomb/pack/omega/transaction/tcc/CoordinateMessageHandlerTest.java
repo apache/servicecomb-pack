@@ -27,8 +27,13 @@ import java.util.List;
 import org.apache.servicecomb.pack.common.TransactionStatus;
 import org.apache.servicecomb.pack.omega.context.CallbackContext;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.apache.servicecomb.pack.omega.context.ParametersContext;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
-import org.apache.servicecomb.pack.omega.transaction.tcc.events.*;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.CoordinatedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationEndedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationStartedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccEndedEvent;
+import org.apache.servicecomb.pack.omega.transaction.tcc.events.TccStartedEvent;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -97,7 +102,7 @@ public class CoordinateMessageHandlerTest {
   private final CallbackContext callbackContext = Mockito.mock(CallbackContext.class);
   private final OmegaContext omegaContext = Mockito.mock(OmegaContext.class);
   private final ParametersContext parametersContext = Mockito.mock(ParametersContext.class);
-  private final CoordinateMessageHandler handler = new CoordinateMessageHandler(tccMessageSender, callbackContext, omegaContext, parametersContext);
+  private final CoordinateMessageHandler handler = new CoordinateMessageHandler(tccMessageSender, callbackContext, parametersContext);
 
   @Before
   public void setUp() {

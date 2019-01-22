@@ -15,10 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.omega.transaction.tcc;
+package org.apache.servicecomb.pack.omega.context;
 
-public interface ParametersContext {
-  Object[] getParameters(String localTransactionId);
-  void putParamters(String localTransactionId, Object ... paramters);
-  void removeParameter(String localTransactionId);
+import java.util.HashMap;
+import java.util.Map;
+
+public class DefaultParametersContext implements ParametersContext {
+
+  private Map<String, Object[]> branchParameterMap = new HashMap<>();
+
+  @Override
+  public Object[] getParameters(String localTransactionId) {
+    return branchParameterMap.get(localTransactionId);
+  }
+
+  @Override
+  public void putParameters(String localTransactionId, Object ... parameters) {
+    branchParameterMap.put(localTransactionId, parameters);
+  }
+
+  @Override
+  public void removeParameter(String localTransactionId) {
+    branchParameterMap.remove(localTransactionId);
+  }
 }

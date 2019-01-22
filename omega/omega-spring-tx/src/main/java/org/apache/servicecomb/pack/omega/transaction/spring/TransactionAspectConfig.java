@@ -17,20 +17,9 @@
 
 package org.apache.servicecomb.pack.omega.transaction.spring;
 
-import org.apache.servicecomb.pack.omega.context.CallbackContext;
-import org.apache.servicecomb.pack.omega.context.OmegaContext;
-import org.apache.servicecomb.pack.omega.transaction.CompensationMessageHandler;
-import org.apache.servicecomb.pack.omega.transaction.SagaMessageHandler;
-import org.apache.servicecomb.pack.omega.transaction.SagaMessageSender;
-import org.apache.servicecomb.pack.omega.transaction.SagaStartAspect;
-import org.apache.servicecomb.pack.omega.transaction.TransactionAspect;
-import org.apache.servicecomb.pack.omega.transaction.tcc.CoordinateMessageHandler;
-import org.apache.servicecomb.pack.omega.transaction.tcc.ParametersContext;
-import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;
-import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageSender;
-import org.apache.servicecomb.pack.omega.transaction.tcc.TccParticipatorAspect;
-import org.apache.servicecomb.pack.omega.transaction.tcc.TccStartAspect;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.apache.servicecomb.pack.omega.context.CallbackContextManager;
+import org.apache.servicecomb.pack.omega.context.OmegaContextManager;
+import org.apache.servicecomb.pack.omega.context.TransactionType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -39,52 +28,32 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @EnableAspectJAutoProxy
 public class TransactionAspectConfig {
 
-  @Bean
-  SagaMessageHandler messageHandler(SagaMessageSender sender,
-      @Qualifier("compensationContext") CallbackContext context, OmegaContext omegaContext) {
-    return new CompensationMessageHandler(sender, context);
-  }
+//  @Bean
+//  SagaMessageHandler messageHandler(SagaMessageSender sender,
+//      @Qualifier("compensationContext") CallbackContext context, OmegaContext omegaContext) {
+//    return new CompensationMessageHandler(sender, context);
+//  }
+
+//  @Bean
+//  SagaStartAspect sagaStartAspect() {
+//    return new SagaStartAspect(, context);
+//  }
+
+//  @Bean
+//  TransactionAspect transactionAspect(SagaMessageSender sender, OmegaContext context) {
+//    return new TransactionAspect(sender, context);
+//  }
 
   @Bean
-  SagaStartAspect sagaStartAspect(SagaMessageSender sender, OmegaContext context) {
-    return new SagaStartAspect(sender, context);
+  CompensableAnnotationProcessor compensableAnnotationProcessor() {
+    return new CompensableAnnotationProcessor(OmegaContextManager.getContext(),
+        CallbackContextManager.getContext(TransactionType.SAGA));
   }
 
-  @Bean
-  TransactionAspect transactionAspect(SagaMessageSender sender, OmegaContext context) {
-    return new TransactionAspect(sender, context);
-  }
 
   @Bean
-  CompensableAnnotationProcessor compensableAnnotationProcessor(OmegaContext omegaContext,
-      @Qualifier("compensationContext") CallbackContext compensationContext) {
-    return new CompensableAnnotationProcessor(omegaContext, compensationContext);
-  }
-
-  @Bean
-  TccMessageHandler coordinateMessageHandler(
-      TccMessageSender tccMessageSender,
-      @Qualifier("coordinateContext") CallbackContext coordinateContext,
-      OmegaContext omegaContext,
-      ParametersContext parametersContext) {
-    return new CoordinateMessageHandler(tccMessageSender, coordinateContext, omegaContext, parametersContext);
-  }
-
-  @Bean
-  TccStartAspect tccStartAspect(TccMessageSender tccMessageSender, OmegaContext context) {
-    return new TccStartAspect(tccMessageSender, context);
-  }
-
-  @Bean
-  TccParticipatorAspect tccParticipatorAspect(
-      TccMessageSender tccMessageSender,
-      OmegaContext context, ParametersContext parametersContext) {
-    return new TccParticipatorAspect(tccMessageSender, context, parametersContext);
-  }
-
-  @Bean
-  ParticipateAnnotationProcessor participateAnnotationProcessor(OmegaContext omegaContext,
-      @Qualifier("coordinateContext") CallbackContext coordinateContext) {
-    return new ParticipateAnnotationProcessor(omegaContext, coordinateContext);
+  ParticipateAnnotationProcessor participateAnnotationProcessor() {
+    return new ParticipateAnnotationProcessor(OmegaContextManager.getContext(),
+        CallbackContextManager.getContext(TransactionType.TCC));
   }
 }

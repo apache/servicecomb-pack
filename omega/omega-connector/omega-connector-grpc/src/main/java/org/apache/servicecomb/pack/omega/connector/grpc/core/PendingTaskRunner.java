@@ -21,7 +21,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class PendingTaskRunner {
@@ -32,7 +31,7 @@ public class PendingTaskRunner {
 
   private final long reconnectDelay;
 
-  public PendingTaskRunner(BlockingQueue<Runnable> pendingTasks, long reconnectDelay) {
+  PendingTaskRunner(BlockingQueue<Runnable> pendingTasks, long reconnectDelay) {
     this.pendingTasks = pendingTasks;
     this.reconnectDelay = reconnectDelay;
   }
@@ -50,11 +49,8 @@ public class PendingTaskRunner {
     }, 0, reconnectDelay, MILLISECONDS);
   }
 
-  public void shutdown() {
+  void shutdown() {
     scheduler.shutdown();
   }
 
-  public long getReconnectDelay() {
-    return reconnectDelay;
-  }
 }

@@ -15,26 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.omega.transaction.tcc;
+package org.apache.servicecomb.pack.omega.context;
 
-import java.util.HashMap;
-import java.util.Map;
+public class OmegaContextManager {
 
-public class DefaultParametersContext implements ParametersContext {
-  private Map<String, Object[]> parameters = new HashMap<>();
+  private static final OmegaContext CONTEXT = new OmegaContext(new UniqueIdGenerator());
 
-  @Override
-  public Object[] getParameters(String localTransactionId) {
-    return parameters.get(localTransactionId);
-  }
-
-  @Override
-  public void putParamters(String localTransactionId, Object ... paramters) {
-    parameters.put(localTransactionId, paramters);
-  }
-
-  @Override
-  public void removeParameter(String localTransactionId) {
-    parameters.remove(localTransactionId);
+  public static OmegaContext getContext() {
+    return CONTEXT;
   }
 }

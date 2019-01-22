@@ -24,12 +24,17 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.UUID;
 import org.apache.servicecomb.pack.common.TransactionStatus;
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
+import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.apache.servicecomb.pack.omega.context.OmegaContextManager;
+import org.apache.servicecomb.pack.omega.context.TransactionType;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.*;
 import org.junit.After;
@@ -38,6 +43,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -57,8 +63,7 @@ public class TccInterceptorTest {
   private final String usernameJack = uniquify("Jack");
   private final User jack = new User(usernameJack, uniquify("jack@gmail.com"));
 
-  @Autowired
-  private IdGenerator<String> idGenerator;
+  private IdGenerator idGenerator;
 
   @Autowired
   private List<String> messages;
@@ -74,23 +79,33 @@ public class TccInterceptorTest {
   private String cancelMethod;
 
   @Autowired
+  @Qualifier("tccHandler")
   private TccMessageHandler coordinateMessageHandler;
 
   @Before
   public void setUp() throws Exception {
+    idGenerator = mock(IdGenerator.class);
     when(idGenerator.nextId()).thenReturn(globalTxId, newLocalTxId, anotherLocalTxId);
+    setMockIdeGenerator();
     confirmMethod = TccUserService.class.getDeclaredMethod("confirm", User.class).toString();
     cancelMethod = TccUserService.class.getDeclaredMethod("cancel", User.class).toString();
   }
 
+  private void setMockIdeGenerator() throws Exception {
+    OmegaContext omegaContext = OmegaContextManager.getContext();
+    Field field = omegaContext.getClass().getDeclaredField("idGenerator");
+    field.setAccessible(true);
+    field.set(omegaContext, idGenerator);
+  }
+
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     messages.clear();
     userRepository.deleteAll();
   }
 
   @AfterClass
-  public static void afterClass() throws Exception {
+  public static void afterClass() {
   }
 
   @Test

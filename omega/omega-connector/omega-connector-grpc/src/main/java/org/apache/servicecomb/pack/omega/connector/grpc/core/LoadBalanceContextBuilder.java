@@ -67,7 +67,6 @@ public class LoadBalanceContextBuilder {
     if (clusterConfig.getAddresses().isEmpty()) {
       throw new IllegalArgumentException("No reachable cluster address provided");
     }
-
     Optional<SslContext> sslContext = buildSslContext(clusterConfig);
     Map<MessageSender, Long> senders = new ConcurrentHashMap<>();
     Collection<ManagedChannel> channels = new ArrayList<>(clusterConfig.getAddresses().size());

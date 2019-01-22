@@ -31,6 +31,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import akka.actor.AbstractLoggingActor;
@@ -42,6 +43,7 @@ import akka.japi.pf.FI.UnitApply;
 import io.reactivex.Flowable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -49,6 +51,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.apache.servicecomb.pack.omega.context.OmegaContextManager;
+import org.apache.servicecomb.pack.omega.context.TransactionType;
 import org.apache.servicecomb.pack.omega.transaction.spring.annotations.OmegaContextAware;
 import org.apache.servicecomb.pack.omega.transaction.SagaMessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.TxAbortedEvent;
@@ -61,6 +65,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -85,8 +90,7 @@ public class TransactionInterceptionTest {
   @OmegaContextAware
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-  @Autowired
-  private IdGenerator<String> idGenerator;
+  private IdGenerator idGenerator;
 
   @Autowired
   private List<String> messages;
@@ -94,8 +98,7 @@ public class TransactionInterceptionTest {
   @Autowired
   private TransactionalUserService userService;
 
-  @Autowired
-  private OmegaContext omegaContext;
+  private OmegaContext omegaContext = OmegaContextManager.getContext();
 
   @Autowired
   private UserRepository userRepository;
@@ -111,12 +114,21 @@ public class TransactionInterceptionTest {
 
   @Before
   public void setUp() throws Exception {
+    idGenerator = mock(IdGenerator.class);
     when(idGenerator.nextId()).thenReturn(newLocalTxId, anotherLocalTxId);
+    setMockIdeGenerator();
     omegaContext.setGlobalTxId(globalTxId);
     omegaContext.setLocalTxId(globalTxId);
     retryMethod = TransactionalUserService.class.getDeclaredMethod("add", User.class, int.class).toString();
     compensationMethod = TransactionalUserService.class.getDeclaredMethod("delete", User.class).toString();
     compensationMethod2 = TransactionalUserService.class.getDeclaredMethod("delete", User.class, int.class).toString();
+  }
+
+  private void setMockIdeGenerator() throws Exception {
+    OmegaContext omegaContext = OmegaContextManager.getContext();
+    Field field = omegaContext.getClass().getDeclaredField("idGenerator");
+    field.setAccessible(true);
+    field.set(omegaContext, idGenerator);
   }
 
   @After

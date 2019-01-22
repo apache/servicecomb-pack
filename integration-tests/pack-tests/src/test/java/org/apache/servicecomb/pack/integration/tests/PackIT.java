@@ -21,7 +21,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -29,9 +28,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 import java.util.List;
 import java.util.Queue;
-
 import org.apache.servicecomb.pack.alpha.core.TxEvent;
-import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Test;
@@ -51,9 +48,6 @@ public class PackIT {
 
   @Autowired
   private TestRestTemplate restTemplate;
-
-  @Autowired
-  private OmegaContext omegaContext;
 
   @Autowired
   private TxEventEnvelopeRepository eventRepo;

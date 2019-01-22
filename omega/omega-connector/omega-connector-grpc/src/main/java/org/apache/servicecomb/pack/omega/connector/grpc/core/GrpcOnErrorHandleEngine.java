@@ -36,7 +36,7 @@ public class GrpcOnErrorHandleEngine implements AutoCloseable {
 
   private final BlockingQueue<MessageSender> reconnectedSenders = new LinkedBlockingQueue<>();
 
-  public GrpcOnErrorHandleEngine(Map<MessageSender, Long> senders, long reconnectDelay, long timeoutSeconds) {
+  GrpcOnErrorHandleEngine(Map<MessageSender, Long> senders, long reconnectDelay, long timeoutSeconds) {
     this.pendingTaskRunner = new PendingTaskRunner(pendingTasks, reconnectDelay);
     this.senders = senders;
     this.timeoutSeconds = timeoutSeconds;
@@ -60,7 +60,7 @@ public class GrpcOnErrorHandleEngine implements AutoCloseable {
     }
   }
 
-  public MessageSender getReconnectedSender() {
+  MessageSender getReconnectedSender() {
     try {
       MessageSender messageSender = reconnectedSenders.poll(timeoutSeconds, TimeUnit.SECONDS);
       if (null == messageSender) {

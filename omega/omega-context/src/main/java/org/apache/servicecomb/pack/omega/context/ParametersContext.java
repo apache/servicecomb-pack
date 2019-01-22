@@ -15,20 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.omega.transport.feign;
+package org.apache.servicecomb.pack.omega.context;
 
-import feign.RequestInterceptor;
-import org.apache.servicecomb.pack.omega.context.OmegaContextManager;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+public interface ParametersContext {
 
-@Configuration
-public class FeignAutoConfiguration {
+  Object[] getParameters(String localTransactionId);
 
-    @Bean
-    @ConditionalOnClass(RequestInterceptor.class)
-    public RequestInterceptor feignClientRequestInterceptor(){
-        return new FeignClientRequestInterceptor(OmegaContextManager.getContext());
-    }
+  void putParameters(String localTransactionId, Object ... parameters);
+
+  void removeParameter(String localTransactionId);
 }
