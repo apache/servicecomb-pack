@@ -63,10 +63,16 @@ public class SagaDubboProviderFilter implements Filter {
     } else {
       LOG.debug("Cannot inject transaction ID, as the OmegaContext is null.");
     }
-
-    if (invoker != null) {
-      return invoker.invoke(invocation);
+    try {
+      if (invoker != null) {
+        return invoker.invoke(invocation);
+      } else {
+        return null;
+      }
+    } finally {
+      if (omegaContext != null) {
+        omegaContext.clear();
+      }
     }
-    return null;
   }
 }
