@@ -82,7 +82,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class AlphaIntegrationTest {
   private static final int port = 8090;
 
-  private static ManagedChannel clientChannel;
+  protected static ManagedChannel clientChannel;
 
   private final TxEventServiceStub asyncStub = TxEventServiceGrpc.newStub(clientChannel);
   private final TxEventServiceBlockingStub blockingStub = TxEventServiceGrpc.newBlockingStub(clientChannel);

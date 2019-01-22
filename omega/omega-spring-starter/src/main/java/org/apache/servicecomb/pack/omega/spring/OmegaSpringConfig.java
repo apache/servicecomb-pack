@@ -25,6 +25,7 @@ import org.apache.servicecomb.pack.omega.context.TransactionType;
 import org.apache.servicecomb.pack.omega.spring.properties.BootAlphaClusterProperties;
 import org.apache.servicecomb.pack.omega.spring.properties.BootOmegaClientProperties;
 import org.apache.servicecomb.pack.omega.transaction.SagaMessageSender;
+import org.apache.servicecomb.pack.omega.transaction.SagaStartAspect;
 import org.apache.servicecomb.pack.omega.transaction.TransactionAspect;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageSender;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccParticipatorAspect;
@@ -46,6 +47,12 @@ class OmegaSpringConfig {
       BootAlphaClusterProperties alphaClusterProperties, BootOmegaClientProperties omegaClientProperties,
       @Value("${spring.application.name}") String serviceName, @Value("${omega.instance.instanceId:#{null}}") String instanceId) {
     MessageSenderManager.register(alphaClusterProperties, omegaClientProperties, new ServiceConfig(serviceName, instanceId));
+  }
+
+  @Bean
+  SagaStartAspect sagaStartAspect() {
+    return new SagaStartAspect((SagaMessageSender) MessageSenderManager.getMessageSender(TransactionType.SAGA),
+        OmegaContextManager.getContext());
   }
 
   @Bean
