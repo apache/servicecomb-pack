@@ -69,10 +69,12 @@ spring:
 
 ---
 spring:
-  profiles: spring-cloud-eureka
-spring.main.allow-bean-definition-overriding: true
+  profiles: spring-cloud
+  main:
+    allow-bean-definition-overriding: true
 eureka:
   client:
+    enabled: true
     service-url:
       defaultZone: http://127.0.0.1:8761/eureka
   instance:
