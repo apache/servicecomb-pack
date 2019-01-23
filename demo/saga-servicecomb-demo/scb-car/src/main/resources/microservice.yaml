@@ -39,8 +39,8 @@ servicecomb:
   rest:
     address: 0.0.0.0:8082
 
-  #Add Saga Handler
+  #Add Pack Handler
   handler:
     chain:
       Provider:
-        default: saga-provider
+        default: pack-provider

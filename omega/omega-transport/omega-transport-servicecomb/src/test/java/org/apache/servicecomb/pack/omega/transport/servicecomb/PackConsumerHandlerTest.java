@@ -1,4 +1,4 @@
-package org.apache.servicecomb.pack.omega.transport.dubbo;/*
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,27 +15,32 @@ package org.apache.servicecomb.pack.omega.transport.dubbo;/*
  * limitations under the License.
  */
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import org.apache.servicecomb.pack.omega.context.IdGenerator;
-import org.apache.servicecomb.pack.omega.context.OmegaContext;
-import org.apache.servicecomb.pack.omega.transport.dubbo.SagaDubboConsumerFilter;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.alibaba.dubbo.rpc.Invocation;
+package org.apache.servicecomb.pack.omega.transport.servicecomb;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class SagaDubboConsumerFilterTest {
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import org.apache.servicecomb.core.Invocation;
+import org.apache.servicecomb.pack.omega.context.IdGenerator;
+import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.apache.servicecomb.swagger.invocation.AsyncResponse;
+import org.junit.Before;
+import org.junit.Test;
+
+public class PackConsumerHandlerTest {
 
   private static final String globalTxId = UUID.randomUUID().toString();
+
   private static final String localTxId = UUID.randomUUID().toString();
+
+  @SuppressWarnings("unchecked")
+  private final IdGenerator<String> idGenerator = mock(IdGenerator.class);
 
   private final OmegaContext omegaContext = new OmegaContext(new IdGenerator<String>() {
 
@@ -44,36 +49,39 @@ public class SagaDubboConsumerFilterTest {
       return "ignored";
     }
   });
+
   private final Invocation invocation = mock(Invocation.class);
-  private final SagaDubboConsumerFilter filter = new SagaDubboConsumerFilter();
+
+  private final AsyncResponse asyncResponse = mock(AsyncResponse.class);
+
+  private final PackConsumerHandler handler = new PackConsumerHandler(omegaContext);
 
   @Before
   public void setUp() {
-    omegaContext.clear();
-    filter.setOmegaContext(omegaContext);
+    when(idGenerator.nextId()).thenReturn(globalTxId, localTxId);
   }
 
   @Test
-  public void keepHeaderUnchangedIfContextAbsent() {
-    when(invocation.getAttachment(OmegaContext.GLOBAL_TX_ID_KEY)).thenReturn(null);
-    when(invocation.getAttachment(OmegaContext.LOCAL_TX_ID_KEY)).thenReturn(null);
+  public void keepHeaderUnchangedIfContextAbsent() throws Exception {
+    Map<String, String> context = new HashMap<>();
+    when(invocation.getContext()).thenReturn(context);
 
-    filter.invoke(null, invocation);
+    handler.handle(invocation, asyncResponse);
 
-    assertThat(invocation.getAttachments().isEmpty(), is(true));
+    assertThat(invocation.getContext().isEmpty(), is(true));
   }
 
   @Test
-  public void interceptTransactionIdInHeaderIfContextPresent() {
+  public void interceptTransactionIdInHeaderIfContextPresent() throws Exception {
     omegaContext.setGlobalTxId(globalTxId);
     omegaContext.setLocalTxId(localTxId);
 
-    Map<String, String> attachMents = new HashMap<>();
-    when(invocation.getAttachments()).thenReturn(attachMents);
+    Map<String, String> context = new HashMap<>();
+    when(invocation.getContext()).thenReturn(context);
 
-    filter.invoke(null, invocation);
+    handler.handle(invocation, asyncResponse);
 
-    assertThat(invocation.getAttachments().get(OmegaContext.GLOBAL_TX_ID_KEY), is(globalTxId));
-    assertThat(invocation.getAttachments().get(OmegaContext.LOCAL_TX_ID_KEY), is(localTxId));
+    assertThat(invocation.getContext().get(OmegaContext.GLOBAL_TX_ID_KEY), is(globalTxId));
+    assertThat(invocation.getContext().get(OmegaContext.LOCAL_TX_ID_KEY), is(localTxId));
   }
 }
