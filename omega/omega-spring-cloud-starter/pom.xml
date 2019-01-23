@@ -39,14 +39,6 @@
       <artifactId>omega-format</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.grpc</groupId>
-      <artifactId>grpc-netty</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.grpc</groupId>
-      <artifactId>grpc-stub</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.servicecomb.pack</groupId>
       <artifactId>omega-connector-grpc</artifactId>
     </dependency>
