@@ -17,35 +17,9 @@
 
 /**
  * Get the access address of Alpah Server from Eureka Server
- * Turn this feautre on by set alpha.cluster.register.type=spring-cloud-eureka
+ * Turn this feautre on by set alpha.cluster.register.type=spring-cloud
  * First omega gets the Alpha address from Eureka with ${alpha.cluster.serviceId}
  * If omega can't get it in Eureka then use ${alpha.cluster.address}
- *
- *
- * 1. Add dependencies
- * ${spring.cloud.version} version I tested
- * spring boot 1.x use 1.4.6.RELEASE
- * spring boot 2.x use 2.0.2.RELEASE
- * <dependency>
- *   <groupId>org.springframework.cloud</groupId>
- *   <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
- *   <version>${spring.cloud.version}</version>
- * </dependency>
- *
- * 2. Add eureka client configuration to the application.yml
- * eureka:
- *   client:
- *     service-url:
- *       defaultZone: http://127.0.0.1:8761/eureka
- *
- * 3. Add Alpha configuration to the application.yml
- * alpha:
- *   cluster:
- *     address: localhost:8080
- *     serviceId: servicecomb-alpha-server
- *     register:
- *       type: spring-cloud-eureka
- *
  */
 package org.apache.servicecomb.pack.omega.spring.cloud;
 
@@ -86,7 +60,7 @@ class OmegaSpringEurekaConfig {
     public EurekaClientConfig eurekaClientConfig;
 
     @Bean(name = {"alphaClusterEurekaConfig"})
-    @ConditionalOnProperty(name = "alpha.cluster.register.type", havingValue = "spring-cloud-eureka")
+    @ConditionalOnProperty(name = "alpha.cluster.register.type", havingValue = "spring-cloud")
     AlphaClusterConfig alphaClusterEurekaConfig(
             @Value("${alpha.cluster.address:#{null}}") String[] addresses,
             @Value("${alpha.cluster.serviceId:servicecomb-alpha-server}") String serviceId,
@@ -135,11 +109,19 @@ class OmegaSpringEurekaConfig {
     private String[] getAlphaAddress(String serviceId) {
         List<String> alphaAddresses = new ArrayList<>();
         List<ServiceInstance> serviceInstances = discoveryClient.getInstances(serviceId);
+        boolean foundAlphaServer = Boolean.FALSE;
         for (ServiceInstance serviceInstance : serviceInstances) {
-            String alphaAddress = serviceInstance.getMetadata().get(serviceId);
-            alphaAddresses.add(alphaAddress);
+            foundAlphaServer = Boolean.TRUE;
+            if (serviceInstance.getMetadata().containsKey(serviceId)) {
+                String alphaAddress = serviceInstance.getMetadata().get(serviceId);
+                alphaAddresses.add(alphaAddress);
+            }
         }
-        if (alphaAddresses.size() == 0) {
+        if (foundAlphaServer) {
+            if (alphaAddresses.size() == 0) {
+                LOG.warn("Alpha has been found in Eureka, but Alpha's registered address information is not found in metadata. Please check Alpha is configured spring.profiles.active=spring-cloud");
+            }
+        } else {
             LOG.warn("No Alpha Server {} found in the Eureka", serviceId);
         }
         return alphaAddresses.toArray(new String[alphaAddresses.size()]);
