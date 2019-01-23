@@ -19,7 +19,7 @@ spring:
     name: omega-spring-starter-test
 alpha:
   cluster:
-    address: [test-01:8080, test-02:8080]
+    address: test-01:8080, test-02:8080
     ssl:
       enableSSL: false
       mutualAuth: false
