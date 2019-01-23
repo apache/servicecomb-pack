@@ -52,10 +52,10 @@
     <dubbo.version>2.6.4</dubbo.version>
     <spring.boot1.version>1.5.17.RELEASE</spring.boot1.version>
     <spring.boot2.version>2.1.1.RELEASE</spring.boot2.version>
-    <spring.boot.version>${spring.boot2.version}</spring.boot.version>
+    <spring.boot.version>${spring.boot1.version}</spring.boot.version>
     <spring.cloud1.version>1.4.6.RELEASE</spring.cloud1.version>
     <spring.cloud2.version>2.0.2.RELEASE</spring.cloud2.version>
-    <spring.cloud.version>${spring.cloud2.version}</spring.cloud.version>
+    <spring.cloud.version>${spring.cloud1.version}</spring.cloud.version>
     <java.chassis.version>1.0.0</java.chassis.version>
     <akka.version>2.5.14</akka.version>
     <rat.version>0.12</rat.version>

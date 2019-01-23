@@ -26,6 +26,8 @@ alpha:
 spring:
   datasource:
     initialization-mode: always
+  main:
+    allow-bean-definition-overriding: true
 
 ---
 spring:
@@ -70,8 +72,6 @@ spring:
 ---
 spring:
   profiles: spring-cloud
-  main:
-    allow-bean-definition-overriding: true
 eureka:
   client:
     enabled: true
