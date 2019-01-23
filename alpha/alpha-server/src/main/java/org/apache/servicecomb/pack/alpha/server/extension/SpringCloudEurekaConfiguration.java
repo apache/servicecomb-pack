@@ -16,11 +16,7 @@
  */
 
 /**
- * registering to Spring Cloud Eureka
- *
- * spring.profiles.active: spring-cloud-eureka
- *
- * @author coolbeevip@gmail.com
+ * Activate @EnableEurekaClient with the properties spring.profiles.active: spring-cloud-eurek
  */
 
 package org.apache.servicecomb.pack.alpha.server.extension;
