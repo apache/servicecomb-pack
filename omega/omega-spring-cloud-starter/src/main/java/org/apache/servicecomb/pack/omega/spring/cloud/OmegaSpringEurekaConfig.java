@@ -17,19 +17,15 @@
 
 /**
  * Get the access address of Alpah Server from Eureka Server
- * Turn this feautre on by set alpha.cluster.register.type=spring-cloud
+ * Turn this feautre on by set alpha.cluster.register.type=spring-cloud-eureka
  * First omega gets the Alpha address from Eureka with ${alpha.cluster.serviceId}
  * If omega can't get it in Eureka then use ${alpha.cluster.address}
  */
+
 package org.apache.servicecomb.pack.omega.spring.cloud;
 
-import com.google.common.collect.ImmutableList;
 import com.netflix.discovery.EurekaClientConfig;
-import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterConfig;
-import org.apache.servicecomb.pack.omega.format.KryoMessageFormat;
-import org.apache.servicecomb.pack.omega.format.MessageFormat;
-import org.apache.servicecomb.pack.omega.transaction.MessageHandler;
-import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;
+import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterDiscovery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,13 +37,12 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
-@ConditionalOnProperty(value = {"eureka.client.enabled"}, matchIfMissing = true)
+@ConditionalOnProperty(value = {"alpha.cluster.register.type"}, havingValue = "spring-cloud")
 @AutoConfigureAfter(value = {EurekaDiscoveryClientConfiguration.class})
 class OmegaSpringEurekaConfig {
 
@@ -59,51 +54,31 @@ class OmegaSpringEurekaConfig {
     @Autowired
     public EurekaClientConfig eurekaClientConfig;
 
-    @Bean(name = {"alphaClusterEurekaConfig"})
-    @ConditionalOnProperty(name = "alpha.cluster.register.type", havingValue = "spring-cloud")
-    AlphaClusterConfig alphaClusterEurekaConfig(
-            @Value("${alpha.cluster.address:#{null}}") String[] addresses,
+    @Bean
+    AlphaClusterDiscovery alphaClusterAddress(
             @Value("${alpha.cluster.serviceId:servicecomb-alpha-server}") String serviceId,
-            @Value("${alpha.cluster.ssl.enable:false}") boolean enableSSL,
-            @Value("${alpha.cluster.ssl.mutualAuth:false}") boolean mutualAuth,
-            @Value("${alpha.cluster.ssl.cert:client.crt}") String cert,
-            @Value("${alpha.cluster.ssl.key:client.pem}") String key,
-            @Value("${alpha.cluster.ssl.certChain:ca.crt}") String certChain,
-            @Lazy MessageHandler handler,
-            @Lazy TccMessageHandler tccMessageHandler) {
-
-        List<String> eurekaServiceUrls = new ArrayList<>();
+            @Value("${alpha.cluster.address:localhost:8080}") String[] addresses) {
+        StringBuffer eurekaServiceUrls = new StringBuffer();
         String[] zones = eurekaClientConfig.getAvailabilityZones(eurekaClientConfig.getRegion());
         for (String zone : zones) {
-            eurekaServiceUrls.addAll(eurekaClientConfig.getEurekaServerServiceUrls(zone));
+            eurekaServiceUrls.append(String.format(" [%s]:%s,", zone, eurekaClientConfig.getEurekaServerServiceUrls(zone)));
         }
-        LOG.info("alpha cluster eureka config enabled, eureka server {}", String.join(",", eurekaServiceUrls));
+        LOG.info("Eureka address{}", eurekaServiceUrls.toString());
         String[] alphaAddresses = this.getAlphaAddress(serviceId);
         if (alphaAddresses.length > 0) {
-            if (addresses != null && addresses.length > 0) {
-                LOG.warn("get alpha cluster address {} from eureka server, ignore alpha.cluster.address={}", String.join(",", alphaAddresses), String.join(",", addresses));
-            } else {
-                LOG.warn("get alpha cluster address {} from eureka server, ", String.join(",", alphaAddresses));
-            }
-            addresses = alphaAddresses;
+            AlphaClusterDiscovery alphaClusterDiscovery = AlphaClusterDiscovery.builder()
+                    .discoveryType(AlphaClusterDiscovery.DiscoveryType.SPRING_CLOUD_EUREKA)
+                    .discoveryInfo(eurekaServiceUrls.toString())
+                    .addresses(alphaAddresses)
+                    .build();
+            return alphaClusterDiscovery;
         } else {
-            LOG.warn("could not find alpha cluster address from eureka server, use default address {}", String.join(",", addresses));
+            AlphaClusterDiscovery alphaClusterDiscovery = AlphaClusterDiscovery.builder()
+                    .discoveryType(AlphaClusterDiscovery.DiscoveryType.DEFAULT)
+                    .addresses(addresses)
+                    .build();
+            return alphaClusterDiscovery;
         }
-
-        MessageFormat messageFormat = new KryoMessageFormat();
-        AlphaClusterConfig clusterConfig = AlphaClusterConfig.builder()
-                .addresses(ImmutableList.copyOf(addresses))
-                .enableSSL(enableSSL)
-                .enableMutualAuth(mutualAuth)
-                .cert(cert)
-                .key(key)
-                .certChain(certChain)
-                .messageDeserializer(messageFormat)
-                .messageSerializer(messageFormat)
-                .messageHandler(handler)
-                .tccMessageHandler(tccMessageHandler)
-                .build();
-        return clusterConfig;
     }
 
     private String[] getAlphaAddress(String serviceId) {
@@ -119,7 +94,9 @@ class OmegaSpringEurekaConfig {
         }
         if (foundAlphaServer) {
             if (alphaAddresses.size() == 0) {
-                LOG.warn("Alpha has been found in Eureka, but Alpha's registered address information is not found in metadata. Please check Alpha is configured spring.profiles.active=spring-cloud");
+                LOG.warn("Alpha has been found in Eureka, " +
+                        "but Alpha's registered address information is not found in Eureka instance metadata. " +
+                        "Please check Alpha is configured spring.profiles.active=spring-cloud");
             }
         } else {
             LOG.warn("No Alpha Server {} found in the Eureka", serviceId);

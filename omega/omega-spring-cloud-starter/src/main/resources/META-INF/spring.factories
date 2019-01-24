@@ -1,0 +1,1 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=org.apache.servicecomb.pack.omega.spring.cloud.OmegaSpringEurekaAutoConfiguration
