@@ -258,15 +258,5 @@
         </plugins>
       </build>
     </profile>
-    <profile>
-      <id>spring-cloud-eureka</id>
-      <dependencies>
-          <dependency>
-              <groupId>org.springframework.cloud</groupId>
-              <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-              <version>${spring.cloud.version}</version>
-          </dependency>
-      </dependencies>
-    </profile>
   </profiles>
 </project>
