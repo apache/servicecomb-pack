@@ -76,7 +76,7 @@ eureka:
   client:
     enabled: true
     service-url:
-      defaultZone: http://127.0.0.1:8761/eureka
+      defaultZone: http://0.0.0.0:8761/eureka
   instance:
     metadataMap:
       servicecomb-alpha-server: ${server.host}:${alpha.server.port}
