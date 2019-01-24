@@ -20,7 +20,6 @@ server:
 
 alpha:
   server:
-    host: ${server.host}
     port: 8080
 
 spring:
@@ -66,23 +65,3 @@ spring:
     properties:
       eclipselink:
         ddl-generation: none
-
----
-spring:
-  profiles: spring-cloud-eureka
-spring.main.allow-bean-definition-overriding: true
-eureka:
-  client:
-    service-url:
-      defaultZone: http://127.0.0.1:8761/eureka
-  instance:
-    metadataMap:
-      servicecomb-alpha-server: ${server.host}:${alpha.server.port}
-    ip-address: ${server.host}
-    preferIpAddress: true
-    nonSecurePortEnabled: true
-    securePortEnabled: false
-    homePageUrl: http://${server.host}:${server.port}
-    healthCheckUrl: http://${server.host}:${server.port}/health
-    statusPageUrl: http://${server.host}:${server.port}/info
-    instance-id: ${spring.cloud.client.hostname}::${spring.application.name}:${server.port}
