@@ -48,10 +48,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
+import java.lang.invoke.MethodHandles;
+
 @Configuration
 class OmegaSpringConfig {
 
-  private static final Logger LOG = LoggerFactory.getLogger(OmegaSpringConfig.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Bean(name = {"omegaUniqueIdGenerator"})
   IdGenerator<String> idGenerator() {
