@@ -51,6 +51,7 @@ import org.springframework.context.annotation.Lazy;
 import java.lang.invoke.MethodHandles;
 
 @Configuration
+@ConditionalOnProperty(value = {"alpha.cluster.address"})
 class OmegaSpringConfig {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
