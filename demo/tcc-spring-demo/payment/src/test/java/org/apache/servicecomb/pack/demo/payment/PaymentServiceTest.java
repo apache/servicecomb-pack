@@ -37,7 +37,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 // Using test profile to avoid the Omega connection
 @ActiveProfiles("test")
-@SpringBootTest(classes = {TestApplication.class})
+@SpringBootTest(classes = {TestApplication.class},
+        properties = {
+                "omega.enabled=false"
+        })
 public class PaymentServiceTest {
   @Autowired
   private PaymentService paymentService;

@@ -33,7 +33,7 @@ import org.apache.servicecomb.pack.omega.transaction.spring.TransactionAspectCon
  * Indicates create the OmegaContext and inject it into the interceptors
  * to pass the transactions id across the application.
  * @see OmegaContext
- * @deprecated Use configuration omega.enabled
+ * @deprecated Use configuration omega.enabled, default value is true
  */
 @Deprecated
 public @interface EnableOmega {
