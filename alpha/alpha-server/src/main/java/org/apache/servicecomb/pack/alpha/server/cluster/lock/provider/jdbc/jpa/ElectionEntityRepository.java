@@ -40,7 +40,6 @@ interface ElectionEntityRepository extends CrudRepository<Election, String> {
           @Param("name") String name,
           @Param("now") Date now,
           @Param("lock_until") Date lock_until,
-          @Param("locked_at") Date locked_at,
           @Param("locked_by") String locked_by);
 
   @Transactional

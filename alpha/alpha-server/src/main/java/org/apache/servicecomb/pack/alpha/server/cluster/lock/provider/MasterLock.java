@@ -15,14 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server.cluster.lock;
+package org.apache.servicecomb.pack.alpha.server.cluster.lock.provider;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Configuration;
-
-@Configuration
-@ConditionalOnProperty(name = "alpha.cluster.enabled", havingValue = "true")
-public class AlpahClusterConfig {
-
-
+public interface MasterLock {
+    void unlock();
 }

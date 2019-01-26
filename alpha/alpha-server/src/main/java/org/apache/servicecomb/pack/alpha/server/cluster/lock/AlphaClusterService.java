@@ -15,11 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server.cluster.lock.service;
+package org.apache.servicecomb.pack.alpha.server.cluster.lock;
 
-import org.apache.servicecomb.pack.alpha.server.cluster.lock.LockConfiguration;
 import org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.LockProvider;
-import org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.SimpleLock;
+import org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.MasterLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +36,6 @@ import java.time.Instant;
 import java.util.Optional;
 
 @Component
-@ConditionalOnClass({ DataSource.class, EmbeddedDatabaseType.class })
-@EnableConfigurationProperties(DataSourceProperties.class)
 @ConditionalOnProperty(name = "alpha.cluster.enabled", havingValue = "true")
 @EnableScheduling
 public class AlphaClusterService {
@@ -61,7 +58,7 @@ public class AlphaClusterService {
     @Scheduled(fixedRate = 10000)
     public void masterfixedRate() {
         LockConfiguration lockConfig = new LockConfiguration("alpha-server", Instant.now());
-        Optional<SimpleLock> lock = lockProvider.lock(lockConfig);
+        Optional<MasterLock> lock = lockProvider.lock(lockConfig);
         if (lock.isPresent()) {
             if (!LockConfiguration.isMaster) {
                 LockConfiguration.isMaster = Boolean.TRUE;

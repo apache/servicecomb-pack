@@ -29,5 +29,5 @@ public interface LockProvider {
     /**
      * @return 如果返回空则认为抢占失败.
      */
-    Optional<SimpleLock> lock(LockConfiguration lockConfiguration);
+    Optional<MasterLock> lock(LockConfiguration lockConfiguration);
 }

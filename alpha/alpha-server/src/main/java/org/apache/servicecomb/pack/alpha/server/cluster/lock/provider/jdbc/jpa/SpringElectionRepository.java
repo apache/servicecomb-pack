@@ -21,6 +21,7 @@ import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
 import org.apache.servicecomb.pack.alpha.core.Election;
 import org.apache.servicecomb.pack.alpha.core.ElectionRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 
 import java.sql.Timestamp;
@@ -28,6 +29,7 @@ import java.time.Instant;
 import java.util.Date;
 
 @EnableKamon
+@ConditionalOnProperty(name = "alpha.cluster.enabled", havingValue = "true")
 public class SpringElectionRepository implements ElectionRepository {
     private final ElectionEntityRepository electionRepo;
 
@@ -54,7 +56,6 @@ public class SpringElectionRepository implements ElectionRepository {
             electionRepo.vote(election.getName(),
                     now,
                     election.getLock_until(),
-                    election.getLocked_at(),
                     election.getLocked_by());
             return true;
         } catch (Exception e) {

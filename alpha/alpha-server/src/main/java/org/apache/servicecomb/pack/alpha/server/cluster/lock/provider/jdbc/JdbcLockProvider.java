@@ -24,6 +24,6 @@ import org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.AbstractLo
  */
 public class JdbcLockProvider extends AbstractLockProvider {
     public JdbcLockProvider(ElectionRepository electionRepository) {
-        super(new JdbcLockLockProviderPersistence(electionRepository));
+        super(new JdbcLockLockPersistence(electionRepository));
     }
 }

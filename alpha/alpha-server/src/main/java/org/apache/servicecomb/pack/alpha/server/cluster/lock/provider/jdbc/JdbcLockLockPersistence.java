@@ -28,11 +28,11 @@ import java.time.Instant;
 /**
  * 基于数据库的投票持久化接口
  */
-class JdbcLockLockProviderPersistence implements LockProviderPersistence {
+class JdbcLockLockPersistence implements LockProviderPersistence {
 
     private final ElectionRepository electionRepository;
 
-    JdbcLockLockProviderPersistence(ElectionRepository electionRepository) {
+    JdbcLockLockPersistence(ElectionRepository electionRepository) {
         this.electionRepository = electionRepository;
     }
 

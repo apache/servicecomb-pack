@@ -39,10 +39,10 @@ public abstract class AbstractLockProvider implements LockProvider {
     }
 
     @Override
-    public Optional<SimpleLock> lock(LockConfiguration lockConfiguration) {
+    public Optional<MasterLock> lock(LockConfiguration lockConfiguration) {
         boolean lockObtained = doLock(lockConfiguration);
         if (lockObtained) {
-            return Optional.of(new StorageLock(lockConfiguration, lockProviderPersistence));
+            return Optional.of(new Locked(lockConfiguration, lockProviderPersistence));
         } else {
             return Optional.empty();
         }
@@ -67,11 +67,11 @@ public abstract class AbstractLockProvider implements LockProvider {
         return lockProviderPersistence.relock(lockConfiguration);
     }
 
-    private static class StorageLock implements SimpleLock {
+    private static class Locked implements MasterLock {
         private final LockConfiguration lockConfiguration;
         private final LockProviderPersistence lockProviderPersistence;
 
-        StorageLock(LockConfiguration lockConfiguration, LockProviderPersistence lockProviderPersistence) {
+        Locked(LockConfiguration lockConfiguration, LockProviderPersistence lockProviderPersistence) {
             this.lockConfiguration = lockConfiguration;
             this.lockProviderPersistence = lockProviderPersistence;
         }

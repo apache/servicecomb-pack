@@ -15,27 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.jdbc.jpa;
+package org.apache.servicecomb.pack.alpha.server.cluster.lock;
 
-import org.apache.servicecomb.pack.alpha.core.ElectionRepository;
-import org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.LockProvider;
-import org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.jdbc.JdbcLockProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 @ConditionalOnProperty(name = "alpha.cluster.enabled", havingValue = "true")
-public class ProviderJdbcConfig {
+public class AlpahClusterConfiguration {
 
-    @Primary
-    @Bean
-    @ConditionalOnProperty(name = "alpha.cluster.type", havingValue = "jdbc", matchIfMissing = true)
-    public LockProvider lockProvider(ElectionRepository electionRepo) {
-        return new JdbcLockProvider(electionRepo);
-    }
 
-    @Bean
-    public ElectionRepository springElectionRepository(ElectionEntityRepository electionRepo) {
-        return new SpringElectionRepository(electionRepo);
-    }
 }
