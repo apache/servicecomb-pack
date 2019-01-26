@@ -72,10 +72,6 @@ spring:
 spring:
   profiles: spring-cloud-eureka
 eureka:
-  client:
-    enabled: true
-    service-url:
-      defaultZone: http://0.0.0.0:8761/eureka
   instance:
     metadataMap:
-      servicecomb-alpha-server: ${server.host}:${alpha.server.port}
+      servicecomb-alpha-server: ${alpha.server.host}:${alpha.server.port}
