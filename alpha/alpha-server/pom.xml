@@ -259,7 +259,7 @@
       </build>
     </profile>
     <profile>
-      <id>spring-cloud</id>
+      <id>spring-cloud-eureka</id>
       <dependencies>
         <dependency>
           <groupId>org.springframework.cloud</groupId>

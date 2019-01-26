@@ -70,7 +70,7 @@ spring:
 
 ---
 spring:
-  profiles: spring-cloud
+  profiles: spring-cloud-eureka
 eureka:
   client:
     enabled: true
@@ -79,11 +79,3 @@ eureka:
   instance:
     metadataMap:
       servicecomb-alpha-server: ${server.host}:${alpha.server.port}
-    ip-address: ${server.host}
-    preferIpAddress: true
-    nonSecurePortEnabled: true
-    securePortEnabled: false
-    homePageUrl: http://${server.host}:${server.port}
-    healthCheckUrl: http://${server.host}:${server.port}/health
-    statusPageUrl: http://${server.host}:${server.port}/info
-    instance-id: ${spring.cloud.client.hostname}::${spring.application.name}:${server.port}
