@@ -114,11 +114,11 @@ CREATE TABLE IF NOT EXISTS tcc_tx_event (
   UNIQUE INDEX tcc_tx_event_index (globalTxId, localTxId, parentTxId, txType)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS election (
-  name varchar(64) NOT NULL ,
-  lock_until timestamp(3) NULL,
-  locked_at timestamp(3) NULL,
-  locked_by  varchar(255),
-  PRIMARY KEY (name)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;;
+CREATE TABLE IF NOT EXISTS master_lock (
+  serviceName varchar(36) not NULL,
+  expireTime timestamp(3) not NULL,
+  lockedTime timestamp(3) not NULL,
+  instanceId  varchar(255) not NULL,
+  PRIMARY KEY (serviceName)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

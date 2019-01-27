@@ -1,9 +1,10 @@
-/**
- * Copyright 2009-2017 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -13,17 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.jdbc;
 
-
-import org.apache.servicecomb.pack.alpha.core.ElectionRepository;
 import org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.AbstractLockProvider;
+import org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.jdbc.jpa.MasterLockRepository;
 
-/**
- * 基于数据库的投票实现
- */
 public class JdbcLockProvider extends AbstractLockProvider {
-    public JdbcLockProvider(ElectionRepository electionRepository) {
-        super(new JdbcLockLockPersistence(electionRepository));
+    public JdbcLockProvider(MasterLockRepository masterLockRepository) {
+        super(new JdbcLockPersistence(masterLockRepository));
     }
 }

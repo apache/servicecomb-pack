@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.core;
+package org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.jdbc.jpa;
 
 import java.util.Date;
 
-public interface ElectionRepository {
+public interface MasterLockRepository {
 
-    boolean vote(Election election);
+    boolean initLock(MasterLock masterLock);
 
-    boolean revote(Election election);
+    boolean updateLock(MasterLock masterLock);
 
-    void abstain(String name, Date lock_until);
+    void unLock(String serviceName, Date expireTime);
 }

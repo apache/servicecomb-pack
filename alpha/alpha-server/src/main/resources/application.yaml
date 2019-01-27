@@ -22,8 +22,10 @@ alpha:
     host: 0.0.0.0
     port: 8080
   cluster:
-    enabled: false
-    type: jdbc
+    master:
+      enabled: true
+      expire: 5
+      type: jdbc
 
 spring:
   datasource:

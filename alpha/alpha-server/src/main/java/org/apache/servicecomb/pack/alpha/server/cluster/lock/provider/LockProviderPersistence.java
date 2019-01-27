@@ -17,28 +17,13 @@
 
 package org.apache.servicecomb.pack.alpha.server.cluster.lock.provider;
 
+import org.apache.servicecomb.pack.alpha.server.cluster.lock.LockConfig;
 
-import org.apache.servicecomb.pack.alpha.server.cluster.lock.LockConfiguration;
-
-/**
- * 投票持久化接口
- * */
 public interface LockProviderPersistence {
-    /**
-     * Inserts a record
-     *
-     * @param lockConfiguration LockConfiguration
-     * @return true if inserted
-     */
-    boolean lock(LockConfiguration lockConfiguration);
 
-    /**
-     * Updates record
-     *
-     * @param lockConfiguration LockConfiguration
-     * @return true if updated
-     */
-    boolean relock(LockConfiguration lockConfiguration);
+    boolean initLock(LockConfig lockConfig);
 
-    void unlock(LockConfiguration lockConfiguration);
+    boolean updateLock(LockConfig lockConfig);
+
+    void unLock(LockConfig lockConfig);
 }

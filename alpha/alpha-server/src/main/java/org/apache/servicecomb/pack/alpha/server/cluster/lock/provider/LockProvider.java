@@ -17,17 +17,10 @@
 
 package org.apache.servicecomb.pack.alpha.server.cluster.lock.provider;
 
-import org.apache.servicecomb.pack.alpha.server.cluster.lock.LockConfiguration;
+import org.apache.servicecomb.pack.alpha.server.cluster.lock.LockConfig;
+
 import java.util.Optional;
 
-/**
- * 投票接口
- * */
-
 public interface LockProvider {
-
-    /**
-     * @return 如果返回空则认为抢占失败.
-     */
-    Optional<MasterLock> lock(LockConfiguration lockConfiguration);
+    Optional<Locked> lock(LockConfig lockConfig);
 }

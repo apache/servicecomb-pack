@@ -18,67 +18,53 @@
 package org.apache.servicecomb.pack.alpha.server.cluster.lock.provider;
 
 
-import org.apache.servicecomb.pack.alpha.server.cluster.lock.LockConfiguration;
+import org.apache.servicecomb.pack.alpha.server.cluster.lock.LockConfig;
 
 import java.util.Optional;
 
-/**
- * 分布式抢占抽象类
- * 基于id和locked_until的数据集，可以是表也可以是集合
- * 尝试写入一条投票记录，同时在内存中保存这条记录，如果这条记录存在，那么认为投票成功
- * 我们将找到ID==name的这条记录，更新这条记录的lock_until为当前时间
- * 如果返回更新1条记录的信息，那么则投票成功。如果返回0条更新的信息，则投票失败
- * 当弃权时，lock_until被设置成当前时间
- */
 public abstract class AbstractLockProvider implements LockProvider {
+
     private final LockProviderPersistence lockProviderPersistence;
-    private final LockRecordRegistry lockRecordRegistry = new LockRecordRegistry();
+    private boolean lockInitialization = Boolean.FALSE;
 
     protected AbstractLockProvider(LockProviderPersistence lockProviderPersistence) {
         this.lockProviderPersistence = lockProviderPersistence;
     }
 
     @Override
-    public Optional<MasterLock> lock(LockConfiguration lockConfiguration) {
-        boolean lockObtained = doLock(lockConfiguration);
+    public Optional<org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.Locked> lock(LockConfig lockConfig) {
+        boolean lockObtained = doLock(lockConfig);
         if (lockObtained) {
-            return Optional.of(new Locked(lockConfiguration, lockProviderPersistence));
+            //获得锁
+            return Optional.of(new Locked(lockConfig, lockProviderPersistence));
         } else {
             return Optional.empty();
         }
     }
 
-    /**
-     * 如果lockUntil等于当前时间，则根据LockConfiguration设置lockUntil
-     */
-    protected boolean doLock(LockConfiguration lockConfiguration) {
-        String name = lockConfiguration.getName();
-        //缓存处理
-        if (!lockRecordRegistry.lockRecordRecentlyCreated(name)) {
-            // 缓存中不包含时进行投票
-            if (lockProviderPersistence.lock(lockConfiguration)) {
-                // 投票成功后加入缓存
-                lockRecordRegistry.addLockRecord(name);
+    protected boolean doLock(LockConfig lockConfig) {
+        if (!lockInitialization) {
+            if (lockProviderPersistence.initLock(lockConfig)) {
+                lockInitialization = Boolean.TRUE;
                 return true;
             }
-            //缓存重入
-            lockRecordRegistry.addLockRecord(name);
+            lockInitialization = Boolean.TRUE;
         }
-        return lockProviderPersistence.relock(lockConfiguration);
+        return lockProviderPersistence.updateLock(lockConfig);
     }
 
-    private static class Locked implements MasterLock {
-        private final LockConfiguration lockConfiguration;
+    private static class Locked implements org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.Locked {
+        private final LockConfig lockConfig;
         private final LockProviderPersistence lockProviderPersistence;
 
-        Locked(LockConfiguration lockConfiguration, LockProviderPersistence lockProviderPersistence) {
-            this.lockConfiguration = lockConfiguration;
+        Locked(LockConfig lockConfig, LockProviderPersistence lockProviderPersistence) {
+            this.lockConfig = lockConfig;
             this.lockProviderPersistence = lockProviderPersistence;
         }
 
         @Override
         public void unlock() {
-            lockProviderPersistence.unlock(lockConfiguration);
+            lockProviderPersistence.unLock(lockConfig);
         }
     }
 
