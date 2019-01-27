@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.server.cluster.master;
 
+import org.apache.servicecomb.pack.alpha.core.NodeType;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.LockProvider;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locked;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -66,11 +68,14 @@ public class ClusterLockService {
     @Autowired
     LockProvider lockProvider;
 
+    @Autowired
+    NodeType nodeType;
+
     public ClusterLockService() {
         LOG.info("Initialize cluster mode");
     }
 
-    public boolean isLocked() {
+    public boolean isMasterNode() {
         return locked;
     }
 
@@ -81,20 +86,17 @@ public class ClusterLockService {
         if (lock.isPresent()) {
             if (!this.locked) {
                 locked = Boolean.TRUE;
+                nodeType.setMaster(locked);
                 LOG.info("Master Node");
             } else {
                 LOG.debug("Keep locked");
             }
         } else {
-            locked = Boolean.FALSE;
-            LOG.info("Slave Node");
-        }
-    }
-
-    @Scheduled(fixedRate = 5000)
-    public void test() {
-        if (this.locked) {
-            System.out.println("working...");
+            if(locked){
+                locked = Boolean.FALSE;
+                nodeType.setMaster(locked);
+                LOG.info("Slave Node");
+            }
         }
     }
 }

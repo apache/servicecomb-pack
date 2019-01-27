@@ -44,7 +44,7 @@ public class LockConfig {
         this.instanceId = Objects.requireNonNull(instanceId);
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
-        cal.add(Calendar.SECOND, expire);
+        cal.add(Calendar.MILLISECOND, expire);
         this.lockExpireTime = cal.getTime();
     }
 
