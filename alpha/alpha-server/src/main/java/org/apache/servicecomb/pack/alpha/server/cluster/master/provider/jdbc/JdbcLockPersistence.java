@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.jdbc;
+package org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc;
 
-import org.apache.servicecomb.pack.alpha.server.cluster.lock.LockConfig;
-import org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.LockProviderPersistence;
-import org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.jdbc.jpa.MasterLock;
-import org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.jdbc.jpa.MasterLockRepository;
+import org.apache.servicecomb.pack.alpha.server.cluster.master.LockConfig;
+import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.LockProviderPersistence;
+import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLock;
+import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLockRepository;
 
 import java.util.Date;
 

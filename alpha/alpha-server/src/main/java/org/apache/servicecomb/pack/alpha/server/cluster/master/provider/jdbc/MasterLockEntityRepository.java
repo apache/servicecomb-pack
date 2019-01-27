@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.jdbc;
+package org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc;
 
-import org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.jdbc.jpa.MasterLock;
+import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -42,7 +42,7 @@ interface MasterLockEntityRepository extends CrudRepository<MasterLock, String> 
 
     @Transactional
     @Modifying(clearAutomatically = true)
-    @Query("UPDATE org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.jdbc.jpa.MasterLock t "
+    @Query("UPDATE org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLock t "
             + "SET t.expireTime = :expireTime"
             + ",t.lockedTime = :lockedTime "
             + ",t.instanceId = :instanceId "
@@ -55,7 +55,7 @@ interface MasterLockEntityRepository extends CrudRepository<MasterLock, String> 
 
     @Transactional
     @Modifying(clearAutomatically = true)
-    @Query("UPDATE org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.jdbc.jpa.MasterLock t "
+    @Query("UPDATE org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLock t "
             + "SET t.expireTime = :expireTime "
             + "WHERE t.serviceName = :serviceName")
     int unLock(@Param("serviceName") String serviceName,

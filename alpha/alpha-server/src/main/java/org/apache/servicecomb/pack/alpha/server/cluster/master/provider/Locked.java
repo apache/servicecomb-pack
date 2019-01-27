@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server.cluster.lock.provider;
+package org.apache.servicecomb.pack.alpha.server.cluster.master.provider;
 
 public interface Locked {
     void unlock();

@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server.cluster.lock.provider;
+package org.apache.servicecomb.pack.alpha.server.cluster.master.provider;
 
-import org.apache.servicecomb.pack.alpha.server.cluster.lock.LockConfig;
+import org.apache.servicecomb.pack.alpha.server.cluster.master.LockConfig;
 
 import java.util.Optional;
 

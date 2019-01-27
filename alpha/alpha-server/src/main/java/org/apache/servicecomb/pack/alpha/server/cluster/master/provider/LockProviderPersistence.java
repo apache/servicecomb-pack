@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.jdbc.jpa;
+package org.apache.servicecomb.pack.alpha.server.cluster.master.provider;
 
-import java.util.Date;
+import org.apache.servicecomb.pack.alpha.server.cluster.master.LockConfig;
 
-public interface MasterLockRepository {
+public interface LockProviderPersistence {
 
-    boolean initLock(MasterLock masterLock);
+    boolean initLock(LockConfig lockConfig);
 
-    boolean updateLock(MasterLock masterLock);
+    boolean updateLock(LockConfig lockConfig);
 
-    void unLock(String serviceName, Date expireTime);
+    void unLock(LockConfig lockConfig);
 }

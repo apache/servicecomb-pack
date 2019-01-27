@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server.cluster.lock;
+package org.apache.servicecomb.pack.alpha.server.cluster.master;
 
 import java.util.Calendar;
 import java.util.Date;

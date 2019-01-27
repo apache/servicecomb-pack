@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.jdbc;
+package org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc;
 
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
-import org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.jdbc.jpa.MasterLock;
-import org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.jdbc.jpa.MasterLockRepository;
+import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLock;
+import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLockRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 import java.util.Date;

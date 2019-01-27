@@ -15,13 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.jdbc;
+package org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa;
 
-import org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.AbstractLockProvider;
-import org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.jdbc.jpa.MasterLockRepository;
+import java.util.Date;
 
-public class JdbcLockProvider extends AbstractLockProvider {
-    public JdbcLockProvider(MasterLockRepository masterLockRepository) {
-        super(new JdbcLockPersistence(masterLockRepository));
-    }
+public interface MasterLockRepository {
+
+    boolean initLock(MasterLock masterLock);
+
+    boolean updateLock(MasterLock masterLock);
+
+    void unLock(String serviceName, Date expireTime);
 }

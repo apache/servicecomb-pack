@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server.cluster.lock.provider;
+package org.apache.servicecomb.pack.alpha.server.cluster.master.provider;
 
 
-import org.apache.servicecomb.pack.alpha.server.cluster.lock.LockConfig;
+import org.apache.servicecomb.pack.alpha.server.cluster.master.LockConfig;
 
 import java.util.Optional;
 
@@ -32,7 +32,7 @@ public abstract class AbstractLockProvider implements LockProvider {
     }
 
     @Override
-    public Optional<org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.Locked> lock(LockConfig lockConfig) {
+    public Optional<org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locked> lock(LockConfig lockConfig) {
         boolean lockObtained = doLock(lockConfig);
         if (lockObtained) {
             //获得锁
@@ -53,7 +53,7 @@ public abstract class AbstractLockProvider implements LockProvider {
         return lockProviderPersistence.updateLock(lockConfig);
     }
 
-    private static class Locked implements org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.Locked {
+    private static class Locked implements org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locked {
         private final LockConfig lockConfig;
         private final LockProviderPersistence lockProviderPersistence;
 

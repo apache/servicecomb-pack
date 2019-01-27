@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.jdbc.jpa;
+package org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

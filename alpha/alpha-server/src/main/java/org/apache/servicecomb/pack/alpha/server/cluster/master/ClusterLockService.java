@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server.cluster.lock;
+package org.apache.servicecomb.pack.alpha.server.cluster.master;
 
-import org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.LockProvider;
-import org.apache.servicecomb.pack.alpha.server.cluster.lock.provider.Locked;
+import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.LockProvider;
+import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ import java.util.Optional;
 
 /**
  *
- * Cluster master preemption lock service
+ * Cluster master preemption master service
  * default based on database master_lock table implementation
  *
  * Set true to enable default value false
