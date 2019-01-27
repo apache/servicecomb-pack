@@ -37,6 +37,7 @@
     <module>omega-transport</module>
     <module>omega-connector</module>
     <module>omega-spring-starter</module>
+    <module>omega-spring-cloud-starter</module>
     <module>omega-format</module>
   </modules>
 

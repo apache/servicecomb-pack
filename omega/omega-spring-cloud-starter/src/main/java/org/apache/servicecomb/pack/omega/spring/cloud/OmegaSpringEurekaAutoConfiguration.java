@@ -15,26 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.omega.spring;
+package org.apache.servicecomb.pack.omega.spring.cloud;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import org.apache.servicecomb.pack.omega.transaction.spring.TransactionAspectConfig;
-
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-/**
- * Indicates create the OmegaContext and inject it into the interceptors
- * to pass the transactions id across the application.
- * @see OmegaContext
- * @deprecated Use configuration omega.enabled, default value is true
- */
-@Deprecated
-public @interface EnableOmega {
+@Configuration
+@Import(OmegaSpringEurekaConfig.class)
+@ConditionalOnProperty(value = {"omega.enabled"}, matchIfMissing = true)
+public class OmegaSpringEurekaAutoConfiguration {
 }

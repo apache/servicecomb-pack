@@ -18,6 +18,7 @@
 package org.apache.servicecomb.pack.omega.spring;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterDiscovery;
 import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.FastestSender;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
@@ -38,14 +39,22 @@ import org.apache.servicecomb.pack.omega.transaction.tcc.DefaultParametersContex
 import org.apache.servicecomb.pack.omega.transaction.tcc.ParametersContext;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageSender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
+import java.lang.invoke.MethodHandles;
+
 @Configuration
+@ConditionalOnProperty(value = {"alpha.cluster.address"})
 class OmegaSpringConfig {
+
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Bean(name = {"omegaUniqueIdGenerator"})
   IdGenerator<String> idGenerator() {
@@ -78,19 +87,27 @@ class OmegaSpringConfig {
   }
 
   @Bean
+  @ConditionalOnProperty(name = "alpha.cluster.register.type", havingValue = "default", matchIfMissing = true)
+  AlphaClusterDiscovery alphaClusterAddress(@Value("${alpha.cluster.address:localhost:8080}") String[] addresses){
+    return AlphaClusterDiscovery.builder().addresses(addresses).build();
+  }
+
+  @Bean
   AlphaClusterConfig alphaClusterConfig(
-      @Value("${alpha.cluster.address:localhost:8080}") String[] addresses,
       @Value("${alpha.cluster.ssl.enable:false}") boolean enableSSL,
       @Value("${alpha.cluster.ssl.mutualAuth:false}") boolean mutualAuth,
       @Value("${alpha.cluster.ssl.cert:client.crt}") String cert,
       @Value("${alpha.cluster.ssl.key:client.pem}") String key,
       @Value("${alpha.cluster.ssl.certChain:ca.crt}") String certChain,
+      @Lazy AlphaClusterDiscovery alphaClusterDiscovery,
       @Lazy MessageHandler handler,
       @Lazy TccMessageHandler tccMessageHandler) {
 
+    LOG.info("Discovery alpha cluster address from {} {}",alphaClusterDiscovery.getDiscoveryType().name()
+            ,alphaClusterDiscovery.getDiscoveryInfo() == null ? "" : alphaClusterDiscovery.getDiscoveryInfo());
     MessageFormat messageFormat = new KryoMessageFormat();
     AlphaClusterConfig clusterConfig = AlphaClusterConfig.builder()
-        .addresses(ImmutableList.copyOf(addresses))
+        .addresses(ImmutableList.copyOf(alphaClusterDiscovery.getAddresses()))
         .enableSSL(enableSSL)
         .enableMutualAuth(mutualAuth)
         .cert(cert)
