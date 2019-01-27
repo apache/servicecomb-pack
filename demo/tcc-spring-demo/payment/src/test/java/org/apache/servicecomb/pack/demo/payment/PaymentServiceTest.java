@@ -35,12 +35,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-// Using test profile to avoid the Omega connection
+// disable the omega to avoid the connection of Alpha
 @ActiveProfiles("test")
-@SpringBootTest(classes = {TestApplication.class},
-        properties = {
-                "omega.enabled=false"
-        })
+@SpringBootTest(classes = {TccPaymentApplication.class},
+    properties = {"omega.enabled=false"})
+
 public class PaymentServiceTest {
   @Autowired
   private PaymentService paymentService;
@@ -52,6 +51,8 @@ public class PaymentServiceTest {
 
   @Before
   public void setup() {
+    // Just reset the account information
+    accountDao.deleteAll();
     accountDao.save(new Account("UserA", 100, 60));
     accountDao.save(new Account("UserB", 10, 10));
     accountDao.save(new Account("UserC", 1, 1));

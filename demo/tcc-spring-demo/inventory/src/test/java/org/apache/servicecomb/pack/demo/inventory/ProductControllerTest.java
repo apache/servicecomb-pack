@@ -47,6 +47,9 @@ public class ProductControllerTest {
   @MockBean
   private InventoryService inventoryService;
 
+  @MockBean
+  private ProductDao productDao;
+
   @Before
   public void setUp() {
     when(inventoryService.getAllOrders()).thenReturn(singletonList(someOrder));

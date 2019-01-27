@@ -47,6 +47,9 @@ public class PaymentControllerTest {
   @MockBean
   private PaymentService paymentService;
 
+  @MockBean
+  private AccountDao accountDao;
+
   @Before
   public void setUp() {
     when(paymentService.getAllTransactions()).thenReturn(singletonList(somePayment));

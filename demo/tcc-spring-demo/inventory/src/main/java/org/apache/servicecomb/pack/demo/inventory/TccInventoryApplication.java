@@ -17,7 +17,6 @@
 
 package org.apache.servicecomb.pack.demo.inventory;
 
-import org.apache.servicecomb.pack.omega.spring.EnableOmega;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -25,8 +24,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 
 @SpringBootApplication
-@Profile("prd")
-@EnableOmega
 public class TccInventoryApplication {
 
   public static void main(String[] args) {
@@ -34,6 +31,7 @@ public class TccInventoryApplication {
   }
 
   @Bean
+  @Profile("!test")
   CommandLineRunner kickOff(ProductDao productDao) {
     return args -> {
       // Set up the inventory

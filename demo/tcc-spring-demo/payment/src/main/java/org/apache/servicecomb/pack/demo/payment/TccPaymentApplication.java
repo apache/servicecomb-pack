@@ -17,22 +17,21 @@
 
 package org.apache.servicecomb.pack.demo.payment;
 
-import org.apache.servicecomb.pack.omega.spring.EnableOmega;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 
+
 @SpringBootApplication
-@Profile("prd")
-@EnableOmega
 public class TccPaymentApplication {
   public static void main(String[] args) {
     SpringApplication.run(TccPaymentApplication.class, args);
   }
 
   @Bean
+  @Profile("!test")
   CommandLineRunner kickOff(AccountDao accountDao) {
     return args -> {
       // Set up the account information
