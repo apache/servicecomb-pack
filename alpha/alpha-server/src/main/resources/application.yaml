@@ -25,7 +25,9 @@ alpha:
 spring:
   datasource:
     initialization-mode: always
-    
+  main:
+    allow-bean-definition-overriding: true
+
 ---
 spring:
   profiles: ssl
@@ -65,3 +67,11 @@ spring:
     properties:
       eclipselink:
         ddl-generation: none
+
+---
+spring:
+  profiles: spring-cloud-eureka
+eureka:
+  instance:
+    metadataMap:
+      servicecomb-alpha-server: ${alpha.server.host}:${alpha.server.port}
