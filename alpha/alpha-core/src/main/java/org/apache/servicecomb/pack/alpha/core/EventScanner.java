@@ -86,7 +86,6 @@ public class EventScanner implements Runnable {
     scheduler.scheduleWithFixedDelay(
         () -> {
           if(nodeType.isMaster()){
-            System.out.println(nodeType.isMaster());
             updateTimeoutStatus();
             findTimeoutEvents();
             abortTimeoutEvents();

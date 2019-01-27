@@ -53,7 +53,7 @@ public class AlphaConfig {
   @Value("${alpha.tx.timeout-seconds:600}")
   private int globalTxTimeoutSeconds;
 
-  @Value("${alpha.cluster.master.enabled:true}")
+  @Value("${alpha.cluster.master.enabled:false}")
   private boolean masterEnabled;
 
   @Bean
