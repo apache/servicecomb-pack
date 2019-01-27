@@ -31,12 +31,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-// Using test profile to avoid the Omega connection
+// disable the omega to avoid the connection of Alpha
 @ActiveProfiles("test")
-@SpringBootTest(classes = {TestApplication.class},
-        properties = {
-                "omega.enabled=false"
-        })
+@SpringBootTest(classes = {TccInventoryApplication.class},
+    properties = {"omega.enabled=false"})
 public class InventoryServiceTest {
   @Autowired
   private InventoryService inventoryService;
