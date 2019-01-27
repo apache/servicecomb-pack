@@ -41,8 +41,8 @@ import java.util.Optional;
  * Implementation type, default jdbc
  * alpha.cluster.master.type=jdbc
  *
- * Lock timeout, default value 5 second
- * alpha.cluster.master.expire=5
+ * Lock timeout, default value 5000 millisecond
+ * alpha.cluster.master.expire=5000
  *
  */
 
@@ -60,7 +60,7 @@ public class ClusterLockService {
     @Value("${spring.application.name:servicecomb-alpha-server}")
     private String serviceName;
 
-    @Value("${alpha.cluster.master.expire:5}")
+    @Value("${alpha.cluster.master.expire:5000}")
     private int expire;
 
     @Autowired
@@ -74,7 +74,7 @@ public class ClusterLockService {
         return locked;
     }
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedDelayString = "${alpha.cluster.master.expire:5000}")
     public void masterLock() {
         LockConfig lockConfig = new LockConfig(serviceName, instanceId, expire);
         Optional<Locked> lock = lockProvider.lock(lockConfig);

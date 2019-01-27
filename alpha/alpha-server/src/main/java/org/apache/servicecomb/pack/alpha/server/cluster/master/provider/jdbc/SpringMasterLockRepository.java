@@ -37,7 +37,6 @@ public class SpringMasterLockRepository implements MasterLockRepository {
     @Override
     @Segment(name = "MasterLockInit", category = "application", library = "kamon")
     public boolean initLock(MasterLock masterLock) {
-        //尝试初始化锁，锁已经存在返回true，锁不存在返回false
         try {
             if (!electionRepo.existsById(masterLock.getServiceName())) {
                 electionRepo.initLock(masterLock.getServiceName(),

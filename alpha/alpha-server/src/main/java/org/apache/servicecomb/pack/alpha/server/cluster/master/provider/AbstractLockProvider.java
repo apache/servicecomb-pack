@@ -35,7 +35,6 @@ public abstract class AbstractLockProvider implements LockProvider {
     public Optional<org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locked> lock(LockConfig lockConfig) {
         boolean lockObtained = doLock(lockConfig);
         if (lockObtained) {
-            //获得锁
             return Optional.of(new Locked(lockConfig, lockProviderPersistence));
         } else {
             return Optional.empty();
