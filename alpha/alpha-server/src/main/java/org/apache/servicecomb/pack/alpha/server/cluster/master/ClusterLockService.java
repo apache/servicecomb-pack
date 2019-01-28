@@ -33,19 +33,17 @@ import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
 /**
- *
  * Cluster master preemption master service
  * default based on database master_lock table implementation
- *
+ * <p>
  * Set true to enable default value false
  * alpha.cluster.master.enabled=true
- *
+ * <p>
  * Implementation type, default jdbc
  * alpha.cluster.master.type=jdbc
- *
+ * <p>
  * Lock timeout, default value 5000 millisecond
  * alpha.cluster.master.expire=5000
- *
  */
 
 @Component
@@ -55,6 +53,7 @@ public class ClusterLockService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private boolean locked = Boolean.FALSE;
+    private boolean initStatueShow = Boolean.TRUE;
 
     @Value("[${alpha.server.host}]:${alpha.server.port}")
     private String instanceId;
@@ -92,10 +91,11 @@ public class ClusterLockService {
                 LOG.debug("Keep locked");
             }
         } else {
-            if(locked){
+            if (locked || initStatueShow) {
                 locked = Boolean.FALSE;
                 nodeType.setMaster(locked);
                 LOG.info("Slave Node");
+                initStatueShow = Boolean.FALSE;
             }
         }
     }
