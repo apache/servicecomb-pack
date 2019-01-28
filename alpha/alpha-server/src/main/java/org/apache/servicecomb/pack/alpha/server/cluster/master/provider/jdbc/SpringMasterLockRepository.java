@@ -21,13 +21,20 @@ import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLock;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLockRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Date;
+import java.util.Optional;
 
 @EnableKamon
-@ConditionalOnProperty(name = "alpha.cluster.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "alpha.cluster.master.enabled", havingValue = "true")
 public class SpringMasterLockRepository implements MasterLockRepository {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
     private final MasterLockEntityRepository electionRepo;
 
     SpringMasterLockRepository(MasterLockEntityRepository electionRepo) {
@@ -38,7 +45,8 @@ public class SpringMasterLockRepository implements MasterLockRepository {
     @Segment(name = "MasterLockInit", category = "application", library = "kamon")
     public boolean initLock(MasterLock masterLock) {
         try {
-            if (!electionRepo.existsById(masterLock.getServiceName())) {
+            Optional<MasterLock> lock = electionRepo.findMasterLockByServiceName(masterLock.getServiceName());
+            if (!lock.isPresent()) {
                 electionRepo.initLock(masterLock.getServiceName(),
                         masterLock.getExpireTime(),
                         masterLock.getLockedTime(),
@@ -48,6 +56,7 @@ public class SpringMasterLockRepository implements MasterLockRepository {
                 return false;
             }
         } catch (Exception e) {
+            LOG.error("Init lock error",e);
             return false;
         }
     }

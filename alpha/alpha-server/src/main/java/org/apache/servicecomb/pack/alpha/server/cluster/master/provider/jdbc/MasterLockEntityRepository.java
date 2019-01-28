@@ -25,8 +25,11 @@ import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
 import java.util.Date;
+import java.util.Optional;
 
 interface MasterLockEntityRepository extends CrudRepository<MasterLock, String> {
+
+    Optional<MasterLock> findMasterLockByServiceName(String serviceName);
 
     @Transactional
     @Modifying
