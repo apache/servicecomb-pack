@@ -35,7 +35,7 @@ Saga处理场景是要求相关的子事务提供事务处理函数同时也提�
 ![Timeout Scenario](static_files/timeout_scenario.png)
 
 ## TCC 具体处理流程
-TCC(try-confirm-cancel)与Saga事务处理方式相比多了一个Try方法。事务调用的发起方来根据事务的执行情况协调各方相关各方进行提交事务或者回滚事务。
+TCC(try-confirm-cancel)与Saga事务处理方式相比多了一个Try方法。事务调用的发起方来根据事务的执行情况协调相关各方进行提交事务或者回滚事务。
 ### 成功场景
 成功场景下， 每个事务都会有开始和对应的结束事件
 
