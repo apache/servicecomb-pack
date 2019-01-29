@@ -17,8 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.server.cluster.master.provider;
 
-
-import org.apache.servicecomb.pack.alpha.server.cluster.master.LockConfig;
+import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLock;
 
 import java.util.Optional;
 
@@ -32,38 +31,38 @@ public abstract class AbstractLockProvider implements LockProvider {
     }
 
     @Override
-    public Optional<org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locker> lock(LockConfig lockConfig) {
-        boolean lockObtained = doLock(lockConfig);
+    public Optional<org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locker> lock(MasterLock masterLock) {
+        boolean lockObtained = doLock(masterLock);
         if (lockObtained) {
-            return Optional.of(new Locker(lockConfig, lockProviderPersistence));
+            return Optional.of(new Locker(masterLock, lockProviderPersistence));
         } else {
             return Optional.empty();
         }
     }
 
-    protected boolean doLock(LockConfig lockConfig) {
+    protected boolean doLock(MasterLock masterLock) {
         if (!lockInitialization) {
-            if (lockProviderPersistence.initLock(lockConfig)) {
+            if (lockProviderPersistence.initLock(masterLock)) {
                 lockInitialization = Boolean.TRUE;
                 return true;
             }
             lockInitialization = Boolean.TRUE;
         }
-        return lockProviderPersistence.updateLock(lockConfig);
+        return lockProviderPersistence.updateLock(masterLock);
     }
 
     private static class Locker implements org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locker {
-        private final LockConfig lockConfig;
+        private final MasterLock masterLock;
         private final LockProviderPersistence lockProviderPersistence;
 
-        Locker(LockConfig lockConfig, LockProviderPersistence lockProviderPersistence) {
-            this.lockConfig = lockConfig;
+        Locker(MasterLock masterLock, LockProviderPersistence lockProviderPersistence) {
+            this.masterLock = masterLock;
             this.lockProviderPersistence = lockProviderPersistence;
         }
 
         @Override
         public void unlock() {
-            lockProviderPersistence.unLock(lockConfig);
+            lockProviderPersistence.unLock(masterLock);
         }
     }
 

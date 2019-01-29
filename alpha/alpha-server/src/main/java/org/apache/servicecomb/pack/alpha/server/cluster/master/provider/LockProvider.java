@@ -17,10 +17,10 @@
 
 package org.apache.servicecomb.pack.alpha.server.cluster.master.provider;
 
-import org.apache.servicecomb.pack.alpha.server.cluster.master.LockConfig;
+import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLock;
 
 import java.util.Optional;
 
 public interface LockProvider {
-    Optional<Locker> lock(LockConfig lockConfig);
+    Optional<Locker> lock(MasterLock masterLock);
 }

@@ -20,6 +20,7 @@ package org.apache.servicecomb.pack.alpha.server.cluster.master;
 import org.apache.servicecomb.pack.alpha.core.NodeStatus;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.LockProvider;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locker;
+import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -57,6 +60,8 @@ public class ClusterLockService implements ApplicationListener<ApplicationReadyE
     private boolean locked = Boolean.FALSE;
     private boolean lockExecuted = Boolean.FALSE;
     private boolean applicationReady = Boolean.FALSE;
+    private MasterLock masterLock;
+    private Optional<Locker> locker;
 
     @Value("[${alpha.server.host}]:${alpha.server.port}")
     private String instanceId;
@@ -85,27 +90,53 @@ public class ClusterLockService implements ApplicationListener<ApplicationReadyE
         return lockExecuted;
     }
 
+    public MasterLock getMasterLock() {
+        if (this.masterLock == null) {
+            this.masterLock = new MasterLock();
+            this.masterLock.setServiceName(serviceName);
+            this.masterLock.setInstanceId(instanceId);
+        }
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        cal.add(Calendar.MILLISECOND, expire);
+        this.masterLock.setExpireTime(cal.getTime());
+        this.masterLock.setLockedTime(new Date());
+        return this.masterLock;
+    }
+
+    public void setMasterLock(MasterLock masterLock) {
+        this.masterLock = masterLock;
+    }
+
     @Scheduled(cron = "0/1 * * * * ?")
     public void masterCheck() {
-        if(applicationReady){
-            LockConfig lockConfig = new LockConfig(serviceName, instanceId, expire);
-            Optional<Locker> lock = lockProvider.lock(lockConfig);
-            if (lock.isPresent()) {
+        if (applicationReady) {
+            this.locker = lockProvider.lock(this.getMasterLock());
+            if (this.locker.isPresent()) {
                 if (!this.locked) {
-                    locked = Boolean.TRUE;
+                    this.locked = true;
                     nodeStatus.setTypeEnum(NodeStatus.TypeEnum.MASTER);
                     LOG.info("Master Node");
                 }
                 //Keep locked
             } else {
-                if (locked || !lockExecuted) {
-                    locked = Boolean.FALSE;
+                if (this.locked || !lockExecuted) {
+                    locked = false;
                     nodeStatus.setTypeEnum(NodeStatus.TypeEnum.SLAVE);
                     LOG.info("Slave Node");
                 }
             }
             lockExecuted = Boolean.TRUE;
         }
+    }
+
+    public void unLock(){
+        if(this.locker.isPresent()){
+            this.locker.get().unlock();
+        }
+        lockExecuted = false;
+        locked = false;
+        nodeStatus.setTypeEnum(NodeStatus.TypeEnum.SLAVE);
     }
 
     @Override

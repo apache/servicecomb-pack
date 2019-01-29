@@ -58,15 +58,31 @@ public class MasterLock {
         return expireTime;
     }
 
+    public void setExpireTime(Date expireTime) {
+        this.expireTime = expireTime;
+    }
+
     public Date getLockedTime() {
         return lockedTime;
+    }
+
+    public void setLockedTime(Date lockedTime) {
+        this.lockedTime = lockedTime;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
     public String getInstanceId() {
         return instanceId;
     }
 
-    public String getServiceName() {
-        return serviceName;
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
     }
 }

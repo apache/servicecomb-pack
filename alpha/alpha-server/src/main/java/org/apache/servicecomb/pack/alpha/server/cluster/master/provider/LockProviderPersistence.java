@@ -17,13 +17,13 @@
 
 package org.apache.servicecomb.pack.alpha.server.cluster.master.provider;
 
-import org.apache.servicecomb.pack.alpha.server.cluster.master.LockConfig;
+import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLock;
 
 public interface LockProviderPersistence {
 
-    boolean initLock(LockConfig lockConfig);
+    boolean initLock(MasterLock masterLock);
 
-    boolean updateLock(LockConfig lockConfig);
+    boolean updateLock(MasterLock masterLock);
 
-    void unLock(LockConfig lockConfig);
+    void unLock(MasterLock masterLock);
 }
