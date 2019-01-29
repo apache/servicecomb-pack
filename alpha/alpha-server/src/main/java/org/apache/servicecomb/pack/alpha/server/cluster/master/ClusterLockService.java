@@ -55,7 +55,7 @@ public class ClusterLockService implements ApplicationListener<ApplicationReadyE
 
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private boolean locked = Boolean.FALSE;
-    private boolean initStatueShow = Boolean.TRUE;
+    private boolean lockExecuted = Boolean.FALSE;
     private boolean applicationReady = Boolean.FALSE;
 
     @Value("[${alpha.server.host}]:${alpha.server.port}")
@@ -81,6 +81,10 @@ public class ClusterLockService implements ApplicationListener<ApplicationReadyE
         return locked;
     }
 
+    public boolean isLockExecuted() {
+        return lockExecuted;
+    }
+
     @Scheduled(cron = "0/1 * * * * ?")
     public void masterLock() {
         if(applicationReady){
@@ -94,13 +98,13 @@ public class ClusterLockService implements ApplicationListener<ApplicationReadyE
                 }
                 //Keep locked
             } else {
-                if (locked || initStatueShow) {
+                if (locked || !lockExecuted) {
                     locked = Boolean.FALSE;
                     nodeType.setMaster(locked);
                     LOG.info("Slave Node");
-                    initStatueShow = Boolean.FALSE;
                 }
             }
+            lockExecuted = Boolean.TRUE;
         }
     }
 

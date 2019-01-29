@@ -45,7 +45,7 @@ public class SpringMasterLockRepository implements MasterLockRepository {
     @Segment(name = "MasterLockInit", category = "application", library = "kamon")
     public boolean initLock(MasterLock masterLock) {
         try {
-            Optional<MasterLock> lock = electionRepo.findMasterLockByServiceName(masterLock.getServiceName());
+            Optional<MasterLock> lock = this.findMasterLockByServiceName(masterLock.getServiceName());
             if (!lock.isPresent()) {
                 electionRepo.initLock(masterLock.getServiceName(),
                         masterLock.getExpireTime(),
@@ -80,5 +80,10 @@ public class SpringMasterLockRepository implements MasterLockRepository {
     @Segment(name = "MasterUnLock", category = "application", library = "kamon")
     public void unLock(String serviceName, Date expireTime) {
         electionRepo.unLock(serviceName, expireTime);
+    }
+
+    @Override
+    public Optional<MasterLock> findMasterLockByServiceName(String serviceName) {
+        return electionRepo.findMasterLockByServiceName(serviceName);
     }
 }
