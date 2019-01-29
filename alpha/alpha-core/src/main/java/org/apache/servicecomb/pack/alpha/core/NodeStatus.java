@@ -28,8 +28,8 @@ public class NodeStatus {
         this.typeEnum = typeNnum;
     }
 
-    public boolean isMaster() {
-        return this.typeEnum == TypeEnum.MASTER;
+    public TypeEnum getTypeEnum() {
+        return typeEnum;
     }
 
     public enum TypeEnum {
