@@ -35,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -87,16 +86,16 @@ public class AlphaConfig {
   }
 
   @Bean
-  NodeType nodeType (){
+  NodeStatus nodeStatus (){
     if(masterEnabled){
-      return new NodeType(Boolean.FALSE);
+      return new NodeStatus(NodeStatus.TypeEnum.SLAVE);
     }else{
-      return new NodeType(Boolean.TRUE);
+      return new NodeStatus(NodeStatus.TypeEnum.MASTER);
     }
   }
 
   @Autowired
-  NodeType nodeType;
+  NodeStatus nodeStatus;
 
   @Bean
   TxConsistentService txConsistentService(
@@ -110,7 +109,7 @@ public class AlphaConfig {
         if (eventScannerEnabled) {
           new EventScanner(scheduler,
               eventRepository, commandRepository, timeoutRepository,
-              omegaCallback, eventPollingInterval, nodeType).run();
+              omegaCallback, eventPollingInterval, nodeStatus).run();
           LOG.info("Starting the EventScanner.");
           }
         TxConsistentService consistentService = new TxConsistentService(eventRepository);

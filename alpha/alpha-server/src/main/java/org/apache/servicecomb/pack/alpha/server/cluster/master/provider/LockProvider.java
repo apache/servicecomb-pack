@@ -22,5 +22,5 @@ import org.apache.servicecomb.pack.alpha.server.cluster.master.LockConfig;
 import java.util.Optional;
 
 public interface LockProvider {
-    Optional<Locked> lock(LockConfig lockConfig);
+    Optional<Locker> lock(LockConfig lockConfig);
 }

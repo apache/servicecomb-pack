@@ -55,21 +55,21 @@ public class EventScanner implements Runnable {
 
   private long nextCompensatedEventId;
 
-  private NodeType nodeType;
+  private NodeStatus nodeStatus;
 
   public EventScanner(ScheduledExecutorService scheduler,
       TxEventRepository eventRepository,
       CommandRepository commandRepository,
       TxTimeoutRepository timeoutRepository,
       OmegaCallback omegaCallback,
-      int eventPollingInterval,NodeType nodeType) {
+      int eventPollingInterval,NodeStatus nodeStatus) {
     this.scheduler = scheduler;
     this.eventRepository = eventRepository;
     this.commandRepository = commandRepository;
     this.timeoutRepository = timeoutRepository;
     this.omegaCallback = omegaCallback;
     this.eventPollingInterval = eventPollingInterval;
-    this.nodeType = nodeType;
+    this.nodeStatus = nodeStatus;
   }
 
   @Override
@@ -85,7 +85,7 @@ public class EventScanner implements Runnable {
   private void pollEvents() {
     scheduler.scheduleWithFixedDelay(
         () -> {
-          if(nodeType.isMaster()){
+          if(nodeStatus.isMaster()){
             updateTimeoutStatus();
             findTimeoutEvents();
             abortTimeoutEvents();

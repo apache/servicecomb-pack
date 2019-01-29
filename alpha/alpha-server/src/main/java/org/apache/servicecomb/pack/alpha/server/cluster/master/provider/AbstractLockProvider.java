@@ -25,17 +25,17 @@ import java.util.Optional;
 public abstract class AbstractLockProvider implements LockProvider {
 
     private final LockProviderPersistence lockProviderPersistence;
-    private boolean lockInitialization = Boolean.FALSE;
+    private Boolean lockInitialization = Boolean.FALSE;
 
     protected AbstractLockProvider(LockProviderPersistence lockProviderPersistence) {
         this.lockProviderPersistence = lockProviderPersistence;
     }
 
     @Override
-    public Optional<org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locked> lock(LockConfig lockConfig) {
+    public Optional<org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locker> lock(LockConfig lockConfig) {
         boolean lockObtained = doLock(lockConfig);
         if (lockObtained) {
-            return Optional.of(new Locked(lockConfig, lockProviderPersistence));
+            return Optional.of(new Locker(lockConfig, lockProviderPersistence));
         } else {
             return Optional.empty();
         }
@@ -52,11 +52,11 @@ public abstract class AbstractLockProvider implements LockProvider {
         return lockProviderPersistence.updateLock(lockConfig);
     }
 
-    private static class Locked implements org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locked {
+    private static class Locker implements org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locker {
         private final LockConfig lockConfig;
         private final LockProviderPersistence lockProviderPersistence;
 
-        Locked(LockConfig lockConfig, LockProviderPersistence lockProviderPersistence) {
+        Locker(LockConfig lockConfig, LockProviderPersistence lockProviderPersistence) {
             this.lockConfig = lockConfig;
             this.lockProviderPersistence = lockProviderPersistence;
         }

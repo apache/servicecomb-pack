@@ -17,9 +17,9 @@
 
 package org.apache.servicecomb.pack.alpha.server.cluster.master;
 
-import org.apache.servicecomb.pack.alpha.core.NodeType;
+import org.apache.servicecomb.pack.alpha.core.NodeStatus;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.LockProvider;
-import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locked;
+import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +71,7 @@ public class ClusterLockService implements ApplicationListener<ApplicationReadyE
     LockProvider lockProvider;
 
     @Autowired
-    NodeType nodeType;
+    NodeStatus nodeStatus;
 
     public ClusterLockService() {
         LOG.info("Initialize cluster mode");
@@ -86,21 +86,21 @@ public class ClusterLockService implements ApplicationListener<ApplicationReadyE
     }
 
     @Scheduled(cron = "0/1 * * * * ?")
-    public void masterLock() {
+    public void masterCheck() {
         if(applicationReady){
             LockConfig lockConfig = new LockConfig(serviceName, instanceId, expire);
-            Optional<Locked> lock = lockProvider.lock(lockConfig);
+            Optional<Locker> lock = lockProvider.lock(lockConfig);
             if (lock.isPresent()) {
                 if (!this.locked) {
                     locked = Boolean.TRUE;
-                    nodeType.setMaster(locked);
+                    nodeStatus.setTypeEnum(NodeStatus.TypeEnum.MASTER);
                     LOG.info("Master Node");
                 }
                 //Keep locked
             } else {
                 if (locked || !lockExecuted) {
                     locked = Boolean.FALSE;
-                    nodeType.setMaster(locked);
+                    nodeStatus.setTypeEnum(NodeStatus.TypeEnum.SLAVE);
                     LOG.info("Slave Node");
                 }
             }
