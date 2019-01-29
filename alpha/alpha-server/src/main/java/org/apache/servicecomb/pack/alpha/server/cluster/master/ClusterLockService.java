@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -49,11 +51,12 @@ import java.util.Optional;
 @Component
 @ConditionalOnProperty(name = "alpha.cluster.master.enabled", havingValue = "true")
 @EnableScheduling
-public class ClusterLockService {
+public class ClusterLockService implements ApplicationListener<ApplicationReadyEvent> {
 
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private boolean locked = Boolean.FALSE;
     private boolean initStatueShow = Boolean.TRUE;
+    private boolean applicationReady = Boolean.FALSE;
 
     @Value("[${alpha.server.host}]:${alpha.server.port}")
     private String instanceId;
@@ -78,25 +81,31 @@ public class ClusterLockService {
         return locked;
     }
 
-    @Scheduled(fixedDelayString = "${alpha.cluster.master.expire:5000}")
+    @Scheduled(cron = "0/1 * * * * ?")
     public void masterLock() {
-        LockConfig lockConfig = new LockConfig(serviceName, instanceId, expire);
-        Optional<Locked> lock = lockProvider.lock(lockConfig);
-        if (lock.isPresent()) {
-            if (!this.locked) {
-                locked = Boolean.TRUE;
-                nodeType.setMaster(locked);
-                LOG.info("Master Node");
+        if(applicationReady){
+            LockConfig lockConfig = new LockConfig(serviceName, instanceId, expire);
+            Optional<Locked> lock = lockProvider.lock(lockConfig);
+            if (lock.isPresent()) {
+                if (!this.locked) {
+                    locked = Boolean.TRUE;
+                    nodeType.setMaster(locked);
+                    LOG.info("Master Node");
+                }
+                //Keep locked
             } else {
-                LOG.debug("Keep locked");
-            }
-        } else {
-            if (locked || initStatueShow) {
-                locked = Boolean.FALSE;
-                nodeType.setMaster(locked);
-                LOG.info("Slave Node");
-                initStatueShow = Boolean.FALSE;
+                if (locked || initStatueShow) {
+                    locked = Boolean.FALSE;
+                    nodeType.setMaster(locked);
+                    LOG.info("Slave Node");
+                    initStatueShow = Boolean.FALSE;
+                }
             }
         }
+    }
+
+    @Override
+    public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
+        this.applicationReady = Boolean.TRUE;
     }
 }
