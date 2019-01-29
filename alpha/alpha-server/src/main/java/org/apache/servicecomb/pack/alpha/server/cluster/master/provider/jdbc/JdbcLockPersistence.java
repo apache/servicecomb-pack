@@ -17,12 +17,9 @@
 
 package org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc;
 
-import org.apache.servicecomb.pack.alpha.server.cluster.master.LockConfig;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.LockProviderPersistence;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLock;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLockRepository;
-
-import java.util.Date;
 
 class JdbcLockPersistence implements LockProviderPersistence {
 
@@ -32,25 +29,17 @@ class JdbcLockPersistence implements LockProviderPersistence {
         this.masterLockRepository = masterLockRepository;
     }
 
-    public boolean initLock(LockConfig lockConfig) {
-        MasterLock masterLock = new MasterLock(lockConfig.getServiceName(),
-                lockConfig.getInstanceId(),
-                lockConfig.getLockExpireTime(),
-                new Date());
+    public boolean initLock(MasterLock masterLock) {
         return this.masterLockRepository.initLock(masterLock);
     }
 
-    public boolean updateLock(LockConfig lockConfig) {
-        MasterLock masterLock = new MasterLock(lockConfig.getServiceName(),
-                lockConfig.getInstanceId(),
-                lockConfig.getLockExpireTime(),
-                new Date());
+    public boolean updateLock(MasterLock masterLock) {
         return this.masterLockRepository.updateLock(masterLock);
     }
 
-    public void unLock(LockConfig lockConfig) {
-        this.masterLockRepository.unLock(lockConfig.getServiceName(),
-                lockConfig.getLockExpireTime());
+    public void unLock(MasterLock masterLock) {
+        this.masterLockRepository.unLock(masterLock.getServiceName(),
+                masterLock.getExpireTime());
     }
 
 }

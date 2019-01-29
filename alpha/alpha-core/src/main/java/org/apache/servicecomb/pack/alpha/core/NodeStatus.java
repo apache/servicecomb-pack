@@ -17,18 +17,22 @@
 
 package org.apache.servicecomb.pack.alpha.core;
 
-public class NodeType {
-    private boolean isMaster = Boolean.TRUE;
+public class NodeStatus {
+    private TypeEnum typeEnum = TypeEnum.SLAVE;
 
-    public NodeType(boolean isMaster) {
-        this.isMaster = isMaster;
+    public NodeStatus(TypeEnum typeNnum) {
+        this.typeEnum = typeNnum;
     }
 
-    public void setMaster(boolean master) {
-        isMaster = master;
+    public void setTypeEnum(TypeEnum typeNnum) {
+        this.typeEnum = typeNnum;
     }
 
-    public boolean isMaster() {
-        return isMaster;
+    public TypeEnum getTypeEnum() {
+        return typeEnum;
+    }
+
+    public enum TypeEnum {
+        MASTER, SLAVE
     }
 }

@@ -31,8 +31,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Optional;
 
 import static org.mockito.Mockito.when;
@@ -64,35 +62,31 @@ public class ClusterLockServiceTest {
     @MockBean
     private MasterLockRepository masterLockRepository;
 
-    private final MasterLock masterLock = populateMasterLock(serviceName, instanceId, expire);
-
-
     @Test(timeout = 5000)
-    public void testIsMaster() {
-        when(masterLockRepository.initLock(masterLock)).thenReturn(Boolean.TRUE);
+    public void testIsMaster() throws InterruptedException {
+        clusterLockService.setMasterLock(null);
+        MasterLock masterLock = clusterLockService.getMasterLock();
+        when(masterLockRepository.initLock(masterLock)).thenReturn(true);
         when(masterLockRepository.findMasterLockByServiceName(serviceName)).thenReturn(Optional.of(masterLock));
-        when(masterLockRepository.updateLock(masterLock)).thenReturn(Boolean.TRUE);
-        while(clusterLockService.isLockExecuted()) {
-            Assert.assertEquals(clusterLockService.isMasterNode(), Boolean.TRUE);
+        when(masterLockRepository.updateLock(masterLock)).thenReturn(true);
+        while(!clusterLockService.isLockExecuted()) {
+            Thread.sleep(50);
         }
+        Assert.assertEquals(clusterLockService.isMasterNode(), true);
+        clusterLockService.unLock();
     }
 
     @Test(timeout = 5000)
-    public void testIsSlave() {
-        when(masterLockRepository.initLock(masterLock)).thenReturn(Boolean.FALSE);
+    public void testIsSlave() throws InterruptedException {
+        clusterLockService.setMasterLock(null);
+        MasterLock masterLock = clusterLockService.getMasterLock();
+        when(masterLockRepository.initLock(masterLock)).thenReturn(false);
         when(masterLockRepository.findMasterLockByServiceName(serviceName)).thenReturn(Optional.of(masterLock));
-        when(masterLockRepository.updateLock(masterLock)).thenReturn(Boolean.FALSE);
-        while(clusterLockService.isLockExecuted()) {
-            Assert.assertEquals(clusterLockService.isMasterNode(), Boolean.FALSE);
+        when(masterLockRepository.updateLock(masterLock)).thenReturn(false);
+        while(!clusterLockService.isLockExecuted()) {
+            Thread.sleep(50);
         }
-    }
-
-    private MasterLock populateMasterLock(String serviceName, String instanceId, int expire) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date());
-        Date lockedTime = cal.getTime();
-        cal.add(Calendar.MILLISECOND, expire);
-        Date expireTime = cal.getTime();
-        return new MasterLock(serviceName, instanceId, expireTime, lockedTime);
+        Assert.assertEquals(clusterLockService.isMasterNode(), false);
+        clusterLockService.unLock();
     }
 }

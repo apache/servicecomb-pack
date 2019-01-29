@@ -596,6 +596,6 @@ public class AlphaIntegrationTest {
         eventRepository,
         commandRepository,
         timeoutRepository,
-        omegaCallback, 1, new NodeType(Boolean.TRUE)).run();
+        omegaCallback, 1, new NodeStatus(NodeStatus.TypeEnum.MASTER)).run();
   }
 }

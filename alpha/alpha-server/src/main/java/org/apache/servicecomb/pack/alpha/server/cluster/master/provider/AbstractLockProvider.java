@@ -17,53 +17,52 @@
 
 package org.apache.servicecomb.pack.alpha.server.cluster.master.provider;
 
-
-import org.apache.servicecomb.pack.alpha.server.cluster.master.LockConfig;
+import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLock;
 
 import java.util.Optional;
 
 public abstract class AbstractLockProvider implements LockProvider {
 
     private final LockProviderPersistence lockProviderPersistence;
-    private boolean lockInitialization = Boolean.FALSE;
+    private Boolean lockInitialization = Boolean.FALSE;
 
     protected AbstractLockProvider(LockProviderPersistence lockProviderPersistence) {
         this.lockProviderPersistence = lockProviderPersistence;
     }
 
     @Override
-    public Optional<org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locked> lock(LockConfig lockConfig) {
-        boolean lockObtained = doLock(lockConfig);
+    public Optional<org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locker> lock(MasterLock masterLock) {
+        boolean lockObtained = doLock(masterLock);
         if (lockObtained) {
-            return Optional.of(new Locked(lockConfig, lockProviderPersistence));
+            return Optional.of(new Locker(masterLock, lockProviderPersistence));
         } else {
             return Optional.empty();
         }
     }
 
-    protected boolean doLock(LockConfig lockConfig) {
+    protected boolean doLock(MasterLock masterLock) {
         if (!lockInitialization) {
-            if (lockProviderPersistence.initLock(lockConfig)) {
+            if (lockProviderPersistence.initLock(masterLock)) {
                 lockInitialization = Boolean.TRUE;
                 return true;
             }
             lockInitialization = Boolean.TRUE;
         }
-        return lockProviderPersistence.updateLock(lockConfig);
+        return lockProviderPersistence.updateLock(masterLock);
     }
 
-    private static class Locked implements org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locked {
-        private final LockConfig lockConfig;
+    private static class Locker implements org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locker {
+        private final MasterLock masterLock;
         private final LockProviderPersistence lockProviderPersistence;
 
-        Locked(LockConfig lockConfig, LockProviderPersistence lockProviderPersistence) {
-            this.lockConfig = lockConfig;
+        Locker(MasterLock masterLock, LockProviderPersistence lockProviderPersistence) {
+            this.masterLock = masterLock;
             this.lockProviderPersistence = lockProviderPersistence;
         }
 
         @Override
         public void unlock() {
-            lockProviderPersistence.unLock(lockConfig);
+            lockProviderPersistence.unLock(masterLock);
         }
     }
 
