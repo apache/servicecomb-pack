@@ -72,6 +72,7 @@ public class SpringMasterLockRepository implements MasterLockRepository {
                     masterLock.getInstanceId());
             return size > 0 ? true : false;
         } catch (Exception e) {
+            LOG.error("Update lock error",e);
             return false;
         }
     }
