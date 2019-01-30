@@ -115,3 +115,13 @@ CREATE TABLE IF NOT EXISTS tcc_tx_event (
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS tcc_tx_event_index ON tcc_tx_event (globalTxId, localTxId, parentTxId, txType);
+
+CREATE TABLE IF NOT EXISTS master_lock (
+  serviceName varchar(36) not NULL,
+  expireTime timestamp(3) not NULL,
+  lockedTime timestamp(3) not NULL,
+  instanceId  varchar(255) not NULL,
+  PRIMARY KEY (serviceName)
+);
+
+CREATE INDEX IF NOT EXISTS master_lock_index ON master_lock (serviceName);

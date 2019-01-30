@@ -44,14 +44,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import javax.annotation.PostConstruct;
-import org.apache.servicecomb.pack.alpha.core.CommandRepository;
-import org.apache.servicecomb.pack.alpha.core.EventScanner;
-import org.apache.servicecomb.pack.alpha.core.OmegaCallback;
-import org.apache.servicecomb.pack.alpha.core.TxConsistentService;
-import org.apache.servicecomb.pack.alpha.core.TxEvent;
-import org.apache.servicecomb.pack.alpha.core.TxEventRepository;
-import org.apache.servicecomb.pack.alpha.core.TxTimeout;
-import org.apache.servicecomb.pack.alpha.core.TxTimeoutRepository;
+
+import org.apache.servicecomb.pack.alpha.core.*;
 import org.apache.servicecomb.pack.common.EventType;
 import org.apache.servicecomb.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.pack.contract.grpc.GrpcCompensateCommand;
@@ -602,6 +596,6 @@ public class AlphaIntegrationTest {
         eventRepository,
         commandRepository,
         timeoutRepository,
-        omegaCallback, 1).run();
+        omegaCallback, 1, new NodeStatus(NodeStatus.TypeEnum.MASTER)).run();
   }
 }
