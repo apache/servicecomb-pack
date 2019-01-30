@@ -19,7 +19,7 @@ package org.apache.servicecomb.pack.alpha.server.cluster.master;
 
 import org.apache.servicecomb.pack.alpha.core.NodeStatus;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.LockProvider;
-import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locker;
+import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Lock;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,15 +58,15 @@ public class ClusterLockService implements ApplicationListener<ApplicationReadyE
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private boolean locked = Boolean.FALSE;
+  private boolean locked;
 
-  private boolean lockExecuted = Boolean.FALSE;
+  private boolean lockExecuted;
 
-  private boolean applicationReady = Boolean.FALSE;
+  private boolean applicationReady;
 
   private MasterLock masterLock;
 
-  private Optional<Locker> locker;
+  private Optional<Lock> locker;
 
   @Value("[${alpha.server.host}]:${alpha.server.port}")
   private String instanceId;
@@ -114,6 +114,7 @@ public class ClusterLockService implements ApplicationListener<ApplicationReadyE
   /**
    * Try to lock every second
    * */
+  //TODO We need to check if the master check interval time check is OK
   @Scheduled(cron = "0/1 * * * * ?")
   public void masterCheck() {
     if (applicationReady) {
@@ -132,7 +133,7 @@ public class ClusterLockService implements ApplicationListener<ApplicationReadyE
           LOG.info("Slave Node");
         }
       }
-      lockExecuted = Boolean.TRUE;
+      lockExecuted = true;
     }
   }
 
@@ -147,6 +148,6 @@ public class ClusterLockService implements ApplicationListener<ApplicationReadyE
 
   @Override
   public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
-    this.applicationReady = Boolean.TRUE;
+    this.applicationReady = true;
   }
 }

@@ -85,7 +85,8 @@ public class EventScanner implements Runnable {
   private void pollEvents() {
     scheduler.scheduleWithFixedDelay(
         () -> {
-          if(nodeStatus.getTypeEnum() == NodeStatus.TypeEnum.MASTER){
+          // only pull the events when working in the master mode
+          if(nodeStatus.isMaster()){
             updateTimeoutStatus();
             findTimeoutEvents();
             abortTimeoutEvents();

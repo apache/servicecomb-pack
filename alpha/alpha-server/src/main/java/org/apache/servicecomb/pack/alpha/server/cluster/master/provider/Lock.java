@@ -17,6 +17,6 @@
 
 package org.apache.servicecomb.pack.alpha.server.cluster.master.provider;
 
-public interface Locker {
+public interface Lock {
   void unlock();
 }

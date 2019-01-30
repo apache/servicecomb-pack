@@ -24,6 +24,10 @@ public class NodeStatus {
     this.typeEnum = typeNnum;
   }
 
+  public boolean isMaster() {
+    return typeEnum == NodeStatus.TypeEnum.MASTER;
+  }
+
   public void setTypeEnum(TypeEnum typeNnum) {
     this.typeEnum = typeNnum;
   }
