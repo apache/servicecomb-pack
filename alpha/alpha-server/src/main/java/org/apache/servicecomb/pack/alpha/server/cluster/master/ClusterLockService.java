@@ -106,6 +106,9 @@ public class ClusterLockService implements ApplicationListener<ApplicationReadyE
         this.masterLock = masterLock;
     }
 
+    /**
+     * Try to lock every second
+     * */
     @Scheduled(cron = "0/1 * * * * ?")
     public void masterCheck() {
         if (applicationReady) {
