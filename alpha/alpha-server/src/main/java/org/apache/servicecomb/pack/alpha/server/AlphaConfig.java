@@ -25,21 +25,15 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import org.apache.servicecomb.pack.alpha.core.CommandRepository;
-import org.apache.servicecomb.pack.alpha.core.CompositeOmegaCallback;
-import org.apache.servicecomb.pack.alpha.core.EventScanner;
-import org.apache.servicecomb.pack.alpha.core.OmegaCallback;
-import org.apache.servicecomb.pack.alpha.core.PendingTaskRunner;
-import org.apache.servicecomb.pack.alpha.core.PushBackOmegaCallback;
-import org.apache.servicecomb.pack.alpha.core.TxConsistentService;
-import org.apache.servicecomb.pack.alpha.core.TxEventRepository;
-import org.apache.servicecomb.pack.alpha.core.TxTimeoutRepository;
+
+import org.apache.servicecomb.pack.alpha.core.*;
 import org.apache.servicecomb.pack.alpha.server.tcc.GrpcTccEventService;
 import org.apache.servicecomb.pack.alpha.server.tcc.callback.TccPendingTaskRunner;
 import org.apache.servicecomb.pack.alpha.server.tcc.service.TccEventScanner;
 import org.apache.servicecomb.pack.alpha.server.tcc.service.TccTxEventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
@@ -57,6 +51,9 @@ public class AlphaConfig {
 
   @Value("${alpha.tx.timeout-seconds:600}")
   private int globalTxTimeoutSeconds;
+
+  @Value("${alpha.cluster.master.enabled:false}")
+  private boolean masterEnabled;
 
   @Bean
   Map<String, Map<String, OmegaCallback>> omegaCallbacks() {
@@ -89,6 +86,18 @@ public class AlphaConfig {
   }
 
   @Bean
+  NodeStatus nodeStatus (){
+    if(masterEnabled){
+      return new NodeStatus(NodeStatus.TypeEnum.SLAVE);
+    }else{
+      return new NodeStatus(NodeStatus.TypeEnum.MASTER);
+    }
+  }
+
+  @Autowired
+  NodeStatus nodeStatus;
+
+  @Bean
   TxConsistentService txConsistentService(
       @Value("${alpha.event.pollingInterval:500}") int eventPollingInterval,
       @Value("${alpha.event.scanner.enabled:true}") boolean eventScannerEnabled,
@@ -100,7 +109,7 @@ public class AlphaConfig {
         if (eventScannerEnabled) {
           new EventScanner(scheduler,
               eventRepository, commandRepository, timeoutRepository,
-              omegaCallback, eventPollingInterval).run();
+              omegaCallback, eventPollingInterval, nodeStatus).run();
           LOG.info("Starting the EventScanner.");
           }
         TxConsistentService consistentService = new TxConsistentService(eventRepository);
