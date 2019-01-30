@@ -32,26 +32,15 @@ public class MasterLock {
     private Date expireTime;
     private Date lockedTime;
 
-    public MasterLock() {
+    public MasterLock(){
 
-    }
-
-    public MasterLock(MasterLock masterLock) {
-        this(masterLock.serviceName,
-                masterLock.instanceId,
-                masterLock.expireTime,
-                masterLock.lockedTime);
     }
 
     public MasterLock(
             String serviceName,
-            String instanceId,
-            Date expireTime,
-            Date lockedTime) {
+            String instanceId) {
         this.serviceName = serviceName;
         this.instanceId = instanceId;
-        this.expireTime = expireTime;
-        this.lockedTime = lockedTime;
     }
 
     public Date getExpireTime() {
