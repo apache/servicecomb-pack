@@ -67,6 +67,9 @@ public class ClusterLockServiceTest {
         //node type is master
         clusterLockService.setMasterLock(null);
         MasterLock masterLock = clusterLockService.getMasterLock();
+        Assert.assertEquals(masterLock.getServiceName(),serviceName);
+        Assert.assertEquals(masterLock.getInstanceId(),instanceId);
+        Assert.assertEquals((masterLock.getExpireTime().getTime()-masterLock.getLockedTime().getTime()),expire);
         when(masterLockRepository.initLock(masterLock)).thenReturn(true);
         when(masterLockRepository.findMasterLockByServiceName(serviceName)).thenReturn(Optional.of(masterLock));
         when(masterLockRepository.updateLock(masterLock)).thenReturn(true);
