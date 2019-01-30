@@ -23,47 +23,48 @@ import java.util.Optional;
 
 public abstract class AbstractLockProvider implements LockProvider {
 
-    private final LockProviderPersistence lockProviderPersistence;
-    private Boolean lockInitialization = Boolean.FALSE;
+  private final LockProviderPersistence lockProviderPersistence;
 
-    protected AbstractLockProvider(LockProviderPersistence lockProviderPersistence) {
-        this.lockProviderPersistence = lockProviderPersistence;
+  private Boolean lockInitialization = Boolean.FALSE;
+
+  protected AbstractLockProvider(LockProviderPersistence lockProviderPersistence) {
+    this.lockProviderPersistence = lockProviderPersistence;
+  }
+
+  @Override
+  public Optional<org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locker> lock(MasterLock masterLock) {
+    boolean lockObtained = doLock(masterLock);
+    if (lockObtained) {
+      return Optional.of(new Locker(masterLock, lockProviderPersistence));
+    } else {
+      return Optional.empty();
+    }
+  }
+
+  protected boolean doLock(MasterLock masterLock) {
+    if (!lockInitialization) {
+      if (lockProviderPersistence.initLock(masterLock)) {
+        lockInitialization = Boolean.TRUE;
+        return true;
+      }
+      lockInitialization = Boolean.TRUE;
+    }
+    return lockProviderPersistence.updateLock(masterLock);
+  }
+
+  private static class Locker implements org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locker {
+    private final MasterLock masterLock;
+
+    private final LockProviderPersistence lockProviderPersistence;
+
+    Locker(MasterLock masterLock, LockProviderPersistence lockProviderPersistence) {
+      this.masterLock = masterLock;
+      this.lockProviderPersistence = lockProviderPersistence;
     }
 
     @Override
-    public Optional<org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locker> lock(MasterLock masterLock) {
-        boolean lockObtained = doLock(masterLock);
-        if (lockObtained) {
-            return Optional.of(new Locker(masterLock, lockProviderPersistence));
-        } else {
-            return Optional.empty();
-        }
+    public void unlock() {
+      lockProviderPersistence.unLock(masterLock);
     }
-
-    protected boolean doLock(MasterLock masterLock) {
-        if (!lockInitialization) {
-            if (lockProviderPersistence.initLock(masterLock)) {
-                lockInitialization = Boolean.TRUE;
-                return true;
-            }
-            lockInitialization = Boolean.TRUE;
-        }
-        return lockProviderPersistence.updateLock(masterLock);
-    }
-
-    private static class Locker implements org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Locker {
-        private final MasterLock masterLock;
-        private final LockProviderPersistence lockProviderPersistence;
-
-        Locker(MasterLock masterLock, LockProviderPersistence lockProviderPersistence) {
-            this.masterLock = masterLock;
-            this.lockProviderPersistence = lockProviderPersistence;
-        }
-
-        @Override
-        public void unlock() {
-            lockProviderPersistence.unLock(masterLock);
-        }
-    }
-
+  }
 }

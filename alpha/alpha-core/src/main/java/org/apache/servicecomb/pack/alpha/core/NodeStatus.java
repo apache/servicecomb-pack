@@ -18,21 +18,22 @@
 package org.apache.servicecomb.pack.alpha.core;
 
 public class NodeStatus {
-    private TypeEnum typeEnum = TypeEnum.SLAVE;
+  private TypeEnum typeEnum = TypeEnum.SLAVE;
 
-    public NodeStatus(TypeEnum typeNnum) {
-        this.typeEnum = typeNnum;
-    }
+  public NodeStatus(TypeEnum typeNnum) {
+    this.typeEnum = typeNnum;
+  }
 
-    public void setTypeEnum(TypeEnum typeNnum) {
-        this.typeEnum = typeNnum;
-    }
+  public void setTypeEnum(TypeEnum typeNnum) {
+    this.typeEnum = typeNnum;
+  }
 
-    public TypeEnum getTypeEnum() {
-        return typeEnum;
-    }
+  public TypeEnum getTypeEnum() {
+    return typeEnum;
+  }
 
-    public enum TypeEnum {
-        MASTER, SLAVE
-    }
+  public enum TypeEnum {
+    MASTER,
+    SLAVE
+  }
 }

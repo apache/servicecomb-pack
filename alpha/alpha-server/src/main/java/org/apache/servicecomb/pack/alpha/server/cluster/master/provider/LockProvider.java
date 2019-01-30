@@ -22,5 +22,5 @@ import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa
 import java.util.Optional;
 
 public interface LockProvider {
-    Optional<Locker> lock(MasterLock masterLock);
+  Optional<Locker> lock(MasterLock masterLock);
 }

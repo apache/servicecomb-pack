@@ -22,11 +22,11 @@ import java.util.Optional;
 
 public interface MasterLockRepository {
 
-    boolean initLock(MasterLock masterLock);
+  boolean initLock(MasterLock masterLock);
 
-    boolean updateLock(MasterLock masterLock);
+  boolean updateLock(MasterLock masterLock);
 
-    void unLock(String serviceName, Date expireTime);
+  void unLock(String serviceName, Date expireTime);
 
-    Optional<MasterLock> findMasterLockByServiceName(String serviceName);
+  Optional<MasterLock> findMasterLockByServiceName(String serviceName);
 }

@@ -28,15 +28,15 @@ import org.springframework.context.annotation.Primary;
 @ConditionalOnProperty(name = "alpha.cluster.master.enabled", havingValue = "true")
 public class LockProviderJdbcConfiguration {
 
-    @Bean
-    public MasterLockRepository springElectionRepository(MasterLockEntityRepository electionRepo) {
-        return new SpringMasterLockRepository(electionRepo);
-    }
+  @Bean
+  public MasterLockRepository springElectionRepository(MasterLockEntityRepository electionRepo) {
+    return new SpringMasterLockRepository(electionRepo);
+  }
 
-    @Primary
-    @Bean
-    @ConditionalOnProperty(name = "alpha.cluster.master.type", havingValue = "jdbc", matchIfMissing = true)
-    public LockProvider lockProvider(MasterLockRepository electionRepo) {
-        return new JdbcLockProvider(electionRepo);
-    }
+  @Primary
+  @Bean
+  @ConditionalOnProperty(name = "alpha.cluster.master.type", havingValue = "jdbc", matchIfMissing = true)
+  public LockProvider lockProvider(MasterLockRepository electionRepo) {
+    return new JdbcLockProvider(electionRepo);
+  }
 }

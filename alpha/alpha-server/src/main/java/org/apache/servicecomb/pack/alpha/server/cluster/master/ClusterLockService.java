@@ -56,92 +56,97 @@ import java.util.Optional;
 @EnableScheduling
 public class ClusterLockService implements ApplicationListener<ApplicationReadyEvent> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private boolean locked = Boolean.FALSE;
-    private boolean lockExecuted = Boolean.FALSE;
-    private boolean applicationReady = Boolean.FALSE;
-    private MasterLock masterLock;
-    private Optional<Locker> locker;
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    @Value("[${alpha.server.host}]:${alpha.server.port}")
-    private String instanceId;
+  private boolean locked = Boolean.FALSE;
 
-    @Value("${spring.application.name:servicecomb-alpha-server}")
-    private String serviceName;
+  private boolean lockExecuted = Boolean.FALSE;
 
-    @Value("${alpha.cluster.master.expire:5000}")
-    private int expire;
+  private boolean applicationReady = Boolean.FALSE;
 
-    @Autowired
-    LockProvider lockProvider;
+  private MasterLock masterLock;
 
-    @Autowired
-    NodeStatus nodeStatus;
+  private Optional<Locker> locker;
 
-    public ClusterLockService() {
-        LOG.info("Initialize cluster mode");
+  @Value("[${alpha.server.host}]:${alpha.server.port}")
+  private String instanceId;
+
+  @Value("${spring.application.name:servicecomb-alpha-server}")
+  private String serviceName;
+
+  @Value("${alpha.cluster.master.expire:5000}")
+  private int expire;
+
+  @Autowired
+  LockProvider lockProvider;
+
+  @Autowired
+  NodeStatus nodeStatus;
+
+  public ClusterLockService() {
+    LOG.info("Initialize cluster mode");
+  }
+
+  public boolean isMasterNode() {
+    return locked;
+  }
+
+  public boolean isLockExecuted() {
+    return lockExecuted;
+  }
+
+  public MasterLock getMasterLock() {
+    if (this.masterLock == null) {
+      this.masterLock = new MasterLock(serviceName, instanceId);
     }
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(new Date());
+    this.masterLock.setLockedTime(cal.getTime());
+    cal.add(Calendar.MILLISECOND, expire);
+    this.masterLock.setExpireTime(cal.getTime());
+    return this.masterLock;
+  }
 
-    public boolean isMasterNode() {
-        return locked;
-    }
+  public void setMasterLock(MasterLock masterLock) {
+    this.masterLock = masterLock;
+  }
 
-    public boolean isLockExecuted() {
-        return lockExecuted;
-    }
-
-    public MasterLock getMasterLock() {
-        if (this.masterLock == null) {
-            this.masterLock = new MasterLock(serviceName,instanceId);
+  /**
+   * Try to lock every second
+   * */
+  @Scheduled(cron = "0/1 * * * * ?")
+  public void masterCheck() {
+    if (applicationReady) {
+      this.locker = lockProvider.lock(this.getMasterLock());
+      if (this.locker.isPresent()) {
+        if (!this.locked) {
+          this.locked = true;
+          nodeStatus.setTypeEnum(NodeStatus.TypeEnum.MASTER);
+          LOG.info("Master Node");
         }
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date());
-        this.masterLock.setLockedTime(cal.getTime());
-        cal.add(Calendar.MILLISECOND, expire);
-        this.masterLock.setExpireTime(cal.getTime());
-        return this.masterLock;
-    }
-
-    public void setMasterLock(MasterLock masterLock) {
-        this.masterLock = masterLock;
-    }
-
-    /**
-     * Try to lock every second
-     * */
-    @Scheduled(cron = "0/1 * * * * ?")
-    public void masterCheck() {
-        if (applicationReady) {
-            this.locker = lockProvider.lock(this.getMasterLock());
-            if (this.locker.isPresent()) {
-                if (!this.locked) {
-                    this.locked = true;
-                    nodeStatus.setTypeEnum(NodeStatus.TypeEnum.MASTER);
-                    LOG.info("Master Node");
-                }
-                //Keep locked
-            } else {
-                if (this.locked || !lockExecuted) {
-                    locked = false;
-                    nodeStatus.setTypeEnum(NodeStatus.TypeEnum.SLAVE);
-                    LOG.info("Slave Node");
-                }
-            }
-            lockExecuted = Boolean.TRUE;
+        //Keep locked
+      } else {
+        if (this.locked || !lockExecuted) {
+          locked = false;
+          nodeStatus.setTypeEnum(NodeStatus.TypeEnum.SLAVE);
+          LOG.info("Slave Node");
         }
+      }
+      lockExecuted = Boolean.TRUE;
     }
+  }
 
-    public void unLock(){
-        if(this.locker.isPresent()){
-            this.locker.get().unlock();
-        }
-        lockExecuted = false;
-        locked = false;
-        nodeStatus.setTypeEnum(NodeStatus.TypeEnum.SLAVE);
+  public void unLock() {
+    if (this.locker.isPresent()) {
+      this.locker.get().unlock();
     }
+    lockExecuted = false;
+    locked = false;
+    nodeStatus.setTypeEnum(NodeStatus.TypeEnum.SLAVE);
+  }
 
-    @Override
-    public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
-        this.applicationReady = Boolean.TRUE;
-    }
+  @Override
+  public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
+    this.applicationReady = Boolean.TRUE;
+  }
 }

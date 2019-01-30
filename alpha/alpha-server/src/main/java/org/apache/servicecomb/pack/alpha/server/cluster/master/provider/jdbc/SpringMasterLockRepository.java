@@ -19,6 +19,7 @@ package org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc;
 
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Segment;
+
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLock;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLockRepository;
 import org.slf4j.Logger;
@@ -33,58 +34,58 @@ import java.util.Optional;
 @ConditionalOnProperty(name = "alpha.cluster.master.enabled", havingValue = "true")
 public class SpringMasterLockRepository implements MasterLockRepository {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private final MasterLockEntityRepository electionRepo;
+  private final MasterLockEntityRepository electionRepo;
 
-    SpringMasterLockRepository(MasterLockEntityRepository electionRepo) {
-        this.electionRepo = electionRepo;
+  SpringMasterLockRepository(MasterLockEntityRepository electionRepo) {
+    this.electionRepo = electionRepo;
+  }
+
+  @Override
+  @Segment(name = "MasterLockInit", category = "application", library = "kamon")
+  public boolean initLock(MasterLock masterLock) {
+    try {
+      Optional<MasterLock> lock = this.findMasterLockByServiceName(masterLock.getServiceName());
+      if (!lock.isPresent()) {
+        electionRepo.initLock(masterLock.getServiceName(),
+            masterLock.getExpireTime(),
+            masterLock.getLockedTime(),
+            masterLock.getInstanceId());
+        return true;
+      } else {
+        return false;
+      }
+    } catch (Exception e) {
+      LOG.error("Init lock error", e);
+      return false;
     }
+  }
 
-    @Override
-    @Segment(name = "MasterLockInit", category = "application", library = "kamon")
-    public boolean initLock(MasterLock masterLock) {
-        try {
-            Optional<MasterLock> lock = this.findMasterLockByServiceName(masterLock.getServiceName());
-            if (!lock.isPresent()) {
-                electionRepo.initLock(masterLock.getServiceName(),
-                        masterLock.getExpireTime(),
-                        masterLock.getLockedTime(),
-                        masterLock.getInstanceId());
-                return true;
-            } else {
-                return false;
-            }
-        } catch (Exception e) {
-            LOG.error("Init lock error",e);
-            return false;
-        }
+  @Override
+  @Segment(name = "MasterUpdateLock", category = "application", library = "kamon")
+  public boolean updateLock(MasterLock masterLock) {
+    try {
+      int size = electionRepo.updateLock(
+          masterLock.getServiceName(),
+          new Date(),
+          masterLock.getExpireTime(),
+          masterLock.getInstanceId());
+      return size > 0 ? true : false;
+    } catch (Exception e) {
+      LOG.error("Update lock error", e);
+      return false;
     }
+  }
 
-    @Override
-    @Segment(name = "MasterUpdateLock", category = "application", library = "kamon")
-    public boolean updateLock(MasterLock masterLock) {
-        try {
-            int size = electionRepo.updateLock(
-                    masterLock.getServiceName(),
-                    new Date(),
-                    masterLock.getExpireTime(),
-                    masterLock.getInstanceId());
-            return size > 0 ? true : false;
-        } catch (Exception e) {
-            LOG.error("Update lock error",e);
-            return false;
-        }
-    }
+  @Override
+  @Segment(name = "MasterUnLock", category = "application", library = "kamon")
+  public void unLock(String serviceName, Date expireTime) {
+    electionRepo.unLock(serviceName, expireTime);
+  }
 
-    @Override
-    @Segment(name = "MasterUnLock", category = "application", library = "kamon")
-    public void unLock(String serviceName, Date expireTime) {
-        electionRepo.unLock(serviceName, expireTime);
-    }
-
-    @Override
-    public Optional<MasterLock> findMasterLockByServiceName(String serviceName) {
-        return electionRepo.findMasterLockByServiceName(serviceName);
-    }
+  @Override
+  public Optional<MasterLock> findMasterLockByServiceName(String serviceName) {
+    return electionRepo.findMasterLockByServiceName(serviceName);
+  }
 }

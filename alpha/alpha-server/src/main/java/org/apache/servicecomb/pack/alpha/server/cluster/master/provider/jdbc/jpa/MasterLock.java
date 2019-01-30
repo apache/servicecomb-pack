@@ -20,58 +20,62 @@ package org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jp
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
 import java.util.Date;
 
 @Entity
 @Table(name = "master_lock")
 public class MasterLock {
 
-    @Id
-    private String serviceName;
-    private String instanceId;
-    private Date expireTime;
-    private Date lockedTime;
+  @Id
+  private String serviceName;
 
-    public MasterLock(){
+  private String instanceId;
 
-    }
+  private Date expireTime;
 
-    public MasterLock(
-            String serviceName,
-            String instanceId) {
-        this.serviceName = serviceName;
-        this.instanceId = instanceId;
-    }
+  private Date lockedTime;
 
-    public Date getExpireTime() {
-        return expireTime;
-    }
+  public MasterLock() {
 
-    public void setExpireTime(Date expireTime) {
-        this.expireTime = expireTime;
-    }
+  }
 
-    public Date getLockedTime() {
-        return lockedTime;
-    }
+  public MasterLock(
+      String serviceName,
+      String instanceId) {
+    this.serviceName = serviceName;
+    this.instanceId = instanceId;
+  }
 
-    public void setLockedTime(Date lockedTime) {
-        this.lockedTime = lockedTime;
-    }
+  public Date getExpireTime() {
+    return expireTime;
+  }
 
-    public String getServiceName() {
-        return serviceName;
-    }
+  public void setExpireTime(Date expireTime) {
+    this.expireTime = expireTime;
+  }
 
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
-    }
+  public Date getLockedTime() {
+    return lockedTime;
+  }
 
-    public String getInstanceId() {
-        return instanceId;
-    }
+  public void setLockedTime(Date lockedTime) {
+    this.lockedTime = lockedTime;
+  }
 
-    public void setInstanceId(String instanceId) {
-        this.instanceId = instanceId;
-    }
+  public String getServiceName() {
+    return serviceName;
+  }
+
+  public void setServiceName(String serviceName) {
+    this.serviceName = serviceName;
+  }
+
+  public String getInstanceId() {
+    return instanceId;
+  }
+
+  public void setInstanceId(String instanceId) {
+    this.instanceId = instanceId;
+  }
 }

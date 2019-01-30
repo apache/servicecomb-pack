@@ -38,57 +38,57 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
 @SpringBootTest(classes = {AlphaApplication.class, AlphaConfig.class},
-        properties = {
-                "alpha.cluster.master.enabled=true",
-                "alpha.server.host=0.0.0.0",
-                "alpha.server.port=8090",
-                "alpha.event.pollingInterval=1",
-                "spring.main.allow-bean-definition-overriding=true"
-        })
+    properties = {
+        "alpha.cluster.master.enabled=true",
+        "alpha.server.host=0.0.0.0",
+        "alpha.server.port=8090",
+        "alpha.event.pollingInterval=1",
+        "spring.main.allow-bean-definition-overriding=true"
+    })
 public class ClusterLockServiceTest {
 
-    @Value("[${alpha.server.host}]:${alpha.server.port}")
-    private String instanceId;
+  @Value("[${alpha.server.host}]:${alpha.server.port}")
+  private String instanceId;
 
-    @Value("${spring.application.name:servicecomb-alpha-server}")
-    private String serviceName;
+  @Value("${spring.application.name:servicecomb-alpha-server}")
+  private String serviceName;
 
-    @Value("${alpha.cluster.master.expire:5000}")
-    private int expire;
+  @Value("${alpha.cluster.master.expire:5000}")
+  private int expire;
 
-    @Autowired
-    ClusterLockService clusterLockService;
+  @Autowired
+  ClusterLockService clusterLockService;
 
-    @MockBean
-    private MasterLockRepository masterLockRepository;
+  @MockBean
+  private MasterLockRepository masterLockRepository;
 
-    @Test(timeout = 5000)
-    public void testClusterNodeType() throws InterruptedException {
-        //node type is master
-        clusterLockService.setMasterLock(null);
-        MasterLock masterLock = clusterLockService.getMasterLock();
-        Assert.assertEquals(masterLock.getServiceName(),serviceName);
-        Assert.assertEquals(masterLock.getInstanceId(),instanceId);
-        Assert.assertEquals((masterLock.getExpireTime().getTime()-masterLock.getLockedTime().getTime()),expire);
-        when(masterLockRepository.initLock(masterLock)).thenReturn(true);
-        when(masterLockRepository.findMasterLockByServiceName(serviceName)).thenReturn(Optional.of(masterLock));
-        when(masterLockRepository.updateLock(masterLock)).thenReturn(true);
-        while(!clusterLockService.isLockExecuted()) {
-            Thread.sleep(50);
-        }
-        Assert.assertEquals(clusterLockService.isMasterNode(), true);
-        clusterLockService.unLock();
-
-        //node type is slave
-        clusterLockService.setMasterLock(null);
-        masterLock = clusterLockService.getMasterLock();
-        when(masterLockRepository.initLock(masterLock)).thenReturn(false);
-        when(masterLockRepository.findMasterLockByServiceName(serviceName)).thenReturn(Optional.of(masterLock));
-        when(masterLockRepository.updateLock(masterLock)).thenReturn(false);
-        while(!clusterLockService.isLockExecuted()) {
-            Thread.sleep(50);
-        }
-        Assert.assertEquals(clusterLockService.isMasterNode(), false);
-        clusterLockService.unLock();
+  @Test(timeout = 5000)
+  public void testClusterNodeType() throws InterruptedException {
+    //node type is master
+    clusterLockService.setMasterLock(null);
+    MasterLock masterLock = clusterLockService.getMasterLock();
+    Assert.assertEquals(masterLock.getServiceName(), serviceName);
+    Assert.assertEquals(masterLock.getInstanceId(), instanceId);
+    Assert.assertEquals((masterLock.getExpireTime().getTime() - masterLock.getLockedTime().getTime()), expire);
+    when(masterLockRepository.initLock(masterLock)).thenReturn(true);
+    when(masterLockRepository.findMasterLockByServiceName(serviceName)).thenReturn(Optional.of(masterLock));
+    when(masterLockRepository.updateLock(masterLock)).thenReturn(true);
+    while (!clusterLockService.isLockExecuted()) {
+      Thread.sleep(50);
     }
+    Assert.assertEquals(clusterLockService.isMasterNode(), true);
+    clusterLockService.unLock();
+
+    //node type is slave
+    clusterLockService.setMasterLock(null);
+    masterLock = clusterLockService.getMasterLock();
+    when(masterLockRepository.initLock(masterLock)).thenReturn(false);
+    when(masterLockRepository.findMasterLockByServiceName(serviceName)).thenReturn(Optional.of(masterLock));
+    when(masterLockRepository.updateLock(masterLock)).thenReturn(false);
+    while (!clusterLockService.isLockExecuted()) {
+      Thread.sleep(50);
+    }
+    Assert.assertEquals(clusterLockService.isMasterNode(), false);
+    clusterLockService.unLock();
+  }
 }

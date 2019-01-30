@@ -21,7 +21,7 @@ import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Abstract
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLockRepository;
 
 public class JdbcLockProvider extends AbstractLockProvider {
-    public JdbcLockProvider(MasterLockRepository masterLockRepository) {
-        super(new JdbcLockPersistence(masterLockRepository));
-    }
+  public JdbcLockProvider(MasterLockRepository masterLockRepository) {
+    super(new JdbcLockPersistence(masterLockRepository));
+  }
 }

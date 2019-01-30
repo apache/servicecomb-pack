@@ -23,23 +23,22 @@ import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa
 
 class JdbcLockPersistence implements LockProviderPersistence {
 
-    private final MasterLockRepository masterLockRepository;
+  private final MasterLockRepository masterLockRepository;
 
-    JdbcLockPersistence(MasterLockRepository masterLockRepository) {
-        this.masterLockRepository = masterLockRepository;
-    }
+  JdbcLockPersistence(MasterLockRepository masterLockRepository) {
+    this.masterLockRepository = masterLockRepository;
+  }
 
-    public boolean initLock(MasterLock masterLock) {
-        return this.masterLockRepository.initLock(masterLock);
-    }
+  public boolean initLock(MasterLock masterLock) {
+    return this.masterLockRepository.initLock(masterLock);
+  }
 
-    public boolean updateLock(MasterLock masterLock) {
-        return this.masterLockRepository.updateLock(masterLock);
-    }
+  public boolean updateLock(MasterLock masterLock) {
+    return this.masterLockRepository.updateLock(masterLock);
+  }
 
-    public void unLock(MasterLock masterLock) {
-        this.masterLockRepository.unLock(masterLock.getServiceName(),
-                masterLock.getExpireTime());
-    }
-
+  public void unLock(MasterLock masterLock) {
+    this.masterLockRepository.unLock(masterLock.getServiceName(),
+        masterLock.getExpireTime());
+  }
 }
