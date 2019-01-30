@@ -92,15 +92,13 @@ public class ClusterLockService implements ApplicationListener<ApplicationReadyE
 
     public MasterLock getMasterLock() {
         if (this.masterLock == null) {
-            this.masterLock = new MasterLock();
-            this.masterLock.setServiceName(serviceName);
-            this.masterLock.setInstanceId(instanceId);
+            this.masterLock = new MasterLock(serviceName,instanceId);
         }
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
+        this.masterLock.setLockedTime(cal.getTime());
         cal.add(Calendar.MILLISECOND, expire);
         this.masterLock.setExpireTime(cal.getTime());
-        this.masterLock.setLockedTime(new Date());
         return this.masterLock;
     }
 
