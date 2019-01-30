@@ -63,7 +63,8 @@ public class ClusterLockServiceTest {
     private MasterLockRepository masterLockRepository;
 
     @Test(timeout = 5000)
-    public void testIsMaster() throws InterruptedException {
+    public void testClusterNodeType() throws InterruptedException {
+        //node type is master
         clusterLockService.setMasterLock(null);
         MasterLock masterLock = clusterLockService.getMasterLock();
         when(masterLockRepository.initLock(masterLock)).thenReturn(true);
@@ -74,12 +75,10 @@ public class ClusterLockServiceTest {
         }
         Assert.assertEquals(clusterLockService.isMasterNode(), true);
         clusterLockService.unLock();
-    }
 
-    @Test(timeout = 5000)
-    public void testIsSlave() throws InterruptedException {
+        //node type is slave
         clusterLockService.setMasterLock(null);
-        MasterLock masterLock = clusterLockService.getMasterLock();
+        masterLock = clusterLockService.getMasterLock();
         when(masterLockRepository.initLock(masterLock)).thenReturn(false);
         when(masterLockRepository.findMasterLockByServiceName(serviceName)).thenReturn(Optional.of(masterLock));
         when(masterLockRepository.updateLock(masterLock)).thenReturn(false);
