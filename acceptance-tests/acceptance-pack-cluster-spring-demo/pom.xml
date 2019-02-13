@@ -120,12 +120,16 @@
                 </image>
                 <image>
                   <name>alpha-server:${project.version}</name>
-                  <alias>alpha</alias>
+                  <alias>alpha-1</alias>
                   <run>
                     <env>
                       <JAVA_OPTS>
                         -Dspring.profiles.active=prd,test
                       </JAVA_OPTS>
+                      <alpha.server.port>8080</alpha.server.port>
+                      <alpha.cluster.master.enabled>true</alpha.cluster.master.enabled>
+                      <management.endpoints.web.exposure.include>*</management.endpoints.web.exposure.include>
+                      <management.endpoint.shutdown.enabled>true</management.endpoint.shutdown.enabled>
                     </env>
                     <links>
                       <link>postgres:postgresql.servicecomb.io</link>
@@ -141,8 +145,44 @@
                       <time>120000</time>
                     </wait>
                     <ports>
-                      <port>alpha.port:8080</port>
-                      <port>alpha.rest.port:8090</port>
+                      <port>alpha-1.port:8080</port>
+                      <port>alpha-1.rest.port:8090</port>
+                    </ports>
+                    <dependsOn>
+                      <container>postgres</container>
+                    </dependsOn>
+                  </run>
+                </image>
+                <image>
+                  <name>alpha-server:${project.version}</name>
+                  <alias>alpha-2</alias>
+                  <run>
+                    <env>
+                      <JAVA_OPTS>
+                         -Dspring.profiles.active=prd,test
+                      </JAVA_OPTS>
+                      <alpha.server.port>8081</alpha.server.port>
+                      <server.port>8091</server.port>
+                      <alpha.cluster.master.enabled>true</alpha.cluster.master.enabled>
+                      <management.endpoints.web.exposure.include>*</management.endpoints.web.exposure.include>
+                      <management.endpoint.shutdown.enabled>true</management.endpoint.shutdown.enabled>
+                    </env>
+                    <links>
+                      <link>postgres:postgresql.servicecomb.io</link>
+                    </links>
+                    <wait>
+                      <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
+                      <tcp>
+                        <ports>
+                          <port>8081</port>
+                          <port>8091</port>
+                        </ports>
+                      </tcp>
+                      <time>120000</time>
+                    </wait>
+                    <ports>
+                      <port>alpha-2.port:8081</port>
+                      <port>alpha-2.rest.port:8091</port>
                     </ports>
                     <dependsOn>
                       <container>postgres</container>
@@ -158,6 +198,7 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9091,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <alpha.cluster.address>alpha-server-1.servicecomb.io:8080,alpha-server-2.servicecomb.io:8081</alpha.cluster.address>
                     </env>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
@@ -170,14 +211,16 @@
                       <time>120000</time>
                     </wait>
                     <links>
-                      <link>alpha:alpha-server.servicecomb.io</link>
+                      <link>alpha-1:alpha-server-1.servicecomb.io</link>
+                      <link>alpha-2:alpha-server-2.servicecomb.io</link>
                     </links>
                     <ports>
                       <port>car.port:8080</port>
                       <port>car.byteman.port:9091</port>
                     </ports>
                     <dependsOn>
-                      <container>alpha</container>
+                      <container>alpha-1</container>
+                      <contriner>alpha-2</contriner>
                     </dependsOn>
                   </run>
                 </image>
@@ -190,6 +233,7 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9091,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <alpha.cluster.address>alpha-server-1.servicecomb.io:8080,alpha-server-2.servicecomb.io:8081</alpha.cluster.address>
                     </env>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
@@ -202,14 +246,16 @@
                       <time>120000</time>
                     </wait>
                     <links>
-                      <link>alpha:alpha-server.servicecomb.io</link>
+                      <link>alpha-1:alpha-server-1.servicecomb.io</link>
+                      <link>alpha-2:alpha-server-2.servicecomb.io</link>
                     </links>
                     <ports>
                       <port>hotel.port:8080</port>
                       <port>hotel.byteman.port:9091</port>
                     </ports>
                     <dependsOn>
-                      <container>alpha</container>
+                      <container>alpha-1</container>
+                      <container>alpha-2</container>
                     </dependsOn>
                   </run>
                 </image>
@@ -222,6 +268,8 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9091,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <alpha.cluster.address>alpha-server-1.servicecomb.io:8080,alpha-server-2.servicecomb.io:8081</alpha.cluster.address>
+                      <alpha.rest.address>http://alpha-server-1.servicecomb.io:8090,http://alpha-server-2.servicecomb.io:8091</alpha.rest.address>
                     </env>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
@@ -234,7 +282,8 @@
                       <time>120000</time>
                     </wait>
                     <links>
-                      <link>alpha:alpha-server.servicecomb.io</link>
+                      <link>alpha-1:alpha-server-1.servicecomb.io</link>
+                      <link>alpha-2:alpha-server-2.servicecomb.io</link>
                       <link>car:car.servicecomb.io</link>
                       <link>hotel:hotel.servicecomb.io</link>
                     </links>
@@ -243,7 +292,8 @@
                       <port>booking.byteman.port:9091</port>
                     </ports>
                     <dependsOn>
-                      <container>alpha</container>
+                      <container>alpha-1</container>
+                      <container>alpha-2</container>
                     </dependsOn>
                   </run>
                 </image>
@@ -292,10 +342,10 @@
             <configuration>
               <systemPropertyVariables>
                 <alpha.cluster.address>
-                  http://${docker.hostname}:${alpha.port}
+                  http://${docker.hostname}:${alpha-1.port}
                 </alpha.cluster.address>
                 <alpha.rest.address>
-                  http://${docker.hostname}:${alpha.rest.port}
+                  http://${docker.hostname}:${alpha-1.rest.port},http://${docker.hostname}:${alpha-2.rest.port}
                 </alpha.rest.address>
                 <car.service.address>
                   http://${docker.hostname}:${car.port}

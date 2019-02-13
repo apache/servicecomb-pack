@@ -18,19 +18,20 @@
 package org.apache.servicecomb.pack;
 
 import static io.restassured.RestAssured.given;
+import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNotNull;
 
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
+import cucumber.api.java.Before;
 import org.jboss.byteman.agent.submit.Submit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,13 @@ public class PackStepdefs implements En {
   private static final Consumer<Map<String, String>[]> NO_OP_CONSUMER = (dataMap) -> {
   };
 
+  private static AlpahClusterAddress alphaClusterAddress;
   private static final Map<String, Submit> submits = new HashMap<>();
+
+  @Before
+  public void before() {
+    alphaClusterAddress = new AlpahClusterAddress(System.getProperty(ALPHA_REST_ADDRESS));
+  }
 
   public PackStepdefs() {
     Given("^Car Service is up and running$", () -> {
@@ -69,7 +76,15 @@ public class PackStepdefs implements En {
     });
 
     And("^Alpha is up and running$", () -> {
-      probe(System.getProperty(ALPHA_REST_ADDRESS));
+      probeAlphaMaster(alphaClusterAddress);
+    });
+
+    And("^Alpha cluster is up and running$", () -> {
+      alphaClusterAddress.getAddresss().stream().forEach(address -> {
+        LOG.info("Alpha address {}", address);
+        probe(address);
+      });
+      LOG.info("Alpah master address {}", alphaClusterAddress.getMasterAddress());
     });
 
     Given("^Install the byteman script ([A-Za-z0-9_\\.]+) to ([A-Za-z]+) Service$", (String script, String service) -> {
@@ -101,9 +116,9 @@ public class PackStepdefs implements En {
         for (Map<String, String> map : dataMap)
           map.keySet().retainAll(dataTable.topCells());
       };
-
-      dataMatches(System.getProperty(ALPHA_REST_ADDRESS) + "/saga/events", dataTable, columnStrippingConsumer);
+      dataMatches(alphaClusterAddress.getMasterAddress() + "/saga/events", dataTable, columnStrippingConsumer);
     });
+
 
     And("^Car Service contains the following booking orders$", (DataTable dataTable) -> {
       dataMatches(System.getProperty(CAR_SERVICE_ADDRESS) + "/bookings", dataTable, NO_OP_CONSUMER);
@@ -127,7 +142,7 @@ public class PackStepdefs implements En {
 
     given()
         .when()
-        .delete(System.getProperty(ALPHA_REST_ADDRESS) + "/saga/events")
+        .delete(alphaClusterAddress.getMasterAddress() + "/saga/events")
         .then()
         .statusCode(is(200));
 
@@ -197,6 +212,11 @@ public class PackStepdefs implements En {
         .statusCode(is(200));
   }
 
+  private void probeAlphaMaster(AlpahClusterAddress alphaClusterAddress) {
+    LOG.info("Check to Alpah Master server");
+    assertNotNull(alphaClusterAddress.getMasterAddress());
+  }
+
   private Submit getBytemanSubmit(String service) {
     if (submits.containsKey(service)) {
       return submits.get(service);
@@ -206,6 +226,58 @@ public class PackStepdefs implements En {
       Submit bm = new Submit(address, Integer.parseInt(port));
       submits.put(service, bm);
       return bm;
+    }
+  }
+
+  class AlpahClusterAddress {
+
+    private List<String> addresss;
+
+    private int maxRetry=6;
+
+    AlpahClusterAddress(String address) {
+      this.addresss = Arrays.asList(address.split(","));
+    }
+
+    public List<String> getAddresss() {
+      return addresss;
+    }
+
+    // get the master node in the alpha server cluster
+    public String getMasterAddress() {
+      Predicate<String> matchMasterNode =
+              endpoint -> matches(endpoint::toString, ofNullable("MASTER"));
+      Optional<String> masterAddress = Optional.empty();
+      int retryCounter = 0;
+      while(!masterAddress.isPresent() && retryCounter<maxRetry){
+        masterAddress = addresss.stream().filter(matchMasterNode).findAny();
+        try {
+          Thread.sleep(1000);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+        retryCounter++;
+      }
+      if(masterAddress.isPresent()){
+        return masterAddress.get();
+      }else{
+        throw new RuntimeException("Max retries exception!");
+      }
+    }
+
+    private <T> boolean matches(Supplier<T> supplier, Optional<String> value) {
+      try{
+        String nodeType = given().get(supplier.get() + "/actuator/alpha").jsonPath().getString("nodeType");
+        LOG.info("Check alpha server {} nodeType is {}",supplier.get(),nodeType);
+        if (value.get().equalsIgnoreCase(nodeType)) {
+          return true;
+        } else {
+          return false;
+        }
+      }catch (Exception ex){
+        LOG.info("Check alpha server {} nodeType fail, {}",supplier.get(),ex.getMessage());
+        return false;
+      }
     }
   }
 }
