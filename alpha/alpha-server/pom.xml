@@ -55,6 +55,11 @@
         <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         <version>${spring.cloud.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.apache.servicecomb.pack</groupId>
+        <artifactId>alpha-spring-boot-starter</artifactId>
+        <version>${spring.boot.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -166,6 +171,10 @@
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-tcnative-boringssl-static</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicecomb.pack</groupId>
+      <artifactId>alpha-spring-boot-starter</artifactId>
     </dependency>
   </dependencies>
 
