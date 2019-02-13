@@ -18,6 +18,7 @@
 package org.apache.servicecomb.pack.alpha.server.cluster.master;
 
 import org.apache.servicecomb.pack.alpha.core.NodeStatus;
+import org.apache.servicecomb.pack.alpha.server.AlphaConfig;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.LockProvider;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Lock;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLock;
@@ -25,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
@@ -54,6 +56,7 @@ import java.util.Optional;
 @Component
 @ConditionalOnProperty(name = "alpha.cluster.master.enabled", havingValue = "true")
 @EnableScheduling
+@AutoConfigureAfter(AlphaConfig.class)
 public class ClusterLockService implements ApplicationListener<ApplicationReadyEvent> {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
