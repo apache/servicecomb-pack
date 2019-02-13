@@ -19,7 +19,9 @@ Feature: Alpha records transaction events
     Given Car Service is up and running
     And Hotel Service is up and running
     And Booking Service is up and running
-    And Alpha is up and running
+    And Alpha cluster is up and running
+
+    Given Install the byteman script alpha_shutdown.btm to Booking Service
 
     When User Sean requests to book 2 cars and 1 rooms success
 
