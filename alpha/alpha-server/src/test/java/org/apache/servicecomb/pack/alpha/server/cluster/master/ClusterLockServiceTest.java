@@ -62,7 +62,7 @@ public class ClusterLockServiceTest {
   @MockBean
   private MasterLockRepository masterLockRepository;
 
-  @Test(timeout = 5000)
+  @Test(timeout = 10000)
   public void testClusterNodeType() throws InterruptedException {
     //node type is master
     clusterLockService.setMasterLock(null);
