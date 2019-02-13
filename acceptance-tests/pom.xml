@@ -33,6 +33,7 @@
     <module>acceptance-pack-dubbo-demo</module>
     <module>acceptance-pack-spring-demo</module>
     <module>acceptance-pack-tcc-spring-demo</module>
+    <module>acceptance-pack-cluster-spring-demo</module>
   </modules>
 
   <properties>
