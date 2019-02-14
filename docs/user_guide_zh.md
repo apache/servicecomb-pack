@@ -212,3 +212,85 @@ Saga可通过以下任一方式进行构建：
    ```
 
 然后就可以运行相关的微服务了，可通过访问http://${alpha-server:port}/saga/events 来获取所有的saga事件信息。
+
+### 注册中心支持
+
+支持Alpha启动时自动注册到注册中心，Omega通过注册中心获取Alpha的实例列表和gRPC地址
+
+#### Spring Cloud Eureka支持
+
+1. 编译Alpha的Eureka的版本
+
+   在编译时增加`spring-cloud-eureka`参数
+
+   ```bash
+   git clone https://github.com/apache/servicecomb-pack.git
+   cd servicecomb-pack
+   mvn clean install -DskipTests=true -Pspring-cloud-eureka
+   ```
+
+   **注意:** 默认情况下，编译的版本兼容spring boot 2.x，当使用omega的项目是基于spring boot 1.x时请在编译的时使用`-Pspring-cloud-eureka,spring-boot-1`参数
+
+   
+
+2. 运行Alpha
+
+   运行是增加`spring.profiles.active=spring-cloud-eureka`参数
+
+   ```bash
+   java -Dspring.profiles.active=prd -D"spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false" -jar alpha-server-${saga_version}-exec.jar --spring.profiles.active=spring-cloud-eureka
+   ```
+
+3. 验证是否注册成功
+
+   访问Eureka的注册实例查询接口`curl http://127.0.0.1:8761/eureka/apps/`可以看到如下注册信息，在你metadata中可以看到Alpha的gRPC访问地址`<servicecomb-alpha-server>0.0.0.0:8080</servicecomb-alpha-server>`已经注册
+
+   ```xml
+   <applications>
+     <versions__delta>1</versions__delta>
+     <apps__hashcode>UP_1_</apps__hashcode>
+     <application>
+       <name>SERVICECOMB-ALPHA-SERVER</name>
+       <instance>
+         <instanceId>0.0.0.0::servicecomb-alpha-server:8090</instanceId>
+         <hostName>0.0.0.0</hostName>
+         <app>SERVICECOMB-ALPHA-SERVER</app>
+         <ipAddr>0.0.0.0</ipAddr>
+         <status>UP</status>
+   	  ...
+         <metadata>
+           <management.port>8090</management.port>
+           <servicecomb-alpha-server>0.0.0.0:8080</servicecomb-alpha-server>
+         </metadata>
+         ...
+       </instance>
+     </application>
+   </applications>
+   ```
+
+4. 配置omega
+
+   在项目中引入依赖包`omega-spring-cloud-starter`
+
+   ```xml
+   <dependency>
+   	<groupId>org.apache.servicecomb.pack</groupId>
+   	<artifactId>omega-spring-cloud-starter</artifactId>
+   	<version>${pack.version}</version>
+   </dependency>
+   ```
+
+   在 `application.yaml` 添加下面的配置项：
+
+   ```yaml
+   alpha:
+     cluster:
+       register:
+         type: spring-cloud
+   omega:
+     instance:
+       instanceId: ${spring.application.name}-${spring.cloud.client.hostname}-${server.port}
+   ```
+
+   
+
