@@ -208,7 +208,7 @@ Add TCC annotations and corresponding confirm and cancel methods
        address: {alpha.cluster.addresses}
    ```
 
-Then you can start your micro-services and access all saga events via http://${alpha-server:port}/events.
+Then you can start your micro-services and access all saga events via http://${alpha-server:port}/saga/events.
 
 ## Enable SSL for Alpha and Omega
 

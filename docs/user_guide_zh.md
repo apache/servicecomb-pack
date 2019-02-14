@@ -132,8 +132,8 @@ Saga可通过以下任一方式进行构建：
         SpringApplication.run(Application.class, args);
       }
     }
-    ```
-    
+   ```
+   
 2. 在全局事务的起点添加 `@TccStart` 的注解。
     ```java
     import org.apache.servicecomb.pack.omega.context.annotations.TccStart;
@@ -145,12 +145,12 @@ Saga可通过以下任一方式进行构建：
     }
     ```
     **Note:** 当前TCC还不支持Timeout
- 
+
 3. 在子事务尝试方法处添加 `@Participate` 的注解并指明其对应的执行以及补偿方法名, 
     ```java
     import javax.transaction.Transactional;
     import org.apache.servicecomb.pack.omega.transaction.annotations.Participate;
-   
+      
     @Participate(confirmMethod = "confirm", cancelMethod = "cancel")
     @Transactional
     public void transferOut(String from, int amount) {
@@ -161,17 +161,17 @@ Saga可通过以下任一方式进行构建：
     public void confirm(String from, int amount) {
       repo.reduceBalanceByUsername(from, amount);
     }
-  
+    
     @Transactional
     public void cancel(String from, int amount) {
       repo.addBalanceByUsername(from, amount);
     }
     ```
- 
+
     **Note:** The confirm and cancel method should have same arguments with participate method, confirm and cancel method implemented by services must be idempotent. We highly recommend to use the Spring @Transactional to guarantee the local transaction.
    
     **Note:** 若全局事务起点与子事务起点重合，需同时声明 `@TccStart`  和 `@Participate` 的注解。 
- 
+
 4. 对转入服务重复第三步即可。
 
 5. 从pack-0.3.0开始, 你可以在服务函数或者取消函数中通过访问 [OmegaContext](https://github.com/apache/servicecomb-pack/blob/master/omega/omega-context/src/main/java/org/apache/servicecomb/saga/omega/context/OmegaContext.java) 来获取 gloableTxId 以及 localTxId 信息。
@@ -211,4 +211,4 @@ Saga可通过以下任一方式进行构建：
        address: {alpha.cluster.addresses}
    ```
 
-然后就可以运行相关的微服务了，可通过访问http://${alpha-server:port}/events 来获取所有的saga事件信息。
+然后就可以运行相关的微服务了，可通过访问http://${alpha-server:port}/saga/events 来获取所有的saga事件信息。
