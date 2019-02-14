@@ -48,11 +48,11 @@ ServiceComb Pack 架构是由 **alpha** 和 **omega**组成，其中：
    ```bash
       $ mvn clean install -DskipTests=true -Pdemo,docker
    ```       
-* 当前ServiceComb Pack同时支持Spring Boot 1.x以及Spring Boot 2.x，在缺省情况下ServiceComb Pack会使用Spring Boot 1.x来进行构建。
-你可以使用 *-Pspring-boot-2* 将Spring Boot版本转换到 2.x 上。 由于Spring Boot 只在2.x开始支持 JDK9，如果你想用
-JDK9或者JDK10来编译Saga并运行测试的话，你需要使用spring-boot-2 profile参数。
+* 当前ServiceComb Pack同时支持Spring Boot 1.x以及Spring Boot 2.x，在缺省情况下ServiceComb Pack会使用Spring Boot 2.x来进行构建。
+你可以使用 *-Pspring-boot-1* 将Spring Boot版本转换到 1.x 上。 由于Spring Boot 只在2.x开始支持 JDK9，如果你想用
+JDK9或者JDK10来编译Saga并运行测试的话，请不要使用spring-boot-1 profile参数。
    ```bash
-      $ mvn clean install -Pdemo,docker,spring-boot-2
+      $ mvn clean install -Pdemo,docker,spring-boot-1
    ```
 
 ## 用户指南
