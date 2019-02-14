@@ -414,7 +414,9 @@ public class AlphaIntegrationTest {
 
     await().atMost(2, SECONDS).until(() -> {
       List<TxEvent> events = eventRepo.findByGlobalTxId(globalTxId);
-      return eventRepo.count() == 5 && events.get(events.size() - 1).type().equals(SagaEndedEvent.name());
+      return eventRepo.count() == 5 &&
+              events.get(events.size() - 1).type().equals(SagaEndedEvent.name()) &&
+              !events.get(events.size() - 2).type().equals(SagaEndedEvent.name());
     });
 
     List<TxEvent> events = eventRepo.findByGlobalTxId(globalTxId);
