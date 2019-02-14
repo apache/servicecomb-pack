@@ -233,7 +233,7 @@ Saga可通过以下任一方式进行构建：
 
    
 
-2. 运行Alpha
+2. 运行alpha
 
    运行是增加`spring.profiles.active=spring-cloud-eureka`参数
 
@@ -268,6 +268,8 @@ Saga可通过以下任一方式进行构建：
    </applications>
    ```
 
+   **注意:** 默认情况下注册的服务名是`SERVICECOMB-ALPHA-SERVER`,如果你需要自定义服务名可以在运行Alpha的时候通过命令行参数`spring.application.name=XXX`指定
+
 4. 配置omega
 
    在项目中引入依赖包`omega-spring-cloud-starter`
@@ -292,5 +294,5 @@ Saga可通过以下任一方式进行构建：
        instanceId: ${spring.application.name}-${spring.cloud.client.hostname}-${server.port}
    ```
 
-   
+   **注意:** 如果你在启动Alpha的时候通过命令行参数`spring.application.name`自定义了服务名，那么那么你需要在Omega中通过参数`alpha.cluster.serviceId`指定这个服务名
 
