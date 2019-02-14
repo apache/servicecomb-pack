@@ -30,13 +30,15 @@
 4. 运行alpha。请确保MySQL在此前已成功启动。alpha的运行可通过docker或可执行文件的方式。
    * 通过docker
       ```bash
-      docker run -d -p 8080:8080 -p 8090:8090 -e "JAVA_OPTS=-Dspring.profiles.active=mysql -Dspring.datasource.url=jdbc:mysql://${host_address}:3306/saga?useSSL=false" alpha-server:${saga_version}
+      docker run -d -p 8080:8080 -p 8090:8090 -e "JAVA_OPTS=-Dspring.profiles.active=mysql -Dspring.datasource.url=jdbc:mysql://${host_address}:3306/saga?serverTimezone=GMT%2b8&useSSL=false" alpha-server:${saga_version}
       ```
    * 通过可执行文件
       ```bash
-      java -Dspring.profiles.active=mysql -D"spring.datasource.url=jdbc:mysql://${host_address}:3306/saga?useSSL=false" -jar alpha-server-${saga_version}-exec.jar
+      java -Dspring.profiles.active=mysql -D"spring.datasource.url=jdbc:mysql://${host_address}:3306/saga?serverTimezone=GMT%2b8&useSSL=false" -jar alpha-server-${saga_version}-exec.jar
       ```
    **注意**: 请在运行命令前将`${saga_version}`和`${host_address}`更改为实际值。
 
    **注意**: 默认情况下，8080端口用于处理omega处发起的gRPC的请求，而8090端口用于处理查询存储在alpha处的事件信息。
+   
+   **注意**: 请确保MySQL连接串中设置了正确的时区参数`serverTimezone=GMT%2b8`。
 
