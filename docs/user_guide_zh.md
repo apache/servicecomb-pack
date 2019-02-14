@@ -268,7 +268,7 @@ Saga可通过以下任一方式进行构建：
    </applications>
    ```
 
-   **注意:** 默认情况下注册的服务名是`SERVICECOMB-ALPHA-SERVER`,如果你需要自定义服务名可以在运行Alpha的时候通过命令行参数`spring.application.name=XXX`指定
+   **注意:** 默认情况下注册的服务名是`SERVICECOMB-ALPHA-SERVER`,如果你需要自定义服务名可以在运行Alpha的时候通过命令行参数`spring.application.name`配置
 
 4. 配置omega
 
@@ -293,10 +293,10 @@ Saga可通过以下任一方式进行构建：
      cluster:
        register:
          type: spring-cloud
-   omega:
-     instance:
-       instanceId: ${spring.application.name}-${spring.cloud.client.hostname}-${server.port}
    ```
+
+   * `eureka.client.service-url.defaultZone` 配置Eureka注册中心的地址，其他Eureka客户端配置可以参考[Spring Cloud Netflix 2.x](https://cloud.spring.io/spring-cloud-netflix/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) 或 [Spring Cloud Netflix 1.x](https://cloud.spring.io/spring-cloud-netflix/1.4.x/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter)
+   * `alpha.cluster.register.type=spring-cloud` 配置Omega获取Alpha的方式是通过Eureka的注册中心
 
    **注意:** 如果你在启动Alpha的时候通过命令行参数`spring.application.name`自定义了服务名，那么那么你需要在Omega中通过参数`alpha.cluster.serviceId`指定这个服务名
 
