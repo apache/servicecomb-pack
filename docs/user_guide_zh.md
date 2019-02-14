@@ -285,6 +285,10 @@ Saga可通过以下任一方式进行构建：
    在 `application.yaml` 添加下面的配置项：
 
    ```yaml
+   eureka:
+     client:
+       service-url:
+         defaultZone: http://127.0.0.1:8761/eureka
    alpha:
      cluster:
        register:
