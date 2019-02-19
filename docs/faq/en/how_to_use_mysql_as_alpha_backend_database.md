@@ -41,3 +41,6 @@
 
 
    **Note**: By default, port 8080 is used to serve omega's request via gRPC while port 8090 is used to query the events stored in alpha.
+   
+   
+   **Note**: Please configuration serverTimezone property in MySQL connection string

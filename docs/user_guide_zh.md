@@ -132,8 +132,8 @@ Saga可通过以下任一方式进行构建：
         SpringApplication.run(Application.class, args);
       }
     }
-    ```
-    
+   ```
+   
 2. 在全局事务的起点添加 `@TccStart` 的注解。
     ```java
     import org.apache.servicecomb.pack.omega.context.annotations.TccStart;
@@ -145,12 +145,12 @@ Saga可通过以下任一方式进行构建：
     }
     ```
     **Note:** 当前TCC还不支持Timeout
- 
+
 3. 在子事务尝试方法处添加 `@Participate` 的注解并指明其对应的执行以及补偿方法名, 
     ```java
     import javax.transaction.Transactional;
     import org.apache.servicecomb.pack.omega.transaction.annotations.Participate;
-   
+      
     @Participate(confirmMethod = "confirm", cancelMethod = "cancel")
     @Transactional
     public void transferOut(String from, int amount) {
@@ -161,17 +161,17 @@ Saga可通过以下任一方式进行构建：
     public void confirm(String from, int amount) {
       repo.reduceBalanceByUsername(from, amount);
     }
-  
+    
     @Transactional
     public void cancel(String from, int amount) {
       repo.addBalanceByUsername(from, amount);
     }
     ```
- 
+
     **Note:** The confirm and cancel method should have same arguments with participate method, confirm and cancel method implemented by services must be idempotent. We highly recommend to use the Spring @Transactional to guarantee the local transaction.
    
     **Note:** 若全局事务起点与子事务起点重合，需同时声明 `@TccStart`  和 `@Participate` 的注解。 
- 
+
 4. 对转入服务重复第三步即可。
 
 5. 从pack-0.3.0开始, 你可以在服务函数或者取消函数中通过访问 [OmegaContext](https://github.com/apache/servicecomb-pack/blob/master/omega/omega-context/src/main/java/org/apache/servicecomb/saga/omega/context/OmegaContext.java) 来获取 gloableTxId 以及 localTxId 信息。
@@ -211,4 +211,92 @@ Saga可通过以下任一方式进行构建：
        address: {alpha.cluster.addresses}
    ```
 
-然后就可以运行相关的微服务了，可通过访问http://${alpha-server:port}/events 来获取所有的saga事件信息。
+然后就可以运行相关的微服务了，可通过访问http://${alpha-server:port}/saga/events 来获取所有的saga事件信息。
+
+### 注册中心支持
+
+支持Alpha启动时自动注册到注册中心，Omega通过注册中心获取Alpha的实例列表和gRPC地址
+
+#### Spring Cloud Eureka支持
+
+1. 编译Alpha的Eureka的版本
+
+   在编译时增加`spring-cloud-eureka`参数
+
+   ```bash
+   git clone https://github.com/apache/servicecomb-pack.git
+   cd servicecomb-pack
+   mvn clean install -DskipTests=true -Pspring-cloud-eureka
+   ```
+
+   **注意:** 默认情况下，编译的版本兼容spring boot 2.x，当使用omega的项目是基于spring boot 1.x时请在编译的时使用`-Pspring-cloud-eureka,spring-boot-1`参数
+
+   
+
+2. 运行alpha
+
+   运行是增加`spring.profiles.active=spring-cloud-eureka`参数
+
+   ```bash
+   java -Dspring.profiles.active=prd -D"spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false" -jar alpha-server-${saga_version}-exec.jar --spring.profiles.active=spring-cloud-eureka
+   ```
+
+3. 验证是否注册成功
+
+   访问Eureka的注册实例查询接口`curl http://127.0.0.1:8761/eureka/apps/`可以看到如下注册信息，在你metadata中可以看到Alpha的gRPC访问地址`<servicecomb-alpha-server>0.0.0.0:8080</servicecomb-alpha-server>`已经注册
+
+   ```xml
+   <applications>
+     <versions__delta>1</versions__delta>
+     <apps__hashcode>UP_1_</apps__hashcode>
+     <application>
+       <name>SERVICECOMB-ALPHA-SERVER</name>
+       <instance>
+         <instanceId>0.0.0.0::servicecomb-alpha-server:8090</instanceId>
+         <hostName>0.0.0.0</hostName>
+         <app>SERVICECOMB-ALPHA-SERVER</app>
+         <ipAddr>0.0.0.0</ipAddr>
+         <status>UP</status>
+   	  ...
+         <metadata>
+           <management.port>8090</management.port>
+           <servicecomb-alpha-server>0.0.0.0:8080</servicecomb-alpha-server>
+         </metadata>
+         ...
+       </instance>
+     </application>
+   </applications>
+   ```
+
+   **注意:** 默认情况下注册的服务名是`SERVICECOMB-ALPHA-SERVER`,如果你需要自定义服务名可以在运行Alpha的时候通过命令行参数`spring.application.name`配置
+
+4. 配置omega
+
+   在项目中引入依赖包`omega-spring-cloud-starter`
+
+   ```xml
+   <dependency>
+   	<groupId>org.apache.servicecomb.pack</groupId>
+   	<artifactId>omega-spring-cloud-starter</artifactId>
+   	<version>${pack.version}</version>
+   </dependency>
+   ```
+
+   在 `application.yaml` 添加下面的配置项：
+
+   ```yaml
+   eureka:
+     client:
+       service-url:
+         defaultZone: http://127.0.0.1:8761/eureka
+   alpha:
+     cluster:
+       register:
+         type: spring-cloud
+   ```
+
+   * `eureka.client.service-url.defaultZone` 配置Eureka注册中心的地址，其他Eureka客户端配置可以参考[Spring Cloud Netflix 2.x](https://cloud.spring.io/spring-cloud-netflix/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) 或 [Spring Cloud Netflix 1.x](https://cloud.spring.io/spring-cloud-netflix/1.4.x/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter)
+   * `alpha.cluster.register.type=spring-cloud` 配置Omega获取Alpha的方式是通过Eureka的注册中心
+
+   **注意:** 如果你在启动Alpha的时候通过命令行参数`spring.application.name`自定义了服务名，那么那么你需要在Omega中通过参数`alpha.cluster.serviceId`指定这个服务名
+
