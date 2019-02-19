@@ -5,7 +5,7 @@ This project is using [ngx-admin](https://github.com/akveo/ngx-admin), [here you
 To install saga-frontend on your machine you need to have the following tools installed:
 
 - Git - https://git-scm.com
-- Node.js - https://nodejs.org. Please note the version should be >=8
+- Node.js - https://nodejs.org. Please note the version should be >=8.9.3
 - Npm - Node.js package manager, comes with Node.js. Please make sure npm version is >=5
 - You might also need some specific native packages depending on your operating system like build-essential on Ubuntu
 - Clone the repository
