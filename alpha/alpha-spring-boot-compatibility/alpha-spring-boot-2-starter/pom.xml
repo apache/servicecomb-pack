@@ -28,7 +28,7 @@
 
   <artifactId>alpha-spring-boot-starter</artifactId>
   <name>Pack::Alpha::Spring Boot 2.X Starter</name>
-  <version>2.1.1.RELEASE</version>
+  <version>${spring.boot2.version}</version>
 
   <dependencyManagement>
     <dependencies>

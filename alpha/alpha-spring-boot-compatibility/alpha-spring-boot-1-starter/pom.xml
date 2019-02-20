@@ -28,7 +28,7 @@
 
   <artifactId>alpha-spring-boot-starter</artifactId>
   <name>Pack::Alpha::Spring Boot 1.X Starter</name>
-  <version>1.5.17.RELEASE</version>
+  <version>${spring.boot1.version}</version>
 
   <dependencyManagement>
     <dependencies>
