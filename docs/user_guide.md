@@ -145,7 +145,7 @@ Add TCC annotations and corresponding confirm and cancel methods
     }
     ```
     **Note:** By default, timeout is disable.
- 
+
  3. add `@Participate` at the sub-transaction and specify its corresponding compensation method
     ```java
     import javax.transaction.Transactional;
@@ -161,19 +161,19 @@ Add TCC annotations and corresponding confirm and cancel methods
     public void confirm(String from, int amount) {
       repo.reduceBalanceByUsername(from, amount);
     }
-  
+    
     @Transactional
     public void cancel(String from, int amount) {
       repo.addBalanceByUsername(from, amount);
     }
     ```
- 
+
     **Note:** The confirm and cancel method should have same arguments with participate method, confirm and cancel method implemented by services must be idempotent. We highly recommend to use the Spring @Transactional to guarantee the local transaction.
                                                                                               
     **Note:** Current TCC implementation doesn't support timeout.
- 
+
     **Note:** If the starting point of global transaction and local transaction overlaps, both `@TccStart` and `@Participate` are needed.
- 
+
  4. Repeat step 3 for the `transferIn` service.
 
 
@@ -213,3 +213,90 @@ Then you can start your micro-services and access all saga events via http://${a
 ## Enable SSL for Alpha and Omega
 
 See [Enabling SSL](enable_ssl.md) for details.
+
+### Service discovery support
+
+Alpha instance can register to the discovery service, Omega obtains Alpha's instance list and gRPC address through discovery service
+
+#### Spring Cloud Eureka
+
+1. build special version of Eureka
+
+   add build parameters `spring-cloud-eureka`
+
+   ```bash
+   git clone https://github.com/apache/servicecomb-pack.git
+   cd servicecomb-pack
+   mvn clean install -DskipTests=true -Pspring-cloud-eureka
+   ```
+
+   **Note:** Uses Spring Boot 2.x by default, if you want to use omega in the Spring Boot 1.x, you can use `-Pspring-cloud-eureka,spring-boot-1` to switch Spring Boot version to 1.x
+
+2. run alpha
+
+   run with parameter`spring.profiles.active=spring-cloud-eureka`
+
+   ```bash
+   java -Dspring.profiles.active=prd -D"spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false" -jar alpha-server-${saga_version}-exec.jar --spring.profiles.active=spring-cloud-eureka
+   ```
+
+3. verify registration information
+
+   request `curl http://127.0.0.1:8761/eureka/apps/`, It responds with the following JSON
+
+   ```xml
+   <applications>
+     <versions__delta>1</versions__delta>
+     <apps__hashcode>UP_1_</apps__hashcode>
+     <application>
+       <name>SERVICECOMB-ALPHA-SERVER</name>
+       <instance>
+         <instanceId>0.0.0.0::servicecomb-alpha-server:8090</instanceId>
+         <hostName>0.0.0.0</hostName>
+         <app>SERVICECOMB-ALPHA-SERVER</app>
+         <ipAddr>0.0.0.0</ipAddr>
+         <status>UP</status>
+      ...
+         <metadata>
+           <management.port>8090</management.port>
+           <servicecomb-alpha-server>0.0.0.0:8080</servicecomb-alpha-server>
+         </metadata>
+         ...
+       </instance>
+     </application>
+   </applications>
+   ```
+
+   **Note:**  `<servicecomb-alpha-server>` property is alpha gRPC address
+
+   **Note:** alpha instance name is `SERVICECOMB-ALPHA-SERVER` by default. You can set it by starting parameter  `spring.application.name` 
+
+4. setup omega
+
+   edit your `pom.xml` and add the `omega-spring-cloud-starter` dependency
+
+   ```xml
+   <dependency>
+    <groupId>org.apache.servicecomb.pack</groupId>
+    <artifactId>omega-spring-cloud-starter</artifactId>
+    <version>${pack.version}</version>
+   </dependency>
+   ```
+
+   edit your  `application.yaml` , as shown in the following example:
+
+   ```yaml
+   eureka:
+     client:
+       service-url:
+         defaultZone: http://127.0.0.1:8761/eureka
+   alpha:
+     cluster:
+       register:
+         type: spring-cloud
+   ```
+
+   * `eureka.client.service-url.defaultZone` property is set to the Eureka server’s instance address, check out Spring Boot’s  [Spring Cloud Netflix 2.x](https://cloud.spring.io/spring-cloud-netflix/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) or [Spring Cloud Netflix 1.x](https://cloud.spring.io/spring-cloud-netflix/1.4.x/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) for more details.
+   * `alpha.cluster.register.type=spring-cloud`  property is omega gets alpha gRPC address from Eureka
+
+   **Note:** If you define `spring.application.name ` parameter when start alpha,  You need to specify this service name in Omega via the parameter `alpha.cluster.serviceId`
