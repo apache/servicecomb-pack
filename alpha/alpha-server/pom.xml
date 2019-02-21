@@ -55,11 +55,6 @@
         <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         <version>${spring.cloud.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.apache.servicecomb.pack</groupId>
-        <artifactId>alpha-spring-boot-starter</artifactId>
-        <version>${spring.boot.version}</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -172,10 +167,6 @@
       <groupId>io.netty</groupId>
       <artifactId>netty-tcnative-boringssl-static</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.servicecomb.pack</groupId>
-      <artifactId>alpha-spring-boot-starter</artifactId>
-    </dependency>
   </dependencies>
 
   <build>
@@ -220,6 +211,29 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+    <profile>
+      <id>spring-boot-2</id>
+      <!-- Specify the alpha spring boot starter with the profile-->
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.servicecomb.pack</groupId>
+          <artifactId>alpha-spring-boot-starter-2</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>spring-boot-1</id>
+      <!-- Specify the alpha spring boot starter with the profile-->
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.servicecomb.pack</groupId>
+          <artifactId>alpha-spring-boot-starter-1</artifactId>
+        </dependency>
+      </dependencies>
     </profile>
     <profile>
       <id>mysql</id>
