@@ -22,11 +22,23 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class GrpcServerConfig {
+
+  private static final int DEFAULT_ALPHA_SERVER_PORT = 8080;
+
   @Value("${alpha.server.host:0.0.0.0}")
   private String host;
 
-  @Value("${alpha.server.port:8080}")
+  @Value("${alpha.server.port:"+DEFAULT_ALPHA_SERVER_PORT+"}")
   private int port;
+
+  @Value("${alpha.server.initialPort:"+DEFAULT_ALPHA_SERVER_PORT+"}")
+  private int initialPort;
+
+  @Value("${alpha.server.portAutoIncrement:true}")
+  private boolean portAutoIncrement;
+
+  @Value("${alpha.server.portCount:100}")
+  private int portCount;
 
   @Value("${alpha.server.ssl.enable:false}")
   private boolean sslEnable;
@@ -49,6 +61,22 @@ public class GrpcServerConfig {
 
   public int getPort() {
     return port;
+  }
+
+  public void setPort(int port) {
+    this.port = port;
+  }
+
+  public int getInitialPort() {
+    return initialPort;
+  }
+
+  public boolean isPortAutoIncrement() {
+    return portAutoIncrement;
+  }
+
+  public int getPortCount() {
+    return portCount;
   }
 
   public boolean isSslEnable() {
