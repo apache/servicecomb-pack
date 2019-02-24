@@ -28,6 +28,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import java.io.IOException;
+
 /**
  * This configuration is just for speeding up the integration usage.
  */
@@ -58,7 +60,7 @@ public class TccConfiguration {
 
   @Bean
   ServerStartable serverStartable(GrpcServerConfig serverConfig, GrpcTccEventService grpcTccEventService,
-      TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner) {
+      TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner) throws IOException {
     ServerStartable bootstrap = new GrpcStartable(serverConfig, grpcTccEventService);
     new Thread(bootstrap::start).start();
 
