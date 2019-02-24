@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.server;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -134,7 +135,7 @@ public class AlphaConfig {
   @Bean
   ServerStartable serverStartable(GrpcServerConfig serverConfig, TxConsistentService txConsistentService,
       Map<String, Map<String, OmegaCallback>> omegaCallbacks, GrpcTccEventService grpcTccEventService,
-      TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner) {
+      TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner) throws IOException {
     ServerStartable bootstrap = new GrpcStartable(serverConfig,
         new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks), grpcTccEventService);
     new Thread(bootstrap::start).start();
