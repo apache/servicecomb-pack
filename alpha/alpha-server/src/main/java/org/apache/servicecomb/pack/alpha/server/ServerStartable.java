@@ -22,4 +22,6 @@ package org.apache.servicecomb.pack.alpha.server;
 
 public interface ServerStartable {
   void start();
+  // This method is used by the unit test
+  GrpcServerConfig getGrpcServerConfig();
 }

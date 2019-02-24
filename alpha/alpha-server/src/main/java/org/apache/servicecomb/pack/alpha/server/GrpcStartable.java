@@ -24,8 +24,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
-import java.util.Properties;
+import java.net.ServerSocket;
+import java.nio.channels.ServerSocketChannel;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
 import javax.net.ssl.SSLException;
 
@@ -44,24 +47,34 @@ import io.netty.handler.ssl.SslProvider;
 public class GrpcStartable implements ServerStartable {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private final Server server;
+  private Server server;
+  private final GrpcServerConfig serverConfig;
 
-  public GrpcStartable(GrpcServerConfig serverConfig, BindableService... services) {
+  public GrpcStartable(GrpcServerConfig serverConfig, BindableService... services) throws IOException {
+    this.serverConfig = serverConfig;
     ServerBuilder<?> serverBuilder;
-    if (serverConfig.isSslEnable()){
-      serverBuilder = NettyServerBuilder.forAddress(
-          new InetSocketAddress(serverConfig.getHost(), serverConfig.getPort()));
+    try {
+      OptionalInt unusedPort = findUnusedPort(serverConfig);
+      if(unusedPort.isPresent()){
+        if (serverConfig.isSslEnable()){
+          serverBuilder = NettyServerBuilder.forAddress(
+                  new InetSocketAddress(serverConfig.getHost(), unusedPort.getAsInt()));
 
-      try {
-        ((NettyServerBuilder) serverBuilder).sslContext(getSslContextBuilder(serverConfig).build());
-      } catch (SSLException e) {
-        throw new IllegalStateException("Unable to setup grpc to use SSL.", e);
+          try {
+            ((NettyServerBuilder) serverBuilder).sslContext(getSslContextBuilder(serverConfig).build());
+          } catch (SSLException e) {
+            throw new IllegalStateException("Unable to setup grpc to use SSL.", e);
+          }
+        } else {
+          serverBuilder = ServerBuilder.forPort(unusedPort.getAsInt());
+        }
+        Arrays.stream(services).forEach(serverBuilder::addService);
+        server = serverBuilder.build();
+        serverConfig.setPort(unusedPort.getAsInt());
       }
-    } else {
-      serverBuilder = ServerBuilder.forPort(serverConfig.getPort());
+    } catch (IOException e) {
+      throw e;
     }
-    Arrays.stream(services).forEach(serverBuilder::addService);
-    server = serverBuilder.build();
   }
 
   @Override
@@ -77,6 +90,11 @@ public class GrpcStartable implements ServerStartable {
       LOG.error("grpc server was interrupted.", e);
       Thread.currentThread().interrupt();
     }
+  }
+
+  @Override
+  public GrpcServerConfig getGrpcServerConfig() {
+    return this.serverConfig;
   }
 
   private SslContextBuilder getSslContextBuilder(GrpcServerConfig config) {
@@ -111,5 +129,66 @@ public class GrpcStartable implements ServerStartable {
     }
     return is;
 
+  }
+
+  private OptionalInt findUnusedPort(GrpcServerConfig serverConfig) throws IOException{
+    IntStream trialPorts;
+    if(serverConfig.getPort()==0){
+      LOG.info("No explicit port is given, system will pick up an ephemeral port.");
+      if(serverConfig.isPortAutoIncrement() && serverConfig.getPortCount()>0){
+        LOG.info("Port trial count must be positive: {}",serverConfig.getPortCount());
+        trialPorts = IntStream.range(serverConfig.getInitialPort(),serverConfig.getInitialPort()+serverConfig.getPortCount());
+      }else{
+        trialPorts = IntStream.range(serverConfig.getInitialPort(),serverConfig.getInitialPort()+1);
+      }
+    }else{
+      trialPorts = IntStream.range(serverConfig.getPort(),serverConfig.getPort()+1);
+    }
+
+    IOException[] error = new IOException[1];
+    OptionalInt bindPort =  trialPorts.filter(port -> {
+      try{
+        ServerSocketChannel preBindServerSocketChannel = null;
+        ServerSocket preBindServerSocket = null;
+        InetSocketAddress inetSocketAddress = new InetSocketAddress(serverConfig.getHost(), port);
+        try {
+          preBindServerSocketChannel = ServerSocketChannel.open();
+          preBindServerSocket = preBindServerSocketChannel.socket();
+          preBindServerSocket.setReuseAddress(true);
+          preBindServerSocket.setSoTimeout((int)TimeUnit.SECONDS.toMillis(1));
+          preBindServerSocket.bind(inetSocketAddress, 100);
+          LOG.info("Bind successful to inet socket address {}", inetSocketAddress);
+          preBindServerSocketChannel.configureBlocking(false);
+          return true;
+        } catch (IOException e) {
+          LOG.info("Bind failed to inet socket address {}", inetSocketAddress);
+          throw e;
+        }finally {
+          if (preBindServerSocket != null) {
+            try {
+              preBindServerSocket.close();
+            } catch (IOException ex) {
+              LOG.error("closeResource failed", ex);
+            }
+          }
+          if(preBindServerSocketChannel != null){
+            try {
+              preBindServerSocketChannel.close();
+            } catch (IOException ex) {
+              LOG.error("closeResource failed", ex);
+            }
+          }
+        }
+      }catch (IOException e){
+        error[0] = e;
+      }
+      return false;
+    }).findAny();
+
+    if(bindPort.isPresent()){
+      return bindPort;
+    }else{
+      throw error[0];
+    }
   }
 }
