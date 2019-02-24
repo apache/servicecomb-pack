@@ -28,6 +28,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.apache.servicecomb.pack.alpha.core.*;
+import org.apache.servicecomb.pack.alpha.server.event.GrpcStartableStartedEvent;
 import org.apache.servicecomb.pack.alpha.server.tcc.GrpcTccEventService;
 import org.apache.servicecomb.pack.alpha.server.tcc.callback.TccPendingTaskRunner;
 import org.apache.servicecomb.pack.alpha.server.tcc.service.TccEventScanner;
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -55,6 +57,9 @@ public class AlphaConfig {
 
   @Value("${alpha.cluster.master.enabled:false}")
   private boolean masterEnabled;
+
+  @Autowired
+  ApplicationContext applicationContext;
 
   @Bean
   Map<String, Map<String, OmegaCallback>> omegaCallbacks() {
@@ -139,7 +144,7 @@ public class AlphaConfig {
     ServerStartable bootstrap = new GrpcStartable(serverConfig,
         new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks), grpcTccEventService);
     new Thread(bootstrap::start).start();
-
+    applicationContext.publishEvent(new GrpcStartableStartedEvent(this,serverConfig.getPort()));
     tccPendingTaskRunner.start();
     tccEventScanner.start();
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
