@@ -35,7 +35,7 @@ public abstract class AbstractLockProvider implements LockProvider {
   public Optional<org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Lock> lock(MasterLock masterLock) {
     boolean lockObtained = doLock(masterLock);
     if (lockObtained) {
-      return Optional.of(new Lock(masterLock, lockProviderPersistence));
+      return Optional.of(new Lock(this,masterLock, lockProviderPersistence));
     } else {
       return Optional.empty();
     }
@@ -51,12 +51,17 @@ public abstract class AbstractLockProvider implements LockProvider {
     return lockProviderPersistence.updateLock(masterLock);
   }
 
+  public void doUnLock(){
+    this.lockInitialization = false;
+  }
+
   private static class Lock implements org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Lock {
     private final MasterLock masterLock;
-
+    private final AbstractLockProvider provider;
     private final LockProviderPersistence lockProviderPersistence;
 
-    Lock(MasterLock masterLock, LockProviderPersistence lockProviderPersistence) {
+    Lock(AbstractLockProvider provider, MasterLock masterLock, LockProviderPersistence lockProviderPersistence) {
+      this.provider = provider;
       this.masterLock = masterLock;
       this.lockProviderPersistence = lockProviderPersistence;
     }
@@ -64,6 +69,7 @@ public abstract class AbstractLockProvider implements LockProvider {
     @Override
     public void unlock() {
       lockProviderPersistence.unLock(masterLock);
+      provider.doUnLock();;
     }
   }
 }
