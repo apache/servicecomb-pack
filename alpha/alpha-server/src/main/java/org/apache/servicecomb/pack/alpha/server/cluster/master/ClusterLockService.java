@@ -110,10 +110,6 @@ public class ClusterLockService implements ApplicationListener<ApplicationReadyE
     return this.masterLock;
   }
 
-  public void setMasterLock(MasterLock masterLock) {
-    this.masterLock = masterLock;
-  }
-
   /**
    * Try to lock every second
    * */

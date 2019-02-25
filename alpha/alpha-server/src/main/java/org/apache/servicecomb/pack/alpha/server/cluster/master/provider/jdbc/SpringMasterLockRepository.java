@@ -48,10 +48,7 @@ public class SpringMasterLockRepository implements MasterLockRepository {
     try {
       Optional<MasterLock> lock = this.findMasterLockByServiceName(masterLock.getServiceName());
       if (!lock.isPresent()) {
-        electionRepo.initLock(masterLock.getServiceName(),
-            masterLock.getExpireTime(),
-            masterLock.getLockedTime(),
-            masterLock.getInstanceId());
+        electionRepo.initLock(masterLock.getServiceName(), masterLock.getExpireTime(), masterLock.getLockedTime(), masterLock.getInstanceId());
         return true;
       } else {
         return false;

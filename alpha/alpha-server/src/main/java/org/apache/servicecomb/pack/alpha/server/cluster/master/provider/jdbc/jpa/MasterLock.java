@@ -67,15 +67,7 @@ public class MasterLock {
     return serviceName;
   }
 
-  public void setServiceName(String serviceName) {
-    this.serviceName = serviceName;
-  }
-
   public String getInstanceId() {
     return instanceId;
-  }
-
-  public void setInstanceId(String instanceId) {
-    this.instanceId = instanceId;
   }
 }
