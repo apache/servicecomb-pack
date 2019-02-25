@@ -57,7 +57,9 @@ import static org.junit.Assert.assertThat;
     properties = {
         "alpha.server.host=0.0.0.0",
         "alpha.server.port=0",
-        "alpha.server.initialPort=100",
+        "alpha.server.initialPort=9000",
+        "alpha.server.portAutoIncrement=true",
+        "alpha.server.portCount=100",
         "alpha.event.pollingInterval=1",
         "spring.main.allow-bean-definition-overriding=true"
        })
