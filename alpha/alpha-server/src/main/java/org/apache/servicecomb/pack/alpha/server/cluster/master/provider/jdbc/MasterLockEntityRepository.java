@@ -28,7 +28,7 @@ import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.Optional;
 
-interface MasterLockEntityRepository extends CrudRepository<MasterLock, String> {
+public interface MasterLockEntityRepository extends CrudRepository<MasterLock, String> {
 
   Optional<MasterLock> findMasterLockByServiceName(String serviceName);
 
