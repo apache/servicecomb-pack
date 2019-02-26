@@ -25,7 +25,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,11 +33,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.MasterLockEntityRepository;
 
-import java.util.Date;
 import java.util.Optional;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
@@ -88,34 +87,34 @@ public class ClusterLockServiceTest {
     Assert.assertEquals(masterLock.getServiceName(),serviceName);
     Assert.assertEquals(masterLock.getInstanceId(),instanceId);
     Assert.assertEquals((masterLock.getExpireTime().getTime()-masterLock.getLockedTime().getTime()),expire);
-    when(masterLockEntityRepository.initLock(Mockito.anyString(),Mockito.any(Date.class),Mockito.any(Date.class),Mockito.anyString())).thenReturn(1);
-    when(masterLockEntityRepository.findMasterLockByServiceName(Mockito.anyString())).thenReturn(Optional.of(masterLock));
-    when(masterLockEntityRepository.updateLock(Mockito.anyString(),Mockito.any(Date.class),Mockito.any(Date.class),Mockito.anyString())).thenReturn(1);
+    when(masterLockEntityRepository.initLock(any(), any(), any(),any())).thenReturn(1);
+    when(masterLockEntityRepository.findMasterLockByServiceName(any())).thenReturn(Optional.of(masterLock));
+    when(masterLockEntityRepository.updateLock(any(), any(), any(),any())).thenReturn(1);
     await().atMost(2, SECONDS).until(() -> clusterLockService.isLockExecuted() == true);
     await().atMost(2, SECONDS).until(() -> clusterLockService.isMasterNode() == true);
   }
 
   @Test
   public void testSlaveNodeWhenDuplicateKey() {
-    when(masterLockEntityRepository.findMasterLockByServiceName(Mockito.anyString())).thenReturn(Optional.empty());
-    when(masterLockEntityRepository.initLock(Mockito.anyString(),Mockito.any(Date.class),Mockito.any(Date.class),Mockito.anyString())).thenThrow(new RuntimeException("duplicate key"));
-    when(masterLockEntityRepository.updateLock(Mockito.anyString(),Mockito.any(Date.class),Mockito.any(Date.class),Mockito.anyString())).thenReturn(0);
+    when(masterLockEntityRepository.findMasterLockByServiceName(any())).thenReturn(Optional.empty());
+    when(masterLockEntityRepository.initLock(any(), any(), any(),any())).thenThrow(new RuntimeException("duplicate key"));
+    when(masterLockEntityRepository.updateLock(any(), any(), any(),any())).thenReturn(0);
     await().atMost(2, SECONDS).until(() -> clusterLockService.isLockExecuted() == true);
     await().atMost(2, SECONDS).until(() -> clusterLockService.isMasterNode() == false);
   }
 
   @Test
   public void testSlaveNodeUpdateLockLater() {
-    when(masterLockEntityRepository.findMasterLockByServiceName(Mockito.anyString())).thenReturn(Optional.of(clusterLockService.getMasterLock()));
-    when(masterLockEntityRepository.updateLock(Mockito.anyString(),Mockito.any(Date.class),Mockito.any(Date.class),Mockito.anyString())).thenReturn(0);
+    when(masterLockEntityRepository.findMasterLockByServiceName(any())).thenReturn(Optional.of(clusterLockService.getMasterLock()));
+    when(masterLockEntityRepository.updateLock(any(), any(), any(),any())).thenReturn(0);
     await().atMost(2, SECONDS).until(() -> clusterLockService.isLockExecuted() == true);
     await().atMost(2, SECONDS).until(() -> clusterLockService.isMasterNode() == false);
   }
 
   @Test
   public void testSlaveNodeWhenInitLockException() {
-    when(masterLockEntityRepository.findMasterLockByServiceName(Mockito.anyString())).thenThrow(new RuntimeException("initLock Exception"));
-    when(masterLockEntityRepository.updateLock(Mockito.anyString(),Mockito.any(Date.class),Mockito.any(Date.class),Mockito.anyString())).thenReturn(0);
+    when(masterLockEntityRepository.findMasterLockByServiceName(any())).thenThrow(new RuntimeException("initLock Exception"));
+    when(masterLockEntityRepository.updateLock(any(), any(), any(),any())).thenReturn(0);
     await().atMost(2, SECONDS).until(() -> clusterLockService.isLockExecuted() == true);
     clusterLockService.unLock();
     await().atMost(2, SECONDS).until(() -> clusterLockService.isMasterNode() == false);
@@ -123,9 +122,9 @@ public class ClusterLockServiceTest {
 
   @Test
   public void testSlaveNodeWhenUpdateLockException() {
-    when(masterLockEntityRepository.initLock(Mockito.anyString(),Mockito.any(Date.class),Mockito.any(Date.class),Mockito.anyString())).thenReturn(1);
-    when(masterLockEntityRepository.findMasterLockByServiceName(Mockito.anyString())).thenReturn(Optional.of(clusterLockService.getMasterLock()));
-    when(masterLockEntityRepository.updateLock(Mockito.anyString(),Mockito.any(Date.class),Mockito.any(Date.class),Mockito.anyString())).thenThrow(new RuntimeException("updateLock Exception"));
+    when(masterLockEntityRepository.initLock(any(), any(), any(),any())).thenReturn(1);
+    when(masterLockEntityRepository.findMasterLockByServiceName(any())).thenReturn(Optional.of(clusterLockService.getMasterLock()));
+    when(masterLockEntityRepository.updateLock(any(), any(), any(),any())).thenThrow(new RuntimeException("updateLock Exception"));
     await().atMost(2, SECONDS).until(() -> clusterLockService.isLockExecuted() == true);
     clusterLockService.unLock();
     await().atMost(2, SECONDS).until(() -> clusterLockService.isMasterNode() == false);
