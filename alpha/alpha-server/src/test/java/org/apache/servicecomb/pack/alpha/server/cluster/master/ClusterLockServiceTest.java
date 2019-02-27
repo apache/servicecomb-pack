@@ -70,7 +70,10 @@ public class ClusterLockServiceTest {
   @Autowired
   MasterLockRepository masterLockRepository;
 
-  @Before public void before(){
+  @Before
+  // As clusterLockService stop check if the cluster is locked,
+  // In this way we need to clean up the locker for each unit test
+  public void before(){
     await().atMost(2, SECONDS).until(() -> {
       if(clusterLockService.isLockExecuted() == true){
         clusterLockService.unLock();
