@@ -50,12 +50,6 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <!-- TODO need to change the dependency with different profile -->
-      <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-        <version>${spring.cloud2.version}</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
