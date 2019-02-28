@@ -15,14 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server.event;
+package org.apache.servicecomb.pack.alpha.core.event;
 
-import org.springframework.context.ApplicationEvent;
-
-public class GrpcStartableStartedEvent extends ApplicationEvent {
+public class GrpcStartableStartedEvent {
   private int port;
-  public GrpcStartableStartedEvent(Object source, int port) {
-    super(source);
+  public GrpcStartableStartedEvent(int port) {
     this.port = port;
   }
 

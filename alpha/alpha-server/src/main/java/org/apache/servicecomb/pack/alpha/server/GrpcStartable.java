@@ -32,6 +32,8 @@ import java.util.stream.IntStream;
 
 import javax.net.ssl.SSLException;
 
+import com.google.common.eventbus.EventBus;
+import org.apache.servicecomb.pack.alpha.core.event.GrpcStartableStartedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,15 +45,18 @@ import io.grpc.netty.NettyServerBuilder;
 import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
+import org.springframework.context.ApplicationEventPublisher;
 
 public class GrpcStartable implements ServerStartable {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private Server server;
   private final GrpcServerConfig serverConfig;
+  private final EventBus eventBus;
 
-  public GrpcStartable(GrpcServerConfig serverConfig, BindableService... services) throws IOException {
+  public GrpcStartable(GrpcServerConfig serverConfig, EventBus eventBus, BindableService... services) throws IOException {
     this.serverConfig = serverConfig;
+    this.eventBus = eventBus;
     ServerBuilder<?> serverBuilder;
     try {
       OptionalInt unusedPort = findUnusedPort(serverConfig);
@@ -82,6 +87,7 @@ public class GrpcStartable implements ServerStartable {
     Runtime.getRuntime().addShutdownHook(new Thread(server::shutdown));
 
     try {
+      eventBus.post(new GrpcStartableStartedEvent(serverConfig.getPort()));
       server.start();
       server.awaitTermination();
     } catch (IOException e) {

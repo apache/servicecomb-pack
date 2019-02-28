@@ -27,8 +27,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import com.google.common.eventbus.EventBus;
 import org.apache.servicecomb.pack.alpha.core.*;
-import org.apache.servicecomb.pack.alpha.server.event.GrpcStartableStartedEvent;
 import org.apache.servicecomb.pack.alpha.server.tcc.GrpcTccEventService;
 import org.apache.servicecomb.pack.alpha.server.tcc.callback.TccPendingTaskRunner;
 import org.apache.servicecomb.pack.alpha.server.tcc.service.TccEventScanner;
@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -60,6 +61,14 @@ public class AlphaConfig {
 
   @Autowired
   ApplicationContext applicationContext;
+
+  @Autowired
+  ApplicationEventPublisher applicationEventPublisher;
+
+  @Bean("alphaEventBus")
+  EventBus alphaEventBus() {
+    return new EventBus("alphaEventBus");
+  }
 
   @Bean
   Map<String, Map<String, OmegaCallback>> omegaCallbacks() {
@@ -140,11 +149,10 @@ public class AlphaConfig {
   @Bean
   ServerStartable serverStartable(GrpcServerConfig serverConfig, TxConsistentService txConsistentService,
       Map<String, Map<String, OmegaCallback>> omegaCallbacks, GrpcTccEventService grpcTccEventService,
-      TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner) throws IOException {
-    ServerStartable bootstrap = new GrpcStartable(serverConfig,
+      TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner, EventBus eventBus) throws IOException {
+    ServerStartable bootstrap = new GrpcStartable(serverConfig, eventBus,
         new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks), grpcTccEventService);
     new Thread(bootstrap::start).start();
-    applicationContext.publishEvent(new GrpcStartableStartedEvent(this,serverConfig.getPort()));
     tccPendingTaskRunner.start();
     tccEventScanner.start();
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {

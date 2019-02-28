@@ -77,6 +77,10 @@
     </dependency>
     <dependency>
       <groupId>org.apache.servicecomb.pack</groupId>
+      <artifactId>alpha-spring-cloud-starter-eureka</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicecomb.pack</groupId>
       <artifactId>pack-common</artifactId>
     </dependency>
     <dependency>
@@ -288,15 +292,6 @@
           </plugin>
         </plugins>
       </build>
-    </profile>
-    <profile>
-      <id>spring-cloud-eureka</id>
-      <dependencies>
-        <dependency>
-          <groupId>org.springframework.cloud</groupId>
-          <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-        </dependency>
-      </dependencies>
     </profile>
   </profiles>
 </project>
