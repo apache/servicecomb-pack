@@ -35,6 +35,12 @@ eureka:
     metadataMap:
       servicecomb-alpha-server: ${alpha.server.host}:${alpha.server.port}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info, health, alpha
+
 ---
 spring:
   profiles: ssl
