@@ -34,6 +34,10 @@
       </includes>
       <!-- excludes the binary files -->
       <excludes>
+        <!-- exclude the mvn wrapper in the source artifact -->
+        <exclude>mvnw*</exclude>
+        <exclude>.mvn/**</exclude>
+
         <exclude>**/eclipse-classes/**</exclude>
         <exclude>**/target/**</exclude>
         <exclude>**/build/**</exclude>
