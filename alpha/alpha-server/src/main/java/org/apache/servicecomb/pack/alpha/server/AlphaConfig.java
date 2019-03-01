@@ -109,9 +109,6 @@ public class AlphaConfig {
     }
   }
 
-  @Autowired
-  NodeStatus nodeStatus;
-
   @Bean
   TxConsistentService txConsistentService(
       @Value("${alpha.event.pollingInterval:500}") int eventPollingInterval,
@@ -120,7 +117,8 @@ public class AlphaConfig {
       TxEventRepository eventRepository,
       CommandRepository commandRepository,
       TxTimeoutRepository timeoutRepository,
-      OmegaCallback omegaCallback) {
+      OmegaCallback omegaCallback,
+      NodeStatus nodeStatus) {
         if (eventScannerEnabled) {
           new EventScanner(scheduler,
               eventRepository, commandRepository, timeoutRepository,
