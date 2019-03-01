@@ -39,7 +39,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: info, health, alpha
+        include: "*"
 
 ---
 spring:
