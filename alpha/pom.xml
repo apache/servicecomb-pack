@@ -33,6 +33,7 @@
   <modules>
     <module>alpha-core</module>
     <module>alpha-spring-boot-compatibility</module>
+    <module>alpha-spring-cloud-starter-eureka</module>
     <module>alpha-server</module>
   </modules>
 
