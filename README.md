@@ -33,23 +33,29 @@ Now we have different lanaguage implementation of Omega
 * To debug the applications, please see [Spring Demo Debugging](saga-demo/saga-spring-demo#debugging) for details.
 
 ## Build and Run the tests from source
+* Current ServiceComb Pack code supports Spring Boot 1.x and Spring Boot 2.x at the same time, profile can be activated in the Maven settings by default or you can use *-Pspring-boot-1*, *-Pspring-boot-1* to switch Spring Boot version.
+Since Spring Boot supports JDK9 since 2.x, if you want to build and run test the Saga with JDK9 or JDK10, please don't use the spring-boot-1 profile.
+    ```xml
+        <settings>
+          ...
+          <activeProfiles>
+            <activeProfile>spring-boot-2</activeProfile>
+          </activeProfiles>
+          ...
+        </settings>
+    ``` 
 * Build the source code and run the tests
    ```bash
-      $ mvn clean install
+      $ mvn clean install -Pspring-boot-2
    ```
 * Build the source demo docker images and run the accept tests
    ```bash
-      $ mvn clean install -Pdemo
+      $ mvn clean install -Pdemo,spring-boot-2
    ```
 * Build the source code and docker images without running tests, the docker profile will be activated if the maven detects the docker installation.
    ```bash
-      $ mvn clean install -DskipTests=true -Pdemo
-   ```     
-* Current ServiceComb Pack code supports Spring Boot 1.x and Spring Boot 2.x at the same time, pack uses Spring Boot 2.x by default, you can use *-Pspring-boot-1* to switch Spring Boot version to 1.x.
-Since Spring Boot supports JDK9 since 2.x, if you want to build and run test the Saga with JDK9 or JDK10, please don't use the spring-boot-1 profile. 
-   ```bash
-      $ mvn clean install -Pdemo,spring-boot-1
-   ```   
+      $ mvn clean install -DskipTests=true -Pdemo,docker,spring-boot-2
+   ```
 
 ## User Guide
 How to build and use can refer to [User Guide](docs/user_guide.md).

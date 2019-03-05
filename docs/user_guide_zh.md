@@ -21,17 +21,17 @@ $ cd servicecomb-pack
 Saga可通过以下任一方式进行构建：
 * 只构建可执行文件：
    ```bash
-   $ mvn clean install -DskipTests
+   $ mvn clean install -DskipTests -Pspring-boot-2
    ```
 
 * 同时构建可执行文件和docker镜像：
    ```bash
-   $ mvn clean install -DskipTests -Pdocker
+   $ mvn clean install -DskipTests -Pdocker,spring-boot-2
    ```
 
 * 同时构建可执行文件以及Saga发行包
    ```bash
-      $ mvn clean install -DskipTests -Prelease
+      $ mvn clean install -DskipTests -Prelease,spring-boot-2
    ```
    
 
@@ -231,7 +231,7 @@ Saga可通过以下任一方式进行构建：
    ```bash
    git clone https://github.com/apache/servicecomb-pack.git
    cd servicecomb-pack
-   mvn clean install -DskipTests=true -Pspring-cloud-eureka
+   mvn clean install -DskipTests=true -Pspring-cloud-eureka,spring-boot-2
    ```
 
    **注意:** 默认情况下，编译的版本兼容spring boot 2.x，当使用omega的项目是基于spring boot 1.x时请在编译的时使用`-Pspring-cloud-eureka,spring-boot-1`参数
