@@ -40,9 +40,9 @@ ServiceComb Pack 架构是由 **alpha** 和 **omega**组成，其中：
    ```bash
       $ mvn clean install
    ```
-* 编译示例，并生产docker镜像，运行验收测试
+* 编译示例，并生成docker镜像（maven会根据是否安装docker来启动这部分的设置），运行验收测试。
    ```bash
-      $ mvn clean install -Pdemo,docker
+      $ mvn clean install -Pdemo
    ```
 * 编译示例，并生产docker镜像, 不运行测试
    ```bash
@@ -52,7 +52,7 @@ ServiceComb Pack 架构是由 **alpha** 和 **omega**组成，其中：
 你可以使用 *-Pspring-boot-1* 将Spring Boot版本转换到 1.x 上。 由于Spring Boot 只在2.x开始支持 JDK9，如果你想用
 JDK9或者JDK10来编译Saga并运行测试的话，请不要使用spring-boot-1 profile参数。
    ```bash
-      $ mvn clean install -Pdemo,docker,spring-boot-1
+      $ mvn clean install -Pdemo,spring-boot-1
    ```
 
 ## 用户指南

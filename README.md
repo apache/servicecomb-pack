@@ -39,16 +39,16 @@ Now we have different lanaguage implementation of Omega
    ```
 * Build the source demo docker images and run the accept tests
    ```bash
-      $ mvn clean install -Pdemo,docker
+      $ mvn clean install -Pdemo
    ```
-* Build the source code and docker images without running tests
+* Build the source code and docker images without running tests, the docker profile will be activated if the maven detects the docker installation.
    ```bash
-      $ mvn clean install -DskipTests=true -Pdemo,docker
+      $ mvn clean install -DskipTests=true -Pdemo
    ```     
-* Current ServiceComb Pack code supports Spring Boot 1.x and Spring Boot 2.x at the same time, saga uses Spring Boot 2.x by default, you can use *-Pspring-boot-1* to switch Spring Boot version to 2.x.
+* Current ServiceComb Pack code supports Spring Boot 1.x and Spring Boot 2.x at the same time, pack uses Spring Boot 2.x by default, you can use *-Pspring-boot-1* to switch Spring Boot version to 1.x.
 Since Spring Boot supports JDK9 since 2.x, if you want to build and run test the Saga with JDK9 or JDK10, please don't use the spring-boot-1 profile. 
    ```bash
-      $ mvn clean install -Pdemo,docker,spring-boot-1
+      $ mvn clean install -Pdemo,spring-boot-1
    ```   
 
 ## User Guide
