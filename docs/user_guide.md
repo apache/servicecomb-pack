@@ -22,17 +22,17 @@ $ cd servicecomb-pack
 Saga can be built in either of the following ways.
 * Only build the executable files.
    ```bash
-   $ mvn clean install -DskipTests
+   $ mvn clean install -DskipTests -Pspring-boot-2
    ```
 
 * build the executable files along with docker image.
    ```bash
-   $ mvn clean install -DskipTests -Pdocker
+   $ mvn clean install -DskipTests -Pdocker,spring-boot-2
    ```
    
 * build the executable file and saga-distribution
    ```bash
-      $ mvn clean install -DskipTests -Prelease
+      $ mvn clean install -DskipTests -Prelease,spring-boot-2
    ```
 
 After executing either one of the above command, you will find alpha server's executable file in `alpha/alpha-server/target/saga/alpha-server-${version}-exec.jar`.
@@ -227,7 +227,7 @@ Alpha instance can register to the discovery service, Omega obtains Alpha's inst
    ```bash
    git clone https://github.com/apache/servicecomb-pack.git
    cd servicecomb-pack
-   mvn clean install -DskipTests=true -Pspring-cloud-eureka
+   mvn clean install -DskipTests=true -Pspring-cloud-eureka,spring-boot-2
    ```
 
    **Note:** Uses Spring Boot 2.x by default, if you want to use omega in the Spring Boot 1.x, you can use `-Pspring-cloud-eureka,spring-boot-1` to switch Spring Boot version to 1.x
