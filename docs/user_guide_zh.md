@@ -213,11 +213,16 @@ Saga可通过以下任一方式进行构建：
 
 然后就可以运行相关的微服务了，可通过访问http://${alpha-server:port}/saga/events 来获取所有的saga事件信息。
 
-### 注册中心支持
+## 在Alpha与Omega之间启用SSL
+
+详情请参考[启用 SSL](enable_ssl.md)文档.
+
+
+## 注册中心支持
 
 支持Alpha启动时注册到发现服务，Omega通过发现服务获取Alpha的实例列表和gRPC地址
 
-#### Spring Cloud Eureka支持
+### Spring Cloud Eureka支持
 
 1. 编译Alpha的Eureka的版本
 
