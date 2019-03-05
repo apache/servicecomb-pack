@@ -214,11 +214,11 @@ Then you can start your micro-services and access all saga events via http://${a
 
 See [Enabling SSL](enable_ssl.md) for details.
 
-### Service discovery support
+## Service discovery support
 
 Alpha instance can register to the discovery service, Omega obtains Alpha's instance list and gRPC address through discovery service
 
-#### Spring Cloud Eureka
+### Spring Cloud Eureka
 
 1. build special version of Eureka
 
