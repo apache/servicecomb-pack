@@ -48,15 +48,14 @@ Since Spring Boot supports JDK9+ from 2.x, if you want to build and run tests of
    ```bash
       $ mvn clean install -DskipTests=true -Pdemo,spring-boot-2
    ```
-
 ## User Guide
 How to build and use can refer to [User Guide](docs/user_guide.md).
 
 ## Get The Latest Version
 
 Get released version:
-   
-* [Download Pack](http://servicecomb.apache.org/release/saga-downloads/)
+
+* [Download Pack](http://servicecomb.apache.org/release/pack-downloads/)
 
 Get snapshot version:
 
@@ -82,8 +81,8 @@ Get snapshot version:
                <url>https://repository.apache.org/content/repositories/snapshots/</url>
              </pluginRepository>
            </pluginRepositories>
-        
-             
+
+
    ```    
 
 ## [FAQ](FAQ.md)
@@ -98,6 +97,6 @@ See [Pull Request Guide](http://servicecomb.apache.org/developers/submit-codes/)
 
 ## Stargazers over time
 [![Stargazers over time](https://starcharts.herokuapp.com/apache/servicecomb-pack.svg)](https://starcharts.herokuapp.com/apache/servicecomb-pack)
-      
+
 ## License
 Licensed under an [Apache 2.0 license](https://github.com/apache/servicecomb-pack/blob/master/LICENSE).

@@ -59,8 +59,8 @@ ServiceComb Pack 架构是由 **alpha** 和 **omega**组成，其中：
 ## 获取最新版本
 
 获取最新发行版本:
-   
-* [下载软件包](http://servicecomb.apache.org/release/saga-downloads/)
+
+* [下载软件包](http://servicecomb.apache.org/release/pack-downloads/)
 
 获取最新预览版本:
 
@@ -86,7 +86,7 @@ ServiceComb Pack 架构是由 **alpha** 和 **omega**组成，其中：
                <url>https://repository.apache.org/content/repositories/snapshots/</url>
              </pluginRepository>
            </pluginRepositories>
-             
+
    ```    
 
 
