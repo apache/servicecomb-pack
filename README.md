@@ -34,7 +34,7 @@ Now we have different lanaguage implementation of Omega
 
 ## Build and Run the tests from source
 Current ServiceComb Pack code supports Spring Boot 1.x and Spring Boot 2.x at the same time, you can use *-Pspring-boot-1*, *-Pspring-boot-1* to switch Spring Boot version.
-Since Spring Boot supports JDK9 since 2.x, if you want to build and run test the Saga with JDK9 or JDK10, please don't use the spring-boot-1 profile.
+Since Spring Boot supports JDK9+ from 2.x, if you want to build and run tests of ServiceComb Pack with JDK9 or JDK10, please use the spring-boot-2 profile.
 
 * Build the source code and run the tests
    ```bash
@@ -46,7 +46,7 @@ Since Spring Boot supports JDK9 since 2.x, if you want to build and run test the
    ```
 * Build the source code and docker images without running tests, the docker profile will be activated if the maven detects the docker installation.
    ```bash
-      $ mvn clean install -DskipTests=true -Pdemo,docker,spring-boot-2
+      $ mvn clean install -DskipTests=true -Pdemo,spring-boot-2
    ```
 
 ## User Guide
@@ -100,4 +100,4 @@ See [Pull Request Guide](http://servicecomb.apache.org/developers/submit-codes/)
 [![Stargazers over time](https://starcharts.herokuapp.com/apache/servicecomb-pack.svg)](https://starcharts.herokuapp.com/apache/servicecomb-pack)
       
 ## License
-Licensed under an [Apache 2.0 license](https://github.com/apache/servicecomb-saga/blob/master/LICENSE).
+Licensed under an [Apache 2.0 license](https://github.com/apache/servicecomb-pack/blob/master/LICENSE).
