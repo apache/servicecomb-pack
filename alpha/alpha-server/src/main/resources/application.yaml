@@ -28,6 +28,19 @@ spring:
   main:
     allow-bean-definition-overriding: true
 
+eureka:
+  client:
+    enabled: false
+  instance:
+    metadataMap:
+      servicecomb-alpha-server: ${alpha.server.host}:${alpha.server.port}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
 ---
 spring:
   profiles: ssl
@@ -67,11 +80,3 @@ spring:
     properties:
       eclipselink:
         ddl-generation: none
-
----
-spring:
-  profiles: spring-cloud-eureka
-eureka:
-  instance:
-    metadataMap:
-      servicecomb-alpha-server: ${alpha.server.host}:${alpha.server.port}

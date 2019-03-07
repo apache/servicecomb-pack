@@ -20,21 +20,21 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <artifactId>alpha-spring-boot-compatibility</artifactId>
+    <artifactId>alpha</artifactId>
     <groupId>org.apache.servicecomb.pack</groupId>
     <version>0.4.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>alpha-spring-boot-starter-1</artifactId>
-  <name>Pack::Alpha::Spring Boot 1.X Starter</name>
+  <artifactId>alpha-spring-cloud-starter-eureka</artifactId>
+  <name>Pack::Alpha::Spring Cloud Starter Eureka</name>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-test</artifactId>
-        <version>${spring.boot1.version}</version>
+        <version>${spring.boot.version}</version>
         <exclusions>
           <exclusion>
             <groupId>org.json</groupId>
@@ -46,9 +46,14 @@
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
-        <version>${spring.boot1.version}</version>
+        <version>${spring.boot.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        <version>${spring.cloud.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -59,28 +64,21 @@
       <artifactId>alpha-core</artifactId>
     </dependency>
     <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter</artifactId>
-        <exclusions>
-            <exclusion>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-logging</artifactId>
-            </exclusion>
-        </exclusions>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-log4j2</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-actuator</artifactId>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
     </dependency>
   </dependencies>
-
 
 </project>

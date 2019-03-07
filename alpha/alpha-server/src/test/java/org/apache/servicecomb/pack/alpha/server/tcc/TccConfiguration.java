@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.server.tcc;
 
+import com.google.common.eventbus.EventBus;
 import org.apache.servicecomb.pack.alpha.server.GrpcServerConfig;
 import org.apache.servicecomb.pack.alpha.server.GrpcStartable;
 import org.apache.servicecomb.pack.alpha.server.ServerStartable;
@@ -44,6 +45,11 @@ public class TccConfiguration {
   private int globalTxTimeoutSeconds;
 
   @Bean
+  EventBus alphaEventBus() {
+    return new EventBus("alphaEventBus");
+  }
+
+  @Bean
   TccPendingTaskRunner tccPendingTaskRunner() {
     return new TccPendingTaskRunner(delay);
   }
@@ -60,8 +66,8 @@ public class TccConfiguration {
 
   @Bean
   ServerStartable serverStartable(GrpcServerConfig serverConfig, GrpcTccEventService grpcTccEventService,
-      TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner) throws IOException {
-    ServerStartable bootstrap = new GrpcStartable(serverConfig, grpcTccEventService);
+      TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner, EventBus eventBus) throws IOException {
+    ServerStartable bootstrap = new GrpcStartable(serverConfig, eventBus, grpcTccEventService);
     new Thread(bootstrap::start).start();
 
     tccPendingTaskRunner.start();
