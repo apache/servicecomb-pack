@@ -220,27 +220,24 @@ Alpha instance can register to the discovery service, Omega obtains Alpha's inst
 
 ### Spring Cloud Eureka
 
-1. build special version of Eureka
+Uses Spring Cloud Netflix 2.x by default, if you want to use Spring Cloud Netflix 1.x, you can use `-Pspring-boot-1` to switch Spring Cloud Netflix 1.x
 
-   add build parameters `spring-cloud-eureka`
+1. run alpha
 
-   ```bash
-   git clone https://github.com/apache/servicecomb-pack.git
-   cd servicecomb-pack
-   mvn clean install -DskipTests=true -Pspring-cloud-eureka,spring-boot-2
-   ```
-
-   **Note:** Uses Spring Boot 2.x by default, if you want to use omega in the Spring Boot 1.x, you can use `-Pspring-cloud-eureka,spring-boot-1` to switch Spring Boot version to 1.x
-
-2. run alpha
-
-   run with parameter`spring.profiles.active=spring-cloud-eureka`
+   run with parameter `eureka.enabled=true`
 
    ```bash
-   java -Dspring.profiles.active=prd -D"spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false" -jar alpha-server-${saga_version}-exec.jar --spring.profiles.active=spring-cloud-eureka
+   java -jar alpha-server-${saga_version}-exec.jar \ 
+     --spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false \
+     --spring.datasource.username=saga \
+     --spring.datasource.password=saga \
+     --eureka.enabled=true \
+     --eureka.client.service-url.defaultZone=http://127.0.0.1:8761/eureka \  
+     --spring.profiles.active=prd 
    ```
+   **Note:** Check out  [Spring Cloud Netflix 2.x](https://cloud.spring.io/spring-cloud-netflix/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) [Spring Cloud Netflix 1.x](https://cloud.spring.io/spring-cloud-netflix/1.4.x/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) for more details
 
-3. verify registration information
+2. verify registration information
 
    request `curl http://127.0.0.1:8761/eureka/apps/`, It responds with the following JSON
 
@@ -271,7 +268,7 @@ Alpha instance can register to the discovery service, Omega obtains Alpha's inst
 
    **Note:** alpha instance name is `SERVICECOMB-ALPHA-SERVER` by default. You can set it by starting parameter  `spring.application.name` 
 
-4. setup omega
+3. setup omega
 
    edit your `pom.xml` and add the `omega-spring-cloud-starter` dependency
 
