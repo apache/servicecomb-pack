@@ -224,27 +224,23 @@ Saga可通过以下任一方式进行构建：
 
 ### Spring Cloud Eureka支持
 
-1. 编译Alpha的Eureka的版本
+当前版本支持 Spring Cloud Netflix 2.x，你可以使用 `-Pspring-boot-1` 参数重新编译支持 Spring Cloud Netflix 1.x 版本
 
-   在编译时增加`spring-cloud-eureka`参数
+1. 运行alpha
 
-   ```bash
-   git clone https://github.com/apache/servicecomb-pack.git
-   cd servicecomb-pack
-   mvn clean install -DskipTests=true -Pspring-cloud-eureka,spring-boot-2
-   ```
-
-   **注意:** 默认情况下，编译的版本兼容spring boot 2.x，当使用omega的项目是基于spring boot 1.x时请在编译的时使用`-Pspring-cloud-eureka,spring-boot-1`参数
-
-   
-
-2. 运行alpha
-
-   运行时增加`spring.profiles.active=spring-cloud-eureka`参数
+   运行时增加 `eureka.enabled=true` 参数
 
    ```bash
-   java -Dspring.profiles.active=prd -D"spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false" -jar alpha-server-${saga_version}-exec.jar --spring.profiles.active=spring-cloud-eureka
+   java -jar alpha-server-${saga_version}-exec.jar \ 
+     --spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false \
+     --spring.datasource.username=saga \
+     --spring.datasource.password=saga \
+     --eureka.enabled=true \
+     --eureka.client.service-url.defaultZone=http://127.0.0.1:8761/eureka \  
+     --spring.profiles.active=prd 
    ```
+
+   **注意:** 更多 eureka 参数请参考 [Spring Cloud Netflix 2.x](https://cloud.spring.io/spring-cloud-netflix/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) [Spring Cloud Netflix 1.x](https://cloud.spring.io/spring-cloud-netflix/1.4.x/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter)
 
 3. 验证是否注册成功
 
@@ -277,7 +273,7 @@ Saga可通过以下任一方式进行构建：
 
 4. 配置omega
 
-   在项目中引入依赖包`omega-spring-cloud-starter`
+   在项目中引入依赖包 `omega-spring-cloud-starter`
 
    ```xml
    <dependency>
