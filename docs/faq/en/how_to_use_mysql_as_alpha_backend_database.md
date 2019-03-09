@@ -6,7 +6,15 @@
    docker run -d -e "MYSQL_ROOT_PASSWORD=password" -e "MYSQL_DATABASE=saga" -e "MYSQL_USER=saga" -e "MYSQL_PASSWORD=password" -p 3306:3306 mysql/mysql-server:5.7
    ```
 
-2. Run alpha. Please make sure MySQL is up before this step. You can run alpha through docker or executable file.
+2. Download MySQL jdbc jar
+
+   ```bash
+   wget http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-8.0.15.tar.gz 
+   tar -xvzf mysql-connector-java-8.0.15.tar.gz
+   ```
+
+3. Run alpha. Please make sure MySQL is up before this step. You can run alpha through docker or executable file.
+
    * via docker
 
       Create `libs`  directory on the machine, for mount containers internal directory `/maven/saga/libs` , copy ` mysql-connector-java-8.0.15.jar` to the libs directory,  uses the `-Dloader.path=/maven/saga/libs` system property and includes all JAR files in this directory and add them in the classpath 
