@@ -228,14 +228,14 @@ Saga可通过以下任一方式进行构建：
 
 1. 运行alpha
 
-   运行时增加 `eureka.enabled=true` 参数
+   运行时增加 `eureka.client.enabled=true` 参数
 
    ```bash
    java -jar alpha-server-${saga_version}-exec.jar \ 
      --spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false \
      --spring.datasource.username=saga \
      --spring.datasource.password=saga \
-     --eureka.enabled=true \
+     --eureka.client.enabled=true \
      --eureka.client.service-url.defaultZone=http://127.0.0.1:8761/eureka \  
      --spring.profiles.active=prd 
    ```

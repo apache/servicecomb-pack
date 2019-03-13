@@ -224,14 +224,14 @@ Uses Spring Cloud Netflix 2.x by default, if you want to use Spring Cloud Netfli
 
 1. run alpha
 
-   run with parameter `eureka.enabled=true`
+   run with parameter `eureka.client.enabled=true`
 
    ```bash
    java -jar alpha-server-${saga_version}-exec.jar \ 
      --spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false \
      --spring.datasource.username=saga \
      --spring.datasource.password=saga \
-     --eureka.enabled=true \
+     --eureka.client.enabled=true \
      --eureka.client.service-url.defaultZone=http://127.0.0.1:8761/eureka \  
      --spring.profiles.active=prd 
    ```
