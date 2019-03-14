@@ -26,8 +26,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>omega-spring-cloud-starter</artifactId>
-  <name>Pack::Omega::Spring Cloud Starter</name>
+  <artifactId>omega-spring-cloud-eureka-starter</artifactId>
+  <name>Pack::Omega::Spring Cloud Eureka Starter</name>
 
   <dependencies>
     <dependency>

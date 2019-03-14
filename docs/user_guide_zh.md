@@ -273,12 +273,12 @@ Saga可通过以下任一方式进行构建：
 
 4. 配置omega
 
-   在项目中引入依赖包 `omega-spring-cloud-starter`
+   在项目中引入依赖包 `omega-spring-cloud-eureka-starter`
 
    ```xml
    <dependency>
    	<groupId>org.apache.servicecomb.pack</groupId>
-   	<artifactId>omega-spring-cloud-starter</artifactId>
+   	<artifactId>omega-spring-cloud-eureka-starter</artifactId>
    	<version>${pack.version}</version>
    </dependency>
    ```
