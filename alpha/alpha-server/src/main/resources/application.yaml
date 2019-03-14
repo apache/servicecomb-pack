@@ -27,6 +27,16 @@ spring:
     initialization-mode: always
   main:
     allow-bean-definition-overriding: true
+  cloud:
+    consul:
+      host: 0.0.0.0
+      port: 8500
+      discovery:
+        serviceName: {spring.application.name}
+        healthCheckPath: /actuator/health
+        healthCheckInterval: 10s
+        instanceId: ${spring.application.name}-${alpha.server.host}-${server.port}
+        tags: alpha-server-host=${alpha.server.host},alpha-server-port:${alpha.server.port}
 
 eureka:
   client:
