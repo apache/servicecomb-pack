@@ -270,12 +270,12 @@ Uses Spring Cloud Netflix 2.x by default, if you want to use Spring Cloud Netfli
 
 3. setup omega
 
-   edit your `pom.xml` and add the `omega-spring-cloud-starter` dependency
+   edit your `pom.xml` and add the `omega-spring-cloud-eureka-starter` dependency
 
    ```xml
    <dependency>
     <groupId>org.apache.servicecomb.pack</groupId>
-    <artifactId>omega-spring-cloud-starter</artifactId>
+    <artifactId>omega-spring-cloud-eureka-starter</artifactId>
     <version>${pack.version}</version>
    </dependency>
    ```
