@@ -41,7 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
-@ConditionalOnProperty(value = {"alpha.cluster.register.type"}, havingValue = "spring-cloud")
+@ConditionalOnProperty(value = {"alpha.cluster.register.type"}, havingValue = "eureka")
 @AutoConfigureAfter(value = {EurekaDiscoveryClientConfiguration.class})
 class OmegaSpringEurekaConfig {
 

@@ -290,10 +290,10 @@ Uses Spring Cloud Netflix 2.x by default, if you want to use Spring Cloud Netfli
    alpha:
      cluster:
        register:
-         type: spring-cloud
+         type: eureka
    ```
 
    * `eureka.client.service-url.defaultZone` property is set to the Eureka server’s instance address, check out Spring Boot’s  [Spring Cloud Netflix 2.x](https://cloud.spring.io/spring-cloud-netflix/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) or [Spring Cloud Netflix 1.x](https://cloud.spring.io/spring-cloud-netflix/1.4.x/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) for more details.
-   * `alpha.cluster.register.type=spring-cloud`  property is omega gets alpha gRPC address from Eureka
+   * `alpha.cluster.register.type=eureka`  property is omega gets alpha gRPC address from Eureka
 
    **Note:** If you define `spring.application.name ` parameter when start alpha,  You need to specify this service name in Omega via the parameter `alpha.cluster.serviceId`
