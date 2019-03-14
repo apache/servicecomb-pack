@@ -21,3 +21,6 @@ info:
 spring:
   application:
     name: servicecomb-alpha-server
+  cloud:
+    consul: # consul enabled configuration must be in this file
+      enabled: false
