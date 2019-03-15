@@ -36,7 +36,7 @@ spring:
         healthCheckPath: /actuator/health
         healthCheckInterval: 10s
         instanceId: ${spring.application.name}-${alpha.server.host}-${server.port}
-        tags: alpha-server-host=${alpha.server.host},alpha-server-port:${alpha.server.port}
+        tags: alpha-server-host=${alpha.server.host},alpha-server-port=${alpha.server.port}
 
 eureka:
   client:
