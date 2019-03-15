@@ -103,8 +103,7 @@ class OmegaSpringConfig {
       @Lazy MessageHandler handler,
       @Lazy TccMessageHandler tccMessageHandler) {
 
-    LOG.info("Discovery alpha cluster address from {} {}",alphaClusterDiscovery.getDiscoveryType().name()
-            ,alphaClusterDiscovery.getDiscoveryInfo() == null ? "" : alphaClusterDiscovery.getDiscoveryInfo());
+    LOG.info("Discovery alpha cluster address {} from {}",alphaClusterDiscovery.getAddresses() == null ? "" : String.join(",",alphaClusterDiscovery.getAddresses()), alphaClusterDiscovery.getDiscoveryType().name());
     MessageFormat messageFormat = new KryoMessageFormat();
     AlphaClusterConfig clusterConfig = AlphaClusterConfig.builder()
         .addresses(ImmutableList.copyOf(alphaClusterDiscovery.getAddresses()))
