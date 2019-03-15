@@ -66,7 +66,7 @@ class OmegaSpringEurekaConfig {
         String[] alphaAddresses = this.getAlphaAddress(serviceId);
         if (alphaAddresses.length > 0) {
             AlphaClusterDiscovery alphaClusterDiscovery = AlphaClusterDiscovery.builder()
-                    .discoveryType(AlphaClusterDiscovery.DiscoveryType.SPRING_CLOUD_EUREKA)
+                    .discoveryType(AlphaClusterDiscovery.DiscoveryType.EUREKA)
                     .discoveryInfo(eurekaServiceUrls.toString())
                     .addresses(alphaAddresses)
                     .build();

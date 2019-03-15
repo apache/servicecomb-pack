@@ -50,7 +50,7 @@ public class AlphaClusterDiscovery {
     }
 
     public enum DiscoveryType{
-        DEFAULT,SPRING_CLOUD_EUREKA
+        DEFAULT,EUREKA,CONSUL
     }
 
     public static final Builder builder(){
