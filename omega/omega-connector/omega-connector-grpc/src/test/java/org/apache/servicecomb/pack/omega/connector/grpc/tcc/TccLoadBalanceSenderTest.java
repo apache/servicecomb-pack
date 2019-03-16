@@ -83,7 +83,7 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
   private final String parentTxId = uniquify("parentTxId");
   private final String methodName = uniquify("methodName");
   private final String confirmMethod = uniquify("confirmMethod");
-  private final String cancelMethod = uniquify("cancleMethod");
+  private final String cancelMethod = uniquify("canceMethod");
   private final String serviceName = uniquify("serviceName");
 
   private final ServiceConfig serviceConfig = new ServiceConfig(serviceName);
@@ -170,12 +170,12 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
     Integer expectPort = Integer.valueOf(expectSender.target().split(":")[1]);
     GrpcParticipationStartedEvent result = (GrpcParticipationStartedEvent) eventsMap.get(expectPort).poll();
     assertThat(result.getGlobalTxId(), is(globalTxId));
-//    assertThat(result.getCancelMethod(), is(cancelMethod));
-//    assertThat(result.getConfirmMethod(), is(confirmMethod));
+    assertThat(result.getCancelMethod(), is(cancelMethod));
+    assertThat(result.getConfirmMethod(), is(confirmMethod));
     assertThat(result.getServiceName(), is(serviceName));
     assertThat(result.getInstanceId(), is(serviceConfig.instanceId()));
     assertThat(result.getParentTxId(), is(parentTxId));
-//    assertThat(result.getStatus(), is(TransactionStatus.Succeed.name()));
+    //assertThat(result.getStatus(), is(TransactionStatus.Succeed.name()));
   }
 
   @Test
@@ -203,7 +203,7 @@ public class TccLoadBalanceSenderTest extends LoadBalanceSenderTestBase {
 
     // when 8080 was recovery, it will be routed again.
     startServerOnPort(8080);
-    await().atMost(2, TimeUnit.SECONDS).until(new Callable<Boolean>() {
+    await().atMost(3, TimeUnit.SECONDS).until(new Callable<Boolean>() {
       @Override
       public Boolean call() {
         return connected.get(8080).size() == 3;
