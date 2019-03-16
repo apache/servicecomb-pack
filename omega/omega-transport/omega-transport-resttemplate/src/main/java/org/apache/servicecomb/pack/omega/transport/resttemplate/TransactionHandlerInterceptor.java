@@ -22,6 +22,7 @@ package org.apache.servicecomb.pack.omega.transport.resttemplate;
 
 import static org.apache.servicecomb.pack.omega.context.OmegaContext.GLOBAL_TX_ID_KEY;
 import static org.apache.servicecomb.pack.omega.context.OmegaContext.LOCAL_TX_ID_KEY;
+import static org.apache.servicecomb.pack.omega.context.OmegaContext.PARENT_TX_ID_KEY;
 
 import java.lang.invoke.MethodHandles;
 
@@ -53,6 +54,7 @@ class TransactionHandlerInterceptor implements HandlerInterceptor {
       } else {
         omegaContext.setGlobalTxId(globalTxId);
         omegaContext.setLocalTxId(request.getHeader(LOCAL_TX_ID_KEY));
+        omegaContext.setParentTxId(request.getHeader(PARENT_TX_ID_KEY));
       }
     } else {
       LOG.debug("Cannot inject transaction ID, as the OmegaContext is null.");

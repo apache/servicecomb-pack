@@ -20,6 +20,7 @@ package org.apache.servicecomb.pack.omega.transport.resttemplate;
 
 import static org.apache.servicecomb.pack.omega.context.OmegaContext.GLOBAL_TX_ID_KEY;
 import static org.apache.servicecomb.pack.omega.context.OmegaContext.LOCAL_TX_ID_KEY;
+import static org.apache.servicecomb.pack.omega.context.OmegaContext.PARENT_TX_ID_KEY;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -45,10 +46,13 @@ class TransactionClientHttpRequestInterceptor implements ClientHttpRequestInterc
       ClientHttpRequestExecution execution) throws IOException {
 
     if (omegaContext!= null && omegaContext.globalTxId() != null) {
+      request.getHeaders().add(PARENT_TX_ID_KEY, omegaContext.parentTxId());
       request.getHeaders().add(GLOBAL_TX_ID_KEY, omegaContext.globalTxId());
       request.getHeaders().add(LOCAL_TX_ID_KEY, omegaContext.localTxId());
 
-      LOG.debug("Added {} {} and {} {} to request header",
+      LOG.debug("Added {} {} and {} {} and {} {} to request header",
+          PARENT_TX_ID_KEY,
+          omegaContext.parentTxId(),
           GLOBAL_TX_ID_KEY,
           omegaContext.globalTxId(),
           LOCAL_TX_ID_KEY,

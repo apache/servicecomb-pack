@@ -27,6 +27,7 @@ import java.lang.invoke.MethodHandles;
 
 import static org.apache.servicecomb.pack.omega.context.OmegaContext.GLOBAL_TX_ID_KEY;
 import static org.apache.servicecomb.pack.omega.context.OmegaContext.LOCAL_TX_ID_KEY;
+import static org.apache.servicecomb.pack.omega.context.OmegaContext.PARENT_TX_ID_KEY;
 
 /**
  * 增加Feign拦截器，实现spring cloud下feign调用传递全局事务和本地事务。
@@ -44,10 +45,13 @@ public class FeignClientRequestInterceptor implements RequestInterceptor {
     @Override
     public void apply(RequestTemplate input) {
         if (omegaContext!= null && omegaContext.globalTxId() != null) {
+            input.header(PARENT_TX_ID_KEY, omegaContext.parentTxId());
             input.header(GLOBAL_TX_ID_KEY, omegaContext.globalTxId());
             input.header(LOCAL_TX_ID_KEY, omegaContext.localTxId());
 
-            LOG.debug("Added {} {} and {} {} to request header",
+            LOG.debug("Added {} {} and {} {} and {} {} to request header",
+                    PARENT_TX_ID_KEY,
+                    omegaContext.parentTxId(),
                     GLOBAL_TX_ID_KEY,
                     omegaContext.globalTxId(),
                     LOCAL_TX_ID_KEY,
