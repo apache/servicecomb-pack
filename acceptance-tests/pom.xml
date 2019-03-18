@@ -34,6 +34,7 @@
     <module>acceptance-pack-spring-demo</module>
     <module>acceptance-pack-tcc-spring-demo</module>
     <module>acceptance-pack-cluster-spring-demo</module>
+    <module>acceptance-pack-spring-demo-with-consul</module>
   </modules>
 
   <properties>
