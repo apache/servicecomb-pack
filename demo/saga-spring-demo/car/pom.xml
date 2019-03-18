@@ -41,6 +41,10 @@
       <artifactId>omega-spring-starter</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.servicecomb.pack</groupId>
+      <artifactId>omega-spring-cloud-consul-starter</artifactId>
+    </dependency>
+    <dependency>
        <groupId>org.apache.servicecomb.pack</groupId>
        <artifactId>omega-transport-resttemplate</artifactId>
     </dependency>

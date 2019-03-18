@@ -17,6 +17,9 @@
 spring:
   application:
     name: car
+  cloud:
+    consul:
+      enabled: false
 alpha:
   cluster:
     address: alpha-server.servicecomb.io:8080
