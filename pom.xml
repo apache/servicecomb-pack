@@ -54,10 +54,10 @@
     <spring.boot2.version>2.1.1.RELEASE</spring.boot2.version>
     <spring.boot.version>${spring.boot2.version}</spring.boot.version>
     <spring.cloud1.version>1.4.6.RELEASE</spring.cloud1.version>
-    <spring.cloud2.version>2.0.2.RELEASE</spring.cloud2.version>
+    <spring.cloud2.version>2.1.1.RELEASE</spring.cloud2.version>
     <spring.cloud.version>${spring.cloud2.version}</spring.cloud.version>
     <spring.cloud.starter.consul.discovery1.version>1.3.5.RELEASE</spring.cloud.starter.consul.discovery1.version>
-    <spring.cloud.starter.consul.discovery2.version>2.0.2.RELEASE</spring.cloud.starter.consul.discovery2.version>
+    <spring.cloud.starter.consul.discovery2.version>2.1.1.RELEASE</spring.cloud.starter.consul.discovery2.version>
     <spring.cloud.starter.consul.discovery.version>${spring.cloud.starter.consul.discovery2.version}</spring.cloud.starter.consul.discovery.version>
     <java.chassis.version>1.0.0</java.chassis.version>
     <akka.version>2.5.14</akka.version>
@@ -289,6 +289,11 @@
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-spring-starter</artifactId>
+        <version>0.4.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.servicecomb.pack</groupId>
+        <artifactId>omega-spring-cloud-consul-starter</artifactId>
         <version>0.4.0-SNAPSHOT</version>
       </dependency>
       <dependency>
