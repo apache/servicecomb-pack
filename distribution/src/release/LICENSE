@@ -367,7 +367,8 @@ Spring Boot AutoConfigure (http://projects.spring.io/spring-boot/) org.springfra
 Spring Boot Logging Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-logging:jar:2.1.1.REALEASE
 Spring Boot Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter:jar:2.1.1.REALEASE
 Spring Boot Tomcat Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-tomcat:jar:1.5.14.REALEASE
-Spring Cloud Starter Netflix (https://github.com/spring-cloud/spring-cloud-netflix) spring-cloud-starter-netflix-eureka-client:jar:2.0.2.RELEASE
+Spring Cloud Starter Netflix (https://github.com/spring-cloud/spring-cloud-netflix) spring-cloud-starter-netflix-eureka-client:jar:2.1.1.RELEASE
+Spring Cloud Starter Consul (https://github.com/spring-cloud/spring-cloud-consul) spring-cloud-starter-consul-discovery:jar:2.1.1.RELEASE
 Spring Context (https://github.com/spring-projects/spring-framework) org.springframework:spring-context:jar:5.1.3.RELEASE
 Spring Core (https://github.com/spring-projects/spring-framework) org.springframework:spring-core:jar:5.1.3.RELEASE
 Spring Expression Language (SpEL) (https://github.com/spring-projects/spring-framework) org.springframework:spring-expression:jar:5.1.3.RELEASE
@@ -566,7 +567,8 @@ Spring Boot Tomcat Starter (http://projects.spring.io/spring-boot/) org.springfr
 Spring Boot Web Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-web:jar:2.1.1.REALEASE
 Spring Boot Json Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-json:jar:2.1.1.REALEASE
 Spring Boot Log4j Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-log4j2:jar:2.1.1.REALEASE
-Spring Cloud Starter Netflix (https://github.com/spring-cloud/spring-cloud-netflix) spring-cloud-starter-netflix-eureka-client:jar:2.0.2.RELEASE
+Spring Cloud Starter Netflix (https://github.com/spring-cloud/spring-cloud-netflix) spring-cloud-starter-netflix-eureka-client:jar:2.1.1.RELEASE
+Spring Cloud Starter Consul (https://github.com/spring-cloud/spring-cloud-consul) spring-cloud-starter-consul-discovery:jar:2.1.1.RELEASE
 Spring Context (https://github.com/spring-projects/spring-framework) org.springframework:spring-context:jar:5.1.3.RELEASE
 Spring Core (https://github.com/spring-projects/spring-framework) org.springframework:spring-core:jar:5.1.3.RELEASE
 Spring Data Core (http://www.spring.io/spring-data/spring-data-commons) org.springframework.data:spring-data-commons:jar:2.1.3.RELEASE
