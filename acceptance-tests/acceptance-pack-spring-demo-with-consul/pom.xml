@@ -95,6 +95,24 @@
             <configuration>
               <images>
                 <image>
+                  <name>consul</name>
+                  <alias>consul</alias>
+                  <run>
+                    <wait>
+                      <log>Synced node info</log>
+                      <tcp>
+                        <ports>
+                          <port>8500</port>
+                        </ports>
+                      </tcp>
+                      <time>60000</time>
+                    </wait>
+                    <ports>
+                      <port>consul.port:8500</port>
+                    </ports>
+                  </run>
+                </image>
+                <image>
                   <name>postgres</name>
                   <alias>postgres</alias>
                   <run>
