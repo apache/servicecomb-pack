@@ -182,6 +182,12 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9091,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <spring.cloud.consul.enabled>true</spring.cloud.consul.enabled>
+                      <alpha.cluster.address></alpha.cluster.address>
+                      <alpha.cluster.register.type>consul</alpha.cluster.register.type>
+                      <spring.cloud.consul.host>consul.servicecomb.io</spring.cloud.consul.host>
+                      <spring.cloud.consul.port>8500</spring.cloud.consul.port>
+                      <spring.cloud.consul.discovery.register>false</spring.cloud.consul.discovery.register>
                     </env>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
@@ -195,6 +201,7 @@
                     </wait>
                     <links>
                       <link>alpha:alpha-server.servicecomb.io</link>
+                      <link>consul:consul.servicecomb.io</link>
                     </links>
                     <ports>
                       <port>car.port:8080</port>
@@ -214,6 +221,12 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9091,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <spring.cloud.consul.enabled>true</spring.cloud.consul.enabled>
+                      <alpha.cluster.address></alpha.cluster.address>
+                      <alpha.cluster.register.type>consul</alpha.cluster.register.type>
+                      <spring.cloud.consul.host>consul.servicecomb.io</spring.cloud.consul.host>
+                      <spring.cloud.consul.port>8500</spring.cloud.consul.port>
+                      <spring.cloud.consul.discovery.register>false</spring.cloud.consul.discovery.register>
                     </env>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
@@ -227,6 +240,7 @@
                     </wait>
                     <links>
                       <link>alpha:alpha-server.servicecomb.io</link>
+                      <link>consul:consul.servicecomb.io</link>
                     </links>
                     <ports>
                       <port>hotel.port:8080</port>
@@ -246,6 +260,12 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9091,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <spring.cloud.consul.enabled>true</spring.cloud.consul.enabled>
+                      <alpha.cluster.address></alpha.cluster.address>
+                      <alpha.cluster.register.type>consul</alpha.cluster.register.type>
+                      <spring.cloud.consul.host>consul.servicecomb.io</spring.cloud.consul.host>
+                      <spring.cloud.consul.port>8500</spring.cloud.consul.port>
+                      <spring.cloud.consul.discovery.register>false</spring.cloud.consul.discovery.register>
                     </env>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
@@ -261,6 +281,7 @@
                       <link>alpha:alpha-server.servicecomb.io</link>
                       <link>car:car.servicecomb.io</link>
                       <link>hotel:hotel.servicecomb.io</link>
+                      <link>consul:consul.servicecomb.io</link>
                     </links>
                     <ports>
                       <port>booking.port:8080</port>
