@@ -301,3 +301,87 @@ Saga可通过以下任一方式进行构建：
 
    **注意:** 如果你在启动Alpha的时候通过命令行参数`spring.application.name`自定义了服务名，那么你需要在Omega中通过参数`alpha.cluster.serviceId`指定这个服务名
 
+### Consul 支持
+
+当前版本支持 Spring Cloud Consul 2.x，你可以使用 `-Pspring-boot-1` 参数重新编译支持 Spring Cloud Consul 1.x 版本
+
+1. 运行alpha
+
+   运行时增加 `spring.cloud.consul.enabled=true` 参数
+
+   ```bash
+   java -jar alpha-server-${saga_version}-exec.jar \ 
+     --spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false \
+     --spring.datasource.username=saga \
+     --spring.datasource.password=saga \
+     --spring.cloud.consul.enabled=true \
+     --spring.cloud.consul.host=${consul_host} \
+     --spring.cloud.consul.port=${consul_port} \
+     --spring.profiles.active=prd 
+   ```
+
+   **注意:** `${consul_host}` 是 consul 地址, `${consul_port}` 是 consul 端口
+
+   **注意:** 更多 Consul 参数请参考 [Spring Cloud Consul 2.x](https://cloud.spring.io/spring-cloud-consul/spring-cloud-consul.html) [Spring Cloud Consul 1.x](https://cloud.spring.io/spring-cloud-consul/1.3.x/single/spring-cloud-consul.html)
+
+2. 验证是否注册成功
+
+   访问 Consul 的注册实例查询接口`curl http://127.0.0.1:8500/v1/agent/services`可以看到如下注册信息，在你 Tags 中可以看到 Alpha 的 gRPC 访问地址已经注册
+
+   ```json
+   {
+       "servicecomb-alpha-server-0-0-0-0-8090": {
+           "ID": "servicecomb-alpha-server-0-0-0-0-8090",
+           "Service": "servicecomb-alpha-server",
+           "Tags": [
+               "alpha-server-host=0.0.0.0",
+               "alpha-server-port=8080",
+               "secure=false"
+           ],
+           "Meta": {},
+           "Port": 8090,
+           "Address": "10.50.7.14",
+           "Weights": {
+               "Passing": 1,
+               "Warning": 1
+           },
+           "EnableTagOverride": false
+       }
+   }
+   ```
+
+   **注意:** 默认情况下注册的服务名是`servicecomb-alpha-server`,如果你需要自定义服务名可以在运行Alpha的时候通过命令行参数`spring.application.name`配置
+
+3. 配置omega
+
+   在项目中引入依赖包 `omega-spring-cloud-consul-starter`
+
+   ```xml
+   <dependency>
+   	<groupId>org.apache.servicecomb.pack</groupId>
+   	<artifactId>omega-spring-cloud-consul-starter</artifactId>
+   	<version>${pack.version}</version>
+   </dependency>
+   ```
+
+   在 `application.yaml` 添加下面的配置项：
+
+   ```yaml
+   spring:
+     cloud:
+       consul:
+         discovery:
+         	register: false
+         host: 127.0.0.1
+         port: 8500
+         
+   alpha:
+     cluster:
+       register:
+         type: consul
+   ```
+
+   - `spring.cloud.consul.host` 配置 Consul 注册中心的地址，`spring.cloud.consul.port` 配置 Consul 注册中心的端口，`spring.cloud.consul.discovery.register=false` 表示不注册自己到注册中心，更多 Consul 客户端配置可以参考[Spring Cloud Consul 2.x](https://cloud.spring.io/spring-cloud-consul/spring-cloud-consul.html) [Spring Cloud Consul 1.x](https://cloud.spring.io/spring-cloud-consul/1.3.x/single/spring-cloud-consul.html)
+   - `alpha.cluster.register.type=consul` 配置Omega获取Alpha的方式是通过 Consul 的注册中心
+
+   **注意:** 如果你在启动Alpha的时候通过命令行参数`spring.application.name`自定义了服务名，那么你需要在Omega中通过参数`alpha.cluster.serviceId`指定这个服务名
