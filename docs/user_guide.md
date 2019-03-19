@@ -239,7 +239,7 @@ Uses Spring Cloud Netflix 2.x by default, if you want to use Spring Cloud Netfli
 
 2. verify registration information
 
-   request `curl http://127.0.0.1:8761/eureka/apps/`, It responds with the following JSON
+   request `curl http://127.0.0.1:8761/eureka/apps/`, It responds with the following XML
 
    ```xml
    <applications>
@@ -297,3 +297,91 @@ Uses Spring Cloud Netflix 2.x by default, if you want to use Spring Cloud Netfli
    * `alpha.cluster.register.type=eureka`  property is omega gets alpha gRPC address from Eureka
 
    **Note:** If you define `spring.application.name ` parameter when start alpha,  You need to specify this service name in Omega via the parameter `alpha.cluster.serviceId`
+
+### Consul
+
+Uses Spring Cloud Consul 2.x by default, if you want to use Spring Cloud Consul 1.x, you can use `-Pspring-boot-1` to switch Spring Cloud Consul 1.x
+
+1. run alpha
+
+   run with parameter `spring.cloud.consul.enabled=true`
+
+   ```bash
+   java -jar alpha-server-${saga_version}-exec.jar \ 
+     --spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false \
+     --spring.datasource.username=saga \
+     --spring.datasource.password=saga \
+     --spring.cloud.consul.enabled=true \
+     --spring.cloud.consul.host=${consul_host} \
+     --spring.cloud.consul.port=${consul_port} \
+     --spring.profiles.active=prd 
+   ```
+
+   **Note:** `${consul_host}` is consul host, `${consul_port}` is consul port
+
+   **Note:** Check out  for more details  [Spring Cloud Consul 2.x](https://cloud.spring.io/spring-cloud-consul/spring-cloud-consul.html) [Spring Cloud Consul 1.x](https://cloud.spring.io/spring-cloud-consul/1.3.x/single/spring-cloud-consul.html)
+
+2. verify registration information
+
+   request `curl http://127.0.0.1:8500/v1/agent/services`, It responds with the following JSON
+
+   ```json
+   {
+       "servicecomb-alpha-server-0-0-0-0-8090": {
+           "ID": "servicecomb-alpha-server-0-0-0-0-8090",
+           "Service": "servicecomb-alpha-server",
+           "Tags": [
+               "alpha-server-host=0.0.0.0",
+               "alpha-server-port=8080",
+               "secure=false"
+           ],
+           "Meta": {},
+           "Port": 8090,
+           "Address": "10.50.7.14",
+           "Weights": {
+               "Passing": 1,
+               "Warning": 1
+           },
+           "EnableTagOverride": false
+       }
+   }
+   ```
+
+   **Note:**  `Tags` property is alpha gRPC address
+
+   **Note:** alpha instance name is `servicecomb-alpha-server` by default. You can set it by starting parameter  `spring.application.name` 
+
+3. setup omega
+
+   edit your `pom.xml` and add the `omega-spring-cloud-consul-starter` dependency
+
+   ```xml
+   <dependency>
+    <groupId>org.apache.servicecomb.pack</groupId>
+    <artifactId>omega-spring-cloud-consul-starter</artifactId>
+    <version>${pack.version}</version>
+   </dependency>
+   ```
+
+   edit your  `application.yaml` , as shown in the following example:
+
+   ```yaml
+   spring:
+     cloud:
+       consul:
+         discovery:
+         	register: false
+         host: 127.0.0.1
+         port: 8500
+         
+   alpha:
+     cluster:
+       register:
+         type: consul
+   ```
+
+   - `spring.cloud.consul.host` property is set to the Consul server’s instance address, `spring.cloud.consul.port` property is set to the Consul server’s instance port, `spring.cloud.consul.discovery.register=false` property is not register yourself , check out Spring Boot’s  [Spring Cloud Consul 2.x](https://cloud.spring.io/spring-cloud-consul/spring-cloud-consul.html)  or [Spring Cloud Consul 1.x](https://cloud.spring.io/spring-cloud-consul/1.3.x/single/spring-cloud-consul.html) for more details.
+   - `alpha.cluster.register.type=consul`  property is omega gets alpha gRPC address from Consul
+
+   **Note:** If you define `spring.application.name ` parameter when start alpha,  You need to specify this service name in Omega via the parameter `alpha.cluster.serviceId`
+
