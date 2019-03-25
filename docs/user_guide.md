@@ -385,3 +385,6 @@ Uses Spring Cloud Consul 2.x by default, if you want to use Spring Cloud Consul 
 
    **Note:** If you define `spring.application.name ` parameter when start alpha,  You need to specify this service name in Omega via the parameter `alpha.cluster.serviceId`
 
+## Cluster
+
+Alpha can be highly available by deploying multiple instances, enable cluster support with the `alpha.cluster.master.enabled=true` parameter.
