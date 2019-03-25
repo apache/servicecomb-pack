@@ -37,20 +37,25 @@ ServiceComb Pack 架构是由 **alpha** 和 **omega**组成，其中：
 
 ## 编译和运行代码
 当前ServiceComb Pack同时支持Spring Boot 1.x 以及 Spring Boot 2.x，你可以使用 *-Pspring-boot-1* ，*-Pspring-boot-2* 参数转换Spring Boot版本。
-由于Spring Boot 只在2.x开始支持 JDK9，如果你想用JDK9或者JDK10来编译Saga并运行测试的话，请使用spring-boot-2 profile参数。
+由于Spring Boot 只在2.x开始支持 JDK9，如果你想用JDK9或者JDK10来编译Pack并运行测试的话，请使用spring-boot-2 profile参数。下面示例的所有命令需要在Pack根目录下运行。
 
 * 编译代码并且运行相关的单元测试
    ```bash
       $ mvn clean install -Pspring-boot-2
    ```
-* 编译示例，并生成docker镜像（maven会根据是否安装docker来启动这部分的设置），运行验收测试。
+* 编译示例代码，并生成docker镜像（maven会根据是否安装docker来启动这部分的设置），运行验收测试。
    ```bash
       $ mvn clean install -Pdemo,spring-boot-2
    ```
-* 编译示例，并生产docker镜像, 不运行测试
+* 编译示例代码，并生产docker镜像, 不运行测试
    ```bash
       $ mvn clean install -DskipTests=true -Pdemo,spring-boot-2
-   ```       
+   ```
+* 编译软件发布包，不运行测试, maven会在distribution/target目录下生成的发布包. 
+  ```bash
+     $ mvn clean install -DskipTests=true -Prelease
+  ```  
+          
 
 ## 用户指南
 如何构建和使用可浏览[用户指南](docs/user_guide_zh.md)。
