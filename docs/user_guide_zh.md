@@ -385,3 +385,7 @@ Saga可通过以下任一方式进行构建：
    - `alpha.cluster.register.type=consul` 配置Omega获取Alpha的方式是通过 Consul 的注册中心
 
    **注意:** 如果你在启动Alpha的时候通过命令行参数`spring.application.name`自定义了服务名，那么你需要在Omega中通过参数`alpha.cluster.serviceId`指定这个服务名
+   
+## 集群
+
+Alpha 可以通过部署多实例的方式保证高可用，使用 `alpha.cluster.master.enabled=true` 参数开启集群支持
