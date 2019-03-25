@@ -46,10 +46,11 @@
             <directory>../</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
-
                 <include>DISCLAIMER</include>
                 <include>README.md</include>
                 <include>README_ZH.md</include>
+                <include>FAQ.md</include>
+                <include>FAQ_ZH.md</include>
             </includes>
         </fileSet>
         <!-- include the NOTICE and LICENSE file from release directory -->
