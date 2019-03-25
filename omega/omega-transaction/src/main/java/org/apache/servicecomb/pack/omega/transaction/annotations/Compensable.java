@@ -42,10 +42,10 @@ public @interface Compensable {
    * The retires number of the compensable method.
    * Default value is 0, which means never retry it
    * value is -1, which means retry it until succeed
-   * value > 0, which means the retry number
-   * value < -1, an IllegalArgumentException will be thrown
+   * value &gt; 0, which means the retry number
+   * value &lt; -1, an IllegalArgumentException will be thrown
    *
-   * @return
+   * @return the retries number
    */
   int retries() default 0;
 
@@ -59,7 +59,7 @@ public @interface Compensable {
    *   <li>be in the same class as @Compensable method is in</li>
    * </ol>
    *
-   * @return
+   * @return the compensation method name
    */
   String compensationMethod() default "";
 
@@ -69,7 +69,7 @@ public @interface Compensable {
    * <code>@Compensable</code> method timeout, in seconds. <br>
    * Default value is 0, which means never timeout.
    *
-   * @return
+   * @return the timeout value
    */
   int timeout() default 0;
 }

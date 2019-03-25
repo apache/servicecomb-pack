@@ -43,7 +43,7 @@ public @interface Participate {
    *   <li>be in the same class as @Participate method is in</li>
    * </ol>
    *
-   * @return
+   * @return the confirmation method name
    */
   String confirmMethod() default "";
 
@@ -57,7 +57,7 @@ public @interface Participate {
    *   <li>be in the same class as @Participate method is in</li>
    * </ol>
    *
-   * @return
+   * @return the cancel method name
    */
   String cancelMethod() default "";
 
