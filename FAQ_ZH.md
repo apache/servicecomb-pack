@@ -44,3 +44,6 @@ Saga Alpha在设计过程中状态信息都存储到数据库，是支持水平�
 
 参阅这篇[文档](docs/faq/cn/how_to_use_mysql_as_alpha_backend_database.md)
 
+**Q9: 如何解决Omega不执行Alpha下发的指令?
+
+参阅这篇[文档](docs/faq/cn/omega-cannot-run-command-from-alpha.md)

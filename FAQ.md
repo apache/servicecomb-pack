@@ -44,3 +44,7 @@ Saga Alpha will try to continue Saga execution after service restart.
 **Q8: How to use MySQL as alpha's backend database?**
 
 Check this [doc](docs/faq/en/how_to_use_mysql_as_alpha_backend_database.md)
+
+**Q9: How to resolve the issue that Omega cannot run the command from Alpha?
+
+Check this [doc](docs/faq/en/omega-cannot-run-command-from-alpha.md)
