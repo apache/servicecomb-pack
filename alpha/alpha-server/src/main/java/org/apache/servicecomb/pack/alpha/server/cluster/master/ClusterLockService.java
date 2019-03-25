@@ -17,7 +17,11 @@
 
 package org.apache.servicecomb.pack.alpha.server.cluster.master;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import javax.annotation.PostConstruct;
 import org.apache.servicecomb.pack.alpha.core.NodeStatus;
+import org.apache.servicecomb.pack.alpha.core.event.GrpcStartableStartedEvent;
 import org.apache.servicecomb.pack.alpha.server.AlphaConfig;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.LockProvider;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.Lock;
@@ -25,6 +29,7 @@ import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -67,6 +72,8 @@ public class ClusterLockService implements ApplicationListener<ApplicationReadyE
 
   private boolean applicationReady;
 
+  private boolean portReady;
+
   private MasterLock masterLock;
 
   private Optional<Lock> locker;
@@ -86,7 +93,13 @@ public class ClusterLockService implements ApplicationListener<ApplicationReadyE
   @Autowired
   NodeStatus nodeStatus;
 
-  public ClusterLockService() {
+  @Autowired
+  @Qualifier("alphaEventBus")
+  EventBus eventBus;
+
+  @PostConstruct
+  public void init() {
+    eventBus.register(this);
     LOG.info("Initialize cluster mode");
   }
 
@@ -116,7 +129,7 @@ public class ClusterLockService implements ApplicationListener<ApplicationReadyE
   //TODO We need to check if the master check interval time check is OK
   @Scheduled(cron = "0/1 * * * * ?")
   public void masterCheck() {
-    if (applicationReady) {
+    if (this.applicationReady && this.portReady) {
       this.locker = lockProvider.lock(this.getMasterLock());
       if (this.locker.isPresent()) {
         if (!this.locked) {
@@ -148,5 +161,21 @@ public class ClusterLockService implements ApplicationListener<ApplicationReadyE
   @Override
   public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
     this.applicationReady = true;
+    if(this.instanceId!=null && this.instanceId.endsWith(":0")){
+      this.portReady = false;
+    }else{
+      this.portReady = true;
+    }
+  }
+
+  /**
+   * Update the port number in the instance ID when using a random gRPC port
+   * */
+  @Subscribe
+  public void listenGrpcStartableStartedEvent(GrpcStartableStartedEvent grpcStartableStartedEvent) {
+    if(this.instanceId!=null && this.instanceId.endsWith(":0")){
+      instanceId = instanceId.replace(":0",":"+grpcStartableStartedEvent.getPort());
+      this.portReady = true;
+    }
   }
 }
