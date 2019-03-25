@@ -55,6 +55,9 @@ public class AlphaConsulAutoConfiguration {
   @Value("${alpha.server.port}")
   private int alphaServerPort;
 
+  @Value("${spring.application.name}")
+  private String serviceName;
+
   @Autowired
   private ConsulClient consulClient;
 
@@ -103,8 +106,8 @@ public class AlphaConsulAutoConfiguration {
       if(instanceRegisteredEvent.getConfig() instanceof ConsulDiscoveryProperties){
         ConsulDiscoveryProperties properties = (ConsulDiscoveryProperties)instanceRegisteredEvent.getConfig();
         this.consuleInstanceId = formatConsulInstanceId(properties.getInstanceId());
-        Response<List<CatalogService>> services = consulClient.getCatalogService("servicecomb-alpha-server",null);
-        if(services.getValue().size()>0){
+        Response<List<CatalogService>> services = consulClient.getCatalogService(serviceName,null);
+        if(services.getValue() != null){
           services.getValue().stream().filter(service ->
               service.getServiceId().equalsIgnoreCase(this.consuleInstanceId)).forEach(service -> {
 
