@@ -31,7 +31,7 @@ import kamon.annotation.Segment;
 
 @EnableKamon
 class SpringTxEventRepository implements TxEventRepository {
-  private static final PageRequest SINGLE_TX_EVENT_REQUEST = new PageRequest(0, 1);
+  private static final PageRequest SINGLE_TX_EVENT_REQUEST = PageRequest.of(0, 1);
   private final TxEventEnvelopeRepository eventRepo;
 
   SpringTxEventRepository(TxEventEnvelopeRepository eventRepo) {

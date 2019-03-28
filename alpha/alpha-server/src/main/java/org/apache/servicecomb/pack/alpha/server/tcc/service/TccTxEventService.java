@@ -131,7 +131,7 @@ public class TccTxEventService {
   }
 
   public void handleTimeoutTx(Date deadLine, int size) {
-    tccTxEventRepository.findTimeoutGlobalTx(deadLine, TccTxType.STARTED.name(), new PageRequest(0, size))
+    tccTxEventRepository.findTimeoutGlobalTx(deadLine, TccTxType.STARTED.name(), PageRequest.of(0, size))
         .ifPresent(e -> e.forEach(t -> {
           GlobalTxEvent globalTxEvent = new GlobalTxEvent(
               t.getServiceName(),
@@ -146,6 +146,6 @@ public class TccTxEventService {
   }
 
   public void clearCompletedGlobalTx(int size) {
-    tccTxEventRepository.clearCompletedGlobalTx(new PageRequest(0, size));
+    tccTxEventRepository.clearCompletedGlobalTx(PageRequest.of(0, size));
   }
 }
