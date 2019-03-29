@@ -563,8 +563,6 @@ Spring Boot Tomcat Starter (http://projects.spring.io/spring-boot/) org.springfr
 Spring Boot Web Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-web:jar:2.1.1.REALEASE
 Spring Boot Json Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-json:jar:2.1.1.REALEASE
 Spring Boot Log4j Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-log4j2:jar:2.1.1.REALEASE
-Spring Cloud Starter Netflix (https://github.com/spring-cloud/spring-cloud-netflix) spring-cloud-starter-netflix-eureka-client:jar:2.1.1.RELEASE
-Spring Cloud Starter Consul (https://github.com/spring-cloud/spring-cloud-consul) spring-cloud-starter-consul-discovery:jar:2.1.1.RELEASE
 Spring Cloud Commons (https://github.com/spring-cloud/spring-cloud) spring-cloud-commons:jar:2.1.1.RELEASE
 Spring Cloud Consul Core (https://github.com/spring-cloud/spring-cloud) spring-cloud-consul-core:jar:2.1.1.RELEASE
 Spring Cloud Netflix Archaius (https://github.com/spring-cloud/spring-cloud-netflix-archaius) spring-cloud-netflix-archaius:jar:2.1.1.RELEASE
@@ -572,6 +570,7 @@ Spring Cloud Netflix Hystrix (https://github.com/spring-cloud/spring-cloud-netfl
 Spring Cloud Netflix Ribbon (https://github.com/spring-cloud/spring-cloud-netflix-ribbon) spring-cloud-netflix-ribbon:jar:2.1.1.RELEASE
 Spring Cloud Starter (https://github.com/spring-cloud/spring-cloud-consul) spring-cloud-starter:jar:2.1.1.RELEASE
 Spring Cloud Starter Consul (https://github.com/spring-cloud/spring-cloud-consul) spring-cloud-starter-consul:jar:2.1.1.RELEASE
+Spring Cloud Starter Netflix (https://github.com/spring-cloud/spring-cloud-netflix) spring-cloud-starter-netflix-eureka-client:jar:2.1.1.RELEASE
 Spring Cloud Starter Netflix Archaius (https://github.com/spring-cloud/spring-cloud-netflix) spring-cloud-starter-netflix-archaius:jar:2.1.1.RELEASE
 Spring Cloud Starter Netflix Ribbon (https://github.com/spring-cloud/spring-cloud-netflix) spring-cloud-starter-netflix-ribbon:jar:2.1.1.RELEASE
 Spring Context (https://github.com/spring-projects/spring-framework) org.springframework:spring-context:jar:5.1.3.RELEASE
