@@ -200,398 +200,372 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
-
-===========================================================================
-For org.aspectj:aspectjweaver:jar:1.8.10
 ===========================================================================
 This product bundles AspectJ weaver which is licensed under the
 Eclipse Public License v1.0.
 For details, see http://www.aspectj.org
 You can find a copy of the License at licenses/LICENSE-epl-v10
 
-===========================================================================
-For javax.transaction:javax.transaction-api:jar:1.2
-===========================================================================
-This product bundles javax.transaction API which is licensed under the
-COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.1.
-For details, see http://jta-spec.java.net
-You can find a copy of the License at licenses/LICENSE-javax
+* AspectJ weaver (org.aspectj:aspectjweaver:1.8.10 - http://www.aspectj.org)
+
 
 ===========================================================================
-For ch.qos.logback:logback-core:jar:1.2.3
-ch.qos.logback:logback-classic:jar:1.2.3
-===========================================================================
-This product bundles Logback which is licensed under the
-Eclipse Public License v1.0.
-For details, see http://logback.qos.ch
-You can find a copy of the License at licenses/LICENSE-logback
-
-===========================================================================
-For org.slf4j:jul-to-slf4j:jar:1.7.25,
-org.slf4j:slf4j-api:jar:1.7.25
-org.slf4j:log4j-to-slf4j:jar:2.11.1
-===========================================================================
-This product bundles slf4j libraries which is licensed under the
-MIT license.
-For details, see http://www.slf4j.org
-You can find a copy of the License at licenses/LICENSE-slf4j
-===========================================================================
-
 This product bundles ngx-admin libraries which is licensed under the
 MIT license.
 For details, see https://github.com/akveo/ngx-admin
 You can find a copy of the License at licenses/LICENSE-ngxadmin
 
 ===========================================================================
-For com.google.protobuf:protobuf-java:bundle:3.5.1
-===========================================================================
 This product bundles protobuf which is licensed under the
 3-Clause BSD license.
-For details, see https://github.com/google/protobuf
 You can find a copy of the License at licenses/LICENSE-protobuf
 
-===========================================================================
-For javax.persistence:javax.persistence-api:jar:2.2
-javax.annotation:javax.annotation-api:jar:1.3.2
+* Protocol Buffers [Core] (com.google.protobuf:protobuf-java:3.5.1 - https://developers.google.com/protocol-buffers/protobuf-java/)
+
 ===========================================================================
 This product bundles javax.persistence which is licensed under the
 Eclipse Public License v1.0.
-For details, see https://github.com/javaee/jpa-spec
 You can find a copy of the License at licenses/LICENSE-epl-v10
 
-===========================================================================
-For Boringssl(static library bundled in netty-tcnative-boringssl-static:2.0.7.Final)
-===========================================================================
-This product bundles Boringssl which is licensed under BSD style licenses.
-For details, see https://github.com/google/boringssl
-You can find a copy of the License at licenses/LICENSE-boringssl
+* Expression Language 3.0 (org.glassfish:javax.el:3.0.0 - http://el-spec.java.net)
+* Java Servlet API (javax.servlet:javax.servlet-api:4.0.1 - https://javaee.github.io/servlet-spec/)
+* javax.annotation API (javax.annotation:javax.annotation-api:1.3.2 - http://jcp.org/en/jsr/detail?id=250)
+* javax.transaction API (javax.transaction:javax.transaction-api:1.2 - http://jta-spec.java.net)
 
-===========================================================================
-For io.github.openfeign:feign-core:9.5.1
-===========================================================================
-This product bundles spring-cloud-openfeign which is licensed under the
-Apache License 2.0.
-For details, see https://github.com/spring-cloud/spring-cloud-openfeign.git
-You can find a copy of the License at licenses/LICENSE-openfeign
-
-===========================================================================
-For javax.servlet:javax.servlet-api:jar:4.0.1
-===========================================================================
-This product bundles Java Servlet API which is licensed under the
-COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.1.
-For details, see http://servlet-spec.java.net
-You can find a copy of the License at licenses/LICENSE-javax
-
-===========================================================================
-ASM Core (http://asm.objectweb.org/asm/) org.ow2.asm:asm:jar:5.0.4
 ===========================================================================
 This product bundles asm which is licensed under the
 3-Clause BSD license.
 For details, see http://asm.ow2.org/
 You can find a copy of the License at licenses/LICENSE-asm
 
-===========================================================================
-For com.esotericsoftware:reflectasm:bundle:1.11.3
+* ASM Core (org.ow2.asm:asm:5.0.4 - http://asm.objectweb.org/asm/)
+
 ===========================================================================
 This product bundles reflectasm which is licensed under the
 3-Clause BSD license.
 For details, see https://github.com/EsotericSoftware/reflectasm
 You can find a copy of the License at licenses/LICENSE-esotericsoftware
 
-===========================================================================
-For com.esotericsoftware:minlog:bundle:1.3.0
+* ReflectASM (com.esotericsoftware:reflectasm:1.11.3 - https://github.com/EsotericSoftware/reflectasm)
+
 ===========================================================================
 This product bundles minlog which is licensed under the
 3-Clause BSD license.
 For details, see https://github.com/EsotericSoftware/minlog
 You can find a copy of the License at licenses/LICENSE-esotericsoftware
+* MinLog (com.esotericsoftware:minlog:1.3.0 - https://github.com/EsotericSoftware/minlog)
 
-===========================================================================
-For com.esotericsoftware:kryo:bundle:4.0.1
 ===========================================================================
 This product bundles kryo which is licensed under the
 3-Clause BSD license.
 For details, see https://github.com/EsotericSoftware/kryo
 You can find a copy of the License at licenses/LICENSE-esotericsoftware
+* Kryo (com.esotericsoftware:kryo:4.0.1 - https://github.com/EsotericSoftware/kryo/kryo)
 
-===========================================================================
-For org.glassfish:javax.el:jar:3.0.0
-===========================================================================
-This product bundles javax.el which is licensed under the
-COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.1.
-For details, see http://servlet-spec.java.net
-You can find a copy of the License at licenses/LICENSE-javax
-
-===========================================================================
-For org.hdrhistogram:HdrHistogram:jar:2.1.9
 ===========================================================================
 This product bundles HdrHistogram which is licensed under the
 BSD 2-Clause License
 For details, see https://github.com/HdrHistogram/HdrHistogram/blob/master/LICENSE.txt
 You can find a copy of the License at licenses/LICENSE-HdrHistogram
 
+* HdrHistogram (org.hdrhistogram:HdrHistogram:2.1.9 - http://hdrhistogram.github.io/HdrHistogram/)
+
 ================================================================
 This product bundles the following libraries which are licensed
 under the Apache License v2.
 For details, see their respective project links.
 
-Apache Log4j API (http://logging.apache.org/log4j/2.x/log4j-api/) org.apache.logging.log4j:log4j-api:jar:2.7
-com.google.api.grpc:proto-google-common-protos (https://github.com/googleapis/googleapis) com.google.api.grpc:proto-google-common-protos:jar:1.0.0
-error-prone annotations (http://nexus.sonatype.org/oss-repository-hosting.html/error_prone_parent/error_prone_annotations) com.google.errorprone:error_prone_annotations:jar:2.1.2
-Gson (https://github.com/google/gson/gson) com.google.code.gson:gson:jar:2.8.4
-Guava: Google Core Libraries for Java (https://github.com/google/guava/guava) com.google.guava:guava:bundle:20.0
-io.grpc:grpc-context (https://github.com/grpc/grpc-java) io.grpc:grpc-context:jar:1.14.0
-io.grpc:grpc-core (https://github.com/grpc/grpc-java) io.grpc:grpc-core:jar:1.14.0
-io.grpc:grpc-netty (https://github.com/grpc/grpc-java) io.grpc:grpc-netty:jar:1.14.0
-io.grpc:grpc-protobuf (https://github.com/grpc/grpc-java) io.grpc:grpc-protobuf:jar:1.14.0
-io.grpc:grpc-protobuf-lite (https://github.com/grpc/grpc-java) io.grpc:grpc-protobuf-lite:jar:1.14.0
-io.grpc:grpc-stub (https://github.com/grpc/grpc-java) io.grpc:grpc-stub:jar:1.14.0
-Netty (http://netty.io/) io.netty:netty:jar:3.2.5.Final
-Netty/Buffer (http://netty.io/netty-buffer/) io.netty:netty-buffer:jar:4.1.24.Final
-Netty/Codec (http://netty.io/netty-codec/) io.netty:netty-codec:jar:4.1.24.Final
-Netty/Codec/HTTP (http://netty.io/netty-codec-http/) io.netty:netty-codec-http:jar:4.1.24.Final
-Netty/Codec/HTTP2 (http://netty.io/netty-codec-http2/) io.netty:netty-codec-http2:jar:4.1.24.Final
-Netty/Codec/Socks (http://netty.io/netty-codec-socks/) io.netty:netty-codec-socks:jar:4.1.24.Final
-Netty/Common (http://netty.io/netty-common/) io.netty:netty-common:jar:4.1.24.Final
-Netty/Handler (http://netty.io/netty-handler/) io.netty:netty-handler:jar:4.1.24.Final
-Netty/Handler/Proxy (http://netty.io/netty-handler-proxy/) io.netty:netty-handler-proxy:jar:4.1.24.Final
-Netty/Resolver (http://netty.io/netty-resolver/) io.netty:netty-resolver:jar:4.1.24.Final
-Netty/Transport (http://netty.io/netty-transport/) io.netty:netty-transport:jar:4.1.24.Final
-OpenCensus (https://github.com/census-instrumentation/opencensus-java) io.opencensus:opencensus-api:jar:0.12.3
-OpenCensus (https://github.com/census-instrumentation/opencensus-java) io.opencensus:opencensus-contrib-grpc-metrics:jar:0.12.3
-SnakeYAML (http://www.snakeyaml.org) org.yaml:snakeyaml:bundle:1.23
-Spring AOP (https://github.com/spring-projects/spring-framework) org.springframework:spring-aop:jar:5.1.3.RELEASE
-Spring Beans (https://github.com/spring-projects/spring-framework) org.springframework:spring-beans:jar:5.1.3.RELEASE
-Spring Boot (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot:jar:2.1.1.RELEASE
-Spring Boot AutoConfigure (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-autoconfigure:jar:2.1.1.REALEASE
-Spring Boot Logging Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-logging:jar:2.1.1.REALEASE
-Spring Boot Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter:jar:2.1.1.REALEASE
-Spring Context (https://github.com/spring-projects/spring-framework) org.springframework:spring-context:jar:5.1.3.RELEASE
-Spring Core (https://github.com/spring-projects/spring-framework) org.springframework:spring-core:jar:5.1.3.RELEASE
-Spring Expression Language (SpEL) (https://github.com/spring-projects/spring-framework) org.springframework:spring-expression:jar:5.1.3.RELEASE
-Spring Web (https://github.com/spring-projects/spring-framework) org.springframework:spring-web:jar:5.1.3.RELEASE
-Spring Web MVC (https://github.com/spring-projects/spring-framework) org.springframework:spring-webmvc:jar:5.1.3.RELEASE
-Spring Jcl (https://github.com/spring-projects/spring-framework) org.springframework:spring-jcl:jar:5.1.3.RELEASE
-Spring Test (https://github.com/spring-projects/spring-framework) org.springframework:spring-test:jar:5.1.3.RELEASE
-dubbo (https://github.com/apache/incubator-dubbo) com.alibaba:dubbo:jar:2.6.4
-Javassist (http://www.javassist.org/) org.javassist:javassist:bundle:3.20.0-GA
-Objenesis (http://objenesis.org) org.objenesis:objenesis:jar:2.6
-Guava: Google Core Libraries for Java (https://github.com/google/guava/guava) com.google.guava:guava:bundle:20.0
-Kamon Core (https://github.com/kamon-io/Kamon) io.kamon:kamon-core:jar:2.12-0.6.7
-Kamon Annotations(https://github.com/kamon-io/Kamon) io.kamon:kamon-annotation:jar:2.12-0.6.7
-FindBugs-jsr305 (http://findbugs.sourceforge.net/) com.google.code.findbugs:jsr305:jar:3.0.1
-Gson (https://github.com/google/gson) com.google.code.gson:gson:jar:2.8.4
-
+* Apache Log4j API (org.apache.logging.log4j:log4j-api:2.7 - http://logging.apache.org/log4j/2.x/log4j-api/)
+* Apache Log4j to SLF4J Adapter (org.apache.logging.log4j:log4j-to-slf4j:2.11.1 - https://logging.apache.org/log4j/2.x/log4j-to-slf4j/)
+* com.google.api.grpc:proto-google-common-protos (com.google.api.grpc:proto-google-common-protos:1.0.0 - https://github.com/googleapis/googleapis)
+* core (io.kamon:kamon-core_2.12:0.6.7 - http://kamon.io)
+* dubbo-all (com.alibaba:dubbo:2.6.4 - https://github.com/apache/incubator-dubbo/dubbo)
+* error-prone annotations (com.google.errorprone:error_prone_annotations:2.1.2 - http://nexus.sonatype.org/oss-repository-hosting.html/error_prone_parent/error_prone_annotations)
+* Feign Core (io.github.openfeign:feign-core:9.5.1 - https://github.com/openfeign/feign/feign-core)
+* FindBugs-jsr305 (com.google.code.findbugs:jsr305:3.0.1 - http://findbugs.sourceforge.net/)
+* Gson (com.google.code.gson:gson:2.8.4 - https://github.com/google/gson/gson)
+* Guava: Google Core Libraries for Java (com.google.guava:guava:20.0 - https://github.com/google/guava/guava)
+* io.grpc:grpc-context (io.grpc:grpc-context:1.14.0 - https://github.com/grpc/grpc-java)
+* io.grpc:grpc-core (io.grpc:grpc-core:1.14.0 - https://github.com/grpc/grpc-java)
+* io.grpc:grpc-netty (io.grpc:grpc-netty:1.14.0 - https://github.com/grpc/grpc-java)
+* io.grpc:grpc-protobuf (io.grpc:grpc-protobuf:1.14.0 - https://github.com/grpc/grpc-java)
+* io.grpc:grpc-protobuf-lite (io.grpc:grpc-protobuf-lite:1.14.0 - https://github.com/grpc/grpc-java)
+* io.grpc:grpc-stub (io.grpc:grpc-stub:1.14.0 - https://github.com/grpc/grpc-java)
+* Javassist (org.javassist:javassist:3.20.0-GA - http://www.javassist.org/)
+* kamon-annotation (io.kamon:kamon-annotation_2.12:0.6.7 - http://kamon.io)
+* Netty/Buffer (io.netty:netty-buffer:4.1.24.Final - http://netty.io/netty-buffer/)
+* Netty/Codec/HTTP (io.netty:netty-codec-http:4.1.24.Final - http://netty.io/netty-codec-http/)
+* Netty/Codec/HTTP2 (io.netty:netty-codec-http2:4.1.24.Final - http://netty.io/netty-codec-http2/)
+* Netty/Codec/Socks (io.netty:netty-codec-socks:4.1.24.Final - http://netty.io/netty-codec-socks/)
+* Netty/Codec (io.netty:netty-codec:4.1.24.Final - http://netty.io/netty-codec/)
+* Netty/Common (io.netty:netty-common:4.1.24.Final - http://netty.io/netty-common/)
+* Netty/Handler/Proxy (io.netty:netty-handler-proxy:4.1.24.Final - http://netty.io/netty-handler-proxy/)
+* Netty/Handler (io.netty:netty-handler:4.1.24.Final - http://netty.io/netty-handler/)
+* Netty/Resolver (io.netty:netty-resolver:4.1.24.Final - http://netty.io/netty-resolver/)
+* Netty/TomcatNative [BoringSSL - Static] (io.netty:netty-tcnative-boringssl-static:2.0.7.Final - https://github.com/netty/netty-tcnative/netty-tcnative-boringssl-static/)
+* Netty/Transport (io.netty:netty-transport:4.1.24.Final - http://netty.io/netty-transport/)
+* Objenesis (org.objenesis:objenesis:2.6 - http://objenesis.org)
+* omega-transport-dubbo (org.apache.servicecomb.pack:omega-transport-dubbo:0.4.0-SNAPSHOT - https://github.com/apache/servicecomb-saga/omega/omega-transport/omega-transport-dubbo)
+* omega-transport-feign (org.apache.servicecomb.pack:omega-transport-feign:0.4.0-SNAPSHOT - https://github.com/apache/servicecomb-saga/omega/omega-transport/omega-transport-feign)
+* OpenCensus (io.opencensus:opencensus-api:0.12.3 - https://github.com/census-instrumentation/opencensus-java)
+* OpenCensus (io.opencensus:opencensus-contrib-grpc-metrics:0.12.3 - https://github.com/census-instrumentation/opencensus-java)
+* SnakeYAML (org.yaml:snakeyaml:1.23 - http://www.snakeyaml.org)
+* Spring AOP (org.springframework:spring-aop:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* Spring Beans (org.springframework:spring-beans:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* Spring Boot (org.springframework.boot:spring-boot:2.1.1.RELEASE - https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot)
+* Spring Boot AutoConfigure (org.springframework.boot:spring-boot-autoconfigure:2.1.1.RELEASE - https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-autoconfigure)
+* Spring Boot Logging Starter (org.springframework.boot:spring-boot-starter-logging:2.1.1.RELEASE - https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-starters/spring-boot-starter-logging)
+* Spring Boot Starter (org.springframework.boot:spring-boot-starter:2.1.1.RELEASE - https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-starters/spring-boot-starter)
+* Spring Commons Logging Bridge (org.springframework:spring-jcl:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* Spring Context (org.springframework:spring-context:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* Spring Core (org.springframework:spring-core:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* Spring Expression Language (SpEL) (org.springframework:spring-expression:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* Spring TestContext Framework (org.springframework:spring-test:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* Spring Web (org.springframework:spring-web:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* Spring Web MVC (org.springframework:spring-webmvc:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* The Netty Project (org.jboss.netty:netty:3.2.5.Final - http://www.jboss.org/netty/)
 
 ===========================================================================
 For alpha-server-${version}-exec.jar
 
-===========================================================================
-For org.aspectj:aspectjweaver:jar:1.8.10
 ===========================================================================
 This product bundles AspectJ weaver which is licensed under the
 Eclipse Public License v1.0.
 For details, see http://www.aspectj.org
 You can find a copy of the License at licenses/LICENSE-epl-v10
 
+* AspectJ weaver (org.aspectj:aspectjweaver:1.8.10 - http://www.aspectj.org)
+
 ===========================================================================
-For javax.interceptor:javax.interceptor-api:jar:1.2
+This product bundles Bouncy Castle which are licensed under the
+Bouncy Castle Licence.
+For details, see http://www.bouncycastle.org/
+You can find a copy of the License at licenses/LICENSE-bouncycastle
+
+* Bouncy Castle PKIX, CMS, EAC, TSP, PKCS, OCSP, CMP, and CRMF APIs (org.bouncycastle:bcpkix-jdk15on:1.60 - http://www.bouncycastle.org/java.html)
+* Bouncy Castle Provider (org.bouncycastle:bcprov-jdk15on:1.60 - http://www.bouncycastle.org/java.html)
+
 ===========================================================================
-This product bundles javax.interceptor API which is licensed under the
+This product bundles the following libraries which are licensed under the
 COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.1.
-For details, see http://interceptors-spec.java.net
 You can find a copy of the License at licenses/LICENSE-javax
 
-===========================================================================
-For javax.transaction:javax.transaction-api:jar:1.2
-===========================================================================
-This product bundles javax.transaction API which is licensed under the
-COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.1.
-For details, see http://jta-spec.java.net
-You can find a copy of the License at licenses/LICENSE-javax
+* Expression Language 3.0 (org.glassfish:javax.el:3.0.0 - http://el-spec.java.net)
+* javax.annotation API (javax.annotation:javax.annotation-api:1.3.2 - http://jcp.org/en/jsr/detail?id=250)
+* javax.interceptor API (javax.interceptor:javax.interceptor-api:1.2 - http://interceptors-spec.java.net)
+* javax.transaction API (javax.transaction:javax.transaction-api:1.2 - http://jta-spec.java.net)
+* Jersey Apache HTTP Client 4.x (com.sun.jersey.contribs:jersey-apache-client4:1.19.1 - https://jersey.java.net/jersey-contribs/jersey-apache-client4/)
+* jersey-client (com.sun.jersey:jersey-client:1.19.1 - https://jersey.java.net/jersey-client/)
+* jersey-core (com.sun.jersey:jersey-core:1.19.1 - https://jersey.java.net/jersey-core/)
+* jsr311-api (javax.ws.rs:jsr311-api:1.1.1 - https://jsr311.dev.java.net)
+* JSR 353 (JSON Processing) Default Provider (org.glassfish:javax.json:1.0.4 - http://jsonp.java.net)
 
-
-===========================================================================
-For org.postgresql:postgresql:jar:42.2.5
 ===========================================================================
 This product bundles postgresql which is licensed under the
 PostgreSQL license.
 For details, see https://github.com/pgjdbc/pgjdbc-parent-poms
 You can find a copy of the License at licenses/LICENSE-postgresql
 
-===========================================================================
-For org.glassfish:javax.json:bundle:1.0.4
-===========================================================================
-This product bundles jsonp API which is licensed under the
-COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.1.
-For details, see http://servlet-spec.java.net
-You can find a copy of the License at licenses/LICENSE-javax
-
-===========================================================================
-For org.slf4j:jul-to-slf4j:jar:1.7.25,
-org.slf4j:slf4j-api:jar:1.7.25
+* PostgreSQL JDBC Driver - JDBC 4.2 (org.postgresql:postgresql:42.2.5 - https://github.com/pgjdbc/pgjdbc)
 ===========================================================================
 This product bundles slf4j libraries which is licensed under the
 MIT license.
 For details, see http://www.slf4j.org
 You can find a copy of the License at licenses/LICENSE-slf4j
 
-===========================================================================
-For com.google.protobuf:protobuf-java:bundle:3.5.1
+* JUL to SLF4J bridge (org.slf4j:jul-to-slf4j:1.7.25 - http://www.slf4j.org)
+* SLF4J API Module (org.slf4j:slf4j-api:1.7.25 - http://www.slf4j.org)
+
 ===========================================================================
 This product bundles protobuf which is licensed under the
 3-Clause BSD license.
 For details, see https://github.com/google/protobuf
 You can find a copy of the License at licenses/LICENSE-protobuf
 
-===========================================================================
+* Protocol Buffers [Core] (com.google.protobuf:protobuf-java:3.5.1 - https://developers.google.com/protocol-buffers/protobuf-java/)
 
-For org.eclipse.persistence:org.eclipse.persistence.asm:jar:2.7.1,
-org.eclipse.persistence:org.eclipse.persistence.jpa.jpql:jar:2.7.1,
-org.eclipse.persistence:org.eclipse.persistence.jpa:jar:2.7.1,
-org.eclipse.persistence:org.eclipse.persistence.antlr:jar:2.7.1,
-org.eclipse.persistence:org.eclipse.persistence.core:jar:2.7.1,
-org.eclipse.persistence:javax.persistence:jar:2.2.0
+===========================================================================
+This product bundles Scala libarary which are licensed under the
+3-Clause BSD license.
+For details, see http://www.scala-lang.org/
+You can find a copy of the License at licenses/LICENSE-scala
+
+* scala-java8-compat (org.scala-lang.modules:scala-java8-compat_2.12:0.8.0 - http://www.scala-lang.org/)
+* Scala Library (org.scala-lang:scala-library:2.12.6 - http://www.scala-lang.org/)
 ===========================================================================
 This product bundles eclipselink which is licensed under the
 Eclipse Public License v1.0.
 For details, see http://www.eclipse.org/eclipselink
 You can find a copy of the License at licenses/LICENSE-epl-v10
 
-===========================================================================
-For javax.persistence:javax.persistence-api:jar:2.2
-===========================================================================
-This product bundles javax.persistence which is licensed under the
-Eclipse Public License v1.0.
-For details, see https://github.com/javaee/jpa-spec
-You can find a copy of the License at licenses/LICENSE-epl-v10
+* EclipseLink ANTLR (org.eclipse.persistence:org.eclipse.persistence.antlr:2.7.1 - http://www.eclipse.org/eclipselink)
+* EclipseLink ASM (org.eclipse.persistence:org.eclipse.persistence.asm:2.7.1 - http://www.eclipse.org/eclipselink)
+* EclipseLink Core (org.eclipse.persistence:org.eclipse.persistence.core:2.7.1 - http://www.eclipse.org/eclipselink)
+* EclipseLink Hermes JPQL Parser (org.eclipse.persistence:org.eclipse.persistence.jpa.jpql:2.7.1 - http://www.eclipse.org/eclipselink)
+* EclipseLink JPA (org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.1 - http://www.eclipse.org/eclipselink)
+* javax.persistence-api (javax.persistence:javax.persistence-api:2.2 - https://github.com/javaee/jpa-spec)
+* Javax Persistence (org.eclipse.persistence:javax.persistence:2.2.0 - http://www.eclipse.org/eclipselink)
+* AspectJ weaver (org.aspectj:aspectjweaver:1.8.10 - http://www.aspectj.org)
+* JUnit (junit:junit:4.12 - http://junit.org)
 
-===========================================================================
-For javax.annotation:javax.annotation-api:jar:1.3.2
-===========================================================================
-This product bundles javax.persistence which is licensed under the
-Eclipse Public License v1.0.
-For details, see https://github.com/javaee/jpa-spec
-You can find a copy of the License at licenses/LICENSE-epl-v10
 
-===========================================================================
-For org.latencyutils:LatencyUtils:jar:2.0.3
 ===========================================================================
 This product bundles LatencyUtils which is licensed under the
 BSD -2
 For details, see https://github.com/LatencyUtils/LatencyUtils
 You can find a copy of the License at licenses/LICENSE-LatencyUtils
 
-===========================================================================
-For Boringssl(static library bundled in netty-tcnative-boringssl-static:2.0.7.Final)
-===========================================================================
-This product bundles Boringssl which is licensed under BSD style licenses.
-For details, see https://github.com/google/boringssl
-You can find a copy of the License at licenses/LICENSE-boringssl
+* LatencyUtils (org.latencyutils:LatencyUtils:2.0.3 - http://latencyutils.github.io/LatencyUtils/)
 
-===========================================================================
-For org.glassfish:javax.el:jar:3.0.0
-===========================================================================
-This product bundles javax.el which is licensed under the
-COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.1.
-For details, see http://servlet-spec.java.net
-You can find a copy of the License at licenses/LICENSE-javax
-
-===========================================================================
-For org.hdrhistogram:HdrHistogram:jar:2.1.9
 ===========================================================================
 This product bundles HdrHistogram which is licensed under the
 BSD 2-Clause License
 For details, see https://github.com/HdrHistogram/HdrHistogram/blob/master/LICENSE.txt
 You can find a copy of the License at licenses/LICENSE-HdrHistogram
 
+* HdrHistogram (org.hdrhistogram:HdrHistogram:2.1.9 - http://hdrhistogram.github.io/HdrHistogram/)
+
+===========================================================================
+This product bundles of Hamcrest which is licensed under BSD 3-Clause License
+For details, see https://github.com/hamcrest/JavaHamcrest/blob/master/LICENSE.txt
+You can find a copy of the License at licenses/LICENSE-Hamcrest
+
+* Hamcrest All (org.hamcrest:hamcrest-all:1.3 - https://github.com/hamcrest/JavaHamcrest/hamcrest-all)
+* Hamcrest Core (org.hamcrest:hamcrest-core:1.3 - https://github.com/hamcrest/JavaHamcrest/hamcrest-core)
+* Hamcrest library (org.hamcrest:hamcrest-library:1.3 - https://github.com/hamcrest/JavaHamcrest/hamcrest-library)
+
 ================================================================
 This product bundles the following libraries which are licensed
 under the Apache License v2.
 For details, see their respective project links.
 
-Apache Log4j API (http://logging.apache.org/log4j/2.x/log4j-api/) org.apache.logging.log4j:log4j-api:jar:2.7
-Apache Log4j Core (http://logging.apache.org/log4j/2.x/log4j-core/) org.apache.logging.log4j:log4j-core:jar:2.7
-Apache Log4j SLF4J Binding (http://logging.apache.org/log4j/2.x/log4j-slf4j-impl/) org.apache.logging.log4j:log4j-slf4j-impl:jar:2.7
-Apache Log4j Jul (http://logging.apache.org/log4j/2.x/log4j-jul/) org.apache.logging.log4j:log4j-jul:jar:2.11.1
-Bean Validation API (http://beanvalidation.org) javax.validation:validation-api:jar:2.0.1.Final
-ClassMate (http://github.com/cowtowncoder/java-classmate) com.fasterxml:classmate:bundle:1.3.4
-com.google.api.grpc:proto-google-common-protos (https://github.com/googleapis/googleapis) com.google.api.grpc:proto-google-common-protos:jar:1.0.0
-Disruptor Framework (http://lmax-exchange.github.com/disruptor) com.lmax:disruptor:jar:3.3.7
-error-prone annotations (http://nexus.sonatype.org/oss-repository-hosting.html/error_prone_parent/error_prone_annotations) com.google.errorprone:error_prone_annotations:jar:2.1.2
-FindBugs-jsr305 (http://findbugs.sourceforge.net/) com.google.code.findbugs:jsr305:jar:3.0.1
-Gson (https://github.com/google/gson/gson) com.google.code.gson:gson:jar:2.8.4
-Guava: Google Core Libraries for Java (https://github.com/google/guava/guava) com.google.guava:guava:bundle:20.0
-Hibernate Validator Engine (http://hibernate.org/validator/hibernate-validator) org.hibernate:hibernate-validator:jar:6.0.13.Final
-io.grpc:grpc-context (https://github.com/grpc/grpc-java) io.grpc:grpc-context:jar:1.14.0
-io.grpc:grpc-core (https://github.com/grpc/grpc-java) io.grpc:grpc-core:jar:1.14.0
-io.grpc:grpc-netty (https://github.com/grpc/grpc-java) io.grpc:grpc-netty:jar:1.14.0
-io.grpc:grpc-protobuf (https://github.com/grpc/grpc-java) io.grpc:grpc-protobuf:jar:1.14.0
-io.grpc:grpc-protobuf-lite (https://github.com/grpc/grpc-java) io.grpc:grpc-protobuf-lite:jar:1.14.0
-io.grpc:grpc-stub (https://github.com/grpc/grpc-java) io.grpc:grpc-stub:jar:1.14.0
-Jackson-annotations (http://github.com/FasterXML/jackson) com.fasterxml.jackson.core:jackson-annotations:bundle:2.9.0
-Jackson-core (https://github.com/FasterXML/jackson-core) com.fasterxml.jackson.core:jackson-core:bundle:2.9.0
-Jackson-datatype Jdk (https://github.com/FasterXML/jackson-datatype-jdk) com.fasterxml.jackson.datatype:jackson-datatype-jdk8:bundle:2.9.7
-Jackson-datatype Jsr (https://github.com/FasterXML/jackson-jsr) com.fasterxml.jackson.datatype:jackson-datatype-jsr310:bundle:2.9.7
-jackson-databind (http://github.com/FasterXML/jackson) com.fasterxml.jackson.core:jackson-databind:bundle:2.9.7
-Jackson module: Parameter Names (https://github.com/FasterXML/jackson-modules-parameter-names) com.fasterxml.jackson.module:jackson-module-parameter-names:bundle:2.9.7
-JBoss Logging 3 (http://www.jboss.org) org.jboss.logging:jboss-logging:jar:3.3.2.Final
-Netty/Buffer (http://netty.io/netty-buffer/) io.netty:netty-buffer:jar:4.1.24.Final
-Netty/Codec (http://netty.io/netty-codec/) io.netty:netty-codec:jar:4.1.24.Final
-Netty/Codec/HTTP (http://netty.io/netty-codec-http/) io.netty:netty-codec-http:jar:4.1.24.Final
-Netty/Codec/HTTP2 (http://netty.io/netty-codec-http2/) io.netty:netty-codec-http2:jar:4.1.24.Final
-Netty/Codec/Socks (http://netty.io/netty-codec-socks/) io.netty:netty-codec-socks:jar:4.1.24.Final
-Netty/Common (http://netty.io/netty-common/) io.netty:netty-common:jar:4.1.24.Final
-Netty/Handler (http://netty.io/netty-handler/) io.netty:netty-handler:jar:4.1.24.Final
-Netty/Handler/Proxy (http://netty.io/netty-handler-proxy/) io.netty:netty-handler-proxy:jar:4.1.24.Final
-Netty/Resolver (http://netty.io/netty-resolver/) io.netty:netty-resolver:jar:4.1.24.Final
-Netty/Transport (http://netty.io/netty-transport/) io.netty:netty-transport:jar:4.1.24.Final
-OpenCensus (https://github.com/census-instrumentation/opencensus-java) io.opencensus:opencensus-api:jar:0.12.3
-OpenCensus (https://github.com/census-instrumentation/opencensus-java) io.opencensus:opencensus-contrib-grpc-metrics:jar:0.12.3
-SnakeYAML (http://www.snakeyaml.org) org.yaml:snakeyaml:bundle:1.23
-Spring AOP (https://github.com/spring-projects/spring-framework) org.springframework:spring-aop:jar:5.1.3.RELEASE
-Spring Aspects (https://github.com/spring-projects/spring-framework) org.springframework:spring-aspects:jar:5.1.3.RELEASE
-Spring Beans (https://github.com/spring-projects/spring-framework) org.springframework:spring-beans:jar:5.1.3.RELEASE
-Spring Boot (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot:jar:2.1.1.RELEASE
-Spring Boot Actuator (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-actuator:jar:2.1.1.RELEASE
-Spring Boot Actuator Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-actuator:jar:2.1.1.REALEASE
-Spring Boot AOP Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-aop:jar:2.1.1.REALEASE
-Spring Boot AutoConfigure (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-autoconfigure:jar:2.1.1.REALEASE
-Spring Boot JDBC Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-jdbc:jar:2.1.1.REALEASE
-Spring Boot Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter:jar:2.1.1.REALEASE
-Spring Boot Tomcat Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-tomcat:jar:2.1.1.REALEASE
-Spring Boot Web Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-web:jar:2.1.1.REALEASE
-Spring Boot Json Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-json:jar:2.1.1.REALEASE
-Spring Boot Log4j Starter (http://projects.spring.io/spring-boot/) org.springframework.boot:spring-boot-starter-log4j2:jar:2.1.1.REALEASE
-Spring Cloud Commons (https://github.com/spring-cloud/spring-cloud) spring-cloud-commons:jar:2.1.1.RELEASE
-Spring Cloud Consul Core (https://github.com/spring-cloud/spring-cloud) spring-cloud-consul-core:jar:2.1.1.RELEASE
-Spring Cloud Netflix Archaius (https://github.com/spring-cloud/spring-cloud-netflix-archaius) spring-cloud-netflix-archaius:jar:2.1.1.RELEASE
-Spring Cloud Netflix Hystrix (https://github.com/spring-cloud/spring-cloud-netflix-hystrix) spring-cloud-netflix-hystrix:jar:2.1.1.RELEASE
-Spring Cloud Netflix Ribbon (https://github.com/spring-cloud/spring-cloud-netflix-ribbon) spring-cloud-netflix-ribbon:jar:2.1.1.RELEASE
-Spring Cloud Starter (https://github.com/spring-cloud/spring-cloud-consul) spring-cloud-starter:jar:2.1.1.RELEASE
-Spring Cloud Starter Consul (https://github.com/spring-cloud/spring-cloud-consul) spring-cloud-starter-consul:jar:2.1.1.RELEASE
-Spring Cloud Starter Netflix (https://github.com/spring-cloud/spring-cloud-netflix) spring-cloud-starter-netflix-eureka-client:jar:2.1.1.RELEASE
-Spring Cloud Starter Netflix Archaius (https://github.com/spring-cloud/spring-cloud-netflix) spring-cloud-starter-netflix-archaius:jar:2.1.1.RELEASE
-Spring Cloud Starter Netflix Ribbon (https://github.com/spring-cloud/spring-cloud-netflix) spring-cloud-starter-netflix-ribbon:jar:2.1.1.RELEASE
-Spring Context (https://github.com/spring-projects/spring-framework) org.springframework:spring-context:jar:5.1.3.RELEASE
-Spring Core (https://github.com/spring-projects/spring-framework) org.springframework:spring-core:jar:5.1.3.RELEASE
-Spring Data Core (http://www.spring.io/spring-data/spring-data-commons) org.springframework.data:spring-data-commons:jar:2.1.3.RELEASE
-Spring Data JPA (http://projects.spring.io/spring-data-jpa) org.springframework.data:spring-data-jpa:jar:2.1.3.RELEASE
-Spring Expression Language (SpEL) (https://github.com/spring-projects/spring-framework) org.springframework:spring-expression:jar:5.1.3.RELEASE
-Spring JDBC (https://github.com/spring-projects/spring-framework) org.springframework:spring-jdbc:jar:5.1.3.RELEASE
-Spring Object/Relational Mapping (https://github.com/spring-projects/spring-framework) org.springframework:spring-orm:jar:5.1.3.RELEASE
-Spring Transaction (https://github.com/spring-projects/spring-framework) org.springframework:spring-tx:jar:5.1.3.RELEASE
-Spring Web (https://github.com/spring-projects/spring-framework) org.springframework:spring-web:jar:5.1.3.RELEASE
-Spring Jcl (https://github.com/spring-projects/spring-framework) org.springframework:spring-jcl:jar:5.1.3.RELEASE
-Spring Web MVC (https://github.com/spring-projects/spring-framework) org.springframework:spring-webmvc:jar:5.1.3.RELEASE
-tomcat-embed-core (http://tomcat.apache.org/) org.apache.tomcat.embed:tomcat-embed-core:jar:9.0.13
-tomcat-embed-el (http://tomcat.apache.org/) org.apache.tomcat.embed:tomcat-embed-el:jar:9.0.13
-tomcat-embed-websocket (http://tomcat.apache.org/) org.apache.tomcat.embed:tomcat-embed-websocket:jar:9.0.13
-Kamon Core (https://github.com/kamon-io/Kamon) io.kamon:kamon-core:jar:2.12-0.6.7
-Kamon Annotations(https://github.com/kamon-io/Kamon) io.kamon:kamon-annotation:jar:2.12-0.6.7
-Scala Library (https://github.com/scala/scala) org.scala-lang:scala-library:jar:2.12.6
-Scala Java8 Compact (https://github.com/scala/scala) org.scala-lang:scala--java8-compat:jar:2.12-0.8.0
-Akka Actor (https://github.com/akka/akka) com.typesafe.akka:akka-actor:jar:2.12-2.5.14
-Config (https://github.com/lightbend/config) com.typesafe.config:config:jar:1.3.3
-HikariCP (https://github.com/brettwooldridge/HikariCP) com.zaxxer:HikariCP:jar:3.2.0
-MicroMeter (https://github.com/micrometer-metrics/micrometer) io.micrometer:micrometer-core:jar:1.1.1
+* akka-actor (com.typesafe.akka:akka-actor_2.12:2.5.14 - http://akka.io/)
+* Apache Commons Codec (commons-codec:commons-codec:1.11 - http://commons.apache.org/proper/commons-codec/)
+* Apache Commons Collections (commons-collections:commons-collections:3.2.2 - http://commons.apache.org/collections/)
+* Apache HttpClient (org.apache.httpcomponents:httpclient:4.5.6 - http://hc.apache.org/httpcomponents-client)
+* Apache HttpCore (org.apache.httpcomponents:httpcore:4.4.10 - http://hc.apache.org/httpcomponents-core-ga)
+* Apache Log4j API (org.apache.logging.log4j:log4j-api:2.7 - http://logging.apache.org/log4j/2.x/log4j-api/)
+* Apache Log4j Core (org.apache.logging.log4j:log4j-core:2.7 - http://logging.apache.org/log4j/2.x/log4j-core/)
+* Apache Log4j JUL Adapter (org.apache.logging.log4j:log4j-jul:2.11.1 - https://logging.apache.org/log4j/2.x/log4j-jul/)
+* Apache Log4j SLF4J Binding (org.apache.logging.log4j:log4j-slf4j-impl:2.7 - http://logging.apache.org/log4j/2.x/log4j-slf4j-impl/)
+* archaius-core (com.netflix.archaius:archaius-core:0.7.6 - https://github.com/Netflix/archaius)
+* ASM based accessors helper used by json-smart (net.minidev:accessors-smart:1.2 - http://www.minidev.net/)
+* AssertJ fluent assertions (org.assertj:assertj-core:3.11.1 - http://assertj.org/assertj-core)
+* Awaitility (org.awaitility:awaitility:3.0.0 - http://awaitility.org)
+* Bean Validation API (javax.validation:validation-api:2.0.1.Final - http://beanvalidation.org)
+* Byte Buddy (without dependencies) (net.bytebuddy:byte-buddy:1.9.5 - http://bytebuddy.net/byte-buddy)
+* Byte Buddy Java agent (net.bytebuddy:byte-buddy-agent:1.9.5 - http://bytebuddy.net/byte-buddy-agent)
+* ClassMate (com.fasterxml:classmate:1.3.4 - http://github.com/FasterXML/java-classmate)
+* com.google.api.grpc:proto-google-common-protos (com.google.api.grpc:proto-google-common-protos:1.0.0 - https://github.com/googleapis/googleapis)
+* Commons Configuration (commons-configuration:commons-configuration:1.8 - http://commons.apache.org/configuration/)
+* Commons Lang (commons-lang:commons-lang:2.6 - http://commons.apache.org/lang/)
+* config (com.typesafe:config:1.3.3 - https://github.com/lightbend/config)
+* core (io.kamon:kamon-core_2.12:0.6.7 - http://kamon.io)
+* Disruptor Framework (com.lmax:disruptor:3.3.7 - http://lmax-exchange.github.com/disruptor)
+* Ecwid Consul API (com.ecwid.consul:consul-api:1.4.1 - https://github.com/Ecwid/consul-api)
+* error-prone annotations (com.google.errorprone:error_prone_annotations:2.1.2 - http://nexus.sonatype.org/oss-repository-hosting.html/error_prone_parent/error_prone_annotations)
+* FindBugs-jsr305 (com.google.code.findbugs:jsr305:3.0.1 - http://findbugs.sourceforge.net/)
+* Gson (com.google.code.gson:gson:2.8.4 - https://github.com/google/gson/gson)
+* Guava: Google Core Libraries for Java (com.google.guava:guava:20.0 - https://github.com/google/guava/guava)
+* Hibernate Validator Engine (org.hibernate.validator:hibernate-validator:6.0.13.Final - http://hibernate.org/validator/hibernate-validator)
+* HikariCP (com.zaxxer:HikariCP:3.2.0 - https://github.com/brettwooldridge/HikariCP)
+* hystrix-core (com.netflix.hystrix:hystrix-core:1.4.3 - https://github.com/Netflix/Hystrix)
+* io.grpc:grpc-context (io.grpc:grpc-context:1.14.0 - https://github.com/grpc/grpc-java)
+* io.grpc:grpc-core (io.grpc:grpc-core:1.14.0 - https://github.com/grpc/grpc-java)
+* io.grpc:grpc-netty (io.grpc:grpc-netty:1.14.0 - https://github.com/grpc/grpc-java)
+* io.grpc:grpc-protobuf (io.grpc:grpc-protobuf:1.14.0 - https://github.com/grpc/grpc-java)
+* io.grpc:grpc-protobuf-lite (io.grpc:grpc-protobuf-lite:1.14.0 - https://github.com/grpc/grpc-java)
+* io.grpc:grpc-stub (io.grpc:grpc-stub:1.14.0 - https://github.com/grpc/grpc-java)
+* Jackson-annotations (com.fasterxml.jackson.core:jackson-annotations:2.9.0 - http://github.com/FasterXML/jackson)
+* Jackson-core (com.fasterxml.jackson.core:jackson-core:2.9.0 - https://github.com/FasterXML/jackson-core)
+* jackson-databind (com.fasterxml.jackson.core:jackson-databind:2.9.7 - http://github.com/FasterXML/jackson)
+* Jackson datatype: jdk8 (com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.7 - https://github.com/FasterXML/jackson-modules-java8/jackson-datatype-jdk8)
+* Jackson datatype: JSR310 (com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.7 - https://github.com/FasterXML/jackson-modules-java8/jackson-datatype-jsr310)
+* Jackson-module-parameter-names (com.fasterxml.jackson.module:jackson-module-parameter-names:2.9.7 - https://github.com/FasterXML/jackson-modules-java8/jackson-module-parameter-names)
+* javax.inject (javax.inject:javax.inject:1 - http://code.google.com/p/atinject/)
+* JBoss Logging 3 (org.jboss.logging:jboss-logging:3.3.2.Final - http://www.jboss.org)
+* Joda-Time (joda-time:joda-time:2.10.1 - https://www.joda.org/joda-time/)
+* JSONassert (org.skyscreamer:jsonassert:1.5.0 - https://github.com/skyscreamer/JSONassert)
+* JSON library from Android SDK (com.vaadin.external.google:android-json:0.0.20131108.vaadin1 - http://developer.android.com/sdk)
+* JSON Small and Fast Parser (net.minidev:json-smart:2.3 - http://www.minidev.net/)
+* kamon-annotation (io.kamon:kamon-annotation_2.12:0.6.7 - http://kamon.io)
+* micrometer-core (io.micrometer:micrometer-core:1.1.1 - https://github.com/micrometer-metrics/micrometer)
+* netflix-commons-util (com.netflix.netflix-commons:netflix-commons-util:0.1.1 - https://github.com/Netflix/netflix-commons)
+* netflix-statistics (com.netflix.netflix-commons:netflix-statistics:0.1.1 - https://github.com/Netflix/netflix-commons)
+* Netty/Buffer (io.netty:netty-buffer:4.1.24.Final - http://netty.io/netty-buffer/)
+* Netty/Codec/HTTP (io.netty:netty-codec-http:4.1.24.Final - http://netty.io/netty-codec-http/)
+* Netty/Codec/HTTP2 (io.netty:netty-codec-http2:4.1.24.Final - http://netty.io/netty-codec-http2/)
+* Netty/Codec/Socks (io.netty:netty-codec-socks:4.1.24.Final - http://netty.io/netty-codec-socks/)
+* Netty/Codec (io.netty:netty-codec:4.1.24.Final - http://netty.io/netty-codec/)
+* Netty/Common (io.netty:netty-common:4.1.24.Final - http://netty.io/netty-common/)
+* Netty/Handler/Proxy (io.netty:netty-handler-proxy:4.1.24.Final - http://netty.io/netty-handler-proxy/)
+* Netty/Handler (io.netty:netty-handler:4.1.24.Final - http://netty.io/netty-handler/)
+* Netty/Resolver (io.netty:netty-resolver:4.1.24.Final - http://netty.io/netty-resolver/)
+* Netty/TomcatNative [BoringSSL - Static] (io.netty:netty-tcnative-boringssl-static:2.0.7.Final - https://github.com/netty/netty-tcnative/netty-tcnative-boringssl-static/)
+* Netty/Transport (io.netty:netty-transport:4.1.24.Final - http://netty.io/netty-transport/)
+* Objenesis (org.objenesis:objenesis:2.6 - http://objenesis.org)
+* OpenCensus (io.opencensus:opencensus-api:0.12.3 - https://github.com/census-instrumentation/opencensus-java)
+* OpenCensus (io.opencensus:opencensus-contrib-grpc-metrics:0.12.3 - https://github.com/census-instrumentation/opencensus-java)
+* org.xmlunit:xmlunit-core (org.xmlunit:xmlunit-core:2.6.2 - https://www.xmlunit.org/)
+* project ':json-path' (com.jayway.jsonpath:json-path:2.4.0 - https://github.com/jayway/JsonPath)
+* ribbon (com.netflix.ribbon:ribbon:2.3.0 - https://github.com/Netflix/ribbon)
+* ribbon-core (com.netflix.ribbon:ribbon-core:2.3.0 - https://github.com/Netflix/ribbon)
+* ribbon-httpclient (com.netflix.ribbon:ribbon-httpclient:2.3.0 - https://github.com/Netflix/ribbon)
+* ribbon-loadbalancer (com.netflix.ribbon:ribbon-loadbalancer:2.3.0 - https://github.com/Netflix/ribbon)
+* ribbon-transport (com.netflix.ribbon:ribbon-transport:2.3.0 - https://github.com/Netflix/ribbon)
+* rxjava (io.reactivex:rxjava:1.3.8 - https://github.com/ReactiveX/RxJava)
+* rxnetty (io.reactivex:rxnetty:0.4.9 - https://github.com/ReactiveX/RxNetty)
+* rxnetty-contexts (io.reactivex:rxnetty-contexts:0.4.9 - https://github.com/ReactiveX/RxNetty)
+* rxnetty-servo (io.reactivex:rxnetty-servo:0.4.9 - https://github.com/ReactiveX/RxNetty)
+* servo-core (com.netflix.servo:servo-core:0.10.1 - https://github.com/Netflix/servo)
+* servo-internal (com.netflix.servo:servo-internal:0.10.1 - https://github.com/Netflix/servo)
+* SnakeYAML (org.yaml:snakeyaml:1.23 - http://www.snakeyaml.org)
+* Spring AOP (org.springframework:spring-aop:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* Spring Aspects (org.springframework:spring-aspects:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* Spring Beans (org.springframework:spring-beans:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* Spring Boot (org.springframework.boot:spring-boot:2.1.1.RELEASE - https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot)
+* Spring Boot Actuator (org.springframework.boot:spring-boot-actuator:2.1.1.RELEASE - https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-actuator)
+* Spring Boot Actuator AutoConfigure (org.springframework.boot:spring-boot-actuator-autoconfigure:2.1.1.RELEASE - https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-actuator-autoconfigure)
+* Spring Boot Actuator Starter (org.springframework.boot:spring-boot-starter-actuator:2.1.1.RELEASE - https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-starters/spring-boot-starter-actuator)
+* Spring Boot AOP Starter (org.springframework.boot:spring-boot-starter-aop:2.1.1.RELEASE - https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-starters/spring-boot-starter-aop)
+* Spring Boot AutoConfigure (org.springframework.boot:spring-boot-autoconfigure:2.1.1.RELEASE - https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-autoconfigure)
+* Spring Boot JDBC Starter (org.springframework.boot:spring-boot-starter-jdbc:2.1.1.RELEASE - https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-starters/spring-boot-starter-jdbc)
+* Spring Boot Json Starter (org.springframework.boot:spring-boot-starter-json:2.1.1.RELEASE - https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-starters/spring-boot-starter-json)
+* Spring Boot Log4j 2 Starter (org.springframework.boot:spring-boot-starter-log4j2:2.1.1.RELEASE - https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-starters/spring-boot-starter-log4j2)
+* Spring Boot Starter (org.springframework.boot:spring-boot-starter:2.1.1.RELEASE - https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-starters/spring-boot-starter)
+* Spring Boot Test (org.springframework.boot:spring-boot-test:2.1.1.RELEASE - https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-test)
+* Spring Boot Test Auto-Configure (org.springframework.boot:spring-boot-test-autoconfigure:2.1.1.RELEASE - https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-test-autoconfigure)
+* Spring Boot Test Starter (org.springframework.boot:spring-boot-starter-test:2.1.1.RELEASE - https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-starters/spring-boot-starter-test)
+* Spring Boot Tomcat Starter (org.springframework.boot:spring-boot-starter-tomcat:2.1.1.RELEASE - https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-starters/spring-boot-starter-tomcat)
+* Spring Boot Web Starter (org.springframework.boot:spring-boot-starter-web:2.1.1.RELEASE - https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-starters/spring-boot-starter-web)
+* Spring Cloud Commons (org.springframework.cloud:spring-cloud-commons:2.1.1.RELEASE - https://projects.spring.io/spring-cloud/spring-cloud-commons/)
+* Spring Cloud Consul Core (org.springframework.cloud:spring-cloud-consul-core:2.1.1.RELEASE - https://spring.io/spring-cloud/spring-cloud-consul/spring-cloud-consul-core)
+* Spring Cloud Consul Discovery (org.springframework.cloud:spring-cloud-consul-discovery:2.1.1.RELEASE - https://spring.io/spring-cloud/spring-cloud-consul/spring-cloud-consul-discovery)
+* Spring Cloud Context (org.springframework.cloud:spring-cloud-context:2.1.1.RELEASE - https://projects.spring.io/spring-cloud/spring-cloud-context/)
+* Spring Cloud Netflix Archaius (org.springframework.cloud:spring-cloud-netflix-archaius:2.1.1.RELEASE - https://spring.io/spring-cloud/spring-cloud-netflix/spring-cloud-netflix-archaius)
+* Spring Cloud Netflix Core - Deprecated (org.springframework.cloud:spring-cloud-netflix-core:2.1.1.RELEASE - https://spring.io/spring-cloud/spring-cloud-netflix/spring-cloud-netflix-core)
+* Spring Cloud Netflix Hystrix (org.springframework.cloud:spring-cloud-netflix-hystrix:2.1.1.RELEASE - https://spring.io/spring-cloud/spring-cloud-netflix/spring-cloud-netflix-hystrix)
+* spring-cloud-netflix-ribbon (org.springframework.cloud:spring-cloud-netflix-ribbon:2.1.1.RELEASE - https://spring.io/spring-cloud/spring-cloud-netflix/spring-cloud-netflix-ribbon)
+* spring-cloud-starter (org.springframework.cloud:spring-cloud-starter:2.1.1.RELEASE - https://projects.spring.io/spring-cloud)
+* Spring Cloud Starter Consul (org.springframework.cloud:spring-cloud-starter-consul:2.1.1.RELEASE - https://projects.spring.io/spring-cloud)
+* Spring Cloud Starter Consul Discovery (org.springframework.cloud:spring-cloud-starter-consul-discovery:2.1.1.RELEASE - https://projects.spring.io/spring-cloud)
+* Spring Cloud Starter Netflix Archaius (org.springframework.cloud:spring-cloud-starter-netflix-archaius:2.1.1.RELEASE - https://projects.spring.io/spring-cloud)
+* Spring Cloud Starter Netflix Ribbon (org.springframework.cloud:spring-cloud-starter-netflix-ribbon:2.1.1.RELEASE - https://projects.spring.io/spring-cloud)
+* Spring Commons Logging Bridge (org.springframework:spring-jcl:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* Spring Context (org.springframework:spring-context:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* Spring Core (org.springframework:spring-core:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* Spring Data Core (org.springframework.data:spring-data-commons:2.1.3.RELEASE - http://www.spring.io/spring-data/spring-data-commons)
+* Spring Data JPA (org.springframework.data:spring-data-jpa:2.1.3.RELEASE - http://projects.spring.io/spring-data-jpa)
+* Spring Expression Language (SpEL) (org.springframework:spring-expression:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* Spring JDBC (org.springframework:spring-jdbc:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* Spring Object/Relational Mapping (org.springframework:spring-orm:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* spring-security-crypto (org.springframework.security:spring-security-crypto:5.1.2.RELEASE - http://spring.io/spring-security)
+* spring-security-rsa (org.springframework.security:spring-security-rsa:1.0.7.RELEASE - http://github.com/spring-projects/spring-security-oauth)
+* Spring TestContext Framework (org.springframework:spring-test:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* Spring Transaction (org.springframework:spring-tx:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* Spring Web (org.springframework:spring-web:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* Spring Web MVC (org.springframework:spring-webmvc:5.1.3.RELEASE - https://github.com/spring-projects/spring-framework)
+* tomcat-embed-core (org.apache.tomcat.embed:tomcat-embed-core:9.0.13 - https://tomcat.apache.org/)
+* tomcat-embed-el (org.apache.tomcat.embed:tomcat-embed-el:9.0.13 - https://tomcat.apache.org/)
+* tomcat-embed-websocket (org.apache.tomcat.embed:tomcat-embed-websocket:9.0.13 - https://tomcat.apache.org/)
+* unit-scaffolding (com.github.seanyinx:unit-scaffolding:1.0.0 - https://github.com/seanyinx/test-toolkit/unit-scaffolding)
