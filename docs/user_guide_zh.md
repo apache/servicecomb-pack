@@ -222,85 +222,6 @@ Saga可通过以下任一方式进行构建：
 
 支持Alpha启动时注册到发现服务，Omega通过发现服务获取Alpha的实例列表和gRPC地址
 
-### Spring Cloud Eureka支持
-
-当前版本支持 Spring Cloud Netflix 2.x，你可以使用 `-Pspring-boot-1` 参数重新编译支持 Spring Cloud Netflix 1.x 版本
-
-1. 运行alpha
-
-   运行时增加 `eureka.client.enabled=true` 参数
-
-   ```bash
-   java -jar alpha-server-${saga_version}-exec.jar \ 
-     --spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false \
-     --spring.datasource.username=saga \
-     --spring.datasource.password=saga \
-     --eureka.client.enabled=true \
-     --eureka.client.service-url.defaultZone=http://127.0.0.1:8761/eureka \  
-     --spring.profiles.active=prd 
-   ```
-
-   **注意:** 更多 eureka 参数请参考 [Spring Cloud Netflix 2.x](https://cloud.spring.io/spring-cloud-netflix/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) [Spring Cloud Netflix 1.x](https://cloud.spring.io/spring-cloud-netflix/1.4.x/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter)
-
-3. 验证是否注册成功
-
-   访问Eureka的注册实例查询接口`curl http://127.0.0.1:8761/eureka/apps/`可以看到如下注册信息，在你metadata中可以看到Alpha的gRPC访问地址`<servicecomb-alpha-server>0.0.0.0:8080</servicecomb-alpha-server>`已经注册
-
-   ```xml
-   <applications>
-     <versions__delta>1</versions__delta>
-     <apps__hashcode>UP_1_</apps__hashcode>
-     <application>
-       <name>SERVICECOMB-ALPHA-SERVER</name>
-       <instance>
-         <instanceId>0.0.0.0::servicecomb-alpha-server:8090</instanceId>
-         <hostName>0.0.0.0</hostName>
-         <app>SERVICECOMB-ALPHA-SERVER</app>
-         <ipAddr>0.0.0.0</ipAddr>
-         <status>UP</status>
-   	  ...
-         <metadata>
-           <management.port>8090</management.port>
-           <servicecomb-alpha-server>0.0.0.0:8080</servicecomb-alpha-server>
-         </metadata>
-         ...
-       </instance>
-     </application>
-   </applications>
-   ```
-
-   **注意:** 默认情况下注册的服务名是`SERVICECOMB-ALPHA-SERVER`,如果你需要自定义服务名可以在运行Alpha的时候通过命令行参数`spring.application.name`配置
-
-4. 配置omega
-
-   在项目中引入依赖包 `omega-spring-cloud-eureka-starter`
-
-   ```xml
-   <dependency>
-   	<groupId>org.apache.servicecomb.pack</groupId>
-   	<artifactId>omega-spring-cloud-eureka-starter</artifactId>
-   	<version>${pack.version}</version>
-   </dependency>
-   ```
-
-   在 `application.yaml` 添加下面的配置项：
-
-   ```yaml
-   eureka:
-     client:
-       service-url:
-         defaultZone: http://127.0.0.1:8761/eureka
-   alpha:
-     cluster:
-       register:
-         type: eureka
-   ```
-
-   * `eureka.client.service-url.defaultZone` 配置Eureka注册中心的地址，更多Eureka客户端配置可以参考[Spring Cloud Netflix 2.x](https://cloud.spring.io/spring-cloud-netflix/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) 或 [Spring Cloud Netflix 1.x](https://cloud.spring.io/spring-cloud-netflix/1.4.x/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter)
-   * `alpha.cluster.register.type=eureka` 配置Omega获取Alpha的方式是通过Eureka的注册中心
-
-   **注意:** 如果你在启动Alpha的时候通过命令行参数`spring.application.name`自定义了服务名，那么你需要在Omega中通过参数`alpha.cluster.serviceId`指定这个服务名
-
 ### Consul 支持
 
 当前版本支持 Spring Cloud Consul 2.x，你可以使用 `-Pspring-boot-1` 参数重新编译支持 Spring Cloud Consul 1.x 版本
@@ -385,7 +306,96 @@ Saga可通过以下任一方式进行构建：
    - `alpha.cluster.register.type=consul` 配置Omega获取Alpha的方式是通过 Consul 的注册中心
 
    **注意:** 如果你在启动Alpha的时候通过命令行参数`spring.application.name`自定义了服务名，那么你需要在Omega中通过参数`alpha.cluster.serviceId`指定这个服务名
-   
+
+### Spring Cloud Eureka支持
+
+当前版本支持 Spring Cloud Netflix 2.x，你可以使用 `-Pspring-boot-1` 参数重新编译支持 Spring Cloud Netflix 1.x 版本
+
+1. 编译 eureka 的版本
+
+   使用 `-Pspring-cloud-eureka` 参数编译支持 eureka 的版本
+
+   ```bash
+   git clone https://github.com/apache/servicecomb-pack.git
+   cd servicecomb-pack
+   mvn clean install -DskipTests=true -Pspring-boot-2,spring-cloud-eureka
+   ```
+
+2. 运行alpha
+
+   运行时增加 `eureka.client.enabled=true` 参数
+
+   ```bash
+   java -jar alpha-server-${saga_version}-exec.jar \ 
+     --spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false \
+     --spring.datasource.username=saga \
+     --spring.datasource.password=saga \
+     --eureka.client.enabled=true \
+     --eureka.client.service-url.defaultZone=http://127.0.0.1:8761/eureka \  
+     --spring.profiles.active=prd 
+   ```
+
+   **注意:** 更多 eureka 参数请参考 [Spring Cloud Netflix 2.x](https://cloud.spring.io/spring-cloud-netflix/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) [Spring Cloud Netflix 1.x](https://cloud.spring.io/spring-cloud-netflix/1.4.x/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter)
+
+3. 验证是否注册成功
+
+   访问Eureka的注册实例查询接口`curl http://127.0.0.1:8761/eureka/apps/`可以看到如下注册信息，在你metadata中可以看到Alpha的gRPC访问地址`<servicecomb-alpha-server>0.0.0.0:8080</servicecomb-alpha-server>`已经注册
+
+   ```xml
+   <applications>
+     <versions__delta>1</versions__delta>
+     <apps__hashcode>UP_1_</apps__hashcode>
+     <application>
+       <name>SERVICECOMB-ALPHA-SERVER</name>
+       <instance>
+         <instanceId>0.0.0.0::servicecomb-alpha-server:8090</instanceId>
+         <hostName>0.0.0.0</hostName>
+         <app>SERVICECOMB-ALPHA-SERVER</app>
+         <ipAddr>0.0.0.0</ipAddr>
+         <status>UP</status>
+   	  ...
+         <metadata>
+           <management.port>8090</management.port>
+           <servicecomb-alpha-server>0.0.0.0:8080</servicecomb-alpha-server>
+         </metadata>
+         ...
+       </instance>
+     </application>
+   </applications>
+   ```
+
+   **注意:** 默认情况下注册的服务名是`SERVICECOMB-ALPHA-SERVER`,如果你需要自定义服务名可以在运行Alpha的时候通过命令行参数`spring.application.name`配置
+
+4. 配置omega
+
+   在项目中引入依赖包 `omega-spring-cloud-eureka-starter`
+
+   ```xml
+   <dependency>
+   	<groupId>org.apache.servicecomb.pack</groupId>
+   	<artifactId>omega-spring-cloud-eureka-starter</artifactId>
+   	<version>${pack.version}</version>
+   </dependency>
+   ```
+
+   在 `application.yaml` 添加下面的配置项：
+
+   ```yaml
+   eureka:
+     client:
+       service-url:
+         defaultZone: http://127.0.0.1:8761/eureka
+   alpha:
+     cluster:
+       register:
+         type: eureka
+   ```
+
+   * `eureka.client.service-url.defaultZone` 配置Eureka注册中心的地址，更多Eureka客户端配置可以参考[Spring Cloud Netflix 2.x](https://cloud.spring.io/spring-cloud-netflix/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) 或 [Spring Cloud Netflix 1.x](https://cloud.spring.io/spring-cloud-netflix/1.4.x/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter)
+   * `alpha.cluster.register.type=eureka` 配置Omega获取Alpha的方式是通过Eureka的注册中心
+
+   **注意:** 如果你在启动Alpha的时候通过命令行参数`spring.application.name`自定义了服务名，那么你需要在Omega中通过参数`alpha.cluster.serviceId`指定这个服务名
+
 ## 集群
 
 Alpha 可以通过部署多实例的方式保证高可用，使用 `alpha.cluster.master.enabled=true` 参数开启集群支持
