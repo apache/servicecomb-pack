@@ -218,86 +218,6 @@ See [Enabling SSL](enable_ssl.md) for details.
 
 Alpha instance can register to the discovery service, Omega obtains Alpha's instance list and gRPC address through discovery service
 
-### Spring Cloud Eureka
-
-Uses Spring Cloud Netflix 2.x by default, if you want to use Spring Cloud Netflix 1.x, you can use `-Pspring-boot-1` to switch Spring Cloud Netflix 1.x
-
-1. run alpha
-
-   run with parameter `eureka.client.enabled=true`
-
-   ```bash
-   java -jar alpha-server-${saga_version}-exec.jar \ 
-     --spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false \
-     --spring.datasource.username=saga \
-     --spring.datasource.password=saga \
-     --eureka.client.enabled=true \
-     --eureka.client.service-url.defaultZone=http://127.0.0.1:8761/eureka \  
-     --spring.profiles.active=prd 
-   ```
-   **Note:** Check out  [Spring Cloud Netflix 2.x](https://cloud.spring.io/spring-cloud-netflix/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) [Spring Cloud Netflix 1.x](https://cloud.spring.io/spring-cloud-netflix/1.4.x/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) for more details
-
-2. verify registration information
-
-   request `curl http://127.0.0.1:8761/eureka/apps/`, It responds with the following XML
-
-   ```xml
-   <applications>
-     <versions__delta>1</versions__delta>
-     <apps__hashcode>UP_1_</apps__hashcode>
-     <application>
-       <name>SERVICECOMB-ALPHA-SERVER</name>
-       <instance>
-         <instanceId>0.0.0.0::servicecomb-alpha-server:8090</instanceId>
-         <hostName>0.0.0.0</hostName>
-         <app>SERVICECOMB-ALPHA-SERVER</app>
-         <ipAddr>0.0.0.0</ipAddr>
-         <status>UP</status>
-      ...
-         <metadata>
-           <management.port>8090</management.port>
-           <servicecomb-alpha-server>0.0.0.0:8080</servicecomb-alpha-server>
-         </metadata>
-         ...
-       </instance>
-     </application>
-   </applications>
-   ```
-
-   **Note:**  `<servicecomb-alpha-server>` property is alpha gRPC address
-
-   **Note:** alpha instance name is `SERVICECOMB-ALPHA-SERVER` by default. You can set it by starting parameter  `spring.application.name` 
-
-3. setup omega
-
-   edit your `pom.xml` and add the `omega-spring-cloud-eureka-starter` dependency
-
-   ```xml
-   <dependency>
-    <groupId>org.apache.servicecomb.pack</groupId>
-    <artifactId>omega-spring-cloud-eureka-starter</artifactId>
-    <version>${pack.version}</version>
-   </dependency>
-   ```
-
-   edit your  `application.yaml` , as shown in the following example:
-
-   ```yaml
-   eureka:
-     client:
-       service-url:
-         defaultZone: http://127.0.0.1:8761/eureka
-   alpha:
-     cluster:
-       register:
-         type: eureka
-   ```
-
-   * `eureka.client.service-url.defaultZone` property is set to the Eureka server’s instance address, check out Spring Boot’s  [Spring Cloud Netflix 2.x](https://cloud.spring.io/spring-cloud-netflix/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) or [Spring Cloud Netflix 1.x](https://cloud.spring.io/spring-cloud-netflix/1.4.x/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) for more details.
-   * `alpha.cluster.register.type=eureka`  property is omega gets alpha gRPC address from Eureka
-
-   **Note:** If you define `spring.application.name ` parameter when start alpha,  You need to specify this service name in Omega via the parameter `alpha.cluster.serviceId`
-
 ### Consul
 
 Uses Spring Cloud Consul 2.x by default, if you want to use Spring Cloud Consul 1.x, you can use `-Pspring-boot-1` to switch Spring Cloud Consul 1.x
@@ -382,6 +302,96 @@ Uses Spring Cloud Consul 2.x by default, if you want to use Spring Cloud Consul 
 
    - `spring.cloud.consul.host` property is set to the Consul server’s instance address, `spring.cloud.consul.port` property is set to the Consul server’s instance port, `spring.cloud.consul.discovery.register=false` property is not register yourself , check out Spring Boot’s  [Spring Cloud Consul 2.x](https://cloud.spring.io/spring-cloud-consul/spring-cloud-consul.html)  or [Spring Cloud Consul 1.x](https://cloud.spring.io/spring-cloud-consul/1.3.x/single/spring-cloud-consul.html) for more details.
    - `alpha.cluster.register.type=consul`  property is omega gets alpha gRPC address from Consul
+
+   **Note:** If you define `spring.application.name ` parameter when start alpha,  You need to specify this service name in Omega via the parameter `alpha.cluster.serviceId`
+
+### Spring Cloud Eureka
+
+Uses Spring Cloud Netflix 2.x by default, if you want to use Spring Cloud Netflix 1.x, you can use `-Pspring-boot-1` to switch Spring Cloud Netflix 1.x
+
+1. build version of eureka
+
+   build the version support eureka with the  `-Pspring-cloud-eureka`  parameter
+
+   ```bash
+   git clone https://github.com/apache/servicecomb-pack.git
+   cd servicecomb-pack
+   mvn clean install -DskipTests=true -Pspring-boot-2,spring-cloud-eureka
+   ```
+
+2. run alpha
+
+   run with parameter `eureka.client.enabled=true`
+
+   ```bash
+   java -jar alpha-server-${saga_version}-exec.jar \ 
+     --spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false \
+     --spring.datasource.username=saga \
+     --spring.datasource.password=saga \
+     --eureka.client.enabled=true \
+     --eureka.client.service-url.defaultZone=http://127.0.0.1:8761/eureka \  
+     --spring.profiles.active=prd 
+   ```
+   **Note:** Check out  [Spring Cloud Netflix 2.x](https://cloud.spring.io/spring-cloud-netflix/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) [Spring Cloud Netflix 1.x](https://cloud.spring.io/spring-cloud-netflix/1.4.x/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) for more details
+
+3. verify registration information
+
+   request `curl http://127.0.0.1:8761/eureka/apps/`, It responds with the following XML
+
+   ```xml
+   <applications>
+     <versions__delta>1</versions__delta>
+     <apps__hashcode>UP_1_</apps__hashcode>
+     <application>
+       <name>SERVICECOMB-ALPHA-SERVER</name>
+       <instance>
+         <instanceId>0.0.0.0::servicecomb-alpha-server:8090</instanceId>
+         <hostName>0.0.0.0</hostName>
+         <app>SERVICECOMB-ALPHA-SERVER</app>
+         <ipAddr>0.0.0.0</ipAddr>
+         <status>UP</status>
+      ...
+         <metadata>
+           <management.port>8090</management.port>
+           <servicecomb-alpha-server>0.0.0.0:8080</servicecomb-alpha-server>
+         </metadata>
+         ...
+       </instance>
+     </application>
+   </applications>
+   ```
+
+   **Note:**  `<servicecomb-alpha-server>` property is alpha gRPC address
+
+   **Note:** alpha instance name is `SERVICECOMB-ALPHA-SERVER` by default. You can set it by starting parameter  `spring.application.name` 
+
+4. setup omega
+
+   edit your `pom.xml` and add the `omega-spring-cloud-eureka-starter` dependency
+
+   ```xml
+   <dependency>
+    <groupId>org.apache.servicecomb.pack</groupId>
+    <artifactId>omega-spring-cloud-eureka-starter</artifactId>
+    <version>${pack.version}</version>
+   </dependency>
+   ```
+
+   edit your  `application.yaml` , as shown in the following example:
+
+   ```yaml
+   eureka:
+     client:
+       service-url:
+         defaultZone: http://127.0.0.1:8761/eureka
+   alpha:
+     cluster:
+       register:
+         type: eureka
+   ```
+
+   * `eureka.client.service-url.defaultZone` property is set to the Eureka server’s instance address, check out Spring Boot’s  [Spring Cloud Netflix 2.x](https://cloud.spring.io/spring-cloud-netflix/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) or [Spring Cloud Netflix 1.x](https://cloud.spring.io/spring-cloud-netflix/1.4.x/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) for more details.
+   * `alpha.cluster.register.type=eureka`  property is omega gets alpha gRPC address from Eureka
 
    **Note:** If you define `spring.application.name ` parameter when start alpha,  You need to specify this service name in Omega via the parameter `alpha.cluster.serviceId`
 
