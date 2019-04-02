@@ -1,5 +1,5 @@
 Apache ServiceComb Saga
-Copyright 2017-2018 The Apache Software Foundation
+Copyright 2017-2019 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
@@ -50,7 +50,7 @@ See licenses/NOTICE-tomcat
 ================================================================
 Notice for Netty tcnative
 
-See licenses/NOTICE-netty-tcnative  
+See licenses/NOTICE-netty-tcnative
 ================================================================
 Notice for akveo ngx-admin
 
