@@ -116,8 +116,8 @@ CREATE TABLE IF NOT EXISTS tcc_tx_event (
 
 CREATE TABLE IF NOT EXISTS master_lock (
   serviceName varchar(36) not NULL,
-  expireTime timestamp(3) not NULL,
-  lockedTime timestamp(3) not NULL,
+  expireTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  lockedTime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   instanceId  varchar(255) not NULL,
   PRIMARY KEY (serviceName)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
