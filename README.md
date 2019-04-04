@@ -26,11 +26,11 @@ Now we have different lanaguage implementation of Omega
 * C# version of Omega here https://github.com/OpenSagas-csharp/servicecomb-saga-csharp
 
 ## Get Started
-* For ServiceComb Java Chassis application, please see [Booking Demo](saga-demo/saga-servicecomb-demo/README.md) for details.
-* For Spring applications, please see [Booking Demo](saga-demo/saga-spring-demo/README.md) for details.
-* For Dubbo applications, please see [Dubbo Demo](saga-demo/saga-dubbo-demo/README.md) for details.
-* For TCC with Spring application, please see [Tcc Demo](saga-demo/tcc-spring-demo/README.md) for details.
-* To debug the applications, please see [Spring Demo Debugging](saga-demo/saga-spring-demo#debugging) for details.
+* For ServiceComb Java Chassis application, please see [Booking Demo](demo/saga-servicecomb-demo/README.md) for details.
+* For Spring applications, please see [Booking Demo](demo/saga-spring-demo/README.md) for details.
+* For Dubbo applications, please see [Dubbo Demo](demo/saga-dubbo-demo/README.md) for details.
+* For TCC with Spring application, please see [Tcc Demo](demo/tcc-spring-demo/README.md) for details.
+* To debug the applications, please see [Spring Demo Debugging](demo/saga-spring-demo#debugging) for details.
 
 ## Build and Run the tests from source
 Current ServiceComb Pack code supports Spring Boot 1.x and Spring Boot 2.x at the same time, you can use *-Pspring-boot-1*, *-Pspring-boot-1* to switch Spring Boot version.
