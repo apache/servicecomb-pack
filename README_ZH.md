@@ -28,11 +28,11 @@ ServiceComb Pack 架构是由 **alpha** 和 **omega**组成，其中：
 
 
 ## 快速入门
-* Saga在ServiceComb Java Chassis的应用可以参考[出行预订](saga-demo/saga-servicecomb-demo/README.md)
-* Saga在Spring应用的用法可参考[出行预订示例](saga-demo/saga-spring-demo/README.md)。
-* Saga在Dubbo应用的用法可参考[Dubbo示例](saga-demo/saga-dubbo-demo/README.md).
-* TCC在Spring应用的用法可以参考[TCC示例](saga-demo/tcc-spring-demo/README.md)
-* 示例的的调试方法可以参考[调试Spring示例](saga-demo/saga-spring-demo#debugging).
+* Saga在ServiceComb Java Chassis的应用可以参考[出行预订](demo/saga-servicecomb-demo/README.md)
+* Saga在Spring应用的用法可参考[出行预订示例](demo/saga-spring-demo/README.md)。
+* Saga在Dubbo应用的用法可参考[Dubbo示例](demo/saga-dubbo-demo/README.md).
+* TCC在Spring应用的用法可以参考[TCC示例](demo/tcc-spring-demo/README.md)
+* 示例的的调试方法可以参考[调试Spring示例](demo/saga-spring-demo#debugging).
 
 
 ## 编译和运行代码
