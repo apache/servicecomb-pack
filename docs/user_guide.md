@@ -63,24 +63,10 @@ After executing either one of the above command, you will find alpha server's ex
 ### Saga Support
 Add saga annotations and corresponding compensation methods
 Take a transfer money application as an example:
-1. add `@EnableOmega` at application entry to initialize omega configurations and connect to alpha
-   ```java
-   import org.apache.servicecomb.pack.omega.spring.EnableOmega;
-   import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-   @SpringBootApplication
-   @EnableOmega
-   public class Application {
-     public static void main(String[] args) {
-       SpringApplication.run(Application.class, args);
-     }
-   }
-   ```
-   
-2. add `@SagaStart` at the starting point of the global transaction
+1. add `@SagaStart` at the starting point of the global transaction
    ```java
    import org.apache.servicecomb.pack.omega.context.annotations.SagaStart;
-
+   
    @SagaStart(timeout=10)
    public boolean transferMoney(String from, String to, int amount) {
      transferOut(from, amount);
@@ -89,7 +75,7 @@ Take a transfer money application as an example:
    ```
    **Note:** By default, timeout is disable.
 
-3. add `@Compensable` at the sub-transaction and specify its corresponding compensation method
+2. add `@Compensable` at the sub-transaction and specify its corresponding compensation method
    ```java
    import javax.transaction.Transactional;
    import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
@@ -99,7 +85,7 @@ Take a transfer money application as an example:
    public boolean transferOut(String from, int amount) {
      repo.reduceBalanceByUsername(from, amount);
    }
- 
+    
    @Transactional
    public boolean cancel(String from, int amount) {
      repo.addBalanceByUsername(from, amount);
@@ -113,28 +99,22 @@ Take a transfer money application as an example:
 
    **Note:** If the starting point of global transaction and local transaction overlaps, both `@SagaStart` and `@Compensable` are needed.
 
-4. Repeat step 3 for the `transferIn` service.
+3. Add alpha.cluster.address parameters
+
+   ```yaml
+   alpha:
+     cluster:
+       address: alpha-server.servicecomb.io:8080
+   ```
+
+4. Repeat step 2 for the `transferIn` service.
 
 5. Since pack-0.3.0,  you can access the [OmegaContext](https://github.com/apache/servicecomb-packblob/master/omega/omega-context/src/main/java/org/apache/servicecomb/saga/omega/context/OmegaContext.java) for the gloableTxId and localTxId in the @Compensable annotated method or the cancel method.
 
 ### TCC support
 Add TCC annotations and corresponding confirm and cancel methods
  Take a transfer money application as an example:
- 1. add `@EnableOmega` at application entry to initialize omega configurations and connect to alpha
-    ```java
-    import org.apache.servicecomb.pack.omega.spring.EnableOmega;
-    import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-    @SpringBootApplication
-    @EnableOmega
-    public class Application {
-      public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-      }
-    }
-    ```
-    
- 2. add `@TccStart` at the starting point of the global transaction
+ 1. add `@TccStart` at the starting point of the global transaction
     ```java
     import org.apache.servicecomb.pack.omega.context.annotations.TccStart;
     
@@ -146,17 +126,17 @@ Add TCC annotations and corresponding confirm and cancel methods
     ```
     **Note:** By default, timeout is disable.
 
- 3. add `@Participate` at the sub-transaction and specify its corresponding compensation method
+ 2. add `@Participate` at the sub-transaction and specify its corresponding compensation method
     ```java
     import javax.transaction.Transactional;
     import org.apache.servicecomb.pack.omega.transaction.annotations.Participate;
-
+    
     @Participate(confirmMethod = "confirm", cancelMethod = "cancel")
     @Transactional
     public void transferOut(String from, int amount) {
       // check banalance
     }
-
+    
     @Transactional
     public void confirm(String from, int amount) {
       repo.reduceBalanceByUsername(from, amount);
@@ -174,7 +154,15 @@ Add TCC annotations and corresponding confirm and cancel methods
 
     **Note:** If the starting point of global transaction and local transaction overlaps, both `@TccStart` and `@Participate` are needed.
 
- 4. Repeat step 3 for the `transferIn` service.
+ 3. Add alpha.cluster.address parameters
+
+    ```yaml
+    alpha:
+      cluster:
+        address: alpha-server.servicecomb.io:8080
+    ```
+
+ 4. Repeat step 2 for the `transferIn` service.
 
 
 ## How to run
@@ -301,7 +289,31 @@ Uses Spring Cloud Consul 2.x by default, if you want to use Spring Cloud Consul 
    ```
 
    - `spring.cloud.consul.host` property is set to the Consul server’s instance address, `spring.cloud.consul.port` property is set to the Consul server’s instance port, `spring.cloud.consul.discovery.register=false` property is not register yourself , check out Spring Boot’s  [Spring Cloud Consul 2.x](https://cloud.spring.io/spring-cloud-consul/spring-cloud-consul.html)  or [Spring Cloud Consul 1.x](https://cloud.spring.io/spring-cloud-consul/1.3.x/single/spring-cloud-consul.html) for more details.
+
    - `alpha.cluster.register.type=consul`  property is omega gets alpha gRPC address from Consul
+
+   - spring boot version compatible
+
+     If your project is not using spring boot 2.1.1, please refer to this list to add a compatible spring-cloud-starter-consul-discovery version
+
+     | spring boot   | spring-cloud-starter-consul-discovery |
+     | ------------- | ------------------------------------- |
+     | 2.1.x.RELEASE | 2.1.1.RELEASE                         |
+     | 2.0.x.RELEASE | 2.0.2.RELEASE                         |
+
+     ```xml
+       <dependencyManagement>
+         <dependencies>
+           <dependency>
+             <groupId>org.springframework.cloud</groupId>
+             <artifactId>spring-cloud-starter-consul-discovery</artifactId>
+             <version>2.0.2.RELEASE</version>
+           </dependency>
+         </dependencies>
+       </dependencyManagement>
+     ```
+
+     
 
    **Note:** If you define `spring.application.name ` parameter when start alpha,  You need to specify this service name in Omega via the parameter `alpha.cluster.serviceId`
 
@@ -391,7 +403,29 @@ Uses Spring Cloud Netflix 2.x by default, if you want to use Spring Cloud Netfli
    ```
 
    * `eureka.client.service-url.defaultZone` property is set to the Eureka server’s instance address, check out Spring Boot’s  [Spring Cloud Netflix 2.x](https://cloud.spring.io/spring-cloud-netflix/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) or [Spring Cloud Netflix 1.x](https://cloud.spring.io/spring-cloud-netflix/1.4.x/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) for more details.
+
    * `alpha.cluster.register.type=eureka`  property is omega gets alpha gRPC address from Eureka
+
+   * spring boot version compatible
+
+     If your project is not using spring boot 2.1.1, please refer to this list to add a compatible spring-cloud-starter-netflix-eureka-client version
+
+     | spring boot   | spring-cloud-starter-netflix-eureka-client |
+     | ------------- | ------------------------------------------ |
+     | 2.1.x.RELEASE | 2.1.1.RELEASE                              |
+     | 2.0.x.RELEASE | 2.0.3.RELEASE                              |
+
+     ```xml
+       <dependencyManagement>
+         <dependencies>
+           <dependency>
+             <groupId>org.springframework.cloud</groupId>
+             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+             <version>2.0.3.RELEASE</version>
+           </dependency>
+         </dependencies>
+       </dependencyManagement>
+     ```
 
    **Note:** If you define `spring.application.name ` parameter when start alpha,  You need to specify this service name in Omega via the parameter `alpha.cluster.serviceId`
 

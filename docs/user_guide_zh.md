@@ -64,24 +64,10 @@ Saga可通过以下任一方式进行构建：
 ### Saga 支持 
 添加Saga的注解及相应的补偿方法
 以一个转账应用为例：
-1. 在应用入口添加 `@EnableOmega` 的注解来初始化omega的配置并与alpha建立连接。
-   ```java
-   import org.apache.servicecomb.pack.omega.spring.EnableOmega;
-   import org.springframework.boot.autoconfigure.SpringBootApplication;
-   
-   @SpringBootApplication
-   @EnableOmega
-   public class Application {
-     public static void main(String[] args) {
-       SpringApplication.run(Application.class, args);
-     }
-   }
-   ```
-
-2. 在全局事务的起点添加 `@SagaStart` 的注解。
+1. 在全局事务的起点添加 `@SagaStart` 的注解。
    ```java
    import org.apache.servicecomb.pack.omega.context.annotations.SagaStart;
-
+   
    @SagaStart(timeout=10)
    public boolean transferMoney(String from, String to, int amount) {
      transferOut(from, amount);
@@ -90,7 +76,7 @@ Saga可通过以下任一方式进行构建：
    ```
    **注意:** 默认情况下，超时设置需要显式声明才生效。
 
-3. 在子事务处添加 `@Compensable` 的注解并指明其对应的补偿方法。
+2. 在子事务处添加 `@Compensable` 的注解并指明其对应的补偿方法。
    ```java
    import javax.transaction.Transactional;
    import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
@@ -100,7 +86,7 @@ Saga可通过以下任一方式进行构建：
    public boolean transferOut(String from, int amount) {
      repo.reduceBalanceByUsername(from, amount);
    }
- 
+    
    @Transactional
    public boolean cancel(String from, int amount) {
      repo.addBalanceByUsername(from, amount);
@@ -113,40 +99,34 @@ Saga可通过以下任一方式进行构建：
 
    **注意:** 若全局事务起点与子事务起点重合，需同时声明 `@SagaStart` 和 `@Compensable` 的注解。
 
-4. 对转入服务重复第三步即可。
+3. 增加 alpha.cluster.address 参数
+
+   ```yaml
+   alpha:
+     cluster:
+       address: alpha-server.servicecomb.io:8080
+   ```
+
+4. 对转入服务重复第二步即可。
 
 5. 从pack-0.3.0开始, 你可以在服务函数或者取消函数中通过访问 [OmegaContext](https://github.com/apache/servicecomb-pack/blob/master/omega/omega-context/src/main/java/org/apache/servicecomb/saga/omega/context/OmegaContext.java) 来获取 gloableTxId 以及 localTxId 信息。
 
 ### TCC 支持
 在对应的方法中添加TccStart 和 Participate标注 
  以一个转账应用为例：
-1. 在应用入口添加 `@EnableOmega` 的注解来初始化omega的配置并与alpha建立连接。
+1. 在全局事务的起点添加 `@TccStart` 的注解。
    ```java
-    import org.apache.servicecomb.pack.omega.spring.EnableOmega;
-    import org.springframework.boot.autoconfigure.SpringBootApplication;   
-   
-    @SpringBootApplication
-    @EnableOmega
-    public class Application {
-      public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-      }
-    }
+   import org.apache.servicecomb.pack.omega.context.annotations.TccStart;
+       
+   @TccStart
+   public boolean transferMoney(String from, String to, int amount) {
+     transferOut(from, amount);
+     transferIn(to, amount);
+   }
    ```
-   
-2. 在全局事务的起点添加 `@TccStart` 的注解。
-    ```java
-    import org.apache.servicecomb.pack.omega.context.annotations.TccStart;
-        
-    @TccStart
-    public boolean transferMoney(String from, String to, int amount) {
-      transferOut(from, amount);
-      transferIn(to, amount);
-    }
-    ```
-    **Note:** 当前TCC还不支持Timeout
+   **Note:** 当前TCC还不支持Timeout
 
-3. 在子事务尝试方法处添加 `@Participate` 的注解并指明其对应的执行以及补偿方法名, 
+2. 在子事务尝试方法处添加 `@Participate` 的注解并指明其对应的执行以及补偿方法名, 
     ```java
     import javax.transaction.Transactional;
     import org.apache.servicecomb.pack.omega.transaction.annotations.Participate;
@@ -156,7 +136,7 @@ Saga可通过以下任一方式进行构建：
     public void transferOut(String from, int amount) {
       // check banalance
     }
-
+    
     @Transactional
     public void confirm(String from, int amount) {
       repo.reduceBalanceByUsername(from, amount);
@@ -169,10 +149,18 @@ Saga可通过以下任一方式进行构建：
     ```
 
     **Note:** The confirm and cancel method should have same arguments with participate method, confirm and cancel method implemented by services must be idempotent. We highly recommend to use the Spring @Transactional to guarantee the local transaction.
-   
+
     **Note:** 若全局事务起点与子事务起点重合，需同时声明 `@TccStart`  和 `@Participate` 的注解。 
 
-4. 对转入服务重复第三步即可。
+3. 增加 alpha.cluster.address 参数
+
+    ```yaml
+    alpha:
+      cluster:
+        address: alpha-server.servicecomb.io:8080
+    ```
+
+4. 对转入服务重复第二步即可。
 
 5. 从pack-0.3.0开始, 你可以在服务函数或者取消函数中通过访问 [OmegaContext](https://github.com/apache/servicecomb-pack/blob/master/omega/omega-context/src/main/java/org/apache/servicecomb/saga/omega/context/OmegaContext.java) 来获取 gloableTxId 以及 localTxId 信息。
 
@@ -303,7 +291,29 @@ Saga可通过以下任一方式进行构建：
    ```
 
    - `spring.cloud.consul.host` 配置 Consul 注册中心的地址，`spring.cloud.consul.port` 配置 Consul 注册中心的端口，`spring.cloud.consul.discovery.register=false` 表示不注册自己到注册中心，更多 Consul 客户端配置可以参考[Spring Cloud Consul 2.x](https://cloud.spring.io/spring-cloud-consul/spring-cloud-consul.html) [Spring Cloud Consul 1.x](https://cloud.spring.io/spring-cloud-consul/1.3.x/single/spring-cloud-consul.html)
+
    - `alpha.cluster.register.type=consul` 配置Omega获取Alpha的方式是通过 Consul 的注册中心
+
+   - spring boot 版本兼容
+
+     如果你的项目使用的不是spring boot 2.1.1版本，那么请参照此列表增加兼容的spring-cloud-starter-consul-discovery版本
+
+     | spring boot   | spring-cloud-starter-consul-discovery |
+     | ------------- | ------------------------------------- |
+     | 2.1.x.RELEASE | 2.1.1.RELEASE                         |
+     | 2.0.x.RELEASE | 2.0.2.RELEASE                         |
+
+     ```xml
+       <dependencyManagement>
+         <dependencies>
+           <dependency>
+             <groupId>org.springframework.cloud</groupId>
+             <artifactId>spring-cloud-starter-consul-discovery</artifactId>
+             <version>2.0.2.RELEASE</version>
+           </dependency>
+         </dependencies>
+       </dependencyManagement>
+     ```
 
    **注意:** 如果你在启动Alpha的时候通过命令行参数`spring.application.name`自定义了服务名，那么你需要在Omega中通过参数`alpha.cluster.serviceId`指定这个服务名
 
@@ -392,7 +402,29 @@ Saga可通过以下任一方式进行构建：
    ```
 
    * `eureka.client.service-url.defaultZone` 配置Eureka注册中心的地址，更多Eureka客户端配置可以参考[Spring Cloud Netflix 2.x](https://cloud.spring.io/spring-cloud-netflix/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter) 或 [Spring Cloud Netflix 1.x](https://cloud.spring.io/spring-cloud-netflix/1.4.x/multi/multi__service_discovery_eureka_clients.html#netflix-eureka-client-starter)
+
    * `alpha.cluster.register.type=eureka` 配置Omega获取Alpha的方式是通过Eureka的注册中心
+
+   * spring boot 版本兼容
+
+     如果你的项目使用的不是spring boot 2.1.1版本，那么请参照此列表增加兼容的spring-cloud-starter-consul-discovery版本
+
+     | spring boot   | spring-cloud-starter-netflix-eureka-client |
+     | ------------- | ------------------------------------------ |
+     | 2.1.x.RELEASE | 2.1.1.RELEASE                              |
+     | 2.0.x.RELEASE | 2.0.3.RELEASE                              |
+
+     ```xml
+       <dependencyManagement>
+         <dependencies>
+           <dependency>
+             <groupId>org.springframework.cloud</groupId>
+             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+             <version>2.0.3.RELEASE</version>
+           </dependency>
+         </dependencies>
+       </dependencyManagement>
+     ```
 
    **注意:** 如果你在启动Alpha的时候通过命令行参数`spring.application.name`自定义了服务名，那么你需要在Omega中通过参数`alpha.cluster.serviceId`指定这个服务名
 
