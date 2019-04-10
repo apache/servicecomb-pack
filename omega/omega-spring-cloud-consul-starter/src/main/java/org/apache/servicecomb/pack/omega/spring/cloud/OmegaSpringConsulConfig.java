@@ -55,7 +55,7 @@ class OmegaSpringConsulConfig {
     @Bean
     AlphaClusterDiscovery alphaClusterAddress(
             @Value("${alpha.cluster.serviceId:servicecomb-alpha-server}") String serviceId,
-            @Value("${alpha.cluster.address:localhost:8080}") String[] addresses) {
+            @Value("${alpha.cluster.address:0.0.0.0:8080}") String[] addresses) {
         StringBuffer eurekaServiceUrls = new StringBuffer();
 
         String[] alphaAddresses = this.getAlphaAddress(serviceId);

@@ -51,7 +51,6 @@ import org.springframework.context.annotation.Lazy;
 import java.lang.invoke.MethodHandles;
 
 @Configuration
-@ConditionalOnProperty(value = {"alpha.cluster.address"})
 class OmegaSpringConfig {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -88,7 +87,7 @@ class OmegaSpringConfig {
 
   @Bean
   @ConditionalOnProperty(name = "alpha.cluster.register.type", havingValue = "default", matchIfMissing = true)
-  AlphaClusterDiscovery alphaClusterAddress(@Value("${alpha.cluster.address:localhost:8080}") String[] addresses){
+  AlphaClusterDiscovery alphaClusterAddress(@Value("${alpha.cluster.address:0.0.0.0:8080}") String[] addresses){
     return AlphaClusterDiscovery.builder().addresses(addresses).build();
   }
 
