@@ -6,7 +6,7 @@
 # Pack 0.5.0
 - [] [SCB-241](https://issues.apache.org/jira/browse/SCB-241) Visual Transactions, auditing mode support
 - [] [SCB-275](https://issues.apache.org/jira/browse/SCB-275) Refactoring Retry logical (new)
-- [] [SCB-1258] https://issues.apache.org/jira/browse/SCB-1258 Using StateMachine for tracing the transaction states (epic)
+- [] [SCB-1258](https://issues.apache.org/jira/browse/SCB-1258) Using StateMachine for tracing the transaction states (epic)
 - [] [SCB-1000](https://issues.apache.org/jira/browse/SCB-1000) Implement the timeout monitor on the Omega side (new)
 
 
