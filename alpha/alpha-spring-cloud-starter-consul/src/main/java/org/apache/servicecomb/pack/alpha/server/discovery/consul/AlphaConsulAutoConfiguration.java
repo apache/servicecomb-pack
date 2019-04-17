@@ -114,7 +114,11 @@ public class AlphaConsulAutoConfiguration {
             NewService newservice =  new NewService();
             newservice.setName(service.getServiceName());
             newservice.setId(service.getServiceId());
-            List<String> tags = consulDiscoveryProperties.getTags();
+            newservice.setAddress(service.getAddress());
+            newservice.setPort(service.getServicePort());
+            newservice.setMeta(service.getServiceMeta());
+
+            List<String> tags = service.getServiceTags();
             tags.remove("alpha-server-port=0");
             tags.add("alpha-server-port="+actualAlphaServerPort);
             newservice.setTags(tags);
