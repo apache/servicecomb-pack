@@ -116,8 +116,6 @@ public class AlphaConsulAutoConfiguration {
             newservice.setId(service.getServiceId());
             newservice.setAddress(service.getAddress());
             newservice.setPort(service.getServicePort());
-            newservice.setMeta(service.getServiceMeta());
-
             List<String> tags = service.getServiceTags();
             tags.remove("alpha-server-port=0");
             tags.add("alpha-server-port="+actualAlphaServerPort);
