@@ -22,6 +22,10 @@ public class OmegaException extends RuntimeException {
     super(message);
   }
 
+  public OmegaException(Throwable cause) {
+    super(cause);
+  }
+
   public OmegaException(String cause, Throwable throwable) {
     super(cause, throwable);
   }
