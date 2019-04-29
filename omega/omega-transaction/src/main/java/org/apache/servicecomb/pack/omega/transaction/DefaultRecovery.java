@@ -42,11 +42,11 @@ import org.slf4j.LoggerFactory;
  *                    ----------------------
  *                            alpha
  */
-public class DefaultRecovery implements RecoveryPolicy {
+public class DefaultRecovery extends AbstractRecoveryPolicy {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
-  public Object apply(ProceedingJoinPoint joinPoint, Compensable compensable, CompensableInterceptor interceptor,
+  public Object applyTo(ProceedingJoinPoint joinPoint, Compensable compensable, CompensableInterceptor interceptor,
       OmegaContext context, String parentTxId, int retries) throws Throwable {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
     LOG.debug("Intercepting compensable method {} with context {}", method.toString(), context);

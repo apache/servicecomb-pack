@@ -39,14 +39,14 @@ public class ForwardRecovery extends DefaultRecovery {
 
   // TODO: 2018/03/10 we do not support retry with timeout yet
   @Override
-  public Object apply(ProceedingJoinPoint joinPoint, Compensable compensable, CompensableInterceptor interceptor,
+  public Object applyTo(ProceedingJoinPoint joinPoint, Compensable compensable, CompensableInterceptor interceptor,
       OmegaContext context, String parentTxId, int retries) throws Throwable {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
     int remains = retries;
     try {
       while (true) {
         try {
-          return super.apply(joinPoint, compensable, interceptor, context, parentTxId, remains);
+          return super.applyTo(joinPoint, compensable, interceptor, context, parentTxId, remains);
         } catch (Throwable throwable) {
           if (throwable instanceof InvalidTransactionException) {
             throw throwable;
