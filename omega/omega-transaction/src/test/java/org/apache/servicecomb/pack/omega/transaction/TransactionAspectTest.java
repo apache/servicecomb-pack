@@ -19,14 +19,19 @@ package org.apache.servicecomb.pack.omega.transaction;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.ClosedByInterruptException;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import org.apache.servicecomb.pack.common.EventType;
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
@@ -35,8 +40,11 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 public class TransactionAspectTest {
+
   private final List<TxEvent> messages = new ArrayList<>();
   private final String globalTxId = UUID.randomUUID().toString();
   private final String localTxId = UUID.randomUUID().toString();
@@ -78,6 +86,7 @@ public class TransactionAspectTest {
 
   @Before
   public void setUp() throws Exception {
+    System.setSecurityManager(null);
     when(idGenerator.nextId()).thenReturn(newLocalTxId);
     when(joinPoint.getSignature()).thenReturn(methodSignature);
     when(joinPoint.getTarget()).thenReturn(this);
@@ -139,6 +148,109 @@ public class TransactionAspectTest {
   }
 
   @Test
+  public void interruptsOnCompensableTimeoutExceptionWithSleepBlocked() throws Throwable {
+    when(compensable.timeout()).thenReturn(2);
+    when(joinPoint.proceed()).thenAnswer(new Answer<Object>() {
+      @Override
+      public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+        Thread.sleep(5000);
+        return null;
+      }
+    });
+    try {
+      aspect.advise(joinPoint, compensable);
+    } catch (RuntimeException e) {
+      assertThat(e, instanceOf(TransactionTimeoutException.class));
+      assertThat(e.getCause(), instanceOf(InterruptedException.class));
+    }
+  }
+
+  @Test
+  public void interruptsOnCompensableTimeoutExceptionWithWaitBlocked() throws Throwable {
+    when(compensable.timeout()).thenReturn(2);
+    when(joinPoint.proceed()).thenAnswer(new Answer<Object>() {
+      @Override
+      public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+        Thread.currentThread().wait(5000);
+        return null;
+      }
+    });
+    try {
+      aspect.advise(joinPoint, compensable);
+    } catch (RuntimeException e) {
+      assertThat(e, instanceOf(TransactionTimeoutException.class));
+      assertThat(e.getCause(), instanceOf(IllegalMonitorStateException.class));
+    }
+  }
+
+  @Test
+  public void interruptsOnCompensableTimeoutExceptionWithIOBlocked() throws Throwable {
+    when(compensable.timeout()).thenReturn(2);
+    when(joinPoint.proceed()).thenAnswer(new Answer<Object>() {
+      @Override
+      public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+        String name = "delete.me";
+        new File(name).deleteOnExit();
+        RandomAccessFile raf = new RandomAccessFile(name, "rw");
+        FileChannel fc = raf.getChannel();
+        try {
+          ByteBuffer buffer = ByteBuffer.wrap(new String("1").getBytes());
+          while (true) {
+            fc.write(buffer);
+          }
+        } finally {
+          if (fc != null) {
+            fc.close();
+          }
+        }
+      }
+    });
+    try {
+      aspect.advise(joinPoint, compensable);
+    } catch (RuntimeException e) {
+      assertThat(e, instanceOf(TransactionTimeoutException.class));
+      assertThat(e.getCause(), instanceOf(ClosedByInterruptException.class));
+    }
+  }
+
+  @Test
+  public void interruptsOnCompensableTimeoutExceptionWithCPUBusyBlocked() throws Throwable {
+    when(compensable.timeout()).thenReturn(3);
+    when(joinPoint.proceed()).thenAnswer(new Answer<Object>() {
+      @Override
+      public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+        while (true){
+          Thread.sleep(1);
+        }
+      }
+    });
+    try {
+      aspect.advise(joinPoint, compensable);
+    } catch (RuntimeException e) {
+      assertThat(e, instanceOf(TransactionTimeoutException.class));
+      assertThat(e.getCause(), instanceOf(InterruptedException.class));
+    }
+  }
+
+  @Test
+  public void interruptsOnCompensableTimeoutRejectionBySecurity() throws Throwable {
+    when(compensable.timeout()).thenReturn(2);
+    when(joinPoint.proceed()).thenAnswer(new Answer<Object>() {
+      @Override
+      public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+        System.setSecurityManager(new AccessRejectionSecurityManager());
+        Thread.sleep(5000);
+        return null;
+      }
+    });
+    try {
+      aspect.advise(joinPoint, compensable);
+    } catch (RuntimeException e) {
+      assertThat(e, instanceOf(OmegaException.class));
+    }
+  }
+
+  @Test
   public void retryReachesMaximumAndForwardException() throws Throwable {
     RuntimeException oops = new RuntimeException("oops");
     when(joinPoint.proceed()).thenThrow(oops);
@@ -159,7 +271,8 @@ public class TransactionAspectTest {
     assertThat(startedEvent1.parentTxId(), is(localTxId));
     assertThat(startedEvent1.type(), is(EventType.TxStartedEvent));
     assertThat(startedEvent1.retries(), is(3));
-    assertThat(startedEvent1.retryMethod(), is(this.getClass().getDeclaredMethod("doNothing").toString()));
+    assertThat(startedEvent1.retryMethod(),
+        is(this.getClass().getDeclaredMethod("doNothing").toString()));
 
     assertThat(messages.get(1).type(), is(EventType.TxAbortedEvent));
 
@@ -197,7 +310,8 @@ public class TransactionAspectTest {
     assertThat(startedEvent1.parentTxId(), is(localTxId));
     assertThat(startedEvent1.type(), is(EventType.TxStartedEvent));
     assertThat(startedEvent1.retries(), is(-1));
-    assertThat(startedEvent1.retryMethod(), is(this.getClass().getDeclaredMethod("doNothing").toString()));
+    assertThat(startedEvent1.retryMethod(),
+        is(this.getClass().getDeclaredMethod("doNothing").toString()));
 
     assertThat(messages.get(1).type(), is(EventType.TxAbortedEvent));
 
@@ -221,5 +335,11 @@ public class TransactionAspectTest {
 
   private String doNothing() {
     return "doNothing";
+  }
+
+  static class AccessRejectionSecurityManager extends SecurityManager {
+    public void checkAccess(Thread t) {
+      throw new SecurityException("simulation");
+    }
   }
 }
