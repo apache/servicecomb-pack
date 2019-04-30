@@ -66,7 +66,7 @@ public class RecoveryPolicyTimeoutWrapper {
             try {
               RecoveryPolicyTimeoutWrapper.this.interrupt();
             } catch (Exception e) {
-              LOG.error("", e);
+              LOG.error("The overtime thread interrupt fail",e);
             }
           }
         },
