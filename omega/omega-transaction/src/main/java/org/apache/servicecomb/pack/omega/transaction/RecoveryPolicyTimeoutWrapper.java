@@ -117,11 +117,23 @@ public class RecoveryPolicyTimeoutWrapper {
         throw new OmegaException(timeoutProb.interruptFailureException);
       }
     } catch (InterruptedException e) {
-      throw new TransactionTimeoutException(e.getMessage(),e);
+      if (timeoutProb.getInterruptFailureException() != null) {
+        throw new OmegaException(timeoutProb.interruptFailureException);
+      }else{
+        throw new TransactionTimeoutException(e.getMessage(),e);
+      }
     } catch (IllegalMonitorStateException e) {
-      throw new TransactionTimeoutException(e.getMessage(),e);
+      if (timeoutProb.getInterruptFailureException() != null) {
+        throw new OmegaException(timeoutProb.interruptFailureException);
+      }else{
+        throw new TransactionTimeoutException(e.getMessage(),e);
+      }
     } catch (ClosedByInterruptException e) {
-      throw new TransactionTimeoutException(e.getMessage(),e);
+      if (timeoutProb.getInterruptFailureException() != null) {
+        throw new OmegaException(timeoutProb.interruptFailureException);
+      }else{
+        throw new TransactionTimeoutException(e.getMessage(),e);
+      }
     } catch (Throwable e) {
       throw e;
     } finally {
