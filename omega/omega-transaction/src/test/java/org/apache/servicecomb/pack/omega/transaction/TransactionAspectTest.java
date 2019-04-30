@@ -29,6 +29,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.FileChannel;
+import java.security.Permission;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -86,7 +87,6 @@ public class TransactionAspectTest {
 
   @Before
   public void setUp() throws Exception {
-    System.setSecurityManager(null);
     when(idGenerator.nextId()).thenReturn(newLocalTxId);
     when(joinPoint.getSignature()).thenReturn(methodSignature);
     when(joinPoint.getTarget()).thenReturn(this);
@@ -234,11 +234,12 @@ public class TransactionAspectTest {
 
   @Test
   public void interruptsOnCompensableTimeoutRejectionBySecurity() throws Throwable {
+    final Thread main = Thread.currentThread();
     when(compensable.timeout()).thenReturn(2);
     when(joinPoint.proceed()).thenAnswer(new Answer<Object>() {
       @Override
       public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-        System.setSecurityManager(new AccessRejectionSecurityManager());
+        System.setSecurityManager(new AccessRejectionSecurityManager(main));
         Thread.sleep(5000);
         return null;
       }
@@ -338,8 +339,20 @@ public class TransactionAspectTest {
   }
 
   static class AccessRejectionSecurityManager extends SecurityManager {
+    private Thread main;
+    public AccessRejectionSecurityManager(Thread main){
+      this.main = main;
+    }
     public void checkAccess(Thread t) {
-      throw new SecurityException("simulation");
+      for(StackTraceElement stack : main.getStackTrace()){
+        if(stack.getMethodName().equals("interruptsOnCompensableTimeoutRejectionBySecurity")){
+          throw new SecurityException("simulation");
+        }
+      }
+    }
+
+    public void checkPermission(Permission perm) {
+      // Has All Permission
     }
   }
 }
