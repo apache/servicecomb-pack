@@ -109,7 +109,7 @@ Take a transfer money application as an example:
 
 4. Repeat step 2 for the `transferIn` service.
 
-5. Since pack-0.3.0,  you can access the [OmegaContext](https://github.com/apache/servicecomb-packblob/master/omega/omega-context/src/main/java/org/apache/servicecomb/pack/omega/context/OmegaContext.java) for the gloableTxId and localTxId in the @Compensable annotated method or the cancel method.
+5. Since pack-0.3.0,  you can access the [OmegaContext](https://github.com/apache/servicecomb-pack/blob/master/omega/omega-context/src/main/java/org/apache/servicecomb/pack/omega/context/OmegaContext.java) for the gloableTxId and localTxId in the @Compensable annotated method or the cancel method.
 
 ### TCC support
 Add TCC annotations and corresponding confirm and cancel methods
