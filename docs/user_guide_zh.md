@@ -109,7 +109,7 @@ Saga可通过以下任一方式进行构建：
 
 4. 对转入服务重复第二步即可。
 
-5. 从pack-0.3.0开始, 你可以在服务函数或者取消函数中通过访问 [OmegaContext](https://github.com/apache/servicecomb-pack/blob/master/omega/omega-context/src/main/java/org/apache/servicecomb/saga/omega/context/OmegaContext.java) 来获取 gloableTxId 以及 localTxId 信息。
+5. 从pack-0.3.0开始, 你可以在服务函数或者取消函数中通过访问 [OmegaContext](https://github.com/apache/servicecomb-pack/blob/master/omega/omega-context/src/main/java/org/apache/servicecomb/pack/omega/context/OmegaContext.java) 来获取 gloableTxId 以及 localTxId 信息。
 
 ### TCC 支持
 在对应的方法中添加TccStart 和 Participate标注 
