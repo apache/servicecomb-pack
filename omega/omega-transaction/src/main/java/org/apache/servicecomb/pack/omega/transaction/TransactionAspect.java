@@ -39,6 +39,7 @@ public class TransactionAspect {
 
   public TransactionAspect(SagaMessageSender sender, OmegaContext context) {
     this.context = context;
+    this.context.verify();
     this.interceptor = new CompensableInterceptor(context, sender);
   }
 

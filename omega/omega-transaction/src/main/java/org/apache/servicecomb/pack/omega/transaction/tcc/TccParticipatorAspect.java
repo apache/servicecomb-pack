@@ -44,6 +44,7 @@ public class TccParticipatorAspect {
   public TccParticipatorAspect(TccMessageSender tccMessageSender, OmegaContext context,
       ParametersContext parametersContext) {
     this.context = context;
+    this.context.verify();
     this.tccMessageSender = tccMessageSender;
     this.parametersContext = parametersContext;
   }

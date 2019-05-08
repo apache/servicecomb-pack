@@ -72,4 +72,10 @@ public class OmegaContext {
         ", localTxId=" + localTxId.get() +
         '}';
   }
+
+  public void verify(){
+    if(this.globalTxId == null){
+      throw new RuntimeException("OmegaContext globalTxId is empty");
+    }
+  }
 }
