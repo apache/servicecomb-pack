@@ -75,7 +75,7 @@ public class OmegaContext {
 
   public void verify(){
     if(this.globalTxId == null){
-      throw new RuntimeException("OmegaContext globalTxId is empty");
+      throw new RuntimeException("OmegaContext globalTxId is empty, Please check if you setup the pack transport handler rightly");
     }
   }
 }
