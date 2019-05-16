@@ -246,7 +246,7 @@
         <groupId>org.apache.zookeeper</groupId>
         <artifactId>zookeeper</artifactId>
         <version>${zookeeper.version}</version>
-    i </dependency>
+      </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-transport-feign</artifactId>
