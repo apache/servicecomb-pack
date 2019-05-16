@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.cloud.zookeeper.ZookeeperAutoConfiguration;
+import org.springframework.cloud.zookeeper.discovery.ZookeeperDiscoveryAutoConfiguration;
 import org.springframework.cloud.zookeeper.discovery.ZookeeperDiscoveryProperties;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +38,7 @@ import java.lang.invoke.MethodHandles;
  * */
 
 @Component
-@ConditionalOnClass({ZookeeperAutoConfiguration.class})
+@ConditionalOnClass({ZookeeperDiscoveryAutoConfiguration.class})
 @ConditionalOnProperty(value = {"zookeeper.client.enabled"}, matchIfMissing = false)
 public class GrpcStartableStartedEventListener {
 
