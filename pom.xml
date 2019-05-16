@@ -323,6 +323,11 @@
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
+        <artifactId>alpha-spring-cloud-starter-zookeeper</artifactId>
+        <version>0.5.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>pack-contract-grpc</artifactId>
         <version>0.5.0-SNAPSHOT</version>
       </dependency>
