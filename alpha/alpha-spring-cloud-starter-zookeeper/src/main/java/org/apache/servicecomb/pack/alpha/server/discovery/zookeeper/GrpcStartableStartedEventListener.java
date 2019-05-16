@@ -26,8 +26,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.cloud.zookeeper.discovery.ZookeeperDiscoveryAutoConfiguration;
 import org.springframework.cloud.zookeeper.discovery.ZookeeperDiscoveryProperties;
+import org.springframework.cloud.zookeeper.serviceregistry.ZookeeperAutoServiceRegistrationAutoConfiguration;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -38,7 +38,7 @@ import java.lang.invoke.MethodHandles;
  * */
 
 @Component
-@ConditionalOnClass({ZookeeperDiscoveryAutoConfiguration.class})
+@ConditionalOnClass({ZookeeperAutoServiceRegistrationAutoConfiguration.class})
 @ConditionalOnProperty(value = {"zookeeper.client.enabled"}, matchIfMissing = false)
 public class GrpcStartableStartedEventListener {
 
@@ -55,6 +55,7 @@ public class GrpcStartableStartedEventListener {
 
   @PostConstruct
   public void init(){
+      LOG.info("GrpcStartableStartedEventListener init");
     eventBus.register(this);
   }
 
@@ -63,6 +64,7 @@ public class GrpcStartableStartedEventListener {
    * */
   @Subscribe
   public void listenGrpcStartableStartedEvent(GrpcStartableStartedEvent grpcStartableStartedEvent) {
+    LOG.info("event = {}, metadata = {}", grpcStartableStartedEvent, zookeeperDiscoveryProperties.getMetadata());
     if(zookeeperDiscoveryProperties!=null && this.zookeeperDiscoveryProperties.getMetadata().containsKey(ALPHA_SERVER_GRPC_ADDRESS_KEY)){
       String grpcAddressValue = this.zookeeperDiscoveryProperties.getMetadata().get(ALPHA_SERVER_GRPC_ADDRESS_KEY);
       if(grpcAddressValue!=null && grpcAddressValue.endsWith(":0")){
