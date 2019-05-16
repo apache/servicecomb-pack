@@ -35,6 +35,7 @@
     <module>alpha-spring-boot-compatibility</module>
     <module>alpha-spring-cloud-starter-eureka</module>
     <module>alpha-spring-cloud-starter-consul</module>
+    <module>alpha-spring-cloud-starter-zookeeper</module>
     <module>alpha-server</module>
   </modules>
 
