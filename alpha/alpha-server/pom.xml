@@ -60,6 +60,11 @@
         <artifactId>alpha-spring-cloud-starter-consul</artifactId>
         <version>${spring.cloud.starter.consul.discovery.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+        <version>${spring.cloud.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
