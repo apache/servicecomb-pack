@@ -74,6 +74,7 @@
     <maven-dependency-plugin.version>3.0.2</maven-dependency-plugin.version>
     <netty.boringssl.version>2.0.7.Final</netty.boringssl.version>
     <netty.version>4.1.24.Final</netty.version>
+    <zookeeper.version>3.4.13</zookeeper.version>
   </properties>
 
   <name>ServiceComb Saga</name>
@@ -241,6 +242,11 @@
         <artifactId>jboss-logging</artifactId>
         <version>3.3.2.Final</version>
       </dependency>
+      <dependency>
+        <groupId>org.apache.zookeeper</groupId>
+        <artifactId>zookeeper</artifactId>
+        <version>${zookeeper.version}</version>
+    i </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-transport-feign</artifactId>
