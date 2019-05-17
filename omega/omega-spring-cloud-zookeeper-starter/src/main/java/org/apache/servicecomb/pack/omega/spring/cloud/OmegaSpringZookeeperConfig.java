@@ -33,7 +33,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.zookeeper.discovery.ZookeeperDiscoveryClientConfiguration;
+import org.springframework.cloud.zookeeper.discovery.ZookeeperDiscoveryAutoConfiguration;
 import org.springframework.cloud.zookeeper.discovery.ZookeeperDiscoveryProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,7 +42,7 @@ import java.util.List;
 
 @Configuration
 @ConditionalOnProperty(value = {"alpha.cluster.register.type"}, havingValue = "zookeeper")
-@AutoConfigureAfter(value = {ZookeeperDiscoveryClientConfiguration.class})
+@AutoConfigureAfter(value = {ZookeeperDiscoveryAutoConfiguration.class})
 class OmegaSpringZookeeperConfig {
 
     private static final Logger LOG = LoggerFactory.getLogger(OmegaSpringZookeeperConfig.class);
