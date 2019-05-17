@@ -64,9 +64,9 @@ public class GrpcStartableStartedEventListener {
    * */
   @Subscribe
   public void listenGrpcStartableStartedEvent(GrpcStartableStartedEvent grpcStartableStartedEvent) {
-    LOG.info("event = {}, metadata = {}", grpcStartableStartedEvent, zookeeperDiscoveryProperties.getMetadata());
+    LOG.info("event port = {}", grpcStartableStartedEvent.getPort());
     if(null != zookeeperDiscoveryProperties){
-        String grpcAddressValue = zookeeperDiscoveryProperties.getInstanceHost()+":" + grpcStartableStartedEvent.getPort();
+        String grpcAddressValue = zookeeperDiscoveryProperties.getInstanceHost() +":" + grpcStartableStartedEvent.getPort();
         this.zookeeperDiscoveryProperties.getMetadata().put(ALPHA_SERVER_GRPC_ADDRESS_KEY,grpcAddressValue);
         LOG.info("Register grpc address {} to Zookeeper instance metadata",grpcAddressValue);
     }
