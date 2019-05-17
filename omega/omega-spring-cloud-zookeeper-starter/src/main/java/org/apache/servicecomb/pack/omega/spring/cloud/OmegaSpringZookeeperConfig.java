@@ -16,10 +16,10 @@
  */
 
 /**
- * Get the access address of Alpah Server from Eureka Server
- * Turn this feautre on by set alpha.cluster.register.type=spring-cloud-eureka
- * First omega gets the Alpha address from Eureka with ${alpha.cluster.serviceId}
- * If omega can't get it in Eureka then use ${alpha.cluster.address}
+ * Get the access address of Alpah Server from Zookeeper Server
+ * Turn this feautre on by set alpha.cluster.register.type=zookeeper
+ * First omega gets the Alpha address from Zookeeper with ${alpha.cluster.serviceId}
+ * If omega can't get it in Zookeeper then use ${alpha.cluster.address}
  */
 
 package org.apache.servicecomb.pack.omega.spring.cloud;
