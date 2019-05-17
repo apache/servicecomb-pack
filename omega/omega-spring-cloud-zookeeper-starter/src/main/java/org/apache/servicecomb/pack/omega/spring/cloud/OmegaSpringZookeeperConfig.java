@@ -34,7 +34,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.zookeeper.discovery.ZookeeperDiscoveryAutoConfiguration;
-import org.springframework.cloud.zookeeper.discovery.ZookeeperDiscoveryProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import java.util.ArrayList;
@@ -50,9 +49,6 @@ class OmegaSpringZookeeperConfig {
 
     @Autowired
     public DiscoveryClient discoveryClient;
-
-    @Autowired
-    public ZookeeperDiscoveryProperties zookeeperDiscoveryProperties;
 
     @Bean
     AlphaClusterDiscovery alphaClusterAddress(
