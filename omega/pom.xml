@@ -39,6 +39,7 @@
     <module>omega-spring-starter</module>
     <module>omega-spring-cloud-eureka-starter</module>
     <module>omega-spring-cloud-consul-starter</module>
+    <module>omega-spring-cloud-zookeeper-starter</module>
     <module>omega-format</module>
   </modules>
 
