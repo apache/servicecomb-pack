@@ -18,6 +18,7 @@
 package org.apache.servicecomb.pack.alpha.server.mvcconfig;
 
 import java.util.List;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -38,6 +39,7 @@ import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
+@ConditionalOnProperty(value = {"alpha.rest.cors.enabled"})
 public class WebConfiguration implements WebMvcConfigurer {
 
   /**
