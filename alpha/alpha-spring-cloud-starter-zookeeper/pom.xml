@@ -53,7 +53,7 @@
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
-        <version>${spring.cloud.version}</version>
+        <version>${spring.cloud.starter.zookeeper.discovery.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
