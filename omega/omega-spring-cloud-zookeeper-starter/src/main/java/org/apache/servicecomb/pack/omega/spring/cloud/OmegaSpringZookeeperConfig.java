@@ -94,7 +94,7 @@ class OmegaSpringZookeeperConfig {
                         "Please check Alpha is configured spring.profiles.active=spring-cloud");
             }
         } else {
-            LOG.warn("No Alpha Server {} found in the Eureka", serviceId);
+            LOG.warn("No Alpha Server {} found in the Zookeeper", serviceId);
         }
         return alphaAddresses.toArray(new String[alphaAddresses.size()]);
     }
