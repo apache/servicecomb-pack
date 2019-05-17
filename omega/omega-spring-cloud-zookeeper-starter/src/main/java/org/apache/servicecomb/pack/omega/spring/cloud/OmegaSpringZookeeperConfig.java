@@ -54,7 +54,7 @@ class OmegaSpringZookeeperConfig {
     AlphaClusterDiscovery alphaClusterAddress(
             @Value("${alpha.cluster.serviceId:servicecomb-alpha-server}") String serviceId,
             @Value("${alpha.cluster.address:0.0.0.0:8080}") String[] addresses) {
-        StringBuffer eurekaServiceUrls = new StringBuffer();
+        StringBuffer serviceUrls = new StringBuffer();
 
         String[] alphaAddresses = this.getAlphaAddress(serviceId);
 
@@ -63,7 +63,7 @@ class OmegaSpringZookeeperConfig {
         if (alphaAddresses.length > 0) {
             AlphaClusterDiscovery alphaClusterDiscovery = AlphaClusterDiscovery.builder()
                     .discoveryType(AlphaClusterDiscovery.DiscoveryType.ZOOKEEPER)
-                    .discoveryInfo(eurekaServiceUrls.toString())
+                    .discoveryInfo(serviceUrls.toString())
                     .addresses(alphaAddresses)
                     .build();
             return alphaClusterDiscovery;
