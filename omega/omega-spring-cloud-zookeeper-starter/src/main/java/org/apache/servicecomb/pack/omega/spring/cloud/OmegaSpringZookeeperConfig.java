@@ -38,6 +38,7 @@ import org.springframework.cloud.zookeeper.discovery.ZookeeperDiscoveryPropertie
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -60,6 +61,8 @@ class OmegaSpringZookeeperConfig {
         StringBuffer eurekaServiceUrls = new StringBuffer();
 
         String[] alphaAddresses = this.getAlphaAddress(serviceId);
+
+        LOG.info("alphaAddress = {}", Arrays.toString(alphaAddresses));
 
         if (alphaAddresses.length > 0) {
             AlphaClusterDiscovery alphaClusterDiscovery = AlphaClusterDiscovery.builder()
