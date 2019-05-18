@@ -93,7 +93,7 @@
             <groupId>io.fabric8</groupId>
             <artifactId>docker-maven-plugin</artifactId>
             <configuration>
-              <showLogs>false</showLogs>
+              <showLogs>true</showLogs>
               <images>
                 <image>
                   <name>zookeeper</name>
@@ -145,9 +145,9 @@
                         -Dspring.profiles.active=prd,test
                       </JAVA_OPTS>
                       <spring.cloud.zookeeper.enabled>true</spring.cloud.zookeeper.enabled>
-                      <spring.cloud.zookeeper.host>zookeeper.servicecomb.io</spring.cloud.zookeeper.host>
-                      <spring.cloud.zookeeper.port>2181</spring.cloud.zookeeper.port>
+                      <spring.cloud.zookeeper.connectString>zookeeper.servicecomb.io:2181</spring.cloud.zookeeper.connectString>
                       <spring.cloud.zookeeper.discovery.preferIpAddress>true</spring.cloud.zookeeper.discovery.preferIpAddress>
+                      <zookeeper.client.enabled>true</zookeeper.client.enabled>
                     </env>
                     <links>
                       <link>postgres:postgresql.servicecomb.io</link>
@@ -184,8 +184,8 @@
                       <spring.cloud.zookeeper.enabled>true</spring.cloud.zookeeper.enabled>
                       <alpha.cluster.address></alpha.cluster.address>
                       <alpha.cluster.register.type>zookeeper</alpha.cluster.register.type>
-                      <spring.cloud.zookeeper.host>zookeeper.servicecomb.io</spring.cloud.zookeeper.host>
-                      <spring.cloud.zookeeper.port>8500</spring.cloud.zookeeper.port>
+                      <spring.cloud.zookeeper.connectString>zookeeper.servicecomb.io:2181</spring.cloud.zookeeper.connectString>
+                      <spring.cloud.zookeeper.discovery.preferIpAddress>true</spring.cloud.zookeeper.discovery.preferIpAddress>
                       <spring.cloud.zookeeper.discovery.register>false</spring.cloud.zookeeper.discovery.register>
                     </env>
                     <wait>
@@ -223,8 +223,7 @@
                       <spring.cloud.zookeeper.enabled>true</spring.cloud.zookeeper.enabled>
                       <alpha.cluster.address></alpha.cluster.address>
                       <alpha.cluster.register.type>zookeeper</alpha.cluster.register.type>
-                      <spring.cloud.zookeeper.host>zookeeper.servicecomb.io</spring.cloud.zookeeper.host>
-                      <spring.cloud.zookeeper.port>2181</spring.cloud.zookeeper.port>
+                      <spring.cloud.zookeeper.connectString>zookeeper.servicecomb.io:2181</spring.cloud.zookeeper.connectString>
                       <spring.cloud.zookeeper.discovery.register>false</spring.cloud.zookeeper.discovery.register>
                     </env>
                     <wait>
@@ -262,8 +261,7 @@
                       <spring.cloud.zookeeper.enabled>true</spring.cloud.zookeeper.enabled>
                       <alpha.cluster.address></alpha.cluster.address>
                       <alpha.cluster.register.type>zookeeper</alpha.cluster.register.type>
-                      <spring.cloud.zookeeper.host>zookeeper.servicecomb.io</spring.cloud.zookeeper.host>
-                      <spring.cloud.zookeeper.port>2181</spring.cloud.zookeeper.port>
+                      <spring.cloud.zookeeper.connectString>zookeeper.servicecomb.io:2181</spring.cloud.zookeeper.connectString>
                       <spring.cloud.zookeeper.discovery.register>false</spring.cloud.zookeeper.discovery.register>
                     </env>
                     <wait>
