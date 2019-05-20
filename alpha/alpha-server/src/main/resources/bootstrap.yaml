@@ -24,3 +24,5 @@ spring:
   cloud:
     consul: # consul enabled configuration must be in this file
       enabled: false
+    zookeeper:
+      enabled: false
