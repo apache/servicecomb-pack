@@ -182,7 +182,6 @@
                         -javaagent:/maven/saga/byteman.jar=port:9091,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
                       <spring.cloud.zookeeper.enabled>true</spring.cloud.zookeeper.enabled>
-                      <alpha.cluster.address></alpha.cluster.address>
                       <alpha.cluster.register.type>zookeeper</alpha.cluster.register.type>
                       <spring.cloud.zookeeper.connectString>zookeeper.servicecomb.io:2181</spring.cloud.zookeeper.connectString>
                       <spring.cloud.zookeeper.discovery.preferIpAddress>true</spring.cloud.zookeeper.discovery.preferIpAddress>
@@ -221,7 +220,6 @@
                         -javaagent:/maven/saga/byteman.jar=port:9091,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
                       <spring.cloud.zookeeper.enabled>true</spring.cloud.zookeeper.enabled>
-                      <alpha.cluster.address></alpha.cluster.address>
                       <alpha.cluster.register.type>zookeeper</alpha.cluster.register.type>
                       <spring.cloud.zookeeper.connectString>zookeeper.servicecomb.io:2181</spring.cloud.zookeeper.connectString>
                       <spring.cloud.zookeeper.discovery.register>false</spring.cloud.zookeeper.discovery.register>
@@ -259,7 +257,6 @@
                         -javaagent:/maven/saga/byteman.jar=port:9091,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
                       <spring.cloud.zookeeper.enabled>true</spring.cloud.zookeeper.enabled>
-                      <alpha.cluster.address></alpha.cluster.address>
                       <alpha.cluster.register.type>zookeeper</alpha.cluster.register.type>
                       <spring.cloud.zookeeper.connectString>zookeeper.servicecomb.io:2181</spring.cloud.zookeeper.connectString>
                       <spring.cloud.zookeeper.discovery.register>false</spring.cloud.zookeeper.discovery.register>
