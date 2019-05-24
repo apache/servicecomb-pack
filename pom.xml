@@ -60,7 +60,8 @@
     <spring.cloud.starter.consul.discovery2.version>2.1.1.RELEASE</spring.cloud.starter.consul.discovery2.version>
     <spring.cloud.starter.consul.discovery.version>${spring.cloud.starter.consul.discovery2.version}</spring.cloud.starter.consul.discovery.version>
     <spring.cloud.starter.zookeeper.discovery1.version>1.2.2.RELEASE</spring.cloud.starter.zookeeper.discovery1.version>
-    <spring.cloud.starter.zookeeper.discovery.version>${spring.cloud.version}</spring.cloud.starter.zookeeper.discovery.version>
+    <spring.cloud.starter.zookeeper.discovery2.version>${spring.cloud.version}</spring.cloud.starter.zookeeper.discovery2.version>
+    <spring.cloud.starter.zookeeper.discovery.version>${spring.cloud.starter.zookeeper.discovery2.version}</spring.cloud.starter.zookeeper.discovery.version>
     <java.chassis.version>1.0.0</java.chassis.version>
     <akka.version>2.5.14</akka.version>
     <rat.version>0.12</rat.version>
@@ -358,6 +359,11 @@
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-consul-discovery</artifactId>
         <version>${spring.cloud.starter.consul.discovery.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+        <version>${spring.cloud.starter.zookeeper.discovery.version}</version>
       </dependency>
       <!-- TODO rename this artifact -->
       <dependency>
@@ -868,7 +874,7 @@
         <spring.boot.version>${spring.boot2.version}</spring.boot.version>
         <spring.cloud.version>${spring.cloud2.version}</spring.cloud.version>
         <spring.cloud.starter.consul.discovery.version>${spring.cloud.starter.consul.discovery2.version}</spring.cloud.starter.consul.discovery.version>
-        <spring.cloud.starter.zookeeper.discovery.version>${spring.cloud2.version}</spring.cloud.starter.zookeeper.discovery.version>
+        <spring.cloud.starter.zookeeper.discovery.version>${spring.cloud.starter.zookeeper.discovery2.version}</spring.cloud.starter.zookeeper.discovery.version>
       </properties>
     </profile>
     <profile>
