@@ -20,36 +20,38 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <artifactId>pack</artifactId>
+    <artifactId>omega</artifactId>
     <groupId>org.apache.servicecomb.pack</groupId>
     <version>0.5.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>alpha</artifactId>
-  <name>Pack::Alpha</name>
+  <artifactId>omega-spring-cloud-zookeeper-starter</artifactId>
+  <name>Pack::Omega::Spring Cloud Zookeeper Starter</name>
 
-  <packaging>pom</packaging>
-  <modules>
-    <module>alpha-core</module>
-    <module>alpha-spring-boot-compatibility</module>
-    <module>alpha-spring-cloud-starter-eureka</module>
-    <module>alpha-spring-cloud-starter-consul</module>
-    <module>alpha-spring-cloud-starter-zookeeper</module>
-    <module>alpha-server</module>
-  </modules>
-
-  <build>
-    <plugins>
-      <!-- TODO need to clean up the states of AlphaServer -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <reuseForks>false</reuseForks>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.servicecomb.pack</groupId>
+      <artifactId>omega-spring-tx</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicecomb.pack</groupId>
+      <artifactId>omega-format</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicecomb.pack</groupId>
+      <artifactId>omega-connector-grpc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+      <version>${spring.cloud.starter.zookeeper.discovery.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.zookeeper</groupId>
+      <artifactId>zookeeper</artifactId>
+      <version>${zookeeper.version}</version>
+    </dependency>
+  </dependencies>
 
 </project>

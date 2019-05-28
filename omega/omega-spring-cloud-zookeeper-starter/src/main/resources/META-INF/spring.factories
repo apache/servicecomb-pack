@@ -14,14 +14,4 @@
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
 ## ---------------------------------------------------------------------------
-spring:
-  application:
-    name: car
-  cloud:
-    consul:
-      enabled: false
-    zookeeper:
-      enabled: false
-alpha:
-  cluster:
-    address: alpha-server.servicecomb.io:8080
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=org.apache.servicecomb.pack.omega.spring.cloud.OmegaSpringZookeeperAutoConfiguration

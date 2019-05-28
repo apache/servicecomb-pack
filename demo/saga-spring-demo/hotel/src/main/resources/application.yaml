@@ -20,6 +20,8 @@ spring:
   cloud:
     consul:
       enabled: false
+    zookeeper:
+      enabled: false
 alpha:
   cluster:
     address: alpha-server.servicecomb.io:8080

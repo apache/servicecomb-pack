@@ -50,7 +50,7 @@ public class AlphaClusterDiscovery {
     }
 
     public enum DiscoveryType{
-        DEFAULT,EUREKA,CONSUL
+        DEFAULT,EUREKA,CONSUL,ZOOKEEPER
     }
 
     public static final Builder builder(){
