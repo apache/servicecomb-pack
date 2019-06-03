@@ -34,7 +34,7 @@ Now we have different lanaguage implementation of Omega
 
 ## Build and Run the tests from source
 Current ServiceComb Pack code supports Spring Boot 1.x and Spring Boot 2.x at the same time, you can use *-Pspring-boot-1*, *-Pspring-boot-1* to switch Spring Boot version.
-Since Spring Boot supports JDK9+ from 2.x, if you want to build and run tests of ServiceComb Pack with JDK9 or JDK10, please use the spring-boot-2 profile. Please run the flowing comment from the root directory of ServiceComb Pack.
+Since Spring Boot supports JDK9+ from 2.x, if you want to build and run tests of ServiceComb Pack with JDK9 or JDK10, please use the spring-boot-2 profile. Please run the flowing comment from the root directory of ServiceComb Pack. 
 
 * Build the source code and run the tests
    ```bash
@@ -48,11 +48,11 @@ Since Spring Boot supports JDK9+ from 2.x, if you want to build and run tests of
    ```bash
       $ mvn clean install -DskipTests=true -Pdemo,spring-boot-2
    ```
-* Build the release kit for distribution without running the tests, then you can find the release kits in the distribution/target directory.
+* Build the release kit for distribution without running the tests, then you can find the release kits in the distribution/target directory. 
   ```bash
      $ mvn clean install -DskipTests=true -Prelease
   ```  
-
+         
 ## User Guide
 How to build and use can refer to [User Guide](docs/user_guide.md).
 
@@ -105,12 +105,3 @@ See [Pull Request Guide](http://servicecomb.apache.org/developers/submit-codes/)
 
 ## License
 Licensed under an [Apache 2.0 license](https://github.com/apache/servicecomb-pack/blob/master/LICENSE).
-
-## Export Notice
-
-This distribution includes cryptographic software. The country in which you currently reside may have restrictions on the import, possession, use, and/or re-export to another country, of encryption software. BEFORE using any encryption software, please check your country's laws, regulations and policies concerning the import, possession, or use, and re-export of encryption software, to see if this is permitted. See http://www.wassenaar.org/ for more information.
-
-The U.S. Government Department of Commerce, Bureau of Industry and Security (BIS), has classified this software as Export Commodity Control Number (ECCN) 5D002.C.1, which includes information security software using or performing cryptographic functions with asymmetric algorithms. The form and manner of this Apache Software Foundation distribution makes it eligible for export under the License Exception ENC Technology Software Unrestricted (TSU) exception (see the BIS Export Administration Regulations, Section 740.13) for both object code and source code.
-
-The following provides more details on the included cryptographic software:
-  * Omega/Alpha Transport can be configured use https 
