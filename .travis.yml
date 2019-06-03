@@ -32,4 +32,4 @@ env:
   - SPRING_BOOT_PROFILE=spring-boot-2
 script: ./scripts/test.sh
 after_success:
-- if [ "$TRAVIS_EVENT_TYPE" == "cron" ] && [ "$SPRING_BOOT_PROFILE" == "spring-boot-1" ]; then bash -x scripts/deploy.sh ; fi
+- if [ "$TRAVIS_EVENT_TYPE" == "cron" ] && [ "$SPRING_BOOT_PROFILE" == "spring-boot-2" ]; then bash -x scripts/deploy.sh ; fi
