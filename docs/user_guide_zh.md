@@ -428,6 +428,132 @@ Saga可通过以下任一方式进行构建：
 
    **注意:** 如果你在启动Alpha的时候通过命令行参数`spring.application.name`自定义了服务名，那么你需要在Omega中通过参数`alpha.cluster.serviceId`指定这个服务名
 
+### Spring Cloud Zookeeper 支持
+
+当前版本支持 Spring Cloud Zookeeper 2.x，你可以使用 `-Pspring-boot-1` 参数重新编译支持 Spring Cloud Zookeeper 1.x 版本
+
+1. 运行alpha
+
+   运行时增加 `spring.cloud.zookeeper.enabled=true` 参数
+
+   ```bash
+   java -jar alpha-server-${saga_version}-exec.jar \ 
+     --spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false \
+     --spring.datasource.username=saga \
+     --spring.datasource.password=saga \
+     --spring.cloud.zookeeper.enabled=true \
+     --spring.cloud.zookeeper.connectString=${zookeeper_host}:${zookeeper_port} \
+     --spring.profiles.active=prd 
+   ```
+
+   **注意:** `${zookeeper_host}` 是 zookeeper 地址, `${zookeeper_port}` 是 zookeeper 端口
+
+   **注意:** 更多 Zookeeper 参数请参考 [Spring Cloud Zookeeper 2.x](https://cloud.spring.io/spring-cloud-zookeeper/spring-cloud-zookeeper.html) [Spring Cloud Zookeeper 1.x](https://cloud.spring.io/spring-cloud-static/spring-cloud-zookeeper/1.2.2.RELEASE/single/spring-cloud-zookeeper.html)
+
+2. 验证是否注册成功
+
+   访问Zookeeper的实例, 在znode /services/servicecomb-alapha-server 下，查看服务注册znode, 在注册的znode中，存在类似以下值
+
+    ```json
+    {
+        "name": "servicecomb-alpha-server",
+        "id": "9b2223ae-50e6-49a6-9f3b-87a1ff06a016",
+        "address": "arch-office",
+        "port": 8090,
+        "sslPort": null,
+        "payload": {
+            "@class": "org.springframework.cloud.zookeeper.discovery.ZookeeperInstance",
+            "id": "servicecomb-alpha-server-1",
+            "name": "servicecomb-alpha-server",
+            "metadata": {
+            "servicecomb-alpha-server": "arch-office:8080"
+            }
+        },
+        "registrationTimeUTC": 1558000134185,
+        "serviceType": "DYNAMIC",
+        "uriSpec": {
+            "parts": [
+            {
+                "value": "scheme",
+                "variable": true
+            },
+            {
+                "value": "://",
+                "variable": false
+            },
+            {
+                "value": "address",
+                "variable": true
+            },
+            {
+                "value": ":",
+                "variable": false
+            },
+            {
+                "value": "port",
+                "variable": true
+            }
+            ]
+        }
+    }
+    ```
+   **注意:** 默认情况下注册的服务名是`servicecomb-alpha-server`,如果你需要自定义服务名可以在运行Alpha的时候通过命令行参数`spring.application.name`配置
+
+3. 配置omega
+
+   在项目中引入依赖包 `omega-spring-cloud-zookeeper-starter`
+
+   ```xml
+   <dependency>
+   	<groupId>org.apache.servicecomb.pack</groupId>
+   	<artifactId>omega-spring-cloud-zookeeper-starter</artifactId>
+   	<version>${pack.version}</version>
+   </dependency>
+   ```
+
+   在 `application.yaml` 添加下面的配置项：
+
+   ```yaml
+   spring:
+     cloud:
+       zookeeper:
+         enabled: true
+         connectString: 127.0.0.1:2181
+         
+   alpha:
+     cluster:
+       register:
+         type: zookeeper
+   ```
+
+   - `spring.cloud.zookeeper.connectString` 配置 Zookeeper 注册中心的地址，更多zookeeper客户端配置可以参考[Spring Cloud Zookeeper 2.x](https://cloud.spring.io/spring-cloud-zookeeper/spring-cloud-zookeeper.html) [Spring Cloud Zookeeper 1.x](https://cloud.spring.io/spring-cloud-static/spring-cloud-zookeeper/1.2.2.RELEASE/single/spring-cloud-zookeeper.html)
+
+
+   - `alpha.cluster.register.type=zookeeper` 配置Omega获取Alpha的方式是通过 Zookeeper 的注册中心
+
+   - spring boot 版本兼容
+
+     如果你的项目使用的不是spring boot 2.1.1版本，那么请参照此列表增加兼容的spring-cloud-starter-zookeeper-discovery版本
+
+     | spring boot    | spring-cloud-starter-zookeeper-discovery |
+     | -------------  | -------------------------------------    |
+     | 2.1.x.RELEASE  | 2.1.1.RELEASE                            |
+     | 1.5.17.RELEASE | 1.2.2.RELEASE                            |
+
+     ```xml
+       <dependencyManagement>
+         <dependencies>
+           <dependency>
+             <groupId>org.springframework.cloud</groupId>
+             <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+             <version>2.1.1.RELEASE</version>
+           </dependency>
+         </dependencies>
+       </dependencyManagement>
+     ```
+
+   **注意:** 如果你在启动Alpha的时候通过命令行参数`spring.application.name`自定义了服务名，那么你需要在Omega中通过参数`alpha.cluster.serviceId`指定这个服务名
+
 ## 集群
 
 Alpha 可以通过部署多实例的方式保证高可用，使用 `alpha.cluster.master.enabled=true` 参数开启集群支持

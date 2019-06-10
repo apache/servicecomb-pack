@@ -429,6 +429,137 @@ Uses Spring Cloud Netflix 2.x by default, if you want to use Spring Cloud Netfli
 
    **Note:** If you define `spring.application.name ` parameter when start alpha,  You need to specify this service name in Omega via the parameter `alpha.cluster.serviceId`
 
+### Spring Cloud Zookeeper
+
+Uses Spring Cloud Zookeeper 2.x by default, if you want to use Spring Cloud Zookeeper 1.x, you can use `-Pspring-boot-1` to switch Spring Cloud Zookeeper 1.x
+
+1. run alpha
+
+   run with parameter `spring.cloud.zookeeper.enabled=true`
+
+   ```bash
+   java -jar alpha-server-${saga_version}-exec.jar \ 
+     --spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false \
+     --spring.datasource.username=saga \
+     --spring.datasource.password=saga \
+     --spring.cloud.zookeeper.enabled=true \
+     --spring.cloud.zookeeper.connectString=${zookeeper_host}:${zookeeper_port} \
+     --spring.profiles.active=prd 
+   ```
+
+   **Note:** `${zookeeper_host}` is zookeeper host, `${zookeeper_port}` is zookeeper port
+
+   **Note:** Check out  for more details  [Spring Cloud Zookeeper 2.x](https://cloud.spring.io/spring-cloud-zookeeper/spring-cloud-zookeeper.html) [Spring Cloud Zookeeper 1.x](https://cloud.spring.io/spring-cloud-static/spring-cloud-zookeeper/1.2.2.RELEASE/single/spring-cloud-zookeeper.html)
+
+
+2. verify registration information
+
+   view znode /services/servicecomb-alapha-server 
+
+   ```json
+    {
+        "name": "servicecomb-alpha-server",
+        "id": "9b2223ae-50e6-49a6-9f3b-87a1ff06a016",
+        "address": "arch-office",
+        "port": 8090,
+        "sslPort": null,
+        "payload": {
+            "@class": "org.springframework.cloud.zookeeper.discovery.ZookeeperInstance",
+            "id": "servicecomb-alpha-server-1",
+            "name": "servicecomb-alpha-server",
+            "metadata": {
+            "servicecomb-alpha-server": "arch-office:8080"
+            }
+        },
+        "registrationTimeUTC": 1558000134185,
+        "serviceType": "DYNAMIC",
+        "uriSpec": {
+            "parts": [
+            {
+                "value": "scheme",
+                "variable": true
+            },
+            {
+                "value": "://",
+                "variable": false
+            },
+            {
+                "value": "address",
+                "variable": true
+            },
+            {
+                "value": ":",
+                "variable": false
+            },
+            {
+                "value": "port",
+                "variable": true
+            }
+            ]
+        }
+    }
+    ```
+
+   **Note:**  `metadata` property is alpha gRPC address
+
+   **Note:** alpha instance name is `servicecomb-alpha-server` by default. You can set it by starting parameter  `spring.application.name` 
+
+3. setup omega
+
+   edit your `pom.xml` and add the `omega-spring-cloud-zookeeper-starter` dependency
+
+   ```xml
+   <dependency>
+    <groupId>org.apache.servicecomb.pack</groupId>
+    <artifactId>omega-spring-cloud-zookeeper-starter</artifactId>
+    <version>${pack.version}</version>
+   </dependency>
+   ```
+
+   edit your  `application.yaml` , as shown in the following example:
+
+   ```yaml
+   spring:
+     cloud:
+       zookeeper:
+         enabled: true
+         connectString: 127.0.0.1:2181
+         
+   alpha:
+     cluster:
+       register:
+         type: zookeeper
+   ```
+
+   - `spring.cloud.zookeeper.connectString` property is set to the Zookeeper server’s instance address, check out Spring Boot’s  [Spring Cloud Zookeeper 2.x](https://cloud.spring.io/spring-cloud-zookeeper/spring-cloud-zookeeper.html) [Spring Cloud Zookeeper 1.x](https://cloud.spring.io/spring-cloud-static/spring-cloud-zookeeper/1.2.2.RELEASE/single/spring-cloud-zookeeper.html) for more details.
+
+   - `alpha.cluster.register.type=zookeeper`  property is omega gets alpha gRPC address from Zookeeper
+
+   - spring boot version compatible
+
+     If your project is not using spring boot 2.1.1, please refer to this list to add a compatible spring-cloud-starter-zookeeper-discovery version
+
+     | spring boot    | spring-cloud-starter-zookeeper-discovery |
+     | -------------  | ------------------------------------- |
+     | 2.1.x.RELEASE  | 2.1.1.RELEASE                         |
+     | 1.5.17.RELEASE | 1.2.2.RELEASE                         |
+
+     ```xml
+       <dependencyManagement>
+         <dependencies>
+           <dependency>
+             <groupId>org.springframework.cloud</groupId>
+             <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+             <version>2.1.1.RELEASE</version>
+           </dependency>
+         </dependencies>
+       </dependencyManagement>
+     ```
+
+     
+
+   **Note:** If you define `spring.application.name ` parameter when start alpha,  You need to specify this service name in Omega via the parameter `alpha.cluster.serviceId`
+
 ## Cluster
 
 Alpha can be highly available by deploying multiple instances, enable cluster support with the `alpha.cluster.master.enabled=true` parameter.
