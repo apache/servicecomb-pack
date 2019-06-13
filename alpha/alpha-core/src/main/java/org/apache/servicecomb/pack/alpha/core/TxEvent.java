@@ -95,7 +95,7 @@ public class TxEvent {
       String retryMethod,
       int retries,
       byte[] payloads) {
-    this(-1L, serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type, compensationMethod, timeout,
+    this(null, serviceName, instanceId, new Date(), globalTxId, localTxId, parentTxId, type, compensationMethod, timeout,
         retryMethod, retries, payloads);
   }
 
@@ -112,7 +112,7 @@ public class TxEvent {
       String retryMethod,
       int retries,
       byte[] payloads) {
-    this(-1L, serviceName, instanceId, creationTime, globalTxId, localTxId, parentTxId, type, compensationMethod,
+    this(null, serviceName, instanceId, creationTime, globalTxId, localTxId, parentTxId, type, compensationMethod,
         timeout, retryMethod, retries, payloads);
   }
 
