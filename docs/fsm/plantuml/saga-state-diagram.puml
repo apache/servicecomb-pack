@@ -1,0 +1,52 @@
+@startuml
+hide empty description
+
+[*] --> IDEL : SagaStartedEvent
+
+IDEL --> PARTIALLY_ACTIVE : TxStartedEvent<font color=blue>:addTxEntity</font>
+
+IDEL --> SUSPENDED : SagaEndedEvent
+
+IDEL --> SUSPENDED : SagaAbortedEvent
+
+PARTIALLY_COMMITTED --> PARTIALLY_COMMITTED : TxEndedEvent<font color=blue>:UpdateTxEntity</font>
+
+PARTIALLY_COMMITTED --> COMMITTED : SagaEndedEvent
+
+PARTIALLY_COMMITTED --> PARTIALLY_ACTIVE : TxStartedEvent<font color=blue>:AddTxEntity</font>
+
+PARTIALLY_COMMITTED --> FAILED : SagaAbortedEvent<font color=red>:doCompensation</font>
+
+PARTIALLY_COMMITTED --> SUSPENDED : SagaTimeoutEvent
+
+PARTIALLY_ACTIVE --> PARTIALLY_ACTIVE : TxStartedEvent<font color=blue>:addTxEntity</font>
+
+PARTIALLY_ACTIVE --> PARTIALLY_COMMITTED : TxEndedEvent<font color=blue>:UpdateTxEntity</font>
+
+PARTIALLY_ACTIVE --> FAILED : TxAbortedEvent<font color=blue>:UpdateTxEntity</font><font color=red>,doCompensation</font>
+
+PARTIALLY_ACTIVE --> SUSPENDED : SagaTimeoutEvent
+
+SUSPENDED --> SUSPENDED : SagaTimeoutEvent
+
+FAILED --> COMPENSATED : SagaAbortedEvent<font color=red>:doCompensation</font>
+
+FAILED --> SUSPENDED : SagaTimeoutEvent
+
+FAILED --> FAILED : TxComponsitedEvent<font color=blue>:UpdateTxEntity</font>\nTxStartedEvent<font color=blue>:AddTxEntity</font>\nTxEndedEvent<font color=red>:doCompensation</font>
+
+COMPENSATED --> [*]
+
+COMMITTED --> [*]
+
+SUSPENDED --> [*]
+
+IDEL: Map<localTxId,TxEntity> txEntityMap
+PARTIALLY_ACTIVE: Map<localTxId,TxEntity> txEntityMap
+PARTIALLY_COMMITTED: Map<localTxId,TxEntity> txEntityMap
+FAILED: Map<localTxId,TxEntity> txEntityMap
+COMMITTED: Map<localTxId,TxEntity> txEntityMap
+COMPENSATED: Map<localTxId,TxEntity> txEntityMap
+SUSPENDED: Map<localTxId,TxEntity> txEntityMap
+
+@enduml
