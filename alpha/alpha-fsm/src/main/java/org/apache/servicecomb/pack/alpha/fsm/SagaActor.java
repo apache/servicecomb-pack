@@ -95,6 +95,16 @@ public class SagaActor extends
                 return goTo(SagaActorState.PARTIALLY_COMMITTED);
               }
             }
+        ).event(TxStartedEvent.class,
+            (event, data) -> {
+              updateTxEntity(event, data);
+              if (data.getExpirationTime() > 0) {
+                return stay()
+                    .forMax(Duration.create(data.getTimeout(), TimeUnit.MILLISECONDS));
+              } else {
+                return stay();
+              }
+            }
         ).event(SagaTimeoutEvent.class,
             (event, data) -> {
               return goTo(SagaActorState.SUSPENDED)
@@ -121,6 +131,16 @@ public class SagaActor extends
                     .forMax(Duration.create(data.getTimeout(), TimeUnit.MILLISECONDS));
               } else {
                 return goTo(SagaActorState.PARTIALLY_ACTIVE);
+              }
+            }
+        ).event(TxEndedEvent.class,
+            (event, data) -> {
+              updateTxEntity(event, data);
+              if (data.getExpirationTime() > 0) {
+                return stay()
+                    .forMax(Duration.create(data.getTimeout(), TimeUnit.MILLISECONDS));
+              } else {
+                return stay();
               }
             }
         ).event(SagaTimeoutEvent.class,
@@ -196,8 +216,8 @@ public class SagaActor extends
         ).event(TxEndedEvent.class, SagaData.class,
             (event, data) -> {
               updateTxEntity(event, data);
-              // TODO 调用补偿方法
               TxEntity txEntity = data.getTxEntityMap().get(event.getLocalTxId());
+              // TODO call compensate
               compensation(txEntity, data);
               return stay();
             }
@@ -233,8 +253,8 @@ public class SagaActor extends
 
     whenUnhandled(
         matchAnyEvent((event, data) -> {
-          LOG.error("unmatch event {}", event);
-          return stay();
+          LOG.error("Unhandled event {}", event);
+          return goTo(SagaActorState.SUSPENDED).replying(data);
         })
     );
 
@@ -290,26 +310,25 @@ public class SagaActor extends
           if (txEntity.getState() == TxState.ACTIVE) {
             txEntity.setEndTime(System.currentTimeMillis());
             txEntity.setState(TxState.FAILED);
-            // TODO 调用补偿方法
             data.getTxEntityMap().forEach((k, v) -> {
               if (v.getState() == TxState.COMMITTED) {
-                // TODO 调用补偿方法
+                // call compensate
                 compensation(v, data);
               }
             });
           }
         } else if (event instanceof TxComponsitedEvent) {
-          //补偿中计数器减一
+          // decrement the compensation running counter by one
           data.getCompensationRunningCounter().decrementAndGet();
           txEntity.setState(TxState.COMPENSATED);
-          LOG.info("完成补偿 {}",txEntity.getLocalTxId());
+          LOG.info("compensation is completed {}",txEntity.getLocalTxId());
         }
       }
     } else if (event instanceof SagaEvent) {
       if (event instanceof SagaAbortedEvent) {
         data.getTxEntityMap().forEach((k, v) -> {
           if (v.getState() == TxState.COMMITTED) {
-            // TODO 调用补偿方法
+            // call compensate
             compensation(v, data);
           }
         });
@@ -324,8 +343,8 @@ public class SagaActor extends
   }
 
   private void compensation(TxEntity txEntity, SagaData data) {
-    //补偿中计数器加一
+    // increments the compensation running counter by one
     data.getCompensationRunningCounter().incrementAndGet();
-    LOG.info("调用补偿方法 {}", txEntity.getLocalTxId());
+    LOG.info("compensate {}", txEntity.getLocalTxId());
   }
 }
