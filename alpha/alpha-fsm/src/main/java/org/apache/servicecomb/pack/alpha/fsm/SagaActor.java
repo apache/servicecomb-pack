@@ -37,6 +37,7 @@ import org.apache.servicecomb.pack.alpha.fsm.event.base.SagaEvent;
 import org.apache.servicecomb.pack.alpha.fsm.event.base.TxEvent;
 import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
 import org.apache.servicecomb.pack.alpha.fsm.model.TxEntity;
+import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.LogExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
@@ -45,6 +46,7 @@ public class SagaActor extends
     AbstractPersistentFSM<SagaActorState, SagaData, DomainEvent> {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 
   public static Props props(String persistenceId) {
     return Props.create(SagaActor.class, persistenceId);
@@ -218,7 +220,7 @@ public class SagaActor extends
               if ((!data.isTerminated() && data.getCompensationRunningCounter().intValue() > 0)
                   || hasCommittedTx(data)) {
                 return stay();
-              }else{
+              } else {
                 return goTo(SagaActorState.COMPENSATED)
                     .replying(data)
                     .forMax(Duration.create(1, TimeUnit.MILLISECONDS));
@@ -280,6 +282,17 @@ public class SagaActor extends
         })
     );
 
+    onTermination(
+        matchStop(
+            Normal(), (state, data) -> {
+              LOG.info("stop {} {}", data.getGlobalTxId(), state);
+              data.setTerminated(true);
+              data.setLastState(state);
+              LogExtension.LogExtensionProvider.get(getContext().getSystem()).putSagaData(data.getGlobalTxId(),data);
+            }
+        )
+    );
+
   }
 
   @Override
@@ -337,7 +350,7 @@ public class SagaActor extends
           // decrement the compensation running counter by one
           data.getCompensationRunningCounter().decrementAndGet();
           txEntity.setState(TxState.COMPENSATED);
-          LOG.info("compensation is completed {}",txEntity.getLocalTxId());
+          LOG.info("compensation is completed {}", txEntity.getLocalTxId());
         }
       }
     } else if (event instanceof SagaEvent) {
