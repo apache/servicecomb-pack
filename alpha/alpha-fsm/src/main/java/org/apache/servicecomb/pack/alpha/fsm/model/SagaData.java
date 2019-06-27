@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
 
 public class SagaData implements Serializable {
   private long beginTime = System.currentTimeMillis();
@@ -28,6 +29,7 @@ public class SagaData implements Serializable {
   private String globalTxId;
   private long expirationTime;
   private boolean terminated;
+  private SagaActorState lastState;
   private AtomicLong compensationRunningCounter = new AtomicLong();
   private Map<String,TxEntity> txEntityMap = new HashMap<>();
 
@@ -87,6 +89,14 @@ public class SagaData implements Serializable {
   public void setTxEntityMap(
       Map<String, TxEntity> txEntityMap) {
     this.txEntityMap = txEntityMap;
+  }
+
+  public SagaActorState getLastState() {
+    return lastState;
+  }
+
+  public void setLastState(SagaActorState lastState) {
+    this.lastState = lastState;
   }
 
   public long getTimeout(){
