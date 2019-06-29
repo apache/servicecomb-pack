@@ -21,25 +21,30 @@ import akka.actor.ActorSystem;
 import com.google.common.eventbus.EventBus;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import java.util.Map;
 import org.apache.servicecomb.pack.alpha.fsm.event.consumer.SagaEventConsumer;
+import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.AkkaConfigPropertyAdapter;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.eventbus.EventSubscribeBeanPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 @Configuration
 @ConditionalOnProperty(value = {"alpha.model.actor.enabled"})
 public class FsmAutoConfiguration {
 
   @Bean
-  public ActorSystem actorSystem() {
-    ActorSystem system = ActorSystem.create("alpha-akka", akkaConfiguration());
+  public ActorSystem actorSystem(ConfigurableApplicationContext applicationContext, ConfigurableEnvironment environment) {
+    ActorSystem system = ActorSystem.create("alpha-akka", akkaConfiguration(applicationContext,environment));
     return system;
   }
 
   @Bean
-  public Config akkaConfiguration() {
-    return ConfigFactory.load();
+  public Config akkaConfiguration(ConfigurableApplicationContext applicationContext, ConfigurableEnvironment environment) {
+    final Map<String, Object> converted = AkkaConfigPropertyAdapter.getPropertyMap(environment);
+    return ConfigFactory.parseMap(converted).withFallback(ConfigFactory.defaultReference(applicationContext.getClassLoader()));
   }
 
   @Bean(name = "sagaEventBus")

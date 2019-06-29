@@ -15,6 +15,7 @@
 ## limitations under the License.
 ## ---------------------------------------------------------------------------
 
-akka.persistence.journal.plugin = "akka.persistence.journal.inmem"
-akka.persistence.snapshot-store.plugin = "akka.persistence.snapshot-store.local"
-akka.persistence.snapshot-store.local.dir = "target/example/snapshots"
+akkaConfig:
+  akka.persistence.journal.plugin: akka.persistence.journal.inmem
+  akka.persistence.snapshot-store.plugin: akka.persistence.snapshot-store.local
+  akka.persistence.snapshot-store.local.dir: target/example/snapshots
