@@ -35,7 +35,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {SagaApplication.class},
     properties = {
-        "alpha.model.actor.enabled=true"
+        "alpha.model.actor.enabled=true",
+        "akkaConfig.akka.persistence.journal.plugin=akka.persistence.journal.inmem",
+        "akkaConfig.akka.persistence.snapshot-store.plugin=akka.persistence.snapshot-store.local",
+        "akkaConfig.akka.persistence.snapshot-store.local.dir=target/example/snapshots"
     })
 public class SagaIntegrationTest {
 
