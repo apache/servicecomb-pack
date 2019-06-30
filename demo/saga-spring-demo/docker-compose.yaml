@@ -15,7 +15,7 @@
 ## limitations under the License.
 ## ---------------------------------------------------------------------------
 
-version: '2.1'
+version: '3.0'
 
 services:
   database:
@@ -44,8 +44,7 @@ services:
         timeout: 10s
         retries: 5
     depends_on:
-      database:
-        condition: service_healthy
+      - database
 
   hotel:
     image: "hotel:${TAG}"
@@ -55,8 +54,7 @@ services:
     ports:
       - "8081:8080"
     depends_on:
-      alpha:
-        condition: service_healthy
+      - alpha
 
   car:
     image: "car:${TAG}"
@@ -66,8 +64,7 @@ services:
     ports:
       - "8082:8080"
     depends_on:
-      alpha:
-        condition: service_healthy
+      - alpha
 
   booking:
     image: "booking:${TAG}"
