@@ -18,7 +18,7 @@
 ##
 #you need to add mysql drive to alpha pom.xml and saga-dubbo-demo pom.xml first
 ##
-version: '2.1'
+version: '3.0'
 
 services:
 
@@ -56,8 +56,7 @@ services:
         timeout: 10s
         retries: 5
     depends_on:
-      database:
-        condition: service_healthy
+      - database
 
   servicea:
     image: "servicea:${TAG}"
@@ -78,8 +77,7 @@ services:
     ports:
       - "8071:8071"
     depends_on:
-      alpha:
-        condition: service_healthy
+      - alpha
 
   serviceb:
     image: "serviceb:${TAG}"
@@ -100,8 +98,7 @@ services:
     ports:
       - "8072:8072"
     depends_on:
-      alpha:
-        condition: service_healthy
+      - alpha
 
   servicec:
     image: "servicec:${TAG}"
@@ -122,6 +119,5 @@ services:
     ports:
       - "8073:8073"
     depends_on:
-      alpha:
-        condition: service_healthy
+      - alpha
 

@@ -15,7 +15,7 @@
 ## limitations under the License.
 ## ---------------------------------------------------------------------------
 
-version: '2.1'
+version: '3.0'
 
 services:
   database:
@@ -44,5 +44,4 @@ services:
         timeout: 10s
         retries: 5
     depends_on:
-      database:
-        condition: service_healthy
+      - database
