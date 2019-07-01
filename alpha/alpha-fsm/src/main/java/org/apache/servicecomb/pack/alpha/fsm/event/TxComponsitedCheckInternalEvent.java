@@ -15,34 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.event.base;
+package org.apache.servicecomb.pack.alpha.fsm.event;
 
-import java.io.Serializable;
+import org.apache.servicecomb.pack.alpha.fsm.event.base.TxEvent;
 
-public abstract class BaseEvent implements Serializable {
-  private String globalTxId;
-  private long createTime = System.currentTimeMillis();
+public class TxComponsitedCheckInternalEvent extends TxEvent {
 
-  public BaseEvent() {
-
+  public static Builder builder() {
+    return new Builder();
   }
 
-  public long getCreateTime() {
-    return createTime;
-  }
+  public static final class Builder {
 
-  public String getGlobalTxId() {
-    return globalTxId;
-  }
+    private TxComponsitedCheckInternalEvent txComponsitedEvent;
 
-  public void setGlobalTxId(String globalTxId) {
-    this.globalTxId = globalTxId;
-  }
+    private Builder() {
+      txComponsitedEvent = new TxComponsitedCheckInternalEvent();
+    }
 
-  @Override
-  public String toString() {
-    return "BaseEvent{" +
-        "globalTxId='" + globalTxId + '\'' +
-        '}';
+    public TxComponsitedCheckInternalEvent build() {
+      return txComponsitedEvent;
+    }
   }
 }
