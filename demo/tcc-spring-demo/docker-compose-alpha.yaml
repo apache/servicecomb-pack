@@ -25,11 +25,6 @@ services:
       - POSTGRES_DB=saga
       - POSTGRES_USER=saga
       - POSTGRES_PASSWORD=password
-    healthcheck:
-        test: ["CMD-SHELL", "nc -z localhost 5432 &> /dev/null; echo $$?"]
-        interval: 30s
-        timeout: 10s
-        retries: 5
 
   alpha:
     image: "alpha-server:${TAG}"
@@ -38,10 +33,6 @@ services:
       - "database:postgresql.servicecomb.io"
     environment:
       - JAVA_OPTS=-Dspring.profiles.active=prd
-    healthcheck:
-        test: ["CMD-SHELL", "nc -z localhost 8080 &> /dev/null; echo $$?"]
-        interval: 30s
-        timeout: 10s
-        retries: 5
+      - WAIT_FOR_SERVICES=postgresql.servicecomb.io:5432:150
     depends_on:
       - database

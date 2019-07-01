@@ -45,6 +45,8 @@ services:
       - "alpha:alpha-server.servicecomb.io"
       - "payment:payment.servicecomb.io"
       - "inventory:inventory.servicecomb.io"
+    environment:
+      - WAIT_FOR_SERVICES=payment.servicecomb.io:8080:150,inventory.servicecomb.io:8080:150
     ports:
       - "8083:8080"
     depends_on:

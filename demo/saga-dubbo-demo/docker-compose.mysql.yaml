@@ -34,11 +34,6 @@ services:
         - MYSQL_DATABASE=saga
         - MYSQL_USER=saga
         - MYSQL_PASSWORD=password
-      healthcheck:
-          test: ["CMD-SHELL", "nc -z localhost 3306 &> /dev/null; echo $$?"]
-          interval: 30s
-          timeout: 10s
-          retries: 5
 
   alpha:
     image: "alpha-server:${TAG}"
@@ -50,11 +45,7 @@ services:
       - "database:mysql.servicecomb.io"
     environment:
       - JAVA_OPTS=-Dspring.profiles.active=mysql
-    healthcheck:
-        test: ["CMD-SHELL", "nc -z localhost 8080 &> /dev/null; echo $$?"]
-        interval: 30s
-        timeout: 10s
-        retries: 5
+      - WAIT_FOR_SERVICES=mysql.servicecomb.io:3306:150
     depends_on:
       - database
 
@@ -74,9 +65,12 @@ services:
                                 -Dserver.port=8071
                                 -Dalpha.cluster.address=alpha-server.servicecomb.io:8080
                                 -Dspring.datasource.initialization-mode=always
+      - WAIT_FOR_SERVICES=mysql.servicecomb.io:3306:150,zookeeper.servicecomb.io:2181:150,alpha-server.servicecomb.io:8080:150
     ports:
       - "8071:8071"
     depends_on:
+      - database
+      - zookeeper
       - alpha
 
   serviceb:
@@ -95,9 +89,12 @@ services:
                                 -Dserver.port=8072
                                 -Dalpha.cluster.address=alpha-server.servicecomb.io:8080
                                 -Dspring.datasource.initialization-mode=always
+      - WAIT_FOR_SERVICES=mysql.servicecomb.io:3306:150,zookeeper.servicecomb.io:2181:150,alpha-server.servicecomb.io:8080:150
     ports:
       - "8072:8072"
     depends_on:
+      - database
+      - zookeeper
       - alpha
 
   servicec:
@@ -116,8 +113,11 @@ services:
                                 -Dserver.port=8073
                                 -Dalpha.cluster.address=alpha-server.servicecomb.io:8080
                                 -Dspring.datasource.initialization-mode=always
+      - WAIT_FOR_SERVICES=mysql.servicecomb.io:3306:150,zookeeper.servicecomb.io:2181:150,alpha-server.servicecomb.io:8080:150
     ports:
       - "8073:8073"
     depends_on:
+      - database
+      - zookeeper
       - alpha
 

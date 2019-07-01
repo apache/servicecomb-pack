@@ -39,4 +39,12 @@
       </includes>
     </fileSet>
   </fileSets>
+  <files>
+    <file>
+      <source>${root.basedir}/docker-build-config/docker-entrypoint.sh</source>
+      <outputDirectory>saga</outputDirectory>
+      <fileMode>0755</fileMode>
+      <filtered>true</filtered>
+    </file>
+  </files>
 </assembly>
