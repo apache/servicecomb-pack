@@ -6,6 +6,7 @@
 ## Test State Machine
 
 ```
+git clone -b SCB-1321 git@github.com:apache/servicecomb-pack.git
 cd alpha
 mvn clean package -pl alpha-fsm 
 ```

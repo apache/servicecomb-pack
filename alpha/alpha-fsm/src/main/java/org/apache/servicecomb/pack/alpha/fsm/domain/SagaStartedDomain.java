@@ -15,16 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.event.base;
+package org.apache.servicecomb.pack.alpha.fsm.domain;
 
-import java.io.Serializable;
+public class SagaStartedDomain implements DomainEvent {
 
-public abstract class BaseEvent implements Serializable {
+  private long createTime;
   private String globalTxId;
-  private long createTime = System.currentTimeMillis();
+  private long expirationTime;
 
-  public BaseEvent() {
-
+  public SagaStartedDomain(String globalTxId, long createTime, int timeout) {
+    this.createTime = createTime;
+    this.globalTxId = globalTxId;
+    if (timeout > 0) {
+      this.expirationTime = System.currentTimeMillis() + timeout * 1000;
+    }
   }
 
   public long getCreateTime() {
@@ -35,14 +39,7 @@ public abstract class BaseEvent implements Serializable {
     return globalTxId;
   }
 
-  public void setGlobalTxId(String globalTxId) {
-    this.globalTxId = globalTxId;
-  }
-
-  @Override
-  public String toString() {
-    return "BaseEvent{" +
-        "globalTxId='" + globalTxId + '\'' +
-        '}';
+  public long getExpirationTime() {
+    return expirationTime;
   }
 }

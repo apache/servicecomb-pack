@@ -31,6 +31,7 @@
 
   <properties>
     <leveldbjni-all.version>1.8</leveldbjni-all.version>
+    <akka-persistence-redis.version>0.4.0</akka-persistence-redis.version>
   </properties>
 
   <dependencyManagement>
@@ -72,12 +73,7 @@
     <dependency>
       <groupId>javax.persistence</groupId>
       <artifactId>javax.persistence-api</artifactId>
-    </dependency>    
-<!--    <dependency>-->
-<!--      <groupId>org.apache.logging.log4j</groupId>-->
-<!--      <artifactId>log4j-slf4j-impl</artifactId>-->
-<!--      <scope>test</scope>-->
-<!--    </dependency>-->
+    </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
@@ -102,6 +98,11 @@
       <groupId>org.fusesource.leveldbjni</groupId>
       <artifactId>leveldbjni-all</artifactId>
       <version>${leveldbjni-all.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.safety-data</groupId>
+      <artifactId>akka-persistence-redis_2.12</artifactId>
+      <version>${akka-persistence-redis.version}</version>
     </dependency>
 
     <!-- For testing the artifacts scope are test-->
@@ -138,7 +139,11 @@
     <dependency>
       <groupId>com.typesafe.akka</groupId>
       <artifactId>akka-testkit_2.12</artifactId>
-    </dependency>       
+    </dependency>
+    <dependency>
+      <groupId>org.scalatest</groupId>
+      <artifactId>scalatest_2.12</artifactId>
+    </dependency>
   </dependencies>
 
 </project>

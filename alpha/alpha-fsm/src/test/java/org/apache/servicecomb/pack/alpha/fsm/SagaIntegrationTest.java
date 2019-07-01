@@ -36,9 +36,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(classes = {SagaApplication.class},
     properties = {
         "alpha.model.actor.enabled=true",
-        "akkaConfig.akka.persistence.journal.plugin=akka.persistence.journal.inmem",
-        "akkaConfig.akka.persistence.snapshot-store.plugin=akka.persistence.snapshot-store.local",
-        "akkaConfig.akka.persistence.snapshot-store.local.dir=target/example/snapshots"
+        "spring.profiles.active=akka-persistence-redis"
     })
 public class SagaIntegrationTest {
 
@@ -63,6 +61,8 @@ public class SagaIntegrationTest {
       SagaData sagaData = LogExtension.LogExtensionProvider.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.COMMITTED
+            && sagaData.getBeginTime() > 0
+            && sagaData.getEndTime() >0
             && sagaData.getTxEntityMap().size() == 3
             && sagaData.getTxEntityMap().get(localTxId_1).getState() == TxState.COMMITTED
             && sagaData.getTxEntityMap().get(localTxId_2).getState() == TxState.COMMITTED
@@ -85,6 +85,8 @@ public class SagaIntegrationTest {
       SagaData sagaData = LogExtension.LogExtensionProvider.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.COMPENSATED
+            && sagaData.getBeginTime() > 0
+            && sagaData.getEndTime() >0
             && sagaData.getTxEntityMap().size() == 1
             && sagaData.getTxEntityMap().get(localTxId_1).getState() == TxState.FAILED;
       }else{
@@ -106,6 +108,8 @@ public class SagaIntegrationTest {
       SagaData sagaData = LogExtension.LogExtensionProvider.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.COMPENSATED
+            && sagaData.getBeginTime() > 0
+            && sagaData.getEndTime() >0
             && sagaData.getTxEntityMap().size() == 2
             && sagaData.getTxEntityMap().get(localTxId_1).getState() == TxState.COMPENSATED
             && sagaData.getTxEntityMap().get(localTxId_2).getState() == TxState.FAILED;
@@ -129,6 +133,34 @@ public class SagaIntegrationTest {
       SagaData sagaData = LogExtension.LogExtensionProvider.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.COMPENSATED
+            && sagaData.getBeginTime() > 0
+            && sagaData.getEndTime() >0
+            && sagaData.getTxEntityMap().size() == 3
+            && sagaData.getTxEntityMap().get(localTxId_1).getState() == TxState.COMPENSATED
+            && sagaData.getTxEntityMap().get(localTxId_2).getState() == TxState.COMPENSATED
+            && sagaData.getTxEntityMap().get(localTxId_3).getState() == TxState.FAILED;
+      }else{
+        return false;
+      }
+    });
+  }
+
+  @Test
+  public void sagaAbortedEventBeforeTxComponsitedEventTest() {
+      final String globalTxId = UUID.randomUUID().toString();
+      final String localTxId_1 = UUID.randomUUID().toString();
+      final String localTxId_2 = UUID.randomUUID().toString();
+      final String localTxId_3 = UUID.randomUUID().toString();
+      SagaEventSender.sagaAbortedEventBeforeTxComponsitedEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
+        sagaEventBus.post(event);
+      });
+
+    await().atMost(1, SECONDS).until(() -> {
+      SagaData sagaData = LogExtension.LogExtensionProvider.get(system).getSagaData(globalTxId);
+      if(sagaData != null){
+        return sagaData.getLastState() == SagaActorState.COMPENSATED
+            && sagaData.getBeginTime() > 0
+            && sagaData.getEndTime() >0
             && sagaData.getTxEntityMap().size() == 3
             && sagaData.getTxEntityMap().get(localTxId_1).getState() == TxState.COMPENSATED
             && sagaData.getTxEntityMap().get(localTxId_2).getState() == TxState.COMPENSATED
@@ -153,6 +185,8 @@ public class SagaIntegrationTest {
       SagaData sagaData = LogExtension.LogExtensionProvider.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.COMPENSATED
+            && sagaData.getBeginTime() > 0
+            && sagaData.getEndTime() >0
             && sagaData.getTxEntityMap().size() == 3
             && sagaData.getTxEntityMap().get(localTxId_1).getState() == TxState.FAILED
             && sagaData.getTxEntityMap().get(localTxId_2).getState() == TxState.COMPENSATED
@@ -177,6 +211,8 @@ public class SagaIntegrationTest {
       SagaData sagaData = LogExtension.LogExtensionProvider.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.COMPENSATED
+            && sagaData.getBeginTime() > 0
+            && sagaData.getEndTime() >0
             && sagaData.getTxEntityMap().size() == 3
             && sagaData.getTxEntityMap().get(localTxId_1).getState() == TxState.COMPENSATED
             && sagaData.getTxEntityMap().get(localTxId_2).getState() == TxState.COMPENSATED
@@ -201,6 +237,8 @@ public class SagaIntegrationTest {
       SagaData sagaData = LogExtension.LogExtensionProvider.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.SUSPENDED
+            && sagaData.getBeginTime() > 0
+            && sagaData.getEndTime() >0
             && sagaData.getTxEntityMap().size() == 3
             && sagaData.getTxEntityMap().get(localTxId_1).getState() == TxState.COMMITTED
             && sagaData.getTxEntityMap().get(localTxId_2).getState() == TxState.COMMITTED
@@ -226,6 +264,8 @@ public class SagaIntegrationTest {
       SagaData sagaData = LogExtension.LogExtensionProvider.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.SUSPENDED
+            && sagaData.getBeginTime() > 0
+            && sagaData.getEndTime() >0
             && sagaData.getTxEntityMap().size() == 3
             && sagaData.getTxEntityMap().get(localTxId_1).getState() == TxState.COMMITTED
             && sagaData.getTxEntityMap().get(localTxId_2).getState() == TxState.COMMITTED
@@ -250,6 +290,8 @@ public class SagaIntegrationTest {
       SagaData sagaData = LogExtension.LogExtensionProvider.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.COMMITTED
+            && sagaData.getBeginTime() > 0
+            && sagaData.getEndTime() >0
             && sagaData.getTxEntityMap().size() == 3
             && sagaData.getTxEntityMap().get(localTxId_1).getState() == TxState.COMMITTED
             && sagaData.getTxEntityMap().get(localTxId_2).getState() == TxState.COMMITTED
@@ -274,6 +316,8 @@ public class SagaIntegrationTest {
       SagaData sagaData = LogExtension.LogExtensionProvider.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.COMMITTED
+            && sagaData.getBeginTime() > 0
+            && sagaData.getEndTime() >0
             && sagaData.getTxEntityMap().size() == 3
             && sagaData.getTxEntityMap().get(localTxId_1).getState() == TxState.COMMITTED
             && sagaData.getTxEntityMap().get(localTxId_2).getState() == TxState.COMMITTED
@@ -298,6 +342,8 @@ public class SagaIntegrationTest {
       SagaData sagaData = LogExtension.LogExtensionProvider.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.COMPENSATED
+            && sagaData.getBeginTime() > 0
+            && sagaData.getEndTime() >0
             && sagaData.getTxEntityMap().size() == 3
             && sagaData.getTxEntityMap().get(localTxId_1).getState() == TxState.COMPENSATED
             && sagaData.getTxEntityMap().get(localTxId_2).getState() == TxState.COMPENSATED

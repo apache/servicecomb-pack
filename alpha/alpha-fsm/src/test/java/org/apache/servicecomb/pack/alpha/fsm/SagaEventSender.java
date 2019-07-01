@@ -124,6 +124,33 @@ public class SagaEventSender {
   /**
    * 1. SagaStartedEvent-1
    * 2. TxStartedEvent-11
+   * 3. TxEndedEvent-11
+   * 4. TxStartedEvent-12
+   * 5. TxEndedEvent-12
+   * 6. TxStartedEvent-13
+   * 7. TxAbortedEvent-13
+   * 8. SagaAbortedEvent-1
+   * 9. TxComponsitedEvent-11
+   * 10. TxComponsitedEvent-12
+   */
+  public static List<BaseEvent> sagaAbortedEventBeforeTxComponsitedEvents(String globalTxId, String localTxId_1, String localTxId_2, String localTxId_3){
+    List<BaseEvent> sagaEvents = new ArrayList<>();
+    sagaEvents.add(SagaStartedEvent.builder().globalTxId(globalTxId).build());
+    sagaEvents.add(TxStartedEvent.builder().globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
+    sagaEvents.add(TxEndedEvent.builder().globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
+    sagaEvents.add(TxStartedEvent.builder().globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
+    sagaEvents.add(TxEndedEvent.builder().globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
+    sagaEvents.add(TxStartedEvent.builder().globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_3).build());
+    sagaEvents.add(TxAbortedEvent.builder().globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_3).build());
+    sagaEvents.add(SagaAbortedEvent.builder().globalTxId(globalTxId).build());
+    sagaEvents.add(TxComponsitedEvent.builder().globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
+    sagaEvents.add(TxComponsitedEvent.builder().globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
+    return sagaEvents;
+  }
+
+  /**
+   * 1. SagaStartedEvent-1
+   * 2. TxStartedEvent-11
    * 3. TxAbortedEvent-11
    * 4. TxStartedEvent-12
    * 5. TxEndedEvent-12
@@ -292,6 +319,37 @@ public class SagaEventSender {
     sagaEvents.add(TxComponsitedEvent.builder().globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
     sagaEvents.add(SagaAbortedEvent.builder().globalTxId(globalTxId).build());
     return sagaEvents;
-  }  
+  }
+
+
+  /**
+   * 1. SagaStartedEvent-1
+   * 2. TxStartedEvent-11
+   * 3. TxEndedEvent-11
+   * 4. TxStartedEvent-12
+   */
+  public static List<BaseEvent> successfulFirstHalfEvents(String globalTxId, String localTxId_1, String localTxId_2, String localTxId_3){
+    List<BaseEvent> sagaEvents = new ArrayList<>();
+    sagaEvents.add(SagaStartedEvent.builder().globalTxId(globalTxId).build());
+    sagaEvents.add(TxStartedEvent.builder().globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
+    sagaEvents.add(TxEndedEvent.builder().globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
+    sagaEvents.add(TxStartedEvent.builder().globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
+    return sagaEvents;
+  }
+
+  /**
+   * 1. TxEndedEvent-12
+   * 2. TxStartedEvent-13
+   * 3. TxEndedEvent-13
+   * 4. SagaEndedEvent-1
+   */
+  public static List<BaseEvent> successfulSecondHalfEvents(String globalTxId, String localTxId_1, String localTxId_2, String localTxId_3){
+    List<BaseEvent> sagaEvents = new ArrayList<>();
+    sagaEvents.add(TxEndedEvent.builder().globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
+    sagaEvents.add(TxStartedEvent.builder().globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_3).build());
+    sagaEvents.add(TxEndedEvent.builder().globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_3).build());
+    sagaEvents.add(SagaEndedEvent.builder().globalTxId(globalTxId).build());
+    return sagaEvents;
+  }
 
 }
