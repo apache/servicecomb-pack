@@ -25,11 +25,6 @@ services:
       - POSTGRES_DB=saga
       - POSTGRES_USER=saga
       - POSTGRES_PASSWORD=password
-    healthcheck:
-        test: ["CMD-SHELL", "nc -z localhost 5432 &> /dev/null; echo $$?"]
-        interval: 30s
-        timeout: 10s
-        retries: 5
 
   alpha:
     image: "alpha-server:${TAG}"
@@ -39,21 +34,13 @@ services:
       - "grafana:grafana.servicecomb.io"
     environment:
       - JAVA_OPTS=-javaagent:/maven/saga/aspectjweaver.jar -Dspring.profiles.active=prd -Dkamon.statsd.hostname=grafana.servicecomb.io -Dkamon.statsd.port=8125 -Dkamon.modules.kamon-annotation.auto-start=yes  -Dkamon.modules.kamon-log-reporter.auto-start=yes -Dkamon.modules.kamon-statsd.auto-start=yes
-    healthcheck:
-        test: ["CMD-SHELL", "nc -z localhost 8080 &> /dev/null; echo $$?"]
-        interval: 30s
-        timeout: 10s
-        retries: 5
+      - WAIT_FOR_SERVICES=postgresql.servicecomb.io:5432:150,grafana.servicecomb.io:80:150
     depends_on:
       - database
+      - grafana
 
   grafana:
     image: "kamon/grafana_graphite"
     hostname: grafana
     ports:
       - "9081:80"
-    healthcheck:
-        test: ["CMD-SHELL", "nc -z localhost 80 &> /dev/null; echo $$?"]
-        interval: 30s
-        timeout: 10s
-        retries: 5

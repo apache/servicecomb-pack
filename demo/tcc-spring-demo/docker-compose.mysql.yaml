@@ -26,14 +26,12 @@ services:
       - MYSQL_DATABASE=saga
       - MYSQL_USER=saga
       - MYSQL_PASSWORD=password
-    healthcheck:
-        test: ["CMD-SHELL", "nc -z localhost 3306 &> /dev/null; echo $$?"]
-        interval: 30s
-        timeout: 10s
-        retries: 5
 
   alpha:
     links:
       - "database:mysql.servicecomb.io"
     environment:
       - JAVA_OPTS=-Dspring.profiles.active=mysql
+      - WAIT_FOR_SERVICES=mysql.servicecomb.io:3306:150
+    depends_on:
+      - database

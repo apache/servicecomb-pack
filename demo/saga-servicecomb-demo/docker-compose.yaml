@@ -25,11 +25,6 @@ services:
       - POSTGRES_DB=saga
       - POSTGRES_USER=saga
       - POSTGRES_PASSWORD=password
-    healthcheck:
-        test: ["CMD-SHELL", "nc -z localhost 5432 &> /dev/null; echo $$?"]
-        interval: 30s
-        timeout: 10s
-        retries: 5
 
   alpha:
     image: "alpha-server:${TAG}"
@@ -40,11 +35,7 @@ services:
       - "8090:8090"
     environment:
       - JAVA_OPTS=-Dspring.profiles.active=prd
-    healthcheck:
-        test: ["CMD-SHELL", "nc -z localhost 8080 &> /dev/null; echo $$?"]
-        interval: 30s
-        timeout: 10s
-        retries: 5
+      - WAIT_FOR_SERVICES=postgresql.servicecomb.io:5432:150
     depends_on:
       - database
 
@@ -60,10 +51,13 @@ services:
     links:
       - "alpha:alpha-server.servicecomb.io"
       - "servicecenter:service-center.servicecomb.io"
+    environment:
+      - WAIT_FOR_SERVICES=alpha-server.servicecomb.io:8080:150,service-center.servicecomb.io:30100:150
     ports:
       - "8081:8081"
     depends_on:
       - alpha
+      - servicecenter
 
   car:
     image: "scb-car:${TAG}"
@@ -71,10 +65,13 @@ services:
     links:
       - "alpha:alpha-server.servicecomb.io"
       - "servicecenter:service-center.servicecomb.io"
+    environment:
+      - WAIT_FOR_SERVICES=alpha-server.servicecomb.io:8080:150,service-center.servicecomb.io:30100:150
     ports:
       - "8082:8082"
     depends_on:
       - alpha
+      - servicecenter
 
   booking:
     image: "scb-booking:${TAG}"
@@ -84,9 +81,12 @@ services:
       - "hotel:hotel.servicecomb.io"
       - "car:car.servicecomb.io"
       - "servicecenter:service-center.servicecomb.io"
+    environment:
+      - WAIT_FOR_SERVICES=alpha-server.servicecomb.io:8080:150,service-center.servicecomb.io:30100:150,hotel.servicecomb.io:8081:150,car.servicecomb.io:8082:150
     ports:
       - "8083:8083"
     depends_on:
+      - alpha
+      - servicecenter
       - hotel
       - car
-      - servicecenter

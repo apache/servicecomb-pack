@@ -34,11 +34,6 @@ services:
       - POSTGRES_PASSWORD=password
     ports:
       - "5432:5432"
-    healthcheck:
-        test: ["CMD-SHELL", "nc -z localhost 5432 &> /dev/null; echo $$?"]
-        interval: 30s
-        timeout: 10s
-        retries: 5
 
   alpha:
     image: "alpha-server:${TAG}"
@@ -50,11 +45,7 @@ services:
       - "database:postgresql.servicecomb.io"
     environment:
       - JAVA_OPTS=-Dspring.profiles.active=prd
-    healthcheck:
-        test: ["CMD-SHELL", "nc -z localhost 8080 &> /dev/null; echo $$?"]
-        interval: 30s
-        timeout: 10s
-        retries: 5
+      - WAIT_FOR_SERVICES=postgresql.servicecomb.io:5432:150
     depends_on:
       - database
 
@@ -74,9 +65,12 @@ services:
                                 -Dserver.port=8071
                                 -Dalpha.cluster.address=alpha-server.servicecomb.io:8080
                                 -Dspring.datasource.initialization-mode=always
+      - WAIT_FOR_SERVICES=postgresql.servicecomb.io:5432:150,zookeeper.servicecomb.io:2181:150,alpha-server.servicecomb.io:8080:150
     ports:
       - "8071:8071"
     depends_on:
+      - database
+      - zookeeper
       - alpha
 
   serviceb:
@@ -95,9 +89,12 @@ services:
                                 -Dserver.port=8072
                                 -Dalpha.cluster.address=alpha-server.servicecomb.io:8080
                                 -Dspring.datasource.initialization-mode=always
+      - WAIT_FOR_SERVICES=postgresql.servicecomb.io:5432:150,zookeeper.servicecomb.io:2181:150,alpha-server.servicecomb.io:8080:150
     ports:
       - "8072:8072"
     depends_on:
+      - database
+      - zookeeper
       - alpha
 
   servicec:
@@ -116,7 +113,10 @@ services:
                                 -Dserver.port=8073
                                 -Dalpha.cluster.address=alpha-server.servicecomb.io:8080
                                 -Dspring.datasource.initialization-mode=always
+      - WAIT_FOR_SERVICES=postgresql.servicecomb.io:5432:150,zookeeper.servicecomb.io:2181:150,alpha-server.servicecomb.io:8080:150
     ports:
       - "8073:8073"
     depends_on:
+      - database
+      - zookeeper
       - alpha

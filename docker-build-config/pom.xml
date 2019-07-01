@@ -50,8 +50,12 @@
                     <descriptor>${root.basedir}/docker-build-config/assembly/assembly.xml
                     </descriptor>
                   </assembly>
+                  <runCmds>
+                    <run>wget -O /wait-for https://raw.githubusercontent.com/eficode/wait-for/master/wait-for</run>
+                    <run>chmod +x /wait-for</run>
+                  </runCmds>
                   <entryPoint>
-                    <shell>java $JAVA_OPTS -jar /maven/saga/${project.artifactId}-${project.version}-exec.jar</shell>
+                    <shell>/maven/saga/docker-entrypoint.sh</shell>
                   </entryPoint>
                 </build>
               </image>
