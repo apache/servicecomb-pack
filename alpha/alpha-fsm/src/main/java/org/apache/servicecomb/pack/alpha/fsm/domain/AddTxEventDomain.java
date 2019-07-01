@@ -15,34 +15,41 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.event.base;
+package org.apache.servicecomb.pack.alpha.fsm.domain;
 
-import java.io.Serializable;
+import org.apache.servicecomb.pack.alpha.fsm.TxState;
 
-public abstract class BaseEvent implements Serializable {
-  private String globalTxId;
-  private long createTime = System.currentTimeMillis();
+public class AddTxEventDomain implements DomainEvent {
+  private String parentTxId;
+  private String localTxId;
+  private TxState state = TxState.ACTIVE;
 
-  public BaseEvent() {
-
+  public AddTxEventDomain(String parentTxId, String localTxId) {
+    this.parentTxId = parentTxId;
+    this.localTxId = localTxId;
   }
 
-  public long getCreateTime() {
-    return createTime;
+  public String getParentTxId() {
+    return parentTxId;
   }
 
-  public String getGlobalTxId() {
-    return globalTxId;
+  public void setParentTxId(String parentTxId) {
+    this.parentTxId = parentTxId;
   }
 
-  public void setGlobalTxId(String globalTxId) {
-    this.globalTxId = globalTxId;
+  public String getLocalTxId() {
+    return localTxId;
   }
 
-  @Override
-  public String toString() {
-    return "BaseEvent{" +
-        "globalTxId='" + globalTxId + '\'' +
-        '}';
+  public void setLocalTxId(String localTxId) {
+    this.localTxId = localTxId;
+  }
+
+  public TxState getState() {
+    return state;
+  }
+
+  public void setState(TxState state) {
+    this.state = state;
   }
 }

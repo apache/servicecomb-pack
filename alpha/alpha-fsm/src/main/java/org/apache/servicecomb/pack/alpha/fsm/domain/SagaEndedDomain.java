@@ -15,34 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.event.base;
+package org.apache.servicecomb.pack.alpha.fsm.domain;
 
-import java.io.Serializable;
+import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
 
-public abstract class BaseEvent implements Serializable {
-  private String globalTxId;
-  private long createTime = System.currentTimeMillis();
+public class SagaEndedDomain implements DomainEvent {
 
-  public BaseEvent() {
+  private SagaActorState state;
 
+  public SagaEndedDomain(SagaActorState state) {
+    this.state = state;
   }
 
-  public long getCreateTime() {
-    return createTime;
-  }
-
-  public String getGlobalTxId() {
-    return globalTxId;
-  }
-
-  public void setGlobalTxId(String globalTxId) {
-    this.globalTxId = globalTxId;
-  }
-
-  @Override
-  public String toString() {
-    return "BaseEvent{" +
-        "globalTxId='" + globalTxId + '\'' +
-        '}';
+  public SagaActorState getState() {
+    return state;
   }
 }
