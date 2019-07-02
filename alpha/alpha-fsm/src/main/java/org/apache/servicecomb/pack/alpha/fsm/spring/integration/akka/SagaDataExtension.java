@@ -17,19 +17,32 @@
 
 package org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka;
 
+import akka.actor.AbstractExtensionId;
+import akka.actor.ExtendedActorSystem;
 import akka.actor.Extension;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
+import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension.SagaDataExt;
 
-public class LogExtensionImpl implements Extension {
-  private Map<String, SagaData> sagaDataMap = new ConcurrentHashMap();
+public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
 
-  public void putSagaData(String globalTxId, SagaData sagaData){
-    sagaDataMap.put(globalTxId, sagaData);
+  public static final SagaDataExtension SAGA_DATA_EXTENSION_PROVIDER = new SagaDataExtension();
+
+  @Override
+  public SagaDataExt createExtension(ExtendedActorSystem system) {
+    return new SagaDataExt();
   }
 
-  public SagaData getSagaData(String globalTxId){
-    return sagaDataMap.get(globalTxId);
+  public static class SagaDataExt implements Extension {
+    private Map<String, SagaData> sagaDataMap = new ConcurrentHashMap();
+
+    public void putSagaData(String globalTxId, SagaData sagaData){
+      sagaDataMap.put(globalTxId, sagaData);
+    }
+
+    public SagaData getSagaData(String globalTxId){
+      return sagaDataMap.get(globalTxId);
+    }
   }
 }

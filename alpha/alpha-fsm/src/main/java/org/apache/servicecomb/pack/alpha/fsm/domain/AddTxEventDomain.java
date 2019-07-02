@@ -20,13 +20,37 @@ package org.apache.servicecomb.pack.alpha.fsm.domain;
 import org.apache.servicecomb.pack.alpha.fsm.TxState;
 
 public class AddTxEventDomain implements DomainEvent {
+  private String serviceName;
+  private String instanceId;
   private String parentTxId;
   private String localTxId;
   private TxState state = TxState.ACTIVE;
+  private String compensationMethod;
+  private byte[] payloads;
 
-  public AddTxEventDomain(String parentTxId, String localTxId) {
+  public AddTxEventDomain(String serviceName, String instanceId, String parentTxId, String localTxId, byte[] payloads, String compensationMethod) {
+    this.serviceName = serviceName;
+    this.instanceId = instanceId;
     this.parentTxId = parentTxId;
     this.localTxId = localTxId;
+    this.compensationMethod = compensationMethod;
+    this.payloads = payloads;
+  }
+
+  public String getServiceName() {
+    return serviceName;
+  }
+
+  public void setServiceName(String serviceName) {
+    this.serviceName = serviceName;
+  }
+
+  public String getInstanceId() {
+    return instanceId;
+  }
+
+  public void setInstanceId(String instanceId) {
+    this.instanceId = instanceId;
   }
 
   public String getParentTxId() {
@@ -51,5 +75,21 @@ public class AddTxEventDomain implements DomainEvent {
 
   public void setState(TxState state) {
     this.state = state;
+  }
+
+  public String getCompensationMethod() {
+    return compensationMethod;
+  }
+
+  public void setCompensationMethod(String compensationMethod) {
+    this.compensationMethod = compensationMethod;
+  }
+
+  public byte[] getPayloads() {
+    return payloads;
+  }
+
+  public void setPayloads(byte[] payloads) {
+    this.payloads = payloads;
   }
 }

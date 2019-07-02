@@ -19,7 +19,7 @@ package org.apache.servicecomb.pack.alpha.fsm.event;
 
 import org.apache.servicecomb.pack.alpha.fsm.event.base.TxEvent;
 
-public class TxComponsitedEvent extends TxEvent {
+public class TxCompensatedEvent extends TxEvent {
 
   public static Builder builder() {
     return new Builder();
@@ -27,29 +27,29 @@ public class TxComponsitedEvent extends TxEvent {
 
   public static final class Builder {
 
-    private TxComponsitedEvent txComponsitedEvent;
+    private TxCompensatedEvent txCompensatedEvent;
 
     private Builder() {
-      txComponsitedEvent = new TxComponsitedEvent();
+      txCompensatedEvent = new TxCompensatedEvent();
     }
 
     public Builder parentTxId(String parentTxId) {
-      txComponsitedEvent.setParentTxId(parentTxId);
+      txCompensatedEvent.setParentTxId(parentTxId);
       return this;
     }
 
     public Builder localTxId(String localTxId) {
-      txComponsitedEvent.setLocalTxId(localTxId);
+      txCompensatedEvent.setLocalTxId(localTxId);
       return this;
     }
 
     public Builder globalTxId(String globalTxId) {
-      txComponsitedEvent.setGlobalTxId(globalTxId);
+      txCompensatedEvent.setGlobalTxId(globalTxId);
       return this;
     }
 
-    public TxComponsitedEvent build() {
-      return txComponsitedEvent;
+    public TxCompensatedEvent build() {
+      return txCompensatedEvent;
     }
   }
 }
