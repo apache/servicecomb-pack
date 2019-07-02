@@ -29,6 +29,7 @@ import javax.annotation.PreDestroy;
 
 import com.google.common.eventbus.EventBus;
 import org.apache.servicecomb.pack.alpha.core.*;
+import org.apache.servicecomb.pack.alpha.server.fsm.GrpcSagaEventService;
 import org.apache.servicecomb.pack.alpha.server.tcc.GrpcTccEventService;
 import org.apache.servicecomb.pack.alpha.server.tcc.callback.TccPendingTaskRunner;
 import org.apache.servicecomb.pack.alpha.server.tcc.service.TccEventScanner;
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
@@ -146,11 +148,30 @@ public class AlphaConfig {
   }
 
   @Bean
+  @ConditionalOnProperty(name = "alpha.model.actor.enabled", havingValue = "false", matchIfMissing = true)
   ServerStartable serverStartable(GrpcServerConfig serverConfig, TxConsistentService txConsistentService,
       Map<String, Map<String, OmegaCallback>> omegaCallbacks, GrpcTccEventService grpcTccEventService,
       TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner, @Qualifier("alphaEventBus") EventBus eventBus) throws IOException {
     ServerStartable bootstrap = new GrpcStartable(serverConfig, eventBus,
         new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks), grpcTccEventService);
+    new Thread(bootstrap::start).start();
+    tccPendingTaskRunner.start();
+    tccEventScanner.start();
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      tccPendingTaskRunner.shutdown();
+      tccEventScanner.shutdown();
+    }));
+
+    return bootstrap;
+  }
+
+  @Bean
+  @ConditionalOnProperty(name= "alpha.model.actor.enabled", havingValue = "true")
+  ServerStartable serverStartableMy(GrpcServerConfig serverConfig,
+      Map<String, Map<String, OmegaCallback>> omegaCallbacks, GrpcTccEventService grpcTccEventService,
+      TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner, @Qualifier("alphaEventBus") EventBus eventBus, @Qualifier("sagaEventBus") EventBus sagaEventBus) throws IOException {
+    ServerStartable bootstrap = new GrpcStartable(serverConfig, eventBus,
+        new GrpcSagaEventService(sagaEventBus, omegaCallbacks), grpcTccEventService);
     new Thread(bootstrap::start).start();
     tccPendingTaskRunner.start();
     tccEventScanner.start();
