@@ -91,6 +91,9 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
     } else if (message.getType().equals(EventType.SagaAbortedEvent.name())) {
       event = org.apache.servicecomb.pack.alpha.fsm.event.SagaAbortedEvent.builder()
           .globalTxId(message.getGlobalTxId()).build();
+    } else if (message.getType().equals(EventType.SagaTimeoutEvent.name())) {
+      event = org.apache.servicecomb.pack.alpha.fsm.event.SagaTimeoutEvent.builder()
+          .globalTxId(message.getGlobalTxId()).build();
     } else if (message.getType().equals(EventType.TxStartedEvent.name())) {
       event = org.apache.servicecomb.pack.alpha.fsm.event.TxStartedEvent.builder()
           .serviceName(message.getServiceName())
