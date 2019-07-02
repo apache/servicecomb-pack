@@ -37,19 +37,18 @@ import scala.concurrent.Future;
 public class SagaEventConsumer {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  public static final Timeout TIMEOUT = new Timeout(1000, TimeUnit.MILLISECONDS);
+  public static final Timeout TIMEOUT = new Timeout(5, TimeUnit.SECONDS);
 
   @Autowired
   ActorSystem system;
 
   /**
-   * Receive saga message
+   * Receive fsm message
    * */
   @Subscribe
   public void receiveSagaEvent(BaseEvent event) throws Exception {
     LOG.info("receive {} ", event.toString());
     try{
-      //TODO Write-Ahead Logging
       ActorRef saga;
       String actorPath = "/user/" + event.getGlobalTxId();
       Optional<ActorRef> optional = this.getActorRefFromPath(actorPath);

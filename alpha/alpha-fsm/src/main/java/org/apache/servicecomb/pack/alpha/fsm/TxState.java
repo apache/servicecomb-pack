@@ -21,6 +21,6 @@ public enum TxState {
   ACTIVE,
   FAILED,
   COMMITTED,
-  COMPENSATION_SENT, // The compensation method has been called to wait for TxComponsitedEvent
+  COMPENSATION_SENT, // The compensation method has been called to wait for TxCompensatedEvent
   COMPENSATED
 }

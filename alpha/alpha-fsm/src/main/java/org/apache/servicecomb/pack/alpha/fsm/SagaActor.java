@@ -32,13 +32,14 @@ import org.apache.servicecomb.pack.alpha.fsm.event.SagaEndedEvent;
 import org.apache.servicecomb.pack.alpha.fsm.event.SagaStartedEvent;
 import org.apache.servicecomb.pack.alpha.fsm.event.SagaTimeoutEvent;
 import org.apache.servicecomb.pack.alpha.fsm.event.TxAbortedEvent;
+import org.apache.servicecomb.pack.alpha.fsm.event.TxCompensatedEvent;
 import org.apache.servicecomb.pack.alpha.fsm.event.TxComponsitedCheckInternalEvent;
-import org.apache.servicecomb.pack.alpha.fsm.event.TxComponsitedEvent;
 import org.apache.servicecomb.pack.alpha.fsm.event.TxEndedEvent;
 import org.apache.servicecomb.pack.alpha.fsm.event.TxStartedEvent;
 import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
 import org.apache.servicecomb.pack.alpha.fsm.model.TxEntity;
-import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.LogExtension;
+import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension;
+import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SpringAkkaExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
@@ -81,8 +82,13 @@ public class SagaActor extends
     when(SagaActorState.READY,
         matchEvent(TxStartedEvent.class, SagaData.class,
             (event, data) -> {
-              AddTxEventDomain domainEvent = new AddTxEventDomain(event.getParentTxId(),
-                  event.getLocalTxId());
+              AddTxEventDomain domainEvent = new AddTxEventDomain(
+                  event.getServiceName(),
+                  event.getInstanceId(),
+                  event.getParentTxId(),
+                  event.getLocalTxId(),
+                  event.getPayloads(),
+                  event.getCompensationMethod());
               if (data.getExpirationTime() > 0) {
                 return goTo(SagaActorState.PARTIALLY_ACTIVE)
                     .applying(domainEvent)
@@ -131,8 +137,13 @@ public class SagaActor extends
             }
         ).event(TxStartedEvent.class,
             (event, data) -> {
-              AddTxEventDomain domainEvent = new AddTxEventDomain(event.getParentTxId(),
-                  event.getLocalTxId());
+              AddTxEventDomain domainEvent = new AddTxEventDomain(
+                  event.getServiceName(),
+                  event.getInstanceId(),
+                  event.getParentTxId(),
+                  event.getLocalTxId(),
+                  event.getPayloads(),
+                  event.getCompensationMethod());
               if (data.getExpirationTime() > 0) {
                 return stay()
                     .applying(domainEvent)
@@ -165,8 +176,13 @@ public class SagaActor extends
     when(SagaActorState.PARTIALLY_COMMITTED,
         matchEvent(TxStartedEvent.class,
             (event, data) -> {
-              AddTxEventDomain domainEvent = new AddTxEventDomain(event.getParentTxId(),
-                  event.getLocalTxId());
+              AddTxEventDomain domainEvent = new AddTxEventDomain(
+                  event.getServiceName(),
+                  event.getInstanceId(),
+                  event.getParentTxId(),
+                  event.getLocalTxId(),
+                  event.getPayloads(),
+                  event.getCompensationMethod());
               if (data.getExpirationTime() > 0) {
                 return goTo(SagaActorState.PARTIALLY_ACTIVE)
                     .applying(domainEvent)
@@ -230,7 +246,7 @@ public class SagaActor extends
                   .replying(data)
                   .forMax(Duration.create(1, TimeUnit.MILLISECONDS));
             }
-        ).event(TxComponsitedEvent.class, SagaData.class,
+        ).event(TxCompensatedEvent.class, SagaData.class,
             (event, data) -> {
               UpdateTxEventDomain domainEvent = new UpdateTxEventDomain(event.getParentTxId(),
                   event.getLocalTxId(), TxState.COMPENSATED);
@@ -240,8 +256,9 @@ public class SagaActor extends
             }
         ).event(TxComponsitedCheckInternalEvent.class, SagaData.class,
             (event, data) -> {
-              if ((!data.isTerminated() && data.getCompensationRunningCounter().intValue() > 0)
-                  || hasCommittedTx(data)) {
+//              if ((!data.isTerminated() && data.getCompensationRunningCounter().intValue() > 0)
+//                  || hasCommittedTx(data)) {
+              if (hasCompensationSentTx(data)) {
                 return stay().replying(data);
               } else {
                 return goTo(SagaActorState.COMPENSATED)
@@ -255,7 +272,7 @@ public class SagaActor extends
               if (hasCommittedTx(data)) {
                 SagaEndedDomain domainEvent = new SagaEndedDomain(SagaActorState.FAILED);
                 return stay().replying(data).applying(domainEvent);
-              } else if(hasCompensationSentTx(data)){
+              } else if (hasCompensationSentTx(data)) {
                 return stay().replying(data);
               } else {
                 SagaEndedDomain domainEvent = new SagaEndedDomain(
@@ -268,8 +285,13 @@ public class SagaActor extends
             }
         ).event(TxStartedEvent.class, SagaData.class,
             (event, data) -> {
-              AddTxEventDomain domainEvent = new AddTxEventDomain(event.getParentTxId(),
-                  event.getLocalTxId());
+              AddTxEventDomain domainEvent = new AddTxEventDomain(
+                  event.getServiceName(),
+                  event.getInstanceId(),
+                  event.getParentTxId(),
+                  event.getLocalTxId(),
+                  event.getPayloads(),
+                  event.getCompensationMethod());
               return stay().applying(domainEvent);
             }
         ).event(TxEndedEvent.class, SagaData.class,
@@ -332,7 +354,7 @@ public class SagaActor extends
     whenUnhandled(
         matchAnyEvent((event, data) -> {
           LOG.error("Unhandled event {}", event);
-          return goTo(SagaActorState.SUSPENDED).replying(data);
+          return stay();
         })
     );
 
@@ -340,7 +362,7 @@ public class SagaActor extends
         matchState(null, null, (from, to) -> {
           if (stateData().getGlobalTxId() != null) {
             stateData().setLastState(to);
-            LogExtension.LogExtensionProvider.get(getContext().getSystem())
+            SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(getContext().getSystem())
                 .putSagaData(stateData().getGlobalTxId(), stateData());
           }
           LOG.info("transition {} {} -> {}", getSelf(), from, to);
@@ -353,7 +375,7 @@ public class SagaActor extends
               LOG.info("stop {} {}", data.getGlobalTxId(), state);
               data.setTerminated(true);
               data.setLastState(state);
-              LogExtension.LogExtensionProvider.get(getContext().getSystem())
+              SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(getContext().getSystem())
                   .putSagaData(data.getGlobalTxId(), data);
             }
         )
@@ -372,8 +394,13 @@ public class SagaActor extends
       AddTxEventDomain domainEvent = (AddTxEventDomain) event;
       if (!data.getTxEntityMap().containsKey(domainEvent.getLocalTxId())) {
         TxEntity txEntity = TxEntity.builder()
+            .serviceName(domainEvent.getServiceName())
+            .instanceId(domainEvent.getInstanceId())
+            .globalTxId(data.getGlobalTxId())
             .localTxId(domainEvent.getLocalTxId())
             .parentTxId(domainEvent.getParentTxId())
+            .compensationMethod(domainEvent.getCompensationMethod())
+            .payloads(domainEvent.getPayloads())
             .state(domainEvent.getState())
             .build();
         data.getTxEntityMap().put(txEntity.getLocalTxId(), txEntity);
@@ -451,6 +478,7 @@ public class SagaActor extends
     // increments the compensation running counter by one
     data.getCompensationRunningCounter().incrementAndGet();
     //TODO call omega compensate method
+    SpringAkkaExtension.SPRING_EXTENSION_PROVIDER.get(context().system()).compensate(txEntity);
     LOG.info("compensate {}", txEntity.getLocalTxId());
     txEntity.setState(TxState.COMPENSATION_SENT);
   }

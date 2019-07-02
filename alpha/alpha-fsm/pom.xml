@@ -63,6 +63,10 @@
       <artifactId>pack-common</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.servicecomb.pack</groupId>
+      <artifactId>alpha-core</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>

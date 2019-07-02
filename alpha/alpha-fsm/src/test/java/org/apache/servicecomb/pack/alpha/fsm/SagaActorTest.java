@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
-import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.LogExtension;
+import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -186,7 +186,7 @@ public class SagaActorTest {
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.PARTIALLY_COMMITTED, SagaActorState.PARTIALLY_ACTIVE);
 
-      //expectTerminated(saga);
+      //expectTerminated(fsm);
 
       ActorRef recoveredSaga = system.actorOf(SagaActor.props(persistenceId), "recoveredSaga");
       watch(recoveredSaga);
@@ -352,7 +352,7 @@ public class SagaActorTest {
    * 3. TxEndedEvent-11
    * 4. TxStartedEvent-12
    * 5. TxAbortedEvent-12
-   * 6. TxComponsitedEvent-11
+   * 6. TxCompensatedEvent-11
    * 7. SagaAbortedEvent-1
    */
   @Test
@@ -414,8 +414,8 @@ public class SagaActorTest {
    * 5. TxEndedEvent-12
    * 6. TxStartedEvent-13
    * 7. TxAbortedEvent-13
-   * 8. TxComponsitedEvent-11
-   * 9. TxComponsitedEvent-12
+   * 8. TxCompensatedEvent-11
+   * 9. TxCompensatedEvent-12
    * 10. SagaAbortedEvent-1
    */
   @Test
@@ -485,8 +485,8 @@ public class SagaActorTest {
    * 5. TxEndedEvent-12
    * 6. TxStartedEvent-13
    * 7. TxAbortedEvent-13
-   * 8. TxComponsitedEvent-11
-   * 9. TxComponsitedEvent-12
+   * 8. TxCompensatedEvent-11
+   * 9. TxCompensatedEvent-12
    * 10. SagaAbortedEvent-1
    */
   @Test
@@ -538,7 +538,7 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
-      sagaData = LogExtension.LogExtensionProvider.get(system).getSagaData(globalTxId);//expectMsgClass(SagaData.class);
+      sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);//expectMsgClass(SagaData.class);
       assertEquals(sagaData.getGlobalTxId(), globalTxId);
       assertEquals(sagaData.getTxEntityMap().size(), 3);
       assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.COMPENSATED);
@@ -558,8 +558,8 @@ public class SagaActorTest {
    * 5. TxEndedEvent-12
    * 6. TxStartedEvent-13
    * 7. TxEndedEvent-13
-   * 8. TxComponsitedEvent-12
-   * 9. TxComponsitedEvent-13
+   * 8. TxCompensatedEvent-12
+   * 9. TxCompensatedEvent-13
    * 10. SagaAbortedEvent-1
    */
   @Test
@@ -619,9 +619,9 @@ public class SagaActorTest {
    * 6. TxStartedEvent-13
    * 7. TxEndedEvent-13
    * 8. SagaAbortedEvent-1
-   * 9. TxComponsitedEvent-11
-   * 8. TxComponsitedEvent-12
-   * 9. TxComponsitedEvent-13
+   * 9. TxCompensatedEvent-11
+   * 8. TxCompensatedEvent-12
+   * 9. TxCompensatedEvent-13
    */
   @Test
   public void sagaAbortedEventAfterAllTxEndedTest() {
@@ -673,7 +673,7 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
-      SagaData sagaData = LogExtension.LogExtensionProvider.get(system).getSagaData(globalTxId);
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       assertEquals(sagaData.getGlobalTxId(), globalTxId);
       assertEquals(sagaData.getTxEntityMap().size(), 3);
       assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.COMPENSATED);
@@ -940,8 +940,8 @@ public class SagaActorTest {
    * 3. TxEndedEvent-11
    * 5. TxEndedEvent-12
    * 7. TxAbortedEvent-13
-   * 8. TxComponsitedEvent-11
-   * 9. TxComponsitedEvent-12
+   * 8. TxCompensatedEvent-11
+   * 9. TxCompensatedEvent-12
    * 10. SagaAbortedEvent-1
    */
   @Test

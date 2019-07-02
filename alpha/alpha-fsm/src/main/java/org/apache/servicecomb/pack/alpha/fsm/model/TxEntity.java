@@ -21,11 +21,32 @@ import java.io.Serializable;
 import org.apache.servicecomb.pack.alpha.fsm.TxState;
 
 public class TxEntity implements Serializable {
+  private String serviceName;
+  private String instanceId;
+  private String globalTxId;
   private long beginTime = System.currentTimeMillis();
   private long endTime;
   private String parentTxId;
   private String localTxId;
   private TxState state;
+  private String compensationMethod;
+  private byte[] payloads;
+
+  public String getServiceName() {
+    return serviceName;
+  }
+
+  public void setServiceName(String serviceName) {
+    this.serviceName = serviceName;
+  }
+
+  public String getInstanceId() {
+    return instanceId;
+  }
+
+  public void setInstanceId(String instanceId) {
+    this.instanceId = instanceId;
+  }
 
   public long getBeginTime() {
     return beginTime;
@@ -41,6 +62,14 @@ public class TxEntity implements Serializable {
 
   public void setEndTime(long endTime) {
     this.endTime = endTime;
+  }
+
+  public String getGlobalTxId() {
+    return globalTxId;
+  }
+
+  public void setGlobalTxId(String globalTxId) {
+    this.globalTxId = globalTxId;
   }
 
   public String getParentTxId() {
@@ -67,6 +96,22 @@ public class TxEntity implements Serializable {
     this.state = state;
   }
 
+  public String getCompensationMethod() {
+    return compensationMethod;
+  }
+
+  public void setCompensationMethod(String compensationMethod) {
+    this.compensationMethod = compensationMethod;
+  }
+
+  public byte[] getPayloads() {
+    return payloads;
+  }
+
+  public void setPayloads(byte[] payloads) {
+    this.payloads = payloads;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -89,6 +134,11 @@ public class TxEntity implements Serializable {
       return this;
     }
 
+    public Builder globalTxId(String globalTxId) {
+      txEntity.setGlobalTxId(globalTxId);
+      return this;
+    }
+
     public Builder parentTxId(String parentTxId) {
       txEntity.setParentTxId(parentTxId);
       return this;
@@ -99,8 +149,28 @@ public class TxEntity implements Serializable {
       return this;
     }
 
+    public Builder compensationMethod(String compensationMethod) {
+      txEntity.setCompensationMethod(compensationMethod);
+      return this;
+    }
+
+    public Builder payloads(byte[] payloads) {
+      txEntity.setPayloads(payloads);
+      return this;
+    }
+
     public Builder state(TxState state) {
       txEntity.setState(state);
+      return this;
+    }
+
+    public Builder serviceName(String serviceName) {
+      txEntity.setServiceName(serviceName);
+      return this;
+    }
+
+    public Builder instanceId(String instanceId) {
+      txEntity.setInstanceId(instanceId);
       return this;
     }
 
