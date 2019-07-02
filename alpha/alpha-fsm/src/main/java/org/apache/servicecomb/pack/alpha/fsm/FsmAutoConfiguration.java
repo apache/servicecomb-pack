@@ -17,6 +17,8 @@
 
 package org.apache.servicecomb.pack.alpha.fsm;
 
+import static org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SpringAkkaExtension.SPRING_EXTENSION_PROVIDER;
+
 import akka.actor.ActorSystem;
 import com.google.common.eventbus.EventBus;
 import com.typesafe.config.Config;
@@ -38,6 +40,7 @@ public class FsmAutoConfiguration {
   @Bean
   public ActorSystem actorSystem(ConfigurableApplicationContext applicationContext, ConfigurableEnvironment environment) {
     ActorSystem system = ActorSystem.create("alpha-akka", akkaConfiguration(applicationContext,environment));
+    SPRING_EXTENSION_PROVIDER.get(system).initialize(applicationContext);
     return system;
   }
 

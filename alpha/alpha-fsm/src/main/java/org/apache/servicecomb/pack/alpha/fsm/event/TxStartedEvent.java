@@ -17,9 +17,77 @@
 
 package org.apache.servicecomb.pack.alpha.fsm.event;
 
+import java.util.Date;
 import org.apache.servicecomb.pack.alpha.fsm.event.base.TxEvent;
 
 public class TxStartedEvent extends TxEvent {
+  private String serviceName;
+  private String instanceId;
+  private String compensationMethod;
+  private byte[] payloads;
+  private Date creationTime;
+  private String retryMethod;
+  private int retries;
+
+  @Override
+  public String getServiceName() {
+    return serviceName;
+  }
+
+  @Override
+  public void setServiceName(String serviceName) {
+    this.serviceName = serviceName;
+  }
+
+  @Override
+  public String getInstanceId() {
+    return instanceId;
+  }
+
+  @Override
+  public void setInstanceId(String instanceId) {
+    this.instanceId = instanceId;
+  }
+
+  public String getCompensationMethod() {
+    return compensationMethod;
+  }
+
+  public void setCompensationMethod(String compensationMethod) {
+    this.compensationMethod = compensationMethod;
+  }
+
+  public byte[] getPayloads() {
+    return payloads;
+  }
+
+  public void setPayloads(byte[] payloads) {
+    this.payloads = payloads;
+  }
+
+  public Date getCreationTime() {
+    return creationTime;
+  }
+
+  public void setCreationTime(Date creationTime) {
+    this.creationTime = creationTime;
+  }
+
+  public String getRetryMethod() {
+    return retryMethod;
+  }
+
+  public void setRetryMethod(String retryMethod) {
+    this.retryMethod = retryMethod;
+  }
+
+  public int getRetries() {
+    return retries;
+  }
+
+  public void setRetries(int retries) {
+    this.retries = retries;
+  }
 
   public static Builder builder() {
     return new Builder();
@@ -45,6 +113,41 @@ public class TxStartedEvent extends TxEvent {
 
     public Builder globalTxId(String globalTxId) {
       txStartedEvent.setGlobalTxId(globalTxId);
+      return this;
+    }
+
+    public Builder compensationMethod(String compensationMethod) {
+      txStartedEvent.setCompensationMethod(compensationMethod);
+      return this;
+    }
+
+    public Builder payloads(byte[] payloads) {
+      txStartedEvent.setPayloads(payloads);
+      return this;
+    }
+
+    public Builder serviceName(String serviceName) {
+      txStartedEvent.setServiceName(serviceName);
+      return this;
+    }
+
+    public Builder instanceId(String instanceId) {
+      txStartedEvent.setInstanceId(instanceId);
+      return this;
+    }
+
+    public Builder creationTime(Date creationTime) {
+      txStartedEvent.setCreationTime(creationTime);
+      return this;
+    }
+
+    public Builder retryMethod(String retryMethod) {
+      txStartedEvent.setRetryMethod(retryMethod);
+      return this;
+    }
+
+    public Builder retries(int retries) {
+      txStartedEvent.setRetries(retries);
       return this;
     }
 
