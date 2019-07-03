@@ -115,7 +115,8 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
       event = org.apache.servicecomb.pack.alpha.fsm.event.TxAbortedEvent.builder()
           .globalTxId(message.getGlobalTxId())
           .parentTxId(message.getParentTxId())
-          .localTxId(message.getLocalTxId()).build();
+          .localTxId(message.getLocalTxId())
+          .payloads(message.getPayloads().toByteArray()).build();
     } else if (message.getType().equals(EventType.TxCompensatedEvent.name())) {
       event = org.apache.servicecomb.pack.alpha.fsm.event.TxCompensatedEvent.builder()
           .globalTxId(message.getGlobalTxId())

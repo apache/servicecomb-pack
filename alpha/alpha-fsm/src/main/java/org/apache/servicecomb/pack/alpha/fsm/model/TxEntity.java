@@ -31,6 +31,7 @@ public class TxEntity implements Serializable {
   private TxState state;
   private String compensationMethod;
   private byte[] payloads;
+  private byte[] throwablePayLoads;
 
   public String getServiceName() {
     return serviceName;
@@ -112,6 +113,14 @@ public class TxEntity implements Serializable {
     this.payloads = payloads;
   }
 
+  public byte[] getThrowablePayLoads() {
+    return throwablePayLoads;
+  }
+
+  public void setThrowablePayLoads(byte[] throwablePayLoads) {
+    this.throwablePayLoads = throwablePayLoads;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -156,6 +165,11 @@ public class TxEntity implements Serializable {
 
     public Builder payloads(byte[] payloads) {
       txEntity.setPayloads(payloads);
+      return this;
+    }
+
+    public Builder throwablePayLoads(byte[] throwablePayLoads) {
+      txEntity.setThrowablePayLoads(throwablePayLoads);
       return this;
     }
 
