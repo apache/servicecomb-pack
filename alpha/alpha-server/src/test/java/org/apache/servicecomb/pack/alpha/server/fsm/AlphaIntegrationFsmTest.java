@@ -93,7 +93,7 @@ public class AlphaIntegrationFsmTest {
     omegaEventSender.getOmegaEventSagaSimulator().sagaSuccessfulEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       return sagaData !=null && sagaData.getLastState()==SagaActorState.COMMITTED;
     });
@@ -115,7 +115,7 @@ public class AlphaIntegrationFsmTest {
     omegaEventSender.getOmegaEventSagaSimulator().firstTxAbortedEvents(globalTxId, localTxId_1).stream().forEach( event -> {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       return sagaData !=null && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
@@ -137,7 +137,7 @@ public class AlphaIntegrationFsmTest {
     omegaEventSender.getOmegaEventSagaSimulator().middleTxAbortedEvents(globalTxId, localTxId_1, localTxId_2).stream().forEach( event -> {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       return sagaData !=null && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
@@ -187,7 +187,7 @@ public class AlphaIntegrationFsmTest {
     omegaEventSender.getOmegaEventSagaSimulator().receivedRemainingEventAfterFirstTxAbortedEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       return sagaData !=null && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
@@ -212,7 +212,7 @@ public class AlphaIntegrationFsmTest {
     omegaEventSender.getOmegaEventSagaSimulator().sagaAbortedEventAfterAllTxEndedsEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       return sagaData !=null && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
@@ -237,7 +237,7 @@ public class AlphaIntegrationFsmTest {
     omegaEventSender.getOmegaEventSagaSimulator().omegaSendSagaTimeoutEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       return sagaData !=null && sagaData.getLastState()==SagaActorState.SUSPENDED;
     });
@@ -286,7 +286,7 @@ public class AlphaIntegrationFsmTest {
     omegaEventSender.getOmegaEventSagaSimulator().successfulWithTxConcurrentEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       return sagaData !=null && sagaData.getLastState()==SagaActorState.COMMITTED;
     });
@@ -310,7 +310,7 @@ public class AlphaIntegrationFsmTest {
     omegaEventSender.getOmegaEventSagaSimulator().successfulWithTxConcurrentCrossEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       return sagaData !=null && sagaData.getLastState()==SagaActorState.COMMITTED;
     });
@@ -334,7 +334,7 @@ public class AlphaIntegrationFsmTest {
     omegaEventSender.getOmegaEventSagaSimulator().lastTxAbortedEventWithTxConcurrentEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       return sagaData !=null && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
@@ -358,7 +358,7 @@ public class AlphaIntegrationFsmTest {
     omegaEventSender.getOmegaEventSagaSimulator().duplicateTxOnFailureEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       return sagaData !=null && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
