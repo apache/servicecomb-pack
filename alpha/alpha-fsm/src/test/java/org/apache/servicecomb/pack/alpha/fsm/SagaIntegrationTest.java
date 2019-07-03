@@ -36,7 +36,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(classes = {SagaApplication.class},
     properties = {
         "alpha.model.actor.enabled=true",
-        "spring.profiles.active=akka-persistence-redis"
+        "spring.profiles.active=akka-persistence-mem"
     })
 public class SagaIntegrationTest {
 
