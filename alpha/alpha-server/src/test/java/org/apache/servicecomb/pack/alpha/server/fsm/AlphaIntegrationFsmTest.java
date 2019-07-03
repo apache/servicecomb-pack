@@ -31,6 +31,7 @@ import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension;
 import org.apache.servicecomb.pack.alpha.server.AlphaApplication;
 import org.apache.servicecomb.pack.alpha.server.AlphaConfig;
+import org.apache.servicecomb.pack.common.EventType;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -50,7 +51,7 @@ import org.springframework.test.context.junit4.SpringRunner;
         "alpha.event.pollingInterval=1",
         "spring.main.allow-bean-definition-overriding=true",
         "alpha.model.actor.enabled=true",
-        "spring.profiles.active=akka-persistence-redis"
+        "spring.profiles.active=akka-persistence-mem"
        })
 public class AlphaIntegrationFsmTest {
   private static final OmegaEventSender omegaEventSender = OmegaEventSender.builder().build();
@@ -187,7 +188,39 @@ public class AlphaIntegrationFsmTest {
     omegaEventSender.getOmegaEventSagaSimulator().receivedRemainingEventAfterFirstTxAbortedEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
-    await().atMost(2, SECONDS).until(() -> {
+    await().atMost(5, SECONDS).until(() -> {
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      return sagaData !=null && sagaData.getLastState()==SagaActorState.COMPENSATED;
+    });
+    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+    Assert.assertEquals(sagaData.getLastState(),SagaActorState.COMPENSATED);
+    Assert.assertEquals(sagaData.getTxEntityMap().size(),3);
+    Assert.assertTrue(sagaData.getBeginTime() > 0);
+    Assert.assertTrue(sagaData.getEndTime() > 0);
+    Assert.assertTrue(sagaData.getEndTime() > sagaData.getBeginTime());
+    Assert.assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(),TxState.FAILED);
+    Assert.assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(),TxState.COMPENSATED);
+    Assert.assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(),TxState.COMPENSATED);
+  }
+
+  @Test
+  public void receivedRemainingEventAndDelayLastTxEventAfterFirstTxAbortedEventTest() {
+    omegaEventSender.onConnected();
+    final String globalTxId = UUID.randomUUID().toString();
+    final String localTxId_1 = UUID.randomUUID().toString();
+    final String localTxId_2 = UUID.randomUUID().toString();
+    final String localTxId_3 = UUID.randomUUID().toString();
+    omegaEventSender.getOmegaEventSagaSimulator().receivedRemainingEventAfterFirstTxAbortedEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
+      if(event.getType().equals(EventType.TxStartedEvent.name()) && event.getLocalTxId().equals(localTxId_3)){
+        try {
+          Thread.sleep(1000);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+      }
+      omegaEventSender.getBlockingStub().onTxEvent(event);
+    });
+    await().atMost(5, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       return sagaData !=null && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });

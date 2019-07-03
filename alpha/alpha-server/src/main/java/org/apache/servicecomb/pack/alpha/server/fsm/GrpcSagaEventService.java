@@ -78,7 +78,9 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
   @Override
   @Trace("onTransactionEvent")
   public void onTxEvent(GrpcTxEvent message, StreamObserver<GrpcAck> responseObserver) {
-    LOG.info("onText {}",message);
+    if(LOG.isDebugEnabled()){
+      LOG.debug("onText {}",message);
+    }
     boolean ok = true;
     BaseEvent event = null;
     if (message.getType().equals(EventType.SagaStartedEvent.name())) {
