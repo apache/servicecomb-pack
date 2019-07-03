@@ -256,8 +256,6 @@ public class SagaActor extends
             }
         ).event(TxComponsitedCheckInternalEvent.class, SagaData.class,
             (event, data) -> {
-//              if ((!data.isTerminated() && data.getCompensationRunningCounter().intValue() > 0)
-//                  || hasCommittedTx(data)) {
               if (hasCompensationSentTx(data)) {
                 return stay().replying(data);
               } else {
@@ -268,7 +266,7 @@ public class SagaActor extends
             }
         ).event(SagaAbortedEvent.class, SagaData.class,
             (event, data) -> {
-              data.setTerminated(true);
+              //data.setTerminated(true);
               if (hasCommittedTx(data)) {
                 SagaEndedDomain domainEvent = new SagaEndedDomain(SagaActorState.FAILED);
                 return stay().replying(data).applying(domainEvent);
@@ -313,7 +311,6 @@ public class SagaActor extends
     when(SagaActorState.COMMITTED,
         matchAnyEvent(
             (event, data) -> {
-              data.setEndTime(System.currentTimeMillis());
               /**
                * deleteMessages 只会删除redis中actor的数据，但是不会删除actor的highestSequenceNr https://github.com/akka/akka/issues/21181
                * 已停止的 actor highestSequenceNr 需要手动清理，例如 actor 的持久化ID为 3c500008-7b9f-415f-b2fd-e6ad0d455fc1
@@ -332,7 +329,6 @@ public class SagaActor extends
     when(SagaActorState.SUSPENDED,
         matchAnyEvent(
             (event, data) -> {
-              data.setEndTime(System.currentTimeMillis());
               deleteMessages(lastSequenceNr());
               deleteSnapshot(snapshotSequenceNr());
               return stop();
@@ -343,7 +339,6 @@ public class SagaActor extends
     when(SagaActorState.COMPENSATED,
         matchAnyEvent(
             (event, data) -> {
-              data.setEndTime(System.currentTimeMillis());
               deleteMessages(lastSequenceNr());
               deleteSnapshot(snapshotSequenceNr());
               return stop();
@@ -375,6 +370,7 @@ public class SagaActor extends
               LOG.info("stop {} {}", data.getGlobalTxId(), state);
               data.setTerminated(true);
               data.setLastState(state);
+              data.setEndTime(System.currentTimeMillis());
               SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(getContext().getSystem())
                   .putSagaData(data.getGlobalTxId(), data);
             }
@@ -412,6 +408,9 @@ public class SagaActor extends
       TxEntity txEntity = data.getTxEntityMap().get(domainEvent.getLocalTxId());
       txEntity.setEndTime(System.currentTimeMillis());
       if (domainEvent.getState() == TxState.COMMITTED) {
+        // stop
+        data.setEndTime(System.currentTimeMillis());
+        data.setTerminated(true);
         txEntity.setState(domainEvent.getState());
       } else if (domainEvent.getState() == TxState.FAILED) {
         txEntity.setState(domainEvent.getState());
@@ -437,9 +436,11 @@ public class SagaActor extends
           }
         });
       } else if (domainEvent.getState() == SagaActorState.SUSPENDED) {
-
+        data.setEndTime(System.currentTimeMillis());
+        data.setTerminated(true);
       } else if (domainEvent.getState() == SagaActorState.COMPENSATED) {
-
+        data.setEndTime(System.currentTimeMillis());
+        data.setTerminated(true);
       }
     }
     LOG.debug("applyEvent: {} {}", stateName(), stateData().getGlobalTxId());
