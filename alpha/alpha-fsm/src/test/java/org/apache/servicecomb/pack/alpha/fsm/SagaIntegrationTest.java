@@ -57,7 +57,7 @@ public class SagaIntegrationTest {
       sagaEventBus.post(event);
     });
 
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.COMMITTED
@@ -81,7 +81,7 @@ public class SagaIntegrationTest {
       sagaEventBus.post(event);
     });
 
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.COMPENSATED
@@ -104,7 +104,7 @@ public class SagaIntegrationTest {
       sagaEventBus.post(event);
     });
 
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.COMPENSATED
@@ -129,7 +129,7 @@ public class SagaIntegrationTest {
       sagaEventBus.post(event);
     });
 
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.COMPENSATED
@@ -155,7 +155,7 @@ public class SagaIntegrationTest {
         sagaEventBus.post(event);
       });
 
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.COMPENSATED
@@ -181,7 +181,7 @@ public class SagaIntegrationTest {
       sagaEventBus.post(event);
     });
 
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.COMPENSATED
@@ -207,7 +207,7 @@ public class SagaIntegrationTest {
       sagaEventBus.post(event);
     });
 
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.COMPENSATED
@@ -233,7 +233,7 @@ public class SagaIntegrationTest {
       sagaEventBus.post(event);
     });
 
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.SUSPENDED
@@ -286,7 +286,7 @@ public class SagaIntegrationTest {
       sagaEventBus.post(event);
     });
 
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.COMMITTED
@@ -312,7 +312,7 @@ public class SagaIntegrationTest {
       sagaEventBus.post(event);
     });
 
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.COMMITTED
@@ -338,7 +338,7 @@ public class SagaIntegrationTest {
       sagaEventBus.post(event);
     });
 
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       if(sagaData != null){
         return sagaData.getLastState() == SagaActorState.COMPENSATED
