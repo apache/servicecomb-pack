@@ -45,7 +45,7 @@ public class OmegaEventSagaSimulator {
     List<GrpcTxEvent> sagaEvents = new ArrayList<>();
     sagaEvents.add(sagaStartedEvent(globalTxId));
     sagaEvents.add(txStartedEvent(globalTxId, localTxId_1, globalTxId, "service a".getBytes(), "method a"));
-    sagaEvents.add(txAbortedEvent(globalTxId, localTxId_1, globalTxId, "service a".getBytes(), "method a"));
+    sagaEvents.add(txAbortedEvent(globalTxId, localTxId_1, globalTxId, NullPointerException.class.getName().getBytes(), "method a"));
     sagaEvents.add(sagaAbortedEvent(globalTxId));
     return sagaEvents;
   }
@@ -56,7 +56,7 @@ public class OmegaEventSagaSimulator {
     sagaEvents.add(txStartedEvent(globalTxId, localTxId_1, globalTxId, "service a".getBytes(), "method a"));
     sagaEvents.add(txEndedEvent(globalTxId, localTxId_1, globalTxId, "service a".getBytes(), "method a"));
     sagaEvents.add(txStartedEvent(globalTxId, localTxId_2, globalTxId, "service b".getBytes(), "method b"));
-    sagaEvents.add(txAbortedEvent(globalTxId, localTxId_2, globalTxId, "service b".getBytes(), "method b"));
+    sagaEvents.add(txAbortedEvent(globalTxId, localTxId_2, globalTxId, NullPointerException.class.getName().getBytes(), "method b"));
     sagaEvents.add(sagaAbortedEvent(globalTxId));
     return sagaEvents;
   }
@@ -69,7 +69,7 @@ public class OmegaEventSagaSimulator {
     sagaEvents.add(txStartedEvent(globalTxId, localTxId_2, globalTxId, "service b".getBytes(), "method b"));
     sagaEvents.add(txEndedEvent(globalTxId, localTxId_2, globalTxId, "service b".getBytes(), "method b"));
     sagaEvents.add(txStartedEvent(globalTxId, localTxId_3, globalTxId, "service c".getBytes(), "method c"));
-    sagaEvents.add(txAbortedEvent(globalTxId, localTxId_3, globalTxId, "service c".getBytes(), "method c"));
+    sagaEvents.add(txAbortedEvent(globalTxId, localTxId_3, globalTxId, NullPointerException.class.getName().getBytes(), "method c"));
     sagaEvents.add(sagaAbortedEvent(globalTxId));
     return sagaEvents;
   }
@@ -78,7 +78,7 @@ public class OmegaEventSagaSimulator {
     List<GrpcTxEvent> sagaEvents = new ArrayList<>();
     sagaEvents.add(sagaStartedEvent(globalTxId));
     sagaEvents.add(txStartedEvent(globalTxId, localTxId_1, globalTxId, "service a".getBytes(), "method a"));
-    sagaEvents.add(txAbortedEvent(globalTxId, localTxId_1, globalTxId, "service a".getBytes(), "method a"));
+    sagaEvents.add(txAbortedEvent(globalTxId, localTxId_1, globalTxId, NullPointerException.class.getName().getBytes(), "method a"));
     sagaEvents.add(txStartedEvent(globalTxId, localTxId_2, globalTxId, "service b".getBytes(), "method b"));
     sagaEvents.add(txEndedEvent(globalTxId, localTxId_2, globalTxId, "service b".getBytes(), "method b"));
     sagaEvents.add(txStartedEvent(globalTxId, localTxId_3, globalTxId, "service c".getBytes(), "method c"));
@@ -159,7 +159,7 @@ public class OmegaEventSagaSimulator {
     sagaEvents.add(txStartedEvent(globalTxId, localTxId_3, globalTxId, "service c".getBytes(), "method c"));
     sagaEvents.add(txEndedEvent(globalTxId, localTxId_1, globalTxId, "service a".getBytes(), "method a"));
     sagaEvents.add(txEndedEvent(globalTxId, localTxId_2, globalTxId, "service b".getBytes(), "method b"));
-    sagaEvents.add(txAbortedEvent(globalTxId, localTxId_3, globalTxId, "service c".getBytes(), "method c"));
+    sagaEvents.add(txAbortedEvent(globalTxId, localTxId_3, globalTxId, NullPointerException.class.getName().getBytes(), "method c"));
     sagaEvents.add(sagaAbortedEvent(globalTxId));
     return sagaEvents;
   }
@@ -173,7 +173,7 @@ public class OmegaEventSagaSimulator {
     sagaEvents.add(txStartedEvent(globalTxId, localTxId_2, globalTxId, "service b".getBytes(), "method b"));
     sagaEvents.add(txEndedEvent(globalTxId, localTxId_2, globalTxId, "service b".getBytes(), "method b"));
     sagaEvents.add(txStartedEvent(globalTxId, localTxId_3, globalTxId, "service c".getBytes(), "method c"));
-    sagaEvents.add(txAbortedEvent(globalTxId, localTxId_3, globalTxId, "service c".getBytes(), "method c"));
+    sagaEvents.add(txAbortedEvent(globalTxId, localTxId_3, globalTxId, NullPointerException.class.getName().getBytes(), "method c"));
     sagaEvents.add(sagaAbortedEvent(globalTxId));
     return sagaEvents;
   }

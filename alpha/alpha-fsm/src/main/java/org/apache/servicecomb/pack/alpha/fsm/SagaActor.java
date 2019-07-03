@@ -125,7 +125,7 @@ public class SagaActor extends
         matchEvent(TxEndedEvent.class, SagaData.class,
             (event, data) -> {
               UpdateTxEventDomain domainEvent = new UpdateTxEventDomain(event.getParentTxId(),
-                  event.getLocalTxId(), TxState.COMMITTED);
+                  event.getLocalTxId(), TxState.COMMITTED, new byte[0]);
               if (data.getExpirationTime() > 0) {
                 return goTo(SagaActorState.PARTIALLY_COMMITTED)
                     .applying(domainEvent)
@@ -163,7 +163,7 @@ public class SagaActor extends
         ).event(TxAbortedEvent.class,
             (event, data) -> {
               UpdateTxEventDomain domainEvent = new UpdateTxEventDomain(event.getParentTxId(),
-                  event.getLocalTxId(), TxState.FAILED);
+                  event.getLocalTxId(), TxState.FAILED, event.getPayloads());
               return goTo(SagaActorState.FAILED)
                   .applying(domainEvent);
             }
@@ -195,7 +195,7 @@ public class SagaActor extends
         ).event(TxEndedEvent.class,
             (event, data) -> {
               UpdateTxEventDomain domainEvent = new UpdateTxEventDomain(event.getParentTxId(),
-                  event.getLocalTxId(), TxState.COMMITTED);
+                  event.getLocalTxId(), TxState.COMMITTED, new byte[0]);
               if (data.getExpirationTime() > 0) {
                 return stay()
                     .applying(domainEvent)
@@ -228,7 +228,7 @@ public class SagaActor extends
         ).event(TxAbortedEvent.class,
             (event, data) -> {
               UpdateTxEventDomain domainEvent = new UpdateTxEventDomain(event.getParentTxId(),
-                  event.getLocalTxId(), TxState.FAILED);
+                  event.getLocalTxId(), TxState.FAILED, event.getPayloads());
               return goTo(SagaActorState.FAILED).applying(domainEvent);
             }
         ).event(Arrays.asList(StateTimeout()), SagaData.class,
@@ -249,7 +249,7 @@ public class SagaActor extends
         ).event(TxCompensatedEvent.class, SagaData.class,
             (event, data) -> {
               UpdateTxEventDomain domainEvent = new UpdateTxEventDomain(event.getParentTxId(),
-                  event.getLocalTxId(), TxState.COMPENSATED);
+                  event.getLocalTxId(), TxState.COMPENSATED, new byte[0]);
               return stay().applying(domainEvent).andThen(exec(_data -> {
                 self().tell(TxComponsitedCheckInternalEvent.builder().build(), self());
               }));
@@ -295,7 +295,7 @@ public class SagaActor extends
         ).event(TxEndedEvent.class, SagaData.class,
             (event, data) -> {
               UpdateTxEventDomain domainEvent = new UpdateTxEventDomain(event.getParentTxId(),
-                  event.getLocalTxId(), TxState.COMMITTED);
+                  event.getLocalTxId(), TxState.COMMITTED, new byte[0]);
               return stay().applying(domainEvent).andThen(exec(_data -> {
                 TxEntity txEntity = _data.getTxEntityMap().get(event.getLocalTxId());
                 // call compensate
@@ -414,6 +414,7 @@ public class SagaActor extends
         txEntity.setState(domainEvent.getState());
       } else if (domainEvent.getState() == TxState.FAILED) {
         txEntity.setState(domainEvent.getState());
+        txEntity.setThrowablePayLoads(domainEvent.getThrowablePayLoads());
         data.getTxEntityMap().forEach((k, v) -> {
           if (v.getState() == TxState.COMMITTED) {
             // call compensate

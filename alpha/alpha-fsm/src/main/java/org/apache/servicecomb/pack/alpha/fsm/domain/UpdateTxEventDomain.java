@@ -23,11 +23,13 @@ public class UpdateTxEventDomain implements DomainEvent {
   private String parentTxId;
   private String localTxId;
   private TxState state;
+  private byte[] throwablePayLoads;
 
-  public UpdateTxEventDomain(String parentTxId, String localTxId, TxState state) {
+  public UpdateTxEventDomain(String parentTxId, String localTxId, TxState state, byte[] throwablePayLoads) {
     this.parentTxId = parentTxId;
     this.localTxId = localTxId;
     this.state = state;
+    this.throwablePayLoads = throwablePayLoads;
   }
 
   public String getParentTxId() {
@@ -52,5 +54,13 @@ public class UpdateTxEventDomain implements DomainEvent {
 
   public void setState(TxState state) {
     this.state = state;
+  }
+
+  public byte[] getThrowablePayLoads() {
+    return throwablePayLoads;
+  }
+
+  public void setThrowablePayLoads(byte[] throwablePayLoads) {
+    this.throwablePayLoads = throwablePayLoads;
   }
 }

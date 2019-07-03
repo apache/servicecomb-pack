@@ -21,6 +21,15 @@ import org.apache.servicecomb.pack.alpha.fsm.event.base.TxEvent;
 
 public class TxAbortedEvent extends TxEvent {
 
+  private byte[] payloads;
+
+  public byte[] getPayloads() {
+    return payloads;
+  }
+
+  public void setPayloads(byte[] payloads) {
+    this.payloads = payloads;
+  }
 
   public static Builder builder() {
     return new Builder();
@@ -46,6 +55,11 @@ public class TxAbortedEvent extends TxEvent {
 
     public Builder globalTxId(String globalTxId) {
       txAbortedEvent.setGlobalTxId(globalTxId);
+      return this;
+    }
+
+    public Builder payloads(byte[] payloads) {
+      txAbortedEvent.setPayloads(payloads);
       return this;
     }
 
