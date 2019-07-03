@@ -97,10 +97,7 @@ public class AlphaIntegrationFsmTest {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       return sagaData !=null && sagaData.getLastState()==SagaActorState.COMMITTED;
     });
-
-    //await().atMost(1, SECONDS).until(() -> SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId) != null);
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
-    //Assert.assertEquals(sagaData.getLastState(),SagaActorState.COMMITTED);
     Assert.assertEquals(sagaData.getTxEntityMap().size(),3);
     Assert.assertTrue(sagaData.getBeginTime() > 0);
     Assert.assertTrue(sagaData.getEndTime() > 0);
@@ -164,7 +161,7 @@ public class AlphaIntegrationFsmTest {
     omegaEventSender.getOmegaEventSagaSimulator().lastTxAbortedEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       return sagaData !=null && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
@@ -177,6 +174,7 @@ public class AlphaIntegrationFsmTest {
     Assert.assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(),TxState.COMPENSATED);
     Assert.assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(),TxState.COMPENSATED);
     Assert.assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(),TxState.FAILED);
+    Assert.assertArrayEquals(sagaData.getTxEntityMap().get(localTxId_3).getThrowablePayLoads(),NullPointerException.class.getName().getBytes());
   }
 
   @Test
