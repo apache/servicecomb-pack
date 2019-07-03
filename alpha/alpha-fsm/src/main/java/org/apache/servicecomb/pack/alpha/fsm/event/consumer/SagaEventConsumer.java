@@ -58,10 +58,10 @@ public class SagaEventConsumer {
         saga = optional.get();
       }
       saga.tell(event, ActorRef.noSender());
-      LOG.info("tell {} to {}", event.toString(),saga);
-      //TODO WAL commit
+      if(LOG.isDebugEnabled()){
+        LOG.debug("tell {} to {}", event.toString(),saga);
+      }
     }catch (Exception ex){
-      //TODO
       throw ex;
     }
   }

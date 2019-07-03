@@ -256,7 +256,8 @@ public class SagaActor extends
             }
         ).event(TxComponsitedCheckInternalEvent.class, SagaData.class,
             (event, data) -> {
-              if (hasCompensationSentTx(data)) {
+              if (hasCompensationSentTx(data) || !data.isTerminated()) {
+              //if (hasCompensationSentTx(data)) {
                 return stay().replying(data);
               } else {
                 return goTo(SagaActorState.COMPENSATED)
@@ -266,7 +267,7 @@ public class SagaActor extends
             }
         ).event(SagaAbortedEvent.class, SagaData.class,
             (event, data) -> {
-              //data.setTerminated(true);
+              data.setTerminated(true);
               if (hasCommittedTx(data)) {
                 SagaEndedDomain domainEvent = new SagaEndedDomain(SagaActorState.FAILED);
                 return stay().replying(data).applying(domainEvent);
@@ -409,8 +410,8 @@ public class SagaActor extends
       txEntity.setEndTime(System.currentTimeMillis());
       if (domainEvent.getState() == TxState.COMMITTED) {
         // stop
-        data.setEndTime(System.currentTimeMillis());
-        data.setTerminated(true);
+        //data.setEndTime(System.currentTimeMillis());
+        //data.setTerminated(true);
         txEntity.setState(domainEvent.getState());
       } else if (domainEvent.getState() == TxState.FAILED) {
         txEntity.setState(domainEvent.getState());
@@ -430,6 +431,7 @@ public class SagaActor extends
     } else if (event instanceof SagaEndedDomain) {
       SagaEndedDomain domainEvent = (SagaEndedDomain) event;
       if (domainEvent.getState() == SagaActorState.FAILED) {
+        data.setTerminated(true);
         data.getTxEntityMap().forEach((k, v) -> {
           if (v.getState() == TxState.COMMITTED) {
             // call compensate

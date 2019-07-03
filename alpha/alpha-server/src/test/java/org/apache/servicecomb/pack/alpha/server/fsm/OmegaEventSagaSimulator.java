@@ -262,7 +262,6 @@ public class OmegaEventSagaSimulator {
         .build();
   }
 
-
   public static Builder builder() {
     return new Builder();
   }
