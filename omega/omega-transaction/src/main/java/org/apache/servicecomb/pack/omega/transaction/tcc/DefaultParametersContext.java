@@ -29,8 +29,8 @@ public class DefaultParametersContext implements ParametersContext {
   }
 
   @Override
-  public void putParamters(String localTransactionId, Object ... paramters) {
-    parameters.put(localTransactionId, paramters);
+  public void putParameters(String localTransactionId, Object ... parameters) {
+    this.parameters.put(localTransactionId, parameters);
   }
 
   @Override
