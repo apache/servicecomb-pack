@@ -19,6 +19,6 @@ package org.apache.servicecomb.pack.omega.transaction.tcc;
 
 public interface ParametersContext {
   Object[] getParameters(String localTransactionId);
-  void putParamters(String localTransactionId, Object ... paramters);
+  void putParameters(String localTransactionId, Object ... parameters);
   void removeParameter(String localTransactionId);
 }

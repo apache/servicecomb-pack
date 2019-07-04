@@ -67,7 +67,7 @@ public class TccParticipatorAspect {
       tccMessageSender.participationEnd(new ParticipationEndedEvent(context.globalTxId(), context.localTxId(), localTxId,
           confirmMethod, cancelMethod, TransactionStatus.Succeed));
       // Just store the parameters into the context
-      parametersContext.putParamters(context.localTxId(), joinPoint.getArgs());
+      parametersContext.putParameters(context.localTxId(), joinPoint.getArgs());
       LOG.debug("Participate Transaction with context {} has finished.", context);
       return result;
     } catch (Throwable throwable) {
