@@ -17,12 +17,32 @@
 
 package org.apache.servicecomb.pack.alpha.fsm;
 
+import org.apache.servicecomb.pack.alpha.core.CompositeOmegaCallback;
+import org.apache.servicecomb.pack.alpha.core.OmegaCallback;
+import org.apache.servicecomb.pack.alpha.core.PushBackOmegaCallback;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 
 @SpringBootApplication
 public class SagaApplication {
   public static void main(String[] args){
     SpringApplication.run(SagaApplication.class, args);
+  }
+  private final BlockingQueue<Runnable> pendingCompensations = new LinkedBlockingQueue<>();
+
+  @Bean
+  Map<String, Map<String, OmegaCallback>> omegaCallbacks() {
+    return new ConcurrentHashMap<>();
+  }
+
+  @Bean
+  OmegaCallback omegaCallback(Map<String, Map<String, OmegaCallback>> callbacks) {
+    return new PushBackOmegaCallback(pendingCompensations, new CompositeOmegaCallback(callbacks));
   }
 }
