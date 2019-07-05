@@ -25,6 +25,8 @@ import akka.util.Timeout;
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.apache.servicecomb.pack.alpha.fsm.SagaActor;
 import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
@@ -42,21 +44,31 @@ public class SagaEventConsumer {
   @Autowired
   ActorSystem system;
 
+  private Map<String,ActorRef> sagaCache = new HashMap<>();
+
   /**
    * Receive fsm message
    * */
   @Subscribe
   public void receiveSagaEvent(BaseEvent event) throws Exception {
-    LOG.info("receive {} ", event.toString());
+    if(LOG.isDebugEnabled()){
+      LOG.debug("receive {} ", event.toString());
+    }
     try{
       ActorRef saga;
-      String actorPath = "/user/" + event.getGlobalTxId();
-      Optional<ActorRef> optional = this.getActorRefFromPath(actorPath);
-      if (!optional.isPresent()) {
+      if(sagaCache.containsKey(event.getGlobalTxId())){
+        saga = sagaCache.get(event.getGlobalTxId());
+      }else{
         saga = system.actorOf(SagaActor.props(event.getGlobalTxId()), event.getGlobalTxId());
-      } else {
-        saga = optional.get();
+        sagaCache.put(event.getGlobalTxId(), saga);
       }
+//      String actorPath = "/user/" + event.getGlobalTxId();
+//      Optional<ActorRef> optional = this.getActorRefFromPath(actorPath);
+//      if (!optional.isPresent()) {
+//        saga = system.actorOf(SagaActor.props(event.getGlobalTxId()), event.getGlobalTxId());
+//      } else {
+//        saga = optional.get();
+//      }
       saga.tell(event, ActorRef.noSender());
       if(LOG.isDebugEnabled()){
         LOG.debug("tell {} to {}", event.toString(),saga);

@@ -17,7 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka;
 
-import static org.apache.servicecomb.pack.common.EventType.TxStartedEvent;
+import static org.apache.servicecomb.pack.common.EventType.TxCompensateEvent;
 
 import akka.actor.AbstractExtensionId;
 import akka.actor.ExtendedActorSystem;
@@ -57,11 +57,10 @@ public class SpringAkkaExtension extends AbstractExtensionId<SpringExt> {
               txEntity.getGlobalTxId(),
               txEntity.getLocalTxId(),
               txEntity.getParentTxId(),
-              TxStartedEvent.name(),
+              TxCompensateEvent.name(),
               txEntity.getCompensationMethod(),
               txEntity.getPayloads());
           omegaCallback.compensate(event);
-          LOG.info(omegaCallback.toString());
         } else {
           LOG.warn("Spring Bean {} doesn't exist in ApplicationContext", omegaCallbackBeanName);
         }

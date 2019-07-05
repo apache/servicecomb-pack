@@ -18,6 +18,7 @@
 package org.apache.servicecomb.pack.alpha.fsm.model;
 
 import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.servicecomb.pack.alpha.fsm.TxState;
 
 public class TxEntity implements Serializable {
@@ -32,6 +33,8 @@ public class TxEntity implements Serializable {
   private String compensationMethod;
   private byte[] payloads;
   private byte[] throwablePayLoads;
+  private int retries;
+  private AtomicInteger retriesCounter = new AtomicInteger();
 
   public String getServiceName() {
     return serviceName;
@@ -121,6 +124,18 @@ public class TxEntity implements Serializable {
     this.throwablePayLoads = throwablePayLoads;
   }
 
+  public int getRetries() {
+    return retries;
+  }
+
+  public void setRetries(int retries) {
+    this.retries = retries;
+  }
+
+  public AtomicInteger getRetriesCounter() {
+    return retriesCounter;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -185,6 +200,11 @@ public class TxEntity implements Serializable {
 
     public Builder instanceId(String instanceId) {
       txEntity.setInstanceId(instanceId);
+      return this;
+    }
+
+    public Builder retries(int retries) {
+      txEntity.setRetries(retries);
       return this;
     }
 

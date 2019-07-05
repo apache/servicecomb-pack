@@ -22,6 +22,7 @@ import akka.persistence.fsm.AbstractPersistentFSM;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import org.apache.servicecomb.pack.alpha.core.AlphaException;
 import org.apache.servicecomb.pack.alpha.fsm.domain.AddTxEventDomain;
 import org.apache.servicecomb.pack.alpha.fsm.domain.DomainEvent;
 import org.apache.servicecomb.pack.alpha.fsm.domain.SagaEndedDomain;
@@ -88,7 +89,8 @@ public class SagaActor extends
                   event.getParentTxId(),
                   event.getLocalTxId(),
                   event.getPayloads(),
-                  event.getCompensationMethod());
+                  event.getCompensationMethod(),
+                  event.getRetries());
               if (data.getExpirationTime() > 0) {
                 return goTo(SagaActorState.PARTIALLY_ACTIVE)
                     .applying(domainEvent)
@@ -143,7 +145,8 @@ public class SagaActor extends
                   event.getParentTxId(),
                   event.getLocalTxId(),
                   event.getPayloads(),
-                  event.getCompensationMethod());
+                  event.getCompensationMethod(),
+                  event.getRetries());
               if (data.getExpirationTime() > 0) {
                 return stay()
                     .applying(domainEvent)
@@ -182,7 +185,8 @@ public class SagaActor extends
                   event.getParentTxId(),
                   event.getLocalTxId(),
                   event.getPayloads(),
-                  event.getCompensationMethod());
+                  event.getCompensationMethod(),
+                  event.getRetries());
               if (data.getExpirationTime() > 0) {
                 return goTo(SagaActorState.PARTIALLY_ACTIVE)
                     .applying(domainEvent)
@@ -260,7 +264,10 @@ public class SagaActor extends
               //if (hasCompensationSentTx(data)) {
                 return stay().replying(data);
               } else {
+                SagaEndedDomain domainEvent = new SagaEndedDomain(
+                    SagaActorState.COMPENSATED);
                 return goTo(SagaActorState.COMPENSATED)
+                    .applying(domainEvent)
                     .replying(data)
                     .forMax(Duration.create(1, TimeUnit.MILLISECONDS));
               }
@@ -290,7 +297,8 @@ public class SagaActor extends
                   event.getParentTxId(),
                   event.getLocalTxId(),
                   event.getPayloads(),
-                  event.getCompensationMethod());
+                  event.getCompensationMethod(),
+                  event.getRetries());
               return stay().applying(domainEvent);
             }
         ).event(TxEndedEvent.class, SagaData.class,
@@ -444,6 +452,9 @@ public class SagaActor extends
       } else if (domainEvent.getState() == SagaActorState.COMPENSATED) {
         data.setEndTime(System.currentTimeMillis());
         data.setTerminated(true);
+      } else if (domainEvent.getState() == SagaActorState.COMMITTED) {
+        data.setEndTime(System.currentTimeMillis());
+        data.setTerminated(true);
       }
     }
     LOG.debug("applyEvent: {} {}", stateName(), stateData().getGlobalTxId());
@@ -478,12 +489,43 @@ public class SagaActor extends
         .count() > 0;
   }
 
+  //call omega compensate method
   private void compensation(TxEntity txEntity, SagaData data) {
     // increments the compensation running counter by one
     data.getCompensationRunningCounter().incrementAndGet();
-    //TODO call omega compensate method
-    SpringAkkaExtension.SPRING_EXTENSION_PROVIDER.get(context().system()).compensate(txEntity);
-    LOG.info("compensate {}", txEntity.getLocalTxId());
     txEntity.setState(TxState.COMPENSATION_SENT);
+    try{
+      SpringAkkaExtension.SPRING_EXTENSION_PROVIDER.get(context().system()).compensate(txEntity);
+      LOG.info("compensate {}", txEntity.getLocalTxId());
+    }catch (AlphaException ex){
+      LOG.error(ex.getMessage(),ex);
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        LOG.error(e.getMessage(),e);
+      }
+      compensation(txEntity,data);
+    }catch (Exception ex){
+      LOG.error("compensation failed "+txEntity.getLocalTxId(), ex);
+      if(txEntity.getRetries() > 0){
+        // which means the retry number
+        if(txEntity.getRetriesCounter().incrementAndGet() < txEntity.getRetries()){
+          try {
+            Thread.sleep(1000);
+          } catch (InterruptedException e) {
+            LOG.error(e.getMessage(),e);
+          }
+          compensation(txEntity,data);
+        }
+      } else if(txEntity.getRetries() == -1){
+        // which means retry it until succeed
+        try {
+          Thread.sleep(1000);
+        } catch (InterruptedException e) {
+          LOG.error(e.getMessage(),e);
+        }
+        compensation(txEntity,data);
+      }
+    }
   }
 }

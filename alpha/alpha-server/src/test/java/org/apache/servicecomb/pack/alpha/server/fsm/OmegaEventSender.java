@@ -85,8 +85,8 @@ public class OmegaEventSender {
     return blockingStub;
   }
 
-  public Map<String, OmegaCallback> getOmegaCallbacks(){
-    return omegaCallbacks.get(serviceName);
+  public Map<String, Map<String, OmegaCallback>> getOmegaCallbacks(){
+    return omegaCallbacks;
   }
 
   public void reset(){
