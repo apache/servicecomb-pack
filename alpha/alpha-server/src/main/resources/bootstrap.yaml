@@ -26,3 +26,6 @@ spring:
       enabled: false
     zookeeper:
       enabled: false
+  nacos:
+    discovery:
+      enabled: false
