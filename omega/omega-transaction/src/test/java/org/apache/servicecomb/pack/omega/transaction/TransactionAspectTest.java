@@ -240,7 +240,6 @@ public class TransactionAspectTest {
       @Override
       public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
         System.setSecurityManager(new AccessRejectionSecurityManager(main));
-        Thread.sleep(5000);
         return null;
       }
     });
