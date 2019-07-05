@@ -25,16 +25,18 @@ public class AddTxEventDomain implements DomainEvent {
   private String parentTxId;
   private String localTxId;
   private TxState state = TxState.ACTIVE;
+  private int retries;
   private String compensationMethod;
   private byte[] payloads;
 
-  public AddTxEventDomain(String serviceName, String instanceId, String parentTxId, String localTxId, byte[] payloads, String compensationMethod) {
+  public AddTxEventDomain(String serviceName, String instanceId, String parentTxId, String localTxId, byte[] payloads, String compensationMethod, int retries) {
     this.serviceName = serviceName;
     this.instanceId = instanceId;
     this.parentTxId = parentTxId;
     this.localTxId = localTxId;
     this.compensationMethod = compensationMethod;
     this.payloads = payloads;
+    this.retries = retries;
   }
 
   public String getServiceName() {
@@ -83,6 +85,14 @@ public class AddTxEventDomain implements DomainEvent {
 
   public void setCompensationMethod(String compensationMethod) {
     this.compensationMethod = compensationMethod;
+  }
+
+  public int getRetries() {
+    return retries;
+  }
+
+  public void setRetries(int retries) {
+    this.retries = retries;
   }
 
   public byte[] getPayloads() {
