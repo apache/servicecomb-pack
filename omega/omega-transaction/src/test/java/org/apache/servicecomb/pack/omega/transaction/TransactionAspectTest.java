@@ -247,7 +247,7 @@ public class TransactionAspectTest {
     try {
       aspect.advise(joinPoint, compensable);
     } catch (RuntimeException e) {
-      assertThat(e, instanceOf(OmegaException.class));
+      assertThat(e, anyOf(instanceOf(OmegaException.class),instanceOf(TransactionTimeoutException.class)));
     }
   }
 
