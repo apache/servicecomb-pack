@@ -17,6 +17,8 @@
 
 package org.apache.servicecomb.pack.alpha.core;
 
+import static org.apache.servicecomb.pack.common.EventType.TxCompensateEvent;
+
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.BlockingQueue;
 
@@ -36,11 +38,16 @@ public class PushBackOmegaCallback implements OmegaCallback {
 
   @Override
   public void compensate(TxEvent event) {
-    try {
+    if(event.type().equals(TxCompensateEvent.name())){
+      // actor call compensate
       underlying.compensate(event);
-    } catch (Exception e) {
-      logError(event, e);
-      pendingCompensations.offer(() -> compensate(event));
+    }else{
+      try {
+        underlying.compensate(event);
+      } catch (Exception e) {
+        logError(event, e);
+        pendingCompensations.offer(() -> compensate(event));
+      }
     }
   }
 
