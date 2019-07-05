@@ -860,6 +860,7 @@
         <spring.cloud.version>${spring.cloud1.version}</spring.cloud.version>
         <spring.cloud.starter.consul.discovery.version>${spring.cloud.starter.consul.discovery1.version}</spring.cloud.starter.consul.discovery.version>
         <spring.cloud.starter.zookeeper.discovery.version>${spring.cloud.starter.zookeeper.discovery1.version}</spring.cloud.starter.zookeeper.discovery.version>
+        <spring.cloud.starter.alibaba.nacos.discovery.version>${spring.cloud.starter.alibaba.nacos.discovery1.version}</spring.cloud.starter.alibaba.nacos.discovery.version>
       </properties>
       <dependencyManagement>
         <dependencies>
@@ -880,6 +881,7 @@
         <spring.cloud.version>${spring.cloud2.version}</spring.cloud.version>
         <spring.cloud.starter.consul.discovery.version>${spring.cloud.starter.consul.discovery2.version}</spring.cloud.starter.consul.discovery.version>
         <spring.cloud.starter.zookeeper.discovery.version>${spring.cloud.starter.zookeeper.discovery2.version}</spring.cloud.starter.zookeeper.discovery.version>
+        <spring.cloud.starter.alibaba.nacos.discovery.version>${spring.cloud.starter.alibaba.nacos.discovery2.version}</spring.cloud.starter.alibaba.nacos.discovery.version>
       </properties>
     </profile>
     <profile>
