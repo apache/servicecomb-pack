@@ -36,7 +36,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(classes = {SagaApplication.class},
     properties = {
         "alpha.model.actor.enabled=true",
-        "spring.profiles.active=akka-persistence-mem"
+        "akkaConfig.akka.persistence.journal.plugin=akka.persistence.journal.inmem",
+        "akkaConfig.akka.persistence.journal.leveldb.dir=target/example/journal",
+        "akkaConfig.akka.persistence.snapshot-store.plugin=akka.persistence.snapshot-store.local",
+        "akkaConfig.akka.persistence.snapshot-store.local.dir=target/example/snapshots"
     })
 public class SagaIntegrationTest {
 
