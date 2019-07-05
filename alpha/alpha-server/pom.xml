@@ -284,6 +284,17 @@
       </dependencies>
     </profile>
     <profile>
+      <id>spring-cloud-nacos</id>
+      <!-- Specify the alpha spring boot starter with the profile-->
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.servicecomb.pack</groupId>
+          <artifactId>alpha-spring-cloud-starter-nacos</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+
+    <profile>
       <id>mysql</id>
       <dependencies>
         <dependency>
