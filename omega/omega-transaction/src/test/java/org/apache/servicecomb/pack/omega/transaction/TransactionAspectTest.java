@@ -241,14 +241,13 @@ public class TransactionAspectTest {
       @Override
       public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
         System.setSecurityManager(new AccessRejectionSecurityManager(main));
-        Thread.sleep(5000);
         return null;
       }
     });
     try {
       aspect.advise(joinPoint, compensable);
     } catch (RuntimeException e) {
-      assertThat(e, anyOf(instanceOf(OmegaException.class),instanceOf(TransactionTimeoutException.class)));
+      assertThat(e, instanceOf(OmegaException.class));
     }
   }
 
