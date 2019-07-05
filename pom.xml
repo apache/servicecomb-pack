@@ -62,6 +62,11 @@
     <spring.cloud.starter.zookeeper.discovery1.version>1.2.2.RELEASE</spring.cloud.starter.zookeeper.discovery1.version>
     <spring.cloud.starter.zookeeper.discovery2.version>${spring.cloud.version}</spring.cloud.starter.zookeeper.discovery2.version>
     <spring.cloud.starter.zookeeper.discovery.version>${spring.cloud.starter.zookeeper.discovery2.version}</spring.cloud.starter.zookeeper.discovery.version>
+
+    <spring.cloud.starter.alibaba.nacos.discovery1.version>0.1.2.RELEASE</spring.cloud.starter.alibaba.nacos.discovery1.version>
+    <spring.cloud.starter.alibaba.nacos.discovery2.version>0.2.2.RELEASE</spring.cloud.starter.alibaba.nacos.discovery2.version>
+    <spring.cloud.starter.alibaba.nacos.discovery.version>${spring.cloud.starter.alibaba.nacos.discovery2.version}</spring.cloud.starter.alibaba.nacos.discovery.version>
+
     <java.chassis.version>1.0.0</java.chassis.version>
     <akka.version>2.5.14</akka.version>
     <rat.version>0.12</rat.version>
