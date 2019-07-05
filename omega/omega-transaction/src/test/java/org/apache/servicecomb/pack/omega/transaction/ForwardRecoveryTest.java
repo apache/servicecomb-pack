@@ -18,6 +18,8 @@
 package org.apache.servicecomb.pack.omega.transaction;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -142,7 +144,9 @@ public class ForwardRecoveryTest {
       recoveryPolicy.apply(joinPoint, compensable, interceptor, omegaContext, parentTxId, 2);
       expectFailing(RuntimeException.class);
     } catch (RuntimeException e) {
-      assertThat(e.getMessage(), is("oops"));
+      //Sometimes thrown interrupt exception with CI
+      assertThat(e.getMessage(), anyOf(containsString("oops"),
+          containsString("Failed to handle tx because it is interrupted")));
     }
 
     assertThat(messages.size(), is(4));
