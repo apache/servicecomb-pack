@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.fsm;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import akka.actor.ActorRef;
@@ -28,13 +29,16 @@ import akka.testkit.javadsl.TestKit;
 import com.typesafe.config.ConfigFactory;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
 import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.hamcrest.CoreMatchers.*;
 
 public class SagaActorTest {
 
@@ -98,7 +102,8 @@ public class SagaActorTest {
       watch(saga);
       saga.tell(new PersistentFSM.SubscribeTransitionCallBack(getRef()), getRef());
 
-      SagaEventSender.successfulEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
+      List<BaseEvent> eventList = SagaEventSender.successfulEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3);
+      eventList.stream().forEach( event -> {
         saga.tell(event, getRef());
       });
 
@@ -140,6 +145,7 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
+      assertThat(eventList, is(sagaData.getEvents()));
       system.stop(saga);
     }};
   }
@@ -166,8 +172,8 @@ public class SagaActorTest {
       ActorRef saga = system.actorOf(SagaActor.props(persistenceId));
       watch(saga);
       saga.tell(new PersistentFSM.SubscribeTransitionCallBack(getRef()), getRef());
-      SagaEventSender.successfulFirstHalfEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3)
-          .stream().forEach(event -> {
+      List<BaseEvent> eventListFirst = SagaEventSender.successfulFirstHalfEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3);
+      eventListFirst.stream().forEach(event -> {
         saga.tell(event, getRef());
       });
 
@@ -194,8 +200,8 @@ public class SagaActorTest {
       ActorRef recoveredSaga = system.actorOf(SagaActor.props(persistenceId), "recoveredSaga");
       watch(recoveredSaga);
       recoveredSaga.tell(new PersistentFSM.SubscribeTransitionCallBack(getRef()), getRef());
-      SagaEventSender.successfulSecondHalfEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3)
-          .stream().forEach(event -> {
+      List<BaseEvent> eventListSecond = SagaEventSender.successfulSecondHalfEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3);
+      eventListSecond.stream().forEach(event -> {
         recoveredSaga.tell(event, getRef());
       });
 
@@ -227,6 +233,10 @@ public class SagaActorTest {
 
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), recoveredSaga);
+
+      eventListFirst.addAll(eventListSecond);
+      assertThat(eventListFirst, is(sagaData.getEvents()));
+
       system.stop(saga);
     }};
   }
@@ -246,8 +256,8 @@ public class SagaActorTest {
       ActorRef saga = system.actorOf(SagaActor.props(genPersistenceId()));
       watch(saga);
       saga.tell(new PersistentFSM.SubscribeTransitionCallBack(getRef()), getRef());
-
-      SagaEventSender.firstTxAbortedEvents(globalTxId, localTxId_1).stream().forEach( event -> {
+      List<BaseEvent> eventList = SagaEventSender.firstTxAbortedEvents(globalTxId, localTxId_1);
+      eventList.forEach( event -> {
         saga.tell(event, getRef());
       });
 
@@ -276,6 +286,8 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
+      assertThat(eventList, is(sagaData.getEvents()));
+
       system.stop(saga);
     }};
   }
@@ -301,7 +313,8 @@ public class SagaActorTest {
       watch(saga);
       saga.tell(new PersistentFSM.SubscribeTransitionCallBack(getRef()), getRef());
 
-      SagaEventSender.middleTxAbortedEvents(globalTxId, localTxId_1, localTxId_2).stream().forEach( event -> {
+      List<BaseEvent> eventList = SagaEventSender.middleTxAbortedEvents(globalTxId, localTxId_1, localTxId_2);
+      eventList.stream().forEach( event -> {
         saga.tell(event, getRef());
       });
 
@@ -337,6 +350,8 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
+      assertThat(eventList, is(sagaData.getEvents()));
+
       system.stop(saga);
     }};
   }
@@ -365,7 +380,8 @@ public class SagaActorTest {
       watch(saga);
       saga.tell(new PersistentFSM.SubscribeTransitionCallBack(getRef()), getRef());
 
-      SagaEventSender.lastTxAbortedEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
+      List<BaseEvent> eventList = SagaEventSender.lastTxAbortedEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3);
+      eventList.stream().forEach( event -> {
         saga.tell(event, getRef());
       });
 
@@ -408,6 +424,8 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
+      assertThat(eventList, is(sagaData.getEvents()));
+
       system.stop(saga);
     }};
   }
@@ -436,7 +454,8 @@ public class SagaActorTest {
       watch(saga);
       saga.tell(new PersistentFSM.SubscribeTransitionCallBack(getRef()), getRef());
 
-      SagaEventSender.sagaAbortedEventBeforeTxComponsitedEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
+      List<BaseEvent> eventList = SagaEventSender.sagaAbortedEventBeforeTxComponsitedEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3);
+      eventList.stream().forEach( event -> {
         saga.tell(event, getRef());
       });
 
@@ -481,6 +500,8 @@ public class SagaActorTest {
       assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(), TxState.FAILED);
       assertEquals(sagaData.getCompensationRunningCounter().intValue(), 0);
 
+      assertThat(eventList, is(sagaData.getEvents()));
+
       system.stop(saga);
     }};
   }
@@ -509,7 +530,8 @@ public class SagaActorTest {
       watch(saga);
       saga.tell(new PersistentFSM.SubscribeTransitionCallBack(getRef()), getRef());
 
-      SagaEventSender.receivedRemainingEventAfterFirstTxAbortedEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
+      List<BaseEvent> eventList = SagaEventSender.receivedRemainingEventAfterFirstTxAbortedEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3);
+      eventList.stream().forEach( event -> {
         saga.tell(event, getRef());
       });
 
@@ -539,6 +561,8 @@ public class SagaActorTest {
 
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
+
+      assertThat(eventList, is(sagaData.getEvents()));
 
       system.stop(saga);
     }};
@@ -570,7 +594,8 @@ public class SagaActorTest {
       watch(saga);
       saga.tell(new PersistentFSM.SubscribeTransitionCallBack(getRef()), getRef());
 
-      SagaEventSender.sagaAbortedEventAfterAllTxEndedsEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
+      List<BaseEvent> eventList = SagaEventSender.sagaAbortedEventAfterAllTxEndedsEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3);
+      eventList.stream().forEach( event -> {
         saga.tell(event, getRef());
       });
 
@@ -616,6 +641,8 @@ public class SagaActorTest {
       assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(), TxState.COMPENSATED);
       assertEquals(sagaData.getCompensationRunningCounter().intValue(), 0);
 
+      assertThat(eventList, is(sagaData.getEvents()));
+
       system.stop(saga);
     }};
   }
@@ -643,7 +670,8 @@ public class SagaActorTest {
       watch(saga);
       saga.tell(new PersistentFSM.SubscribeTransitionCallBack(getRef()), getRef());
 
-      SagaEventSender.omegaSendSagaTimeoutEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
+      List<BaseEvent> eventList = SagaEventSender.omegaSendSagaTimeoutEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3);
+      eventList.stream().forEach( event -> {
         saga.tell(event, getRef());
       });
 
@@ -685,6 +713,8 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
+      assertThat(eventList, is(sagaData.getEvents()));
+
       system.stop(saga);
     }};
   }
@@ -711,7 +741,8 @@ public class SagaActorTest {
       watch(saga);
       saga.tell(new PersistentFSM.SubscribeTransitionCallBack(getRef()), getRef());
 
-      SagaEventSender.sagaActorTriggerTimeoutEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3, timeout).stream().forEach( event -> {
+      List<BaseEvent> eventList = SagaEventSender.sagaActorTriggerTimeoutEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3, timeout);
+      eventList.stream().forEach( event -> {
         saga.tell(event, getRef());
       });
 
@@ -745,6 +776,9 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      assertThat(eventList, is(sagaData.getEvents()));
+
       system.stop(saga);
     }};
   }
@@ -772,7 +806,8 @@ public class SagaActorTest {
       ActorRef saga = system.actorOf(SagaActor.props(genPersistenceId()));
       watch(saga);
       saga.tell(new PersistentFSM.SubscribeTransitionCallBack(getRef()), getRef());
-      SagaEventSender.successfulWithTxConcurrentEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
+      List<BaseEvent> eventList = SagaEventSender.successfulWithTxConcurrentEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3);
+      eventList.stream().forEach( event -> {
         saga.tell(event, getRef());
       });
 
@@ -802,6 +837,8 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
+      assertThat(eventList, is(sagaData.getEvents()));
+
       system.stop(saga);
     }};
   }
@@ -827,7 +864,8 @@ public class SagaActorTest {
       ActorRef saga = system.actorOf(SagaActor.props(genPersistenceId()));
       watch(saga);
       saga.tell(new PersistentFSM.SubscribeTransitionCallBack(getRef()), getRef());
-      SagaEventSender.successfulWithTxConcurrentCrossEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
+      List<BaseEvent> eventList = SagaEventSender.successfulWithTxConcurrentCrossEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3);
+      eventList.stream().forEach( event -> {
         saga.tell(event, getRef());
       });
 
@@ -863,6 +901,8 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
+      assertThat(eventList, is(sagaData.getEvents()));
+
       system.stop(saga);
     }};
   }
@@ -890,7 +930,8 @@ public class SagaActorTest {
       ActorRef saga = system.actorOf(SagaActor.props(genPersistenceId()));
       watch(saga);
       saga.tell(new PersistentFSM.SubscribeTransitionCallBack(getRef()), getRef());
-      SagaEventSender.lastTxAbortedEventWithTxConcurrentEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
+      List<BaseEvent> eventList = SagaEventSender.lastTxAbortedEventWithTxConcurrentEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3);
+      eventList.stream().forEach( event -> {
         saga.tell(event, getRef());
       });
 
@@ -923,6 +964,8 @@ public class SagaActorTest {
 
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
+
+      assertThat(eventList, is(sagaData.getEvents()));
 
       system.stop(saga);
     }};

@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.fsm.event;
 
+import java.util.Date;
 import org.apache.servicecomb.pack.alpha.fsm.event.base.TxEvent;
 
 public class TxAbortedEvent extends TxEvent {
@@ -41,6 +42,16 @@ public class TxAbortedEvent extends TxEvent {
 
     private Builder() {
       txAbortedEvent = new TxAbortedEvent();
+    }
+
+    public Builder serviceName(String serviceName) {
+      txAbortedEvent.setServiceName(serviceName);
+      return this;
+    }
+
+    public Builder instanceId(String instanceId) {
+      txAbortedEvent.setInstanceId(instanceId);
+      return this;
     }
 
     public Builder parentTxId(String parentTxId) {

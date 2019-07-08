@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.fsm.event;
 
+import java.util.Date;
 import org.apache.servicecomb.pack.alpha.fsm.event.base.SagaEvent;
 
 public class SagaEndedEvent extends SagaEvent {
@@ -35,6 +36,23 @@ public class SagaEndedEvent extends SagaEvent {
 
     public Builder globalTxId(String globalTxId) {
       sagaEndedEvent.setGlobalTxId(globalTxId);
+      sagaEndedEvent.setLocalTxId(globalTxId);
+      sagaEndedEvent.setParentTxId(globalTxId);
+      return this;
+    }
+
+    public Builder serviceName(String serviceName) {
+      sagaEndedEvent.setServiceName(serviceName);
+      return this;
+    }
+
+    public Builder instanceId(String instanceId) {
+      sagaEndedEvent.setInstanceId(instanceId);
+      return this;
+    }
+
+    public Builder createTime(Date createTime){
+      sagaEndedEvent.setCreateTime(createTime);
       return this;
     }
 

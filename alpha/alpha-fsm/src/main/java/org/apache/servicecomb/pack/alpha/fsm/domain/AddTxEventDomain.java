@@ -18,65 +18,25 @@
 package org.apache.servicecomb.pack.alpha.fsm.domain;
 
 import org.apache.servicecomb.pack.alpha.fsm.TxState;
+import org.apache.servicecomb.pack.alpha.fsm.event.TxStartedEvent;
+import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
 
 public class AddTxEventDomain implements DomainEvent {
-  private String serviceName;
-  private String instanceId;
-  private String parentTxId;
-  private String localTxId;
   private TxState state = TxState.ACTIVE;
   private int retries;
   private String compensationMethod;
   private byte[] payloads;
+  private BaseEvent event;
 
-  public AddTxEventDomain(String serviceName, String instanceId, String parentTxId, String localTxId, byte[] payloads, String compensationMethod, int retries) {
-    this.serviceName = serviceName;
-    this.instanceId = instanceId;
-    this.parentTxId = parentTxId;
-    this.localTxId = localTxId;
-    this.compensationMethod = compensationMethod;
-    this.payloads = payloads;
-    this.retries = retries;
-  }
-
-  public String getServiceName() {
-    return serviceName;
-  }
-
-  public void setServiceName(String serviceName) {
-    this.serviceName = serviceName;
-  }
-
-  public String getInstanceId() {
-    return instanceId;
-  }
-
-  public void setInstanceId(String instanceId) {
-    this.instanceId = instanceId;
-  }
-
-  public String getParentTxId() {
-    return parentTxId;
-  }
-
-  public void setParentTxId(String parentTxId) {
-    this.parentTxId = parentTxId;
-  }
-
-  public String getLocalTxId() {
-    return localTxId;
-  }
-
-  public void setLocalTxId(String localTxId) {
-    this.localTxId = localTxId;
+  public AddTxEventDomain(TxStartedEvent event) {
+    this.event = event;
+    this.compensationMethod = event.getCompensationMethod();
+    this.payloads = event.getPayloads();
+    this.retries = event.getRetries();
   }
 
   public TxState getState() {
     return state;
-  }
-
-  public void setState(TxState state) {
-    this.state = state;
   }
 
   public String getCompensationMethod() {
@@ -101,5 +61,10 @@ public class AddTxEventDomain implements DomainEvent {
 
   public void setPayloads(byte[] payloads) {
     this.payloads = payloads;
+  }
+
+  @Override
+  public BaseEvent getEvent() {
+    return event;
   }
 }
