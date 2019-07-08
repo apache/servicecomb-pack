@@ -19,6 +19,7 @@ package org.apache.servicecomb.pack.omega.transaction;
 
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
+import org.apache.servicecomb.pack.omega.transaction.wrapper.RecoveryPolicyTimeoutWrapper;
 import org.aspectj.lang.ProceedingJoinPoint;
 
 public abstract class AbstractRecoveryPolicy implements RecoveryPolicy {
@@ -32,8 +33,8 @@ public abstract class AbstractRecoveryPolicy implements RecoveryPolicy {
       CompensableInterceptor interceptor, OmegaContext context, String parentTxId, int retries)
       throws Throwable {
     if(compensable.timeout()>0){
-      return RecoveryPolicyTimeoutWrapper
-          .getInstance().wrapper(this).applyTo(joinPoint, compensable, interceptor, context, parentTxId, retries);
+      RecoveryPolicyTimeoutWrapper wrapper = new RecoveryPolicyTimeoutWrapper(this);
+      return wrapper.applyTo(joinPoint, compensable, interceptor, context, parentTxId, retries);
     }else{
       return this.applyTo(joinPoint, compensable, interceptor, context, parentTxId, retries);
     }
