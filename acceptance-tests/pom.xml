@@ -37,6 +37,7 @@
     <module>acceptance-pack-spring-demo-with-consul</module>
     <module>acceptance-pack-spring-demo-with-zookeeper</module>
     <module>acceptance-pack-spring-demo-with-nacos</module>
+    <module>acceptance-pack-akka-spring-demo</module>
   </modules>
 
   <properties>

@@ -15,16 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server;
+package org.apache.servicecomb.pack.alpha.server.fsm;
 
+import akka.actor.ActorSystem;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-
+import java.util.Map;
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Trace;
 import org.apache.servicecomb.pack.alpha.core.TxEvent;
+import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
+import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
@@ -33,35 +42,31 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-
-import kamon.annotation.EnableKamon;
-import kamon.annotation.Trace;
-
 @EnableKamon
 @Controller
 @RequestMapping("/saga")
 @Profile("test")
-@ConditionalOnProperty(name = "alpha.feature.akka.enabled", havingValue = "false", matchIfMissing = true)
+@ConditionalOnProperty(name= "alpha.feature.akka.enabled", havingValue = "true")
 // Only export this Controller for test
-class AlphaEventController {
+class FsmSagaDataController {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private final TxEventEnvelopeRepository eventRepository;
-
-  AlphaEventController(TxEventEnvelopeRepository eventRepository) {
-    this.eventRepository = eventRepository;
-  }
+  @Autowired
+  ActorSystem system;
 
   @Trace("getEvents")
   @GetMapping(value = "/events")
-  ResponseEntity<Collection<TxEventVo>> events() {
+  ResponseEntity<Collection<Map>> events() {
     LOG.info("Get the events request");
-    Iterable<TxEvent> events = eventRepository.findAll();
-
-    List<TxEventVo> eventVos = new LinkedList<>();
-    events.forEach(event -> eventVos.add(new TxEventVo(event)));
+    List<Map> eventVos = new LinkedList<>();
+    SagaData data = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
+    data.getEvents().forEach(event -> {
+      LOG.info(event.toString());
+      Map<String,String> obj = new HashMap();
+      obj.put("serviceName",event.getServiceName());
+      obj.put("type",event.getClass().getSimpleName());
+      eventVos.add(obj);
+    });
     LOG.info("Get the event size " + eventVos.size());
 
     return ResponseEntity.ok(eventVos);
@@ -70,7 +75,7 @@ class AlphaEventController {
   @Trace("deleteEvents")
   @DeleteMapping("/events")
   ResponseEntity<String> clear() {
-    eventRepository.deleteAll();
+    SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).clearSagaData();
     return ResponseEntity.ok("All events deleted");
   }
 
