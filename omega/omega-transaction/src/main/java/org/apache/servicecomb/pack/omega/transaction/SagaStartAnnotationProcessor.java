@@ -20,17 +20,17 @@ package org.apache.servicecomb.pack.omega.transaction;
 import javax.transaction.TransactionalException;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 
-class SagaStartAnnotationProcessor {
+public class SagaStartAnnotationProcessor {
 
   private final OmegaContext omegaContext;
   private final SagaMessageSender sender;
 
-  SagaStartAnnotationProcessor(OmegaContext omegaContext, SagaMessageSender sender) {
+  public SagaStartAnnotationProcessor(OmegaContext omegaContext, SagaMessageSender sender) {
     this.omegaContext = omegaContext;
     this.sender = sender;
   }
 
-  AlphaResponse preIntercept(int timeout) {
+  public AlphaResponse preIntercept(int timeout) {
     try {
       return sender
           .send(new SagaStartedEvent(omegaContext.globalTxId(), omegaContext.localTxId(), timeout));
@@ -39,7 +39,7 @@ class SagaStartAnnotationProcessor {
     }
   }
 
-  void postIntercept(String parentTxId) {
+  public void postIntercept(String parentTxId) {
     AlphaResponse response = sender
         .send(new SagaEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
     if (response.aborted()) {
@@ -47,10 +47,16 @@ class SagaStartAnnotationProcessor {
     }
   }
 
-  void onError(String compensationMethod, Throwable throwable) {
+  public void onError(String compensationMethod, Throwable throwable) {
     String globalTxId = omegaContext.globalTxId();
-    sender.send(
-        new TxAbortedEvent(globalTxId, omegaContext.localTxId(), null, compensationMethod,
-            throwable));
+    if(omegaContext.isAlphaFeatureAkkaEnabled()){
+      sender.send(
+          new SagaAbortedEvent(globalTxId, omegaContext.localTxId(), null, compensationMethod,
+              throwable));
+    }else{
+      sender.send(
+          new TxAbortedEvent(globalTxId, omegaContext.localTxId(), null, compensationMethod,
+              throwable));
+    }
   }
 }

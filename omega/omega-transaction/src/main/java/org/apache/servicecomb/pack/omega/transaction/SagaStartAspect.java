@@ -17,20 +17,16 @@
 
 package org.apache.servicecomb.pack.omega.transaction;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Method;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.context.annotations.SagaStart;
+import org.apache.servicecomb.pack.omega.transaction.wrapper.SagaStartAnnotationProcessorTimeoutWrapper;
+import org.apache.servicecomb.pack.omega.transaction.wrapper.SagaStartAnnotationProcessorWrapper;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.reflect.MethodSignature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Aspect
 public class SagaStartAspect {
-  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private final SagaStartAnnotationProcessor sagaStartAnnotationProcessor;
 
@@ -44,27 +40,12 @@ public class SagaStartAspect {
   @Around("execution(@org.apache.servicecomb.pack.omega.context.annotations.SagaStart * *(..)) && @annotation(sagaStart)")
   Object advise(ProceedingJoinPoint joinPoint, SagaStart sagaStart) throws Throwable {
     initializeOmegaContext();
-    Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
-
-    sagaStartAnnotationProcessor.preIntercept(sagaStart.timeout());
-    LOG.debug("Initialized context {} before execution of method {}", context, method.toString());
-
-    try {
-      Object result = joinPoint.proceed();
-
-      sagaStartAnnotationProcessor.postIntercept(context.globalTxId());
-      LOG.debug("Transaction with context {} has finished.", context);
-
-      return result;
-    } catch (Throwable throwable) {
-      // We don't need to handle the OmegaException here
-      if (!(throwable instanceof OmegaException)) {
-        sagaStartAnnotationProcessor.onError(method.toString(), throwable);
-        LOG.error("Transaction {} failed.", context.globalTxId());
-      }
-      throw throwable;
-    } finally {
-      context.clear();
+    if(context.isAlphaFeatureAkkaEnabled() && sagaStart.timeout()>0){
+      SagaStartAnnotationProcessorTimeoutWrapper wrapper = new SagaStartAnnotationProcessorTimeoutWrapper(this.sagaStartAnnotationProcessor);
+      return wrapper.apply(joinPoint,sagaStart,context);
+    }else{
+      SagaStartAnnotationProcessorWrapper wrapper = new SagaStartAnnotationProcessorWrapper(this.sagaStartAnnotationProcessor);
+      return wrapper.apply(joinPoint,sagaStart,context);
     }
   }
 
