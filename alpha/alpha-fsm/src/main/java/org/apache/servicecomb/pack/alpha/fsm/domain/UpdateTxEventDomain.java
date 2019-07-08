@@ -18,19 +18,40 @@
 package org.apache.servicecomb.pack.alpha.fsm.domain;
 
 import org.apache.servicecomb.pack.alpha.fsm.TxState;
+import org.apache.servicecomb.pack.alpha.fsm.event.TxAbortedEvent;
+import org.apache.servicecomb.pack.alpha.fsm.event.TxCompensatedEvent;
+import org.apache.servicecomb.pack.alpha.fsm.event.TxEndedEvent;
+import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
 
 public class UpdateTxEventDomain implements DomainEvent {
   private String parentTxId;
   private String localTxId;
   private TxState state;
   private byte[] throwablePayLoads;
+  private BaseEvent event;
 
-  public UpdateTxEventDomain(String parentTxId, String localTxId, TxState state, byte[] throwablePayLoads) {
-    this.parentTxId = parentTxId;
-    this.localTxId = localTxId;
-    this.state = state;
-    this.throwablePayLoads = throwablePayLoads;
+  public UpdateTxEventDomain(TxEndedEvent event) {
+    this.event = event;
+    this.parentTxId = event.getParentTxId();
+    this.localTxId = event.getLocalTxId();
+    this.state = TxState.COMMITTED;
   }
+
+  public UpdateTxEventDomain(TxAbortedEvent event) {
+    this.event = event;
+    this.parentTxId = event.getParentTxId();
+    this.localTxId = event.getLocalTxId();
+    this.throwablePayLoads = event.getPayloads();
+    this.state = TxState.FAILED;
+  }
+
+  public UpdateTxEventDomain(TxCompensatedEvent event) {
+    this.event = event;
+    this.parentTxId = event.getParentTxId();
+    this.localTxId = event.getLocalTxId();
+    this.state = TxState.COMPENSATED;
+  }
+
 
   public String getParentTxId() {
     return parentTxId;
@@ -62,5 +83,10 @@ public class UpdateTxEventDomain implements DomainEvent {
 
   public void setThrowablePayLoads(byte[] throwablePayLoads) {
     this.throwablePayLoads = throwablePayLoads;
+  }
+
+  @Override
+  public BaseEvent getEvent() {
+    return event;
   }
 }

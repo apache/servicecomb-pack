@@ -18,34 +18,58 @@
 package org.apache.servicecomb.pack.alpha.fsm.model;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.servicecomb.pack.alpha.core.fsm.PackSagaEvent;
 import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
+import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
 
 public class SagaData implements Serializable {
-  private long beginTime = System.currentTimeMillis();
-  private long endTime;
+  private String serviceName;
+  private String instanceId;
+  private Date beginTime = new Date();
+  private Date endTime;
   private String globalTxId;
-  private long expirationTime;
+  private Date expirationTime;
   private boolean terminated;
   private SagaActorState lastState;
   private AtomicLong compensationRunningCounter = new AtomicLong();
   private Map<String,TxEntity> txEntityMap = new HashMap<>();
+  private List<BaseEvent> events = new LinkedList<>();
 
-  public long getBeginTime() {
+  public String getServiceName() {
+    return serviceName;
+  }
+
+  public void setServiceName(String serviceName) {
+    this.serviceName = serviceName;
+  }
+
+  public String getInstanceId() {
+    return instanceId;
+  }
+
+  public void setInstanceId(String instanceId) {
+    this.instanceId = instanceId;
+  }
+
+  public Date getBeginTime() {
     return beginTime;
   }
 
-  public void setBeginTime(long beginTime) {
+  public void setBeginTime(Date beginTime) {
     this.beginTime = beginTime;
   }
 
-  public long getEndTime() {
+  public Date getEndTime() {
     return endTime;
   }
 
-  public void setEndTime(long endTime) {
+  public void setEndTime(Date endTime) {
     this.endTime = endTime;
   }
 
@@ -57,11 +81,11 @@ public class SagaData implements Serializable {
     this.globalTxId = globalTxId;
   }
 
-  public long getExpirationTime() {
+  public Date getExpirationTime() {
     return expirationTime;
   }
 
-  public void setExpirationTime(long expirationTime) {
+  public void setExpirationTime(Date expirationTime) {
     this.expirationTime = expirationTime;
   }
 
@@ -100,7 +124,31 @@ public class SagaData implements Serializable {
   }
 
   public long getTimeout(){
-    return expirationTime-System.currentTimeMillis();
+    return expirationTime.getTime()-beginTime.getTime();
+  }
+
+  public void logEvent(BaseEvent event){
+    this.events.add(event);
+  }
+
+  public List<BaseEvent> getEvents() {
+    return events;
+  }
+
+  public List<PackSagaEvent> toPackSagaEventList(){
+    List<PackSagaEvent> packSagaEventList = new LinkedList<>();
+    events.forEach(event -> {
+      packSagaEventList.add(PackSagaEvent.builder()
+          .serviceName(serviceName)
+          .instanceId(instanceId)
+          .globalTxId(globalTxId)
+          .localTxId(event.getLocalTxId())
+          .parentTxId(event.getParentTxId())
+          .creationTime(event.getCreateTime())
+          .type(event.getClass().getSimpleName())
+          .build());
+    });
+    return packSagaEventList;
   }
 
   public static Builder builder() {
@@ -115,12 +163,12 @@ public class SagaData implements Serializable {
       sagaData = new SagaData();
     }
 
-    public Builder beginTime(long beginTime) {
+    public Builder beginTime(Date beginTime) {
       sagaData.setBeginTime(beginTime);
       return this;
     }
 
-    public Builder endTime(long endTime) {
+    public Builder endTime(Date endTime) {
       sagaData.setEndTime(endTime);
       return this;
     }
@@ -130,7 +178,7 @@ public class SagaData implements Serializable {
       return this;
     }
 
-    public Builder expirationTime(long expirationTime) {
+    public Builder expirationTime(Date expirationTime) {
       sagaData.setExpirationTime(expirationTime);
       return this;
     }
@@ -147,6 +195,16 @@ public class SagaData implements Serializable {
 
     public Builder txEntityMap(Map<String, TxEntity> txEntityMap) {
       sagaData.setTxEntityMap(txEntityMap);
+      return this;
+    }
+
+    public Builder serviceName(String serviceName) {
+      sagaData.setServiceName(serviceName);
+      return this;
+    }
+
+    public Builder instanceId(String instanceId) {
+      sagaData.setInstanceId(instanceId);
       return this;
     }
 

@@ -18,16 +18,38 @@
 package org.apache.servicecomb.pack.alpha.fsm.event.base;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public abstract class BaseEvent implements Serializable {
+
+  private String serviceName;
+  private String instanceId;
   private String globalTxId;
-  private long createTime = System.currentTimeMillis();
+  private String parentTxId;
+  private String localTxId;
+  private Date createTime = new Date();
 
   public BaseEvent() {
 
   }
 
-  public long getCreateTime() {
+  public String getServiceName() {
+    return serviceName;
+  }
+
+  public void setServiceName(String serviceName) {
+    this.serviceName = serviceName;
+  }
+
+  public String getInstanceId() {
+    return instanceId;
+  }
+
+  public void setInstanceId(String instanceId) {
+    this.instanceId = instanceId;
+  }
+
+  public Date getCreateTime() {
     return createTime;
   }
 
@@ -39,10 +61,35 @@ public abstract class BaseEvent implements Serializable {
     this.globalTxId = globalTxId;
   }
 
+  public String getParentTxId() {
+    return parentTxId;
+  }
+
+  public void setParentTxId(String parentTxId) {
+    this.parentTxId = parentTxId;
+  }
+
+  public String getLocalTxId() {
+    return localTxId;
+  }
+
+  public void setLocalTxId(String localTxId) {
+    this.localTxId = localTxId;
+  }
+
+  public void setCreateTime(Date createTime) {
+    this.createTime = createTime;
+  }
+
   @Override
   public String toString() {
-    return "BaseEvent{" +
-        "globalTxId='" + globalTxId + '\'' +
+    return this.getClass().getSimpleName()+"{" +
+        "serviceName='" + serviceName + '\'' +
+        ", instanceId='" + instanceId + '\'' +
+        ", globalTxId='" + globalTxId + '\'' +
+        ", parentTxId='" + parentTxId + '\'' +
+        ", localTxId='" + localTxId + '\'' +
+        ", createTime=" + createTime +
         '}';
   }
 }
