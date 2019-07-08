@@ -148,7 +148,7 @@ public class AlphaConfig {
   }
 
   @Bean
-  @ConditionalOnProperty(name = "alpha.model.actor.enabled", havingValue = "false", matchIfMissing = true)
+  @ConditionalOnProperty(name = "alpha.feature.akka.enabled", havingValue = "false", matchIfMissing = true)
   ServerStartable serverStartable(GrpcServerConfig serverConfig, TxConsistentService txConsistentService,
       Map<String, Map<String, OmegaCallback>> omegaCallbacks, GrpcTccEventService grpcTccEventService,
       TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner, @Qualifier("alphaEventBus") EventBus eventBus) throws IOException {
@@ -161,12 +161,12 @@ public class AlphaConfig {
       tccPendingTaskRunner.shutdown();
       tccEventScanner.shutdown();
     }));
-
+    LOG.info("alpha.feature.akka.enabled=false");
     return bootstrap;
   }
 
   @Bean
-  @ConditionalOnProperty(name= "alpha.model.actor.enabled", havingValue = "true")
+  @ConditionalOnProperty(name= "alpha.feature.akka.enabled", havingValue = "true")
   ServerStartable serverStartableMy(GrpcServerConfig serverConfig,
       Map<String, Map<String, OmegaCallback>> omegaCallbacks, GrpcTccEventService grpcTccEventService,
       TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner, @Qualifier("alphaEventBus") EventBus eventBus, @Qualifier("sagaEventBus") EventBus sagaEventBus) throws IOException {
@@ -179,7 +179,7 @@ public class AlphaConfig {
       tccPendingTaskRunner.shutdown();
       tccEventScanner.shutdown();
     }));
-
+    LOG.info("alpha.feature.akka.enabled=true");
     return bootstrap;
   }
 
