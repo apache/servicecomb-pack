@@ -28,8 +28,15 @@ public class OmegaContext {
   private final ThreadLocal<String> localTxId = new InheritableThreadLocal<>();
   private final IdGenerator<String> idGenerator;
 
+  private final boolean alphaFeatureAkkaEnabled;
+
   public OmegaContext(IdGenerator<String> idGenerator) {
+    this(idGenerator,false);
+  }
+
+  public OmegaContext(IdGenerator<String> idGenerator, boolean alphaFeatureAkkaEnabled) {
     this.idGenerator = idGenerator;
+    this.alphaFeatureAkkaEnabled = alphaFeatureAkkaEnabled;
   }
 
   public String newGlobalTxId() {
@@ -60,6 +67,10 @@ public class OmegaContext {
     return localTxId.get();
   }
 
+  public boolean isAlphaFeatureAkkaEnabled() {
+    return alphaFeatureAkkaEnabled;
+  }
+
   public void clear() {
     globalTxId.remove();
     localTxId.remove();
@@ -70,6 +81,7 @@ public class OmegaContext {
     return "OmegaContext{" +
         "globalTxId=" + globalTxId.get() +
         ", localTxId=" + localTxId.get() +
+        ", alphaFeatureAkkaEnabled=" + alphaFeatureAkkaEnabled +
         '}';
   }
 
