@@ -55,6 +55,9 @@ class OmegaSpringConfig {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+  @Value("${alpha.feature.akka.enabled:false}")
+  private boolean alphaFeatureAkkaEnabled;
+
   @Bean(name = {"omegaUniqueIdGenerator"})
   IdGenerator<String> idGenerator() {
     return new UniqueIdGenerator();
@@ -62,7 +65,8 @@ class OmegaSpringConfig {
 
   @Bean
   OmegaContext omegaContext(@Qualifier("omegaUniqueIdGenerator") IdGenerator<String> idGenerator) {
-    return new OmegaContext(idGenerator);
+    LOG.info("alpha.feature.akka.enabled={}",alphaFeatureAkkaEnabled);
+    return new OmegaContext(idGenerator,alphaFeatureAkkaEnabled);
   }
 
   @Bean(name = {"compensationContext"})
