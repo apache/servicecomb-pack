@@ -31,6 +31,9 @@ class CarBookingService {
 
   @Compensable(compensationMethod = "cancel")
   void order(CarBooking booking) {
+    if (booking.getAmount() > 10) {
+      throw new IllegalArgumentException("can not order the cars large than ten");
+    }
     booking.confirm();
     bookings.put(booking.getId(), booking);
   }
