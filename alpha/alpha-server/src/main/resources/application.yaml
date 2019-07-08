@@ -45,6 +45,12 @@ eureka:
     metadataMap:
       servicecomb-alpha-server: ${alpha.server.host}:${alpha.server.port}
 
+akkaConfig:
+  akka.persistence.journal.plugin: akka.persistence.journal.inmem
+  akka.persistence.journal.leveldb.dir: target/example/journal
+  akka.persistence.snapshot-store.plugin: akka.persistence.snapshot-store.local
+  akka.persistence.snapshot-store.local.dir: target/example/snapshots
+
 management:
   endpoints:
     web:
@@ -90,15 +96,6 @@ spring:
     properties:
       eclipselink:
         ddl-generation: none
-
----
-spring:
-  profiles: akka-persistence-mem
-akkaConfig:
-  akka.persistence.journal.plugin: akka.persistence.journal.inmem
-  akka.persistence.journal.leveldb.dir: target/example/journal
-  akka.persistence.snapshot-store.plugin: akka.persistence.snapshot-store.local
-  akka.persistence.snapshot-store.local.dir: target/example/snapshots
 
 ---
 spring:
