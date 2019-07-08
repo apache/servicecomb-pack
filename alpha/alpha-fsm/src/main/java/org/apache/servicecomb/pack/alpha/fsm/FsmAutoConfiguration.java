@@ -34,7 +34,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 @Configuration
-@ConditionalOnProperty(value = {"alpha.model.actor.enabled"})
+@ConditionalOnProperty(value = {"alpha.feature.akka.enabled"})
 public class FsmAutoConfiguration {
 
   @Bean

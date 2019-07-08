@@ -21,33 +21,10 @@ import java.util.Date;
 import org.apache.servicecomb.pack.alpha.fsm.event.base.TxEvent;
 
 public class TxStartedEvent extends TxEvent {
-  private String serviceName;
-  private String instanceId;
   private String compensationMethod;
   private byte[] payloads;
-  private Date creationTime;
   private String retryMethod;
   private int retries;
-
-  @Override
-  public String getServiceName() {
-    return serviceName;
-  }
-
-  @Override
-  public void setServiceName(String serviceName) {
-    this.serviceName = serviceName;
-  }
-
-  @Override
-  public String getInstanceId() {
-    return instanceId;
-  }
-
-  @Override
-  public void setInstanceId(String instanceId) {
-    this.instanceId = instanceId;
-  }
 
   public String getCompensationMethod() {
     return compensationMethod;
@@ -63,14 +40,6 @@ public class TxStartedEvent extends TxEvent {
 
   public void setPayloads(byte[] payloads) {
     this.payloads = payloads;
-  }
-
-  public Date getCreationTime() {
-    return creationTime;
-  }
-
-  public void setCreationTime(Date creationTime) {
-    this.creationTime = creationTime;
   }
 
   public String getRetryMethod() {
@@ -133,11 +102,6 @@ public class TxStartedEvent extends TxEvent {
 
     public Builder instanceId(String instanceId) {
       txStartedEvent.setInstanceId(instanceId);
-      return this;
-    }
-
-    public Builder creationTime(Date creationTime) {
-      txStartedEvent.setCreationTime(creationTime);
       return this;
     }
 

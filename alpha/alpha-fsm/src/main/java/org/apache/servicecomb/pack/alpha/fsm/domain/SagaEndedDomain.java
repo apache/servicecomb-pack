@@ -18,16 +18,26 @@
 package org.apache.servicecomb.pack.alpha.fsm.domain;
 
 import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
+import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
 
 public class SagaEndedDomain implements DomainEvent {
 
   private SagaActorState state;
+  private BaseEvent event;
 
-  public SagaEndedDomain(SagaActorState state) {
+  public SagaEndedDomain(BaseEvent event, SagaActorState state) {
+    if(event != null){
+      this.event = event;
+    }
     this.state = state;
   }
 
   public SagaActorState getState() {
     return state;
+  }
+
+  @Override
+  public BaseEvent getEvent() {
+    return event;
   }
 }

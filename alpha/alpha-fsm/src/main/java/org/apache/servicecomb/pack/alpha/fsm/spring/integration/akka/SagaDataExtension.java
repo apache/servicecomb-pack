@@ -20,8 +20,7 @@ package org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka;
 import akka.actor.AbstractExtensionId;
 import akka.actor.ExtendedActorSystem;
 import akka.actor.Extension;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension.SagaDataExt;
 
@@ -35,7 +34,7 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
   }
 
   public static class SagaDataExt implements Extension {
-    private Map<String, SagaData> sagaDataMap = new ConcurrentHashMap();
+    private ConcurrentSkipListMap<String, SagaData> sagaDataMap = new ConcurrentSkipListMap();
 
     public void putSagaData(String globalTxId, SagaData sagaData){
       sagaDataMap.put(globalTxId, sagaData);
@@ -43,6 +42,14 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
 
     public SagaData getSagaData(String globalTxId){
       return sagaDataMap.get(globalTxId);
+    }
+
+    public void clearSagaData(){
+      sagaDataMap.clear();
+    }
+
+    public SagaData getLastSagaData(){
+      return sagaDataMap.lastEntry().getValue();
     }
   }
 }

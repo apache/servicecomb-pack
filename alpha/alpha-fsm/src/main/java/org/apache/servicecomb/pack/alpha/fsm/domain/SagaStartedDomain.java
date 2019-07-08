@@ -17,29 +17,32 @@
 
 package org.apache.servicecomb.pack.alpha.fsm.domain;
 
+import java.util.Calendar;
+import java.util.Date;
+import org.apache.servicecomb.pack.alpha.fsm.event.SagaStartedEvent;
+import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
+
 public class SagaStartedDomain implements DomainEvent {
 
-  private long createTime;
-  private String globalTxId;
-  private long expirationTime;
+  private Date expirationTime;
+  private BaseEvent event;
 
-  public SagaStartedDomain(String globalTxId, long createTime, int timeout) {
-    this.createTime = createTime;
-    this.globalTxId = globalTxId;
-    if (timeout > 0) {
-      this.expirationTime = System.currentTimeMillis() + timeout * 1000;
+  public SagaStartedDomain(SagaStartedEvent event) {
+    this.event = event;
+    if (event.getTimeout() > 0) {
+      Calendar calendar = Calendar.getInstance();
+      calendar.setTime(event.getCreateTime());
+      calendar.add(Calendar.SECOND, event.getTimeout());
+      this.expirationTime = calendar.getTime();
     }
   }
 
-  public long getCreateTime() {
-    return createTime;
-  }
-
-  public String getGlobalTxId() {
-    return globalTxId;
-  }
-
-  public long getExpirationTime() {
+  public Date getExpirationTime() {
     return expirationTime;
+  }
+
+  @Override
+  public BaseEvent getEvent() {
+    return event;
   }
 }

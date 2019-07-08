@@ -62,13 +62,6 @@ public class SagaEventConsumer {
         saga = system.actorOf(SagaActor.props(event.getGlobalTxId()), event.getGlobalTxId());
         sagaCache.put(event.getGlobalTxId(), saga);
       }
-//      String actorPath = "/user/" + event.getGlobalTxId();
-//      Optional<ActorRef> optional = this.getActorRefFromPath(actorPath);
-//      if (!optional.isPresent()) {
-//        saga = system.actorOf(SagaActor.props(event.getGlobalTxId()), event.getGlobalTxId());
-//      } else {
-//        saga = optional.get();
-//      }
       saga.tell(event, ActorRef.noSender());
       if(LOG.isDebugEnabled()){
         LOG.debug("tell {} to {}", event.toString(),saga);
