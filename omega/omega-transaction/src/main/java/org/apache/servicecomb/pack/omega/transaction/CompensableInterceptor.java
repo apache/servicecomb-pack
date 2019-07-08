@@ -19,7 +19,7 @@ package org.apache.servicecomb.pack.omega.transaction;
 
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 
-class CompensableInterceptor implements EventAwareInterceptor {
+public class CompensableInterceptor implements EventAwareInterceptor {
   private final OmegaContext context;
   private final SagaMessageSender sender;
 

@@ -72,20 +72,20 @@ public class SagaStartAspectTest {
   private final IdGenerator<String> idGenerator = Mockito.mock(IdGenerator.class);
   private final SagaStart sagaStart = Mockito.mock(SagaStart.class);
 
-  private final OmegaContext omegaContext = new OmegaContext(idGenerator);
-  private final SagaStartAspect aspect = new SagaStartAspect(sender, omegaContext);
+  private OmegaContext omegaContext;
+  private SagaStartAspect aspect;
 
   @Before
   public void setUp() throws Exception {
     when(idGenerator.nextId()).thenReturn(globalTxId);
     when(joinPoint.getSignature()).thenReturn(methodSignature);
-
     when(methodSignature.getMethod()).thenReturn(this.getClass().getDeclaredMethod("doNothing"));
-    omegaContext.clear();
   }
 
   @Test
   public void newGlobalTxIdInSagaStart() throws Throwable {
+    omegaContext = new OmegaContext(idGenerator);
+    aspect = new SagaStartAspect(sender, omegaContext);
     aspect.advise(joinPoint, sagaStart);
 
     TxEvent startedEvent = messages.get(0);
@@ -108,6 +108,8 @@ public class SagaStartAspectTest {
 
   @Test
   public void clearContextOnSagaStartError() throws Throwable {
+    omegaContext = new OmegaContext(idGenerator);
+    aspect = new SagaStartAspect(sender, omegaContext);
     RuntimeException oops = new RuntimeException("oops");
 
     when(joinPoint.proceed()).thenThrow(oops);
@@ -133,6 +135,40 @@ public class SagaStartAspectTest {
     assertThat(event.localTxId(), is(globalTxId));
     assertThat(event.parentTxId(), is(nullValue()));
     assertThat(event.type(), is(EventType.TxAbortedEvent));
+
+    assertThat(omegaContext.globalTxId(), is(nullValue()));
+    assertThat(omegaContext.localTxId(), is(nullValue()));
+  }
+
+  @Test
+  public void clearContextOnSagaStartErrorWithAkka() throws Throwable {
+    omegaContext = new OmegaContext(idGenerator,true);
+    aspect = new SagaStartAspect(sender, omegaContext);
+    RuntimeException oops = new RuntimeException("oops");
+
+    when(joinPoint.proceed()).thenThrow(oops);
+
+    try {
+      aspect.advise(joinPoint, sagaStart);
+      expectFailing(RuntimeException.class);
+    } catch (RuntimeException e) {
+      assertThat(e, is(oops));
+    }
+
+    assertThat(messages.size(), is(2));
+    TxEvent event = messages.get(0);
+
+    assertThat(event.globalTxId(), is(globalTxId));
+    assertThat(event.localTxId(), is(globalTxId));
+    assertThat(event.parentTxId(), is(nullValue()));
+    assertThat(event.type(), is(EventType.SagaStartedEvent));
+
+    event = messages.get(1);
+
+    assertThat(event.globalTxId(), is(globalTxId));
+    assertThat(event.localTxId(), is(globalTxId));
+    assertThat(event.parentTxId(), is(nullValue()));
+    assertThat(event.type(), is(EventType.SagaAbortedEvent));
 
     assertThat(omegaContext.globalTxId(), is(nullValue()));
     assertThat(omegaContext.localTxId(), is(nullValue()));
