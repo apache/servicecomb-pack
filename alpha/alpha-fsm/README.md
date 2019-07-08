@@ -51,6 +51,7 @@ alpha.feature.akka.enabled=true
 - [ ]  Support for query running transaction data by RESTful API
 - [ ]  Support for query suspended global transaction by RESTful API
 - [ ]  Support for compensate failed sub-transaction by RESTful API
+- [ ]  State machine metrics collection
 
 ### Omega Components
 - [x]  Enable state machine support via parameters
@@ -62,5 +63,7 @@ alpha.feature.akka.enabled=true
 - [ ]  Add sub-transaction timeout exception for akka acceptance test
 - [ ]  Add compensation failure for akka acceptance test
 - [ ]  Add compensation retry success for akka acceptance test 
+- [ ]  Alpha single node benchmark performance test
+- [ ]  Alpha cluster benchmark performance test
 
 
