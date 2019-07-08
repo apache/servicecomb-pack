@@ -50,7 +50,7 @@ public class BookingController {
 
   @SagaStart
   @PostMapping("/booking/{name}/{rooms}/{cars}")
-  public String order(@PathVariable String name,  @PathVariable Integer rooms, @PathVariable Integer cars) {
+  public String order(@PathVariable String name,  @PathVariable Integer rooms, @PathVariable Integer cars) throws Throwable {
     template.postForEntity(
         carServiceUrl + "/order/{name}/{cars}",
         null, String.class, name, cars);
@@ -67,12 +67,12 @@ public class BookingController {
   }
 
   // This method is used by the byteman to inject exception here
-  private void postCarBooking() {
+  private void postCarBooking() throws Throwable {
 
   }
 
   // This method is used by the byteman to inject the faults such as the timeout or the crash
-  private void postBooking() {
+  private void postBooking() throws Throwable{
 
   }
 
