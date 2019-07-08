@@ -554,6 +554,125 @@ Saga可通过以下任一方式进行构建：
 
    **注意:** 如果你在启动Alpha的时候通过命令行参数`spring.application.name`自定义了服务名，那么你需要在Omega中通过参数`alpha.cluster.serviceId`指定这个服务名
 
+### Spring Cloud Nacos Discovery 支持
+
+当前版本支持 Spring Cloud Nacos Discovery 0.2.x，你可以使用 `-Pspring-boot-1` 参数重新编译支持 Spring Cloud Nacos Discovery 0.1.x 版本
+
+1. 运行alpha
+
+   运行时增加 `nacos.client.enabled=true` 参数
+
+   ```bash
+   java -jar alpha-server-${saga_version}-exec.jar \ 
+     --spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false \
+     --spring.datasource.username=saga \
+     --spring.datasource.password=saga \
+     --spring.cloud.nacos.discovery.enabled=true \
+     --spring.cloud.nacos.discovery.serverAddr=${nacos_host}:${nacos_port} \
+     --nacos.client.enabled=true \
+     --spring.profiles.active=prd 
+   ```
+
+   **注意:** `${nacos_host}` 是 nacos 地址, `${nacos_port}` 是 nacos 端口
+
+   **注意:** 更多 Nacos 参数请参考 [Spring Cloud Nacos Discovery ](https://nacos.io/zh-cn/docs/quick-start-spring-cloud.html)
+   
+
+2. 验证是否注册成功
+
+   访问Nacos的实例, 通过nacos 提供的openapi`curl -X GET 'http://127.0.0.1:8848/nacos/v1/ns/instance/list?serviceName=servicecomb-alpha-server‘` 可以看到如下服务注册信息，在metadata 中可以发现gRPC的地址已经被注册
+
+
+   ```json
+    {
+    "metadata": {},
+    "dom": "servicecomb-alpha-server",
+    "cacheMillis": 3000,
+    "useSpecifiedURL": false,
+    "hosts": [
+        {
+        "valid": true,
+        "marked": false,
+        "metadata": {
+            "preserved.register.source": "SPRING_CLOUD",
+            "servicecomb-alpha-server": "192.168.2.28:8080"
+        },
+        "instanceId": "192.168.2.28#8090#DEFAULT#DEFAULT_GROUP@@servicecomb-alpha-server",
+        "port": 8090,
+        "healthy": true,
+        "ip": "192.168.2.28",
+        "clusterName": "DEFAULT",
+        "weight": 1,
+        "ephemeral": true,
+        "serviceName": "servicecomb-alpha-server",
+        "enabled": true
+        }
+    ],
+    "name": "DEFAULT_GROUP@@servicecomb-alpha-server",
+    "checksum": "d9e8deefd1c4f198980f4443d7c1b1fd",
+    "lastRefTime": 1562567653565,
+    "env": "",
+    "clusters": ""
+    }
+    ```
+   **注意:** 默认情况下注册的服务名是`servicecomb-alpha-server`,如果你需要自定义服务名可以在运行Alpha的时候通过命令行参数`spring.application.name`配置
+
+3. 配置omega
+
+   在项目中引入依赖包 `omega-spring-cloud-nacos-starter`
+
+   ```xml
+   <dependency>
+   	<groupId>org.apache.servicecomb.pack</groupId>
+   	<artifactId>omega-spring-cloud-nacos-starter</artifactId>
+   	<version>${pack.version}</version>
+   </dependency>
+   ```
+
+   在 `application.yaml` 添加下面的配置项：
+
+   ```yaml
+   spring:
+     cloud:
+       nacos:
+         discovery:
+           enabled: true
+           serverAddr: 127.0.0.1:8848
+         
+   alpha:
+     cluster:
+       register:
+         type: nacos
+   ```
+
+   - `spring.cloud.nacos.discovery.serverAddr` 配置 Nacos 注册中心的地址，更多Nacos 参数请参考 [Spring Cloud Nacos Discovery ](https://nacos.io/zh-cn/docs/quick-start-spring-cloud.html)
+
+
+   - `alpha.cluster.register.type=nacos` 配置Omega获取Alpha的方式是通过 Nacos 的注册中心
+
+   - spring boot 版本兼容
+
+     如果你的项目使用的不是spring boot 2.1.1版本，那么请参照此列表增加兼容的spring-cloud-starter-alibaba-nacos-discovery版本
+
+     | spring boot    | spring-cloud-starter-alibaba-nacos-discovery |
+     | -------------  | -------------------------------------    |
+     | 2.1.x.RELEASE  | 0.2.2.RELEASE                            |
+     | 1.5.17.RELEASE | 0.1.2.RELEASE                            |
+
+     ```xml
+       <dependencyManagement>
+         <dependencies>
+           <dependency>
+             <groupId>org.springframework.cloud</groupId>
+             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+             <version>0.2.2.RELEASE</version>
+           </dependency>
+         </dependencies>
+       </dependencyManagement>
+     ```
+
+   **注意:** 如果你在启动Alpha的时候通过命令行参数`spring.application.name`自定义了服务名，那么你需要在Omega中通过参数`alpha.cluster.serviceId`指定这个服务名
+
 ## 集群
 
 Alpha 可以通过部署多实例的方式保证高可用，使用 `alpha.cluster.master.enabled=true` 参数开启集群支持
