@@ -560,6 +560,131 @@ Uses Spring Cloud Zookeeper 2.x by default, if you want to use Spring Cloud Zook
 
    **Note:** If you define `spring.application.name ` parameter when start alpha,  You need to specify this service name in Omega via the parameter `alpha.cluster.serviceId`
 
+
+### Spring Cloud Nacos Discovery
+
+Uses Spring Cloud Nacos Discovery 0.2.x by default, if you want to use Spring Cloud Nacos Discovery 0.1.x, you can use `-Pspring-boot-1` to switch Spring Cloud Nacos Discovery 0.1.x
+
+1. run alpha
+
+   run with parameter `nacos.client.enabled=true`
+
+   ```bash
+   java -jar alpha-server-${saga_version}-exec.jar \ 
+     --spring.datasource.url=jdbc:postgresql://${host_address}:5432/saga?useSSL=false \
+     --spring.datasource.username=saga \
+     --spring.datasource.password=saga \
+     --spring.cloud.nacos.discovery.enabled=true \
+     --spring.cloud.nacos.discovery.serverAddr=${nacos_host}:${nacos_port} \
+     --nacos.client.enabled=true \
+     --spring.profiles.active=prd 
+   ```
+
+   **Note:** `${nacos_host}` is nacos host, `${nacos_port}` is nacos port
+
+   **Note:** Check out  for more details  [Spring Cloud Nacos Discovery ](https://nacos.io/en-us/docs/quick-start-spring-cloud.html)
+
+
+2. verify registration information
+
+   request `curl -X GET 'http://127.0.0.1:8848/nacos/v1/ns/instance/list?serviceName=servicecomb-alpha-server‘` , It responds with the following JSON
+
+   ```json
+    {
+        "metadata": {},
+        "dom": "servicecomb-alpha-server",
+        "cacheMillis": 3000,
+        "useSpecifiedURL": false,
+        "hosts": [
+            {
+            "valid": true,
+            "marked": false,
+            "metadata": {
+                "preserved.register.source": "SPRING_CLOUD",
+                "servicecomb-alpha-server": "192.168.2.28:8080"
+            },
+            "instanceId": "192.168.2.28#8090#DEFAULT#DEFAULT_GROUP@@servicecomb-alpha-server",
+            "port": 8090,
+            "healthy": true,
+            "ip": "192.168.2.28",
+            "clusterName": "DEFAULT",
+            "weight": 1,
+            "ephemeral": true,
+            "serviceName": "servicecomb-alpha-server",
+            "enabled": true
+            }
+        ],
+        "name": "DEFAULT_GROUP@@servicecomb-alpha-server",
+        "checksum": "d9e8deefd1c4f198980f4443d7c1b1fd",
+        "lastRefTime": 1562567653565,
+        "env": "",
+        "clusters": ""
+        }
+
+    ```
+
+   **Note:**  `metadata` property is alpha gRPC address
+
+   **Note:** alpha instance name is `servicecomb-alpha-server` by default. You can set it by starting parameter  `spring.application.name` 
+
+3. setup omega
+
+   edit your `pom.xml` and add the `omega-spring-cloud-nacos-starter` dependency
+
+   ```xml
+   <dependency>
+    <groupId>org.apache.servicecomb.pack</groupId>
+    <artifactId>omega-spring-cloud-nacos-starter</artifactId>
+    <version>${pack.version}</version>
+   </dependency>
+   ```
+
+   edit your  `application.yaml` , as shown in the following example:
+
+   ```yaml
+   spring:
+     cloud:
+       nacos:
+         discovery:
+            enabled: true
+            serverAddr: 127.0.0.1:8848
+         
+   alpha:
+     cluster:
+       register:
+         type: nacos
+   ```
+
+   - `spring.cloud.nacos.discovery.serverAddr` property is set to the Nacos server’s instance address, check out Spring Boot’s  [Spring Cloud Nacos Discovery ](https://nacos.io/en-us/docs/quick-start-spring-cloud.html) for more details.
+
+   - `alpha.cluster.register.type=nacos`  property is omega gets alpha gRPC address from Nacos
+
+   - spring boot version compatible
+
+     If your project is not using spring boot 2.1.1, please refer to this list to add a compatible spring-cloud-starter-alibaba-nacos-discovery version
+
+     | spring boot    | spring-cloud-starter-alibaba-nacos-discovery |
+     | -------------  | ------------------------------------- |
+     | 2.1.x.RELEASE  | 0.2.2.RELEASE                         |
+     | 1.5.17.RELEASE | 0.1.2.RELEASE                         |
+
+     ```xml
+       <dependencyManagement>
+         <dependencies>
+           <dependency>
+             <groupId>org.springframework.cloud</groupId>
+             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+             <version>0.2.2.RELEASE</version>
+           </dependency>
+         </dependencies>
+       </dependencyManagement>
+     ```
+
+     
+
+   **Note:** If you define `spring.application.name ` parameter when start alpha,  You need to specify this service name in Omega via the parameter `alpha.cluster.serviceId`
+
+
 ## Cluster
 
 Alpha can be highly available by deploying multiple instances, enable cluster support with the `alpha.cluster.master.enabled=true` parameter.
