@@ -62,7 +62,7 @@ class OmegaSpringNacosConfig {
 
         if (alphaAddresses.length > 0) {
             AlphaClusterDiscovery alphaClusterDiscovery = AlphaClusterDiscovery.builder()
-                    .discoveryType(AlphaClusterDiscovery.DiscoveryType.ZOOKEEPER)
+                    .discoveryType(AlphaClusterDiscovery.DiscoveryType.NACOS)
                     .discoveryInfo(serviceUrls.toString())
                     .addresses(alphaAddresses)
                     .build();
