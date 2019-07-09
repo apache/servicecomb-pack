@@ -53,16 +53,16 @@
 
 ```bash
 java -Xmx3g -Xms3g -Xss256k \
-		-Dcom.sun.management.jmxremote \
-    -Dcom.sun.management.jmxremote.port=9090 \
-	  -Dcom.sun.management.jmxremote.ssl=false \
-    -Dcom.sun.management.jmxremote.authenticate=false \
-    -jar ${PRONAME} \
-  	--spring.datasource.username=saga-user \
-  	--spring.datasource.password=saga-password \
-  	--spring.datasource.url="jdbc:postgresql://10.22.1.234:5432/saga?useSSL=false" \
-  	--spring.profile.active=prd \
-  	--alpha.feature.akka.enabled=true
+  -Dcom.sun.management.jmxremote \
+  -Dcom.sun.management.jmxremote.port=9090 \
+  -Dcom.sun.management.jmxremote.ssl=false \
+  -Dcom.sun.management.jmxremote.authenticate=false \
+  -jar ${PRONAME} \
+  --spring.datasource.username=saga-user \
+  --spring.datasource.password=saga-password \
+  --spring.datasource.url="jdbc:postgresql://10.22.1.234:5432/saga?useSSL=false" \
+  --spring.profile.active=prd \
+  --alpha.feature.akka.enabled=true
 ```
 
 ## 测试报告
