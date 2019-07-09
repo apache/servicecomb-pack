@@ -63,7 +63,7 @@ alpha.feature.akka.enabled=true
 - [ ]  Add sub-transaction timeout exception for akka acceptance test
 - [ ]  Add compensation failure for akka acceptance test
 - [ ]  Add compensation retry success for akka acceptance test 
-- [ ]  Alpha single node benchmark performance test
+- [x]  Alpha single node benchmark performance test
 - [ ]  Alpha cluster benchmark performance test
 
 ### Tools
