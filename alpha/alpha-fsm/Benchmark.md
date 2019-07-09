@@ -57,7 +57,7 @@ java -Xmx3g -Xms3g -Xss256k \
   -Dcom.sun.management.jmxremote.port=9090 \
   -Dcom.sun.management.jmxremote.ssl=false \
   -Dcom.sun.management.jmxremote.authenticate=false \
-  -jar ${PRONAME} \
+  -jar alpha-server-0.5.0-SNAPSHOT-exec.jar \
   --spring.datasource.username=saga-user \
   --spring.datasource.password=saga-password \
   --spring.datasource.url="jdbc:postgresql://10.22.1.234:5432/saga?useSSL=false" \
@@ -76,15 +76,15 @@ java -Xmx3g -Xms3g -Xss256k \
 
 | 节点数 | 并发数 | 总耗时(s) | 平均耗时(ms) | 吞吐率 | 事务量 |
 | ------ | ------ | --------- | ---- | ------ | ---- |
-| 0.4.0  | 100    | 102       | 1026 | 98/sec | 10000 |
-| 0.4.0  | 500    | 99      | 4970 | 101/sec | 10000 |
-| 0.5.0 | 100  | 14      | 142 | 714/sec | 10000 |
-| 0.5.0 | 500  | 8      | 418 | 1250/sec | 10000 |
-| 0.5.0 | 1000 | 8       | 858 | 1250/sec | 10000 |
-| 0.5.0 | 2000 | 14      | 2888 | 714/sec | 10000 |
-| 0.5.0 | 1000   | 39      | 786 | 1282/sec | 50000 |
-| 0.5.0 | 2000 | 37 | 1519 | 1351/sec | 50000 |
-| 0.5.0 | 3000 | 43 | 2687 | 1116/sec | 50000 |
+| 0.5.0 without Akka | 100    | 102       | 1026 | 98/sec | 10000 |
+| 0.5.0 without Akka | 500    | 99      | 4970 | 101/sec | 10000 |
+| 0.5.0 with Akka | 100  | 14      | 142 | 714/sec | 10000 |
+| 0.5.0 with Akka | 500  | 8      | 418 | 1250/sec | 10000 |
+| 0.5.0 with Akka | 1000 | 8       | 858 | 1250/sec | 10000 |
+| 0.5.0 with Akka | 2000 | 14      | 2888 | 714/sec | 10000 |
+| 0.5.0 with Akka | 1000   | 39      | 786 | 1282/sec | 50000 |
+| 0.5.0 with Akka | 2000 | 37 | 1519 | 1351/sec | 50000 |
+| 0.5.0 with Akka | 3000 | 43 | 2687 | 1116/sec | 50000 |
 
 ## 测试详细说明
 
