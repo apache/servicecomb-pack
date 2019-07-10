@@ -52,7 +52,17 @@
 ### Alpha配置
 
 ```bash
-java -Xmx3g -Xms3g -Xss256k \
+java \
+  -Xmx8g -Xms8g -Xmn4g \
+  -Xss256k \
+  -XX:PermSize=128m -XX:MaxPermSize=512m \
+  -XX:+UseConcMarkSweepGC \
+  -XX:+UseParNewGC \
+  -XX:MaxTenuringThreshold=15 \
+  -XX:+ExplicitGCInvokesConcurrent \
+  -XX:+CMSParallelRemarkEnabled \
+  -XX:SurvivorRatio=8 \
+  -XX:+UseCompressedOops \
   -Dcom.sun.management.jmxremote \
   -Dcom.sun.management.jmxremote.port=9090 \
   -Dcom.sun.management.jmxremote.ssl=false \
