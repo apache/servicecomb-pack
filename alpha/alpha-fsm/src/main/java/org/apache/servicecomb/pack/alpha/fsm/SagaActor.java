@@ -333,14 +333,18 @@ public class SagaActor extends
             SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(getContext().getSystem())
                 .putSagaData(stateData().getGlobalTxId(), stateData());
           }
-          LOG.info("transition {} {} -> {}", getSelf(), from, to);
+          if(LOG.isDebugEnabled()){
+            LOG.debug("transition {} {} -> {}", getSelf(), from, to);
+          }
         })
     );
 
     onTermination(
         matchStop(
             Normal(), (state, data) -> {
-              LOG.info("stop {} {}", data.getGlobalTxId(), state);
+              if(LOG.isDebugEnabled()){
+                LOG.info("stop {} {}", data.getGlobalTxId(), state);
+              }
               data.setTerminated(true);
               data.setLastState(state);
               data.setEndTime(new Date());
