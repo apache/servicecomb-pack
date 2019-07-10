@@ -20,11 +20,10 @@ package org.apache.servicecomb.pack.alpha.fsm;
 import static org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SpringAkkaExtension.SPRING_EXTENSION_PROVIDER;
 
 import akka.actor.ActorSystem;
-import com.google.common.eventbus.EventBus;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.util.Map;
-import org.apache.servicecomb.pack.alpha.fsm.event.consumer.SagaEventConsumer;
+import org.apache.servicecomb.pack.alpha.fsm.event.consumer.SagaEventActorEventSender;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.AkkaConfigPropertyAdapter;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.eventbus.EventSubscribeBeanPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -50,14 +49,9 @@ public class FsmAutoConfiguration {
     return ConfigFactory.parseMap(converted).withFallback(ConfigFactory.defaultReference(applicationContext.getClassLoader()));
   }
 
-  @Bean(name = "sagaEventBus")
-  public EventBus sagaEventBus() {
-    return new EventBus();
-  }
-
   @Bean
-  public SagaEventConsumer sagaEventConsumer(){
-    return new SagaEventConsumer();
+  public SagaEventActorEventSender sagaEventConsumer(){
+    return new SagaEventActorEventSender();
   }
 
   @Bean
