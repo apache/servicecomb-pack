@@ -15,7 +15,7 @@
 
 Feature: Alpha records transaction events
 
-  Scenario: A transaction timeout and will be compensated
+  Scenario: Booking transaction timeout and will be suspended
     Given Car Service is up and running
     And Hotel Service is up and running
     And Booking Service is up and running
