@@ -132,19 +132,18 @@ public class SagaActorTest {
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.PARTIALLY_ACTIVE, SagaActorState.PARTIALLY_COMMITTED);
 
-      SagaData sagaData = expectMsgClass(SagaData.class);
-      assertEquals(sagaData.getGlobalTxId(), globalTxId);
-      assertEquals(sagaData.getTxEntityMap().size(), 3);
-      sagaData.getTxEntityMap().forEach((k, v) -> {
-        assertEquals(v.getState(), TxState.COMMITTED);
-      });
-
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.PARTIALLY_COMMITTED, SagaActorState.COMMITTED);
 
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      assertEquals(sagaData.getGlobalTxId(), globalTxId);
+      assertEquals(sagaData.getTxEntityMap().size(), 3);
+      sagaData.getTxEntityMap().forEach((k, v) -> {
+        assertEquals(v.getState(), TxState.COMMITTED);
+      });
       assertThat(eventList, is(sagaData.getEvents()));
       system.stop(saga);
     }};
@@ -220,13 +219,6 @@ public class SagaActorTest {
       assertSagaTransition(transition, recoveredSaga, SagaActorState.PARTIALLY_ACTIVE,
           SagaActorState.PARTIALLY_COMMITTED);
 
-      SagaData sagaData = expectMsgClass(SagaData.class);
-      assertEquals(sagaData.getGlobalTxId(), globalTxId);
-      assertEquals(sagaData.getTxEntityMap().size(), 3);
-      sagaData.getTxEntityMap().forEach((k, v) -> {
-        assertEquals(v.getState(), TxState.COMMITTED);
-      });
-
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, recoveredSaga, SagaActorState.PARTIALLY_COMMITTED,
           SagaActorState.COMMITTED);
@@ -234,6 +226,12 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), recoveredSaga);
 
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      assertEquals(sagaData.getGlobalTxId(), globalTxId);
+      assertEquals(sagaData.getTxEntityMap().size(), 3);
+      sagaData.getTxEntityMap().forEach((k, v) -> {
+        assertEquals(v.getState(), TxState.COMMITTED);
+      });
       eventListFirst.addAll(eventListSecond);
       assertThat(eventListFirst, is(sagaData.getEvents()));
 
@@ -274,18 +272,17 @@ public class SagaActorTest {
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.PARTIALLY_ACTIVE, SagaActorState.FAILED);
 
-      SagaData sagaData = expectMsgClass(SagaData.class);
-      assertEquals(sagaData.getGlobalTxId(), globalTxId);
-      assertEquals(sagaData.getTxEntityMap().size(), 1);
-      assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.FAILED);
-      assertEquals(sagaData.getCompensationRunningCounter().intValue(), 0);
-
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.FAILED, SagaActorState.COMPENSATED);
 
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      assertEquals(sagaData.getGlobalTxId(), globalTxId);
+      assertEquals(sagaData.getTxEntityMap().size(), 1);
+      assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.FAILED);
+      assertEquals(sagaData.getCompensationRunningCounter().intValue(), 0);
       assertThat(eventList, is(sagaData.getEvents()));
 
       system.stop(saga);
@@ -337,18 +334,18 @@ public class SagaActorTest {
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.PARTIALLY_ACTIVE, SagaActorState.FAILED);
 
-      SagaData sagaData = expectMsgClass(SagaData.class);
-      assertEquals(sagaData.getGlobalTxId(), globalTxId);
-      assertEquals(sagaData.getTxEntityMap().size(), 2);
-      assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.COMPENSATED);
-      assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(), TxState.FAILED);
-      assertEquals(sagaData.getCompensationRunningCounter().intValue(), 0);
-
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.FAILED, SagaActorState.COMPENSATED);
 
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
+
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      assertEquals(sagaData.getGlobalTxId(), globalTxId);
+      assertEquals(sagaData.getTxEntityMap().size(), 2);
+      assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.COMPENSATED);
+      assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(), TxState.FAILED);
+      assertEquals(sagaData.getCompensationRunningCounter().intValue(), 0);
 
       assertThat(eventList, is(sagaData.getEvents()));
 
@@ -410,20 +407,19 @@ public class SagaActorTest {
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.PARTIALLY_ACTIVE, SagaActorState.FAILED);
 
-      SagaData sagaData = expectMsgClass(SagaData.class);
-      assertEquals(sagaData.getGlobalTxId(), globalTxId);
-      assertEquals(sagaData.getTxEntityMap().size(), 3);
-      assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.COMPENSATED);
-      assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(), TxState.COMPENSATED);
-      assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(), TxState.FAILED);
-      assertEquals(sagaData.getCompensationRunningCounter().intValue(), 0);
-
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.FAILED, SagaActorState.COMPENSATED);
 
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      assertEquals(sagaData.getGlobalTxId(), globalTxId);
+      assertEquals(sagaData.getTxEntityMap().size(), 3);
+      assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.COMPENSATED);
+      assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(), TxState.COMPENSATED);
+      assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(), TxState.FAILED);
+      assertEquals(sagaData.getCompensationRunningCounter().intValue(), 0);
       assertThat(eventList, is(sagaData.getEvents()));
 
       system.stop(saga);
@@ -484,15 +480,13 @@ public class SagaActorTest {
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.PARTIALLY_ACTIVE, SagaActorState.FAILED);
 
-      SagaData sagaData = expectMsgClass(SagaData.class);
-
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.FAILED, SagaActorState.COMPENSATED);
 
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
-      sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);//expectMsgClass(SagaData.class);
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
       assertEquals(sagaData.getGlobalTxId(), globalTxId);
       assertEquals(sagaData.getTxEntityMap().size(), 3);
       assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.COMPENSATED);
@@ -548,20 +542,19 @@ public class SagaActorTest {
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.PARTIALLY_ACTIVE, SagaActorState.FAILED);
 
-      SagaData sagaData = expectMsgClass(SagaData.class);
-      assertEquals(sagaData.getGlobalTxId(), globalTxId);
-      assertEquals(sagaData.getTxEntityMap().size(), 3);
-      assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.FAILED);
-      assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(), TxState.COMPENSATED);
-      assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(), TxState.COMPENSATED);
-      assertEquals(sagaData.getCompensationRunningCounter().intValue(), 0);
-
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.FAILED, SagaActorState.COMPENSATED);
 
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      assertEquals(sagaData.getGlobalTxId(), globalTxId);
+      assertEquals(sagaData.getTxEntityMap().size(), 3);
+      assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.FAILED);
+      assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(), TxState.COMPENSATED);
+      assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(), TxState.COMPENSATED);
+      assertEquals(sagaData.getCompensationRunningCounter().intValue(), 0);
       assertThat(eventList, is(sagaData.getEvents()));
 
       system.stop(saga);
@@ -700,19 +693,18 @@ public class SagaActorTest {
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.PARTIALLY_ACTIVE, SagaActorState.PARTIALLY_COMMITTED);
 
-      SagaData sagaData = expectMsgClass(SagaData.class);
-      assertEquals(sagaData.getGlobalTxId(), globalTxId);
-      assertEquals(sagaData.getTxEntityMap().size(), 3);
-      assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.COMMITTED);
-      assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(), TxState.COMMITTED);
-      assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(), TxState.COMMITTED);
-
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.PARTIALLY_COMMITTED, SagaActorState.SUSPENDED);
 
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      assertEquals(sagaData.getGlobalTxId(), globalTxId);
+      assertEquals(sagaData.getTxEntityMap().size(), 3);
+      assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.COMMITTED);
+      assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(), TxState.COMMITTED);
+      assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(), TxState.COMMITTED);
       assertThat(eventList, is(sagaData.getEvents()));
 
       system.stop(saga);
@@ -824,19 +816,18 @@ public class SagaActorTest {
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.PARTIALLY_ACTIVE, SagaActorState.PARTIALLY_COMMITTED);
 
-      SagaData sagaData = expectMsgClass(SagaData.class);
-      assertEquals(sagaData.getGlobalTxId(), globalTxId);
-      assertEquals(sagaData.getTxEntityMap().size(), 3);
-      sagaData.getTxEntityMap().forEach((k, v) -> {
-        assertEquals(v.getState(), TxState.COMMITTED);
-      });
-
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.PARTIALLY_COMMITTED, SagaActorState.COMMITTED);
 
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      assertEquals(sagaData.getGlobalTxId(), globalTxId);
+      assertEquals(sagaData.getTxEntityMap().size(), 3);
+      sagaData.getTxEntityMap().forEach((k, v) -> {
+        assertEquals(v.getState(), TxState.COMMITTED);
+      });
       assertThat(eventList, is(sagaData.getEvents()));
 
       system.stop(saga);
@@ -888,19 +879,18 @@ public class SagaActorTest {
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.PARTIALLY_ACTIVE, SagaActorState.PARTIALLY_COMMITTED);
 
-      SagaData sagaData = expectMsgClass(SagaData.class);
-      assertEquals(sagaData.getGlobalTxId(), globalTxId);
-      assertEquals(sagaData.getTxEntityMap().size(), 3);
-      sagaData.getTxEntityMap().forEach((k, v) -> {
-        assertEquals(v.getState(), TxState.COMMITTED);
-      });
-
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.PARTIALLY_COMMITTED, SagaActorState.COMMITTED);
 
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      assertEquals(sagaData.getGlobalTxId(), globalTxId);
+      assertEquals(sagaData.getTxEntityMap().size(), 3);
+      sagaData.getTxEntityMap().forEach((k, v) -> {
+        assertEquals(v.getState(), TxState.COMMITTED);
+      });
       assertThat(eventList, is(sagaData.getEvents()));
 
       system.stop(saga);
@@ -951,20 +941,19 @@ public class SagaActorTest {
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.PARTIALLY_COMMITTED, SagaActorState.FAILED);
 
-      SagaData sagaData = expectMsgClass(SagaData.class);
-      assertEquals(sagaData.getGlobalTxId(), globalTxId);
-      assertEquals(sagaData.getTxEntityMap().size(), 3);
-      assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.COMPENSATED);
-      assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(), TxState.COMPENSATED);
-      assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(), TxState.FAILED);
-      assertEquals(sagaData.getCompensationRunningCounter().intValue(), 0);
-
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.FAILED, SagaActorState.COMPENSATED);
 
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      assertEquals(sagaData.getGlobalTxId(), globalTxId);
+      assertEquals(sagaData.getTxEntityMap().size(), 3);
+      assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.COMPENSATED);
+      assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(), TxState.COMPENSATED);
+      assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(), TxState.FAILED);
+      assertEquals(sagaData.getCompensationRunningCounter().intValue(), 0);
       assertThat(eventList, is(sagaData.getEvents()));
 
       system.stop(saga);
