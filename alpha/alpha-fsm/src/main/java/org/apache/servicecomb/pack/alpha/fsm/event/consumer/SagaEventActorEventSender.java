@@ -19,31 +19,28 @@ package org.apache.servicecomb.pack.alpha.fsm.event.consumer;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import com.google.common.eventbus.Subscribe;
 import java.lang.invoke.MethodHandles;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.servicecomb.pack.alpha.fsm.SagaActor;
 import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public class SagaEventConsumer {
+@Component
+public class SagaEventActorEventSender {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Autowired
   ActorSystem system;
 
-  private Map<String,ActorRef> sagaCache = new HashMap<>();
+  private Map<String,ActorRef> sagaCache = new ConcurrentHashMap<>();
 
-  /**
-   * Receive fsm message
-   * */
-  @Subscribe
-  public void receiveSagaEvent(BaseEvent event) {
+  public void send(BaseEvent event) {
     if(LOG.isDebugEnabled()){
-      LOG.debug("receive {} ", event.toString());
+      LOG.debug("send {} ", event.toString());
     }
     try{
       ActorRef saga;
