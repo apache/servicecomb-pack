@@ -19,7 +19,6 @@ package org.apache.servicecomb.pack.alpha.server.fsm;
 
 import static java.util.Collections.emptyMap;
 
-import com.google.common.eventbus.EventBus;
 import io.grpc.stub.StreamObserver;
 import java.lang.invoke.MethodHandles;
 import java.util.Date;
@@ -28,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import kamon.annotation.Trace;
 import org.apache.servicecomb.pack.alpha.core.OmegaCallback;
 import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
+import org.apache.servicecomb.pack.alpha.fsm.event.consumer.SagaEventActorEventSender;
 import org.apache.servicecomb.pack.common.EventType;
 import org.apache.servicecomb.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.pack.contract.grpc.GrpcCompensateCommand;
@@ -43,11 +43,11 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
   private static final GrpcAck REJECT = GrpcAck.newBuilder().setAborted(true).build();
 
   private final Map<String, Map<String, OmegaCallback>> omegaCallbacks;
-  private final EventBus sagaEventBus;
+  private final SagaEventActorEventSender sagaEventActorEventSender;
 
-  public GrpcSagaEventService(EventBus sagaEventBus,
+  public GrpcSagaEventService(SagaEventActorEventSender sagaEventActorEventSender,
       Map<String, Map<String, OmegaCallback>> omegaCallbacks) {
-    this.sagaEventBus = sagaEventBus;
+    this.sagaEventActorEventSender = sagaEventActorEventSender;
     this.omegaCallbacks = omegaCallbacks;
   }
 
@@ -142,7 +142,7 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
     }
     if (event != null) {
       event.setCreateTime(new Date());
-      this.sagaEventBus.post(event);
+      sagaEventActorEventSender.send(event);
     }
     responseObserver.onNext(ok ? ALLOW : REJECT);
     responseObserver.onCompleted();
