@@ -15,7 +15,7 @@
 
 Feature: Alpha records transaction events
 
-  Scenario: A sub-transaction failed and global transaction compensated
+  Scenario: Hotel sub-transaction failed and global transaction compensated
     Given Car Service is up and running
     And Hotel Service is up and running
     And Booking Service is up and running

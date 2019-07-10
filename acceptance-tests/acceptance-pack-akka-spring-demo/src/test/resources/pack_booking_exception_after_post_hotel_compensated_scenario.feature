@@ -15,7 +15,7 @@
 
 Feature: Alpha records transaction events
 
-  Scenario: Booking Exception After Post Car Secenario
+  Scenario: Booking Exception After Post Hotel Secenario
     Given Car Service is up and running
     And Hotel Service is up and running
     And Booking Service is up and running
