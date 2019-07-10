@@ -55,7 +55,7 @@ class FsmSagaDataController {
   ActorSystem system;
 
   @Trace("getEvents")
-  @GetMapping(value = "/events")
+  @GetMapping(value = "/events/last")
   ResponseEntity<Collection<Map>> events() {
     LOG.info("Get the events request");
     List<Map> eventVos = new LinkedList<>();

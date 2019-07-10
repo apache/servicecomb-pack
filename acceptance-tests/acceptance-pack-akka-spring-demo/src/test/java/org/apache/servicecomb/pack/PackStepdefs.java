@@ -102,7 +102,7 @@ public class PackStepdefs implements En {
           map.keySet().retainAll(dataTable.topCells());
       };
 
-      dataMatches(System.getProperty(ALPHA_REST_ADDRESS) + "/saga/events", dataTable, columnStrippingConsumer);
+      dataMatches(System.getProperty(ALPHA_REST_ADDRESS) + "/saga/events/last", dataTable, columnStrippingConsumer);
     });
 
     And("^Car Service contains the following booking orders$", (DataTable dataTable) -> {
