@@ -70,16 +70,4 @@ public class SagaEventConsumer {
       throw ex;
     }
   }
-
-  public Optional<ActorRef> getActorRefFromPath(String path) throws Exception {
-    try {
-      ActorSelection selection = system.actorSelection(path);
-      Future<ActorRef> future = selection.resolveOne(TIMEOUT);
-      ActorRef ref = Await.result(future, TIMEOUT.duration());
-      return Optional.of(ref);
-    } catch (ActorNotFound e) {
-      return Optional.absent();
-    }
-  }
-
 }
