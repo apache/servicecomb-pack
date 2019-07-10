@@ -17,29 +17,20 @@
 
 package org.apache.servicecomb.pack.alpha.fsm.event.consumer;
 
-import akka.actor.ActorNotFound;
 import akka.actor.ActorRef;
-import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
-import akka.util.Timeout;
-import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import org.apache.servicecomb.pack.alpha.fsm.SagaActor;
 import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import scala.concurrent.Await;
-import scala.concurrent.Future;
 
 public class SagaEventConsumer {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-  public static final Timeout TIMEOUT = new Timeout(5, TimeUnit.SECONDS);
 
   @Autowired
   ActorSystem system;
@@ -50,7 +41,7 @@ public class SagaEventConsumer {
    * Receive fsm message
    * */
   @Subscribe
-  public void receiveSagaEvent(BaseEvent event) throws Exception {
+  public void receiveSagaEvent(BaseEvent event) {
     if(LOG.isDebugEnabled()){
       LOG.debug("receive {} ", event.toString());
     }
