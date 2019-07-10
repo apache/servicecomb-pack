@@ -32,6 +32,11 @@ public class SagaEndedDomain implements DomainEvent {
     this.state = state;
   }
 
+
+  public SagaEndedDomain(SagaActorState state) {
+    this.state = state;
+  }
+
   public SagaActorState getState() {
     return state;
   }

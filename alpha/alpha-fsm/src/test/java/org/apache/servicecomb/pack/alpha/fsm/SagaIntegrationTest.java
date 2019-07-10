@@ -63,7 +63,7 @@ public class SagaIntegrationTest {
     });
     await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
-      return sagaData !=null && sagaData.getLastState()==SagaActorState.COMMITTED;
+      return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMMITTED;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
     assertNotNull(sagaData.getBeginTime());
@@ -84,7 +84,7 @@ public class SagaIntegrationTest {
 
     await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
-      return sagaData !=null && sagaData.getLastState()==SagaActorState.COMPENSATED;
+      return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
     assertNotNull(sagaData.getBeginTime());
@@ -103,7 +103,7 @@ public class SagaIntegrationTest {
     });
     await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
-      return sagaData !=null && sagaData.getLastState()==SagaActorState.COMPENSATED;
+      return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
     assertNotNull(sagaData.getBeginTime());
@@ -124,7 +124,7 @@ public class SagaIntegrationTest {
     });
     await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
-      return sagaData !=null && sagaData.getLastState()==SagaActorState.COMPENSATED;
+      return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
     assertNotNull(sagaData.getBeginTime());
@@ -146,7 +146,7 @@ public class SagaIntegrationTest {
     });
     await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
-      return sagaData !=null && sagaData.getLastState()==SagaActorState.COMPENSATED;
+      return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
     assertNotNull(sagaData.getBeginTime());
@@ -168,7 +168,7 @@ public class SagaIntegrationTest {
     });
     await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
-      return sagaData !=null && sagaData.getLastState()==SagaActorState.COMPENSATED;
+      return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
     assertNotNull(sagaData.getBeginTime());
@@ -190,7 +190,7 @@ public class SagaIntegrationTest {
     });
     await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
-      return sagaData !=null && sagaData.getLastState()==SagaActorState.COMPENSATED;
+      return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
     assertNotNull(sagaData.getBeginTime());
@@ -212,7 +212,7 @@ public class SagaIntegrationTest {
     });
     await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
-      return sagaData !=null && sagaData.getLastState()==SagaActorState.SUSPENDED;
+      return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.SUSPENDED;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
     assertNotNull(sagaData.getBeginTime());
@@ -235,7 +235,7 @@ public class SagaIntegrationTest {
     });
     await().atMost(timeout + 2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
-      return sagaData !=null && sagaData.getLastState()==SagaActorState.SUSPENDED;
+      return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.SUSPENDED;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
     assertNotNull(sagaData.getBeginTime());
@@ -257,7 +257,7 @@ public class SagaIntegrationTest {
     });
     await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
-      return sagaData !=null && sagaData.getLastState()==SagaActorState.COMMITTED;
+      return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMMITTED;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
     assertNotNull(sagaData.getBeginTime());
@@ -279,7 +279,7 @@ public class SagaIntegrationTest {
     });
     await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
-      return sagaData !=null && sagaData.getLastState()==SagaActorState.COMMITTED;
+      return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMMITTED;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
     assertNotNull(sagaData.getBeginTime());
@@ -301,7 +301,7 @@ public class SagaIntegrationTest {
     });
     await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
-      return sagaData !=null && sagaData.getLastState()==SagaActorState.COMPENSATED;
+      return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
     assertNotNull(sagaData.getBeginTime());
