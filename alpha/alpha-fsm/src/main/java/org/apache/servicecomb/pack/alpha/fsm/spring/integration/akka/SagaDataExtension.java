@@ -51,6 +51,7 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
 
     public void putSagaData(String globalTxId, SagaData sagaData) {
       if(!globalTxIds.contains(globalTxId)){
+        lastGlobalTxId = globalTxId;
         globalTxIds.add(globalTxId);
       }
       sagaDataMap.put(globalTxId, sagaData);
@@ -75,7 +76,7 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
     }
 
     public SagaData getLastSagaData() {
-      return sagaDataMap.get(lastGlobalTxId);
+      return getSagaData(lastGlobalTxId);
     }
   }
 
