@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.servicecomb.pack.alpha.core.fsm.PackSagaEvent;
 import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
@@ -38,7 +39,7 @@ public class SagaData implements Serializable {
   private boolean terminated;
   private SagaActorState lastState;
   private AtomicLong compensationRunningCounter = new AtomicLong();
-  private Map<String,TxEntity> txEntityMap = new HashMap<>();
+  private Map<String,TxEntity> txEntityMap = new ConcurrentHashMap<>();
   private List<BaseEvent> events = new LinkedList<>();
 
   public String getServiceName() {

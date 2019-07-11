@@ -43,7 +43,6 @@ import kamon.annotation.Trace;
 @Controller
 @RequestMapping("/saga")
 @Profile("test")
-@ConditionalOnProperty(name = "alpha.feature.akka.enabled", havingValue = "false", matchIfMissing = true)
 // Only export this Controller for test
 class AlphaEventController {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
