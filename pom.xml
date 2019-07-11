@@ -36,9 +36,7 @@
     <module>alpha</module>
     <module>pack-contracts</module>
     <module>pack-common</module>
-    <!-- TODO These tests use database validation and it is recommended to use acceptance testing instead.
     <module>integration-tests</module>
-    -->
     <module>persistence</module>
     <module>web</module>
   </modules>
