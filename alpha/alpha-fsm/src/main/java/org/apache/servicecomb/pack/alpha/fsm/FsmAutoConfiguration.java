@@ -23,9 +23,17 @@ import akka.actor.ActorSystem;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.util.Map;
-import org.apache.servicecomb.pack.alpha.fsm.event.consumer.SagaEventActorEventSender;
+import org.apache.servicecomb.pack.alpha.fsm.channel.ActiveMQActorEventChannel;
+import org.apache.servicecomb.pack.alpha.fsm.sink.ActorEventSink;
+import org.apache.servicecomb.pack.alpha.fsm.channel.ActorEventChannel;
+import org.apache.servicecomb.pack.alpha.fsm.channel.KafkaActorEventChannel;
+import org.apache.servicecomb.pack.alpha.fsm.channel.MemoryActorEventChannel;
+import org.apache.servicecomb.pack.alpha.fsm.channel.RedisActorEventChannel;
+import org.apache.servicecomb.pack.alpha.fsm.sink.SagaActorEventSender;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.AkkaConfigPropertyAdapter;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.eventbus.EventSubscribeBeanPostProcessor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -35,6 +43,9 @@ import org.springframework.core.env.ConfigurableEnvironment;
 @Configuration
 @ConditionalOnProperty(value = {"alpha.feature.akka.enabled"})
 public class FsmAutoConfiguration {
+
+  @Value("${alpha.feature.akka.channel.memory.size:-1}")
+  int memoryEventChannelMemorySize;
 
   @Bean
   public ActorSystem actorSystem(ConfigurableApplicationContext applicationContext, ConfigurableEnvironment environment) {
@@ -50,13 +61,38 @@ public class FsmAutoConfiguration {
   }
 
   @Bean
-  public SagaEventActorEventSender sagaEventConsumer(){
-    return new SagaEventActorEventSender();
+  public EventSubscribeBeanPostProcessor eventSubscribeBeanPostProcessor(){
+    return new EventSubscribeBeanPostProcessor();
   }
 
   @Bean
-  public EventSubscribeBeanPostProcessor eventSubscribeBeanPostProcessor(){
-    return new EventSubscribeBeanPostProcessor();
+  public ActorEventSink actorEventSink(){
+    return new SagaActorEventSender();
+  }
+
+  @Bean
+  @ConditionalOnMissingBean(ActorEventChannel.class)
+  @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "memory", matchIfMissing = true)
+  public ActorEventChannel memoryEventChannel(ActorEventSink actorEventSink){
+    return new MemoryActorEventChannel(actorEventSink, memoryEventChannelMemorySize);
+  }
+
+  @Bean
+  @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "activemq")
+  public ActorEventChannel activeMqEventChannel(ActorEventSink actorEventSink){
+    return new ActiveMQActorEventChannel(actorEventSink);
+  }
+
+  @Bean
+  @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "kafka")
+  public ActorEventChannel kafkaEventChannel(ActorEventSink actorEventSink){
+    return new KafkaActorEventChannel(actorEventSink);
+  }
+
+  @Bean
+  @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "redis")
+  public ActorEventChannel redisEventChannel(ActorEventSink actorEventSink){
+    return new RedisActorEventChannel(actorEventSink);
   }
 
 }

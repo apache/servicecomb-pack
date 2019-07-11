@@ -67,6 +67,7 @@ public class SagaActorTest {
 
   @BeforeClass
   public static void setup() {
+    SagaDataExtension.autoCleanSagaDataMap=false;
     system = ActorSystem.create("SagaActorTest", ConfigFactory.parseMap(getPersistenceMemConfig()));
   }
 

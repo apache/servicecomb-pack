@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   public static final SagaDataExtension SAGA_DATA_EXTENSION_PROVIDER = new SagaDataExtension();
+  public static boolean autoCleanSagaDataMap = true; // Only for Test
 
   @Override
   public SagaDataExt createExtension(ExtendedActorSystem system) {
@@ -38,22 +39,24 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
   }
 
   public static class SagaDataExt implements Extension {
-    private final ConcurrentLinkedQueue<String> globalTxIds = new ConcurrentLinkedQueue<>();
+    //private final ConcurrentLinkedQueue<String> globalTxIds = new ConcurrentLinkedQueue<>();
     private final ConcurrentHashMap<String, SagaData> sagaDataMap = new ConcurrentHashMap();
     private String lastGlobalTxId;
-    private CleanMemForTest cleanMemForTest = new CleanMemForTest(globalTxIds,sagaDataMap);
+    private CleanMemForTest cleanMemForTest = new CleanMemForTest(sagaDataMap);
 
     public SagaDataExt() {
       // Just to avoid the overflow of the OldGen for stress testing
       // Delete after SagaData persistence
-      new Thread(cleanMemForTest).start();
+      if(autoCleanSagaDataMap){
+        new Thread(cleanMemForTest).start();
+      }
     }
 
     public void putSagaData(String globalTxId, SagaData sagaData) {
-      if(!globalTxIds.contains(globalTxId)){
+      //if(!globalTxIds.contains(globalTxId)){
         lastGlobalTxId = globalTxId;
-        globalTxIds.add(globalTxId);
-      }
+      //  globalTxIds.add(globalTxId);
+      //}
       sagaDataMap.put(globalTxId, sagaData);
     }
 
@@ -71,7 +74,8 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
 
     // Only test
     public void clearSagaData() {
-      globalTxIds.clear();
+      //globalTxIds.clear();
+      lastGlobalTxId = null;
       sagaDataMap.clear();
     }
 
@@ -81,11 +85,9 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
   }
 
   static class CleanMemForTest implements Runnable {
-    final ConcurrentLinkedQueue<String> globalTxIds;
     final ConcurrentHashMap<String, SagaData> sagaDataMap;
 
-    public CleanMemForTest(ConcurrentLinkedQueue<String> globalTxIds, ConcurrentHashMap<String, SagaData> sagaDataMap) {
-      this.globalTxIds = globalTxIds;
+    public CleanMemForTest(ConcurrentHashMap<String, SagaData> sagaDataMap) {
       this.sagaDataMap = sagaDataMap;
     }
 
@@ -93,19 +95,12 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
     public void run() {
       while (true){
         try{
-          if(!globalTxIds.isEmpty()){
-            int cache_size = globalTxIds.size()-5000;
-            while(cache_size>0){
-              sagaDataMap.remove(globalTxIds.poll());
-              cache_size--;
-            }
-          }
+          sagaDataMap.clear();
         }catch (Exception e){
           LOG.error(e.getMessage(),e);
         }finally {
-          LOG.info("SagaData limit cache 5000, free memory globalTxIds {}, sagaDataMap size {}",globalTxIds.size(),sagaDataMap.size());
           try {
-            Thread.sleep(60000);
+            Thread.sleep(10000);
           } catch (InterruptedException e) {
             LOG.error(e.getMessage(),e);
           }

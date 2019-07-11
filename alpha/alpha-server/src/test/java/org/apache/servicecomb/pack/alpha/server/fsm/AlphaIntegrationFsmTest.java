@@ -68,7 +68,8 @@ public class AlphaIntegrationFsmTest {
 
   @BeforeClass
   public static void beforeClass() {
-    omegaEventSender.configClient(NettyChannelBuilder.forAddress("localhost", port).usePlaintext().build());
+    omegaEventSender.configClient(NettyChannelBuilder.forAddress("0.0.0.0", port).usePlaintext().build());
+    SagaDataExtension.autoCleanSagaDataMap=false;
   }
 
   @AfterClass
