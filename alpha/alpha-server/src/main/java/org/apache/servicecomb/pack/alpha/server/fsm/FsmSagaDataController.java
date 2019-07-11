@@ -44,7 +44,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @EnableKamon
 @Controller
-@RequestMapping("/saga")
+@RequestMapping("/saga/akka")
 @Profile("test")
 @ConditionalOnProperty(name= "alpha.feature.akka.enabled", havingValue = "true")
 // Only export this Controller for test
