@@ -66,7 +66,11 @@ public class Application implements CommandLineRunner {
         printHelp();
       }
     } finally {
-      sender.onDisconnected();
+      try{
+        sender.onDisconnected();
+      }catch (Throwable e){
+        //
+      }
       System.exit(0);
     }
 
