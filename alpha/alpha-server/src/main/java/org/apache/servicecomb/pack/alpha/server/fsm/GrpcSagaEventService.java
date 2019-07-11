@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import kamon.annotation.Trace;
 import org.apache.servicecomb.pack.alpha.core.OmegaCallback;
 import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
-import org.apache.servicecomb.pack.alpha.fsm.event.consumer.SagaEventActorEventSender;
+import org.apache.servicecomb.pack.alpha.fsm.channel.ActorEventChannel;
 import org.apache.servicecomb.pack.common.EventType;
 import org.apache.servicecomb.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.pack.contract.grpc.GrpcCompensateCommand;
@@ -43,11 +43,11 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
   private static final GrpcAck REJECT = GrpcAck.newBuilder().setAborted(true).build();
 
   private final Map<String, Map<String, OmegaCallback>> omegaCallbacks;
-  private final SagaEventActorEventSender sagaEventActorEventSender;
+  private final ActorEventChannel actorEventChannel;
 
-  public GrpcSagaEventService(SagaEventActorEventSender sagaEventActorEventSender,
+  public GrpcSagaEventService(ActorEventChannel actorEventChannel,
       Map<String, Map<String, OmegaCallback>> omegaCallbacks) {
-    this.sagaEventActorEventSender = sagaEventActorEventSender;
+    this.actorEventChannel = actorEventChannel;
     this.omegaCallbacks = omegaCallbacks;
   }
 
@@ -142,7 +142,7 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
     }
     if (event != null) {
       event.setCreateTime(new Date());
-      sagaEventActorEventSender.send(event);
+      actorEventChannel.send(event);
     }
     responseObserver.onNext(ok ? ALLOW : REJECT);
     responseObserver.onCompleted();

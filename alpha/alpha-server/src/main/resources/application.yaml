@@ -21,6 +21,11 @@ alpha:
   server:
     host: 0.0.0.0
     port: 8080
+  feature:
+    akka:
+      enabled: false
+      channel:
+        type: memory
 
 spring:
   datasource:
@@ -44,6 +49,7 @@ eureka:
   instance:
     metadataMap:
       servicecomb-alpha-server: ${alpha.server.host}:${alpha.server.port}
+
 
 akkaConfig:
   akka.persistence.journal.plugin: akka.persistence.journal.inmem

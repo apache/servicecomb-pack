@@ -29,7 +29,7 @@ import javax.annotation.PreDestroy;
 
 import com.google.common.eventbus.EventBus;
 import org.apache.servicecomb.pack.alpha.core.*;
-import org.apache.servicecomb.pack.alpha.fsm.event.consumer.SagaEventActorEventSender;
+import org.apache.servicecomb.pack.alpha.fsm.channel.ActorEventChannel;
 import org.apache.servicecomb.pack.alpha.server.fsm.GrpcSagaEventService;
 import org.apache.servicecomb.pack.alpha.server.tcc.GrpcTccEventService;
 import org.apache.servicecomb.pack.alpha.server.tcc.callback.TccPendingTaskRunner;
@@ -168,11 +168,11 @@ public class AlphaConfig {
 
   @Bean
   @ConditionalOnProperty(name= "alpha.feature.akka.enabled", havingValue = "true")
-  ServerStartable serverStartableMy(GrpcServerConfig serverConfig,
+  ServerStartable serverStartableWithAkka(GrpcServerConfig serverConfig,
       Map<String, Map<String, OmegaCallback>> omegaCallbacks, GrpcTccEventService grpcTccEventService,
-      TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner, @Qualifier("alphaEventBus") EventBus eventBus, SagaEventActorEventSender sagaEventActorEventSender) throws IOException {
+      TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner, @Qualifier("alphaEventBus") EventBus eventBus, ActorEventChannel actorEventChannel) throws IOException {
     ServerStartable bootstrap = new GrpcStartable(serverConfig, eventBus,
-        new GrpcSagaEventService(sagaEventActorEventSender, omegaCallbacks), grpcTccEventService);
+        new GrpcSagaEventService(actorEventChannel, omegaCallbacks), grpcTccEventService);
     new Thread(bootstrap::start).start();
     tccPendingTaskRunner.start();
     tccEventScanner.start();
