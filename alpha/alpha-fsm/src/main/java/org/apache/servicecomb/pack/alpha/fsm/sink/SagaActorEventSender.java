@@ -47,9 +47,6 @@ public class SagaActorEventSender implements ActorEventSink {
       if (LOG.isDebugEnabled()) {
         LOG.debug("send {} ", event.toString());
       }
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("send {} ", event.toString());
-      }
       if (event instanceof SagaStartedEvent) {
         final ActorRef saga = system
             .actorOf(SagaActor.props(event.getGlobalTxId()), event.getGlobalTxId());
