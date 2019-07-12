@@ -93,17 +93,16 @@
             <groupId>io.fabric8</groupId>
             <artifactId>docker-maven-plugin</artifactId>
             <configuration>
-              <showLogs>true</showLogs>
               <images>
                 <image>
-                  <name>nacos/nacos-server</name>
+                  <name>nacos/nacos-server:1.1.0</name>
                   <alias>nacos</alias>
                   <run>
                     <env>
                       <MODE>standalone</MODE>
                     </env>
                     <wait>
-                      <log>Synced node info</log>
+                      <log>Completed initialization in</log>
                       <tcp>
                         <ports>
                           <port>8848</port>

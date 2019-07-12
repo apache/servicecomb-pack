@@ -93,14 +93,13 @@
             <groupId>io.fabric8</groupId>
             <artifactId>docker-maven-plugin</artifactId>
             <configuration>
-              <showLogs>true</showLogs>
               <images>
                 <image>
-                  <name>zookeeper</name>
+                  <name>zookeeper:3.5.5</name>
                   <alias>zookeeper</alias>
                   <run>
                     <wait>
-                      <log>Synced node info</log>
+                      <log>binding to port</log>
                       <tcp>
                         <ports>
                           <port>2181</port>

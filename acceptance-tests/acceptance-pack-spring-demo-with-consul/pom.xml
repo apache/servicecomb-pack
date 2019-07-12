@@ -93,10 +93,9 @@
             <groupId>io.fabric8</groupId>
             <artifactId>docker-maven-plugin</artifactId>
             <configuration>
-              <showLogs>false</showLogs>
               <images>
                 <image>
-                  <name>consul</name>
+                  <name>consul:1.5</name>
                   <alias>consul</alias>
                   <run>
                     <wait>
