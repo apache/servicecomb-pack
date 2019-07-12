@@ -21,6 +21,7 @@ import akka.actor.Props;
 import akka.persistence.fsm.AbstractPersistentFSM;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import org.apache.servicecomb.pack.alpha.core.AlphaException;
@@ -107,7 +108,7 @@ public class SagaActor extends
                   .applying(domainEvent)
                   .forMax(Duration.create(1, TimeUnit.MILLISECONDS));
             }
-        ).event(Arrays.asList(StateTimeout()), SagaData.class,
+        ).event(Collections.singletonList(StateTimeout()), SagaData.class,
             (event, data) -> {
               SagaEndedDomain domainEvent = new SagaEndedDomain(null, SagaActorState.SUSPENDED);
               return goTo(SagaActorState.SUSPENDED)
@@ -153,7 +154,7 @@ public class SagaActor extends
               return goTo(SagaActorState.FAILED)
                   .applying(domainEvent);
             }
-        ).event(Arrays.asList(StateTimeout()), SagaData.class,
+        ).event(Collections.singletonList(StateTimeout()), SagaData.class,
             (event, data) -> {
               return goTo(SagaActorState.SUSPENDED)
                   .forMax(Duration.create(1, TimeUnit.MILLISECONDS));
@@ -208,7 +209,7 @@ public class SagaActor extends
               UpdateTxEventDomain domainEvent = new UpdateTxEventDomain(event);
               return goTo(SagaActorState.FAILED).applying(domainEvent);
             }
-        ).event(Arrays.asList(StateTimeout()), SagaData.class,
+        ).event(Collections.singletonList(StateTimeout()), SagaData.class,
             (event, data) -> {
               return goTo(SagaActorState.SUSPENDED)
                   .forMax(Duration.create(1, TimeUnit.MILLISECONDS));//.replying(data);
