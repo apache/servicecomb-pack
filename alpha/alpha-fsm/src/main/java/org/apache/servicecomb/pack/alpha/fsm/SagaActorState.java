@@ -20,7 +20,7 @@ package org.apache.servicecomb.pack.alpha.fsm;
 import akka.persistence.fsm.PersistentFSM;
 
 public enum SagaActorState implements PersistentFSM.FSMState {
-  IDEL,
+  IDLE,
   READY,
   PARTIALLY_ACTIVE,
   PARTIALLY_COMMITTED,

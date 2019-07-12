@@ -110,10 +110,10 @@ public class SagaActorTest {
 
       //expect
       CurrentState currentState = expectMsgClass(PersistentFSM.CurrentState.class);
-      assertEquals(SagaActorState.IDEL, currentState.state());
+      assertEquals(SagaActorState.IDLE, currentState.state());
 
       PersistentFSM.Transition transition = expectMsgClass(PersistentFSM.Transition.class);
-      assertSagaTransition(transition, saga, SagaActorState.IDEL, SagaActorState.READY);
+      assertSagaTransition(transition, saga, SagaActorState.IDLE, SagaActorState.READY);
 
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.READY, SagaActorState.PARTIALLY_ACTIVE);
@@ -179,10 +179,10 @@ public class SagaActorTest {
 
       //expect
       CurrentState currentState = expectMsgClass(PersistentFSM.CurrentState.class);
-      assertEquals(SagaActorState.IDEL, currentState.state());
+      assertEquals(SagaActorState.IDLE, currentState.state());
 
       PersistentFSM.Transition transition = expectMsgClass(PersistentFSM.Transition.class);
-      assertSagaTransition(transition, saga, SagaActorState.IDEL, SagaActorState.READY);
+      assertSagaTransition(transition, saga, SagaActorState.IDLE, SagaActorState.READY);
 
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.READY, SagaActorState.PARTIALLY_ACTIVE);
@@ -262,10 +262,10 @@ public class SagaActorTest {
 
       //expect
       CurrentState currentState = expectMsgClass(PersistentFSM.CurrentState.class);
-      assertEquals(SagaActorState.IDEL, currentState.state());
+      assertEquals(SagaActorState.IDLE, currentState.state());
 
       PersistentFSM.Transition transition = expectMsgClass(PersistentFSM.Transition.class);
-      assertSagaTransition(transition, saga, SagaActorState.IDEL, SagaActorState.READY);
+      assertSagaTransition(transition, saga, SagaActorState.IDLE, SagaActorState.READY);
 
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.READY, SagaActorState.PARTIALLY_ACTIVE);
@@ -318,10 +318,10 @@ public class SagaActorTest {
 
       //expect
       CurrentState currentState = expectMsgClass(PersistentFSM.CurrentState.class);
-      assertEquals(SagaActorState.IDEL, currentState.state());
+      assertEquals(SagaActorState.IDLE, currentState.state());
 
       PersistentFSM.Transition transition = expectMsgClass(PersistentFSM.Transition.class);
-      assertSagaTransition(transition, saga, SagaActorState.IDEL, SagaActorState.READY);
+      assertSagaTransition(transition, saga, SagaActorState.IDLE, SagaActorState.READY);
 
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.READY, SagaActorState.PARTIALLY_ACTIVE);
@@ -385,10 +385,10 @@ public class SagaActorTest {
 
       //expect
       CurrentState currentState = expectMsgClass(PersistentFSM.CurrentState.class);
-      assertEquals(SagaActorState.IDEL, currentState.state());
+      assertEquals(SagaActorState.IDLE, currentState.state());
 
       PersistentFSM.Transition transition = expectMsgClass(PersistentFSM.Transition.class);
-      assertSagaTransition(transition, saga, SagaActorState.IDEL, SagaActorState.READY);
+      assertSagaTransition(transition, saga, SagaActorState.IDLE, SagaActorState.READY);
 
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.READY, SagaActorState.PARTIALLY_ACTIVE);
@@ -458,10 +458,10 @@ public class SagaActorTest {
 
       //expect
       CurrentState currentState = expectMsgClass(PersistentFSM.CurrentState.class);
-      assertEquals(SagaActorState.IDEL, currentState.state());
+      assertEquals(SagaActorState.IDLE, currentState.state());
 
       PersistentFSM.Transition transition = expectMsgClass(PersistentFSM.Transition.class);
-      assertSagaTransition(transition, saga, SagaActorState.IDEL, SagaActorState.READY);
+      assertSagaTransition(transition, saga, SagaActorState.IDLE, SagaActorState.READY);
 
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.READY, SagaActorState.PARTIALLY_ACTIVE);
@@ -532,10 +532,10 @@ public class SagaActorTest {
 
       //expect
       CurrentState currentState = expectMsgClass(PersistentFSM.CurrentState.class);
-      assertEquals(SagaActorState.IDEL, currentState.state());
+      assertEquals(SagaActorState.IDLE, currentState.state());
 
       PersistentFSM.Transition transition = expectMsgClass(PersistentFSM.Transition.class);
-      assertSagaTransition(transition, saga, SagaActorState.IDEL, SagaActorState.READY);
+      assertSagaTransition(transition, saga, SagaActorState.IDLE, SagaActorState.READY);
 
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.READY, SagaActorState.PARTIALLY_ACTIVE);
@@ -595,10 +595,10 @@ public class SagaActorTest {
 
       //expect
       CurrentState currentState = expectMsgClass(PersistentFSM.CurrentState.class);
-      assertEquals(SagaActorState.IDEL, currentState.state());
+      assertEquals(SagaActorState.IDLE, currentState.state());
 
       PersistentFSM.Transition transition = expectMsgClass(PersistentFSM.Transition.class);
-      assertSagaTransition(transition, saga, SagaActorState.IDEL, SagaActorState.READY);
+      assertSagaTransition(transition, saga, SagaActorState.IDLE, SagaActorState.READY);
 
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.READY, SagaActorState.PARTIALLY_ACTIVE);
@@ -671,10 +671,10 @@ public class SagaActorTest {
 
       //expect
       CurrentState currentState = expectMsgClass(PersistentFSM.CurrentState.class);
-      assertEquals(SagaActorState.IDEL, currentState.state());
+      assertEquals(SagaActorState.IDLE, currentState.state());
 
       PersistentFSM.Transition transition = expectMsgClass(PersistentFSM.Transition.class);
-      assertSagaTransition(transition, saga, SagaActorState.IDEL, SagaActorState.READY);
+      assertSagaTransition(transition, saga, SagaActorState.IDLE, SagaActorState.READY);
 
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.READY, SagaActorState.PARTIALLY_ACTIVE);
@@ -741,9 +741,9 @@ public class SagaActorTest {
 
       //expect
       CurrentState currentState = expectMsgClass(PersistentFSM.CurrentState.class);
-      assertEquals(SagaActorState.IDEL, currentState.state());
+      assertEquals(SagaActorState.IDLE, currentState.state());
       PersistentFSM.Transition transition = expectMsgClass(PersistentFSM.Transition.class);
-      assertSagaTransition(transition, saga, SagaActorState.IDEL, SagaActorState.READY);
+      assertSagaTransition(transition, saga, SagaActorState.IDLE, SagaActorState.READY);
 
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.READY, SagaActorState.PARTIALLY_ACTIVE);
@@ -806,10 +806,10 @@ public class SagaActorTest {
 
       //expect
       CurrentState currentState = expectMsgClass(PersistentFSM.CurrentState.class);
-      assertEquals(SagaActorState.IDEL, currentState.state());
+      assertEquals(SagaActorState.IDLE, currentState.state());
 
       PersistentFSM.Transition transition = expectMsgClass(PersistentFSM.Transition.class);
-      assertSagaTransition(transition, saga, SagaActorState.IDEL, SagaActorState.READY);
+      assertSagaTransition(transition, saga, SagaActorState.IDLE, SagaActorState.READY);
 
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.READY, SagaActorState.PARTIALLY_ACTIVE);
@@ -863,10 +863,10 @@ public class SagaActorTest {
 
       //expect
       CurrentState currentState = expectMsgClass(PersistentFSM.CurrentState.class);
-      assertEquals(SagaActorState.IDEL, currentState.state());
+      assertEquals(SagaActorState.IDLE, currentState.state());
 
       PersistentFSM.Transition transition = expectMsgClass(PersistentFSM.Transition.class);
-      assertSagaTransition(transition, saga, SagaActorState.IDEL, SagaActorState.READY);
+      assertSagaTransition(transition, saga, SagaActorState.IDLE, SagaActorState.READY);
 
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.READY, SagaActorState.PARTIALLY_ACTIVE);
@@ -928,10 +928,10 @@ public class SagaActorTest {
 
       //expect
       CurrentState currentState = expectMsgClass(PersistentFSM.CurrentState.class);
-      assertEquals(SagaActorState.IDEL, currentState.state());
+      assertEquals(SagaActorState.IDLE, currentState.state());
 
       PersistentFSM.Transition transition = expectMsgClass(PersistentFSM.Transition.class);
-      assertSagaTransition(transition, saga, SagaActorState.IDEL, SagaActorState.READY);
+      assertSagaTransition(transition, saga, SagaActorState.IDLE, SagaActorState.READY);
 
       transition = expectMsgClass(PersistentFSM.Transition.class);
       assertSagaTransition(transition, saga, SagaActorState.READY, SagaActorState.PARTIALLY_ACTIVE);

@@ -61,9 +61,9 @@ public class SagaActor extends
   public SagaActor(String persistenceId) {
     this.persistenceId = persistenceId;
 
-    startWith(SagaActorState.IDEL, SagaData.builder().build());
+    startWith(SagaActorState.IDLE, SagaData.builder().build());
 
-    when(SagaActorState.IDEL,
+    when(SagaActorState.IDLE,
         matchEvent(SagaStartedEvent.class,
             (event, data) -> {
               SagaStartedDomain domainEvent = new SagaStartedDomain(event);
