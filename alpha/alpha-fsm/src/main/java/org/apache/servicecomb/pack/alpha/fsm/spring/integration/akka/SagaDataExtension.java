@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   public static final SagaDataExtension SAGA_DATA_EXTENSION_PROVIDER = new SagaDataExtension();
+  //TODO We could use test profile the enable this kind feature
   public static boolean autoCleanSagaDataMap = true; // Only for Test
 
   @Override

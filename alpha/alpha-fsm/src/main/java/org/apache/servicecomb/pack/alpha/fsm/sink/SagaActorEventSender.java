@@ -57,6 +57,7 @@ public class SagaActorEventSender implements ActorEventSink {
       } else {
         ActorSelection actorSelection = system
             .actorSelection("/user/" + event.getGlobalTxId());
+        //TODO We should leverage the async API that actor provides to send out the message
         final Future<ActorRef> actorRefFuture = actorSelection.resolveOne(lookupTimeout);
         final ActorRef saga = Await.result(actorRefFuture, lookupTimeout.duration());
         saga.tell(event, ActorRef.noSender());
