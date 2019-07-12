@@ -38,10 +38,6 @@ public class RedisActorEventChannel implements ActorEventChannel {
 
   @Override
   public void send(BaseEvent event){
-    try{
-      throw new UnsupportedOperationException();
-    }catch (Exception e){
-      throw new RuntimeException(e);
-    }
+    throw new UnsupportedOperationException("Doesn't implement yet!");
   }
 }
