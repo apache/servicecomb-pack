@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.event;
+package org.apache.servicecomb.pack.alpha.fsm.event.internal;
 
 import org.apache.servicecomb.pack.alpha.fsm.event.base.TxEvent;
 
-public class TxComponsitedCheckInternalEvent extends TxEvent {
+public class ComponsitedCheckEvent extends TxEvent {
 
   public static Builder builder() {
     return new Builder();
@@ -27,13 +27,13 @@ public class TxComponsitedCheckInternalEvent extends TxEvent {
 
   public static final class Builder {
 
-    private TxComponsitedCheckInternalEvent txComponsitedEvent;
+    private ComponsitedCheckEvent txComponsitedEvent;
 
     private Builder() {
-      txComponsitedEvent = new TxComponsitedCheckInternalEvent();
+      txComponsitedEvent = new ComponsitedCheckEvent();
     }
 
-    public TxComponsitedCheckInternalEvent build() {
+    public ComponsitedCheckEvent build() {
       return txComponsitedEvent;
     }
   }
