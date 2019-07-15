@@ -267,7 +267,7 @@ public class PackStepdefs implements En {
 
     private <T> boolean matches(Supplier<T> supplier, Optional<String> value) {
       try{
-        String nodeType = given().get(supplier.get() + "/actuator/alpha").jsonPath().getString("nodeType");
+        String nodeType = given().get(supplier.get() + "/alpha/api/v1/metrics").jsonPath().getString("nodeType");
         LOG.info("Check alpha server {} nodeType is {}",supplier.get(),nodeType);
         if (value.get().equalsIgnoreCase(nodeType)) {
           return true;
