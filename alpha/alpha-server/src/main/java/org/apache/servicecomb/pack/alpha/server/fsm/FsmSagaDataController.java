@@ -61,13 +61,13 @@ class FsmSagaDataController {
     List<Map> eventVos = new LinkedList<>();
     SagaData data = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     data.getEvents().forEach(event -> {
-      LOG.info(event.toString());
       Map<String,String> obj = new HashMap();
       obj.put("serviceName",event.getServiceName());
       obj.put("type",event.getClass().getSimpleName());
       eventVos.add(obj);
     });
-    LOG.info("Get the event size " + eventVos.size());
+    LOG.info("Get the event size {}",eventVos.size());
+    LOG.info("Get the event data {}",eventVos);
 
     return ResponseEntity.ok(eventVos);
   }
