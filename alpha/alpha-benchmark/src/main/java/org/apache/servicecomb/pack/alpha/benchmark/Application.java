@@ -42,6 +42,9 @@ public class Application implements CommandLineRunner {
   @Value("${c:1}")
   int concurrency;
 
+  @Value("${w:0}")
+  int warmUp;
+
   public static void main(String[] args) {
     boolean hasAlphaAddress = false;
     for(String arg : args){
@@ -61,7 +64,7 @@ public class Application implements CommandLineRunner {
 
     try {
       if (checkParamter()) {
-        sagaEventBenchmark.send(requests, concurrency);
+        sagaEventBenchmark.send(warmUp,requests, concurrency);
       } else {
         printHelp();
       }
@@ -97,5 +100,7 @@ public class Application implements CommandLineRunner {
         String.format("%-5s %-15s %-25s", "  --n", "requests", "Number of requests to perform"));
     System.out.println(String.format("%-5s %-15s %-25s", "  --c", "concurrency",
         "Number of multiple requests to make at a time"));
+    System.out.println(String.format("%-5s %-15s %-25s", "  --w", "warm-up",
+        "Number of multiple requests warm-Up, w * 10"));
   }
 }
