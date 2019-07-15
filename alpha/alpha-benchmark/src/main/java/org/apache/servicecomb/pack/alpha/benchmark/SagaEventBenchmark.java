@@ -39,11 +39,23 @@ public class SagaEventBenchmark {
 
   @Autowired(required = false)
   SagaMessageSender sender;
+  int warmUpConcurrency;
+  int warmUpRequests;
+  BenchmarkMetrics metrics;
 
-  BenchmarkMetrics metrics = new BenchmarkMetrics();
-
-  public void send(int requests, int concurrency) {
+  public void send(int warmUpConcurrency, int requests, int concurrency) {
+    this.warmUpConcurrency = warmUpConcurrency;
+    this.warmUpRequests = 10;
     System.out.print("Benchmarking ");
+
+    // 预热
+    if (warmUpConcurrency > 0) {
+      metrics = new BenchmarkMetrics();
+      this.warmUp(warmUpConcurrency);
+    }
+
+    // 压测
+    metrics = new BenchmarkMetrics();
     metrics.setRequests(requests);
     metrics.setConcurrency(concurrency);
     long s = System.currentTimeMillis();
@@ -51,7 +63,7 @@ public class SagaEventBenchmark {
     CountDownLatch end = new CountDownLatch(concurrency);
     begin.countDown();
     for (int i = 0; i < concurrency; i++) {
-      Execute execute = new Execute(sender, requests / concurrency, begin, end, metrics);
+      Execute execute = new Execute(sender, requests / concurrency, begin, end);
       new Thread(execute).start();
     }
     try {
@@ -59,6 +71,8 @@ public class SagaEventBenchmark {
       long e = System.currentTimeMillis();
       metrics.setTimeTaken(e - s);
       System.out.println("\n");
+
+      System.out.println(String.format("%-25s %s", "Warm Up", warmUpRequests * warmUpConcurrency));
       System.out.println(String.format("%-25s %s", "Concurrency Level", metrics.getConcurrency()));
       System.out.println(
           String.format("%-25s %s", "Time taken for tests", metrics.getTimeTaken() + " seconds"));
@@ -87,10 +101,30 @@ public class SagaEventBenchmark {
     LOG.info("OK");
   }
 
+  private void warmUp(int warmUp) {
+    CountDownLatch begin = new CountDownLatch(1);
+    CountDownLatch end = new CountDownLatch(warmUp);
+    begin.countDown();
+
+    // 预热
+    if (warmUp > 0) {
+      for (int i = 0; i < warmUp; i++) {
+        Execute execute = new Execute(sender, warmUpRequests, begin, end);
+        new Thread(execute).start();
+      }
+      try {
+        end.await();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
+
+  }
+
   private OptionalDouble getAverage(List<Long> times) {
-    try{
+    try {
       return times.stream().mapToLong(Long::longValue).average();
-    }catch (Exception e){
+    } catch (Exception e) {
 
       throw e;
     }
@@ -104,7 +138,7 @@ public class SagaEventBenchmark {
     int requests;
 
     public Execute(SagaMessageSender sender, int requests, CountDownLatch begin,
-        CountDownLatch end, BenchmarkMetrics metrics) {
+        CountDownLatch end) {
       this.sender = sender;
       this.requests = requests;
       this.begin = begin;
@@ -127,7 +161,7 @@ public class SagaEventBenchmark {
                 .forEach(event -> sender.send(event));
           } catch (Throwable e) {
             metrics.failedRequestsIncrement();
-          }finally {
+          } finally {
             long e = System.currentTimeMillis();
             metrics.addTransactionTime(e - s);
           }
