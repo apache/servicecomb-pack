@@ -67,7 +67,7 @@
     <spring.cloud.starter.alibaba.nacos.discovery2.version>0.2.2.RELEASE</spring.cloud.starter.alibaba.nacos.discovery2.version>
     <spring.cloud.starter.alibaba.nacos.discovery.version>${spring.cloud.starter.alibaba.nacos.discovery2.version}</spring.cloud.starter.alibaba.nacos.discovery.version>
 
-    <java.chassis.version>1.0.0</java.chassis.version>
+    <java.chassis.version>1.2.1</java.chassis.version>
     <akka.version>2.5.14</akka.version>
     <rat.version>0.12</rat.version>
     <maven.failsafe.version>2.19.1</maven.failsafe.version>
@@ -884,7 +884,7 @@
       </properties>
       <dependencyManagement>
         <dependencies>
-            <!-- support zookeeper discovery in 1.2.2 
+            <!-- support zookeeper discovery in 1.2.2
                 rx.Single error in upgrade rxjava version to 1.1.5 -->
             <dependency>
                 <groupId>io.reactivex</groupId>
