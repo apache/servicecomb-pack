@@ -15,30 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server.actuate.endpoint;
+package org.apache.servicecomb.pack.alpha.server.metrics;
 
 import org.apache.servicecomb.pack.alpha.core.NodeStatus;
-import org.apache.servicecomb.pack.alpha.core.actuate.endpoint.AlphaStatus;
+import org.apache.servicecomb.pack.alpha.core.NodeStatus.TypeEnum;
+import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsBean;
+import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
-import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
-
-@Configuration
-@Endpoint(id = "alpha")
-public class AlphaEndPoint {
-
-  private AlphaStatus alphaStatus = new AlphaStatus();
+@Component
+public class AlphaMetrics {
 
   @Autowired
   @Lazy
   private NodeStatus nodeStatus;
 
-  @ReadOperation
-  public AlphaStatus endpoint() {
-    alphaStatus.setNodeType(nodeStatus.getTypeEnum());
-    return alphaStatus;
+  @Autowired(required = false)
+  MetricsService metricsService;
+
+  public MetricsBean getMetrics() {
+    return metricsService != null ? metricsService.metrics() : null;
   }
+
+  public TypeEnum getNodeType(){
+    return nodeStatus.getTypeEnum();
+  }
+
 }
