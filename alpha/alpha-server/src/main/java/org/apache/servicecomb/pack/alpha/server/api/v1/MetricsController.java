@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MetricsController {
 
   @Autowired
-  org.apache.servicecomb.pack.alpha.server.metrics.AlphaMetrics AlphaMetrics;
+  AlphaMetrics AlphaMetrics;
 
   @GetMapping(value = "/metrics")
   ResponseEntity<AlphaMetrics> metrics() {

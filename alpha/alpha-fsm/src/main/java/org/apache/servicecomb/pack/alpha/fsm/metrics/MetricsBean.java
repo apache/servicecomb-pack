@@ -120,7 +120,7 @@ public class MetricsBean {
   }
 
   public double getEventAvgTime() {
-    return eventAvgTime.get();
+    return (double) Math.round(eventAvgTime.get() * 100) / 100;
   }
 
   public long getActorReceived() {
@@ -136,7 +136,7 @@ public class MetricsBean {
   }
 
   public double getActorAvgTime() {
-    return actorAvgTime.get();
+    return (double) Math.round(actorAvgTime.get() * 100) / 100;
   }
 
   public long getSagaBeginCounter() {
@@ -148,7 +148,7 @@ public class MetricsBean {
   }
 
   public double getSagaAvgTime() {
-    return sagaAvgTime.get();
+    return (double) Math.round(sagaAvgTime.get() * 100) / 100;
   }
 
   public long getCommitted() {
