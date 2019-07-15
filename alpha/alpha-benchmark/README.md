@@ -16,31 +16,30 @@ SagaEndedEvent
 ## Basic Usage
 
 ```bash
-java -jar alpha-benchmark-0.5.0-SNAPSHOT-exec.jar --alpha.cluster.address=0.0.0.0:8080 --w=50 --n=50000 --c=200
+java -jar alpha-benchmark-0.5.0-SNAPSHOT-exec.jar --alpha.cluster.address=0.0.0.0:8080 --w=50 --n=200000 --c=500
 ```
 
 Output:
 
 ```bash
-2019-07-15 15:30:53.754  INFO 53871 --- [           main] o.a.s.p.omega.spring.OmegaSpringConfig   : alpha.feature.akka.enabled=false
-2019-07-15 15:30:53.819  INFO 53871 --- [           main] o.a.s.p.omega.spring.OmegaSpringConfig   : Discovery alpha cluster address 0.0.0.0:8080 from DEFAULT
-Benchmarking ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+Benchmarking ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-Concurrency Level         150
-Time taken for tests      50 seconds
-Complete requests         50000
+Warm Up                   500
+Concurrency Level         500
+Time taken for tests      113 seconds
+Complete requests         200000
 Failed requests           0
-Requests per second       1123 [#/sec]
-Time per request          150 [ms]
+Requests per second       1769 [#/sec]
+Time per request          283 [ms]
 
 Percentage of the requests served within a certain time (ms)
-50%   163.27
-60%   161.19
-70%   156.95
-80%   153.10
-90%   150.92
-100%  150.17
-2019-07-15 15:31:44.654  INFO 53871 --- [           main] o.a.s.p.a.benchmark.SagaEventBenchmark   : OK
+50%   274.33
+60%   276.00
+70%   278.29
+80%   280.14
+90%   280.17
+100%  282.51
+2019-07-15 16:12:50.208  INFO 39338 --- [           main] o.a.s.p.a.benchmark.SagaEventBenchmark   : OK
 ```
 
 ## Command Line Options
