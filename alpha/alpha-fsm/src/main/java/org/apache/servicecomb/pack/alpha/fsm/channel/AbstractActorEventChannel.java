@@ -17,27 +17,35 @@
 
 package org.apache.servicecomb.pack.alpha.fsm.channel;
 
-import java.lang.invoke.MethodHandles;
 import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.sink.ActorEventSink;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-/**
- * Queue
- * */
+public abstract class AbstractActorEventChannel implements ActorEventChannel {
 
-public class ActiveMQActorEventChannel extends AbstractActorEventChannel {
-  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  protected final MetricsService metricsService;
+  protected final ActorEventSink actorEventSink;
 
-  public ActiveMQActorEventChannel(
-      ActorEventSink actorEventSink, MetricsService metricsService) {
-    super(actorEventSink, metricsService);
+  public abstract void sendTo(BaseEvent event);
+
+  public AbstractActorEventChannel(
+      ActorEventSink actorEventSink,
+      MetricsService metricsService) {
+    this.actorEventSink = actorEventSink;
+    this.metricsService = metricsService;
   }
 
-  @Override
-  public void sendTo(BaseEvent event){
-    throw new UnsupportedOperationException("Doesn't implement yet!");
+  public void send(BaseEvent event) {
+    long begin = System.currentTimeMillis();
+    metricsService.metrics().doEventReceived();
+    try {
+      this.sendTo(event);
+      metricsService.metrics().doEventAccepted();
+    } catch (Exception ex) {
+      metricsService.metrics().doEventRejected();
+    }
+    long end = System.currentTimeMillis();
+    metricsService.metrics().doEventAvgTime(end - begin);
   }
+
 }

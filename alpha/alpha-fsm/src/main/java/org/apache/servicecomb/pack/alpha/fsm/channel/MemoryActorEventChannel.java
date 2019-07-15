@@ -21,29 +21,30 @@ import java.lang.invoke.MethodHandles;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
+import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.sink.ActorEventSink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MemoryActorEventChannel implements ActorEventChannel {
+public class MemoryActorEventChannel extends AbstractActorEventChannel {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private final ActorEventSink actorEventSink;
   private final LinkedBlockingQueue<BaseEvent> eventQueue;
   private int size;
 
-  public MemoryActorEventChannel(ActorEventSink actorEventSink, int size) {
+  public MemoryActorEventChannel(ActorEventSink actorEventSink, int size,
+      MetricsService metricsService) {
+    super(actorEventSink, metricsService);
     this.size = size > 0 ? size : Integer.MAX_VALUE;
     eventQueue = new LinkedBlockingQueue(this.size);
-    this.actorEventSink = actorEventSink;
-    new Thread(new EventConsumer(),"MemoryActorEventChannel").start();
+    new Thread(new EventConsumer(), "MemoryActorEventChannel").start();
   }
 
   @Override
-  public void send(BaseEvent event){
-    try{
+  public void sendTo(BaseEvent event) {
+    try {
       eventQueue.put(event);
-    }catch (Exception e){
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }

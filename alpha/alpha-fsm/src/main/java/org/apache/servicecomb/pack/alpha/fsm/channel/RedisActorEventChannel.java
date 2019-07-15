@@ -19,6 +19,7 @@ package org.apache.servicecomb.pack.alpha.fsm.channel;
 
 import java.lang.invoke.MethodHandles;
 import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
+import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.sink.ActorEventSink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,17 +28,16 @@ import org.slf4j.LoggerFactory;
  * Pub/Sub
  * */
 
-public class RedisActorEventChannel implements ActorEventChannel {
+public class RedisActorEventChannel extends AbstractActorEventChannel {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private final ActorEventSink actorEventSink;
 
   public RedisActorEventChannel(
-      ActorEventSink actorEventSink) {
-    this.actorEventSink = actorEventSink;
+      ActorEventSink actorEventSink, MetricsService metricsService) {
+    super(actorEventSink, metricsService);
   }
 
   @Override
-  public void send(BaseEvent event){
+  public void sendTo(BaseEvent event){
     throw new UnsupportedOperationException("Doesn't implement yet!");
   }
 }

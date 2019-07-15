@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 
 import akka.actor.ActorSystem;
 import java.util.UUID;
+import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.sink.SagaActorEventSender;
 import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension;
@@ -52,6 +53,9 @@ public class SagaIntegrationTest {
   @Autowired
   SagaActorEventSender sagaActorEventSender;
 
+  @Autowired
+  MetricsService metricsService;
+
   @BeforeClass
   public static void setup(){
     SagaDataExtension.autoCleanSagaDataMap=false;
@@ -77,6 +81,10 @@ public class SagaIntegrationTest {
     assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(),TxState.COMMITTED);
     assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(),TxState.COMMITTED);
     assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(),TxState.COMMITTED);
+    assertEquals(metricsService.metrics().getActorReceived(),8);
+    assertEquals(metricsService.metrics().getActorAccepted(),8);
+    assertEquals(metricsService.metrics().getSagaBeginCounter(),1);
+    assertEquals(metricsService.metrics().getSagaEndCounter(),1);
   }
 
   @Test

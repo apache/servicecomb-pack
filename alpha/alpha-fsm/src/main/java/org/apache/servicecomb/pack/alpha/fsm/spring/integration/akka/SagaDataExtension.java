@@ -22,13 +22,16 @@ import akka.actor.ExtendedActorSystem;
 import akka.actor.Extension;
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
+import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension.SagaDataExt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
+
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   public static final SagaDataExtension SAGA_DATA_EXTENSION_PROVIDER = new SagaDataExtension();
   //TODO We could use test profile the enable this kind feature
@@ -40,22 +43,25 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
   }
 
   public static class SagaDataExt implements Extension {
+
     //private final ConcurrentLinkedQueue<String> globalTxIds = new ConcurrentLinkedQueue<>();
     private final ConcurrentHashMap<String, SagaData> sagaDataMap = new ConcurrentHashMap();
     private String lastGlobalTxId;
     private CleanMemForTest cleanMemForTest = new CleanMemForTest(sagaDataMap);
+    private volatile ApplicationContext applicationContext;
+    private MetricsService metricsService;
 
     public SagaDataExt() {
       // Just to avoid the overflow of the OldGen for stress testing
       // Delete after SagaData persistence
-      if(autoCleanSagaDataMap){
+      if (autoCleanSagaDataMap) {
         new Thread(cleanMemForTest).start();
       }
     }
 
     public void putSagaData(String globalTxId, SagaData sagaData) {
       //if(!globalTxIds.contains(globalTxId)){
-        lastGlobalTxId = globalTxId;
+      lastGlobalTxId = globalTxId;
       //  globalTxIds.add(globalTxId);
       //}
       sagaDataMap.put(globalTxId, sagaData);
@@ -65,6 +71,13 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
       // TODO save SagaDate to database and clean sagaDataMap
       this.putSagaData(globalTxId, sagaData);
       lastGlobalTxId = globalTxId;
+      if (sagaData.getLastState() == SagaActorState.COMMITTED) {
+        this.metricsService.metrics().doCommitted();
+      } else if (sagaData.getLastState() == SagaActorState.COMPENSATED) {
+        this.metricsService.metrics().doCompensated();
+      } else if (sagaData.getLastState() == SagaActorState.SUSPENDED) {
+        this.metricsService.metrics().doSuspended();
+      }
     }
 
     public SagaData getSagaData(String globalTxId) {
@@ -83,9 +96,32 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
     public SagaData getLastSagaData() {
       return getSagaData(lastGlobalTxId);
     }
+
+    public void doSagaBeginCounter() {
+      this.metricsService.metrics().doSagaBeginCounter();
+    }
+
+    public void doSagaEndCounter() {
+      this.metricsService.metrics().doSagaEndCounter();
+    }
+
+    public void doSagaAvgTime(long time) {
+      this.metricsService.metrics().doSagaAvgTime(time);
+    }
+
+    public void setMetricsService(
+        MetricsService metricsService) {
+      this.metricsService = metricsService;
+    }
+
+    public void initialize(ApplicationContext applicationContext) {
+      this.applicationContext = applicationContext;
+      this.setMetricsService(this.applicationContext.getBean(MetricsService.class));
+    }
   }
 
   static class CleanMemForTest implements Runnable {
+
     final ConcurrentHashMap<String, SagaData> sagaDataMap;
 
     public CleanMemForTest(ConcurrentHashMap<String, SagaData> sagaDataMap) {
@@ -94,16 +130,16 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
 
     @Override
     public void run() {
-      while (true){
-        try{
+      while (true) {
+        try {
           sagaDataMap.clear();
-        }catch (Exception e){
-          LOG.error(e.getMessage(),e);
-        }finally {
+        } catch (Exception e) {
+          LOG.error(e.getMessage(), e);
+        } finally {
           try {
             Thread.sleep(10000);
           } catch (InterruptedException e) {
-            LOG.error(e.getMessage(),e);
+            LOG.error(e.getMessage(), e);
           }
         }
       }

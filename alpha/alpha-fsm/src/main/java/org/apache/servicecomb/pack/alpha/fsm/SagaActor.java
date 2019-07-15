@@ -59,6 +59,9 @@ public class SagaActor extends
 
   private final String persistenceId;
 
+  private long sagaBeginTime;
+  private long sagaEndTime;
+
   public SagaActor(String persistenceId) {
     this.persistenceId = persistenceId;
 
@@ -67,6 +70,8 @@ public class SagaActor extends
     when(SagaActorState.IDLE,
         matchEvent(SagaStartedEvent.class,
             (event, data) -> {
+              sagaBeginTime = System.currentTimeMillis();
+              SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(context().system()).doSagaBeginCounter();
               SagaStartedDomain domainEvent = new SagaStartedDomain(event);
               if (event.getTimeout() > 0) {
                 return goTo(SagaActorState.READY)
@@ -358,6 +363,9 @@ public class SagaActor extends
               data.setEndTime(new Date());
               SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(getContext().getSystem())
                   .stopSagaData(data.getGlobalTxId(), data);
+              sagaEndTime = System.currentTimeMillis();
+              SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(context().system()).doSagaEndCounter();
+              SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(context().system()).doSagaAvgTime(sagaEndTime - sagaBeginTime);
             }
         )
     );

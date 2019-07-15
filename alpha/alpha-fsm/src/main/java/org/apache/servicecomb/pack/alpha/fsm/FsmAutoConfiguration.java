@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.fsm;
 
+import static org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER;
 import static org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SpringAkkaExtension.SPRING_EXTENSION_PROVIDER;
 
 import akka.actor.ActorSystem;
@@ -24,6 +25,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.util.Map;
 import org.apache.servicecomb.pack.alpha.fsm.channel.ActiveMQActorEventChannel;
+import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.sink.ActorEventSink;
 import org.apache.servicecomb.pack.alpha.fsm.channel.ActorEventChannel;
 import org.apache.servicecomb.pack.alpha.fsm.channel.KafkaActorEventChannel;
@@ -51,6 +53,7 @@ public class FsmAutoConfiguration {
   public ActorSystem actorSystem(ConfigurableApplicationContext applicationContext, ConfigurableEnvironment environment) {
     ActorSystem system = ActorSystem.create("alpha-akka", akkaConfiguration(applicationContext,environment));
     SPRING_EXTENSION_PROVIDER.get(system).initialize(applicationContext);
+    SAGA_DATA_EXTENSION_PROVIDER.get(system).initialize(applicationContext);
     return system;
   }
 
@@ -66,33 +69,38 @@ public class FsmAutoConfiguration {
   }
 
   @Bean
-  public ActorEventSink actorEventSink(){
-    return new SagaActorEventSender();
+  public MetricsService metricsService(){
+    return new MetricsService();
+  }
+
+  @Bean
+  public ActorEventSink actorEventSink(MetricsService metricsService){
+    return new SagaActorEventSender(metricsService);
   }
 
   @Bean
   @ConditionalOnMissingBean(ActorEventChannel.class)
   @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "memory", matchIfMissing = true)
-  public ActorEventChannel memoryEventChannel(ActorEventSink actorEventSink){
-    return new MemoryActorEventChannel(actorEventSink, memoryEventChannelMemorySize);
+  public ActorEventChannel memoryEventChannel(ActorEventSink actorEventSink, MetricsService metricsService){
+    return new MemoryActorEventChannel(actorEventSink, memoryEventChannelMemorySize,metricsService);
   }
 
   @Bean
   @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "activemq")
-  public ActorEventChannel activeMqEventChannel(ActorEventSink actorEventSink){
-    return new ActiveMQActorEventChannel(actorEventSink);
+  public ActorEventChannel activeMqEventChannel(ActorEventSink actorEventSink, MetricsService metricsService){
+    return new ActiveMQActorEventChannel(actorEventSink, metricsService);
   }
 
   @Bean
   @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "kafka")
-  public ActorEventChannel kafkaEventChannel(ActorEventSink actorEventSink){
-    return new KafkaActorEventChannel(actorEventSink);
+  public ActorEventChannel kafkaEventChannel(ActorEventSink actorEventSink, MetricsService metricsService){
+    return new KafkaActorEventChannel(actorEventSink, metricsService);
   }
 
   @Bean
   @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "redis")
-  public ActorEventChannel redisEventChannel(ActorEventSink actorEventSink){
-    return new RedisActorEventChannel(actorEventSink);
+  public ActorEventChannel redisEventChannel(ActorEventSink actorEventSink, MetricsService metricsService){
+    return new RedisActorEventChannel(actorEventSink, metricsService);
   }
 
 }
