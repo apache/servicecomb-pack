@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.servicecomb.pack.alpha.fsm.SagaActor;
 import org.apache.servicecomb.pack.alpha.fsm.event.SagaStartedEvent;
 import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
+import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,12 +38,21 @@ public class SagaActorEventSender implements ActorEventSink {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+  private final MetricsService metricsService;
+
   @Autowired
   ActorSystem system;
+
+  public SagaActorEventSender(
+      MetricsService metricsService) {
+    this.metricsService = metricsService;
+  }
 
   private static final Timeout lookupTimeout = new Timeout(Duration.create(1, TimeUnit.SECONDS));
 
   public void send(BaseEvent event) {
+    long begin = System.currentTimeMillis();
+    metricsService.metrics().doActorReceived();
     try{
       if (LOG.isDebugEnabled()) {
         LOG.debug("send {} ", event.toString());
@@ -59,7 +69,11 @@ public class SagaActorEventSender implements ActorEventSink {
         final ActorRef saga = Await.result(actorRefFuture, lookupTimeout.duration());
         saga.tell(event, ActorRef.noSender());
       }
+      metricsService.metrics().doActorAccepted();
+      long end = System.currentTimeMillis();
+      metricsService.metrics().doActorAvgTime(end - begin);
     }catch (Exception ex){
+      metricsService.metrics().doActorRejected();
       throw new RuntimeException(ex);
     }
   }

@@ -15,25 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.channel;
+package org.apache.servicecomb.pack.alpha.fsm.metrics;
 
-import java.lang.invoke.MethodHandles;
-import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
-import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
-import org.apache.servicecomb.pack.alpha.fsm.sink.ActorEventSink;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public class MetricsService {
 
-public class KafkaActorEventChannel extends AbstractActorEventChannel {
-  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private final MetricsBean metrics = new MetricsBean();
 
-  public KafkaActorEventChannel(
-      ActorEventSink actorEventSink, MetricsService metricsService) {
-    super(actorEventSink, metricsService);
+  public MetricsBean metrics() {
+    return metrics;
   }
 
-  @Override
-  public void sendTo(BaseEvent event){
-    throw new UnsupportedOperationException("Doesn't implement yet!");
-  }
 }
