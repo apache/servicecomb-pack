@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server.api.v1;
+package org.apache.servicecomb.pack.alpha.server.api;
 
 import org.apache.servicecomb.pack.alpha.server.metrics.AlphaMetrics;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/alpha/api/v1")
-public class MetricsController {
+public class APIControllerV1 {
 
   @Autowired
   AlphaMetrics AlphaMetrics;
