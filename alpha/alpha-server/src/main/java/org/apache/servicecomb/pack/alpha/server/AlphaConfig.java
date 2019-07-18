@@ -186,6 +186,8 @@ public class AlphaConfig {
 
   @PostConstruct
   void init() {
+    //https://github.com/elastic/elasticsearch/issues/25741
+    System.setProperty("es.set.netty.runtime.available.processors", "false");
     new PendingTaskRunner(pendingCompensations, delay).run();
   }
 
