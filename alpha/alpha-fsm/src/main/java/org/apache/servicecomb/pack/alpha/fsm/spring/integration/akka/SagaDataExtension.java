@@ -21,14 +21,19 @@ import akka.actor.AbstractExtensionId;
 import akka.actor.ExtendedActorSystem;
 import akka.actor.Extension;
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
+import org.apache.servicecomb.pack.alpha.fsm.TransactionType;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
+import org.apache.servicecomb.pack.alpha.fsm.repository.model.GloablTransaction;
+import org.apache.servicecomb.pack.alpha.fsm.repository.model.SagaSubTransaction;
+import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepositoryChannel;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension.SagaDataExt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 
 public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
 
@@ -44,12 +49,11 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
 
   public static class SagaDataExt implements Extension {
 
-    //private final ConcurrentLinkedQueue<String> globalTxIds = new ConcurrentLinkedQueue<>();
     private final ConcurrentHashMap<String, SagaData> sagaDataMap = new ConcurrentHashMap();
     private String lastGlobalTxId;
     private CleanMemForTest cleanMemForTest = new CleanMemForTest(sagaDataMap);
-    private volatile ApplicationContext applicationContext;
     private MetricsService metricsService;
+    private TransactionRepositoryChannel repositoryChannel;
 
     public SagaDataExt() {
       // Just to avoid the overflow of the OldGen for stress testing
@@ -60,10 +64,7 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
     }
 
     public void putSagaData(String globalTxId, SagaData sagaData) {
-      //if(!globalTxIds.contains(globalTxId)){
       lastGlobalTxId = globalTxId;
-      //  globalTxIds.add(globalTxId);
-      //}
       sagaDataMap.put(globalTxId, sagaData);
     }
 
@@ -78,6 +79,29 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
       } else if (sagaData.getLastState() == SagaActorState.SUSPENDED) {
         this.metricsService.metrics().doSuspended();
       }
+      List<SagaSubTransaction> subTransactions = new ArrayList();
+      sagaData.getTxEntityMap().forEach((k,v)->{
+        subTransactions.add(SagaSubTransaction.builder()
+            .parentTxId(v.getParentTxId())
+            .localTxId(v.getLocalTxId())
+            .beginTime(v.getBeginTime())
+            .endTime(v.getEndTime())
+            .state(v.getState())
+            .build());
+      });
+      GloablTransaction record = GloablTransaction.builder()
+          .type(TransactionType.SAGA)
+          .serviceName(sagaData.getServiceName())
+          .instanceId(sagaData.getInstanceId())
+          .globalTxId(sagaData.getGlobalTxId())
+          .beginTime(sagaData.getBeginTime())
+          .endTime(sagaData.getEndTime())
+          .state(sagaData.getLastState())
+          .subTxSize(sagaData.getTxEntityMap().size())
+          .subTransactions(subTransactions)
+          .events(sagaData.getEvents())
+          .build();
+      repositoryChannel.send(record);
     }
 
     public SagaData getSagaData(String globalTxId) {
@@ -88,7 +112,6 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
 
     // Only test
     public void clearSagaData() {
-      //globalTxIds.clear();
       lastGlobalTxId = null;
       sagaDataMap.clear();
     }
@@ -114,9 +137,9 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
       this.metricsService = metricsService;
     }
 
-    public void initialize(ApplicationContext applicationContext) {
-      this.applicationContext = applicationContext;
-      this.setMetricsService(this.applicationContext.getBean(MetricsService.class));
+    public void setRepositoryChannel(
+        TransactionRepositoryChannel repositoryChannel) {
+      this.repositoryChannel = repositoryChannel;
     }
   }
 

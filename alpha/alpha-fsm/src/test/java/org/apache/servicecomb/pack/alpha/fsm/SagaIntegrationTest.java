@@ -31,19 +31,28 @@ import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExt
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {SagaApplication.class},
     properties = {
+        //akka
         "alpha.feature.akka.enabled=true",
         "alpha.feature.akka.channel.type=memory",
         "akkaConfig.akka.persistence.journal.plugin=akka.persistence.journal.inmem",
         "akkaConfig.akka.persistence.journal.leveldb.dir=target/example/journal",
         "akkaConfig.akka.persistence.snapshot-store.plugin=akka.persistence.snapshot-store.local",
-        "akkaConfig.akka.persistence.snapshot-store.local.dir=target/example/snapshots"
+        "akkaConfig.akka.persistence.snapshot-store.local.dir=target/example/snapshots",
+        //elasticsearch
+        "alpha.feature.akka.transcation.repository.channel.type=memory",
+        "alpha.feature.akka.transcation.repository.type=elasticsearch",
+        "spring.data.elasticsearch.cluster-name=alpha-cluster",
+        "spring.data.elasticsearch.cluster-nodes=localhost:9300",
+        "spring.elasticsearch.rest.uris=http://localhost:9200"
     })
 public class SagaIntegrationTest {
 
@@ -55,6 +64,9 @@ public class SagaIntegrationTest {
 
   @Autowired
   MetricsService metricsService;
+
+  @Mock
+  ElasticsearchTemplate elasticsearchTemplate;
 
   @BeforeClass
   public static void setup(){
