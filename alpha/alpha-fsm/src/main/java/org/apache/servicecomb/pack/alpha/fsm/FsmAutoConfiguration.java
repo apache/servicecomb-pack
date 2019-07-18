@@ -69,7 +69,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 @ConditionalOnProperty(value = {"alpha.feature.akka.enabled"})
 public class FsmAutoConfiguration {
 
-  @Value("${alpha.feature.akka.channel.memory.size:-1}")
+  @Value("${alpha.feature.akka.elasticsearch.memory.size:-1}")
   int memoryEventChannelMemorySize;
 
   @Value("${alpha.feature.akka.transaction.repository.elasticsearch.batchSize:100}")
