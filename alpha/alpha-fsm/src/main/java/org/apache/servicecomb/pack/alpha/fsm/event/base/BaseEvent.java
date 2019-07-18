@@ -33,6 +33,10 @@ public abstract class BaseEvent implements Serializable {
 
   }
 
+  public String getType() {
+    return this.getClass().getSimpleName();
+  }
+
   public String getServiceName() {
     return serviceName;
   }

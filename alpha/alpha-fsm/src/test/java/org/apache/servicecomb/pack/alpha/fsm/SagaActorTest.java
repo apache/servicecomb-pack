@@ -36,15 +36,29 @@ import java.util.UUID;
 import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
+import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepositoryChannel;
+import org.apache.servicecomb.pack.alpha.fsm.repository.channel.MemoryTransactionRepositoryChannel;
+import org.apache.servicecomb.pack.alpha.fsm.repository.elasticsearch.ElasticsearchTransactionRepository;
+import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+
 import static org.hamcrest.CoreMatchers.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class SagaActorTest {
 
   static ActorSystem system;
+
+  @Mock
+  ElasticsearchTemplate template;
 
   static MetricsService metricsService = new MetricsService();
 
@@ -80,6 +94,14 @@ public class SagaActorTest {
   public static void tearDown() {
     TestKit.shutdownActorSystem(system);
     system = null;
+  }
+
+  @Before
+  public void before(){
+    TransactionRepository repository = new ElasticsearchTransactionRepository(template, metricsService, 0,0);
+    TransactionRepositoryChannel repositoryChannel = new MemoryTransactionRepositoryChannel(repository, -1,
+        metricsService);
+    SAGA_DATA_EXTENSION_PROVIDER.get(system).setRepositoryChannel(repositoryChannel);
   }
 
   public String genPersistenceId() {
