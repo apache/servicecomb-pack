@@ -36,6 +36,10 @@ public class MetricsBean {
   private AtomicLong committed = new AtomicLong();
   private AtomicLong compensated = new AtomicLong();
   private AtomicLong suspended = new AtomicLong();
+  private AtomicLong repositoryReceived = new AtomicLong();
+  private AtomicLong repositoryAccepted = new AtomicLong();
+  private AtomicLong repositoryRejected = new AtomicLong();
+  private AtomicDouble repositoryAvgTime = new AtomicDouble();//milliseconds moving average
 
   public void doEventReceived() {
     eventReceived.incrementAndGet();
@@ -107,6 +111,31 @@ public class MetricsBean {
     suspended.incrementAndGet();
   }
 
+  public void doRepositoryReceived() {
+    repositoryReceived.incrementAndGet();
+  }
+
+  public void doRepositoryAccepted() {
+    repositoryAccepted.incrementAndGet();
+  }
+
+  public void doRepositoryAccepted(int size) {
+    repositoryAccepted.addAndGet(size);
+  }
+
+  public void doRepositoryRejected() {
+    repositoryReceived.decrementAndGet();
+    repositoryRejected.incrementAndGet();
+  }
+
+  public void doRepositoryAvgTime(long time) {
+    if (repositoryAvgTime.get() == 0) {
+      repositoryAvgTime.set(time);
+    } else {
+      repositoryAvgTime.set((repositoryAvgTime.get() + time) / 2);
+    }
+  }
+
   public long getEventReceived() {
     return eventReceived.get();
   }
@@ -151,6 +180,22 @@ public class MetricsBean {
     return (double) Math.round(sagaAvgTime.get() * 100) / 100;
   }
 
+  public long getRepositoryReceived() {
+    return repositoryReceived.get();
+  }
+
+  public long getRepositoryAccepted() {
+    return repositoryAccepted.get();
+  }
+
+  public AtomicLong getRepositoryRejected() {
+    return repositoryRejected;
+  }
+
+  public double getRepositoryAvgTime() {
+    return (double) Math.round(repositoryAvgTime.get() * 100) / 100;
+  }
+
   public long getCommitted() {
     return committed.get();
   }
@@ -162,4 +207,5 @@ public class MetricsBean {
   public long getSuspended() {
     return suspended.get();
   }
+
 }

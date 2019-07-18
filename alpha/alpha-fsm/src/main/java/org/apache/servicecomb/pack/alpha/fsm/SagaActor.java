@@ -406,7 +406,7 @@ public class SagaActor extends
     } else if (event instanceof UpdateTxEventDomain) {
       UpdateTxEventDomain domainEvent = (UpdateTxEventDomain) event;
       TxEntity txEntity = data.getTxEntityMap().get(domainEvent.getLocalTxId());
-      txEntity.setEndTime(System.currentTimeMillis());
+      txEntity.setEndTime(new Date());
       if (domainEvent.getState() == TxState.COMMITTED) {
         txEntity.setState(domainEvent.getState());
       } else if (domainEvent.getState() == TxState.FAILED) {
