@@ -18,6 +18,7 @@
 package org.apache.servicecomb.pack.alpha.fsm.model;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.servicecomb.pack.alpha.fsm.TxState;
 
@@ -25,8 +26,8 @@ public class TxEntity implements Serializable {
   private String serviceName;
   private String instanceId;
   private String globalTxId;
-  private long beginTime = System.currentTimeMillis();
-  private long endTime;
+  private Date beginTime = new Date();
+  private Date endTime;
   private String parentTxId;
   private String localTxId;
   private TxState state;
@@ -52,19 +53,19 @@ public class TxEntity implements Serializable {
     this.instanceId = instanceId;
   }
 
-  public long getBeginTime() {
+  public Date getBeginTime() {
     return beginTime;
   }
 
-  public void setBeginTime(long beginTime) {
+  public void setBeginTime(Date beginTime) {
     this.beginTime = beginTime;
   }
 
-  public long getEndTime() {
+  public Date getEndTime() {
     return endTime;
   }
 
-  public void setEndTime(long endTime) {
+  public void setEndTime(Date endTime) {
     this.endTime = endTime;
   }
 
@@ -148,12 +149,12 @@ public class TxEntity implements Serializable {
       txEntity = new TxEntity();
     }
 
-    public Builder beginTime(long beginTime) {
+    public Builder beginTime(Date beginTime) {
       txEntity.setBeginTime(beginTime);
       return this;
     }
 
-    public Builder endTime(long endTime) {
+    public Builder endTime(Date endTime) {
       txEntity.setEndTime(endTime);
       return this;
     }

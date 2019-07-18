@@ -53,8 +53,20 @@ import org.springframework.test.context.junit4.SpringRunner;
         "alpha.server.port=8090",
         "alpha.event.pollingInterval=1",
         "spring.main.allow-bean-definition-overriding=true",
+        "spring.profiles.active=akka-persistence-mem",
+        //akka
         "alpha.feature.akka.enabled=true",
-        "spring.profiles.active=akka-persistence-mem"
+        "alpha.feature.akka.channel.type=memory",
+        "akkaConfig.akka.persistence.journal.plugin=akka.persistence.journal.inmem",
+        "akkaConfig.akka.persistence.journal.leveldb.dir=target/example/journal",
+        "akkaConfig.akka.persistence.snapshot-store.plugin=akka.persistence.snapshot-store.local",
+        "akkaConfig.akka.persistence.snapshot-store.local.dir=target/example/snapshots",
+        //elasticsearch
+        "alpha.feature.akka.transcation.repository.channel.type=memory",
+        "alpha.feature.akka.transcation.repository.type=elasticsearch",
+        "spring.data.elasticsearch.cluster-name=alpha-cluster",
+        "spring.data.elasticsearch.cluster-nodes=localhost:9300",
+        "spring.elasticsearch.rest.uris=http://localhost:9200"
        })
 public class AlphaIntegrationFsmTest {
   private static final OmegaEventSender omegaEventSender = OmegaEventSender.builder().build();
