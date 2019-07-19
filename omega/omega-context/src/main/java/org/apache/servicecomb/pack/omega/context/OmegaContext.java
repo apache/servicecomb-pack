@@ -71,6 +71,10 @@ public class OmegaContext {
     return alphaFeatureAkkaEnabled;
   }
 
+  public TransactionContext getTransactionContext() {
+    return new TransactionContext(globalTxId(), localTxId());
+  }
+
   public void clear() {
     globalTxId.remove();
     localTxId.remove();

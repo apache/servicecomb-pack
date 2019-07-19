@@ -21,7 +21,9 @@ import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static org.hamcrest.core.AnyOf.anyOf;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,6 +39,8 @@ import java.util.UUID;
 import org.apache.servicecomb.pack.common.EventType;
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.apache.servicecomb.pack.omega.context.TransactionContext;
+import org.apache.servicecomb.pack.omega.context.TransactionContextWrapper;
 import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -51,6 +55,9 @@ public class TransactionAspectTest {
   private final String globalTxId = UUID.randomUUID().toString();
   private final String localTxId = UUID.randomUUID().toString();
   private final String newLocalTxId = UUID.randomUUID().toString();
+
+  private final String transactionGloablTxId = UUID.randomUUID().toString();
+  private final String transactionLocalTxId = UUID.randomUUID().toString();
 
   private final SagaMessageSender sender = new SagaMessageSender() {
     @Override
@@ -86,6 +93,9 @@ public class TransactionAspectTest {
   private final OmegaContext omegaContext = new OmegaContext(idGenerator);
   private final TransactionAspect aspect = new TransactionAspect(sender, omegaContext);
 
+  private final TransactionContext tx = mock(TransactionContext.class);
+  private final TransactionContextWrapper wrapper = mock(TransactionContextWrapper.class);
+
   @Before
   public void setUp() throws Exception {
     when(idGenerator.nextId()).thenReturn(newLocalTxId);
@@ -98,6 +108,48 @@ public class TransactionAspectTest {
 
     omegaContext.setGlobalTxId(globalTxId);
     omegaContext.setLocalTxId(localTxId);
+
+    when(wrapper.getTransactionContext()).thenReturn(tx);
+    when(tx.globalTxId()).thenReturn(transactionGloablTxId);
+    when(tx.localTxId()).thenReturn(transactionLocalTxId);
+  }
+
+  @Test
+  public void testGetTransactionContextFromArgs() throws Throwable {
+
+    TransactionContext result = aspect.getTransactionContextFromArgs(new Object[]{tx,wrapper});
+    assertThat(result, is(tx));
+
+    result = aspect.getTransactionContextFromArgs(new Object[]{});
+    assertNull(result);
+
+    result = aspect.getTransactionContextFromArgs(new Object[]{tx});
+    assertNull(result);
+  }
+
+  @Test
+  public void setNewLocalTxIdCompensableWithTransactionContext() throws Throwable {
+    // setup the argument class
+    when(joinPoint.getArgs()).thenReturn(new Object[]{wrapper});
+    aspect.advise(joinPoint, compensable);
+    TxEvent startedEvent = messages.get(0);
+
+    assertThat(startedEvent.globalTxId(), is(transactionGloablTxId));
+    assertThat(startedEvent.localTxId(), is(newLocalTxId));
+    assertThat(startedEvent.parentTxId(), is(transactionLocalTxId));
+    assertThat(startedEvent.type(), is(EventType.TxStartedEvent));
+    assertThat(startedEvent.retries(), is(0));
+    assertThat(startedEvent.retryMethod().isEmpty(), is(true));
+
+    TxEvent endedEvent = messages.get(1);
+
+    assertThat(endedEvent.globalTxId(), is(transactionGloablTxId));
+    assertThat(endedEvent.localTxId(), is(newLocalTxId));
+    assertThat(endedEvent.parentTxId(), is(transactionLocalTxId));
+    assertThat(endedEvent.type(), is(EventType.TxEndedEvent));
+
+    assertThat(omegaContext.globalTxId(), is(transactionGloablTxId));
+    assertThat(omegaContext.localTxId(), is(transactionLocalTxId));
   }
 
   @Test

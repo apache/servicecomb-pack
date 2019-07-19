@@ -21,6 +21,8 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.apache.servicecomb.pack.omega.context.TransactionContext;
+import org.apache.servicecomb.pack.omega.context.TransactionContextWrapper;
 import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -46,6 +48,15 @@ public class TransactionAspect {
   @Around("execution(@org.apache.servicecomb.pack.omega.transaction.annotations.Compensable * *(..)) && @annotation(compensable)")
   Object advise(ProceedingJoinPoint joinPoint, Compensable compensable) throws Throwable {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+    // just check if we need to setup the transaction context information first
+    TransactionContext transactionContext = getTransactionContextFromArgs(joinPoint.getArgs());
+    if (transactionContext != null) {
+      LOG.debug("Updated context {} for globalTxId:{} and localTxId:{}", context,
+          transactionContext.globalTxId(), transactionContext.localTxId());
+      context.setGlobalTxId(transactionContext.globalTxId());
+      context.setLocalTxId(transactionContext.localTxId());
+    }
+
     String localTxId = context.localTxId();
     context.newLocalTxId();
     LOG.debug("Updated context {} for compensable method {} ", context, method.toString());
@@ -58,5 +69,16 @@ public class TransactionAspect {
       context.setLocalTxId(localTxId);
       LOG.debug("Restored context back to {}", context);
     }
+  }
+
+  TransactionContext getTransactionContextFromArgs(Object[] args) {
+    if (args != null) {
+      for (Object arg : args) {
+        if (arg instanceof TransactionContextWrapper) {
+          return ((TransactionContextWrapper) arg).getTransactionContext();
+        }
+      }
+    }
+    return null;
   }
 }
