@@ -18,10 +18,11 @@ package org.apache.servicecomb.pack.omega.context;
 
 /**
  *  This class is holding the Transaction related context which could be use in customer code
+ *  , and it is immutable.
  */
 public class TransactionContext {
-  private String globalTxId;
-  private String localTxId;
+  private final String globalTxId;
+  private final String localTxId;
 
   public TransactionContext(String globalTxId, String localTxId) {
     this.globalTxId = globalTxId;
@@ -32,15 +33,8 @@ public class TransactionContext {
     return globalTxId;
   }
 
-  public void setGlobalTxId(String globalTxId) {
-    this.globalTxId = globalTxId;
-  }
-
   public String localTxId() {
     return localTxId;
   }
 
-  public void setLocalTxId(String localTxId) {
-    this.localTxId = localTxId;
-  }
 }
