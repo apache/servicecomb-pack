@@ -51,8 +51,13 @@ public class TransactionAspect {
     // just check if we need to setup the transaction context information first
     TransactionContext transactionContext = getTransactionContextFromArgs(joinPoint.getArgs());
     if (transactionContext != null) {
-      LOG.debug("Updated context {} for globalTxId:{} and localTxId:{}", context,
-          transactionContext.globalTxId(), transactionContext.localTxId());
+      if (context.globalTxId() != null) {
+        LOG.warn("The context {}'s globalTxId is not empty. Update it for globalTxId:{} and localTxId:{}", context,
+            transactionContext.globalTxId(), transactionContext.localTxId());
+      } else {
+        LOG.debug("Updated context {} for globalTxId:{} and localTxId:{}", context,
+            transactionContext.globalTxId(), transactionContext.localTxId());
+      }
       context.setGlobalTxId(transactionContext.globalTxId());
       context.setLocalTxId(transactionContext.localTxId());
     }
@@ -74,6 +79,10 @@ public class TransactionAspect {
   TransactionContext getTransactionContextFromArgs(Object[] args) {
     if (args != null) {
       for (Object arg : args) {
+        // check the TransactionContext first
+        if (arg instanceof TransactionContext) {
+          return (TransactionContext) arg;
+        }
         if (arg instanceof TransactionContextWrapper) {
           return ((TransactionContextWrapper) arg).getTransactionContext();
         }

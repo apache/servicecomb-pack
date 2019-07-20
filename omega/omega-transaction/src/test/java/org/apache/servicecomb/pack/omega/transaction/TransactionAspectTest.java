@@ -46,6 +46,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -117,14 +118,21 @@ public class TransactionAspectTest {
   @Test
   public void testGetTransactionContextFromArgs() throws Throwable {
 
-    TransactionContext result = aspect.getTransactionContextFromArgs(new Object[]{tx,wrapper});
+    TransactionContext result = aspect.getTransactionContextFromArgs(new Object[]{wrapper});
     assertThat(result, is(tx));
 
     result = aspect.getTransactionContextFromArgs(new Object[]{});
     assertNull(result);
 
-    result = aspect.getTransactionContextFromArgs(new Object[]{tx});
+    result = aspect.getTransactionContextFromArgs(null);
     assertNull(result);
+
+    result = aspect.getTransactionContextFromArgs(new Object[]{tx});
+    assertThat(result, is(tx));
+
+    TransactionContext otherTx = Mockito.mock(TransactionContext.class);
+    result = aspect.getTransactionContextFromArgs(new Object[]{otherTx, wrapper});
+    assertThat(result, is(otherTx));
   }
 
   @Test
