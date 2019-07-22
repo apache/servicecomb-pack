@@ -85,7 +85,7 @@ public class TransactionAspect {
         }
         if (arg instanceof TransactionContextProperties) {
           TransactionContextProperties transactionContextProperties = (TransactionContextProperties) arg;
-          return new TransactionContext(transactionContextProperties.getGloableTxId(), transactionContextProperties.getLocalTxId());
+          return new TransactionContext(transactionContextProperties.getGlobalTxId(), transactionContextProperties.getLocalTxId());
         }
       }
     }

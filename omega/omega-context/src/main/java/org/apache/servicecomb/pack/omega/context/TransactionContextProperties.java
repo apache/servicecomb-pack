@@ -21,7 +21,7 @@ package org.apache.servicecomb.pack.omega.context;
  * and LocalTransactionId out of the business class, and set up the OmegaContext before calling sub transaction method.
  */
 public interface TransactionContextProperties {
-  String getGloableTxId();
+  String getGlobalTxId();
   String getLocalTxId();
 
 }
