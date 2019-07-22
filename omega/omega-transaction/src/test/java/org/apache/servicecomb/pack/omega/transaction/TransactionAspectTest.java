@@ -110,7 +110,7 @@ public class TransactionAspectTest {
     omegaContext.setGlobalTxId(globalTxId);
     omegaContext.setLocalTxId(localTxId);
 
-    when(transactionContextProperties.getGloableTxId()).thenReturn(transactionGloablTxId);
+    when(transactionContextProperties.getGlobalTxId()).thenReturn(transactionGloablTxId);
     when(transactionContextProperties.getLocalTxId()).thenReturn(transactionLocalTxId);
     when(tx.globalTxId()).thenReturn(transactionGloablTxId);
     when(tx.localTxId()).thenReturn(transactionLocalTxId);
