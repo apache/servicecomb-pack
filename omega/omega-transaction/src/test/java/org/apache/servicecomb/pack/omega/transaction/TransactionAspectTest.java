@@ -40,7 +40,7 @@ import org.apache.servicecomb.pack.common.EventType;
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.context.TransactionContext;
-import org.apache.servicecomb.pack.omega.context.TransactionContextWrapper;
+import org.apache.servicecomb.pack.omega.context.TransactionContextProperties;
 import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -95,7 +95,7 @@ public class TransactionAspectTest {
   private final TransactionAspect aspect = new TransactionAspect(sender, omegaContext);
 
   private final TransactionContext tx = mock(TransactionContext.class);
-  private final TransactionContextWrapper wrapper = mock(TransactionContextWrapper.class);
+  private final TransactionContextProperties transactionContextProperties = mock(TransactionContextProperties.class);
 
   @Before
   public void setUp() throws Exception {
@@ -110,7 +110,8 @@ public class TransactionAspectTest {
     omegaContext.setGlobalTxId(globalTxId);
     omegaContext.setLocalTxId(localTxId);
 
-    when(wrapper.getTransactionContext()).thenReturn(tx);
+    when(transactionContextProperties.getGloableTxId()).thenReturn(transactionGloablTxId);
+    when(transactionContextProperties.getLocalTxId()).thenReturn(transactionLocalTxId);
     when(tx.globalTxId()).thenReturn(transactionGloablTxId);
     when(tx.localTxId()).thenReturn(transactionLocalTxId);
   }
@@ -118,8 +119,9 @@ public class TransactionAspectTest {
   @Test
   public void testGetTransactionContextFromArgs() throws Throwable {
 
-    TransactionContext result = aspect.getTransactionContextFromArgs(new Object[]{wrapper});
-    assertThat(result, is(tx));
+    TransactionContext result = aspect.getTransactionContextFromArgs(new Object[]{transactionContextProperties});
+    assertThat(result.globalTxId(), is(transactionGloablTxId));
+    assertThat(result.localTxId(), is(transactionLocalTxId));
 
     result = aspect.getTransactionContextFromArgs(new Object[]{});
     assertNull(result);
@@ -131,14 +133,14 @@ public class TransactionAspectTest {
     assertThat(result, is(tx));
 
     TransactionContext otherTx = Mockito.mock(TransactionContext.class);
-    result = aspect.getTransactionContextFromArgs(new Object[]{otherTx, wrapper});
+    result = aspect.getTransactionContextFromArgs(new Object[]{otherTx, transactionContextProperties});
     assertThat(result, is(otherTx));
   }
 
   @Test
   public void setNewLocalTxIdCompensableWithTransactionContext() throws Throwable {
     // setup the argument class
-    when(joinPoint.getArgs()).thenReturn(new Object[]{wrapper});
+    when(joinPoint.getArgs()).thenReturn(new Object[]{transactionContextProperties});
     aspect.advise(joinPoint, compensable);
     TxEvent startedEvent = messages.get(0);
 

@@ -17,9 +17,11 @@
 package org.apache.servicecomb.pack.omega.context;
 
 /**
- * Once the user business class implement this TransactionContextWrapper, Omega could extract the TransactionContext instance
- * out of the business class, and set up the OmegaContext before calling sub transaction method.
+ * Once the user business class implement this TransactionContextWrapper, Omega could extract the GlobalTransactionId
+ * and LocalTransactionId out of the business class, and set up the OmegaContext before calling sub transaction method.
  */
-public interface TransactionContextWrapper {
-  TransactionContext getTransactionContext();
+public interface TransactionContextProperties {
+  String getGloableTxId();
+  String getLocalTxId();
+
 }
