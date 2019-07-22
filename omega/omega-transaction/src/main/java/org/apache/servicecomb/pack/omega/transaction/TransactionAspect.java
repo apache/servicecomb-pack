@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.context.TransactionContext;
-import org.apache.servicecomb.pack.omega.context.TransactionContextWrapper;
+import org.apache.servicecomb.pack.omega.context.TransactionContextProperties;
 import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -83,8 +83,9 @@ public class TransactionAspect {
         if (arg instanceof TransactionContext) {
           return (TransactionContext) arg;
         }
-        if (arg instanceof TransactionContextWrapper) {
-          return ((TransactionContextWrapper) arg).getTransactionContext();
+        if (arg instanceof TransactionContextProperties) {
+          TransactionContextProperties transactionContextProperties = (TransactionContextProperties) arg;
+          return new TransactionContext(transactionContextProperties.getGloableTxId(), transactionContextProperties.getLocalTxId());
         }
       }
     }
