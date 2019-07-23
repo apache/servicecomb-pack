@@ -143,7 +143,7 @@ public void bar() {
 目前Omega支持以下形式的隐式事务上下文传递：
 
 1. omega-transport-{dubbo,feign,resttemplate,servicecomb}。
-2. 同线程内调用。
+2. 同线程内调用（基于OmegaContext的ThreadLocal字段）。
 3. 标注了@OmegaContextAware的java.util.concurrent.Executor{Service}。
 
 那么问题来了，如果隐式传递事务上下文不行怎么办？比如Service A使用某种RPC机制件来调用Service B，而你又没有办法注入或提取事务上下文信息。这个时候你只能采用显式的方式把事务上下文传递出去。Omega提供了两个类来实现这一点。
