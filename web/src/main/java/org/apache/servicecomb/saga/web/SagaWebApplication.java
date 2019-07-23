@@ -29,6 +29,7 @@ import org.apache.servicecomb.springboot.starter.provider.EnableServiceComb;
 public class SagaWebApplication {
 
   public static void main(String[] args) {
+    System.out.println("huawei awesome");
     SpringApplication.run(SagaWebApplication.class, args);
   }
 }
