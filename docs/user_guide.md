@@ -111,7 +111,109 @@ Take a transfer money application as an example:
 
 5. Since pack-0.3.0,  you can access the [OmegaContext](https://github.com/apache/servicecomb-pack/blob/master/omega/omega-context/src/main/java/org/apache/servicecomb/pack/omega/context/OmegaContext.java) for the gloableTxId and localTxId in the @Compensable annotated method or the cancel method.
 
+#### Passing transaction context explicitly
+
+In most cases, Omega passing the transaction context for you transparently (see [Inter-Service Communication](design.md#comm) for details). Transaction context passing is implemented in a way of injecting transaction context information on the sender side and extracting it on the receiver side. Below is an example to illustrate this process:
+
+Service A:
+
+```java
+@SagaStart
+public void foo() {
+  restTemplate.postForEntity("http://service-b/bar", ...);
+}
+```
+
+Service B:
+
+```java
+@GetMapping("/bar")
+@Compensable
+public void bar() {
+  ...
+}
+```
+
+Here is how Omega does:
+
+1. Service A's `foo` method opens a new global transaction.
+2. `TransactionClientHttpRequestInterceptor` injects transaction context into request headers when `RestTemplate` request Service B.
+3. When Service B receive the request, `TransactionHandlerInterceptor` extract context info from request headers.
+
+Omega supports following implicity transaction context passing:
+
+1. omega-transport-{dubbo,feign,resttemplate,servicecomb}.
+2. Method call in the same thread (based on `OmegaContext` thread local fields).
+3. `java.util.concurrent.Executor{Service}` annotated by `@OmegaContextAware`.
+
+So here comes a problem: what if implicit transaction context passing can't work? For example, Service A invokes Service B via some RPC library and no extension can be made to injecting or extracting transaction context information. In this situation you need explicit transaction context passing. Omega provides two classes to achieve that.
+
+##### TransactionContext
+
+Service A:
+
+```java
+@SagaStart
+public void foo(BarCommand cmd) {
+  TransactionContext txContext = OmegaContext.getTransactionContext();
+  someRpc.send(cmd, txContext);
+}
+```
+
+Service B:
+
+```java
+public void listen(BarCommand cmd, TransactionContext parentTxContext) {
+  bar(cmd, txContext);
+}
+@Compensable
+public void bar(BarCommand cmd, TransactionContext parentTxContext) {
+  ...
+  // TransactionContext childTxContext = OmegaContext.getTransactionContext();
+}
+```
+
+Notice that `bar` method got parent transaction context in parameter list, and got child transaction context from `OmegaContext` in method body. So if you want to passing transaction context to another service, you should pass child transaction context.
+
+##### TransactionContextProperties
+
+Service A：
+
+```java
+public class BarCommand {}
+public class BarCommandWithTxContext
+  extends BarCommand implements TransactionContextProperties {
+  // setter getter for globalTxId
+  // setter getter for localTxId
+}
+@SagaStart
+public void foo(BarCommand cmd) {
+  TransactionContext txContext = OmegaContext.getTransactionContext();
+  BarCommandWithTxContext cmdWithTxContext = new BarCommandWithTxContext(cmd);
+  cmdWithTxContext.setGlobalTxId(txContext.globalTxId());
+  cmdWithTxContext.setLocalTxId(txContext.localTxId());
+  someRpc.send(cmdWithTxContext);
+}
+```
+
+Service B:
+
+```java
+public void listen(BarCommandWithTxContext cmdWithTxContext) {
+  bar(cmdWithTxContext);
+}
+
+@Compensable
+public void bar(BarCommandWithTxContext cmdWithTxContext) {
+  ...
+  // TransactionContext childTxContext = OmegaContext.getTransactionContext();
+}
+```
+
+Similar to the previous approach, `cmdWithTxContext.get{Global,Local}TxId()` also returns parent transaction context information.
+
 ### TCC support
+
 Add TCC annotations and corresponding confirm and cancel methods
  Take a transfer money application as an example:
  1. add `@TccStart` at the starting point of the global transaction
@@ -498,7 +600,7 @@ Uses Spring Cloud Zookeeper 2.x by default, if you want to use Spring Cloud Zook
             ]
         }
     }
-    ```
+   ```
 
    **Note:**  `metadata` property is alpha gRPC address
 
@@ -621,7 +723,7 @@ Uses Spring Cloud Nacos Discovery 0.2.x by default, if you want to use Spring Cl
         "clusters": ""
         }
 
-    ```
+   ```
 
    **Note:**  `metadata` property is alpha gRPC address
 
