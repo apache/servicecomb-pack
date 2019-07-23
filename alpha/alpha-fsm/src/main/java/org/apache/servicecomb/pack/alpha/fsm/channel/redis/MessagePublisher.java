@@ -1,4 +1,7 @@
 package org.apache.servicecomb.pack.alpha.fsm.channel.redis;
 
-public class MessagePublisher {
+public interface MessagePublisher {
+
+    void publish(String message);
+
 }
