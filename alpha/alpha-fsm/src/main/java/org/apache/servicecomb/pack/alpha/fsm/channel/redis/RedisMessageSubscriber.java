@@ -1,5 +1,6 @@
 package org.apache.servicecomb.pack.alpha.fsm.channel.redis;
 
+import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
 import org.apache.servicecomb.pack.alpha.fsm.sink.ActorEventSink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,5 +22,11 @@ public class RedisMessageSubscriber implements MessageListener {
     @Override
     public void onMessage(Message message, byte[] pattern) {
         logger.info("message = [{}] and pattern = [{}]", message.toString(), new String(pattern, StandardCharsets.UTF_8));
+        try {
+            BaseEvent baseEvent = (BaseEvent) message;
+            actorEventSink.send(baseEvent);
+        }catch (Exception e){
+            logger.error("subscriber Exception = [{}]", e);
+        }
     }
 }
