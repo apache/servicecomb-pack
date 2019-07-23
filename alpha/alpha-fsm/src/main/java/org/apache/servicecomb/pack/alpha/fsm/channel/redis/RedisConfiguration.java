@@ -5,8 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
@@ -14,9 +17,11 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 
 @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "redis")
-public class RedisConfig {
+@ConditionalOnClass(RedisConnection.class)
+@Configuration
+public class RedisConfiguration {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(RedisConfiguration.class);
 
     @Value("${alpha.feature.akka.channel.redis.topic:servicecomb-pack-actor-event}")
     private String topic;
@@ -42,12 +47,13 @@ public class RedisConfig {
     }
 
     @Bean
-    MessagePublisher redisMessagePublisher(@Qualifier("stringRedisTemplete")StringRedisTemplate stringRedisTemplate){
+    MessagePublisher redisMessagePublisher(@Qualifier("stringRedisTemplate")StringRedisTemplate stringRedisTemplate){
         return new RedisMessagePublisher(stringRedisTemplate, channelTopic());
     }
 
     @Bean
     ChannelTopic channelTopic(){
+        logger.info("build channel topic = [{}]", topic);
         return new ChannelTopic(topic);
     }
 
