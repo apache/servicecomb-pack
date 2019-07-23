@@ -25,6 +25,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.util.Map;
 import org.apache.servicecomb.pack.alpha.fsm.channel.ActiveMQActorEventChannel;
+import org.apache.servicecomb.pack.alpha.fsm.channel.redis.RedisMessagePublisher;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.sink.ActorEventSink;
 import org.apache.servicecomb.pack.alpha.fsm.channel.ActorEventChannel;
@@ -34,12 +35,14 @@ import org.apache.servicecomb.pack.alpha.fsm.channel.RedisActorEventChannel;
 import org.apache.servicecomb.pack.alpha.fsm.sink.SagaActorEventSender;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.AkkaConfigPropertyAdapter;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.eventbus.EventSubscribeBeanPostProcessor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 @Configuration
@@ -99,8 +102,8 @@ public class FsmAutoConfiguration {
 
   @Bean
   @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "redis")
-  public ActorEventChannel redisEventChannel(ActorEventSink actorEventSink, MetricsService metricsService){
-    return new RedisActorEventChannel(actorEventSink, metricsService);
+  public ActorEventChannel redisEventChannel(ActorEventSink actorEventSink, MetricsService metricsService, @Lazy RedisMessagePublisher redisMessagePublisher){
+    return new RedisActorEventChannel(actorEventSink, metricsService, redisMessagePublisher);
   }
 
 }
