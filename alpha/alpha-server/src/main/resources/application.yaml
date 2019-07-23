@@ -62,6 +62,9 @@ management:
     web:
       exposure:
         include: "*"
+  health:
+    redis:
+      enabled: false
 
 ---
 spring:
