@@ -137,8 +137,8 @@ public void bar() {
 我们可以先来看看Omega是怎么传递事务上下文的：
 
 1. Service A的foo方法会开启一个新的全局事务。
-2. TransactionClientHttpRequestInterceptor会在RestTemplate请求Service B时在Http请求头中注入事务上下文信息。
-3. 当Servce B接收到请求时，TransactionHandlerInterceptor会从请求头中提取事务上下文信息。
+2. [TransactionClientHttpRequestInterceptor][src-TransactionClientHttpRequestInterceptor]会在RestTemplate请求Service B时在Http请求头中注入事务上下文信息。
+3. 当Servce B接收到请求时，[TransactionHandlerInterceptor][src-TransactionHandlerInterceptor]会从请求头中提取事务上下文信息。
 
 目前Omega支持以下形式的隐式事务上下文传递：
 
@@ -146,7 +146,7 @@ public void bar() {
 2. 同线程内调用（基于OmegaContext的ThreadLocal字段）。
 3. 标注了@OmegaContextAware的java.util.concurrent.Executor{Service}。
 
-那么问题来了，如果隐式传递事务上下文不行怎么办？比如Service A使用某种RPC机制件来调用Service B，而你又没有办法注入或提取事务上下文信息。这个时候你只能采用显式的方式把事务上下文传递出去。Omega提供了两个类来实现这一点。
+那么问题来了，如果无法隐式传递事务上下文怎么办？比如Service A使用某种RPC机制件来调用Service B，而你又没有办法注入或提取事务上下文信息。这个时候你只能采用显式的方式把事务上下文传递出去。ServiceComb Pack从0.5.0开始提供了两个类来实现这一点。
 
 ##### 利用TransactionContext传递
 
@@ -778,3 +778,6 @@ public void bar(BarCommandWithTxContext cmdWithTxContext) {
 ## 集群
 
 Alpha 可以通过部署多实例的方式保证高可用，使用 `alpha.cluster.master.enabled=true` 参数开启集群支持
+
+[src-TransactionClientHttpRequestInterceptor]: ../omega/omega-transport/omega-transport-resttemplate/src/main/java/org/apache/servicecomb/pack/omega/transport/resttemplate/TransactionClientHttpRequestInterceptor.java
+[src-TransactionHandlerInterceptor]: ../omega/omega-transport/omega-transport-resttemplate/src/main/java/org/apache/servicecomb/pack/omega/transport/resttemplate/TransactionHandlerInterceptor.java
