@@ -155,25 +155,25 @@ Service A:
 ```java
 @SagaStart
 public void foo(BarCommand cmd) {
-  TransactionContext txContext = omegaContext.getTransactionContext();
-  someRpc.send(cmd, txContext);
+  TransactionContext localTxContext = omegaContext.getTransactionContext();
+  someRpc.send(cmd, localTxContext);
 }
 ```
 
 Service B:
 
 ```java
-public void listen(BarCommand cmd, TransactionContext parentTxContext) {
-  bar(cmd, txContext);
+public void listen(BarCommand cmd, TransactionContext injectedTxContext) {
+  bar(cmd, injectedTxContext);
 }
 @Compensable
-public void bar(BarCommand cmd, TransactionContext parentTxContext) {
+public void bar(BarCommand cmd, TransactionContext injectedTxContext) {
   ...
-  // TransactionContext childTxContext = omegaContext.getTransactionContext();
+  // TransactionContext localTxContext = omegaContext.getTransactionContext();
 }
 ```
 
-Notice that `bar` method got parent transaction context in parameter list, and got child transaction context from `OmegaContext` in method body. So if you want to passing transaction context to another service, you should pass child transaction context.
+Notice that `bar` method got an injected transaction context in parameter list, and got a local transaction context from `OmegaContext`. If service B needs to explictly pass transaction context to another service, local transaction context should be used.
 
 ##### TransactionContextProperties
 
@@ -205,11 +205,11 @@ public void listen(BarCommandWithTxContext cmdWithTxContext) {
 @Compensable
 public void bar(BarCommandWithTxContext cmdWithTxContext) {
   ...
-  // TransactionContext childTxContext = omegaContext.getTransactionContext();
+  // TransactionContext localTxContext = omegaContext.getTransactionContext();
 }
 ```
 
-Similar to the previous approach, `cmdWithTxContext.get{Global,Local}TxId()` also returns parent transaction context information.
+Similar to the previous approach, `cmdWithTxContext.get{Global,Local}TxId()` also returns injected transaction context information.
 
 ### TCC support
 

@@ -155,25 +155,25 @@ Service A:
 ```java
 @SagaStart
 public void foo(BarCommand cmd) {
-  TransactionContext txContext = omegaContext.getTransactionContext();
-  someRpc.send(cmd, txContext);
+  TransactionContext localTxContext = omegaContext.getTransactionContext();
+  someRpc.send(cmd, localTxContext);
 }
 ```
 
 Service B:
 
 ```java
-public void listen(BarCommand cmd, TransactionContext parentTxContext) {
-  bar(cmd, txContext);
+public void listen(BarCommand cmd, TransactionContext injectedTxContext) {
+  bar(cmd, injectedTxContext);
 }
 @Compensable
-public void bar(BarCommand cmd, TransactionContext parentTxContext) {
+public void bar(BarCommand cmd, TransactionContext injectedTxContext) {
   ...
-  // TransactionContext childTxContext = omegaContext.getTransactionContext();
+  // TransactionContext localTxContext = omegaContext.getTransactionContext();
 }
 ```
 
-需要注意的是`bar`方法接收到的是父事务上下文，在进入`bar`之后从OmegaContext得到的是子事务上下文（Omega替你开启了新的事务）。如果你需要将事务上下文传递给另一个服务，那么你应该传递子事务上下文。
+需要注意的是`bar`方法接收到的是注入的事务上下文，在进入`bar`之后从OmegaContext得到的是本地事务上下文（Omega替你开启了新的事务）。如果Service B也需要显式地传递事务上下文，那么应该使用本地事务上下文。
 
 ##### 利用TransactionContextProperties传递
 
@@ -205,11 +205,11 @@ public void listen(BarCommandWithTxContext cmdWithTxContext) {
 @Compensable
 public void bar(BarCommandWithTxContext cmdWithTxContext) {
   ...
-  // TransactionContext childTxContext = omegaContext.getTransactionContext();
+  // TransactionContext localTxContext = omegaContext.getTransactionContext();
 }
 ```
 
-和前面一种方式类似，TransactionContextProperties.get{Global,Local}TxId()返回的也是父事务上下文信息。
+和前面一种方式类似，TransactionContextProperties.get{Global,Local}TxId()返回的也是注入的事务上下文信息。
 
 ### TCC 支持
 在对应的方法中添加TccStart 和 Participate标注 
