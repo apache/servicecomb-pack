@@ -137,8 +137,8 @@ public void bar() {
 Here is how Omega does:
 
 1. Service A's `foo` method opens a new global transaction.
-2. `TransactionClientHttpRequestInterceptor` injects transaction context into request headers when `RestTemplate` request Service B.
-3. When Service B receive the request, `TransactionHandlerInterceptor` extract context info from request headers.
+2. [TransactionClientHttpRequestInterceptor][src-TransactionClientHttpRequestInterceptor] injects transaction context into request headers when `RestTemplate` request Service B.
+3. When Service B receive the request, [TransactionHandlerInterceptor][src-TransactionHandlerInterceptor] extract context info from request headers.
 
 Omega supports following implicity transaction context passing:
 
@@ -146,7 +146,7 @@ Omega supports following implicity transaction context passing:
 2. Method call in the same thread (based on `OmegaContext` thread local fields).
 3. `java.util.concurrent.Executor{Service}` annotated by `@OmegaContextAware`.
 
-So here comes a problem: what if implicit transaction context passing can't work? For example, Service A invokes Service B via some RPC library and no extension can be made to injecting or extracting transaction context information. In this situation you need explicit transaction context passing. Omega provides two classes to achieve that.
+So here comes a problem: what if implicit transaction context passing can't work? For example, Service A invokes Service B via some RPC library and no extension can be made to injecting or extracting transaction context information. In this situation you need explicit transaction context passing. Since ServiceComb Pack 0.5.0, it provides two classes to achieve that.
 
 ##### TransactionContext
 
@@ -789,3 +789,8 @@ Uses Spring Cloud Nacos Discovery 0.2.x by default, if you want to use Spring Cl
 ## Cluster
 
 Alpha can be highly available by deploying multiple instances, enable cluster support with the `alpha.cluster.master.enabled=true` parameter.
+
+
+
+[src-TransactionClientHttpRequestInterceptor]: ../omega/omega-transport/omega-transport-resttemplate/src/main/java/org/apache/servicecomb/pack/omega/transport/resttemplate/TransactionClientHttpRequestInterceptor.java
+[src-TransactionHandlerInterceptor]: ../omega/omega-transport/omega-transport-resttemplate/src/main/java/org/apache/servicecomb/pack/omega/transport/resttemplate/TransactionHandlerInterceptor.java
