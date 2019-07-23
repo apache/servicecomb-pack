@@ -155,7 +155,7 @@ Service A:
 ```java
 @SagaStart
 public void foo(BarCommand cmd) {
-  TransactionContext txContext = OmegaContext.getTransactionContext();
+  TransactionContext txContext = omegaContext.getTransactionContext();
   someRpc.send(cmd, txContext);
 }
 ```
@@ -169,7 +169,7 @@ public void listen(BarCommand cmd, TransactionContext parentTxContext) {
 @Compensable
 public void bar(BarCommand cmd, TransactionContext parentTxContext) {
   ...
-  // TransactionContext childTxContext = OmegaContext.getTransactionContext();
+  // TransactionContext childTxContext = omegaContext.getTransactionContext();
 }
 ```
 
@@ -188,10 +188,9 @@ public class BarCommandWithTxContext
 }
 @SagaStart
 public void foo(BarCommand cmd) {
-  TransactionContext txContext = OmegaContext.getTransactionContext();
   BarCommandWithTxContext cmdWithTxContext = new BarCommandWithTxContext(cmd);
-  cmdWithTxContext.setGlobalTxId(txContext.globalTxId());
-  cmdWithTxContext.setLocalTxId(txContext.localTxId());
+  cmdWithTxContext.setGlobalTxId(omegaContext.globalTxId());
+  cmdWithTxContext.setLocalTxId(omegaContext.localTxId());
   someRpc.send(cmdWithTxContext);
 }
 ```
@@ -206,7 +205,7 @@ public void listen(BarCommandWithTxContext cmdWithTxContext) {
 @Compensable
 public void bar(BarCommandWithTxContext cmdWithTxContext) {
   ...
-  // TransactionContext childTxContext = OmegaContext.getTransactionContext();
+  // TransactionContext childTxContext = omegaContext.getTransactionContext();
 }
 ```
 
