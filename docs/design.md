@@ -10,7 +10,7 @@ Omega plays as an embedded agent inside services. When a service request arrives
 
 ![Omega Internal](static_files/omega_internal.png)
 
-## Inter-Service Communication
+## <a name="comm"></a>Inter-Service Communication
 The process of Inter-Service Communication is similar to [Zipkin](https://github.com/openzipkin/zipkin)'s. In the producer side, omega intercepts the transaction ids from request to retrieve the transaction context. In the consumer side, omega inject the global transaction ids into request to pass the transaction context. Sub-transactions can chain as a single global transaction by co-operating producers and consumers.
 
 ![Inter-Service Communication](static_files/inter-service_communication.png)
