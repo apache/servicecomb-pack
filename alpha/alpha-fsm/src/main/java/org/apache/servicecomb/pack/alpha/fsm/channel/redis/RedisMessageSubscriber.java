@@ -23,10 +23,17 @@ public class RedisMessageSubscriber implements MessageListener {
     public void onMessage(Message message, byte[] pattern) {
         logger.info("message = [{}] and pattern = [{}]", message.toString(), new String(pattern, StandardCharsets.UTF_8));
         try {
-            BaseEvent baseEvent = (BaseEvent) message;
-            actorEventSink.send(baseEvent);
+            BaseEvent baseEvent = EventHelper.getEvent(message.toString());
+
+            if(null != baseEvent) {
+                actorEventSink.send(baseEvent);
+            }else{
+                logger.warn("onMessage baseEvent is null");
+            }
         }catch (Exception e){
             logger.error("subscriber Exception = [{}]", e);
         }
     }
+
+
 }
