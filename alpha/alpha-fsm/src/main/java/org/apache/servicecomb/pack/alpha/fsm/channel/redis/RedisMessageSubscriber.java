@@ -7,9 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.nio.charset.StandardCharsets;
 
 public class RedisMessageSubscriber implements MessageListener {
@@ -25,31 +22,17 @@ public class RedisMessageSubscriber implements MessageListener {
     @Override
     public void onMessage(Message message, byte[] pattern) {
         logger.info("pattern = [{}]",  new String(pattern, StandardCharsets.UTF_8));
-        try {
-            BaseEvent event = (BaseEvent) deserialize(message.getBody());
+
+        MessageSerializer.deserialize(message.getBody()).ifPresent(data -> {
+
+            BaseEvent event = (BaseEvent) data;
             logger.info("event = [{}]", event);
 
-            if(null != event) {
+            try {
                 actorEventSink.send(event);
-            }else{
-                logger.warn("onMessage baseEvent is null");
+            }catch (Exception e){
+                logger.error("subscriber Exception = [{}]", e);
             }
-        }catch (Exception e){
-            logger.error("subscriber Exception = [{}]", e);
-        }
+        });
     }
-    public Object deserialize(byte[] bytes) {
-        try {
-            ByteArrayInputStream boas = new ByteArrayInputStream(bytes);
-            ObjectInputStream ous = new ObjectInputStream(boas);
-            Object object = ous.readObject();
-            ous.close();
-            return object;
-        } catch (IOException | ClassNotFoundException e1) {
-            e1.printStackTrace();
-        }
-        return null;
-
-    }
-
 }
