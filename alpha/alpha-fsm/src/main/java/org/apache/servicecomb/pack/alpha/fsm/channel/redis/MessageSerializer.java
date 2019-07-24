@@ -52,7 +52,7 @@ public class MessageSerializer {
         @Override
         public Object deserialize(byte[] bytes) throws SerializationException {
             try {
-                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream();
+                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
                 ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
 
                 Object object = objectInputStream.readObject();
