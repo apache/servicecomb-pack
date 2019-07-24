@@ -19,7 +19,6 @@ package org.apache.servicecomb.pack.alpha.fsm.channel;
 
 import java.lang.invoke.MethodHandles;
 
-import org.apache.servicecomb.pack.alpha.fsm.channel.redis.EventHelper;
 import org.apache.servicecomb.pack.alpha.fsm.channel.redis.RedisMessagePublisher;
 import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
@@ -44,8 +43,7 @@ public class RedisActorEventChannel extends AbstractActorEventChannel {
 
   @Override
   public void sendTo(BaseEvent event){
-    String message = EventHelper.getMessage(event);
-    LOG.info("sendTo message = [{}]",message);
-    redisMessagePublisher.publish(message);
+    LOG.info("sendTo message = [{}]",event);
+    redisMessagePublisher.publish(event);
   }
 }
