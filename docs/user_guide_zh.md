@@ -111,7 +111,7 @@ Saga可通过以下任一方式进行构建：
 
 5. 从pack-0.3.0开始, 你可以在服务函数或者取消函数中通过访问 [OmegaContext](https://github.com/apache/servicecomb-pack/blob/master/omega/omega-context/src/main/java/org/apache/servicecomb/pack/omega/context/OmegaContext.java) 来获取 gloableTxId 以及 localTxId 信息。
 
-#### 显式传递事务上下文
+#### <a name="explicit-tx-context-passing"></a>显式传递事务上下文
 
 在一般情况下，Omega能够替你处理事务上下文的传递工作（详情见[服务间通信流程](design_zh.md#comm)），因此你的代码并不需要知道事务上下文的存在。而事务上下文的传递实际上是通过在请求方注入、在接受方提取来完成的，下面举一个请例子来说明这个过程：
 
@@ -265,7 +265,9 @@ public void bar(BarCommandWithTxContext cmdWithTxContext) {
 
 5. 从pack-0.3.0开始, 你可以在服务函数或者取消函数中通过访问 [OmegaContext](https://github.com/apache/servicecomb-pack/blob/master/omega/omega-context/src/main/java/org/apache/servicecomb/pack/omega/context/OmegaContext.java) 来获取 gloableTxId 以及 localTxId 信息。
 
+#### 显式传递事务上下文
 
+与Saga的`@Compensable`一样，TCC的`@Participate`也支持[显式传递事务上下文](#explicit-tx-context-passing)，详情可参阅Saga章节。
 
 
 ## 如何运行
