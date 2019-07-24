@@ -111,7 +111,7 @@ Take a transfer money application as an example:
 
 5. Since pack-0.3.0,  you can access the [OmegaContext](https://github.com/apache/servicecomb-pack/blob/master/omega/omega-context/src/main/java/org/apache/servicecomb/pack/omega/context/OmegaContext.java) for the gloableTxId and localTxId in the @Compensable annotated method or the cancel method.
 
-#### Passing transaction context explicitly
+#### <a name="explicit-tx-context-passing"></a>Passing transaction context explicitly
 
 In most cases, Omega passing the transaction context for you transparently (see [Inter-Service Communication](design.md#comm) for details). Transaction context passing is implemented in a way of injecting transaction context information on the sender side and extracting it on the receiver side. Below is an example to illustrate this process:
 
@@ -264,6 +264,10 @@ Add TCC annotations and corresponding confirm and cancel methods
     ```
 
  4. Repeat step 2 for the `transferIn` service.
+
+#### Passing transaction context explicitly
+
+Just like Saga's `@Compensable`，`@Participate` also supports explicit transaction passing. Please refer to [Saga - Passing transaction context explicitly](#explicit-tx-context-passing) for more details.
 
 
 ## How to run
