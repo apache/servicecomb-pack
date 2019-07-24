@@ -83,7 +83,6 @@
     <netty.boringssl.version>2.0.7.Final</netty.boringssl.version>
     <netty.version>4.1.24.Final</netty.version>
     <zookeeper.version>3.4.13</zookeeper.version>
-    <fastjson.version>1.2.58</fastjson.version>
   </properties>
 
   <name>ServiceComb Saga</name>
