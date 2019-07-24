@@ -3,7 +3,6 @@ package org.apache.servicecomb.pack.alpha.fsm.channel.redis;
 import org.apache.servicecomb.pack.alpha.fsm.sink.ActorEventSink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -11,10 +10,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import org.springframework.data.redis.serializer.GenericToStringSerializer;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "redis")
 @ConditionalOnClass(RedisConnection.class)
@@ -27,6 +29,18 @@ public class RedisConfiguration {
     private String topic;
 
     @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory){
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashKeySerializer(new GenericToStringSerializer<>(Object.class));
+        redisTemplate.setHashValueSerializer(new JdkSerializationRedisSerializer());
+        redisTemplate.setValueSerializer(new JdkSerializationRedisSerializer());
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+
+        return redisTemplate;
+    }
+
+    @Bean
     RedisMessageSubscriber redisMessageSubscriber(ActorEventSink actorEventSink){
         return new RedisMessageSubscriber(actorEventSink);
     }
@@ -37,7 +51,7 @@ public class RedisConfiguration {
     }
 
     @Bean
-    public RedisMessageListenerContainer redisMessageListenerContainer(@Qualifier("redisConnectionFactory")RedisConnectionFactory redisConnectionFactory, ActorEventSink actorEventSink){
+    public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory redisConnectionFactory, ActorEventSink actorEventSink){
         RedisMessageListenerContainer redisMessageListenerContainer = new RedisMessageListenerContainer();
 
         redisMessageListenerContainer.setConnectionFactory(redisConnectionFactory);
@@ -47,8 +61,8 @@ public class RedisConfiguration {
     }
 
     @Bean
-    MessagePublisher redisMessagePublisher(@Qualifier("stringRedisTemplate")StringRedisTemplate stringRedisTemplate){
-        return new RedisMessagePublisher(stringRedisTemplate, channelTopic());
+    MessagePublisher redisMessagePublisher(RedisTemplate<String, Object> redisTemplate){
+        return new RedisMessagePublisher(redisTemplate, channelTopic());
     }
 
     @Bean
