@@ -249,9 +249,9 @@ public void bar(BarCommandWithTxContext cmdWithTxContext) {
     }
     ```
 
-    **Note:** The confirm and cancel method should have same arguments with participate method, confirm and cancel method implemented by services must be idempotent. We highly recommend to use the Spring @Transactional to guarantee the local transaction.
+    **注意:** `confirm`和`cancel`方法的参数列表应该与`@Participate`方法一样，并且它们必须是幂等。我们强烈建议使用Spring的`@Transactional`来保证本地事务的一致性。
 
-    **Note:** 若全局事务起点与子事务起点重合，需同时声明 `@TccStart`  和 `@Participate` 的注解。 
+    **注意:** 若全局事务起点与子事务起点重合，需同时声明 `@TccStart`  和 `@Participate` 的注解。 
 
 3. 增加 alpha.cluster.address 参数
 
