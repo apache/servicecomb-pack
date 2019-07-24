@@ -26,9 +26,10 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.apache.servicecomb.pack.common.TransactionStatus;
+
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.apache.servicecomb.pack.omega.context.TransactionContextProperties;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.pack.omega.transaction.annotations.Participate;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.*;
@@ -50,6 +51,11 @@ public class TccParticipatorAspectTest {
   private final AlphaResponse response = new AlphaResponse(false);
   private String confirmMethod;
   private String cancelMethod;
+
+  private final String transactionGlobalTxId = UUID.randomUUID().toString();
+  private final String transactionLocalTxId = UUID.randomUUID().toString();
+  private final TransactionContextProperties transactionContextProperties = mock(TransactionContextProperties.class);
+
   private final TccMessageSender tccMessageSender = new TccMessageSender() {
     @Override
     public void onConnected() {
@@ -125,6 +131,28 @@ public class TccParticipatorAspectTest {
 
     confirmMethod = TccParticipatorAspectTest.class.getDeclaredMethod("confirmMethod").toString();
     cancelMethod = TccParticipatorAspectTest.class.getDeclaredMethod("cancelMethod").toString();
+
+    when(transactionContextProperties.getGlobalTxId()).thenReturn(transactionGlobalTxId);
+    when(transactionContextProperties.getLocalTxId()).thenReturn(transactionLocalTxId);
+  }
+
+  @Test
+  public void injectTransactionContextExplicitly() throws Throwable {
+
+    when(joinPoint.getArgs()).thenReturn(new Object[]{transactionContextProperties});
+
+    aspect.advise(joinPoint, participate);
+
+    assertThat(participationStartedEvents.size(), is(1));
+    ParticipationStartedEvent participationStartedEvent = participationStartedEvents.get(0);
+
+    assertThat(participationStartedEvent.getGlobalTxId(), is(transactionGlobalTxId));
+    assertThat(participationStartedEvent.getParentTxId(), is(transactionLocalTxId));
+    assertThat(participationStartedEvent.getLocalTxId(), is(newLocalTxId));
+
+    assertThat(omegaContext.globalTxId(), is(transactionGlobalTxId));
+    assertThat(omegaContext.localTxId(), is(transactionLocalTxId));
+
   }
 
   @Test
