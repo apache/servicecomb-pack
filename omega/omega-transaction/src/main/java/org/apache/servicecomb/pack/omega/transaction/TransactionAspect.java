@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.context.TransactionContext;
-import org.apache.servicecomb.pack.omega.context.TransactionContextProperties;
 import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -30,6 +29,9 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.servicecomb.pack.omega.transaction.TransactionContextUtils.extractTransactionContext;
+import static org.apache.servicecomb.pack.omega.transaction.TransactionContextUtils.populateOmegaContext;
 
 @Aspect
 public class TransactionAspect {
@@ -49,17 +51,9 @@ public class TransactionAspect {
   Object advise(ProceedingJoinPoint joinPoint, Compensable compensable) throws Throwable {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
     // just check if we need to setup the transaction context information first
-    TransactionContext transactionContext = getTransactionContextFromArgs(joinPoint.getArgs());
+    TransactionContext transactionContext = extractTransactionContext(joinPoint.getArgs());
     if (transactionContext != null) {
-      if (context.globalTxId() != null) {
-        LOG.warn("The context {}'s globalTxId is not empty. Update it for globalTxId:{} and localTxId:{}", context,
-            transactionContext.globalTxId(), transactionContext.localTxId());
-      } else {
-        LOG.debug("Updated context {} for globalTxId:{} and localTxId:{}", context,
-            transactionContext.globalTxId(), transactionContext.localTxId());
-      }
-      context.setGlobalTxId(transactionContext.globalTxId());
-      context.setLocalTxId(transactionContext.localTxId());
+      populateOmegaContext(context, transactionContext, LOG);
     }
 
     String localTxId = context.localTxId();
@@ -76,19 +70,5 @@ public class TransactionAspect {
     }
   }
 
-  TransactionContext getTransactionContextFromArgs(Object[] args) {
-    if (args != null) {
-      for (Object arg : args) {
-        // check the TransactionContext first
-        if (arg instanceof TransactionContext) {
-          return (TransactionContext) arg;
-        }
-        if (arg instanceof TransactionContextProperties) {
-          TransactionContextProperties transactionContextProperties = (TransactionContextProperties) arg;
-          return new TransactionContext(transactionContextProperties.getGlobalTxId(), transactionContextProperties.getLocalTxId());
-        }
-      }
-    }
-    return null;
-  }
+
 }

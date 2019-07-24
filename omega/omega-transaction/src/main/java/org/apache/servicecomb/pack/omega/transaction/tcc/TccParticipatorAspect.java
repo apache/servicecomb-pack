@@ -21,6 +21,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import org.apache.servicecomb.pack.common.TransactionStatus;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.apache.servicecomb.pack.omega.context.TransactionContext;
 import org.apache.servicecomb.pack.omega.transaction.annotations.Participate;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationEndedEvent;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationStartedEvent;
@@ -30,6 +31,9 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.servicecomb.pack.omega.transaction.TransactionContextUtils.extractTransactionContext;
+import static org.apache.servicecomb.pack.omega.transaction.TransactionContextUtils.populateOmegaContext;
 
 @Aspect
 public class TccParticipatorAspect {
@@ -52,6 +56,11 @@ public class TccParticipatorAspect {
   @Around("execution(@org.apache.servicecomb.pack.omega.transaction.annotations.Participate * *(..)) && @annotation(participate)")
   Object advise(ProceedingJoinPoint joinPoint, Participate participate) throws Throwable {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+    TransactionContext transactionContext = extractTransactionContext(joinPoint.getArgs());
+    if (transactionContext != null) {
+      populateOmegaContext(context, transactionContext, LOG);
+    }
+
     String localTxId = context.localTxId();
     String cancelMethod = callbackMethodSignature(joinPoint, participate.cancelMethod(), method);
     String confirmMethod = callbackMethodSignature(joinPoint, participate.confirmMethod(), method);
@@ -88,4 +97,6 @@ public class TccParticipatorAspect {
         .getDeclaredMethod(callbackMethod, tryMethod.getParameterTypes())
         .toString();
   }
+
+
 }

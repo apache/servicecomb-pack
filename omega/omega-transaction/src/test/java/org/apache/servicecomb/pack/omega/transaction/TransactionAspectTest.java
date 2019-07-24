@@ -17,15 +17,17 @@
 
 package org.apache.servicecomb.pack.omega.transaction;
 
-import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
-import static org.hamcrest.core.AnyOf.anyOf;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.apache.servicecomb.pack.common.EventType;
+import org.apache.servicecomb.pack.omega.context.IdGenerator;
+import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.apache.servicecomb.pack.omega.context.TransactionContextProperties;
+import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.io.File;
 import java.io.RandomAccessFile;
@@ -36,19 +38,13 @@ import java.security.Permission;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.apache.servicecomb.pack.common.EventType;
-import org.apache.servicecomb.pack.omega.context.IdGenerator;
-import org.apache.servicecomb.pack.omega.context.OmegaContext;
-import org.apache.servicecomb.pack.omega.context.TransactionContext;
-import org.apache.servicecomb.pack.omega.context.TransactionContextProperties;
-import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.reflect.MethodSignature;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+
+import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TransactionAspectTest {
 
@@ -57,7 +53,7 @@ public class TransactionAspectTest {
   private final String localTxId = UUID.randomUUID().toString();
   private final String newLocalTxId = UUID.randomUUID().toString();
 
-  private final String transactionGloablTxId = UUID.randomUUID().toString();
+  private final String transactionGlobalTxId = UUID.randomUUID().toString();
   private final String transactionLocalTxId = UUID.randomUUID().toString();
 
   private final SagaMessageSender sender = new SagaMessageSender() {
@@ -94,7 +90,6 @@ public class TransactionAspectTest {
   private final OmegaContext omegaContext = new OmegaContext(idGenerator);
   private final TransactionAspect aspect = new TransactionAspect(sender, omegaContext);
 
-  private final TransactionContext tx = mock(TransactionContext.class);
   private final TransactionContextProperties transactionContextProperties = mock(TransactionContextProperties.class);
 
   @Before
@@ -110,31 +105,8 @@ public class TransactionAspectTest {
     omegaContext.setGlobalTxId(globalTxId);
     omegaContext.setLocalTxId(localTxId);
 
-    when(transactionContextProperties.getGlobalTxId()).thenReturn(transactionGloablTxId);
+    when(transactionContextProperties.getGlobalTxId()).thenReturn(transactionGlobalTxId);
     when(transactionContextProperties.getLocalTxId()).thenReturn(transactionLocalTxId);
-    when(tx.globalTxId()).thenReturn(transactionGloablTxId);
-    when(tx.localTxId()).thenReturn(transactionLocalTxId);
-  }
-
-  @Test
-  public void testGetTransactionContextFromArgs() throws Throwable {
-
-    TransactionContext result = aspect.getTransactionContextFromArgs(new Object[]{transactionContextProperties});
-    assertThat(result.globalTxId(), is(transactionGloablTxId));
-    assertThat(result.localTxId(), is(transactionLocalTxId));
-
-    result = aspect.getTransactionContextFromArgs(new Object[]{});
-    assertNull(result);
-
-    result = aspect.getTransactionContextFromArgs(null);
-    assertNull(result);
-
-    result = aspect.getTransactionContextFromArgs(new Object[]{tx});
-    assertThat(result, is(tx));
-
-    TransactionContext otherTx = Mockito.mock(TransactionContext.class);
-    result = aspect.getTransactionContextFromArgs(new Object[]{otherTx, transactionContextProperties});
-    assertThat(result, is(otherTx));
   }
 
   @Test
@@ -144,7 +116,7 @@ public class TransactionAspectTest {
     aspect.advise(joinPoint, compensable);
     TxEvent startedEvent = messages.get(0);
 
-    assertThat(startedEvent.globalTxId(), is(transactionGloablTxId));
+    assertThat(startedEvent.globalTxId(), is(transactionGlobalTxId));
     assertThat(startedEvent.localTxId(), is(newLocalTxId));
     assertThat(startedEvent.parentTxId(), is(transactionLocalTxId));
     assertThat(startedEvent.type(), is(EventType.TxStartedEvent));
@@ -153,12 +125,12 @@ public class TransactionAspectTest {
 
     TxEvent endedEvent = messages.get(1);
 
-    assertThat(endedEvent.globalTxId(), is(transactionGloablTxId));
+    assertThat(endedEvent.globalTxId(), is(transactionGlobalTxId));
     assertThat(endedEvent.localTxId(), is(newLocalTxId));
     assertThat(endedEvent.parentTxId(), is(transactionLocalTxId));
     assertThat(endedEvent.type(), is(EventType.TxEndedEvent));
 
-    assertThat(omegaContext.globalTxId(), is(transactionGloablTxId));
+    assertThat(omegaContext.globalTxId(), is(transactionGlobalTxId));
     assertThat(omegaContext.localTxId(), is(transactionLocalTxId));
   }
 
