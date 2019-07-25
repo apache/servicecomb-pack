@@ -33,6 +33,8 @@ public class RedisMessageSubscriber implements MessageListener {
     private ActorEventSink actorEventSink;
     private NodeStatus nodeStatus;
 
+    private MessageSerializer messageSerializer = new MessageSerializer();
+
     public RedisMessageSubscriber(ActorEventSink actorEventSink, NodeStatus nodeStatus) {
         this.actorEventSink = actorEventSink;
         this.nodeStatus = nodeStatus;
@@ -45,7 +47,7 @@ public class RedisMessageSubscriber implements MessageListener {
                 logger.debug("pattern = [{}]", new String(pattern, StandardCharsets.UTF_8));
             }
 
-            MessageSerializer.deserialize(message.getBody()).ifPresent(data -> {
+            messageSerializer.deserialize(message.getBody()).ifPresent(data -> {
 
                 BaseEvent event = (BaseEvent) data;
 
