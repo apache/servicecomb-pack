@@ -16,6 +16,7 @@
  */
 package org.apache.servicecomb.pack.alpha.fsm.channel.redis;
 
+import org.apache.servicecomb.pack.alpha.core.NodeStatus;
 import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
 import org.apache.servicecomb.pack.alpha.fsm.sink.ActorEventSink;
 import org.slf4j.Logger;
@@ -30,30 +31,38 @@ public class RedisMessageSubscriber implements MessageListener {
     private static final Logger logger = LoggerFactory.getLogger(RedisMessageSubscriber.class);
 
     private ActorEventSink actorEventSink;
+    private NodeStatus nodeStatus;
 
-    public RedisMessageSubscriber(ActorEventSink actorEventSink) {
+    public RedisMessageSubscriber(ActorEventSink actorEventSink, NodeStatus nodeStatus) {
         this.actorEventSink = actorEventSink;
+        this.nodeStatus = nodeStatus;
     }
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
-        if(logger.isDebugEnabled()) {
-            logger.debug("pattern = [{}]", new String(pattern, StandardCharsets.UTF_8));
+        if(nodeStatus.isMaster()) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("pattern = [{}]", new String(pattern, StandardCharsets.UTF_8));
+            }
+
+            MessageSerializer.deserialize(message.getBody()).ifPresent(data -> {
+
+                BaseEvent event = (BaseEvent) data;
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("event = [{}]", event);
+                }
+
+                try {
+                    actorEventSink.send(event);
+                } catch (Exception e) {
+                    logger.error("subscriber Exception = [{}]", e);
+                }
+            });
+        }else{
+            if(logger.isDebugEnabled()){
+                logger.debug("nodeStatus is not master and cancel this time subscribe");
+            }
         }
-
-        MessageSerializer.deserialize(message.getBody()).ifPresent(data -> {
-
-            BaseEvent event = (BaseEvent) data;
-
-            if(logger.isDebugEnabled()) {
-                logger.debug("event = [{}]", event);
-            }
-
-            try {
-                actorEventSink.send(event);
-            }catch (Exception e){
-                logger.error("subscriber Exception = [{}]", e);
-            }
-        });
     }
 }
