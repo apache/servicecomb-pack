@@ -43,7 +43,9 @@ public class RedisActorEventChannel extends AbstractActorEventChannel {
 
   @Override
   public void sendTo(BaseEvent event){
-    LOG.info("sendTo message = [{}]",event);
+    if(LOG.isDebugEnabled()) {
+      LOG.debug("sendTo message = [{}]", event);
+    }
     redisMessagePublisher.publish(event);
   }
 }

@@ -37,12 +37,17 @@ public class RedisMessageSubscriber implements MessageListener {
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
-        logger.info("pattern = [{}]",  new String(pattern, StandardCharsets.UTF_8));
+        if(logger.isDebugEnabled()) {
+            logger.debug("pattern = [{}]", new String(pattern, StandardCharsets.UTF_8));
+        }
 
         MessageSerializer.deserialize(message.getBody()).ifPresent(data -> {
 
             BaseEvent event = (BaseEvent) data;
-            logger.info("event = [{}]", event);
+
+            if(logger.isDebugEnabled()) {
+                logger.debug("event = [{}]", event);
+            }
 
             try {
                 actorEventSink.send(event);

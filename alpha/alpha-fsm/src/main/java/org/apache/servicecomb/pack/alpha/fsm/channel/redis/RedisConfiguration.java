@@ -83,7 +83,9 @@ public class RedisConfiguration {
 
     @Bean
     ChannelTopic channelTopic(){
-        logger.info("build channel topic = [{}]", topic);
+        if(logger.isDebugEnabled()) {
+            logger.debug("build channel topic = [{}]", topic);
+        }
         return new ChannelTopic(topic);
     }
 

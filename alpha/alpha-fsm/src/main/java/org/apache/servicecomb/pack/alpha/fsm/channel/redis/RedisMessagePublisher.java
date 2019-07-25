@@ -36,7 +36,9 @@ public class RedisMessagePublisher implements MessagePublisher {
 
     @Override
     public void publish(Object data) {
-        logger.info("send message [{}] to [{}]", data, channelTopic.getTopic());
+        if(logger.isDebugEnabled()) {
+            logger.debug("send message [{}] to [{}]", data, channelTopic.getTopic());
+        }
         redisTemplate.convertAndSend(channelTopic.getTopic(), data);
 
     }
