@@ -16,6 +16,7 @@
  */
 package org.apache.servicecomb.pack.alpha.fsm.channel.redis;
 
+import org.apache.servicecomb.pack.alpha.core.NodeStatus;
 import org.apache.servicecomb.pack.alpha.fsm.sink.ActorEventSink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,21 +58,21 @@ public class RedisConfiguration {
     }
 
     @Bean
-    RedisMessageSubscriber redisMessageSubscriber(ActorEventSink actorEventSink){
-        return new RedisMessageSubscriber(actorEventSink);
+    RedisMessageSubscriber redisMessageSubscriber(ActorEventSink actorEventSink, NodeStatus nodeStatus){
+        return new RedisMessageSubscriber(actorEventSink, nodeStatus);
     }
 
     @Bean
-    public MessageListenerAdapter messageListenerAdapter(ActorEventSink actorEventSink){
-        return new MessageListenerAdapter(redisMessageSubscriber(actorEventSink));
+    public MessageListenerAdapter messageListenerAdapter(ActorEventSink actorEventSink, NodeStatus nodeStatus){
+        return new MessageListenerAdapter(redisMessageSubscriber(actorEventSink, nodeStatus));
     }
 
     @Bean
-    public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory redisConnectionFactory, ActorEventSink actorEventSink){
+    public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory redisConnectionFactory, ActorEventSink actorEventSink, NodeStatus nodeStatus){
         RedisMessageListenerContainer redisMessageListenerContainer = new RedisMessageListenerContainer();
 
         redisMessageListenerContainer.setConnectionFactory(redisConnectionFactory);
-        redisMessageListenerContainer.addMessageListener(redisMessageSubscriber(actorEventSink), channelTopic());
+        redisMessageListenerContainer.addMessageListener(redisMessageSubscriber(actorEventSink, nodeStatus), channelTopic());
 
         return redisMessageListenerContainer;
     }
