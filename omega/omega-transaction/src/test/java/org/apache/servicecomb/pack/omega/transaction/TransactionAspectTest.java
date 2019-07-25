@@ -17,17 +17,12 @@
 
 package org.apache.servicecomb.pack.omega.transaction;
 
-import org.apache.servicecomb.pack.common.EventType;
-import org.apache.servicecomb.pack.omega.context.IdGenerator;
-import org.apache.servicecomb.pack.omega.context.OmegaContext;
-import org.apache.servicecomb.pack.omega.context.TransactionContextProperties;
-import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.reflect.MethodSignature;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.RandomAccessFile;
@@ -39,12 +34,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.apache.servicecomb.pack.common.EventType;
+import org.apache.servicecomb.pack.omega.context.IdGenerator;
+import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.apache.servicecomb.pack.omega.context.TransactionContextProperties;
+import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 public class TransactionAspectTest {
 
