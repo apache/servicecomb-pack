@@ -33,15 +33,15 @@ public class MessageSerializer {
 
     private static MessageSerializerImpl serializer = null;
 
-    private MessageSerializer() {
+    public MessageSerializer() {
         serializer = new MessageSerializerImpl();
     }
 
-    public static Optional<byte[]> serializer(Object data){
+    public Optional<byte[]> serializer(Object data){
         return Optional.ofNullable(serializer.serialize(data));
     }
 
-    public static Optional<Object> deserialize(byte[] bytes){
+    public Optional<Object> deserialize(byte[] bytes){
         return Optional.ofNullable(serializer.deserialize(bytes));
     }
 
