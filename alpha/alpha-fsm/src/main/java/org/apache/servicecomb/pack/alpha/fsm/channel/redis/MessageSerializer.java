@@ -59,7 +59,7 @@ public class MessageSerializer {
 
                 return bytes;
             }catch (Exception e){
-                logger.error("serialize Exception = [{}]", e);
+                logger.error("serialize Exception = [{}]", e.getMessage(), e);
             }
 
             return null;
@@ -77,7 +77,7 @@ public class MessageSerializer {
 
                 return object;
             }catch (Exception e){
-                logger.error("deserialize Exception = [{}]", e);
+                logger.error("deserialize Exception = [{}]", e.getMessage(), e);
             }
 
             return null;

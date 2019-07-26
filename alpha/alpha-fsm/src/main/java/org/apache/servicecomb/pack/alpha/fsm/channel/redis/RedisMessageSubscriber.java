@@ -58,7 +58,7 @@ public class RedisMessageSubscriber implements MessageListener {
                 try {
                     actorEventSink.send(event);
                 } catch (Exception e) {
-                    logger.error("subscriber Exception = [{}]", e);
+                    logger.error("subscriber Exception = [{}]", e.getMessage(), e);
                 }
             });
         }else{

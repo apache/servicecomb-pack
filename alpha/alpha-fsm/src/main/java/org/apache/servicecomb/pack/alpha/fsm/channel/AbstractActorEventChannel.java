@@ -45,7 +45,7 @@ public abstract class AbstractActorEventChannel implements ActorEventChannel {
       this.sendTo(event);
       metricsService.metrics().doEventAccepted();
     } catch (Exception ex) {
-      logger.error("send Exception = [{}]", ex);
+      logger.error("send Exception = [{}]", ex.getMessage(), ex);
       metricsService.metrics().doEventRejected();
     }
     long end = System.currentTimeMillis();
