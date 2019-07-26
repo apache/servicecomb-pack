@@ -358,14 +358,14 @@ public class SagaActor extends
               if (LOG.isDebugEnabled()) {
                 LOG.debug("stop {} {}", data.getGlobalTxId(), state);
               }
-              data.setTerminated(true);
-              data.setLastState(state);
-              data.setEndTime(new Date());
-              SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(getContext().getSystem())
-                  .stopSagaData(data.getGlobalTxId(), data);
               sagaEndTime = System.currentTimeMillis();
               SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(context().system()).doSagaEndCounter();
               SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(context().system()).doSagaAvgTime(sagaEndTime - sagaBeginTime);
+              data.setLastState(state);
+              data.setEndTime(new Date());
+              data.setTerminated(true);
+              SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(getContext().getSystem())
+                  .stopSagaData(data.getGlobalTxId(), data);
             }
         )
     );
