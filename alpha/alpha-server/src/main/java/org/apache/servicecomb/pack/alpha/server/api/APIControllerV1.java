@@ -17,11 +17,16 @@
 
 package org.apache.servicecomb.pack.alpha.server.api;
 
+import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
+import org.apache.servicecomb.pack.alpha.fsm.repository.model.GloablTransaction;
+import org.apache.servicecomb.pack.alpha.fsm.repository.model.PagingGloablTransactions;
 import org.apache.servicecomb.pack.alpha.server.metrics.AlphaMetrics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -31,9 +36,28 @@ public class APIControllerV1 {
   @Autowired
   AlphaMetrics AlphaMetrics;
 
+  @Autowired
+  TransactionRepository transactionRepository;
+
   @GetMapping(value = "/metrics")
   ResponseEntity<AlphaMetrics> metrics() {
     return ResponseEntity.ok(AlphaMetrics);
   }
 
+  @GetMapping(value = "/transaction/{globalTxId}")
+  ResponseEntity<GloablTransaction> getTransactionByGlobalTxId(@PathVariable String globalTxId)
+      throws Exception {
+    GloablTransaction gloablTransaction = transactionRepository
+        .getGloablTransactionByGlobalTxId(globalTxId);
+    return ResponseEntity.ok(gloablTransaction);
+  }
+
+  @GetMapping(value = "/transaction")
+  ResponseEntity<PagingGloablTransactions> getTransactions(@RequestParam(value = "page", required = false, defaultValue = "0") int page,
+      @RequestParam(value = "size", required = false, defaultValue = "50") int size)
+      throws Exception {
+    PagingGloablTransactions pagingGloablTransactions = transactionRepository
+        .getGloablTransactions(page, size);
+    return ResponseEntity.ok(pagingGloablTransactions);
+  }
 }
