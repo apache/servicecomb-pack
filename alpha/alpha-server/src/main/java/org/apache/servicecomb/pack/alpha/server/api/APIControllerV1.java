@@ -36,7 +36,7 @@ public class APIControllerV1 {
   @Autowired
   AlphaMetrics AlphaMetrics;
 
-  @Autowired
+  @Autowired(required = false)
   TransactionRepository transactionRepository;
 
   @GetMapping(value = "/metrics")
