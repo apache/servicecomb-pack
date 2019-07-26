@@ -56,6 +56,8 @@ public class PackStepdefs implements En {
   private static final Map<String, Submit> submits = new HashMap<>();
 
   public PackStepdefs() {
+    String[] globalTxId = new String[1];
+
     Given("^Car Service is up and running$", () -> {
       probe(System.getProperty(CAR_SERVICE_ADDRESS));
     });
@@ -102,7 +104,7 @@ public class PackStepdefs implements En {
           map.keySet().retainAll(dataTable.topCells());
       };
 
-      dataMatches(System.getProperty(ALPHA_REST_ADDRESS) + "/saga/akka/events/last", dataTable, columnStrippingConsumer);
+      dataMatches(System.getProperty(ALPHA_REST_ADDRESS) + "/test/saga/akka/events/last", dataTable, columnStrippingConsumer);
     });
 
     And("^Car Service contains the following booking orders$", (DataTable dataTable) -> {
@@ -127,7 +129,7 @@ public class PackStepdefs implements En {
 
     given()
         .when()
-        .delete(System.getProperty(ALPHA_REST_ADDRESS) + "/saga/akka/events")
+        .delete(System.getProperty(ALPHA_REST_ADDRESS) + "/test/saga/akka/events")
         .then()
         .statusCode(is(200));
 

@@ -44,7 +44,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @EnableKamon
 @Controller
-@RequestMapping("/saga/akka")
+@RequestMapping("/test/saga/akka")
 @Profile("test")
 @ConditionalOnProperty(name= "alpha.feature.akka.enabled", havingValue = "true")
 // Only export this Controller for test
@@ -59,7 +59,7 @@ class FsmSagaDataController {
   ResponseEntity<Collection<Map>> events() {
     LOG.info("Get the events request");
     List<Map> eventVos = new LinkedList<>();
-    SagaData data = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
+    SagaData data = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
     data.getEvents().forEach(event -> {
       Map<String,String> obj = new HashMap();
       obj.put("serviceName",event.getServiceName());
@@ -75,7 +75,6 @@ class FsmSagaDataController {
   @Trace("deleteEvents")
   @DeleteMapping("/events")
   ResponseEntity<String> clear() {
-    SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).clearSagaData();
     return ResponseEntity.ok("All events deleted");
   }
 
