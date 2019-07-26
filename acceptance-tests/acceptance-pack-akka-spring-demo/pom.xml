@@ -118,6 +118,29 @@
                   </run>
                 </image>
                 <image>
+                  <name>elasticsearch:6.6.2</name>
+                  <alias>elasticsearch</alias>
+                  <run>
+                    <env>
+                      <discovery.type>single-node</discovery.type>
+                    </env>
+                    <wait>
+                      <log>started</log>
+                      <tcp>
+                        <ports>
+                          <port>9200</port>
+                          <port>9300</port>
+                        </ports>
+                      </tcp>
+                      <time>60000</time>
+                    </wait>
+                    <ports>
+                      <port>elasticsearch.rest.port:9200</port>
+                      <port>elasticsearch.port:9300</port>
+                    </ports>
+                  </run>
+                </image>
+                <image>
                   <name>alpha-server:${project.version}</name>
                   <alias>alpha</alias>
                   <run>
@@ -126,9 +149,13 @@
                         -Dspring.profiles.active=prd,test
                       </JAVA_OPTS>
                       <alpha.feature.akka.enabled>true</alpha.feature.akka.enabled>
+                      <alpha.feature.akka.transaction.repository.type>elasticsearch</alpha.feature.akka.transaction.repository.type>
+                      <spring.data.elasticsearch.cluster-name>docker-cluster</spring.data.elasticsearch.cluster-name>
+                      <spring.data.elasticsearch.cluster-nodes>elasticsearch.servicecomb.io:9300</spring.data.elasticsearch.cluster-nodes>
                     </env>
                     <links>
                       <link>postgres:postgresql.servicecomb.io</link>
+                      <link>elasticsearch:elasticsearch.servicecomb.io</link>
                     </links>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
