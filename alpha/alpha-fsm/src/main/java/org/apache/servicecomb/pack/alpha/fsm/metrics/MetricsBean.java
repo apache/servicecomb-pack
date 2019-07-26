@@ -120,7 +120,7 @@ public class MetricsBean {
   }
 
   public void doRepositoryAccepted(int size) {
-    repositoryAccepted.addAndGet(size);
+    repositoryAccepted.getAndAdd(size);
   }
 
   public void doRepositoryRejected() {
