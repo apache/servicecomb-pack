@@ -44,6 +44,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
@@ -62,9 +64,9 @@ import org.springframework.test.context.junit4.SpringRunner;
         "akkaConfig.akka.persistence.snapshot-store.plugin=akka.persistence.snapshot-store.local",
         "akkaConfig.akka.persistence.snapshot-store.local.dir=target/example/snapshots",
         //elasticsearch
-        "alpha.feature.akka.transcation.repository.channel.type=memory",
-        "alpha.feature.akka.transcation.repository.type=elasticsearch",
-        "spring.data.elasticsearch.cluster-name=alpha-cluster",
+        "alpha.feature.akka.transaction.repository.channel.type=memory",
+        "alpha.feature.akka.transaction.repository.type=elasticsearch",
+        "spring.data.elasticsearch.cluster-name=elasticsearch",
         "spring.data.elasticsearch.cluster-nodes=localhost:9300",
         "spring.elasticsearch.rest.uris=http://localhost:9200"
        })
@@ -78,10 +80,13 @@ public class AlphaIntegrationFsmTest {
   @Autowired
   private Map<String, Map<String, OmegaCallback>> omegaCallbacks;
 
+  @MockBean
+  ElasticsearchTemplate elasticsearchTemplate;
+
   @BeforeClass
   public static void beforeClass() {
     omegaEventSender.configClient(NettyChannelBuilder.forAddress("0.0.0.0", port).usePlaintext().build());
-    SagaDataExtension.autoCleanSagaDataMap=false;
+    //SagaDataExtension.autoCleanSagaDataMap=false;
   }
 
   @AfterClass
