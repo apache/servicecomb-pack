@@ -2,18 +2,27 @@
 
 ## 快速开始
 
-使用 `alpha.feature.akka.enabled=true` 开启状态机模式
+* 启动 Alpha
+  使用 `alpha.feature.akka.enabled=true` 开启状态机模式
 
-```bash
-java -jar alpha-server-${version}-exec.jar \
-  --spring.datasource.url=jdbc:postgresql://0.0.0.0:5432/saga?useSSL=false
-  --spring.datasource.username=saga-user
-  --spring.datasource.password=saga-password
-  --spring.profiles.active=prd
-  --alpha.feature.akka.enabled=true
-```
+  ```bash
+  java -jar alpha-server-${version}-exec.jar \
+    --spring.datasource.url=jdbc:postgresql://0.0.0.0:5432/saga?useSSL=false \
+    --spring.datasource.username=saga-user \
+    --spring.datasource.password=saga-password \
+    --spring.profiles.active=prd \
+    --alpha.feature.akka.enabled=true
+  ```
 
-**注意：**状态机模式默认没有存储执行完毕的事务数据，如果想存储执行后的事务数据请看使用 Elasticsearch 存储终止的全局事务数据章节
+* Omega 侧配置
+
+  使用 `alpha.feature.akka.enabled=true` 开启状态机模式
+
+  ```base
+  alpha.feature.akka.enabled=true
+  ```
+
+**注意：**状态机模式默认没有存储执行完毕的事务数据，如果想存储执行后的事务数据请参考 "使用 Elasticsearch 存储终止的全局事务数据章节"
 
 ## Alpha 事件通道类型
 
@@ -27,7 +36,8 @@ Alpha 收到 Omeag 发送的事件后放入事件通道等待Akka处理，默认
 
 **注意：** activemq, kafka, redis 还未实现 0_0
 
-## 性能度量
+## Alpha APIs
+#### 性能度量
 
 Alpha 提供一个性能度量查询API，使用这个查询接口可以返回当前事务各个环节性能指标，你可以使用基准测试工具 `AlphaBenchmark` 模拟发送数据后查看性能指标。
 
@@ -90,247 +100,319 @@ curl http://localhost:8090/alpha/api/v1/metrics
 * repositoryRejected: 存储模块拒绝的全局事务数量
 * repositoryAvgTime: 平均耗时（毫秒）
 
+#### 事务数据查询
+
+> 需要启动 Elasticsearch 存储事务
+
+* 查询事务列表
+
+  ```bash
+  curl -X GET http://localhost:8090/alpha/api/v1/transaction?page=0&size=50
+  
+  {
+    "total": 2002,
+    "page": 0,
+    "size": 50,
+    "elapsed": 581,
+    "gloablTransactions": [...]
+  }
+  ```
+
+  请求参数
+
+  * page 页号
+
+  * size 返回行树
+
+  返回参数
+
+  * total 总行数
+  * page 本次查询结果页号
+  * size 本次查询行数
+  * elapsed 本次查询耗时（毫秒）
+  * gloablTransactions 事件数据列表
+
+* 查询一条事务
+
+  ```bash
+  curl -X GET http://localhost:8090/alpha/api/v1/transaction/{globalTxId}
+  
+  {
+    "globalTxId": "e00a3bac-de6b-498f-99a4-c11d3087fd14",
+    "type": "SAGA",
+    "serviceName": "alpha-benchmark",
+    "instanceId": "alpha-benchmark-127.0.0.1",
+    "beginTime": "2019-07-26T07:46:27.215+0000",
+    "endTime": "2019-07-26T07:46:27.623+0000",
+    "state": "COMMITTED",
+    "subTxSize": 3,
+    "durationTime": 408,
+    "subTransactions": [...],
+    "events": [...]
+  }
+  ```
+
+  请求参数
+
+  * globalTxId 全局事务ID
+
+  返回参数
+
+  * globalTxId 全局事务ID
+  * type 事务类型，目前只有SAGA，后期增加TCC
+  * serviceName 全局事务发起方服务名称
+  * instanceId 全局事务发起方实例ID
+  * beginTime 事务开始事件
+  * endTime 事务结束时间
+  * state 事务最终状态
+  * subTxSize 包含子事务数量
+  * durationTime 全局事务处理耗时
+  * subTransactions 子事务数据列表
+  * events 事件列表
+
 ## 使用 Elasticsearch 存储终止的全局事务数据
 
-> 只有终止的全局事务才会存储到 Elasticsearch 中，终止的全局事务包含正常终止或者挂起终止两种情况，执行中的全局事务需要通过调用 Alpha RESTfulAPI 进行查询
+> 只有终止的全局事务才会存储到 Elasticsearch 中，终止的全局事务包含正常状态终止或者挂起状态终止两种情况，
+>
+> 执行中的全局事务需要通过调用 Alpha RESTfulAPI 进行查询（暂未实现）
 
-使用 docker 启动一个 Elasticsearch 服务，如果你已经有 Elasticsearch 服务请忽略这个步骤
+* 使用 docker 启动一个 Elasticsearch 服务，如果你已经有 Elasticsearch 服务请忽略这个步骤
 
-```bash
-docker run --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:6.6.2
-```
+  ```bash
+  docker run --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:6.6.2
+  ```
 
-启动 Alpha 的时候配置 Elasticsearch 参数
+* 启动 Alpha 的时候配置 Elasticsearch 参数
 
-```bash
-java -jar alpha-server-${version}-exec.jar \
-  --spring.datasource.url=jdbc:postgresql://0.0.0.0:5432/saga?useSSL=false
-  --spring.datasource.username=saga-user
-  --spring.datasource.password=saga-password
-  --spring.profiles.active=prd
-  --alpha.feature.akka.enabled=true
-  --alpha.feature.akka.transaction.repository.type=elasticsearch
-  --spring.data.elasticsearch.cluster-name=docker-cluster
-  --spring.data.elasticsearch.cluster-nodes=localhost:9300
-  --spring.elasticsearch.rest.uris=http://localhost:9200
-```
-| 参数名                                                       | 默认值 | 说明                                                         |
-| ------------------------------------------------------------ | ------ | ------------------------------------------------------------ |
-| alpha.feature.akka.transaction.repository.type               |        | 持久化类型，目前可选值 elasticsearch，如果不设置则不存储     |
-| alpha.feature.akka.transaction.repository.elasticsearch.memory.size | -1     | 持久化数据队列，默认 Integer.MAX. Actor会将终止的事务数据放入此队列，并等待存入elasticsearch |
-| alpha.feature.akka.transaction.repository.elasticsearch.batchSize | 100    | elasticsearch 批量入库数量                                   |
-| alpha.feature.akka.transaction.repository.elasticsearch.refreshTime | 5000   | elasticsearch 定时同步到ES时间                               |
-| spring.data.elasticsearch.cluster-name                       |        | ES集群名称                                                   |
-| spring.data.elasticsearch.cluster-nodes                      |        | ES节点地址，格式：localhost:9300，多个地址逗号分隔           |
-| spring.elasticsearch.rest.uris                               |        | ES rest访问地址，格式：http://localhost:9200                 |
+  ```bash
+  java -jar alpha-server-${version}-exec.jar \
+    --spring.datasource.url=jdbc:postgresql://0.0.0.0:5432/saga?useSSL=false \
+    --spring.datasource.username=saga-user \
+    --spring.datasource.password=saga-password \
+    --spring.profiles.active=prd \
+    --alpha.feature.akka.enabled=true \
+    --alpha.feature.akka.transaction.repository.type=elasticsearch \
+    --spring.data.elasticsearch.cluster-name=docker-cluster \
+    --spring.data.elasticsearch.cluster-nodes=localhost:9300
+  ```
+* 参数说明
 
-使用 Elasticsearch APIs 查询事务
-Alpha 会在 Elasticsearch 中创建一个名为 `alpha_global_transaction` 的索引，你可以使用以下方法查询事务数据
+  | 参数名                                                       | 默认值 | 说明                                                         |
+  | ------------------------------------------------------------ | ------ | ------------------------------------------------------------ |
+  | alpha.feature.akka.transaction.repository.type               |        | 持久化类型，目前可选值 elasticsearch，如果不设置则不存储     |
+  | alpha.feature.akka.transaction.repository.elasticsearch.memory.size | -1     | 持久化数据队列，默认 Integer.MAX. Actor会将终止的事务数据放入此队列，并等待存入elasticsearch |
+  | alpha.feature.akka.transaction.repository.elasticsearch.batchSize | 100    | elasticsearch 批量入库数量                                   |
+  | alpha.feature.akka.transaction.repository.elasticsearch.refreshTime | 5000   | elasticsearch 定时同步到ES时间                               |
+  | spring.data.elasticsearch.cluster-name                       |        | ES集群名称                                                   |
+  | spring.data.elasticsearch.cluster-nodes                      |        | ES节点地址，格式：localhost:9300，多个地址逗号分隔           |
 
-查询所有事务
+* 使用 Elasticsearch APIs 查询事务
+  Alpha 会在 Elasticsearch 中创建一个名为 `alpha_global_transaction` 的索引，你可以使用以下方法查询事务数据
 
-```bash
-curl http://localhost:9200/alpha_global_transaction/_search
-```
+* 查询所有事务
 
-查询匹配 globalTxId 的事务
+  ```bash
+  curl http://localhost:9200/alpha_global_transaction/_search
+  ```
 
-```bash
-curl -X POST http://localhost:9200/alpha_global_transaction/_search -H 'Content-Type: application/json' -d '
-{
-  "query": {
-    "bool": {
-      "must": [{
-        "term": {
-          "globalTxId.keyword": "974d089a-5476-48ed-847a-1e338456809b"
-        }
-      }],
-      "must_not": [],
-      "should": []
-    }
-  },
-  "from": 0,
-  "size": 10,
-  "sort": [],
-  "aggs": {}
-}'
-```
+* 查询匹配 globalTxId 的事务
 
-更多用法参考 [Elasticsearch APIs](https://www.elastic.co/guide/en/elasticsearch/reference/6.6/docs.html) 
-
-查询返回 JSON 格式
-
-```json
-{
-  "took": 17,
-  "timed_out": false,
-  "_shards": {
-    "total": 5,
-    "successful": 5,
-    "skipped": 0,
-    "failed": 0
-  },
-  "hits": {
-    "total": 4874,
-    "max_score": 1.0,
-    "hits": [{
-      "_index": "alpha_global_transaction",
-      "_type": "alpha_global_transaction_type",
-      "_id": "209791a0-34f4-40da-807e-9c5b8786dd61",
-      "_score": 1.0,
-      "_source": {
-        "globalTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-        "type": "SAGA",
-        "serviceName": "alpha-benchmark",
-        "instanceId": "alpha-benchmark-127.0.0.1",
-        "beginTime": 1563982631298,
-        "endTime": 1563982631320,
-        "state": "COMMITTED",
-        "subTxSize": 3,
-        "durationTime": 22,
-        "subTransactions": [...],
-        "events": [...]
+  ```bash
+  curl -X POST http://localhost:9200/alpha_global_transaction/_search -H 'Content-Type: application/json' -d '
+  {
+    "query": {
+      "bool": {
+        "must": [{
+          "term": {
+            "globalTxId.keyword": "974d089a-5476-48ed-847a-1e338456809b"
+          }
+        }],
+        "must_not": [],
+        "should": []
       }
-    },{...}]
-  }
-}
-```
+    },
+    "from": 0,
+    "size": 10,
+    "sort": [],
+    "aggs": {}
+  }'
+  ```
 
-查询返回 JSON样例
+* 查询返回 JSON 格式
 
-```json
-{
-  "took": 17,
-  "timed_out": false,
-  "_shards": {
-    "total": 5,
-    "successful": 5,
-    "skipped": 0,
-    "failed": 0
-  },
-  "hits": {
-    "total": 4874,
-    "max_score": 1.0,
-    "hits": [{
-      "_index": "alpha_global_transaction",
-      "_type": "alpha_global_transaction_type",
-      "_id": "209791a0-34f4-40da-807e-9c5b8786dd61",
-      "_score": 1.0,
-      "_source": {
-        "globalTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-        "type": "SAGA",
-        "serviceName": "alpha-benchmark",
-        "instanceId": "alpha-benchmark-127.0.0.1",
-        "beginTime": 1563982631298,
-        "endTime": 1563982631320,
-        "state": "COMMITTED",
-        "subTxSize": 3,
-        "durationTime": 22,
-        "subTransactions": [{
-          "localTxId": "03fe15b2-a070-4e55-9b5b-801c2181dd0a",
-          "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "beginTime": 1563982631308,
-          "endTime": 1563982631309,
-          "state": "COMMITTED",
-          "durationTime": 1
-        }, {
-          "localTxId": "923f83fd-0bce-4fac-8c89-ecbe7c5e9106",
-          "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "beginTime": 1563982631320,
+  ```json
+  {
+    "took": 17,
+    "timed_out": false,
+    "_shards": {
+      "total": 5,
+      "successful": 5,
+      "skipped": 0,
+      "failed": 0
+    },
+    "hits": {
+      "total": 4874,
+      "max_score": 1.0,
+      "hits": [{
+        "_index": "alpha_global_transaction",
+        "_type": "alpha_global_transaction_type",
+        "_id": "209791a0-34f4-40da-807e-9c5b8786dd61",
+        "_score": 1.0,
+        "_source": {
+          "globalTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+          "type": "SAGA",
+          "serviceName": "alpha-benchmark",
+          "instanceId": "alpha-benchmark-127.0.0.1",
+          "beginTime": 1563982631298,
           "endTime": 1563982631320,
           "state": "COMMITTED",
-          "durationTime": 0
-        }, {
-          "localTxId": "95821ce3-2202-4e55-9343-4e6a6519821f",
-          "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "beginTime": 1563982631309,
-          "endTime": 1563982631309,
-          "state": "COMMITTED",
-          "durationTime": 0
-        }],
-        "events": [{
-          "serviceName": "alpha-benchmark",
-          "instanceId": "alpha-benchmark-127.0.0.1",
-          "globalTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "localTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "createTime": 1563982631298,
-          "timeout": 0,
-          "type": "SagaStartedEvent"
-        }, {
-          "serviceName": "alpha-benchmark",
-          "instanceId": "alpha-benchmark-127.0.0.1",
-          "globalTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "localTxId": "03fe15b2-a070-4e55-9b5b-801c2181dd0a",
-          "createTime": 1563982631299,
-          "compensationMethod": "service a",
-          "payloads": "AQE=",
-          "retryMethod": "",
-          "retries": 0,
-          "type": "TxStartedEvent"
-        }, {
-          "serviceName": "alpha-benchmark",
-          "instanceId": "alpha-benchmark-127.0.0.1",
-          "globalTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "localTxId": "03fe15b2-a070-4e55-9b5b-801c2181dd0a",
-          "createTime": 1563982631301,
-          "type": "TxEndedEvent"
-        }, {
-          "serviceName": "alpha-benchmark",
-          "instanceId": "alpha-benchmark-127.0.0.1",
-          "globalTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "localTxId": "95821ce3-2202-4e55-9343-4e6a6519821f",
-          "createTime": 1563982631302,
-          "compensationMethod": "service b",
-          "payloads": "AQE=",
-          "retryMethod": "",
-          "retries": 0,
-          "type": "TxStartedEvent"
-        }, {
-          "serviceName": "alpha-benchmark",
-          "instanceId": "alpha-benchmark-127.0.0.1",
-          "globalTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "localTxId": "95821ce3-2202-4e55-9343-4e6a6519821f",
-          "createTime": 1563982631304,
-          "type": "TxEndedEvent"
-        }, {
-          "serviceName": "alpha-benchmark",
-          "instanceId": "alpha-benchmark-127.0.0.1",
-          "globalTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "localTxId": "923f83fd-0bce-4fac-8c89-ecbe7c5e9106",
-          "createTime": 1563982631309,
-          "compensationMethod": "service c",
-          "payloads": "AQE=",
-          "retryMethod": "",
-          "retries": 0,
-          "type": "TxStartedEvent"
-        }, {
-          "serviceName": "alpha-benchmark",
-          "instanceId": "alpha-benchmark-127.0.0.1",
-          "globalTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "localTxId": "923f83fd-0bce-4fac-8c89-ecbe7c5e9106",
-          "createTime": 1563982631311,
-          "type": "TxEndedEvent"
-        }, {
-          "serviceName": "alpha-benchmark",
-          "instanceId": "alpha-benchmark-127.0.0.1",
-          "globalTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "localTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
-          "createTime": 1563982631312,
-          "type": "SagaEndedEvent"
-        }]
-      }
-    }]
+          "subTxSize": 3,
+          "durationTime": 22,
+          "subTransactions": [...],
+          "events": [...]
+        }
+      },{...}]
+    }
   }
-}
-```
+  ```
+
+* 查询返回 JSON样例
+
+  ```json
+  {
+    "took": 17,
+    "timed_out": false,
+    "_shards": {
+      "total": 5,
+      "successful": 5,
+      "skipped": 0,
+      "failed": 0
+    },
+    "hits": {
+      "total": 4874,
+      "max_score": 1.0,
+      "hits": [{
+        "_index": "alpha_global_transaction",
+        "_type": "alpha_global_transaction_type",
+        "_id": "209791a0-34f4-40da-807e-9c5b8786dd61",
+        "_score": 1.0,
+        "_source": {
+          "globalTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+          "type": "SAGA",
+          "serviceName": "alpha-benchmark",
+          "instanceId": "alpha-benchmark-127.0.0.1",
+          "beginTime": 1563982631298,
+          "endTime": 1563982631320,
+          "state": "COMMITTED",
+          "subTxSize": 3,
+          "durationTime": 22,
+          "subTransactions": [{
+            "localTxId": "03fe15b2-a070-4e55-9b5b-801c2181dd0a",
+            "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "beginTime": 1563982631308,
+            "endTime": 1563982631309,
+            "state": "COMMITTED",
+            "durationTime": 1
+          }, {
+            "localTxId": "923f83fd-0bce-4fac-8c89-ecbe7c5e9106",
+            "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "beginTime": 1563982631320,
+            "endTime": 1563982631320,
+            "state": "COMMITTED",
+            "durationTime": 0
+          }, {
+            "localTxId": "95821ce3-2202-4e55-9343-4e6a6519821f",
+            "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "beginTime": 1563982631309,
+            "endTime": 1563982631309,
+            "state": "COMMITTED",
+            "durationTime": 0
+          }],
+          "events": [{
+            "serviceName": "alpha-benchmark",
+            "instanceId": "alpha-benchmark-127.0.0.1",
+            "globalTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "localTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "createTime": 1563982631298,
+            "timeout": 0,
+            "type": "SagaStartedEvent"
+          }, {
+            "serviceName": "alpha-benchmark",
+            "instanceId": "alpha-benchmark-127.0.0.1",
+            "globalTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "localTxId": "03fe15b2-a070-4e55-9b5b-801c2181dd0a",
+            "createTime": 1563982631299,
+            "compensationMethod": "service a",
+            "payloads": "AQE=",
+            "retryMethod": "",
+            "retries": 0,
+            "type": "TxStartedEvent"
+          }, {
+            "serviceName": "alpha-benchmark",
+            "instanceId": "alpha-benchmark-127.0.0.1",
+            "globalTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "localTxId": "03fe15b2-a070-4e55-9b5b-801c2181dd0a",
+            "createTime": 1563982631301,
+            "type": "TxEndedEvent"
+          }, {
+            "serviceName": "alpha-benchmark",
+            "instanceId": "alpha-benchmark-127.0.0.1",
+            "globalTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "localTxId": "95821ce3-2202-4e55-9343-4e6a6519821f",
+            "createTime": 1563982631302,
+            "compensationMethod": "service b",
+            "payloads": "AQE=",
+            "retryMethod": "",
+            "retries": 0,
+            "type": "TxStartedEvent"
+          }, {
+            "serviceName": "alpha-benchmark",
+            "instanceId": "alpha-benchmark-127.0.0.1",
+            "globalTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "localTxId": "95821ce3-2202-4e55-9343-4e6a6519821f",
+            "createTime": 1563982631304,
+            "type": "TxEndedEvent"
+          }, {
+            "serviceName": "alpha-benchmark",
+            "instanceId": "alpha-benchmark-127.0.0.1",
+            "globalTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "localTxId": "923f83fd-0bce-4fac-8c89-ecbe7c5e9106",
+            "createTime": 1563982631309,
+            "compensationMethod": "service c",
+            "payloads": "AQE=",
+            "retryMethod": "",
+            "retries": 0,
+            "type": "TxStartedEvent"
+          }, {
+            "serviceName": "alpha-benchmark",
+            "instanceId": "alpha-benchmark-127.0.0.1",
+            "globalTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "localTxId": "923f83fd-0bce-4fac-8c89-ecbe7c5e9106",
+            "createTime": 1563982631311,
+            "type": "TxEndedEvent"
+          }, {
+            "serviceName": "alpha-benchmark",
+            "instanceId": "alpha-benchmark-127.0.0.1",
+            "globalTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "parentTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "localTxId": "209791a0-34f4-40da-807e-9c5b8786dd61",
+            "createTime": 1563982631312,
+            "type": "SagaEndedEvent"
+          }]
+        }
+      }]
+    }
+  }
+  ```
+
+  更多用法参考 [Elasticsearch APIs](https://www.elastic.co/guide/en/elasticsearch/reference/6.6/docs.html) 
 
 ## 附录
 
