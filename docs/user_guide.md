@@ -790,7 +790,13 @@ Uses Spring Cloud Nacos Discovery 0.2.x by default, if you want to use Spring Cl
 
 Alpha can be highly available by deploying multiple instances, enable cluster support with the `alpha.cluster.master.enabled=true` parameter.
 
+<<<<<<< HEAD
 
 
 [src-TransactionClientHttpRequestInterceptor]: ../omega/omega-transport/omega-transport-resttemplate/src/main/java/org/apache/servicecomb/pack/omega/transport/resttemplate/TransactionClientHttpRequestInterceptor.java
 [src-TransactionHandlerInterceptor]: ../omega/omega-transport/omega-transport-resttemplate/src/main/java/org/apache/servicecomb/pack/omega/transport/resttemplate/TransactionHandlerInterceptor.java
+=======
+## Experiment
+
+[Alpha State Machine Mode](fsm/how_to_use_fsm_zh.md)
+>>>>>>> 2af60216... SCB-1369 Update FSM documents

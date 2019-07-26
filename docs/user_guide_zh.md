@@ -779,5 +779,11 @@ public void bar(BarCommandWithTxContext cmdWithTxContext) {
 
 Alpha 可以通过部署多实例的方式保证高可用，使用 `alpha.cluster.master.enabled=true` 参数开启集群支持
 
+<<<<<<< HEAD
 [src-TransactionClientHttpRequestInterceptor]: ../omega/omega-transport/omega-transport-resttemplate/src/main/java/org/apache/servicecomb/pack/omega/transport/resttemplate/TransactionClientHttpRequestInterceptor.java
 [src-TransactionHandlerInterceptor]: ../omega/omega-transport/omega-transport-resttemplate/src/main/java/org/apache/servicecomb/pack/omega/transport/resttemplate/TransactionHandlerInterceptor.java
+=======
+## 实验
+
+[Alpha 状态机模式](fsm/how_to_use_fsm_zh.md)
+>>>>>>> 2af60216... SCB-1369 Update FSM documents
