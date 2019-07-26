@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
 import org.apache.servicecomb.pack.alpha.fsm.TransactionType;
 import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
@@ -36,7 +37,7 @@ public class GloablTransaction {
   private Integer subTxSize;
   private Long durationTime;
   private List<SagaSubTransaction> subTransactions = new ArrayList<>();
-  private List<BaseEvent> events = new LinkedList<>();
+  private List<Map<String,Object>> events = new LinkedList<>();
 
   public String getGlobalTxId() {
     return globalTxId;
@@ -78,7 +79,7 @@ public class GloablTransaction {
     return subTransactions;
   }
 
-  public List<BaseEvent> getEvents() {
+  public List<Map<String,Object>> getEvents() {
     return events;
   }
 
@@ -164,7 +165,13 @@ public class GloablTransaction {
       gloablTransaction.subTxSize = this.subTxSize;
       gloablTransaction.durationTime = this.endTime.getTime() - this.beginTime.getTime();
       gloablTransaction.subTransactions = this.subTransactions;
-      gloablTransaction.events = this.events;
+      for(BaseEvent event : events){
+        try {
+          gloablTransaction.events.add(event.toMap());
+        } catch (Exception e) {
+          new RuntimeException(e.getMessage(),e);
+        }
+      }
       return gloablTransaction;
     }
   }
