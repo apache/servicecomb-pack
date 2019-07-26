@@ -41,6 +41,7 @@ import org.apache.servicecomb.pack.alpha.fsm.repository.channel.MemoryTransactio
 import org.apache.servicecomb.pack.alpha.fsm.repository.elasticsearch.ElasticsearchTransactionRepository;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -85,7 +86,6 @@ public class SagaActorTest {
 
   @BeforeClass
   public static void setup() {
-    SagaDataExtension.autoCleanSagaDataMap=false;
     system = ActorSystem.create("SagaActorTest", ConfigFactory.parseMap(getPersistenceMemConfig()));
     SAGA_DATA_EXTENSION_PROVIDER.get(system).setMetricsService(metricsService);
   }
@@ -102,6 +102,11 @@ public class SagaActorTest {
     TransactionRepositoryChannel repositoryChannel = new MemoryTransactionRepositoryChannel(repository, -1,
         metricsService);
     SAGA_DATA_EXTENSION_PROVIDER.get(system).setRepositoryChannel(repositoryChannel);
+  }
+
+  @After
+  public void after(){
+    SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).cleanLastSagaData();
   }
 
   public String genPersistenceId() {
@@ -166,7 +171,7 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
-      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
       assertEquals(sagaData.getGlobalTxId(), globalTxId);
       assertEquals(sagaData.getTxEntityMap().size(), 3);
       sagaData.getTxEntityMap().forEach((k, v) -> {
@@ -254,7 +259,7 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), recoveredSaga);
 
-      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
       assertEquals(sagaData.getGlobalTxId(), globalTxId);
       assertEquals(sagaData.getTxEntityMap().size(), 3);
       sagaData.getTxEntityMap().forEach((k, v) -> {
@@ -306,7 +311,7 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
-      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
       assertEquals(sagaData.getGlobalTxId(), globalTxId);
       assertEquals(sagaData.getTxEntityMap().size(), 1);
       assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.FAILED);
@@ -368,7 +373,7 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
-      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
       assertEquals(sagaData.getGlobalTxId(), globalTxId);
       assertEquals(sagaData.getTxEntityMap().size(), 2);
       assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.COMPENSATED);
@@ -441,7 +446,7 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
-      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
       assertEquals(sagaData.getGlobalTxId(), globalTxId);
       assertEquals(sagaData.getTxEntityMap().size(), 3);
       assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.COMPENSATED);
@@ -514,7 +519,7 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
-      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
       assertEquals(sagaData.getGlobalTxId(), globalTxId);
       assertEquals(sagaData.getTxEntityMap().size(), 3);
       assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.COMPENSATED);
@@ -576,7 +581,7 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
-      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
       assertEquals(sagaData.getGlobalTxId(), globalTxId);
       assertEquals(sagaData.getTxEntityMap().size(), 3);
       assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.FAILED);
@@ -654,7 +659,7 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
-      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
       assertEquals(sagaData.getGlobalTxId(), globalTxId);
       assertEquals(sagaData.getTxEntityMap().size(), 3);
       assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.COMPENSATED);
@@ -727,7 +732,7 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
-      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
       assertEquals(sagaData.getGlobalTxId(), globalTxId);
       assertEquals(sagaData.getTxEntityMap().size(), 3);
       assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.COMMITTED);
@@ -796,7 +801,7 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
-      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
       assertThat(eventList, is(sagaData.getEvents()));
 
       system.stop(saga);
@@ -850,7 +855,7 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
-      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
       assertEquals(sagaData.getGlobalTxId(), globalTxId);
       assertEquals(sagaData.getTxEntityMap().size(), 3);
       sagaData.getTxEntityMap().forEach((k, v) -> {
@@ -913,7 +918,7 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
-      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
       assertEquals(sagaData.getGlobalTxId(), globalTxId);
       assertEquals(sagaData.getTxEntityMap().size(), 3);
       sagaData.getTxEntityMap().forEach((k, v) -> {
@@ -975,7 +980,7 @@ public class SagaActorTest {
       Terminated terminated = expectMsgClass(Terminated.class);
       assertEquals(terminated.getActor(), saga);
 
-      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getSagaData(globalTxId);
+      SagaData sagaData = SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
       assertEquals(sagaData.getGlobalTxId(), globalTxId);
       assertEquals(sagaData.getTxEntityMap().size(), 3);
       assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.COMPENSATED);
