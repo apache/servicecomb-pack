@@ -17,11 +17,13 @@
 
 package org.apache.servicecomb.pack.alpha.fsm.event.base;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Map;
 
 public abstract class BaseEvent implements Serializable {
-
+  private final ObjectMapper mapper = new ObjectMapper();
   private String serviceName;
   private String instanceId;
   private String globalTxId;
@@ -95,5 +97,9 @@ public abstract class BaseEvent implements Serializable {
         ", localTxId='" + localTxId + '\'' +
         ", createTime=" + createTime +
         '}';
+  }
+
+  public Map<String,Object> toMap() throws Exception {
+    return mapper.readValue(mapper.writeValueAsString(this), Map.class);
   }
 }
