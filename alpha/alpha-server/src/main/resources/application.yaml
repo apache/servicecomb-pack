@@ -62,7 +62,9 @@ management:
     web:
       exposure:
         include: "*"
-
+  health:
+    elasticsearch:
+      enabled: false
 ---
 spring:
   profiles: ssl
