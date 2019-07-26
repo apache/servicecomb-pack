@@ -65,7 +65,8 @@ management:
   health:
     redis:
       enabled: false
-
+    elasticsearch:
+      enabled: false
 ---
 spring:
   profiles: ssl
