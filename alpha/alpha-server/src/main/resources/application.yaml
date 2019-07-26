@@ -68,6 +68,7 @@ management:
     elasticsearch:
       enabled: false
 
+---
 spring:
   profiles: ssl
 alpha:
