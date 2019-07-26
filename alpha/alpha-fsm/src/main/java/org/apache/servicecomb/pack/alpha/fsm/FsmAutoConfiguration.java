@@ -31,6 +31,7 @@ import org.apache.servicecomb.pack.alpha.fsm.channel.redis.MessagePublisher;
 import org.apache.servicecomb.pack.alpha.fsm.channel.redis.RedisMessagePublisher;
 import org.apache.servicecomb.pack.alpha.fsm.channel.redis.RedisMessageSubscriber;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
+import org.apache.servicecomb.pack.alpha.fsm.repository.NoneTransactionRepository;
 import org.apache.servicecomb.pack.alpha.fsm.repository.elasticsearch.ElasticsearchTransactionRepository;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
 import org.apache.servicecomb.pack.alpha.fsm.repository.channel.MemoryTransactionRepositoryChannel;
@@ -42,7 +43,6 @@ import org.apache.servicecomb.pack.alpha.fsm.channel.MemoryActorEventChannel;
 import org.apache.servicecomb.pack.alpha.fsm.channel.RedisActorEventChannel;
 import org.apache.servicecomb.pack.alpha.fsm.sink.SagaActorEventSender;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.AkkaConfigPropertyAdapter;
-import org.apache.servicecomb.pack.alpha.fsm.spring.integration.eventbus.EventSubscribeBeanPostProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -69,7 +69,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 @ConditionalOnProperty(value = {"alpha.feature.akka.enabled"})
 public class FsmAutoConfiguration {
 
-  @Value("${alpha.feature.akka.elasticsearch.memory.size:-1}")
+  @Value("${alpha.feature.akka.channel.memory.size:-1}")
   int memoryEventChannelMemorySize;
 
   @Value("${alpha.feature.akka.transaction.repository.elasticsearch.batchSize:100}")
@@ -107,11 +107,6 @@ public class FsmAutoConfiguration {
   }
 
   @Bean
-  public EventSubscribeBeanPostProcessor eventSubscribeBeanPostProcessor() {
-    return new EventSubscribeBeanPostProcessor();
-  }
-
-  @Bean
   public MetricsService metricsService() {
     return new MetricsService();
   }
@@ -123,7 +118,6 @@ public class FsmAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean(ActorEventChannel.class)
-  @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "memory", matchIfMissing = true)
   public ActorEventChannel memoryEventChannel(ActorEventSink actorEventSink,
       MetricsService metricsService) {
     return new MemoryActorEventChannel(actorEventSink, memoryEventChannelMemorySize,
@@ -206,7 +200,13 @@ public class FsmAutoConfiguration {
   }
 
   @Bean
-  @ConditionalOnProperty(value = "alpha.feature.akka.transcation.repository.type", havingValue = "elasticsearch", matchIfMissing = true)
+  @ConditionalOnMissingBean(TransactionRepository.class)
+  public TransactionRepository transcationRepository() {
+    return new NoneTransactionRepository();
+  }
+
+  @Bean
+  @ConditionalOnProperty(value = "alpha.feature.akka.transaction.repository.type", havingValue = "elasticsearch")
   public TransactionRepository transcationRepository(MetricsService metricsService,
       ElasticsearchTemplate template) {
     return new ElasticsearchTransactionRepository(template, metricsService,
@@ -215,7 +215,7 @@ public class FsmAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean(TransactionRepositoryChannel.class)
-  @ConditionalOnProperty(value = "alpha.feature.akka.transcation.repository.channel.type", havingValue = "memory", matchIfMissing = true)
+  @ConditionalOnProperty(value = "alpha.feature.akka.transaction.repository.channel.type", havingValue = "memory", matchIfMissing = true)
   TransactionRepositoryChannel memoryTransactionRepositoryChannel(TransactionRepository repository,
       MetricsService metricsService) {
     return new MemoryTransactionRepositoryChannel(repository, memoryTransactionRepositoryChannelSize,
