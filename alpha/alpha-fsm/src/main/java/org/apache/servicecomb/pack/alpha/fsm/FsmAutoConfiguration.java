@@ -24,8 +24,12 @@ import akka.actor.ActorSystem;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.util.Map;
+
+import org.apache.servicecomb.pack.alpha.core.NodeStatus;
 import org.apache.servicecomb.pack.alpha.fsm.channel.ActiveMQActorEventChannel;
+import org.apache.servicecomb.pack.alpha.fsm.channel.redis.MessagePublisher;
 import org.apache.servicecomb.pack.alpha.fsm.channel.redis.RedisMessagePublisher;
+import org.apache.servicecomb.pack.alpha.fsm.channel.redis.RedisMessageSubscriber;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.sink.ActorEventSink;
 import org.apache.servicecomb.pack.alpha.fsm.channel.ActorEventChannel;
@@ -35,8 +39,10 @@ import org.apache.servicecomb.pack.alpha.fsm.channel.RedisActorEventChannel;
 import org.apache.servicecomb.pack.alpha.fsm.sink.SagaActorEventSender;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.AkkaConfigPropertyAdapter;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.eventbus.EventSubscribeBeanPostProcessor;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -44,6 +50,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import org.springframework.data.redis.serializer.GenericToStringSerializer;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 @ConditionalOnProperty(value = {"alpha.feature.akka.enabled"})
@@ -104,6 +119,61 @@ public class FsmAutoConfiguration {
   @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "redis")
   public ActorEventChannel redisEventChannel(ActorEventSink actorEventSink, MetricsService metricsService, @Lazy RedisMessagePublisher redisMessagePublisher){
     return new RedisActorEventChannel(actorEventSink, metricsService, redisMessagePublisher);
+  }
+
+  @Configuration
+  @ConditionalOnClass(RedisConnection.class)
+  @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "redis")
+  public static class RedisConfig{
+    private static final Logger logger = LoggerFactory.getLogger(RedisConfig.class);
+
+    @Value("${alpha.feature.akka.channel.redis.topic:servicecomb-pack-actor-event}")
+    private String topic;
+
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory){
+      RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+      redisTemplate.setKeySerializer(new StringRedisSerializer());
+      redisTemplate.setHashKeySerializer(new GenericToStringSerializer<>(Object.class));
+      redisTemplate.setHashValueSerializer(new JdkSerializationRedisSerializer());
+      redisTemplate.setValueSerializer(new JdkSerializationRedisSerializer());
+      redisTemplate.setConnectionFactory(redisConnectionFactory);
+
+      return redisTemplate;
+    }
+
+    @Bean
+    RedisMessageSubscriber redisMessageSubscriber(ActorEventSink actorEventSink, NodeStatus nodeStatus){
+      return new RedisMessageSubscriber(actorEventSink, nodeStatus);
+    }
+
+    @Bean
+    public MessageListenerAdapter messageListenerAdapter(ActorEventSink actorEventSink, NodeStatus nodeStatus){
+      return new MessageListenerAdapter(redisMessageSubscriber(actorEventSink, nodeStatus));
+    }
+
+    @Bean
+    public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory redisConnectionFactory, ActorEventSink actorEventSink, NodeStatus nodeStatus){
+      RedisMessageListenerContainer redisMessageListenerContainer = new RedisMessageListenerContainer();
+
+      redisMessageListenerContainer.setConnectionFactory(redisConnectionFactory);
+      redisMessageListenerContainer.addMessageListener(redisMessageSubscriber(actorEventSink, nodeStatus), channelTopic());
+
+      return redisMessageListenerContainer;
+    }
+
+    @Bean
+    MessagePublisher redisMessagePublisher(RedisTemplate<String, Object> redisTemplate){
+      return new RedisMessagePublisher(redisTemplate, channelTopic());
+    }
+
+    @Bean
+    ChannelTopic channelTopic(){
+      if(logger.isDebugEnabled()) {
+        logger.debug("build channel topic = [{}]", topic);
+      }
+      return new ChannelTopic(topic);
+    }
   }
 
 }
