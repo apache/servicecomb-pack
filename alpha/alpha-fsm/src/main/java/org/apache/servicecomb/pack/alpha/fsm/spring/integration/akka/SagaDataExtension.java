@@ -39,8 +39,6 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   public static final SagaDataExtension SAGA_DATA_EXTENSION_PROVIDER = new SagaDataExtension();
-  //TODO We could use test profile the enable this kind feature
-  public static boolean autoCleanSagaDataMap = true; // Only for Test
 
   @Override
   public SagaDataExt createExtension(ExtendedActorSystem system) {
@@ -48,30 +46,18 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
   }
 
   public static class SagaDataExt implements Extension {
-
+    private SagaData lastSagaData;
     private final ConcurrentHashMap<String, SagaData> sagaDataMap = new ConcurrentHashMap();
-    private String lastGlobalTxId;
-    private CleanMemForTest cleanMemForTest = new CleanMemForTest(sagaDataMap);
     private MetricsService metricsService;
     private TransactionRepositoryChannel repositoryChannel;
 
-    public SagaDataExt() {
-      // Just to avoid the overflow of the OldGen for stress testing
-      // Delete after SagaData persistence
-      if (autoCleanSagaDataMap) {
-        new Thread(cleanMemForTest).start();
-      }
-    }
-
     public void putSagaData(String globalTxId, SagaData sagaData) {
-      lastGlobalTxId = globalTxId;
       sagaDataMap.put(globalTxId, sagaData);
+      lastSagaData = sagaData;
     }
 
     public void stopSagaData(String globalTxId, SagaData sagaData) {
-      // TODO save SagaDate to database and clean sagaDataMap
       this.putSagaData(globalTxId, sagaData);
-      lastGlobalTxId = globalTxId;
       if (sagaData.getLastState() == SagaActorState.COMMITTED) {
         this.metricsService.metrics().doCommitted();
       } else if (sagaData.getLastState() == SagaActorState.COMPENSATED) {
@@ -102,22 +88,17 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
           .events(sagaData.getEvents())
           .build();
       repositoryChannel.send(record);
+      sagaDataMap.remove(globalTxId);
     }
 
-    public SagaData getSagaData(String globalTxId) {
-      // TODO If globalTxId does not exist in sagaDataMap then
-      //  load from the database
-      return sagaDataMap.get(globalTxId);
+    // Only for Test
+    public SagaData getLastSagaDate() {
+      return lastSagaData;
     }
 
-    // Only test
-    public void clearSagaData() {
-      lastGlobalTxId = null;
-      sagaDataMap.clear();
-    }
-
-    public SagaData getLastSagaData() {
-      return getSagaData(lastGlobalTxId);
+    // Only for Test
+    public void cleanLastSagaData() {
+      lastSagaData = null;
     }
 
     public void doSagaBeginCounter() {
@@ -140,32 +121,6 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
     public void setRepositoryChannel(
         TransactionRepositoryChannel repositoryChannel) {
       this.repositoryChannel = repositoryChannel;
-    }
-  }
-
-  static class CleanMemForTest implements Runnable {
-
-    final ConcurrentHashMap<String, SagaData> sagaDataMap;
-
-    public CleanMemForTest(ConcurrentHashMap<String, SagaData> sagaDataMap) {
-      this.sagaDataMap = sagaDataMap;
-    }
-
-    @Override
-    public void run() {
-      while (true) {
-        try {
-          sagaDataMap.clear();
-        } catch (Exception e) {
-          LOG.error(e.getMessage(), e);
-        } finally {
-          try {
-            Thread.sleep(10000);
-          } catch (InterruptedException e) {
-            LOG.error(e.getMessage(), e);
-          }
-        }
-      }
     }
   }
 }
