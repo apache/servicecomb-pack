@@ -786,13 +786,10 @@ Alpha instance can register to the discovery service, Omega obtains Alpha's inst
 
 Alpha can be highly available by deploying multiple instances, enable cluster support with the `alpha.cluster.master.enabled=true` parameter.
 
-<<<<<<< HEAD
-
-
 [src-TransactionClientHttpRequestInterceptor]: ../omega/omega-transport/omega-transport-resttemplate/src/main/java/org/apache/servicecomb/pack/omega/transport/resttemplate/TransactionClientHttpRequestInterceptor.java
 [src-TransactionHandlerInterceptor]: ../omega/omega-transport/omega-transport-resttemplate/src/main/java/org/apache/servicecomb/pack/omega/transport/resttemplate/TransactionHandlerInterceptor.java
-=======
+
+
 ## Experiment
 
 [Alpha State Machine Mode](fsm/how_to_use_fsm_zh.md)
->>>>>>> 2af60216... SCB-1369 Update FSM documents
