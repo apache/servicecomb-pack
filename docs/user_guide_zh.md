@@ -21,17 +21,17 @@ $ cd servicecomb-pack
 Saga可通过以下任一方式进行构建：
 * 只构建可执行文件：
    ```bash
-   $ mvn clean install -DskipTests -Pspring-boot-2
+   $ mvn clean install -DskipTests
    ```
 
 * 同时构建可执行文件和docker镜像：
    ```bash
-   $ mvn clean install -DskipTests -Pdocker,spring-boot-2
+   $ mvn clean install -DskipTests -Pdocker
    ```
 
 * 同时构建可执行文件以及Saga发行包
    ```bash
-      $ mvn clean install -DskipTests -Prelease,spring-boot-2
+      $ mvn clean install -DskipTests -Prelease
    ```
    
 
@@ -317,8 +317,6 @@ public void bar(BarCommandWithTxContext cmdWithTxContext) {
 
 ### Consul 支持
 
-当前版本支持 Spring Cloud Consul 2.x，你可以使用 `-Pspring-boot-1` 参数重新编译支持 Spring Cloud Consul 1.x 版本
-
 1. 运行alpha
 
    运行时增加 `spring.cloud.consul.enabled=true` 参数
@@ -424,8 +422,6 @@ public void bar(BarCommandWithTxContext cmdWithTxContext) {
 
 ### Spring Cloud Eureka支持
 
-当前版本支持 Spring Cloud Netflix 2.x，你可以使用 `-Pspring-boot-1` 参数重新编译支持 Spring Cloud Netflix 1.x 版本
-
 1. 编译 eureka 的版本
 
    使用 `-Pspring-cloud-eureka` 参数编译支持 eureka 的版本
@@ -433,7 +429,7 @@ public void bar(BarCommandWithTxContext cmdWithTxContext) {
    ```bash
    git clone https://github.com/apache/servicecomb-pack.git
    cd servicecomb-pack
-   mvn clean install -DskipTests=true -Pspring-boot-2,spring-cloud-eureka
+   mvn clean install -DskipTests=true -Pspring-cloud-eureka
    ```
 
 2. 运行alpha
@@ -534,8 +530,6 @@ public void bar(BarCommandWithTxContext cmdWithTxContext) {
    **注意:** 如果你在启动Alpha的时候通过命令行参数`spring.application.name`自定义了服务名，那么你需要在Omega中通过参数`alpha.cluster.serviceId`指定这个服务名
 
 ### Spring Cloud Zookeeper 支持
-
-当前版本支持 Spring Cloud Zookeeper 2.x，你可以使用 `-Pspring-boot-1` 参数重新编译支持 Spring Cloud Zookeeper 1.x 版本
 
 1. 运行alpha
 
@@ -660,8 +654,6 @@ public void bar(BarCommandWithTxContext cmdWithTxContext) {
    **注意:** 如果你在启动Alpha的时候通过命令行参数`spring.application.name`自定义了服务名，那么你需要在Omega中通过参数`alpha.cluster.serviceId`指定这个服务名
 
 ### Spring Cloud Nacos Discovery 支持
-
-当前版本支持 Spring Cloud Nacos Discovery 0.2.x，你可以使用 `-Pspring-boot-1` 参数重新编译支持 Spring Cloud Nacos Discovery 0.1.x 版本
 
 1. 运行alpha
 
