@@ -28,7 +28,7 @@ import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
 import org.apache.servicecomb.pack.alpha.fsm.TransactionType;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.repository.elasticsearch.ElasticsearchTransactionRepository;
-import org.apache.servicecomb.pack.alpha.fsm.repository.model.GloablTransaction;
+import org.apache.servicecomb.pack.alpha.fsm.repository.model.GlobalTransaction;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,7 +57,7 @@ public class ElasticsearchTransactionRepositoryTest {
     int size = 100;
     for (int i = 0; i < size; i++) {
       final String globalTxId = UUID.randomUUID().toString();
-      GloablTransaction transaction = GloablTransaction.builder()
+      GlobalTransaction transaction = GlobalTransaction.builder()
           .type(TransactionType.SAGA)
           .serviceName("serviceName")
           .instanceId("instanceId")
@@ -87,7 +87,7 @@ public class ElasticsearchTransactionRepositoryTest {
         metricsService, batchSize, refreshTime * 1000);
     for (int i = 0; i < size; i++) {
       final String globalTxId = UUID.randomUUID().toString();
-      GloablTransaction transaction = GloablTransaction.builder()
+      GlobalTransaction transaction = GlobalTransaction.builder()
           .type(TransactionType.SAGA)
           .serviceName("serviceName")
           .instanceId("instanceId")
@@ -116,7 +116,7 @@ public class ElasticsearchTransactionRepositoryTest {
         metricsService, batchSize, refreshTime * 1000);
     for (int i = 0; i < size; i++) {
       final String globalTxId = UUID.randomUUID().toString();
-      GloablTransaction transaction = GloablTransaction.builder()
+      GlobalTransaction transaction = GlobalTransaction.builder()
           .type(TransactionType.SAGA)
           .serviceName("serviceName")
           .instanceId("instanceId")
