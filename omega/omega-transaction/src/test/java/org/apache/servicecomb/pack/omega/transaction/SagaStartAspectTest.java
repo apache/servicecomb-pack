@@ -80,6 +80,8 @@ public class SagaStartAspectTest {
     when(idGenerator.nextId()).thenReturn(globalTxId);
     when(joinPoint.getSignature()).thenReturn(methodSignature);
     when(methodSignature.getMethod()).thenReturn(this.getClass().getDeclaredMethod("doNothing"));
+    // setup the default value of SagaStart
+    when(sagaStart.sendingSagaEnd()).thenReturn(true);
   }
 
   @Test
@@ -101,6 +103,25 @@ public class SagaStartAspectTest {
     assertThat(endedEvent.localTxId(), is(globalTxId));
     assertThat(endedEvent.parentTxId(), is(nullValue()));
     assertThat(endedEvent.type(), is(EventType.SagaEndedEvent));
+
+    assertThat(omegaContext.globalTxId(), is(nullValue()));
+    assertThat(omegaContext.localTxId(), is(nullValue()));
+  }
+
+  @Test
+  public void dontSendingSagaEndMessage() throws Throwable {
+    when(sagaStart.sendingSagaEnd()).thenReturn(false);
+    omegaContext = new OmegaContext(idGenerator);
+    aspect = new SagaStartAspect(sender, omegaContext);
+
+    aspect.advise(joinPoint, sagaStart);
+    assertThat(messages.size(), is(1));
+    TxEvent startedEvent = messages.get(0);
+
+    assertThat(startedEvent.globalTxId(), is(globalTxId));
+    assertThat(startedEvent.localTxId(), is(globalTxId));
+    assertThat(startedEvent.parentTxId(), is(nullValue()));
+    assertThat(startedEvent.type(), is(EventType.SagaStartedEvent));
 
     assertThat(omegaContext.globalTxId(), is(nullValue()));
     assertThat(omegaContext.localTxId(), is(nullValue()));
