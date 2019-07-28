@@ -76,6 +76,16 @@
       <artifactId>postgresql</artifactId>
       <scope>runtime</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>${log4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.lmax</groupId>
+      <artifactId>disruptor</artifactId>
+      <version>3.3.7</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -118,27 +128,4 @@
       </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>spring-boot-2</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <!-- Need to add the dependency of log4j2 core -->
-      <dependencies>
-        <dependency>
-          <groupId>org.apache.logging.log4j</groupId>
-          <artifactId>log4j-core</artifactId>
-          <version>${log4j.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>com.lmax</groupId>
-          <artifactId>disruptor</artifactId>
-          <version>3.3.7</version>
-        </dependency>
-    </dependencies>
-    </profile>
-  </profiles>
-
 </project>

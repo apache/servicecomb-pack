@@ -7,7 +7,7 @@
 
 ```bash
 git clone -b SCB-1321 git@github.com:apache/servicecomb-pack.git
-mvn clean install -DskipTests=true -Pdemo,spring-boot-2
+mvn clean install -DskipTests=true -Pdemo
 ```
 
 ## Unit Tests

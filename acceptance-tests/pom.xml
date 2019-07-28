@@ -42,6 +42,7 @@
 
   <properties>
     <cucumber.version>2.3.1</cucumber.version>
+    <info.service.uri>/actuator/info</info.service.uri>
   </properties>
 
   <dependencies>
@@ -98,22 +99,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <profiles>
-    <profile>
-      <id>spring-boot-1</id>
-      <properties>
-        <info.service.uri>/info</info.service.uri>
-      </properties>
-    </profile>
-    <profile>
-      <id>spring-boot-2</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <properties>
-        <info.service.uri>/actuator/info</info.service.uri>
-      </properties>
-    </profile>
-  </profiles>
 </project>
