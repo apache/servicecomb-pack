@@ -32,11 +32,20 @@ public abstract class AbstractRecoveryPolicy implements RecoveryPolicy {
   public Object apply(ProceedingJoinPoint joinPoint, Compensable compensable,
       CompensableInterceptor interceptor, OmegaContext context, String parentTxId, int retries)
       throws Throwable {
+    Object result;
     if(compensable.timeout()>0){
       RecoveryPolicyTimeoutWrapper wrapper = new RecoveryPolicyTimeoutWrapper(this);
-      return wrapper.applyTo(joinPoint, compensable, interceptor, context, parentTxId, retries);
+      result = wrapper.applyTo(joinPoint, compensable, interceptor, context, parentTxId, retries);
     }else{
-      return this.applyTo(joinPoint, compensable, interceptor, context, parentTxId, retries);
+      result = this.applyTo(joinPoint, compensable, interceptor, context, parentTxId, retries);
     }
+    if (compensable.sendingSagaEnd()) {
+      // Just send out the SagaEnd event
+      // TODO we may also invoke the callback here to release some resources
+      interceptor.sendSagaEndEvent();
+    }
+    return result;
   }
+
+
 }

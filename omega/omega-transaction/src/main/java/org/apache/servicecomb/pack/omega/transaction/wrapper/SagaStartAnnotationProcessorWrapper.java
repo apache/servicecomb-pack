@@ -45,8 +45,12 @@ public class SagaStartAnnotationProcessorWrapper {
     LOG.debug("Initialized context {} before execution of method {}", context, method.toString());
     try {
       Object result = joinPoint.proceed();
-      sagaStartAnnotationProcessor.postIntercept(context.globalTxId());
-      LOG.debug("Transaction with context {} has finished.", context);
+      if (sagaStart.sendingSagaEnd()) {
+        sagaStartAnnotationProcessor.postIntercept(context.globalTxId());
+        LOG.debug("Transaction with context {} has finished.", context);
+      } else {
+        LOG.debug("Transaction with context {} is not finished in the SagaStarted annotated method.", context);
+      }
       return result;
     } catch (Throwable throwable) {
       // We don't need to handle the OmegaException here
