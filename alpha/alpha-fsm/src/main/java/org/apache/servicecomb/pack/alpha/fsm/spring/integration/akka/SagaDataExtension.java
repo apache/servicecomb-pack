@@ -28,7 +28,7 @@ import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
 import org.apache.servicecomb.pack.alpha.fsm.TransactionType;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
-import org.apache.servicecomb.pack.alpha.fsm.repository.model.GloablTransaction;
+import org.apache.servicecomb.pack.alpha.fsm.repository.model.GlobalTransaction;
 import org.apache.servicecomb.pack.alpha.fsm.repository.model.SagaSubTransaction;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepositoryChannel;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension.SagaDataExt;
@@ -75,7 +75,7 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
             .state(v.getState())
             .build());
       });
-      GloablTransaction record = GloablTransaction.builder()
+      GlobalTransaction record = GlobalTransaction.builder()
           .type(TransactionType.SAGA)
           .serviceName(sagaData.getServiceName())
           .instanceId(sagaData.getInstanceId())

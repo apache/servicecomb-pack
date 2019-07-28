@@ -21,7 +21,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.repository.AbstractTransactionRepositoryChannel;
-import org.apache.servicecomb.pack.alpha.fsm.repository.model.GloablTransaction;
+import org.apache.servicecomb.pack.alpha.fsm.repository.model.GlobalTransaction;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,21 +29,21 @@ import org.slf4j.LoggerFactory;
 public class MemoryTransactionRepositoryChannel extends AbstractTransactionRepositoryChannel {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private final LinkedBlockingQueue<GloablTransaction> gloablTransactionQueue;
+  private final LinkedBlockingQueue<GlobalTransaction> globalTransactionQueue;
   private int size;
 
   public MemoryTransactionRepositoryChannel(TransactionRepository repository, int size,
       MetricsService metricsService) {
     super(repository, metricsService);
     this.size = size > 0 ? size : Integer.MAX_VALUE;
-    gloablTransactionQueue = new LinkedBlockingQueue(this.size);
+    globalTransactionQueue = new LinkedBlockingQueue(this.size);
     new Thread(new GloablTransactionConsumer(), "MemoryTransactionRepositoryChannel").start();
   }
 
   @Override
-  public void sendTo(GloablTransaction transaction) {
+  public void sendTo(GlobalTransaction transaction) {
     try {
-      gloablTransactionQueue.put(transaction);
+      globalTransactionQueue.put(transaction);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -55,10 +55,10 @@ public class MemoryTransactionRepositoryChannel extends AbstractTransactionRepos
     public void run() {
       while (true) {
         try {
-          GloablTransaction transaction = gloablTransactionQueue.peek();
+          GlobalTransaction transaction = globalTransactionQueue.peek();
           if (transaction != null) {
             repository.send(transaction);
-            gloablTransactionQueue.poll();
+            globalTransactionQueue.poll();
           } else {
             Thread.sleep(10);
           }

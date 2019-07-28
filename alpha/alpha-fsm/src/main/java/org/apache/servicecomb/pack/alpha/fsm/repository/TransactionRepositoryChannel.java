@@ -17,8 +17,8 @@
 
 package org.apache.servicecomb.pack.alpha.fsm.repository;
 
-import org.apache.servicecomb.pack.alpha.fsm.repository.model.GloablTransaction;
+import org.apache.servicecomb.pack.alpha.fsm.repository.model.GlobalTransaction;
 
 public interface TransactionRepositoryChannel {
-  void send(GloablTransaction transaction);
+  void send(GlobalTransaction transaction);
 }

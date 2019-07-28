@@ -18,14 +18,14 @@
 package org.apache.servicecomb.pack.alpha.fsm.repository;
 
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
-import org.apache.servicecomb.pack.alpha.fsm.repository.model.GloablTransaction;
+import org.apache.servicecomb.pack.alpha.fsm.repository.model.GlobalTransaction;
 
 public abstract class AbstractTransactionRepositoryChannel implements TransactionRepositoryChannel {
 
   protected final MetricsService metricsService;
   protected final TransactionRepository repository;
 
-  public abstract void sendTo(GloablTransaction transaction);
+  public abstract void sendTo(GlobalTransaction transaction);
 
   public AbstractTransactionRepositoryChannel(
       TransactionRepository repository,
@@ -34,7 +34,7 @@ public abstract class AbstractTransactionRepositoryChannel implements Transactio
     this.metricsService = metricsService;
   }
 
-  public void send(GloablTransaction transaction) {
+  public void send(GlobalTransaction transaction) {
     this.sendTo(transaction);
   }
 
