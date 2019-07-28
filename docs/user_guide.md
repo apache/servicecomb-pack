@@ -22,17 +22,17 @@ $ cd servicecomb-pack
 Saga can be built in either of the following ways.
 * Only build the executable files.
    ```bash
-   $ mvn clean install -DskipTests -Pspring-boot-2
+   $ mvn clean install -DskipTests
    ```
 
 * build the executable files along with docker image.
    ```bash
-   $ mvn clean install -DskipTests -Pdocker,spring-boot-2
+   $ mvn clean install -DskipTests -Pdocker
    ```
    
 * build the executable file and saga-distribution
    ```bash
-      $ mvn clean install -DskipTests -Prelease,spring-boot-2
+      $ mvn clean install -DskipTests -Prelease
    ```
 
 After executing either one of the above command, you will find alpha server's executable file in `alpha/alpha-server/target/saga/alpha-server-${version}-exec.jar`.
@@ -313,8 +313,6 @@ Alpha instance can register to the discovery service, Omega obtains Alpha's inst
 
 ### Consul
 
-Uses Spring Cloud Consul 2.x by default, if you want to use Spring Cloud Consul 1.x, you can use `-Pspring-boot-1` to switch Spring Cloud Consul 1.x
-
 1. run alpha
 
    run with parameter `spring.cloud.consul.enabled=true`
@@ -424,8 +422,6 @@ Uses Spring Cloud Consul 2.x by default, if you want to use Spring Cloud Consul 
 
 ### Spring Cloud Eureka
 
-Uses Spring Cloud Netflix 2.x by default, if you want to use Spring Cloud Netflix 1.x, you can use `-Pspring-boot-1` to switch Spring Cloud Netflix 1.x
-
 1. build version of eureka
 
    build the version support eureka with the  `-Pspring-cloud-eureka`  parameter
@@ -433,7 +429,7 @@ Uses Spring Cloud Netflix 2.x by default, if you want to use Spring Cloud Netfli
    ```bash
    git clone https://github.com/apache/servicecomb-pack.git
    cd servicecomb-pack
-   mvn clean install -DskipTests=true -Pspring-boot-2,spring-cloud-eureka
+   mvn clean install -DskipTests=true -Pspring-cloud-eureka
    ```
 
 2. run alpha
@@ -535,8 +531,6 @@ Uses Spring Cloud Netflix 2.x by default, if you want to use Spring Cloud Netfli
    **Note:** If you define `spring.application.name ` parameter when start alpha,  You need to specify this service name in Omega via the parameter `alpha.cluster.serviceId`
 
 ### Spring Cloud Zookeeper
-
-Uses Spring Cloud Zookeeper 2.x by default, if you want to use Spring Cloud Zookeeper 1.x, you can use `-Pspring-boot-1` to switch Spring Cloud Zookeeper 1.x
 
 1. run alpha
 
@@ -667,8 +661,6 @@ Uses Spring Cloud Zookeeper 2.x by default, if you want to use Spring Cloud Zook
 
 
 ### Spring Cloud Nacos Discovery
-
-Uses Spring Cloud Nacos Discovery 0.2.x by default, if you want to use Spring Cloud Nacos Discovery 0.1.x, you can use `-Pspring-boot-1` to switch Spring Cloud Nacos Discovery 0.1.x
 
 1. run alpha
 

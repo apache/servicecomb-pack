@@ -257,29 +257,6 @@
       </build>
     </profile>
     <profile>
-      <id>spring-boot-2</id>
-      <!-- Specify the alpha spring boot starter with the profile-->
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.apache.servicecomb.pack</groupId>
-          <artifactId>alpha-spring-boot-starter-2</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>spring-boot-1</id>
-      <!-- Specify the alpha spring boot starter with the profile-->
-      <dependencies>
-        <dependency>
-          <groupId>org.apache.servicecomb.pack</groupId>
-          <artifactId>alpha-spring-boot-starter-1</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
       <id>spring-cloud-eureka</id>
       <!-- Specify the alpha spring boot starter with the profile-->
       <dependencies>
