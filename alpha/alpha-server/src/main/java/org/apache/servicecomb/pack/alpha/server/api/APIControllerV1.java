@@ -18,7 +18,7 @@
 package org.apache.servicecomb.pack.alpha.server.api;
 
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
-import org.apache.servicecomb.pack.alpha.fsm.repository.model.GloablTransaction;
+import org.apache.servicecomb.pack.alpha.fsm.repository.model.GlobalTransaction;
 import org.apache.servicecomb.pack.alpha.fsm.repository.model.PagingGloablTransactions;
 import org.apache.servicecomb.pack.alpha.server.metrics.AlphaMetrics;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,11 +45,11 @@ public class APIControllerV1 {
   }
 
   @GetMapping(value = "/transaction/{globalTxId}")
-  ResponseEntity<GloablTransaction> getTransactionByGlobalTxId(@PathVariable String globalTxId)
+  ResponseEntity<GlobalTransaction> getTransactionByGlobalTxId(@PathVariable String globalTxId)
       throws Exception {
-    GloablTransaction gloablTransaction = transactionRepository
+    GlobalTransaction globalTransaction = transactionRepository
         .getGloablTransactionByGlobalTxId(globalTxId);
-    return ResponseEntity.ok(gloablTransaction);
+    return ResponseEntity.ok(globalTransaction);
   }
 
   @GetMapping(value = "/transaction")

@@ -26,7 +26,7 @@ import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
 import org.apache.servicecomb.pack.alpha.fsm.TransactionType;
 import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
 
-public class GloablTransaction {
+public class GlobalTransaction {
   private String globalTxId;
   private TransactionType type;
   private String serviceName;
@@ -153,26 +153,26 @@ public class GloablTransaction {
       return this;
     }
 
-    public GloablTransaction build() {
-      GloablTransaction gloablTransaction = new GloablTransaction();
-      gloablTransaction.instanceId = this.instanceId;
-      gloablTransaction.state = this.state;
-      gloablTransaction.type = this.type;
-      gloablTransaction.serviceName = this.serviceName;
-      gloablTransaction.beginTime = this.beginTime;
-      gloablTransaction.endTime = this.endTime;
-      gloablTransaction.globalTxId = this.globalTxId;
-      gloablTransaction.subTxSize = this.subTxSize;
-      gloablTransaction.durationTime = this.endTime.getTime() - this.beginTime.getTime();
-      gloablTransaction.subTransactions = this.subTransactions;
+    public GlobalTransaction build() {
+      GlobalTransaction globalTransaction = new GlobalTransaction();
+      globalTransaction.instanceId = this.instanceId;
+      globalTransaction.state = this.state;
+      globalTransaction.type = this.type;
+      globalTransaction.serviceName = this.serviceName;
+      globalTransaction.beginTime = this.beginTime;
+      globalTransaction.endTime = this.endTime;
+      globalTransaction.globalTxId = this.globalTxId;
+      globalTransaction.subTxSize = this.subTxSize;
+      globalTransaction.durationTime = this.endTime.getTime() - this.beginTime.getTime();
+      globalTransaction.subTransactions = this.subTransactions;
       for(BaseEvent event : events){
         try {
-          gloablTransaction.events.add(event.toMap());
+          globalTransaction.events.add(event.toMap());
         } catch (Exception e) {
           new RuntimeException(e.getMessage(),e);
         }
       }
-      return gloablTransaction;
+      return globalTransaction;
     }
   }
 }

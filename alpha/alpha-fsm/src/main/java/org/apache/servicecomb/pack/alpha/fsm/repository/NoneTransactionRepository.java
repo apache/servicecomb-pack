@@ -18,7 +18,7 @@
 package org.apache.servicecomb.pack.alpha.fsm.repository;
 
 import java.lang.invoke.MethodHandles;
-import org.apache.servicecomb.pack.alpha.fsm.repository.model.GloablTransaction;
+import org.apache.servicecomb.pack.alpha.fsm.repository.model.GlobalTransaction;
 import org.apache.servicecomb.pack.alpha.fsm.repository.model.PagingGloablTransactions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +28,12 @@ public class NoneTransactionRepository implements TransactionRepository {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
-  public void send(GloablTransaction transaction) {
+  public void send(GlobalTransaction transaction) {
     LOG.warn("Please configure alpha.feature.akka.transaction.repository.type=elasticsearch to use elasticsearch to persist transaction data.");
   }
 
   @Override
-  public GloablTransaction getGloablTransactionByGlobalTxId(String globalTxId){
+  public GlobalTransaction getGloablTransactionByGlobalTxId(String globalTxId){
     throw new UnsupportedOperationException("NoneTransactionRepository Unsupported!");
   }
 

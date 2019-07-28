@@ -24,11 +24,11 @@ public class PagingGloablTransactions {
     return elapsed;
   }
 
-  public List<GloablTransaction> getGloablTransactions() {
-    return gloablTransactions;
+  public List<GlobalTransaction> getGlobalTransactions() {
+    return globalTransactions;
   }
 
-  private List<GloablTransaction> gloablTransactions;
+  private List<GlobalTransaction> globalTransactions;
 
   public static Builder builder() {
     return new Builder();
@@ -40,7 +40,7 @@ public class PagingGloablTransactions {
     private int page;
     private int size;
     private long elapsed;
-    private List<GloablTransaction> gloablTransactions;
+    private List<GlobalTransaction> globalTransactions;
 
     private Builder() {
     }
@@ -65,15 +65,15 @@ public class PagingGloablTransactions {
       return this;
     }
 
-    public Builder gloablTransactions(List<GloablTransaction> gloablTransactions) {
-      this.gloablTransactions = gloablTransactions;
+    public Builder gloablTransactions(List<GlobalTransaction> globalTransactions) {
+      this.globalTransactions = globalTransactions;
       return this;
     }
 
     public PagingGloablTransactions build() {
       PagingGloablTransactions pagingGloablTransactions = new PagingGloablTransactions();
       pagingGloablTransactions.total = this.total;
-      pagingGloablTransactions.gloablTransactions = this.gloablTransactions;
+      pagingGloablTransactions.globalTransactions = this.globalTransactions;
       pagingGloablTransactions.page = this.page;
       pagingGloablTransactions.size = this.size;
       pagingGloablTransactions.elapsed = this.elapsed;

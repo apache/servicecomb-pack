@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
-import org.apache.servicecomb.pack.alpha.fsm.repository.model.GloablTransaction;
+import org.apache.servicecomb.pack.alpha.fsm.repository.model.GlobalTransaction;
 import org.apache.servicecomb.pack.alpha.fsm.repository.model.PagingGloablTransactions;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -76,7 +76,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
   }
 
   @Override
-  public void send(GloablTransaction transaction) throws Exception {
+  public void send(GlobalTransaction transaction) throws Exception {
     long begin = System.currentTimeMillis();
     queries.add(convert(transaction));
     batchSizeCounter++;
@@ -91,7 +91,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
   }
 
   @Override
-  public GloablTransaction getGloablTransactionByGlobalTxId(String globalTxId) {
+  public GlobalTransaction getGloablTransactionByGlobalTxId(String globalTxId) {
     GetQuery getQuery = new GetQuery();
     getQuery.setId(globalTxId);
     GloablTransactionDocument gloablTransaction = this.template
@@ -102,7 +102,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
   @Override
   public PagingGloablTransactions getGloablTransactions(int page, int size) {
     long start = System.currentTimeMillis();
-    List<GloablTransaction> gloablTransactions = new ArrayList();
+    List<GlobalTransaction> globalTransactions = new ArrayList();
     SearchQuery searchQuery = new NativeSearchQueryBuilder()
         .withIndices(INDEX_NAME)
         .withTypes(INDEX_TYPE)
@@ -122,7 +122,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
         pageCursor++;
       } else {
         for (GloablTransactionDocument dto : scroll.getContent()) {
-          gloablTransactions.add(dto);
+          globalTransactions.add(dto);
         }
         break;
       }
@@ -130,7 +130,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
     LOG.info("Query total hits {}, return page {}, size {}", scroll.getTotalElements(), page, size);
     this.template.clearScroll(scroll.getScrollId());
     return PagingGloablTransactions.builder().page(page).size(size).total(scroll.getTotalElements())
-        .gloablTransactions(gloablTransactions).elapsed(System.currentTimeMillis() - start).build();
+        .gloablTransactions(globalTransactions).elapsed(System.currentTimeMillis() - start).build();
   }
 
   private final SearchResultMapper searchResultMapper = new SearchResultMapper() {
@@ -161,7 +161,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
     }
   };
 
-  private IndexQuery convert(GloablTransaction transaction) throws JsonProcessingException {
+  private IndexQuery convert(GlobalTransaction transaction) throws JsonProcessingException {
     IndexQuery indexQuery = new IndexQuery();
     indexQuery.setId(transaction.getGlobalTxId());
     indexQuery.setSource(mapper.writeValueAsString(transaction));
