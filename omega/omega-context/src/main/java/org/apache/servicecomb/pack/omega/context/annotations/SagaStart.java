@@ -37,4 +37,11 @@ public @interface SagaStart {
    * @return
    */
   int timeout() default 0;
+
+  /**
+   * Sending out SagaEnd event to Alpha once the SagaStart annotated method is finished without any error.
+   * Default value is true, which means Omega sends out the SagaEnd event to Alpha once the annotated method is finished.
+   * Value is false, which means Omega never sends out the SagaEnd event to Alpha once the annotated method is finished.
+   */
+  boolean sendingSagaEnd() default true;
 }

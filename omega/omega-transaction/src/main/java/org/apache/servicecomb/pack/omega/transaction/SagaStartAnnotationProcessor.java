@@ -42,6 +42,7 @@ public class SagaStartAnnotationProcessor {
   public void postIntercept(String parentTxId) {
     AlphaResponse response = sender
         .send(new SagaEndedEvent(omegaContext.globalTxId(), omegaContext.localTxId()));
+    //TODO we may know if the transaction is aborted from fsm alpha backend
     if (response.aborted()) {
       throw new OmegaException("transaction " + parentTxId + " is aborted");
     }

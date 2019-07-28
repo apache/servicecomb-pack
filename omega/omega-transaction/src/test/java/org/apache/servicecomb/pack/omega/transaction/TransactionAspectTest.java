@@ -20,6 +20,7 @@ package org.apache.servicecomb.pack.omega.transaction;
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -110,10 +111,40 @@ public class TransactionAspectTest {
   }
 
   @Test
+  public void sendingSageEndEvent() throws Throwable {
+    when(compensable.sendingSagaEnd()).thenReturn(true);
+    aspect.advise(joinPoint, compensable);
+    assertThat(messages.size(), is(3));
+
+    TxEvent startedEvent = messages.get(0);
+
+    assertThat(startedEvent.globalTxId(), is(globalTxId));
+    assertThat(startedEvent.localTxId(), is(newLocalTxId));
+    assertThat(startedEvent.parentTxId(), is(localTxId));
+    assertThat(startedEvent.type(), is(EventType.TxStartedEvent));
+    assertThat(startedEvent.retries(), is(0));
+    assertThat(startedEvent.retryMethod().isEmpty(), is(true));
+
+    TxEvent endedEvent = messages.get(1);
+
+    assertThat(endedEvent.globalTxId(), is(globalTxId));
+    assertThat(endedEvent.localTxId(), is(newLocalTxId));
+    assertThat(endedEvent.parentTxId(), is(localTxId));
+    assertThat(endedEvent.type(), is(EventType.TxEndedEvent));
+
+    TxEvent sagaEndEvent = messages.get(2);
+    assertThat(sagaEndEvent.globalTxId(), is(globalTxId));
+    assertNull(sagaEndEvent.parentTxId());
+    assertThat(sagaEndEvent.localTxId(), is(newLocalTxId));
+    assertThat(sagaEndEvent.type(), is(EventType.SagaEndedEvent));
+  }
+
+  @Test
   public void setNewLocalTxIdCompensableWithTransactionContext() throws Throwable {
     // setup the argument class
     when(joinPoint.getArgs()).thenReturn(new Object[]{transactionContextProperties});
     aspect.advise(joinPoint, compensable);
+    assertThat(messages.size(), is(2));
     TxEvent startedEvent = messages.get(0);
 
     assertThat(startedEvent.globalTxId(), is(transactionGlobalTxId));
@@ -137,7 +168,7 @@ public class TransactionAspectTest {
   @Test
   public void newLocalTxIdInCompensable() throws Throwable {
     aspect.advise(joinPoint, compensable);
-
+    assertThat(messages.size(), is(2));
     TxEvent startedEvent = messages.get(0);
 
     assertThat(startedEvent.globalTxId(), is(globalTxId));
