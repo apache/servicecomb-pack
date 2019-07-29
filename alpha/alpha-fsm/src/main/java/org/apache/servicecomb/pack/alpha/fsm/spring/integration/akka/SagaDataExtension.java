@@ -92,7 +92,7 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
     }
 
     // Only for Test
-    public SagaData getLastSagaDate() {
+    public SagaData getLastSagaData() {
       return lastSagaData;
     }
 
