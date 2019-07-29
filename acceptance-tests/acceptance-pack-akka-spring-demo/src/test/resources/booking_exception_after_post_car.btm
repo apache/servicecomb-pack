@@ -18,7 +18,7 @@
 #
 ###############################################################
 
-RULE throw exception
+RULE booking_exception_after_post_car
 CLASS org.apache.servicecomb.pack.demo.booking.BookingController
 METHOD postCarBooking
 AT ENTRY
