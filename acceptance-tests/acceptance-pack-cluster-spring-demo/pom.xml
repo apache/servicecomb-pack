@@ -196,7 +196,7 @@
                     <env>
                       <JAVA_OPTS>
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
-                        -javaagent:/maven/saga/byteman.jar=port:9091,address:0.0.0.0,listener:true
+                        -javaagent:/maven/saga/byteman.jar=port:9092,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
                       <alpha.cluster.address>alpha-server-1.servicecomb.io:8080,alpha-server-2.servicecomb.io:8081</alpha.cluster.address>
                     </env>
@@ -205,7 +205,7 @@
                       <tcp>
                         <ports>
                           <port>8080</port>
-                          <port>9091</port>
+                          <port>9092</port>
                         </ports>
                       </tcp>
                       <time>120000</time>
@@ -216,7 +216,7 @@
                     </links>
                     <ports>
                       <port>car.port:8080</port>
-                      <port>car.byteman.port:9091</port>
+                      <port>car.byteman.port:9092</port>
                     </ports>
                     <dependsOn>
                       <container>alpha-1</container>
@@ -231,7 +231,7 @@
                     <env>
                       <JAVA_OPTS>
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
-                        -javaagent:/maven/saga/byteman.jar=port:9091,address:0.0.0.0,listener:true
+                        -javaagent:/maven/saga/byteman.jar=port:9093,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
                       <alpha.cluster.address>alpha-server-1.servicecomb.io:8080,alpha-server-2.servicecomb.io:8081</alpha.cluster.address>
                     </env>
@@ -240,7 +240,7 @@
                       <tcp>
                         <ports>
                           <port>8080</port>
-                          <port>9091</port>
+                          <port>9093</port>
                         </ports>
                       </tcp>
                       <time>120000</time>
@@ -251,7 +251,7 @@
                     </links>
                     <ports>
                       <port>hotel.port:8080</port>
-                      <port>hotel.byteman.port:9091</port>
+                      <port>hotel.byteman.port:9093</port>
                     </ports>
                     <dependsOn>
                       <container>alpha-1</container>
