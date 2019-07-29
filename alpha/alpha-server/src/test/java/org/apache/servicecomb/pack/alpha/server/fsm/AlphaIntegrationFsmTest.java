@@ -116,10 +116,10 @@ public class AlphaIntegrationFsmTest {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
     await().atMost(2, SECONDS).until(() -> {
-      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMMITTED;
     });
-    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getTxEntityMap().size(),3);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
@@ -138,10 +138,10 @@ public class AlphaIntegrationFsmTest {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
     await().atMost(2, SECONDS).until(() -> {
-      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
-    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getLastState(),SagaActorState.COMPENSATED);
     assertEquals(sagaData.getTxEntityMap().size(),1);
     assertNotNull(sagaData.getBeginTime());
@@ -160,10 +160,10 @@ public class AlphaIntegrationFsmTest {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
     await().atMost(2, SECONDS).until(() -> {
-      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
-    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getLastState(),SagaActorState.COMPENSATED);
     assertEquals(sagaData.getTxEntityMap().size(),2);
     assertNotNull(sagaData.getBeginTime());
@@ -184,10 +184,10 @@ public class AlphaIntegrationFsmTest {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
     await().atMost(2, SECONDS).until(() -> {
-      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
-    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getLastState(),SagaActorState.COMPENSATED);
     assertEquals(sagaData.getTxEntityMap().size(),3);
     assertNotNull(sagaData.getBeginTime());
@@ -210,10 +210,10 @@ public class AlphaIntegrationFsmTest {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
     await().atMost(5, SECONDS).until(() -> {
-      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
-    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getLastState(),SagaActorState.COMPENSATED);
     assertEquals(sagaData.getTxEntityMap().size(),3);
     assertNotNull(sagaData.getBeginTime());
@@ -242,10 +242,10 @@ public class AlphaIntegrationFsmTest {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
     await().atMost(5, SECONDS).until(() -> {
-      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
-    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getLastState(),SagaActorState.COMPENSATED);
     assertEquals(sagaData.getTxEntityMap().size(),3);
     assertNotNull(sagaData.getBeginTime());
@@ -267,10 +267,10 @@ public class AlphaIntegrationFsmTest {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
     await().atMost(20, SECONDS).until(() -> {
-      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
-    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getLastState(),SagaActorState.COMPENSATED);
     assertEquals(sagaData.getTxEntityMap().size(),3);
     assertNotNull(sagaData.getBeginTime());
@@ -292,10 +292,10 @@ public class AlphaIntegrationFsmTest {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
     await().atMost(2, SECONDS).until(() -> {
-      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.SUSPENDED;
     });
-    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getTxEntityMap().size(),3);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
@@ -317,10 +317,10 @@ public class AlphaIntegrationFsmTest {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
     await().atMost(timeout + 1, SECONDS).until(() -> {
-      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.SUSPENDED;
     });
-    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getTxEntityMap().size(),3);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
@@ -341,10 +341,10 @@ public class AlphaIntegrationFsmTest {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
     await().atMost(2, SECONDS).until(() -> {
-      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMMITTED;
     });
-    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getTxEntityMap().size(),3);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
@@ -365,10 +365,10 @@ public class AlphaIntegrationFsmTest {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
     await().atMost(2, SECONDS).until(() -> {
-      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMMITTED;
     });
-    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getTxEntityMap().size(),3);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
@@ -389,10 +389,10 @@ public class AlphaIntegrationFsmTest {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
     await().atMost(2, SECONDS).until(() -> {
-      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
-    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getTxEntityMap().size(),3);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
@@ -413,10 +413,10 @@ public class AlphaIntegrationFsmTest {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
     await().atMost(2, SECONDS).until(() -> {
-      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
-    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getLastState(),SagaActorState.COMPENSATED);
     assertEquals(sagaData.getTxEntityMap().size(),3);
     assertNotNull(sagaData.getBeginTime());
@@ -447,16 +447,16 @@ public class AlphaIntegrationFsmTest {
     });
     //simulate omega connected
     await().atMost(2, SECONDS).until(() -> {
-      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.getTxEntityMap().size()==3;
     });
     omegaEventSender.getOmegaCallbacks().put(serviceName[0], omegaInstance[0]);
 
     await().atMost(2, SECONDS).until(() -> {
-      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
-    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getLastState(),SagaActorState.COMPENSATED);
     assertEquals(sagaData.getTxEntityMap().size(),3);
     assertNotNull(sagaData.getBeginTime());
@@ -479,10 +479,10 @@ public class AlphaIntegrationFsmTest {
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
     await().atMost(2, SECONDS).until(() -> {
-      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
-    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getLastState(),SagaActorState.COMPENSATED);
     assertEquals(sagaData.getTxEntityMap().size(),3);
     assertNotNull(sagaData.getBeginTime());
