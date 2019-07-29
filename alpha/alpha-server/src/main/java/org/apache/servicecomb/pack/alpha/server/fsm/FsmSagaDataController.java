@@ -59,7 +59,7 @@ class FsmSagaDataController {
   ResponseEntity<Collection<Map>> events() {
     LOG.info("Get the events request");
     List<Map> eventVos = new LinkedList<>();
-    SagaData data = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaDate();
+    SagaData data = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     data.getEvents().forEach(event -> {
       Map<String,String> obj = new HashMap();
       obj.put("serviceName",event.getServiceName());
