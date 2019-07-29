@@ -18,7 +18,7 @@
 #
 ###############################################################
 
-RULE set_the_saga_timeout_to-5s
+RULE set_the_saga_timeout_to_5s
 INTERFACE org.apache.servicecomb.pack.omega.context.annotations.SagaStart
 METHOD timeout
 AT EXIT
