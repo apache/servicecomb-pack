@@ -81,7 +81,7 @@ public class SagaStartAspectTest {
     when(joinPoint.getSignature()).thenReturn(methodSignature);
     when(methodSignature.getMethod()).thenReturn(this.getClass().getDeclaredMethod("doNothing"));
     // setup the default value of SagaStart
-    when(sagaStart.sendingSagaEnd()).thenReturn(true);
+    when(sagaStart.autoClose()).thenReturn(true);
   }
 
   @Test
@@ -110,7 +110,7 @@ public class SagaStartAspectTest {
 
   @Test
   public void dontSendingSagaEndMessage() throws Throwable {
-    when(sagaStart.sendingSagaEnd()).thenReturn(false);
+    when(sagaStart.autoClose()).thenReturn(false);
     omegaContext = new OmegaContext(idGenerator);
     aspect = new SagaStartAspect(sender, omegaContext);
 
