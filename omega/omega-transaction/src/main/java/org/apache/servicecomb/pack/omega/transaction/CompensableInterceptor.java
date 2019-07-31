@@ -45,8 +45,5 @@ public class CompensableInterceptor implements EventAwareInterceptor {
     sender.send(
         new TxAbortedEvent(context.globalTxId(), context.localTxId(), parentTxId, compensationMethod, throwable));
   }
-  
-  public void sendSagaEndEvent() {
-    sender.send(new SagaEndedEvent(context.globalTxId(), context.localTxId()));
-  }
+
 }

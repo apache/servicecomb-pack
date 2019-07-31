@@ -73,10 +73,4 @@ public @interface Compensable {
    */
   int timeout() default 0;
 
-  /**
-   * Sending out SagaEnd event to Alpha once the SagaStart annotated method is finished without any error.
-   * Default value is false, which means Omega never send out the SagaEnd event to Alpha once the annotated method is finished.
-   * value is true, means this method is last compensable method need to be called, Omega will send SagaEnd event to Alpha once the method is finished.
-   */
-  boolean sendingSagaEnd() default false;
 }

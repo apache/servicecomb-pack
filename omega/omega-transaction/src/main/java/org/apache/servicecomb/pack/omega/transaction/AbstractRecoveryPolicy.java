@@ -36,13 +36,8 @@ public abstract class AbstractRecoveryPolicy implements RecoveryPolicy {
     if(compensable.timeout()>0){
       RecoveryPolicyTimeoutWrapper wrapper = new RecoveryPolicyTimeoutWrapper(this);
       result = wrapper.applyTo(joinPoint, compensable, interceptor, context, parentTxId, retries);
-    }else{
+    } else {
       result = this.applyTo(joinPoint, compensable, interceptor, context, parentTxId, retries);
-    }
-    if (compensable.sendingSagaEnd()) {
-      // Just send out the SagaEnd event
-      // TODO we may also invoke the callback here to release some resources
-      interceptor.sendSagaEndEvent();
     }
     return result;
   }

@@ -111,35 +111,6 @@ public class TransactionAspectTest {
   }
 
   @Test
-  public void sendingSageEndEvent() throws Throwable {
-    when(compensable.sendingSagaEnd()).thenReturn(true);
-    aspect.advise(joinPoint, compensable);
-    assertThat(messages.size(), is(3));
-
-    TxEvent startedEvent = messages.get(0);
-
-    assertThat(startedEvent.globalTxId(), is(globalTxId));
-    assertThat(startedEvent.localTxId(), is(newLocalTxId));
-    assertThat(startedEvent.parentTxId(), is(localTxId));
-    assertThat(startedEvent.type(), is(EventType.TxStartedEvent));
-    assertThat(startedEvent.retries(), is(0));
-    assertThat(startedEvent.retryMethod().isEmpty(), is(true));
-
-    TxEvent endedEvent = messages.get(1);
-
-    assertThat(endedEvent.globalTxId(), is(globalTxId));
-    assertThat(endedEvent.localTxId(), is(newLocalTxId));
-    assertThat(endedEvent.parentTxId(), is(localTxId));
-    assertThat(endedEvent.type(), is(EventType.TxEndedEvent));
-
-    TxEvent sagaEndEvent = messages.get(2);
-    assertThat(sagaEndEvent.globalTxId(), is(globalTxId));
-    assertNull(sagaEndEvent.parentTxId());
-    assertThat(sagaEndEvent.localTxId(), is(newLocalTxId));
-    assertThat(sagaEndEvent.type(), is(EventType.SagaEndedEvent));
-  }
-
-  @Test
   public void setNewLocalTxIdCompensableWithTransactionContext() throws Throwable {
     // setup the argument class
     when(joinPoint.getArgs()).thenReturn(new Object[]{transactionContextProperties});
