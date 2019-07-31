@@ -45,7 +45,7 @@ public class SagaStartAnnotationProcessorWrapper {
     LOG.debug("Initialized context {} before execution of method {}", context, method.toString());
     try {
       Object result = joinPoint.proceed();
-      if (sagaStart.sendingSagaEnd()) {
+      if (sagaStart.autoClose()) {
         sagaStartAnnotationProcessor.postIntercept(context.globalTxId());
         LOG.debug("Transaction with context {} has finished.", context);
       } else {
