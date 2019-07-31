@@ -18,22 +18,32 @@
 package org.apache.servicecomb.pack.alpha.fsm.channel;
 
 import java.lang.invoke.MethodHandles;
-import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
+
+import org.apache.servicecomb.pack.alpha.fsm.channel.kafka.KafkaMessagePublisher;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
-import org.apache.servicecomb.pack.alpha.fsm.sink.ActorEventSink;
+import org.apache.servicecomb.pack.alpha.core.fsm.sink.ActorEventSink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class KafkaActorEventChannel extends AbstractActorEventChannel {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+  private KafkaMessagePublisher kafkaMessagePublisher;
+
   public KafkaActorEventChannel(
-      ActorEventSink actorEventSink, MetricsService metricsService) {
+      ActorEventSink actorEventSink, MetricsService metricsService,
+      KafkaMessagePublisher kafkaMessagePublisher) {
     super(actorEventSink, metricsService);
+    this.kafkaMessagePublisher = kafkaMessagePublisher;
   }
 
   @Override
   public void sendTo(BaseEvent event){
-    throw new UnsupportedOperationException("Doesn't implement yet!");
+      if(LOG.isDebugEnabled()){
+        LOG.debug("sendTo message = [{}]", event);
+      }
+
+      kafkaMessagePublisher.publish(event);
   }
 }

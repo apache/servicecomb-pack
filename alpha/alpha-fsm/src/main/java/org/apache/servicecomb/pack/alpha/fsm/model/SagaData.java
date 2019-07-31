@@ -19,7 +19,6 @@ package org.apache.servicecomb.pack.alpha.fsm.model;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.servicecomb.pack.alpha.core.fsm.PackSagaEvent;
 import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
-import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 
 public class SagaData implements Serializable {
   private String serviceName;

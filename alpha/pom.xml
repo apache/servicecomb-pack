@@ -33,6 +33,8 @@
   <modules>
     <module>alpha-core</module>
     <module>alpha-fsm</module>
+    <module>alpha-fsm-redis</module>
+    <module>alpha-fsm-kafka</module>
     <module>alpha-benchmark</module>
     <module>alpha-spring-cloud-starter-eureka</module>
     <module>alpha-spring-cloud-starter-consul</module>

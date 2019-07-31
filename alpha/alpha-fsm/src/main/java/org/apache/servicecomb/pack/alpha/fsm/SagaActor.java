@@ -30,15 +30,15 @@ import org.apache.servicecomb.pack.alpha.fsm.domain.DomainEvent;
 import org.apache.servicecomb.pack.alpha.fsm.domain.SagaEndedDomain;
 import org.apache.servicecomb.pack.alpha.fsm.domain.SagaStartedDomain;
 import org.apache.servicecomb.pack.alpha.fsm.domain.UpdateTxEventDomain;
-import org.apache.servicecomb.pack.alpha.fsm.event.SagaAbortedEvent;
-import org.apache.servicecomb.pack.alpha.fsm.event.SagaEndedEvent;
-import org.apache.servicecomb.pack.alpha.fsm.event.SagaStartedEvent;
-import org.apache.servicecomb.pack.alpha.fsm.event.SagaTimeoutEvent;
-import org.apache.servicecomb.pack.alpha.fsm.event.TxAbortedEvent;
-import org.apache.servicecomb.pack.alpha.fsm.event.TxCompensatedEvent;
-import org.apache.servicecomb.pack.alpha.fsm.event.internal.ComponsitedCheckEvent;
-import org.apache.servicecomb.pack.alpha.fsm.event.TxEndedEvent;
-import org.apache.servicecomb.pack.alpha.fsm.event.TxStartedEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.SagaAbortedEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.SagaEndedEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.SagaStartedEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.SagaTimeoutEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.TxAbortedEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.TxCompensatedEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.internal.ComponsitedCheckEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.TxEndedEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.TxStartedEvent;
 import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
 import org.apache.servicecomb.pack.alpha.fsm.model.TxEntity;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension;
@@ -279,7 +279,7 @@ public class SagaActor extends
     );
 
     when(SagaActorState.COMMITTED,
-        matchEvent(org.apache.servicecomb.pack.alpha.fsm.event.internal.StopEvent.class,
+        matchEvent(org.apache.servicecomb.pack.alpha.core.fsm.event.internal.StopEvent.class,
             (event, data) -> {
               //  已经停止的Actor使用以下两个命令清理，但是 highestSequenceNr 不会被删除，需要手工清理
               //  以下基于 journal-redis 说明:
@@ -308,7 +308,7 @@ public class SagaActor extends
     );
 
     when(SagaActorState.SUSPENDED,
-        matchEvent(org.apache.servicecomb.pack.alpha.fsm.event.internal.StopEvent.class,
+        matchEvent(org.apache.servicecomb.pack.alpha.core.fsm.event.internal.StopEvent.class,
             (event, data) -> {
               deleteMessages(lastSequenceNr());
               deleteSnapshot(snapshotSequenceNr());
@@ -318,7 +318,7 @@ public class SagaActor extends
     );
 
     when(SagaActorState.COMPENSATED,
-        matchEvent(org.apache.servicecomb.pack.alpha.fsm.event.internal.StopEvent.class,
+        matchEvent(org.apache.servicecomb.pack.alpha.core.fsm.event.internal.StopEvent.class,
             (event, data) -> {
               deleteMessages(lastSequenceNr());
               deleteSnapshot(snapshotSequenceNr());
@@ -347,7 +347,7 @@ public class SagaActor extends
           if (to == SagaActorState.COMMITTED ||
               to == SagaActorState.SUSPENDED ||
               to == SagaActorState.COMPENSATED) {
-            self().tell(org.apache.servicecomb.pack.alpha.fsm.event.internal.StopEvent.builder().build(), self());
+            self().tell(org.apache.servicecomb.pack.alpha.core.fsm.event.internal.StopEvent.builder().build(), self());
           }
         })
     );
