@@ -18,6 +18,8 @@
 package org.apache.servicecomb.pack.alpha.fsm.channel;
 
 import java.lang.invoke.MethodHandles;
+
+import org.apache.servicecomb.pack.alpha.fsm.channel.redis.RedisMessagePublisher;
 import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.sink.ActorEventSink;
@@ -31,13 +33,19 @@ import org.slf4j.LoggerFactory;
 public class RedisActorEventChannel extends AbstractActorEventChannel {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+  private RedisMessagePublisher redisMessagePublisher;
+
   public RedisActorEventChannel(
-      ActorEventSink actorEventSink, MetricsService metricsService) {
+      ActorEventSink actorEventSink, MetricsService metricsService, RedisMessagePublisher redisMessagePublisher) {
     super(actorEventSink, metricsService);
+    this.redisMessagePublisher = redisMessagePublisher;
   }
 
   @Override
   public void sendTo(BaseEvent event){
-    throw new UnsupportedOperationException("Doesn't implement yet!");
+    if(LOG.isDebugEnabled()) {
+      LOG.debug("sendTo message = [{}]", event);
+    }
+    redisMessagePublisher.publish(event);
   }
 }

@@ -20,8 +20,11 @@ package org.apache.servicecomb.pack.alpha.fsm.channel;
 import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.sink.ActorEventSink;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractActorEventChannel implements ActorEventChannel {
+  private static final Logger logger = LoggerFactory.getLogger(AbstractActorEventChannel.class);
 
   protected final MetricsService metricsService;
   protected final ActorEventSink actorEventSink;
@@ -42,6 +45,7 @@ public abstract class AbstractActorEventChannel implements ActorEventChannel {
       this.sendTo(event);
       metricsService.metrics().doEventAccepted();
     } catch (Exception ex) {
+      logger.error("send Exception = [{}]", ex.getMessage(), ex);
       metricsService.metrics().doEventRejected();
     }
     long end = System.currentTimeMillis();
