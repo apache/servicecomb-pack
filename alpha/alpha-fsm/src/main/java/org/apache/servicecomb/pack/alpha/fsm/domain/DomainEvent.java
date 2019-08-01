@@ -18,7 +18,7 @@
 package org.apache.servicecomb.pack.alpha.fsm.domain;
 
 import java.io.Serializable;
-import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 
 public interface DomainEvent extends Serializable {
   BaseEvent getEvent();

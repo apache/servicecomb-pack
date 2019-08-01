@@ -17,7 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.fsm.channel;
 
-import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 
 public interface ActorEventChannel {
   void send(BaseEvent event);
