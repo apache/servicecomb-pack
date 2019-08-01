@@ -24,8 +24,10 @@ import org.apache.servicecomb.pack.omega.transaction.wrapper.SagaStartAnnotation
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.core.annotation.Order;
 
 @Aspect
+@Order(value = 100)
 public class SagaStartAspect {
 
   private final SagaStartAnnotationProcessor sagaStartAnnotationProcessor;
