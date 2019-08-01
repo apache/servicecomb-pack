@@ -17,7 +17,7 @@
 package org.apache.servicecomb.pack.omega.context.annotations;
 
 /**
- * Indicates once the annotated method is finised, it will end a saga.
+ * Indicates once the annotated method is finished, it will end a saga.
  */
 public class SagaEnd {
 

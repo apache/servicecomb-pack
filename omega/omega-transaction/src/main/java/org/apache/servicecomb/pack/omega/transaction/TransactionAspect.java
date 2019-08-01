@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 
 @Aspect
-@Order(value=10)
+@Order(value = 200)
 public class TransactionAspect extends TransactionContextHelper {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
