@@ -377,7 +377,7 @@ public class AlphaIntegrationTest {
 
     blockingStub.onTxEvent(someGrpcEvent(TxEndedEvent, globalTxId, anotherLocalTxId));
 
-    await().atMost(1, SECONDS).until(() -> {
+    await().atMost(2, SECONDS).until(() -> {
       List<TxEvent> events = eventRepo.findByGlobalTxId(globalTxId);
       return events.size() == 8 && events.get(events.size() - 1).type().equals(SagaEndedEvent.name());
     });
