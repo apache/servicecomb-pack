@@ -19,7 +19,7 @@ package org.apache.servicecomb.pack.alpha.fsm.repository;
 
 import java.lang.invoke.MethodHandles;
 import org.apache.servicecomb.pack.alpha.fsm.repository.model.GlobalTransaction;
-import org.apache.servicecomb.pack.alpha.fsm.repository.model.PagingGloablTransactions;
+import org.apache.servicecomb.pack.alpha.fsm.repository.model.PagingGlobalTransactions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ public class NoneTransactionRepository implements TransactionRepository {
   }
 
   @Override
-  public PagingGloablTransactions getGloablTransactions(int page, int size) throws Exception {
+  public PagingGlobalTransactions getGloablTransactions(int page, int size) throws Exception {
     throw new UnsupportedOperationException("NoneTransactionRepository Unsupported!");
   }
 }
