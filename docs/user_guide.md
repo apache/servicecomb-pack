@@ -789,7 +789,6 @@ Alpha can be highly available by deploying multiple instances, enable cluster su
 [src-TransactionClientHttpRequestInterceptor]: ../omega/omega-transport/omega-transport-resttemplate/src/main/java/org/apache/servicecomb/pack/omega/transport/resttemplate/TransactionClientHttpRequestInterceptor.java
 [src-TransactionHandlerInterceptor]: ../omega/omega-transport/omega-transport-resttemplate/src/main/java/org/apache/servicecomb/pack/omega/transport/resttemplate/TransactionHandlerInterceptor.java
 
-
 ## Experiment
 
-[Alpha State Machine Mode](fsm/how_to_use_fsm_zh.md)
+[Alpha State Machine Mode](fsm/how_to_use_fsm.md)

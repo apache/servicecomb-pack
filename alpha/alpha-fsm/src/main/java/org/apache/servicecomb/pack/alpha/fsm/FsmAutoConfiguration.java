@@ -206,20 +206,20 @@ public class FsmAutoConfiguration {
   }
 
   @Bean
-  @ConditionalOnProperty(value = "alpha.feature.akka.transaction.repository.type", havingValue = "elasticsearch")
-  public TransactionRepository transcationRepository(MetricsService metricsService,
-      ElasticsearchTemplate template) {
-    return new ElasticsearchTransactionRepository(template, metricsService,
-        repositoryElasticsearchBatchSize, repositoryElasticsearchRefreshTime);
-  }
-
-  @Bean
   @ConditionalOnMissingBean(TransactionRepositoryChannel.class)
   @ConditionalOnProperty(value = "alpha.feature.akka.transaction.repository.channel.type", havingValue = "memory", matchIfMissing = true)
   TransactionRepositoryChannel memoryTransactionRepositoryChannel(TransactionRepository repository,
       MetricsService metricsService) {
     return new MemoryTransactionRepositoryChannel(repository, memoryTransactionRepositoryChannelSize,
         metricsService);
+  }
+
+  @Bean
+  @ConditionalOnProperty(value = "alpha.feature.akka.transaction.repository.type", havingValue = "elasticsearch")
+  public TransactionRepository transcationRepository(MetricsService metricsService,
+      ElasticsearchTemplate template) {
+    return new ElasticsearchTransactionRepository(template, metricsService,
+        repositoryElasticsearchBatchSize, repositoryElasticsearchRefreshTime);
   }
 
 }

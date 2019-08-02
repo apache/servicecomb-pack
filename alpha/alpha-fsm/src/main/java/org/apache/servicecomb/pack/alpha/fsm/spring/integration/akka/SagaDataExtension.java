@@ -20,7 +20,6 @@ package org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka;
 import akka.actor.AbstractExtensionId;
 import akka.actor.ExtendedActorSystem;
 import akka.actor.Extension;
-import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,12 +31,9 @@ import org.apache.servicecomb.pack.alpha.fsm.repository.model.GlobalTransaction;
 import org.apache.servicecomb.pack.alpha.fsm.repository.model.SagaSubTransaction;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepositoryChannel;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension.SagaDataExt;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
 
-  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   public static final SagaDataExtension SAGA_DATA_EXTENSION_PROVIDER = new SagaDataExtension();
 
   @Override

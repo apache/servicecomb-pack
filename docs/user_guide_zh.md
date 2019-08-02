@@ -779,3 +779,4 @@ Alpha 可以通过部署多实例的方式保证高可用，使用 `alpha.cluste
 ## 实验
 
 [Alpha 状态机模式](fsm/how_to_use_fsm_zh.md)
+

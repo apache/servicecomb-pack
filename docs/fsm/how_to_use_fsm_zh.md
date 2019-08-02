@@ -131,7 +131,7 @@ curl http://localhost:8090/alpha/api/v1/metrics
   * page 本次查询结果页号
   * size 本次查询行数
   * elapsed 本次查询耗时（毫秒）
-  * globalTransactions 事件数据列表
+  * gloablTransactions 事件数据列表
 
 * 查询一条事务
 

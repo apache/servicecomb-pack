@@ -23,10 +23,8 @@ import org.apache.servicecomb.pack.alpha.fsm.repository.model.PagingGloablTransa
 public interface TransactionRepository {
 
   void send(GlobalTransaction transaction) throws Exception;
-
   GlobalTransaction getGloablTransactionByGlobalTxId(String globalTxId)
       throws Exception;
-
   PagingGloablTransactions getGloablTransactions(int page, int size)
       throws Exception;
 }
