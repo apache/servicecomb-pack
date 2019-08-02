@@ -201,13 +201,13 @@ public class FsmAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean(TransactionRepository.class)
-  public TransactionRepository transcationRepository() {
+  public TransactionRepository transactionRepository() {
     return new NoneTransactionRepository();
   }
 
   @Bean
   @ConditionalOnProperty(value = "alpha.feature.akka.transaction.repository.type", havingValue = "elasticsearch")
-  public TransactionRepository transcationRepository(MetricsService metricsService,
+  public TransactionRepository transactionRepository(MetricsService metricsService,
       ElasticsearchTemplate template) {
     return new ElasticsearchTransactionRepository(template, metricsService,
         repositoryElasticsearchBatchSize, repositoryElasticsearchRefreshTime);
