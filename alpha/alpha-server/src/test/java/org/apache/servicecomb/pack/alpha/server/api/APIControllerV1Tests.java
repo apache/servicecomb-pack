@@ -184,10 +184,10 @@ public class APIControllerV1Tests {
         .size(50)
         .elapsed(10)
         .total(1)
-        .gloablTransactions(globalTransactions)
+        .globalTransactions(globalTransactions)
         .build();
 
-    when(transactionRepository.getGloablTransactions(0, 50)).thenReturn(paging);
+    when(transactionRepository.getGlobalTransactions(0, 50)).thenReturn(paging);
 
     ObjectMapper mapper = new ObjectMapper();
     mapper.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, false);
@@ -275,7 +275,7 @@ public class APIControllerV1Tests {
         .subTransactions(subTransactions)
         .build();
 
-    when(transactionRepository.getGloablTransactionByGlobalTxId(globalTxId)).thenReturn(globalTransaction);
+    when(transactionRepository.getGlobalTransactionByGlobalTxId(globalTxId)).thenReturn(globalTransaction);
 
     ObjectMapper mapper = new ObjectMapper();
     mapper.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, false);

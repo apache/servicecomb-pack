@@ -33,12 +33,12 @@ public class NoneTransactionRepository implements TransactionRepository {
   }
 
   @Override
-  public GlobalTransaction getGloablTransactionByGlobalTxId(String globalTxId){
+  public GlobalTransaction getGlobalTransactionByGlobalTxId(String globalTxId){
     throw new UnsupportedOperationException("NoneTransactionRepository Unsupported!");
   }
 
   @Override
-  public PagingGlobalTransactions getGloablTransactions(int page, int size) throws Exception {
+  public PagingGlobalTransactions getGlobalTransactions(int page, int size) throws Exception {
     throw new UnsupportedOperationException("NoneTransactionRepository Unsupported!");
   }
 }

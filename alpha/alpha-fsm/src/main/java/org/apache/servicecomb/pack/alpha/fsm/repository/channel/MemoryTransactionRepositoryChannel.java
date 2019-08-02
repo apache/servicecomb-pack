@@ -37,7 +37,7 @@ public class MemoryTransactionRepositoryChannel extends AbstractTransactionRepos
     super(repository, metricsService);
     this.size = size > 0 ? size : Integer.MAX_VALUE;
     globalTransactionQueue = new LinkedBlockingQueue(this.size);
-    new Thread(new GloablTransactionConsumer(), "MemoryTransactionRepositoryChannel").start();
+    new Thread(new GlobalTransactionConsumer(), "MemoryTransactionRepositoryChannel").start();
   }
 
   @Override
@@ -49,7 +49,7 @@ public class MemoryTransactionRepositoryChannel extends AbstractTransactionRepos
     }
   }
 
-  class GloablTransactionConsumer implements Runnable {
+  class GlobalTransactionConsumer implements Runnable {
 
     @Override
     public void run() {
