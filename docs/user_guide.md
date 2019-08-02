@@ -792,4 +792,4 @@ Alpha can be highly available by deploying multiple instances, enable cluster su
 
 ## Experiment
 
-[Alpha State Machine Mode](fsm/how_to_use_fsm_zh.md)
+[Alpha State Machine Mode](fsm/how_to_use_fsm.md)
