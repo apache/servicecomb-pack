@@ -48,7 +48,7 @@ public class APIControllerV1 {
   ResponseEntity<GlobalTransaction> getTransactionByGlobalTxId(@PathVariable String globalTxId)
       throws Exception {
     GlobalTransaction globalTransaction = transactionRepository
-        .getGloablTransactionByGlobalTxId(globalTxId);
+        .getGlobalTransactionByGlobalTxId(globalTxId);
     return ResponseEntity.ok(globalTransaction);
   }
 
@@ -57,7 +57,7 @@ public class APIControllerV1 {
       @RequestParam(value = "size", required = false, defaultValue = "50") int size)
       throws Exception {
     PagingGlobalTransactions pagingGlobalTransactions = transactionRepository
-        .getGloablTransactions(page, size);
+        .getGlobalTransactions(page, size);
     return ResponseEntity.ok(pagingGlobalTransactions);
   }
 }

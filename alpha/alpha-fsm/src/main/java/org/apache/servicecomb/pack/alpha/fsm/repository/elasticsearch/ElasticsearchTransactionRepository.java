@@ -91,16 +91,16 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
   }
 
   @Override
-  public GlobalTransaction getGloablTransactionByGlobalTxId(String globalTxId) {
+  public GlobalTransaction getGlobalTransactionByGlobalTxId(String globalTxId) {
     GetQuery getQuery = new GetQuery();
     getQuery.setId(globalTxId);
-    GloablTransactionDocument gloablTransaction = this.template
-        .queryForObject(getQuery, GloablTransactionDocument.class);
-    return gloablTransaction;
+    GlobalTransactionDocument globalTransaction = this.template
+        .queryForObject(getQuery, GlobalTransactionDocument.class);
+    return globalTransaction;
   }
 
   @Override
-  public PagingGlobalTransactions getGloablTransactions(int page, int size) {
+  public PagingGlobalTransactions getGlobalTransactions(int page, int size) {
     long start = System.currentTimeMillis();
     List<GlobalTransaction> globalTransactions = new ArrayList();
     SearchQuery searchQuery = new NativeSearchQueryBuilder()
@@ -110,18 +110,18 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
         .withPageable(PageRequest.of(page, size))
         .build();
 
-    ScrolledPage<GloablTransactionDocument> scroll = (ScrolledPage<GloablTransactionDocument>) this.template
-        .startScroll(SCROLL_TIMEOUT, searchQuery, GloablTransactionDocument.class,
+    ScrolledPage<GlobalTransactionDocument> scroll = (ScrolledPage<GlobalTransactionDocument>) this.template
+        .startScroll(SCROLL_TIMEOUT, searchQuery, GlobalTransactionDocument.class,
             searchResultMapper);
     int pageCursor = 0;
     while (scroll.hasContent()) {
       if (pageCursor < page) {
-        scroll = (ScrolledPage<GloablTransactionDocument>) this.template
-            .continueScroll(scroll.getScrollId(), SCROLL_TIMEOUT, GloablTransactionDocument.class,
+        scroll = (ScrolledPage<GlobalTransactionDocument>) this.template
+            .continueScroll(scroll.getScrollId(), SCROLL_TIMEOUT, GlobalTransactionDocument.class,
                 searchResultMapper);
         pageCursor++;
       } else {
-        for (GloablTransactionDocument dto : scroll.getContent()) {
+        for (GlobalTransactionDocument dto : scroll.getContent()) {
           globalTransactions.add(dto);
         }
         break;
@@ -130,27 +130,27 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
     LOG.info("Query total hits {}, return page {}, size {}", scroll.getTotalElements(), page, size);
     this.template.clearScroll(scroll.getScrollId());
     return PagingGlobalTransactions.builder().page(page).size(size).total(scroll.getTotalElements())
-        .gloablTransactions(globalTransactions).elapsed(System.currentTimeMillis() - start).build();
+        .globalTransactions(globalTransactions).elapsed(System.currentTimeMillis() - start).build();
   }
 
   private final SearchResultMapper searchResultMapper = new SearchResultMapper() {
     @Override
     public <T> AggregatedPage<T> mapResults(SearchResponse response, Class<T> aClass,
         Pageable pageable) {
-      List<GloablTransactionDocument> result = new ArrayList<>();
+      List<GlobalTransactionDocument> result = new ArrayList<>();
       for (SearchHit hit : response.getHits()) {
         if (response.getHits().getHits().length <= 0) {
           return new AggregatedPageImpl<T>(Collections.EMPTY_LIST, pageable,
               response.getHits().getTotalHits(), response.getScrollId());
         }
-        GloablTransactionDocument gloablTransactionDocument = null;
+        GlobalTransactionDocument globalTransactionDocument = null;
         try {
-          gloablTransactionDocument = mapper.readValue(hit.getSourceAsString(),
-              GloablTransactionDocument.class);
+          globalTransactionDocument = mapper.readValue(hit.getSourceAsString(),
+              GlobalTransactionDocument.class);
         } catch (IOException e) {
           new RuntimeException(e.getMessage(), e);
         }
-        result.add(gloablTransactionDocument);
+        result.add(globalTransactionDocument);
       }
       if (result.isEmpty()) {
         return new AggregatedPageImpl<T>(Collections.EMPTY_LIST, pageable,

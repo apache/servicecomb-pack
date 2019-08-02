@@ -82,7 +82,7 @@ public class PagingGlobalTransactions {
       return this;
     }
 
-    public Builder gloablTransactions(List<GlobalTransaction> globalTransactions) {
+    public Builder globalTransactions(List<GlobalTransaction> globalTransactions) {
       this.globalTransactions = globalTransactions;
       return this;
     }
