@@ -18,13 +18,13 @@
 package org.apache.servicecomb.pack.alpha.fsm.repository;
 
 import org.apache.servicecomb.pack.alpha.fsm.repository.model.GlobalTransaction;
-import org.apache.servicecomb.pack.alpha.fsm.repository.model.PagingGloablTransactions;
+import org.apache.servicecomb.pack.alpha.fsm.repository.model.PagingGlobalTransactions;
 
 public interface TransactionRepository {
 
   void send(GlobalTransaction transaction) throws Exception;
   GlobalTransaction getGloablTransactionByGlobalTxId(String globalTxId)
       throws Exception;
-  PagingGloablTransactions getGloablTransactions(int page, int size)
+  PagingGlobalTransactions getGloablTransactions(int page, int size)
       throws Exception;
 }

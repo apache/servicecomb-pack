@@ -44,7 +44,7 @@ import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsBean;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
 import org.apache.servicecomb.pack.alpha.fsm.repository.model.GlobalTransaction;
-import org.apache.servicecomb.pack.alpha.fsm.repository.model.PagingGloablTransactions;
+import org.apache.servicecomb.pack.alpha.fsm.repository.model.PagingGlobalTransactions;
 import org.apache.servicecomb.pack.alpha.fsm.repository.model.SagaSubTransaction;
 import org.apache.servicecomb.pack.alpha.server.metrics.AlphaMetrics;
 import org.junit.Test;
@@ -179,7 +179,7 @@ public class APIControllerV1Tests {
         .events(events)
         .subTransactions(subTransactions)
         .build());
-    PagingGloablTransactions paging = PagingGloablTransactions.builder()
+    PagingGlobalTransactions paging = PagingGlobalTransactions.builder()
         .page(0)
         .size(50)
         .elapsed(10)

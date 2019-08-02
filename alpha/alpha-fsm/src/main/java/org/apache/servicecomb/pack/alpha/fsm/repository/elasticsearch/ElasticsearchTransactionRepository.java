@@ -27,7 +27,7 @@ import java.util.List;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
 import org.apache.servicecomb.pack.alpha.fsm.repository.model.GlobalTransaction;
-import org.apache.servicecomb.pack.alpha.fsm.repository.model.PagingGloablTransactions;
+import org.apache.servicecomb.pack.alpha.fsm.repository.model.PagingGlobalTransactions;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -100,7 +100,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
   }
 
   @Override
-  public PagingGloablTransactions getGloablTransactions(int page, int size) {
+  public PagingGlobalTransactions getGloablTransactions(int page, int size) {
     long start = System.currentTimeMillis();
     List<GlobalTransaction> globalTransactions = new ArrayList();
     SearchQuery searchQuery = new NativeSearchQueryBuilder()
@@ -129,7 +129,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
     }
     LOG.info("Query total hits {}, return page {}, size {}", scroll.getTotalElements(), page, size);
     this.template.clearScroll(scroll.getScrollId());
-    return PagingGloablTransactions.builder().page(page).size(size).total(scroll.getTotalElements())
+    return PagingGlobalTransactions.builder().page(page).size(size).total(scroll.getTotalElements())
         .gloablTransactions(globalTransactions).elapsed(System.currentTimeMillis() - start).build();
   }
 

@@ -19,7 +19,7 @@ package org.apache.servicecomb.pack.alpha.server.api;
 
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
 import org.apache.servicecomb.pack.alpha.fsm.repository.model.GlobalTransaction;
-import org.apache.servicecomb.pack.alpha.fsm.repository.model.PagingGloablTransactions;
+import org.apache.servicecomb.pack.alpha.fsm.repository.model.PagingGlobalTransactions;
 import org.apache.servicecomb.pack.alpha.server.metrics.AlphaMetrics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -53,11 +53,11 @@ public class APIControllerV1 {
   }
 
   @GetMapping(value = "/transaction")
-  ResponseEntity<PagingGloablTransactions> getTransactions(@RequestParam(value = "page", required = false, defaultValue = "0") int page,
+  ResponseEntity<PagingGlobalTransactions> getTransactions(@RequestParam(value = "page", required = false, defaultValue = "0") int page,
       @RequestParam(value = "size", required = false, defaultValue = "50") int size)
       throws Exception {
-    PagingGloablTransactions pagingGloablTransactions = transactionRepository
+    PagingGlobalTransactions pagingGlobalTransactions = transactionRepository
         .getGloablTransactions(page, size);
-    return ResponseEntity.ok(pagingGloablTransactions);
+    return ResponseEntity.ok(pagingGlobalTransactions);
   }
 }
