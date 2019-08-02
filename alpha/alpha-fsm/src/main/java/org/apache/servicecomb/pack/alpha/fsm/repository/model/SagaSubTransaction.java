@@ -17,13 +17,16 @@
 
 package org.apache.servicecomb.pack.alpha.fsm.repository.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.util.Date;
 import org.apache.servicecomb.pack.alpha.fsm.TxState;
 
 public class SagaSubTransaction {
   private String localTxId;
   private String parentTxId;
+  @JsonFormat(shape = JsonFormat.Shape.NUMBER)
   private Date beginTime;
+  @JsonFormat(shape = JsonFormat.Shape.NUMBER)
   private Date endTime;
   private TxState state;
   private Long durationTime;

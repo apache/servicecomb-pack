@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.fsm.repository.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
@@ -31,7 +32,9 @@ public class GlobalTransaction {
   private TransactionType type;
   private String serviceName;
   private String instanceId;
+  @JsonFormat(shape = JsonFormat.Shape.NUMBER)
   private Date beginTime;
+  @JsonFormat(shape = JsonFormat.Shape.NUMBER)
   private Date endTime;
   private SagaActorState state;
   private Integer subTxSize;
