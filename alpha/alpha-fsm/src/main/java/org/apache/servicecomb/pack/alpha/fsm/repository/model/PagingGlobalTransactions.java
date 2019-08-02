@@ -19,7 +19,7 @@ package org.apache.servicecomb.pack.alpha.fsm.repository.model;
 
 import java.util.List;
 
-public class PagingGloablTransactions {
+public class PagingGlobalTransactions {
   private long total;
   private int page;
   private int size;
@@ -87,14 +87,14 @@ public class PagingGloablTransactions {
       return this;
     }
 
-    public PagingGloablTransactions build() {
-      PagingGloablTransactions pagingGloablTransactions = new PagingGloablTransactions();
-      pagingGloablTransactions.total = this.total;
-      pagingGloablTransactions.globalTransactions = this.globalTransactions;
-      pagingGloablTransactions.page = this.page;
-      pagingGloablTransactions.size = this.size;
-      pagingGloablTransactions.elapsed = this.elapsed;
-      return pagingGloablTransactions;
+    public PagingGlobalTransactions build() {
+      PagingGlobalTransactions pagingGlobalTransactions = new PagingGlobalTransactions();
+      pagingGlobalTransactions.total = this.total;
+      pagingGlobalTransactions.globalTransactions = this.globalTransactions;
+      pagingGlobalTransactions.page = this.page;
+      pagingGlobalTransactions.size = this.size;
+      pagingGlobalTransactions.elapsed = this.elapsed;
+      return pagingGlobalTransactions;
     }
   }
 }
