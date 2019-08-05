@@ -29,7 +29,7 @@ public class NoneTransactionRepository implements TransactionRepository {
 
   @Override
   public void send(GlobalTransaction transaction) {
-    LOG.warn("Please configure alpha.feature.akka.transaction.repository.type=elasticsearch to use elasticsearch to persist transaction data.");
+    LOG.warn("NoneTransactionRepostory is set");
   }
 
   @Override
