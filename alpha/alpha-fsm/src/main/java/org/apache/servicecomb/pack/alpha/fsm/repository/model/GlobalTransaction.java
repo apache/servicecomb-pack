@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
 import org.apache.servicecomb.pack.alpha.fsm.TransactionType;
-import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 
 public class GlobalTransaction {
   private String globalTxId;

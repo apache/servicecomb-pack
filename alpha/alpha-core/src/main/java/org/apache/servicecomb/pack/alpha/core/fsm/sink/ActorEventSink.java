@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.channel;
+package org.apache.servicecomb.pack.alpha.core.fsm.sink;
 
-import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 
-public interface ActorEventChannel {
-  void send(BaseEvent event);
+public interface ActorEventSink {
+
+  void send(BaseEvent event) throws Exception;
 }

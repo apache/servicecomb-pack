@@ -15,47 +15,46 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.event;
+package org.apache.servicecomb.pack.alpha.core.fsm.event;
 
 import java.util.Date;
-import org.apache.servicecomb.pack.alpha.fsm.event.base.SagaEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.base.SagaEvent;
 
-public class SagaAbortedEvent extends SagaEvent {
+public class SagaTimeoutEvent extends SagaEvent {
 
   public static Builder builder() {
     return new Builder();
   }
-
   public static final class Builder {
 
-    private SagaAbortedEvent sagaAbortedEvent;
+    private SagaTimeoutEvent sagaTimeoutEvent;
 
     private Builder() {
-      sagaAbortedEvent = new SagaAbortedEvent();
-    }
-
-    public Builder globalTxId(String globalTxId) {
-      sagaAbortedEvent.setGlobalTxId(globalTxId);
-      return this;
+      sagaTimeoutEvent = new SagaTimeoutEvent();
     }
 
     public Builder serviceName(String serviceName) {
-      sagaAbortedEvent.setServiceName(serviceName);
+      sagaTimeoutEvent.setServiceName(serviceName);
       return this;
     }
 
     public Builder instanceId(String instanceId) {
-      sagaAbortedEvent.setInstanceId(instanceId);
+      sagaTimeoutEvent.setInstanceId(instanceId);
+      return this;
+    }
+
+    public Builder globalTxId(String globalTxId) {
+      sagaTimeoutEvent.setGlobalTxId(globalTxId);
       return this;
     }
 
     public Builder createTime(Date createTime){
-      sagaAbortedEvent.setCreateTime(createTime);
+      sagaTimeoutEvent.setCreateTime(createTime);
       return this;
     }
 
-    public SagaAbortedEvent build() {
-      return sagaAbortedEvent;
+    public SagaTimeoutEvent build() {
+      return sagaTimeoutEvent;
     }
   }
 }

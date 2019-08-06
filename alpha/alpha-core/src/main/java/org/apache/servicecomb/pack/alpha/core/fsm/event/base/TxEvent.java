@@ -15,11 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.sink;
+package org.apache.servicecomb.pack.alpha.core.fsm.event.base;
 
-import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
+public abstract class TxEvent extends BaseEvent {
 
-public interface ActorEventSink {
-
-  void send(BaseEvent event) throws Exception;
 }

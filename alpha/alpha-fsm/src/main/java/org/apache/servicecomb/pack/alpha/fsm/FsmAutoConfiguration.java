@@ -36,8 +36,8 @@ import org.apache.servicecomb.pack.alpha.fsm.repository.elasticsearch.Elasticsea
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
 import org.apache.servicecomb.pack.alpha.fsm.repository.channel.MemoryTransactionRepositoryChannel;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepositoryChannel;
-import org.apache.servicecomb.pack.alpha.fsm.sink.ActorEventSink;
-import org.apache.servicecomb.pack.alpha.fsm.channel.ActorEventChannel;
+import org.apache.servicecomb.pack.alpha.core.fsm.sink.ActorEventSink;
+import org.apache.servicecomb.pack.alpha.core.fsm.channel.ActorEventChannel;
 import org.apache.servicecomb.pack.alpha.fsm.channel.KafkaActorEventChannel;
 import org.apache.servicecomb.pack.alpha.fsm.channel.MemoryActorEventChannel;
 import org.apache.servicecomb.pack.alpha.fsm.channel.RedisActorEventChannel;

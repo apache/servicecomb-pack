@@ -19,8 +19,8 @@ package org.apache.servicecomb.pack.alpha.fsm.domain;
 
 import java.util.Calendar;
 import java.util.Date;
-import org.apache.servicecomb.pack.alpha.fsm.event.SagaStartedEvent;
-import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.SagaStartedEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 
 public class SagaStartedDomain implements DomainEvent {
 

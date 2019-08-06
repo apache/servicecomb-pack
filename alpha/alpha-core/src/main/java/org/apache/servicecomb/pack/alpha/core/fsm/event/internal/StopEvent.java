@@ -15,8 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.event.base;
+package org.apache.servicecomb.pack.alpha.core.fsm.event.internal;
 
-public class SagaEvent extends BaseEvent {
+import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 
+public class StopEvent extends BaseEvent {
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static final class Builder {
+
+    private StopEvent stopEvent;
+
+    private Builder() {
+      stopEvent = new StopEvent();
+    }
+
+    public StopEvent build() {
+      return stopEvent;
+    }
+  }
 }

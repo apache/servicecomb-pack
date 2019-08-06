@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import kamon.annotation.Trace;
 import org.apache.servicecomb.pack.alpha.core.OmegaCallback;
-import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
-import org.apache.servicecomb.pack.alpha.fsm.channel.ActorEventChannel;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.channel.ActorEventChannel;
 import org.apache.servicecomb.pack.common.EventType;
 import org.apache.servicecomb.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.pack.contract.grpc.GrpcCompensateCommand;
@@ -84,28 +84,28 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
     boolean ok = true;
     BaseEvent event = null;
     if (message.getType().equals(EventType.SagaStartedEvent.name())) {
-      event = org.apache.servicecomb.pack.alpha.fsm.event.SagaStartedEvent.builder()
+      event = org.apache.servicecomb.pack.alpha.core.fsm.event.SagaStartedEvent.builder()
           .serviceName(message.getServiceName())
           .instanceId(message.getInstanceId())
           .globalTxId(message.getGlobalTxId())
           .timeout(message.getTimeout()).build();
     } else if (message.getType().equals(EventType.SagaEndedEvent.name())) {
-      event = org.apache.servicecomb.pack.alpha.fsm.event.SagaEndedEvent.builder()
+      event = org.apache.servicecomb.pack.alpha.core.fsm.event.SagaEndedEvent.builder()
           .serviceName(message.getServiceName())
           .instanceId(message.getInstanceId())
           .globalTxId(message.getGlobalTxId()).build();
     } else if (message.getType().equals(EventType.SagaAbortedEvent.name())) {
-      event = org.apache.servicecomb.pack.alpha.fsm.event.SagaAbortedEvent.builder()
+      event = org.apache.servicecomb.pack.alpha.core.fsm.event.SagaAbortedEvent.builder()
           .serviceName(message.getServiceName())
           .instanceId(message.getInstanceId())
           .globalTxId(message.getGlobalTxId()).build();
     } else if (message.getType().equals(EventType.SagaTimeoutEvent.name())) {
-      event = org.apache.servicecomb.pack.alpha.fsm.event.SagaTimeoutEvent.builder()
+      event = org.apache.servicecomb.pack.alpha.core.fsm.event.SagaTimeoutEvent.builder()
           .serviceName(message.getServiceName())
           .instanceId(message.getInstanceId())
           .globalTxId(message.getGlobalTxId()).build();
     } else if (message.getType().equals(EventType.TxStartedEvent.name())) {
-      event = org.apache.servicecomb.pack.alpha.fsm.event.TxStartedEvent.builder()
+      event = org.apache.servicecomb.pack.alpha.core.fsm.event.TxStartedEvent.builder()
           .serviceName(message.getServiceName())
           .instanceId(message.getInstanceId())
           .globalTxId(message.getGlobalTxId())
@@ -116,14 +116,14 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
           .retries(message.getRetries())
           .payloads(message.getPayloads().toByteArray()).build();
     } else if (message.getType().equals(EventType.TxEndedEvent.name())) {
-      event = org.apache.servicecomb.pack.alpha.fsm.event.TxEndedEvent.builder()
+      event = org.apache.servicecomb.pack.alpha.core.fsm.event.TxEndedEvent.builder()
           .serviceName(message.getServiceName())
           .instanceId(message.getInstanceId())
           .globalTxId(message.getGlobalTxId())
           .parentTxId(message.getParentTxId())
           .localTxId(message.getLocalTxId()).build();
     } else if (message.getType().equals(EventType.TxAbortedEvent.name())) {
-      event = org.apache.servicecomb.pack.alpha.fsm.event.TxAbortedEvent.builder()
+      event = org.apache.servicecomb.pack.alpha.core.fsm.event.TxAbortedEvent.builder()
           .serviceName(message.getServiceName())
           .instanceId(message.getInstanceId())
           .globalTxId(message.getGlobalTxId())
@@ -131,7 +131,7 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
           .localTxId(message.getLocalTxId())
           .payloads(message.getPayloads().toByteArray()).build();
     } else if (message.getType().equals(EventType.TxCompensatedEvent.name())) {
-      event = org.apache.servicecomb.pack.alpha.fsm.event.TxCompensatedEvent.builder()
+      event = org.apache.servicecomb.pack.alpha.core.fsm.event.TxCompensatedEvent.builder()
           .serviceName(message.getServiceName())
           .instanceId(message.getInstanceId())
           .globalTxId(message.getGlobalTxId())

@@ -15,53 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.event;
+package org.apache.servicecomb.pack.alpha.core.fsm.event.internal;
 
-import java.util.Date;
-import org.apache.servicecomb.pack.alpha.fsm.event.base.TxEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.base.TxEvent;
 
-public class TxEndedEvent extends TxEvent {
+public class ComponsitedCheckEvent extends TxEvent {
 
   public static Builder builder() {
     return new Builder();
   }
 
-
   public static final class Builder {
 
-    private TxEndedEvent txEndedEvent;
+    private ComponsitedCheckEvent txComponsitedEvent;
 
     private Builder() {
-      txEndedEvent = new TxEndedEvent();
+      txComponsitedEvent = new ComponsitedCheckEvent();
     }
 
-    public Builder serviceName(String serviceName) {
-      txEndedEvent.setServiceName(serviceName);
-      return this;
-    }
-
-    public Builder instanceId(String instanceId) {
-      txEndedEvent.setInstanceId(instanceId);
-      return this;
-    }
-
-    public Builder parentTxId(String parentTxId) {
-      txEndedEvent.setParentTxId(parentTxId);
-      return this;
-    }
-
-    public Builder localTxId(String localTxId) {
-      txEndedEvent.setLocalTxId(localTxId);
-      return this;
-    }
-
-    public Builder globalTxId(String globalTxId) {
-      txEndedEvent.setGlobalTxId(globalTxId);
-      return this;
-    }
-
-    public TxEndedEvent build() {
-      return txEndedEvent;
+    public ComponsitedCheckEvent build() {
+      return txComponsitedEvent;
     }
   }
 }
