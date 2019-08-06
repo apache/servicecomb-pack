@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.event.internal;
+package org.apache.servicecomb.pack.alpha.core.fsm.event;
 
-import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
+import java.util.Date;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.base.SagaEvent;
 
-public class StopEvent extends BaseEvent {
+public class SagaAbortedEvent extends SagaEvent {
 
   public static Builder builder() {
     return new Builder();
@@ -27,14 +28,34 @@ public class StopEvent extends BaseEvent {
 
   public static final class Builder {
 
-    private StopEvent stopEvent;
+    private SagaAbortedEvent sagaAbortedEvent;
 
     private Builder() {
-      stopEvent = new StopEvent();
+      sagaAbortedEvent = new SagaAbortedEvent();
     }
 
-    public StopEvent build() {
-      return stopEvent;
+    public Builder globalTxId(String globalTxId) {
+      sagaAbortedEvent.setGlobalTxId(globalTxId);
+      return this;
+    }
+
+    public Builder serviceName(String serviceName) {
+      sagaAbortedEvent.setServiceName(serviceName);
+      return this;
+    }
+
+    public Builder instanceId(String instanceId) {
+      sagaAbortedEvent.setInstanceId(instanceId);
+      return this;
+    }
+
+    public Builder createTime(Date createTime){
+      sagaAbortedEvent.setCreateTime(createTime);
+      return this;
+    }
+
+    public SagaAbortedEvent build() {
+      return sagaAbortedEvent;
     }
   }
 }

@@ -15,8 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.event.base;
+package org.apache.servicecomb.pack.alpha.core.fsm.channel;
 
-public abstract class TxEvent extends BaseEvent {
+import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 
+public interface ActorEventChannel {
+  void send(BaseEvent event);
 }

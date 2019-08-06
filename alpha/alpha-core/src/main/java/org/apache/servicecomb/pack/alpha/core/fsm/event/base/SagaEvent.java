@@ -15,26 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.event.internal;
+package org.apache.servicecomb.pack.alpha.core.fsm.event.base;
 
-import org.apache.servicecomb.pack.alpha.fsm.event.base.TxEvent;
+public class SagaEvent extends BaseEvent {
 
-public class ComponsitedCheckEvent extends TxEvent {
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public static final class Builder {
-
-    private ComponsitedCheckEvent txComponsitedEvent;
-
-    private Builder() {
-      txComponsitedEvent = new ComponsitedCheckEvent();
-    }
-
-    public ComponsitedCheckEvent build() {
-      return txComponsitedEvent;
-    }
-  }
 }

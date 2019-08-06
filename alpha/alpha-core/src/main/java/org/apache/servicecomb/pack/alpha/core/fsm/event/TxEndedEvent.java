@@ -15,46 +15,52 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.event;
+package org.apache.servicecomb.pack.alpha.core.fsm.event;
 
-import java.util.Date;
-import org.apache.servicecomb.pack.alpha.fsm.event.base.SagaEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.base.TxEvent;
 
-public class SagaTimeoutEvent extends SagaEvent {
+public class TxEndedEvent extends TxEvent {
 
   public static Builder builder() {
     return new Builder();
   }
+
+
   public static final class Builder {
 
-    private SagaTimeoutEvent sagaTimeoutEvent;
+    private TxEndedEvent txEndedEvent;
 
     private Builder() {
-      sagaTimeoutEvent = new SagaTimeoutEvent();
+      txEndedEvent = new TxEndedEvent();
     }
 
     public Builder serviceName(String serviceName) {
-      sagaTimeoutEvent.setServiceName(serviceName);
+      txEndedEvent.setServiceName(serviceName);
       return this;
     }
 
     public Builder instanceId(String instanceId) {
-      sagaTimeoutEvent.setInstanceId(instanceId);
+      txEndedEvent.setInstanceId(instanceId);
+      return this;
+    }
+
+    public Builder parentTxId(String parentTxId) {
+      txEndedEvent.setParentTxId(parentTxId);
+      return this;
+    }
+
+    public Builder localTxId(String localTxId) {
+      txEndedEvent.setLocalTxId(localTxId);
       return this;
     }
 
     public Builder globalTxId(String globalTxId) {
-      sagaTimeoutEvent.setGlobalTxId(globalTxId);
+      txEndedEvent.setGlobalTxId(globalTxId);
       return this;
     }
 
-    public Builder createTime(Date createTime){
-      sagaTimeoutEvent.setCreateTime(createTime);
-      return this;
-    }
-
-    public SagaTimeoutEvent build() {
-      return sagaTimeoutEvent;
+    public TxEndedEvent build() {
+      return txEndedEvent;
     }
   }
 }

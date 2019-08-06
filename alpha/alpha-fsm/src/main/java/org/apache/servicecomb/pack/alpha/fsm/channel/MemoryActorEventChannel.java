@@ -20,9 +20,9 @@ package org.apache.servicecomb.pack.alpha.fsm.channel;
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.servicecomb.pack.alpha.fsm.event.base.BaseEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
-import org.apache.servicecomb.pack.alpha.fsm.sink.ActorEventSink;
+import org.apache.servicecomb.pack.alpha.core.fsm.sink.ActorEventSink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

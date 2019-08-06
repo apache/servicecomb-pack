@@ -15,10 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.event;
+package org.apache.servicecomb.pack.alpha.core.fsm.event;
 
-import java.util.Date;
-import org.apache.servicecomb.pack.alpha.fsm.event.base.TxEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.base.TxEvent;
 
 public class TxAbortedEvent extends TxEvent {
 

@@ -15,49 +15,70 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.event;
+package org.apache.servicecomb.pack.alpha.core.fsm.event;
 
 import java.util.Date;
-import org.apache.servicecomb.pack.alpha.fsm.event.base.SagaEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.base.SagaEvent;
 
-public class SagaEndedEvent extends SagaEvent {
+public class SagaStartedEvent extends SagaEvent {
+  private int timeout; //second
+
+  public int getTimeout() {
+    return timeout;
+  }
+
+  public void setTimeout(int timeout) {
+    this.timeout = timeout;
+  }
 
   public static Builder builder() {
     return new Builder();
   }
 
+  @Override
+  public String toString() {
+    return "SagaStartedEvent{" +
+        "timeout=" + timeout +
+        "} " + super.toString();
+  }
+
   public static final class Builder {
 
-    private SagaEndedEvent sagaEndedEvent;
+    private SagaStartedEvent sagaStartedEvent;
 
     private Builder() {
-      sagaEndedEvent = new SagaEndedEvent();
+      sagaStartedEvent = new SagaStartedEvent();
     }
 
     public Builder globalTxId(String globalTxId) {
-      sagaEndedEvent.setGlobalTxId(globalTxId);
-      sagaEndedEvent.setLocalTxId(globalTxId);
-      sagaEndedEvent.setParentTxId(globalTxId);
+      sagaStartedEvent.setGlobalTxId(globalTxId);
+      sagaStartedEvent.setLocalTxId(globalTxId);
+      sagaStartedEvent.setParentTxId(globalTxId);
+      return this;
+    }
+
+    public Builder timeout(int timeout) {
+      sagaStartedEvent.setTimeout(timeout);
       return this;
     }
 
     public Builder serviceName(String serviceName) {
-      sagaEndedEvent.setServiceName(serviceName);
+      sagaStartedEvent.setServiceName(serviceName);
       return this;
     }
 
     public Builder instanceId(String instanceId) {
-      sagaEndedEvent.setInstanceId(instanceId);
+      sagaStartedEvent.setInstanceId(instanceId);
       return this;
     }
 
     public Builder createTime(Date createTime){
-      sagaEndedEvent.setCreateTime(createTime);
+      sagaStartedEvent.setCreateTime(createTime);
       return this;
     }
 
-    public SagaEndedEvent build() {
-      return sagaEndedEvent;
+    public SagaStartedEvent build() {
+      return sagaStartedEvent;
     }
   }
 }

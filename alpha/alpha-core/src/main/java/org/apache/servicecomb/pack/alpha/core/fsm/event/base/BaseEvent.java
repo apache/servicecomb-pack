@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.event.base;
+package org.apache.servicecomb.pack.alpha.core.fsm.event.base;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
