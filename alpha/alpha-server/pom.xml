@@ -97,6 +97,10 @@
     </dependency>
     <dependency>
       <groupId>org.apache.servicecomb.pack</groupId>
+      <artifactId>alpha-ui</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicecomb.pack</groupId>
       <artifactId>alpha-spring-cloud-starter-consul</artifactId>
     </dependency>
     <dependency>
