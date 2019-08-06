@@ -109,9 +109,9 @@ public class ElasticsearchTransactionRepositoryTest {
 
   @Test
   public void asyncWithBatchSizeAndRefreshTimeTest() throws Exception {
-    int size = 100;
+    int size = 15;
     int refreshTime = 2;
-    int batchSize = 95;
+    int batchSize = 10;
     TransactionRepository repository = new ElasticsearchTransactionRepository(template,
         metricsService, batchSize, refreshTime * 1000);
     for (int i = 0; i < size; i++) {
