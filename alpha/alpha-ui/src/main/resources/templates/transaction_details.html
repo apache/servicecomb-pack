@@ -1,0 +1,102 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE html>
+<html xmlns:layout="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml"
+      layout:decorate="~{fragments/main_layout}">
+<head>
+  <title>Alpha Admin - Transactions Details</title>
+</head>
+<body>
+<div layout:fragment="content" class="container-fluid">
+  <h1 class="h3 mb-4 text-gray-800" th:text="'Transaction [' + ${globalTxId} + '] Details'"></h1>
+  <div class="row">
+    <div class="col-xl-8 col-lg-7">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">Events</h6>
+        </div>
+        <div class="card-body">
+          <div class="events" th:each="event,stat : ${events}">
+            <div th:class="${event.type}=='TxAbortedEvent' ? 'row text-danger' : 'row'">
+              <div class="col-xl-6 col-lg-6">
+                <div><i class="fas fa-envelope"></i> <span th:class="${event.type}=='TxAbortedEvent' ? 'small text-danger' : 'small text-success'" th:text="${event.type}"></span></div>
+                <div><i class="fas fa-bell"></i> <span class="small" th:text="${event.serviceName} + '(' + ${event.instanceId} + ')'"></span></div>
+                <div><i class="fas fa-mars-stroke"></i> <span class="small" th:text="${event.parentTxId}"></span></div>
+                <div><i class="fas fa-transgender"></i> <span class="small" th:text="${event.localTxId}"></span></div>
+              </div>
+              <div class="col-xl-6 col-lg-6">
+                <div><i class="fas fa-calendar"></i> <span class="small" th:text="${event.createTime}"></span></div>
+                <div><i class="fas fa-clock"></i> <span class="small" th:text="${event.timeout}+' ms'"></span></div>
+                <div th:if="${event.type}==TxStartedEvent"><i class="fas fa-undo"></i> <span class="small" th:text="${event.retries}"></span></div>
+                <div th:if="${event.type}==TxStartedEvent  or ${event.type}==TxAbortedEvent" class="position-absolute" style="bottom: 0px; right: 15px;">
+                  <i name="event_more" class="fas fa-caret-square-down" style="cursor:pointer" th:target="'div-more-'+${stat.index}"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- TxStartedEvent more -->
+            <div th:id="'div-more-'+${stat.index}" th:if="${event.type}==TxStartedEvent" class="d-none" style="padding-top: 10px">
+              <div class="card border-primary">
+                <div class="card-header small border-primary bg-primary text-white">Compensation Method</div>
+                <div class="card-body">
+                  <span class="small" th:text="${event.compensationMethod}"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- TxAbortedEvent more -->
+            <div th:id="'div-more-'+${stat.index}" th:if="${event.type}==TxAbortedEvent" class="d-none" style="padding-top: 10px">
+              <div class="card border-danger">
+                <div class="card-header small border-danger bg-danger text-white">Exception Stack</div>
+                <div class="card-body">
+                  <span class="small" style="white-space: pre-line" th:text="${event.exception}"></span>
+                </div>
+              </div>
+            </div>
+            <hr th:if="${!stat.last}"/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Chart -->
+    <div class="col-xl-4 col-lg-5">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">Sub Transactions</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="subTransactions" th:each="subTransaction, stat: ${subTransactions}">
+            <div><i class="fas fa-transgender"></i> <span class="small" th:text="${subTransaction.localTxId}"></span></div>
+            <div><i class="fas fa-calendar"></i> <span class="small" th:text="${subTransaction.beginTime}"></span></div>
+            <div><i class="fas fa-calendar"></i> <span class="small" th:text="${subTransaction.endTime}"></span></div>
+            <div><i class="fas fa-bullhorn"></i> <span class="small" th:text="${subTransaction.state}"></span></div>
+            <div><i class="fas fa-clock"></i> <span class="small" th:text="${subTransaction.durationTime}+' ms'"></span></div>
+            <hr th:if="${!stat.last}"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div layout:fragment="scripts">
+  <script th:src="@{/js/alpha-transaction-details.js}"></script>
+</div>
+</body>
+</html>
