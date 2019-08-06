@@ -42,6 +42,7 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import javax.annotation.PostConstruct;
 
@@ -124,6 +125,7 @@ public class AlphaIntegrationTest {
   @Autowired
   private TxConsistentService consistentService;
 
+  private static final AtomicInteger receivedCommandsCounter = new AtomicInteger();
   private static final Queue<GrpcCompensateCommand> receivedCommands = new ConcurrentLinkedQueue<>();
 
   private final CompensationStreamObserver compensateResponseObserver = new CompensationStreamObserver(
@@ -145,6 +147,7 @@ public class AlphaIntegrationTest {
     System.out.println(" globalTxId " + globalTxId);
     eventRepo.deleteAll();
     receivedCommands.clear();
+    receivedCommandsCounter.set(0);
   }
 
   @After
@@ -271,7 +274,7 @@ public class AlphaIntegrationTest {
     blockingStub.onTxEvent(eventOf(TxEndedEvent, localTxId1, parentTxId1, new byte[0], "method b"));
 
     blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
-    await().atMost(1, SECONDS).until(() -> receivedCommands.size() > 1);
+    await().atMost(1, SECONDS).until(() -> receivedCommandsCounter.get() > 1);
 
     assertThat(receivedCommands, contains(
         GrpcCompensateCommand.newBuilder().setGlobalTxId(globalTxId).setLocalTxId(localTxId1).setParentTxId(parentTxId1)
@@ -317,7 +320,7 @@ public class AlphaIntegrationTest {
     blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
     await().atMost(1, SECONDS).until(() -> !receivedCommands.isEmpty());
 
-    assertThat(receivedCommands.size(), is(1));
+    assertThat(receivedCommandsCounter.get(), is(1));
     assertThat(receivedCommands.poll().getGlobalTxId(), is(globalTxId));
 
     anotherBlockingStub.onDisconnected(anotherServiceConfig);
@@ -332,7 +335,7 @@ public class AlphaIntegrationTest {
 
     blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
 
-    await().atMost(1, SECONDS).until(() -> receivedCommands.size() == 1);
+    await().atMost(1, SECONDS).until(() -> receivedCommandsCounter.get() == 1);
 
     String localTxId1 = UUID.randomUUID().toString();
     String parentTxId1 = UUID.randomUUID().toString();
@@ -361,7 +364,7 @@ public class AlphaIntegrationTest {
     blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent, globalTxId, anotherLocalTxId2));
     await().atMost(1, SECONDS).until(() -> !receivedCommands.isEmpty());
 
-    assertThat(receivedCommands.size(), is(1));
+    assertThat(receivedCommandsCounter.get(), is(1));
     assertThat(receivedCommands.poll().getGlobalTxId(), is(globalTxId));
   }
 
@@ -574,6 +577,7 @@ public class AlphaIntegrationTest {
       // intercept received command
       consumer.accept(command);
       receivedCommands.add(command);
+      receivedCommandsCounter.incrementAndGet();
     }
 
     @Override
