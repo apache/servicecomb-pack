@@ -27,6 +27,7 @@ public class DataTablesRequestDTO {
   private List<HashMap<String, String>> order;
   private int start;
   private int length;
+  private String query;
 
   public int getDraw() {
     return draw;
@@ -66,5 +67,13 @@ public class DataTablesRequestDTO {
 
   public void setLength(int length) {
     this.length = length;
+  }
+
+  public String getQuery() {
+    return query;
+  }
+
+  public void setQuery(String query) {
+    this.query = query;
   }
 }

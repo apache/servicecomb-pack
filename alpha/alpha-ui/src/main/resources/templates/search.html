@@ -24,9 +24,9 @@
 <body>
 <div layout:fragment="content" class="container-fluid">
   <!-- Page Heading -->
-  <h1 class="h3 mb-4 text-gray-800" th:text="'Search [' + ${q} + '] Result'">Search Result Transaction </h1>
+  <h1 class="h3 mb-4 text-gray-800" th:text="'Search [' + ${globalTxId} + '] Result'">Search Result Transaction </h1>
   <!-- Transaction Table -->
-  <div id="transaction_config" ajax="/ui/transaction/search">
+  <div id="transaction_config" ajax="/ui/transaction/search" th:query="${globalTxId}">
     <div th:replace="fragments/transaction_table :: transaction_table"></div>
   </div>
 </div>

@@ -24,6 +24,12 @@ $(document).ready(function () {
       column.searchValue = column.search.value;
       delete(column.search);
     }
+
+    // set query parameters
+    var queryValue = $('#transaction_config').attr('query');
+    if (typeof queryValue !== typeof undefined && queryValue !== false) {
+      data.query = queryValue;
+    }
   }
 
   var transaction_table = $('#dataTable').DataTable({
@@ -83,7 +89,7 @@ $(document).ready(function () {
 
   $('#dataTable tbody').on("click","tr", function(_event){
     var data = transaction_table.row( this ).data();
-    window.location = "/ui/transaction/"+data.globalTxId
+    window.location.href = "/ui/transaction/"+data.globalTxId
   });
 
   // table toolbar add state select & custom layout
