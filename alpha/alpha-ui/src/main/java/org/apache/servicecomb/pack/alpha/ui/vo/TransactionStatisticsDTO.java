@@ -15,21 +15,38 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.repository;
+package org.apache.servicecomb.pack.alpha.ui.vo;
 
-import java.util.Map;
-import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransaction;
-import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.PagingGlobalTransactions;
+public class TransactionStatisticsDTO {
+  private long successful;
+  private long compensated;
+  private long failed;
 
-public interface TransactionRepository {
+  public long getTotal() {
+    return successful + compensated + failed;
+  }
 
-  void send(GlobalTransaction transaction) throws Exception;
+  public long getSuccessful() {
+    return successful;
+  }
 
-  GlobalTransaction getGlobalTransactionByGlobalTxId(String globalTxId)
-      throws Exception;
+  public void setSuccessful(long successful) {
+    this.successful = successful;
+  }
 
-  PagingGlobalTransactions getGlobalTransactions(int page, int size)
-      throws Exception;
+  public long getFailed() {
+    return failed;
+  }
 
-  Map<String,Long> getTransactionStatistics();
+  public void setFailed(long failed) {
+    this.failed = failed;
+  }
+
+  public long getCompensated() {
+    return compensated;
+  }
+
+  public void setCompensated(long compensated) {
+    this.compensated = compensated;
+  }
 }

@@ -18,6 +18,7 @@
 package org.apache.servicecomb.pack.alpha.fsm.repository;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Map;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransaction;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.PagingGlobalTransactions;
 import org.slf4j.Logger;
@@ -39,6 +40,11 @@ public class NoneTransactionRepository implements TransactionRepository {
 
   @Override
   public PagingGlobalTransactions getGlobalTransactions(int page, int size) throws Exception {
+    throw new UnsupportedOperationException("NoneTransactionRepository Unsupported!");
+  }
+
+  @Override
+  public Map<String,Long> getTransactionStatistics() {
     throw new UnsupportedOperationException("NoneTransactionRepository Unsupported!");
   }
 }

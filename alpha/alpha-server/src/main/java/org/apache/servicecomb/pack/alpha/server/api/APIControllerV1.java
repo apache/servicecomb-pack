@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.server.api;
 
+import java.util.Map;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransaction;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.PagingGlobalTransactions;
@@ -60,4 +61,10 @@ public class APIControllerV1 {
         .getGlobalTransactions(page, size);
     return ResponseEntity.ok(pagingGlobalTransactions);
   }
+
+  @GetMapping(value = "/transaction/statistics")
+  ResponseEntity<Map<String,Long>> getTransactions() {
+    return ResponseEntity.ok(transactionRepository.getTransactionStatistics());
+  }
+
 }
