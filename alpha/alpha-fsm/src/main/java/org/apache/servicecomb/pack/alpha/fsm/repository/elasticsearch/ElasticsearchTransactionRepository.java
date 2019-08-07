@@ -158,6 +158,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
 
   @Override
   public List<GlobalTransaction> getSlowGlobalTransactionsTopN(int n) {
+    // ElasticsearchTemplate.prepareScroll() does not add sorting https://jira.spring.io/browse/DATAES-457
     ObjectMapper jsonMapper = new ObjectMapper();
     List<GlobalTransaction> globalTransactions = new ArrayList();
     SearchResponse response = this.template.getClient().prepareSearch(INDEX_NAME)
@@ -167,12 +168,12 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
         .setFrom(0).setSize(10).setExplain(true)
         .get();
     response.getHits().forEach(hit -> {
-      try{
+      try {
         GlobalTransactionDocument dto = jsonMapper
             .readValue(hit.getSourceAsString(), GlobalTransactionDocument.class);
         globalTransactions.add(dto);
-      }catch (Exception e){
-        LOG.error(e.getMessage(),e);
+      } catch (Exception e) {
+        LOG.error(e.getMessage(), e);
       }
     });
     return globalTransactions;
