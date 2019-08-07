@@ -20,6 +20,7 @@ package org.apache.servicecomb.pack.alpha.ui;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransaction;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.PagingGlobalTransactions;
@@ -28,6 +29,7 @@ import org.apache.servicecomb.pack.alpha.ui.vo.DataTablesResponseDTO;
 import org.apache.servicecomb.pack.alpha.ui.vo.EventDTO;
 import org.apache.servicecomb.pack.alpha.ui.vo.SubTransactionDTO;
 import org.apache.servicecomb.pack.alpha.ui.vo.TransactionRowDTO;
+import org.apache.servicecomb.pack.alpha.ui.vo.TransactionStatisticsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.context.ApplicationListener;
@@ -170,6 +172,28 @@ public class TransactionController implements ApplicationListener<WebServerIniti
     map.put("globalTxId", globalTransaction.getGlobalTxId());
     map.put("subTransactions", subTransactions);
     return "transaction_details";
+  }
+
+  @GetMapping("/ui/transaction/statistics")
+  @ResponseBody
+  public TransactionStatisticsDTO getGlobalTransactionStatistics() {
+    TransactionStatisticsDTO statisticsDTO = new TransactionStatisticsDTO();
+    UriComponents uriComponents = UriComponentsBuilder
+        .fromUriString("http://localhost:" + serverPort + "/alpha/api/v1/transaction/statistics")
+        .build();
+    ResponseEntity<Map> entity = restTemplate
+        .getForEntity(uriComponents.toUriString(), Map.class);
+    Map<String,Number> statistics = entity.getBody();
+    if(statistics.containsKey("COMMITTED")){
+      statisticsDTO.setSuccessful(statistics.get("COMMITTED").longValue());
+    }
+    if(statistics.containsKey("SUSPENDED")){
+      statisticsDTO.setFailed(statistics.get("SUSPENDED").longValue());
+    }
+    if(statistics.containsKey("COMPENSATED")){
+      statisticsDTO.setCompensated(statistics.get("COMPENSATED").longValue());
+    }
+    return statisticsDTO;
   }
 
   private GlobalTransaction findGlobalTransactionByGlobalTxId(String globalTxId){

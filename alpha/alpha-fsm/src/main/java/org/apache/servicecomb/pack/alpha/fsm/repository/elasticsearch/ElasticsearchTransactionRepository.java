@@ -24,13 +24,19 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
-import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransaction;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.PagingGlobalTransactions;
+import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
+import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
+import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -130,6 +136,21 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
     this.template.clearScroll(scroll.getScrollId());
     return PagingGlobalTransactions.builder().page(page).size(size).total(scroll.getTotalElements())
         .globalTransactions(globalTransactions).elapsed(System.currentTimeMillis() - start).build();
+  }
+
+  public Map<String, Long> getTransactionStatistics() {
+    TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders
+        .terms("count_group_by_state").field("state.keyword");
+    SearchQuery searchQuery = new NativeSearchQueryBuilder()
+        .addAggregation(termsAggregationBuilder)
+        .build();
+    return this.template.query(searchQuery, response -> {
+      final StringTerms groupState = response.getAggregations().get("count_group_by_state");
+      return groupState.getBuckets()
+          .stream()
+          .collect(Collectors.toMap(MultiBucketsAggregation.Bucket::getKeyAsString,
+              MultiBucketsAggregation.Bucket::getDocCount));
+    });
   }
 
   private final SearchResultMapper searchResultMapper = new SearchResultMapper() {
