@@ -43,8 +43,8 @@ public class IndexController implements ErrorController {
   }
 
   @GetMapping("/ui/search")
-  public String searchIndex(ModelMap map, @RequestParam(name = "q") String q) {
-    map.put("q", q);
+  public String searchIndex(ModelMap map, @RequestParam(name = "globalTxId") String globalTxId) {
+    map.put("globalTxId", globalTxId);
     return "search";
   }
 

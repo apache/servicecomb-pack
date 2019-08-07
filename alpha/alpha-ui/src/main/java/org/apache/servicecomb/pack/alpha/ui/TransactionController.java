@@ -20,50 +20,71 @@ package org.apache.servicecomb.pack.alpha.ui;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
-import javax.websocket.server.PathParam;
+import javax.servlet.http.HttpServletRequest;
+import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransaction;
+import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.PagingGlobalTransactions;
 import org.apache.servicecomb.pack.alpha.ui.vo.DataTablesRequestDTO;
 import org.apache.servicecomb.pack.alpha.ui.vo.DataTablesResponseDTO;
 import org.apache.servicecomb.pack.alpha.ui.vo.EventDTO;
 import org.apache.servicecomb.pack.alpha.ui.vo.SubTransactionDTO;
 import org.apache.servicecomb.pack.alpha.ui.vo.TransactionRowDTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.context.WebServerInitializedEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
-public class TransactionController {
+public class TransactionController implements ApplicationListener<WebServerInitializedEvent> {
+
+  @Autowired
+  RestTemplate restTemplate;
+
+  int serverPort;
 
   @PostMapping("/ui/transaction/sagalist")
   @ResponseBody
-  public DataTablesResponseDTO sagaList(@ModelAttribute DataTablesRequestDTO dataTablesRequestDTO) {
+  public DataTablesResponseDTO sagaList(@ModelAttribute DataTablesRequestDTO dataTablesRequestDTO,
+      HttpServletRequest request) {
+    UriComponents uriComponents = UriComponentsBuilder
+        .fromUriString("http://localhost:" + serverPort + "/alpha/api/v1/transaction")
+        .queryParam("page", dataTablesRequestDTO.getStart()/dataTablesRequestDTO.getLength())
+        .queryParam("size", dataTablesRequestDTO.getLength())
+        .build();
     List<TransactionRowDTO> data = new ArrayList<>();
-    for (int i = 0; i < dataTablesRequestDTO.getLength()-2; i++) {
-      data.add(TransactionRowDTO.builder().serviceName("Booking").instanceId("booking-1")
-          .globalTxId("xxxx-xxx-xxx").state("COMMITTED").beginTime(new Date()).endTime(new Date())
-          .subTxSize(3).durationTime(109).build());
-    }
-    for (int i = 0; i < 1; i++) {
-      data.add(TransactionRowDTO.builder().serviceName("Booking").instanceId("booking-1")
-          .globalTxId("xxxx-xxx-xxx").state("SUSPENDED").beginTime(new Date()).endTime(new Date())
-          .subTxSize(3).durationTime(109).build());
-    }
-    for (int i = 0; i < 1; i++) {
-      data.add(TransactionRowDTO.builder().serviceName("Booking").instanceId("booking-1")
-          .globalTxId("xxxx-xxx-xxx").state("COMPENSATED").beginTime(new Date()).endTime(new Date())
-          .subTxSize(3).durationTime(109).build());
-    }
+    ResponseEntity<PagingGlobalTransactions> entity = restTemplate
+        .getForEntity(uriComponents.toUriString(), PagingGlobalTransactions.class);
+    PagingGlobalTransactions pagingGlobalTransactions = entity.getBody();
+    pagingGlobalTransactions.getGlobalTransactions().forEach(globalTransaction -> {
+      data.add(TransactionRowDTO.builder()
+          .serviceName(globalTransaction.getServiceName())
+          .instanceId(globalTransaction.getInstanceId())
+          .globalTxId(globalTransaction.getGlobalTxId())
+          .state(globalTransaction.getState())
+          .beginTime(globalTransaction.getBeginTime())
+          .endTime(globalTransaction.getEndTime())
+          .subTxSize(globalTransaction.getSubTxSize())
+          .durationTime(globalTransaction.getDurationTime())
+          .build());
+    });
     return DataTablesResponseDTO.builder()
         .draw(dataTablesRequestDTO.getDraw())
-        .recordsTotal(100)
-        .recordsFiltered(100)
+        .recordsTotal(pagingGlobalTransactions.getTotal())
+        .recordsFiltered(pagingGlobalTransactions.getTotal())
         .data(data)
         .build();
   }
 
+  // TODO The state machine is not yet supported
   @PostMapping("/ui/transaction/tcclist")
   @ResponseBody
   public DataTablesResponseDTO tccList(@ModelAttribute DataTablesRequestDTO dataTablesRequestDTO) {
@@ -78,11 +99,22 @@ public class TransactionController {
 
   @PostMapping("/ui/transaction/search")
   @ResponseBody
-  public DataTablesResponseDTO searchList(@ModelAttribute DataTablesRequestDTO dataTablesRequestDTO) {
+  public DataTablesResponseDTO searchList(
+      @ModelAttribute DataTablesRequestDTO dataTablesRequestDTO) {
     List<TransactionRowDTO> data = new ArrayList<>();
-    data.add(TransactionRowDTO.builder().serviceName("Booking").instanceId("booking-1")
-        .globalTxId("xxxx-xxx-xxx").state("SUSPENDED").beginTime(new Date()).endTime(new Date())
-        .subTxSize(3).durationTime(109).build());
+    GlobalTransaction globalTransaction = findGlobalTransactionByGlobalTxId(dataTablesRequestDTO.getQuery());
+    if (globalTransaction != null) {
+      data.add(TransactionRowDTO.builder()
+          .serviceName(globalTransaction.getServiceName())
+          .instanceId(globalTransaction.getInstanceId())
+          .globalTxId(globalTransaction.getGlobalTxId())
+          .state(globalTransaction.getState())
+          .beginTime(globalTransaction.getBeginTime())
+          .endTime(globalTransaction.getEndTime())
+          .subTxSize(globalTransaction.getSubTxSize())
+          .durationTime(globalTransaction.getDurationTime())
+          .build());
+    }
     return DataTablesResponseDTO.builder()
         .draw(dataTablesRequestDTO.getDraw())
         .recordsTotal(1)
@@ -92,33 +124,66 @@ public class TransactionController {
   }
 
   @GetMapping("/ui/transaction/{globalTxId}")
-  public String searchList(ModelMap map, @PathParam("globalTxId") String globalTxId) {
+  public String getGlobalTransaction(ModelMap map, @PathVariable("globalTxId") String globalTxId) {
     List<EventDTO> events = new ArrayList<>();
     List<SubTransactionDTO> subTransactions = new ArrayList<>();
+    GlobalTransaction globalTransaction = findGlobalTransactionByGlobalTxId(globalTxId);
+    globalTransaction.getEvents().forEach(event -> {
+      EventDTO eventDTO = EventDTO.builder()
+          // Common Event properties
+          .type(event.get("type").toString())
+          .serviceName(event.get("serviceName").toString())
+          .instanceId(event.get("instanceId").toString())
+          .globalTxId(event.get("globalTxId").toString())
+          .parentTxId(event.get("parentTxId").toString())
+          .localTxId(event.get("localTxId").toString())
+          .createTime(new Date(Long.valueOf(event.get("createTime").toString())))
+          .build();
+      if(eventDTO.getType().equals("TxStartedEvent")){
+        // TxStartedEvent properties
+        if(event.containsKey("compensationMethod")){
+          eventDTO.setCompensationMethod(event.get("compensationMethod").toString());
+        }
+        if(event.containsKey("retries")){
+          eventDTO.setRetries(Long.valueOf(event.get("retries").toString()));
+        }
+        if(event.containsKey("timeout")){
+          eventDTO.setTimeout(Long.valueOf(event.get("timeout").toString()));
+        }
+      }
+      if(eventDTO.getType().equals("TxAbortedEvent")){
+        // TxAbortedEvent properties
+        if(event.containsKey("payloads")){
+          eventDTO.setException(event.get("payloads").toString());
+        }
+      }
+      events.add(eventDTO);
+    });
 
-    globalTxId = UUID.randomUUID().toString();
-    String localTxId_1 = UUID.randomUUID().toString();
-    String localTxId_2 = UUID.randomUUID().toString();
-    String localTxId_3 = UUID.randomUUID().toString();
-    events.add(EventDTO.builder().type("SagaStartedEvent").serviceName("Booking").globalTxId(globalTxId).instanceId("booking-1").createTime(new Date()).localTxId(globalTxId).parentTxId(globalTxId).timeout(60000).build());
-    events.add(EventDTO.builder().type("TxStartedEvent").serviceName("Car").globalTxId(globalTxId).instanceId("car-1").createTime(new Date()).localTxId(localTxId_1).parentTxId(globalTxId).retries(3).compensationMethod("org.servicecomb.sample.car.CarService.cannelOrder()").build());
-    events.add(EventDTO.builder().type("TxEndedEvent").serviceName("Car").globalTxId(globalTxId).instanceId("car-1").createTime(new Date()).localTxId(localTxId_1).parentTxId(globalTxId).build());
-    events.add(EventDTO.builder().type("TxStartedEvent").serviceName("Hotel").globalTxId(globalTxId).instanceId("hotel-1").createTime(new Date()).localTxId(localTxId_2).parentTxId(globalTxId).retries(3).compensationMethod("org.servicecomb.sample.hotel.HotelService.cannelOrder()").build());
-    events.add(EventDTO.builder().type("TxEndedEvent").serviceName("Hotel").globalTxId(globalTxId).instanceId("hotel-1").createTime(new Date()).localTxId(localTxId_2).parentTxId(globalTxId).build());
-    events.add(EventDTO.builder().type("TxStartedEvent").serviceName("Flight").globalTxId(globalTxId).instanceId("flight-1").createTime(new Date()).localTxId(localTxId_3).parentTxId(globalTxId).retries(2).compensationMethod("org.servicecomb.sample.flight.FlightService.cannelOrder()").build());
-    events.add(EventDTO.builder().type("TxEndedEvent").serviceName("Flight").globalTxId(globalTxId).instanceId("flight-1").createTime(new Date()).localTxId(localTxId_3).parentTxId(globalTxId).build());
-    events.add(EventDTO.builder().type("TxAbortedEvent").serviceName("Flight").globalTxId(globalTxId).instanceId("flight-1").createTime(new Date()).localTxId(localTxId_3).parentTxId(globalTxId).exception("java.lang.NullPointerException\n"
-        + "at TestCompile.work(TestCompile.java:25)\n"
-        + "at TestCompile.main(TestCompile.java:17)").build());
-    events.add(EventDTO.builder().type("SagaEndedEvent").serviceName("Booking").globalTxId(globalTxId).instanceId("booking-1").createTime(new Date()).localTxId(globalTxId).parentTxId(globalTxId).build());
-
-    subTransactions.add(SubTransactionDTO.builder().parentTxId(globalTxId).localTxId(localTxId_1).beginTime(new Date()).endTime(new Date()).durationTime(10).state("COMMITTED").build());
-    subTransactions.add(SubTransactionDTO.builder().parentTxId(globalTxId).localTxId(localTxId_2).beginTime(new Date()).endTime(new Date()).durationTime(10).state("COMMITTED").build());
-    subTransactions.add(SubTransactionDTO.builder().parentTxId(globalTxId).localTxId(localTxId_3).beginTime(new Date()).endTime(new Date()).durationTime(10).state("COMMITTED").build());
-    map.put("events",events);
-    map.put("globalTxId",globalTxId);
-    map.put("subTransactions",subTransactions);
+    globalTransaction.getSubTransactions().forEach( sub -> {
+      subTransactions.add(
+          SubTransactionDTO.builder().parentTxId(globalTxId).localTxId(sub.getLocalTxId())
+              .beginTime(sub.getBeginTime()).endTime(sub.getEndTime())
+              .durationTime(sub.getDurationTime()).state(sub.getState().name()).build());
+    });
+    map.put("events", events);
+    map.put("globalTxId", globalTransaction.getGlobalTxId());
+    map.put("subTransactions", subTransactions);
     return "transaction_details";
   }
 
+  private GlobalTransaction findGlobalTransactionByGlobalTxId(String globalTxId){
+    UriComponents uriComponents = UriComponentsBuilder
+        .fromUriString("http://localhost:" + serverPort + "/alpha/api/v1/transaction/"+globalTxId)
+        .build();
+    ResponseEntity<GlobalTransaction> entity = restTemplate
+        .getForEntity(uriComponents.toUriString(), GlobalTransaction.class);
+    GlobalTransaction globalTransaction = entity.getBody();
+    return globalTransaction;
+  }
+
+  @Override
+  public void onApplicationEvent(WebServerInitializedEvent webServerInitializedEvent) {
+    serverPort = webServerInitializedEvent.getWebServer().getPort();
+  }
 }

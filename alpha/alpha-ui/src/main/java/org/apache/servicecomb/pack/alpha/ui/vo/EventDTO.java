@@ -76,6 +76,22 @@ public class EventDTO {
     return exception;
   }
 
+  public void setTimeout(long timeout) {
+    this.timeout = timeout;
+  }
+
+  public void setRetries(long retries) {
+    this.retries = retries;
+  }
+
+  public void setCompensationMethod(String compensationMethod) {
+    this.compensationMethod = compensationMethod;
+  }
+
+  public void setException(String exception) {
+    this.exception = exception;
+  }
+
   public static Builder builder() {
     return new Builder();
   }

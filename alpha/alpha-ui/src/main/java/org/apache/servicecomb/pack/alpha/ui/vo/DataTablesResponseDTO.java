@@ -22,19 +22,19 @@ import java.util.List;
 
 public class DataTablesResponseDTO {
   private int draw;
-  private int recordsTotal;
-  private int recordsFiltered;
+  private long recordsTotal;
+  private long recordsFiltered;
   private List<TransactionRowDTO> data = new ArrayList<>();
 
   public int getDraw() {
     return draw;
   }
 
-  public int getRecordsTotal() {
+  public long getRecordsTotal() {
     return recordsTotal;
   }
 
-  public int getRecordsFiltered() {
+  public long getRecordsFiltered() {
     return recordsFiltered;
   }
 
@@ -49,8 +49,8 @@ public class DataTablesResponseDTO {
   public static final class Builder {
 
     private int draw;
-    private int recordsTotal;
-    private int recordsFiltered;
+    private long recordsTotal;
+    private long recordsFiltered;
     private List<TransactionRowDTO> data = new ArrayList<>();
 
     private Builder() {
@@ -61,12 +61,12 @@ public class DataTablesResponseDTO {
       return this;
     }
 
-    public Builder recordsTotal(int recordsTotal) {
+    public Builder recordsTotal(long recordsTotal) {
       this.recordsTotal = recordsTotal;
       return this;
     }
 
-    public Builder recordsFiltered(int recordsFiltered) {
+    public Builder recordsFiltered(long recordsFiltered) {
       this.recordsFiltered = recordsFiltered;
       return this;
     }

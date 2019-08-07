@@ -18,12 +18,18 @@
 package org.apache.servicecomb.pack.alpha.ui;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @ConditionalOnProperty(value = {"alpha.feature.akka.enabled"})
 @Import({IndexController.class,TransactionController.class})
 public class UIAutoConfiguration {
 
+  @Bean
+  public RestTemplate restTemplate(){
+    return new RestTemplate();
+  }
 }

@@ -47,6 +47,13 @@
   </dependencyManagement>
 
   <dependencies>
+
+    <!-- servicecomb pack -->
+    <dependency>
+      <groupId>org.apache.servicecomb.pack</groupId>
+      <artifactId>alpha-core</artifactId>
+    </dependency>
+
     <!-- webjars -->
     <dependency>
       <groupId>org.webjars</groupId>
