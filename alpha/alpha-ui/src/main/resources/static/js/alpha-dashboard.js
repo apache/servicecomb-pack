@@ -27,4 +27,24 @@ $(document).ready(function () {
       // TODO show message
     }
   });
+
+  $.ajax('/ui/transaction/slow', {
+    success: function (data) {
+      for (i = 0; i < data.length; i++) {
+        $('.slow-topn').append(
+            '<a href="/ui/transaction/' + data[i].globalTxId
+            + '"><div class="progress mb-3" id="slow-top-"' + i + '>\n'
+            + '<div class="progress-bar" role="progressbar" style="cursor:pointer; width: '
+            + (data[i].durationTime / data[0].durationTime) * 100
+            + '%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">'
+            + data[i].durationTime + ' ms</div>\n'
+            + '</div></a>')
+      }
+    },
+    error: function (state) {
+      // TODO show message
+    }
+  });
+
+
 });

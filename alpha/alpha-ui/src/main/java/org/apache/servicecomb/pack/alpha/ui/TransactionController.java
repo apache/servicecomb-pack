@@ -33,6 +33,8 @@ import org.apache.servicecomb.pack.alpha.ui.vo.TransactionStatisticsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -194,6 +196,33 @@ public class TransactionController implements ApplicationListener<WebServerIniti
       statisticsDTO.setCompensated(statistics.get("COMPENSATED").longValue());
     }
     return statisticsDTO;
+  }
+
+  @GetMapping("/ui/transaction/slow")
+  @ResponseBody
+  public List<TransactionRowDTO> getSlowGlobalTransactionTopN() {
+    List<TransactionRowDTO> transactionRowDTOS = new ArrayList<>();
+    UriComponents uriComponents = UriComponentsBuilder
+        .fromUriString("http://localhost:" + serverPort + "/alpha/api/v1/transaction/slow")
+        .build();
+    ResponseEntity<List<GlobalTransaction>> entity = restTemplate
+        .exchange(uriComponents.toUriString(), HttpMethod.GET, null,
+            new ParameterizedTypeReference<List<GlobalTransaction>>() {
+            });
+    List<GlobalTransaction> transactions = entity.getBody();
+    transactions.stream().forEach( globalTransaction -> {
+      transactionRowDTOS.add(TransactionRowDTO.builder()
+          .serviceName(globalTransaction.getServiceName())
+          .instanceId(globalTransaction.getInstanceId())
+          .globalTxId(globalTransaction.getGlobalTxId())
+          .state(globalTransaction.getState())
+          .beginTime(globalTransaction.getBeginTime())
+          .endTime(globalTransaction.getEndTime())
+          .subTxSize(globalTransaction.getSubTxSize())
+          .durationTime(globalTransaction.getDurationTime())
+          .build());
+    });
+    return transactionRowDTOS;
   }
 
   private GlobalTransaction findGlobalTransactionByGlobalTxId(String globalTxId){
