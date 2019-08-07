@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.core.fsm;
+package org.apache.servicecomb.pack.alpha.fsm;
 
 import akka.persistence.fsm.PersistentFSM;
 
