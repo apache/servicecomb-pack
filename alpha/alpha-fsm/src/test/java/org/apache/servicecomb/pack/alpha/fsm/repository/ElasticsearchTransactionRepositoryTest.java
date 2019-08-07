@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
-import org.apache.servicecomb.pack.alpha.core.fsm.SagaActorState;
+import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
 import org.apache.servicecomb.pack.alpha.core.fsm.TransactionType;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.repository.elasticsearch.ElasticsearchTransactionRepository;
@@ -64,7 +64,7 @@ public class ElasticsearchTransactionRepositoryTest {
           .globalTxId(globalTxId)
           .beginTime(new Date())
           .endTime(new Date())
-          .state(SagaActorState.COMMITTED)
+          .state(SagaActorState.COMMITTED.name())
           .subTxSize(0)
           .subTransactions(new ArrayList<>())
           .events(new ArrayList<>())
@@ -94,7 +94,7 @@ public class ElasticsearchTransactionRepositoryTest {
           .globalTxId(globalTxId)
           .beginTime(new Date())
           .endTime(new Date())
-          .state(SagaActorState.COMMITTED)
+          .state(SagaActorState.COMMITTED.name())
           .subTxSize(0)
           .subTransactions(new ArrayList<>())
           .events(new ArrayList<>())
@@ -123,7 +123,7 @@ public class ElasticsearchTransactionRepositoryTest {
           .globalTxId(globalTxId)
           .beginTime(new Date())
           .endTime(new Date())
-          .state(SagaActorState.COMMITTED)
+          .state(SagaActorState.COMMITTED.name())
           .subTxSize(0)
           .subTransactions(new ArrayList<>())
           .events(new ArrayList<>())

@@ -24,7 +24,7 @@ import static org.junit.Assert.assertNotNull;
 
 import akka.actor.ActorSystem;
 import java.util.UUID;
-import org.apache.servicecomb.pack.alpha.core.fsm.SagaActorState;
+import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
 import org.apache.servicecomb.pack.alpha.core.fsm.TxState;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;

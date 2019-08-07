@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.apache.servicecomb.pack.alpha.core.fsm.SagaActorState;
 import org.apache.servicecomb.pack.alpha.core.fsm.TransactionType;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 
@@ -36,7 +35,7 @@ public class GlobalTransaction {
   private Date beginTime;
   @JsonFormat(shape = JsonFormat.Shape.NUMBER)
   private Date endTime;
-  private SagaActorState state;
+  private String state;
   private Integer subTxSize;
   private Long durationTime;
   private List<SagaSubTransaction> subTransactions = new ArrayList<>();
@@ -66,7 +65,7 @@ public class GlobalTransaction {
     return endTime;
   }
 
-  public SagaActorState getState() {
+  public String getState() {
     return state;
   }
 
@@ -98,7 +97,7 @@ public class GlobalTransaction {
     private String instanceId;
     private Date beginTime;
     private Date endTime;
-    private SagaActorState state;
+    private String state;
     private Integer subTxSize;
     private List<SagaSubTransaction> subTransactions;
     private List<BaseEvent> events;
@@ -136,7 +135,7 @@ public class GlobalTransaction {
       return this;
     }
 
-    public Builder state(SagaActorState state) {
+    public Builder state(String state) {
       this.state = state;
       return this;
     }

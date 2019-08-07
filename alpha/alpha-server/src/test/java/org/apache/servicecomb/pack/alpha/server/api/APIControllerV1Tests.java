@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.servicecomb.pack.alpha.core.NodeStatus;
 import org.apache.servicecomb.pack.alpha.core.NodeStatus.TypeEnum;
-import org.apache.servicecomb.pack.alpha.core.fsm.SagaActorState;
+import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
 import org.apache.servicecomb.pack.alpha.core.fsm.TransactionType;
 import org.apache.servicecomb.pack.alpha.core.fsm.TxState;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.SagaEndedEvent;
@@ -172,7 +172,7 @@ public class APIControllerV1Tests {
         .instanceId(instanceId)
         .globalTxId(globalTxId)
         .type(TransactionType.SAGA)
-        .state(SagaActorState.COMMITTED)
+        .state(SagaActorState.COMMITTED.name())
         .beginTime(new Date())
         .endTime(new Date())
         .subTxSize(3)
@@ -214,7 +214,7 @@ public class APIControllerV1Tests {
         .andExpect(jsonPath("$.globalTransactions[0].endTime")
             .value(globalTransactions.get(0).getEndTime().getTime()))
         .andExpect(jsonPath("$.globalTransactions[0].state")
-            .value(globalTransactions.get(0).getState().name()))
+            .value(globalTransactions.get(0).getState()))
         .andExpect(jsonPath("$.globalTransactions[0].subTxSize")
             .value(globalTransactions.get(0).getSubTxSize()))
         .andExpect(jsonPath("$.globalTransactions[0].durationTime")
@@ -267,7 +267,7 @@ public class APIControllerV1Tests {
         .instanceId(instanceId)
         .globalTxId(globalTxId)
         .type(TransactionType.SAGA)
-        .state(SagaActorState.COMMITTED)
+        .state(SagaActorState.COMMITTED.name())
         .beginTime(new Date())
         .endTime(new Date())
         .subTxSize(3)
@@ -298,7 +298,7 @@ public class APIControllerV1Tests {
         .andExpect(jsonPath("$.endTime")
             .value(globalTransaction.getEndTime().getTime()))
         .andExpect(jsonPath("$.state")
-            .value(globalTransaction.getState().name()))
+            .value(globalTransaction.getState()))
         .andExpect(jsonPath("$.subTxSize")
             .value(globalTransaction.getSubTxSize()))
         .andExpect(jsonPath("$.durationTime")

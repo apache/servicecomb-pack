@@ -24,7 +24,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.servicecomb.pack.alpha.core.fsm.SagaActorState;
+import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
 import org.apache.servicecomb.pack.alpha.core.fsm.TransactionType;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
@@ -82,7 +82,7 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
           .globalTxId(sagaData.getGlobalTxId())
           .beginTime(sagaData.getBeginTime())
           .endTime(sagaData.getEndTime())
-          .state(sagaData.getLastState())
+          .state(sagaData.getLastState().name())
           .subTxSize(sagaData.getTxEntityMap().size())
           .subTransactions(subTransactions)
           .events(sagaData.getEvents())
