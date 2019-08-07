@@ -15,12 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm;
+package org.apache.servicecomb.pack.alpha.core.fsm;
 
-public enum TxState {
-  ACTIVE,
-  FAILED,
-  COMMITTED,
-  COMPENSATION_SENT, // The compensation method has been called to wait for TxCompensatedEvent
-  COMPENSATED
+public enum TransactionType {
+  SAGA
 }

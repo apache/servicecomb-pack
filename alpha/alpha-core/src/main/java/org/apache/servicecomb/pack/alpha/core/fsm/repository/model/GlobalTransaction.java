@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.repository.model;
+package org.apache.servicecomb.pack.alpha.core.fsm.repository.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.util.ArrayList;
@@ -23,8 +23,8 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
-import org.apache.servicecomb.pack.alpha.fsm.TransactionType;
+import org.apache.servicecomb.pack.alpha.core.fsm.SagaActorState;
+import org.apache.servicecomb.pack.alpha.core.fsm.TransactionType;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 
 public class GlobalTransaction {

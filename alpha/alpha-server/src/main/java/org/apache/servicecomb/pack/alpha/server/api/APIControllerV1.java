@@ -18,8 +18,8 @@
 package org.apache.servicecomb.pack.alpha.server.api;
 
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
-import org.apache.servicecomb.pack.alpha.fsm.repository.model.GlobalTransaction;
-import org.apache.servicecomb.pack.alpha.fsm.repository.model.PagingGlobalTransactions;
+import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransaction;
+import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.PagingGlobalTransactions;
 import org.apache.servicecomb.pack.alpha.server.metrics.AlphaMetrics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -24,6 +24,8 @@ import static org.junit.Assert.assertNotNull;
 
 import akka.actor.ActorSystem;
 import java.util.UUID;
+import org.apache.servicecomb.pack.alpha.core.fsm.SagaActorState;
+import org.apache.servicecomb.pack.alpha.core.fsm.TxState;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
 import org.apache.servicecomb.pack.alpha.fsm.sink.SagaActorEventSender;
@@ -83,13 +85,13 @@ public class SagaIntegrationTest {
     });
     await().atMost(2, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
-      return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMMITTED;
+      return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()== SagaActorState.COMMITTED;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
     assertEquals(sagaData.getTxEntityMap().size(),3);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(),TxState.COMMITTED);
+    assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(), TxState.COMMITTED);
     assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(),TxState.COMMITTED);
     assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(),TxState.COMMITTED);
     assertEquals(metricsService.metrics().getActorReceived(),8);

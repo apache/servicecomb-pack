@@ -15,8 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm;
+package org.apache.servicecomb.pack.alpha.core.fsm;
 
-public enum TransactionType {
-  SAGA
+import akka.persistence.fsm.PersistentFSM;
+
+public enum SagaActorState implements PersistentFSM.FSMState {
+  IDLE,
+  READY,
+  PARTIALLY_ACTIVE,
+  PARTIALLY_COMMITTED,
+  FAILED,
+  COMMITTED,
+  COMPENSATED,
+  SUSPENDED;
+
+  @Override
+  public String identifier() {
+    return name();
+  }
 }

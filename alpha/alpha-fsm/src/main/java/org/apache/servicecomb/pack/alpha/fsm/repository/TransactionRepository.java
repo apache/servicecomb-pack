@@ -17,8 +17,8 @@
 
 package org.apache.servicecomb.pack.alpha.fsm.repository;
 
-import org.apache.servicecomb.pack.alpha.fsm.repository.model.GlobalTransaction;
-import org.apache.servicecomb.pack.alpha.fsm.repository.model.PagingGlobalTransactions;
+import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransaction;
+import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.PagingGlobalTransactions;
 
 public interface TransactionRepository {
 

@@ -17,7 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.fsm.domain;
 
-import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
+import org.apache.servicecomb.pack.alpha.core.fsm.SagaActorState;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 
 public class SagaEndedDomain implements DomainEvent {

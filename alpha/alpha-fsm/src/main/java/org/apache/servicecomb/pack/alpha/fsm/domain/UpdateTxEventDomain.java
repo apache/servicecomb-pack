@@ -17,7 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.fsm.domain;
 
-import org.apache.servicecomb.pack.alpha.fsm.TxState;
+import org.apache.servicecomb.pack.alpha.core.fsm.TxState;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.TxAbortedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.TxCompensatedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.TxEndedEvent;
