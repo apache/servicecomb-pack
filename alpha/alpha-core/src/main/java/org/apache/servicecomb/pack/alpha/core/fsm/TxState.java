@@ -15,22 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm;
+package org.apache.servicecomb.pack.alpha.core.fsm;
 
-import akka.persistence.fsm.PersistentFSM;
-
-public enum SagaActorState implements PersistentFSM.FSMState {
-  IDLE,
-  READY,
-  PARTIALLY_ACTIVE,
-  PARTIALLY_COMMITTED,
+public enum TxState {
+  ACTIVE,
   FAILED,
   COMMITTED,
-  COMPENSATED,
-  SUSPENDED;
-
-  @Override
-  public String identifier() {
-    return name();
-  }
+  COMPENSATION_SENT, // The compensation method has been called to wait for TxCompensatedEvent
+  COMPENSATED
 }

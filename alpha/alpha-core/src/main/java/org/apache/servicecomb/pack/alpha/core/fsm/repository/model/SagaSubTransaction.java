@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.repository.model;
+package org.apache.servicecomb.pack.alpha.core.fsm.repository.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.util.Date;
-import org.apache.servicecomb.pack.alpha.fsm.TxState;
+import org.apache.servicecomb.pack.alpha.core.fsm.TxState;
 
 public class SagaSubTransaction {
   private String localTxId;

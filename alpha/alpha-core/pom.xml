@@ -28,7 +28,17 @@
 
   <artifactId>alpha-core</artifactId>
   <name>Pack::Alpha::Core</name>
-  
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-persistence_2.12</artifactId>
+        <version>${akka.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.servicecomb.pack</groupId>
@@ -86,6 +96,11 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
       <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-persistence_2.12</artifactId>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 

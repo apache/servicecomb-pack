@@ -18,8 +18,8 @@
 package org.apache.servicecomb.pack.alpha.fsm.repository;
 
 import java.lang.invoke.MethodHandles;
-import org.apache.servicecomb.pack.alpha.fsm.repository.model.GlobalTransaction;
-import org.apache.servicecomb.pack.alpha.fsm.repository.model.PagingGlobalTransactions;
+import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransaction;
+import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.PagingGlobalTransactions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

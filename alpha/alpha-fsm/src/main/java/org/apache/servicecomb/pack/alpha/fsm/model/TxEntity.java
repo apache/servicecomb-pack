@@ -20,7 +20,7 @@ package org.apache.servicecomb.pack.alpha.fsm.model;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.servicecomb.pack.alpha.fsm.TxState;
+import org.apache.servicecomb.pack.alpha.core.fsm.TxState;
 
 public class TxEntity implements Serializable {
   private String serviceName;

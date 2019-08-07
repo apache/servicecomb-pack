@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
+import org.apache.servicecomb.pack.alpha.core.fsm.SagaActorState;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 
 public class SagaData implements Serializable {

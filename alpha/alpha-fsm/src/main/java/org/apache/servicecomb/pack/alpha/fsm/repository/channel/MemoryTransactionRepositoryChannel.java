@@ -21,7 +21,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.repository.AbstractTransactionRepositoryChannel;
-import org.apache.servicecomb.pack.alpha.fsm.repository.model.GlobalTransaction;
+import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransaction;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

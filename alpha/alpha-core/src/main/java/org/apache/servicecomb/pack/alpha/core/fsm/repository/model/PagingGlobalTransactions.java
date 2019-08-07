@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.repository.model;
+package org.apache.servicecomb.pack.alpha.core.fsm.repository.model;
 
 import java.util.List;
 
