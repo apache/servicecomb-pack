@@ -18,6 +18,7 @@
 package org.apache.servicecomb.pack.alpha.fsm.repository;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 import java.util.Map;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransaction;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.PagingGlobalTransactions;
@@ -45,6 +46,11 @@ public class NoneTransactionRepository implements TransactionRepository {
 
   @Override
   public Map<String,Long> getTransactionStatistics() {
+    throw new UnsupportedOperationException("NoneTransactionRepository Unsupported!");
+  }
+
+  @Override
+  public List<GlobalTransaction> getSlowGlobalTransactionsTopN(int n) {
     throw new UnsupportedOperationException("NoneTransactionRepository Unsupported!");
   }
 }

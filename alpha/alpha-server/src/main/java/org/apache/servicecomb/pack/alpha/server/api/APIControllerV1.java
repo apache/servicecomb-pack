@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.server.api;
 
+import java.util.List;
 import java.util.Map;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransaction;
@@ -67,4 +68,8 @@ public class APIControllerV1 {
     return ResponseEntity.ok(transactionRepository.getTransactionStatistics());
   }
 
+  @GetMapping(value = "/transaction/slow")
+  ResponseEntity<List<GlobalTransaction>> getSlowTransactions() {
+    return ResponseEntity.ok(transactionRepository.getSlowGlobalTransactionsTopN(10));
+  }
 }

@@ -31,12 +31,15 @@ import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.PagingGlobalT
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -151,6 +154,28 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
           .collect(Collectors.toMap(MultiBucketsAggregation.Bucket::getKeyAsString,
               MultiBucketsAggregation.Bucket::getDocCount));
     });
+  }
+
+  @Override
+  public List<GlobalTransaction> getSlowGlobalTransactionsTopN(int n) {
+    ObjectMapper jsonMapper = new ObjectMapper();
+    List<GlobalTransaction> globalTransactions = new ArrayList();
+    SearchResponse response = this.template.getClient().prepareSearch(INDEX_NAME)
+        .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+        .setQuery(QueryBuilders.matchAllQuery())
+        .addSort(SortBuilders.fieldSort("durationTime").order(SortOrder.DESC))
+        .setFrom(0).setSize(10).setExplain(true)
+        .get();
+    response.getHits().forEach(hit -> {
+      try{
+        GlobalTransactionDocument dto = jsonMapper
+            .readValue(hit.getSourceAsString(), GlobalTransactionDocument.class);
+        globalTransactions.add(dto);
+      }catch (Exception e){
+        LOG.error(e.getMessage(),e);
+      }
+    });
+    return globalTransactions;
   }
 
   private final SearchResultMapper searchResultMapper = new SearchResultMapper() {

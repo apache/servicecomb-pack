@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.fsm.repository;
 
+import java.util.List;
 import java.util.Map;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransaction;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.PagingGlobalTransactions;
@@ -32,4 +33,6 @@ public interface TransactionRepository {
       throws Exception;
 
   Map<String,Long> getTransactionStatistics();
+
+  List<GlobalTransaction> getSlowGlobalTransactionsTopN(int n);
 }
