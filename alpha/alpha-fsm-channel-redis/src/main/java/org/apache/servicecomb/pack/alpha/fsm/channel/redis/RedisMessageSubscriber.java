@@ -28,43 +28,43 @@ import java.nio.charset.StandardCharsets;
 
 public class RedisMessageSubscriber implements MessageListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisMessageSubscriber.class);
+  private static final Logger logger = LoggerFactory.getLogger(RedisMessageSubscriber.class);
 
-    private ActorEventSink actorEventSink;
-    private NodeStatus nodeStatus;
+  private ActorEventSink actorEventSink;
+  private NodeStatus nodeStatus;
 
-    private MessageSerializer messageSerializer = new MessageSerializer();
+  private MessageSerializer messageSerializer = new MessageSerializer();
 
-    public RedisMessageSubscriber(ActorEventSink actorEventSink, NodeStatus nodeStatus) {
-        this.actorEventSink = actorEventSink;
-        this.nodeStatus = nodeStatus;
-    }
+  public RedisMessageSubscriber(ActorEventSink actorEventSink, NodeStatus nodeStatus) {
+    this.actorEventSink = actorEventSink;
+    this.nodeStatus = nodeStatus;
+  }
 
-    @Override
-    public void onMessage(Message message, byte[] pattern) {
-        if(nodeStatus.isMaster()) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("pattern = [{}]", new String(pattern, StandardCharsets.UTF_8));
-            }
+  @Override
+  public void onMessage(Message message, byte[] pattern) {
+    if(nodeStatus.isMaster()) {
+      if (logger.isDebugEnabled()) {
+        logger.debug("pattern = [{}]", new String(pattern, StandardCharsets.UTF_8));
+      }
 
-            messageSerializer.deserialize(message.getBody()).ifPresent(data -> {
+      messageSerializer.deserialize(message.getBody()).ifPresent(data -> {
 
-                BaseEvent event = (BaseEvent) data;
+        BaseEvent event = (BaseEvent) data;
 
-                if (logger.isDebugEnabled()) {
-                    logger.debug("event = [{}]", event);
-                }
-
-                try {
-                    actorEventSink.send(event);
-                } catch (Exception e) {
-                    logger.error("subscriber Exception = [{}]", e.getMessage(), e);
-                }
-            });
-        }else{
-            if(logger.isDebugEnabled()){
-                logger.debug("nodeStatus is not master and cancel this time subscribe");
-            }
+        if (logger.isDebugEnabled()) {
+          logger.debug("event = [{}]", event);
         }
+
+        try {
+          actorEventSink.send(event);
+        } catch (Exception e) {
+          logger.error("subscriber Exception = [{}]", e.getMessage(), e);
+        }
+      });
+    }else{
+      if(logger.isDebugEnabled()){
+        logger.debug("nodeStatus is not master and cancel this time subscribe");
+      }
     }
+  }
 }

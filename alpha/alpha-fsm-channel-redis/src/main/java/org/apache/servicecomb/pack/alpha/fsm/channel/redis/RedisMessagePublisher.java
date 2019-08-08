@@ -25,22 +25,22 @@ import org.springframework.data.redis.listener.ChannelTopic;
 
 public class RedisMessagePublisher implements MessagePublisher {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisMessagePublisher.class);
+  private static final Logger logger = LoggerFactory.getLogger(RedisMessagePublisher.class);
 
-    private RedisTemplate<String, Object> redisTemplate;
-    private ChannelTopic channelTopic;
+  private RedisTemplate<String, Object> redisTemplate;
+  private ChannelTopic channelTopic;
 
-    public RedisMessagePublisher(RedisTemplate<String, Object> redisTemplate, ChannelTopic channelTopic) {
-        this.redisTemplate = redisTemplate;
-        this.channelTopic = channelTopic;
+  public RedisMessagePublisher(RedisTemplate<String, Object> redisTemplate, ChannelTopic channelTopic) {
+    this.redisTemplate = redisTemplate;
+    this.channelTopic = channelTopic;
+  }
+
+  @Override
+  public void publish(Object data) {
+    if(logger.isDebugEnabled()) {
+      logger.debug("send message [{}] to [{}]", data, channelTopic.getTopic());
     }
+    redisTemplate.convertAndSend(channelTopic.getTopic(), data);
 
-    @Override
-    public void publish(Object data) {
-        if(logger.isDebugEnabled()) {
-            logger.debug("send message [{}] to [{}]", data, channelTopic.getTopic());
-        }
-        redisTemplate.convertAndSend(channelTopic.getTopic(), data);
-
-    }
+  }
 }

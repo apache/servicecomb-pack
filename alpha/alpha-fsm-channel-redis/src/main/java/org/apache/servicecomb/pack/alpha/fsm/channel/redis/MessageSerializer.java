@@ -29,58 +29,58 @@ import java.util.Optional;
 
 public class MessageSerializer {
 
-    private static final Logger logger = LoggerFactory.getLogger(MessageSerializer.class);
+  private static final Logger logger = LoggerFactory.getLogger(MessageSerializer.class);
 
-    private static MessageSerializerImpl serializer = null;
+  private static MessageSerializerImpl serializer = null;
 
-    public MessageSerializer() {
-        serializer = new MessageSerializerImpl();
+  public MessageSerializer() {
+    serializer = new MessageSerializerImpl();
+  }
+
+  public Optional<byte[]> serializer(Object data){
+    return Optional.ofNullable(serializer.serialize(data));
+  }
+
+  public Optional<Object> deserialize(byte[] bytes){
+    return Optional.ofNullable(serializer.deserialize(bytes));
+  }
+
+  private class MessageSerializerImpl implements RedisSerializer<Object>{
+    @Override
+    public byte[] serialize(Object data) throws SerializationException {
+      try {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ObjectOutputStream outputStream = new ObjectOutputStream(byteArrayOutputStream);
+        outputStream.writeObject(data);
+
+        byte[] bytes = byteArrayOutputStream.toByteArray();
+
+        outputStream.close();
+
+        return bytes;
+      }catch (Exception e){
+        logger.error("serialize Exception = [{}]", e.getMessage(), e);
+      }
+
+      return null;
     }
 
-    public Optional<byte[]> serializer(Object data){
-        return Optional.ofNullable(serializer.serialize(data));
+    @Override
+    public Object deserialize(byte[] bytes) throws SerializationException {
+      try {
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
+        ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+
+        Object object = objectInputStream.readObject();
+
+        objectInputStream.close();
+
+        return object;
+      }catch (Exception e){
+        logger.error("deserialize Exception = [{}]", e.getMessage(), e);
+      }
+
+      return null;
     }
-
-    public Optional<Object> deserialize(byte[] bytes){
-        return Optional.ofNullable(serializer.deserialize(bytes));
-    }
-
-    private class MessageSerializerImpl implements RedisSerializer<Object>{
-        @Override
-        public byte[] serialize(Object data) throws SerializationException {
-            try {
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                ObjectOutputStream outputStream = new ObjectOutputStream(byteArrayOutputStream);
-                outputStream.writeObject(data);
-
-                byte[] bytes = byteArrayOutputStream.toByteArray();
-
-                outputStream.close();
-
-                return bytes;
-            }catch (Exception e){
-                logger.error("serialize Exception = [{}]", e.getMessage(), e);
-            }
-
-            return null;
-        }
-
-        @Override
-        public Object deserialize(byte[] bytes) throws SerializationException {
-            try {
-                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-                ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
-
-                Object object = objectInputStream.readObject();
-
-                objectInputStream.close();
-
-                return object;
-            }catch (Exception e){
-                logger.error("deserialize Exception = [{}]", e.getMessage(), e);
-            }
-
-            return null;
-        }
-    }
+  }
 }

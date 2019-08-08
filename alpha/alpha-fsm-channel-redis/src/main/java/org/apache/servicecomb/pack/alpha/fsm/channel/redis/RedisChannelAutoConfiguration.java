@@ -42,58 +42,58 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @ConditionalOnClass(RedisConnection.class)
 @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "redis")
 public class RedisChannelAutoConfiguration {
-    private static final Logger logger = LoggerFactory.getLogger(RedisChannelAutoConfiguration.class);
+  private static final Logger logger = LoggerFactory.getLogger(RedisChannelAutoConfiguration.class);
 
-    @Value("${alpha.feature.akka.channel.redis.topic:servicecomb-pack-actor-event}")
-    private String topic;
+  @Value("${alpha.feature.akka.channel.redis.topic:servicecomb-pack-actor-event}")
+  private String topic;
 
-    @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashKeySerializer(new GenericToStringSerializer<>(Object.class));
-        redisTemplate.setHashValueSerializer(new JdkSerializationRedisSerializer());
-        redisTemplate.setValueSerializer(new JdkSerializationRedisSerializer());
-        redisTemplate.setConnectionFactory(redisConnectionFactory);
+  @Bean
+  public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+    redisTemplate.setKeySerializer(new StringRedisSerializer());
+    redisTemplate.setHashKeySerializer(new GenericToStringSerializer<>(Object.class));
+    redisTemplate.setHashValueSerializer(new JdkSerializationRedisSerializer());
+    redisTemplate.setValueSerializer(new JdkSerializationRedisSerializer());
+    redisTemplate.setConnectionFactory(redisConnectionFactory);
 
-        return redisTemplate;
+    return redisTemplate;
+  }
+
+  @Bean
+  RedisMessageSubscriber redisMessageSubscriber(@Lazy @Qualifier("actorEventSink") ActorEventSink actorEventSink,
+      @Lazy @Qualifier("nodeStatus") NodeStatus nodeStatus) {
+    return new RedisMessageSubscriber(actorEventSink, nodeStatus);
+  }
+
+  @Bean
+  public MessageListenerAdapter messageListenerAdapter(@Lazy @Qualifier("actorEventSink") ActorEventSink actorEventSink,
+      @Lazy @Qualifier("nodeStatus") NodeStatus nodeStatus) {
+    return new MessageListenerAdapter(redisMessageSubscriber(actorEventSink, nodeStatus));
+  }
+
+  @Bean
+  public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory redisConnectionFactory,
+      @Lazy @Qualifier("actorEvetSink") ActorEventSink actorEventSink,
+      @Lazy @Qualifier("nodeStatus") NodeStatus nodeStatus) {
+    RedisMessageListenerContainer redisMessageListenerContainer = new RedisMessageListenerContainer();
+
+    redisMessageListenerContainer.setConnectionFactory(redisConnectionFactory);
+    redisMessageListenerContainer.addMessageListener(redisMessageSubscriber(actorEventSink, nodeStatus), channelTopic());
+
+    return redisMessageListenerContainer;
+  }
+
+  @Bean
+  MessagePublisher redisMessagePublisher(RedisTemplate<String, Object> redisTemplate) {
+    return new RedisMessagePublisher(redisTemplate, channelTopic());
+  }
+
+  @Bean
+  ChannelTopic channelTopic() {
+    if (logger.isDebugEnabled()) {
+      logger.debug("build channel topic = [{}]", topic);
     }
-
-    @Bean
-    RedisMessageSubscriber redisMessageSubscriber(@Lazy @Qualifier("actorEventSink") ActorEventSink actorEventSink,
-                                                  @Lazy @Qualifier("nodeStatus") NodeStatus nodeStatus) {
-        return new RedisMessageSubscriber(actorEventSink, nodeStatus);
-    }
-
-    @Bean
-    public MessageListenerAdapter messageListenerAdapter(@Lazy @Qualifier("actorEventSink") ActorEventSink actorEventSink,
-                                                         @Lazy @Qualifier("nodeStatus") NodeStatus nodeStatus) {
-        return new MessageListenerAdapter(redisMessageSubscriber(actorEventSink, nodeStatus));
-    }
-
-    @Bean
-    public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory redisConnectionFactory,
-                                                                       @Lazy @Qualifier("actorEvetSink") ActorEventSink actorEventSink,
-                                                                       @Lazy @Qualifier("nodeStatus") NodeStatus nodeStatus) {
-        RedisMessageListenerContainer redisMessageListenerContainer = new RedisMessageListenerContainer();
-
-        redisMessageListenerContainer.setConnectionFactory(redisConnectionFactory);
-        redisMessageListenerContainer.addMessageListener(redisMessageSubscriber(actorEventSink, nodeStatus), channelTopic());
-
-        return redisMessageListenerContainer;
-    }
-
-    @Bean
-    MessagePublisher redisMessagePublisher(RedisTemplate<String, Object> redisTemplate) {
-        return new RedisMessagePublisher(redisTemplate, channelTopic());
-    }
-
-    @Bean
-    ChannelTopic channelTopic() {
-        if (logger.isDebugEnabled()) {
-            logger.debug("build channel topic = [{}]", topic);
-        }
-        return new ChannelTopic(topic);
-    }
+    return new ChannelTopic(topic);
+  }
 
 }

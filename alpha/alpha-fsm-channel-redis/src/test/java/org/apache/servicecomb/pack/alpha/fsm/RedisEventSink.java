@@ -23,10 +23,10 @@ import java.util.concurrent.CountDownLatch;
 
 public class RedisEventSink implements ActorEventSink {
 
-    public static final CountDownLatch countDownLatch = new CountDownLatch(8);
+  public static final CountDownLatch countDownLatch = new CountDownLatch(8);
 
-    @Override
-    public void send(BaseEvent event) throws Exception {
-        countDownLatch.countDown();
-    }
+  @Override
+  public void send(BaseEvent event) throws Exception {
+    countDownLatch.countDown();
+  }
 }
