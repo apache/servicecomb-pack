@@ -40,13 +40,13 @@ import org.apache.servicecomb.pack.alpha.core.fsm.event.SagaStartedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.TxEndedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.TxStartedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
-import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsBean;
+import org.apache.servicecomb.pack.alpha.core.metrics.MetricsBean;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransaction;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.PagingGlobalTransactions;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.SagaSubTransaction;
-import org.apache.servicecomb.pack.alpha.server.metrics.AlphaMetrics;
+import org.apache.servicecomb.pack.alpha.server.metrics.AlphaMetricsEndpoint;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,14 +61,14 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(value = {APIControllerV1.class, AlphaMetrics.class})
+@WebMvcTest(value = {APIControllerV1.class, AlphaMetricsEndpoint.class})
 public class APIControllerV1Tests {
 
   @Autowired
   private MockMvc mockMvc;
 
   @Autowired
-  AlphaMetrics alphaMetrics;
+  AlphaMetricsEndpoint alphaMetricsEndpoint;
 
   @MockBean
   MetricsService metricsService;

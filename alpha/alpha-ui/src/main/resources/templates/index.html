@@ -16,80 +16,199 @@
   -->
 
 <!DOCTYPE html>
-<html xmlns:layout="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml" layout:decorate="~{fragments/main_layout}">
+<html xmlns:layout="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml"
+      layout:decorate="~{fragments/main_layout}">
 <head>
   <title>Alpha Admin - Dashboard</title>
 </head>
 <body>
-  <div layout:fragment="content" class="container-fluid">
-    <!-- Page Heading -->
-    <h1 class="h3 mb-4 text-gray-800">Dashboard</h1>
+<div layout:fragment="content" class="container-fluid">
+  <!-- Page Heading -->
+  <h1 class="h3 mb-4 text-gray-800">Dashboard</h1>
 
-    <!-- Content Row -->
-    <div class="row">
+  <!-- Content Row -->
+  <div class="row">
 
-      <!-- Total Transaction Card -->
-      <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-primary shadow h-100 py-2">
-          <div class="card-body">
-            <div class="row no-gutters align-items-center">
-              <div class="col mr-2">
-                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Transaction</div>
-                <div class="h5 mb-0 font-weight-bold text-gray-800" id="statistics-total">0</div>
+    <!-- Total Transaction Card -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total
+                Transaction
               </div>
-              <div class="col-auto">
-                <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800" id="statistics-total">0</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Successful Transaction Card -->
-      <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-success shadow h-100 py-2">
-          <div class="card-body">
-            <div class="row no-gutters align-items-center">
-              <div class="col mr-2">
-                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Successful Transactions</div>
-                <div class="h5 mb-0 font-weight-bold text-gray-800" id="statistics-successful">0</div>
+    <!-- Successful Transaction Card -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-success shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Successful
+                Transactions
               </div>
-              <div class="col-auto">
-                <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800" id="statistics-successful">0</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Compensated Transaction Card -->
-      <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-warning shadow h-100 py-2">
-          <div class="card-body">
-            <div class="row no-gutters align-items-center">
-              <div class="col mr-2">
-                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Compensated Transaction</div>
-                <div class="h5 mb-0 font-weight-bold text-gray-800" id="statistics-compensated">0</div>
+    <!-- Compensated Transaction Card -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Compensated
+                Transaction
               </div>
-              <div class="col-auto">
-                <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+              <div class="h5 mb-0 font-weight-bold text-gray-800" id="statistics-compensated">0
               </div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Failed Transactions Card -->
-      <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-danger shadow h-100 py-2">
-          <div class="card-body">
-            <div class="row no-gutters align-items-center">
-              <div class="col mr-2">
-                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Failed Transactions</div>
-                <div class="h5 mb-0 font-weight-bold text-gray-800" id="statistics-failed">0</div>
+    <!-- Failed Transactions Card -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-danger shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Failed
+                Transactions
               </div>
-              <div class="col-auto">
-                <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+              <div class="h5 mb-0 font-weight-bold text-gray-800" id="statistics-failed">0</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+
+    <!-- Health Chart -->
+    <div class="col-xl-8 col-lg-7">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">Active Transactions</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="row">
+            <div class="col-xl-4 col-md-8 mb-4">
+              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">COMMITTED</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800" id="metrics-committed">0</div>
+            </div>
+            <div class="col-xl-4 col-md-8 mb-4">
+              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">COMPENSATED</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800" id="metrics-compensated">0</div>
+            </div>
+            <div class="col-xl-4 col-md-8 mb-4">
+              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">SUSPENDED</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800" id="metrics-suspended">0</div>
+            </div>
+          </div>
+          <hr/>
+          <div class="row">
+            <div class="col-xl-6 col-lg-6">
+              <!-- Events health-->
+              <h4 class="small font-weight-bold">Events<span
+                  class="float-right font-weight-light" id="metrics-events-average-time"></span></h4>
+              <div class="small">Received<span id="metrics-events-received" class="float-right">0</span></div>
+              <div class="progress mb-3">
+                <div id="metrics-events-received-progress" class="progress-bar" role="progressbar" style="width: 0%"
+                     aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+              <div class="small">Accepted<span id="metrics-events-accepted" class="float-right">0</span></div>
+              <div class="progress mb-3">
+                <div id="metrics-events-accepted-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%"
+                     aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+              <div class="small">Rejected<span id="metrics-events-rejected" class="float-right">0</span></div>
+              <div class="progress mb-3">
+                <div id="metrics-events-rejected-progress" class="progress-bar bg-danger" role="progressbar" style="width: 0%"
+                     aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+            </div>
+            <div class="col-xl-6 col-lg-6">
+              <!-- Actor health -->
+              <h4 class="small font-weight-bold">Actors<span
+                  class="float-right font-weight-light" id="metrics-actors-average-time"></span></h4>
+              <div class="small">Received<span id="metrics-actors-received" class="float-right">0</span></div>
+              <div class="progress mb-3">
+                <div id="metrics-actors-received-progress" class="progress-bar" role="progressbar" style="width: 0%"
+                     aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+              <div class="small">Accepted<span id="metrics-actors-accepted" class="float-right">0</span></div>
+              <div class="progress mb-3">
+                <div id="metrics-actors-accepted-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%"
+                     aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+              <div class="small">Rejected<span id="metrics-actors-rejected" class="float-right">0</span></div>
+              <div class="progress mb-3">
+                <div id="metrics-actors-rejected-progress" class="progress-bar bg-danger" role="progressbar" style="width: 0%"
+                     aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+            </div>
+          </div>
+          <hr/>
+          <div class="row">
+            <div class="col-xl-6 col-lg-6">
+              <h4 class="small font-weight-bold">Sagas<span
+                  class="float-right font-weight-light" id="metrics-saga-average-time"></span></h4>
+              <div class="small">Begin<span id="metrics-saga-begin" class="float-right">0</span></div>
+              <div class="progress mb-3">
+                <div id="metrics-saga-begin-progress" class="progress-bar" role="progressbar" style="width: 0%"
+                     aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+              <div class="small">End<span id="metrics-saga-end" class="float-right"></span></div>
+              <div class="progress mb-3">
+                <div id="metrics-saga-end-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%"
+                     aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+            </div>
+            <div class="col-xl-6 col-lg-6">
+              <!-- Persistence health -->
+              <h4 class="small font-weight-bold">Persistence<span
+                  class="float-right font-weight-light" id="metrics-persistence-average-time"></span></h4>
+              <div class="small">Received<span id="metrics-persistence-received" class="float-right">0</span></div>
+              <div class="progress mb-3">
+                <div id="metrics-persistence-received-progress" class="progress-bar" role="progressbar" style="width: 0%"
+                     aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+              <div class="small">Accepted<span id="metrics-persistence-accepted" class="float-right">0</span></div>
+              <div class="progress mb-3">
+                <div id="metrics-persistence-accepted-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%"
+                     aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+              <div class="small">Rejected<span id="metrics-persistence-rejected" class="float-right">0</span></div>
+              <div class="progress mb-3">
+                <div id="metrics-persistence-rejected-progress" class="progress-bar bg-danger" role="progressbar" style="width: 0%"
+                     aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
               </div>
             </div>
           </div>
@@ -97,138 +216,99 @@
       </div>
     </div>
 
-    <!-- Content Row -->
-    <div class="row">
-
-      <!-- Health Chart -->
-      <div class="col-xl-8 col-lg-7">
-        <div class="card shadow mb-4">
-          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">Health Overview</h6>
-          </div>
-          <!-- Card Body -->
-          <div class="card-body">
-            <div class="chart-area">
-              <canvas></canvas>
-            </div>
-          </div>
+    <!-- Slow Transaction Top N  -->
+    <div class="col-xl-4 col-lg-5">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">Top 10 Slow Transactions</h6>
         </div>
-      </div>
-
-      <!-- Slow Transaction Top N  -->
-      <div class="col-xl-4 col-lg-5">
-        <div class="card shadow mb-4">
-          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">Top 10 Slow Transactions</h6>
-          </div>
-          <!-- Card Body -->
-          <div class="card-body">
-            <div class="slow-topn">
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="row">
-
-      <!-- Health Chart -->
-      <div class="col-xl-8 col-lg-7">
-        <div class="card shadow mb-4">
-          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">Health Overview</h6>
-          </div>
-          <!-- Card Body -->
-          <div class="card-body">
-            <div class="chart-area">
-              <canvas></canvas>
-            </div>
-          </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="slow-topn"></div>
         </div>
       </div>
 
       <!-- Info Card  -->
-      <div class="col-xl-4 col-lg-5">
-        <div class="card shadow mb-4">
-          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">System Info</h6>
+
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">System Info</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="row">
+            <div class="col-xl-5 col-lg-5">
+              <div class="mb-1 small">UPTIME</div>
+            </div>
+            <div class="col-xl-7 col-lg-7">
+              <div class="mb-1 small" th:text="${systemInfo.upTime}"></div>
+            </div>
           </div>
-          <!-- Card Body -->
-          <div class="card-body">
-            <div class="row">
-              <div class="col-xl-5 col-lg-5">
-                <div class="mb-1 small">UPTIME</div>
-              </div>
-              <div class="col-xl-7 col-lg-7">
-                <div class="mb-1 small" th:text="${systemInfo.upTime}"></div>
-              </div>
+          <div class="row">
+            <div class="col-xl-5 col-lg-5">
+              <div class="mb-1 small">CPUS</div>
             </div>
-            <div class="row">
-              <div class="col-xl-5 col-lg-5">
-                <div class="mb-1 small">CPUS</div>
-              </div>
-              <div class="col-xl-7 col-lg-7">
-                <div class="mb-1 small" th:text="${systemInfo.cpus}"></div>
-              </div>
+            <div class="col-xl-7 col-lg-7">
+              <div class="mb-1 small" th:text="${systemInfo.cpus}"></div>
             </div>
-            <div class="row">
-              <div class="col-xl-5 col-lg-5">
-                <div class="mb-1 small">SYSTEM LOAD</div>
-              </div>
-              <div class="col-xl-7 col-lg-7">
-                <div class="mb-1 small" th:text="${systemInfo.systemLoad}"></div>
-              </div>
+          </div>
+          <div class="row">
+            <div class="col-xl-5 col-lg-5">
+              <div class="mb-1 small">SYSTEM LOAD</div>
             </div>
-            <hr/>
-            <div class="row">
-              <div class="col-xl-5 col-lg-5">
-                <div class="mb-1 small">THREAD LIVE</div>
-              </div>
-              <div class="col-xl-7 col-lg-7">
-                <div class="mb-1 small" th:text="${systemInfo.threadsLive}"></div>
-              </div>
+            <div class="col-xl-7 col-lg-7">
+              <div class="mb-1 small" th:text="${systemInfo.systemLoad}"></div>
             </div>
-            <div class="row">
-              <div class="col-xl-5 col-lg-5">
-                <div class="mb-1 small">THREAD DAEMON</div>
-              </div>
-              <div class="col-xl-7 col-lg-7">
-                <div class="mb-1 small" th:text="${systemInfo.threadsDaemon}"></div>
-              </div>
+          </div>
+          <hr/>
+          <div class="row">
+            <div class="col-xl-5 col-lg-5">
+              <div class="mb-1 small">THREAD LIVE</div>
             </div>
-            <div class="row">
-              <div class="col-xl-5 col-lg-5">
-                <div class="mb-1 small">THREAD PEAK</div>
-              </div>
-              <div class="col-xl-7 col-lg-7">
-                <div class="mb-1 small" th:text="${systemInfo.threadsPeak}"></div>
-              </div>
+            <div class="col-xl-7 col-lg-7">
+              <div class="mb-1 small" th:text="${systemInfo.threadsLive}"></div>
             </div>
-            <hr/>
-            <div class="row">
-              <div class="col-xl-5 col-lg-5">
-                <div class="mb-1 small">GC COUNT</div>
-              </div>
-              <div class="col-xl-7 col-lg-7">
-                <div class="mb-1 small" th:text="${systemInfo.gcCount}"></div>
-              </div>
+          </div>
+          <div class="row">
+            <div class="col-xl-5 col-lg-5">
+              <div class="mb-1 small">THREAD DAEMON</div>
             </div>
-            <div class="row">
-              <div class="col-xl-5 col-lg-5">
-                <div class="mb-1 small">GC TIME</div>
-              </div>
-              <div class="col-xl-7 col-lg-7">
-                <div class="mb-1 small" th:text="${systemInfo.gcTime} + ' sec'"></div>
-              </div>
+            <div class="col-xl-7 col-lg-7">
+              <div class="mb-1 small" th:text="${systemInfo.threadsDaemon}"></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xl-5 col-lg-5">
+              <div class="mb-1 small">THREAD PEAK</div>
+            </div>
+            <div class="col-xl-7 col-lg-7">
+              <div class="mb-1 small" th:text="${systemInfo.threadsPeak}"></div>
+            </div>
+          </div>
+          <hr/>
+          <div class="row">
+            <div class="col-xl-5 col-lg-5">
+              <div class="mb-1 small">GC COUNT</div>
+            </div>
+            <div class="col-xl-7 col-lg-7">
+              <div class="mb-1 small" th:text="${systemInfo.gcCount}"></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xl-5 col-lg-5">
+              <div class="mb-1 small">GC TIME</div>
+            </div>
+            <div class="col-xl-7 col-lg-7">
+              <div class="mb-1 small" th:text="${systemInfo.gcTime} + ' sec'"></div>
             </div>
           </div>
         </div>
       </div>
     </div>
-
   </div>
-  <div layout:fragment="scripts">
-    <script th:src="@{/js/alpha-dashboard.js}"></script>
-  </div>
+</div>
+<div layout:fragment="scripts">
+  <script th:src="@{/js/alpha-dashboard.js}"></script>
+</div>
 </body>
 </html>

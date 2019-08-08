@@ -15,16 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.metrics;
+package org.apache.servicecomb.pack.alpha.core.metrics;
 
-import org.apache.servicecomb.pack.alpha.core.metrics.MetricsBean;
+import org.apache.servicecomb.pack.alpha.core.NodeStatus.TypeEnum;
 
-public class MetricsService {
+public class AlphaMetrics {
+  private MetricsBean metrics;
+  private TypeEnum nodeType;
 
-  private final MetricsBean metrics = new MetricsBean();
-
-  public MetricsBean metrics() {
+  public MetricsBean getMetrics() {
     return metrics;
   }
 
+  public void setMetrics(MetricsBean metrics) {
+    this.metrics = metrics;
+  }
+
+  public TypeEnum getNodeType() {
+    return nodeType;
+  }
+
+  public void setNodeType(TypeEnum nodeType) {
+    this.nodeType = nodeType;
+  }
 }

@@ -24,6 +24,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransaction;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.PagingGlobalTransactions;
+import org.apache.servicecomb.pack.alpha.core.metrics.AlphaMetrics;
 import org.apache.servicecomb.pack.alpha.ui.vo.DataTablesRequestDTO;
 import org.apache.servicecomb.pack.alpha.ui.vo.DataTablesResponseDTO;
 import org.apache.servicecomb.pack.alpha.ui.vo.EventDTO;
@@ -225,6 +226,12 @@ public class TransactionController implements ApplicationListener<WebServerIniti
     return transactionRowDTOS;
   }
 
+  @GetMapping("/ui/transaction/metrics")
+  @ResponseBody
+  public AlphaMetrics getMetrics() {
+    return getAlphaMetrics();
+  }
+
   private GlobalTransaction findGlobalTransactionByGlobalTxId(String globalTxId){
     UriComponents uriComponents = UriComponentsBuilder
         .fromUriString("http://localhost:" + serverPort + "/alpha/api/v1/transaction/"+globalTxId)
@@ -233,6 +240,16 @@ public class TransactionController implements ApplicationListener<WebServerIniti
         .getForEntity(uriComponents.toUriString(), GlobalTransaction.class);
     GlobalTransaction globalTransaction = entity.getBody();
     return globalTransaction;
+  }
+
+  private AlphaMetrics getAlphaMetrics(){
+    UriComponents uriComponents = UriComponentsBuilder
+        .fromUriString("http://localhost:" + serverPort + "/alpha/api/v1/metrics")
+        .build();
+    ResponseEntity<AlphaMetrics> entity = restTemplate
+        .getForEntity(uriComponents.toUriString(), AlphaMetrics.class);
+    AlphaMetrics alphaMetrics = entity.getBody();
+    return alphaMetrics;
   }
 
   @Override
