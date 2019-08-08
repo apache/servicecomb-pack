@@ -22,13 +22,17 @@ $(document).ready(function () {
       column = data.columns[i];
       column.searchRegex = column.search.regex;
       column.searchValue = column.search.value;
-      delete(column.search);
+      delete (column.search);
     }
 
     // set query parameters
     var queryValue = $('#transaction_config').attr('query');
     if (typeof queryValue !== typeof undefined && queryValue !== false) {
       data.query = queryValue;
+    }
+
+    if($('select[name="state_select"]').find('option:selected').text() != 'ALL'){
+      data.state = $('select[name="state_select"]').find('option:selected').text()
     }
   }
 
@@ -39,11 +43,11 @@ $(document).ready(function () {
     lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
     processing: true,
     serverSide: true,
-    order: [[ 4, "desc" ]],
+    order: [[4, "desc"]],
     ajax: {
-      url : $('#transaction_config').attr('ajax'),
+      url: $('#transaction_config').attr('ajax'),
       type: 'POST',
-      data: function(data) {
+      data: function (data) {
         datatablesRequest(data);
       }
     },
@@ -51,51 +55,60 @@ $(document).ready(function () {
       lengthMenu: "_MENU_",
     },
     columns: [
-      { "data": "serviceName" },
-      { "data": "instanceId" },
-      { "data": "globalTxId" },
-      { "data": "subTxSize" },
-      { "data": "beginTime" },
-      { "data": "durationTime" },
-      { "data": "state" },
-      { "data": "" }
+      {"data": "serviceName"},
+      {"data": "instanceId"},
+      {"data": "globalTxId"},
+      {"data": "subTxSize"},
+      {"data": "beginTime"},
+      {"data": "durationTime"},
+      {"data": "state"},
+      {"data": ""}
     ],
     columnDefs: [
       {
         render: function (data, type, row) {
-          return '<i class="fas fa-fw fa-bullseye row-transaction" style="cursor:pointer" globalTxId='+row.globalTxId+'></i>';
+          return '<i class="fas fa-fw fa-bullseye row-transaction" style="cursor:pointer" globalTxId='
+              + row.globalTxId + '></i>';
         },
         width: "50px",
         targets: -1
       },
       {
         render: function (data, type, row) {
-          if(data == 'COMMITTED'){
-            return '<span class="text-success">'+data+'</span>'
-          }else if(data == 'SUSPENDED'){
-            return '<span class="text-danger">'+data+'</span>'
-          }else if(data == 'COMPENSATED'){
-            return '<span class="text-warning">'+data+'</span>'
-          }else{
+          if (data == 'COMMITTED') {
+            return '<span class="text-success">' + data + '</span>'
+          } else if (data == 'SUSPENDED') {
+            return '<span class="text-danger">' + data + '</span>'
+          } else if (data == 'COMPENSATED') {
+            return '<span class="text-warning">' + data + '</span>'
+          } else {
             return data;
           }
         },
         width: "50px",
         targets: 6
       },
-      { "visible": false,  "targets": [ 4 ] }
+      {"visible": false, "targets": [4]}
     ]
   });
 
-  $('#dataTable tbody').on("click","tr", function(_event){
-    var data = transaction_table.row( this ).data();
-    window.location.href = "/ui/transaction/"+data.globalTxId
+  $('#dataTable tbody').on("click", "tr", function (_event) {
+    var data = transaction_table.row(this).data();
+    window.location.href = "/ui/transaction/" + data.globalTxId
   });
 
   // table toolbar add state select & custom layout
-  $('#dataTable_wrapper .row:first div:first').removeClass("col-sm-12 col-md-6");
+  $('#dataTable_wrapper .row:first div:first').removeClass(
+      "col-sm-12 col-md-6");
   $('#dataTable_wrapper .row:first div:last').removeClass("col-sm-12 col-md-6");
   $('#dataTable_wrapper .row:first div:first').addClass("col-sm-18 col-md-9");
   $('#dataTable_wrapper .row:first div:last').addClass("col-sm-6 col-md-3");
-  $('#dataTable_wrapper .row:first div:last').append('<select name="state_select" class="custom-select custom-select-sm form-control form-control-sm"><option value="ALL">ALL</option><option value="COMMITTED">COMMITTED</option><option value="COMPENSATED">COMPENSATED</option><option value="SUSPENDED">SUSPENDED</option></select>')
+  var stateSelect = $('#dataTable_wrapper .row:first div:last').append(
+      '<select name="state_select" class="custom-select custom-select-sm form-control form-control-sm">'
+      + '<option value="ALL">ALL</option><option value="COMMITTED">COMMITTED</option>'
+      + '<option value="COMPENSATED">COMPENSATED</option>'
+      + '<option value="SUSPENDED">SUSPENDED</option></select>');
+  stateSelect.on('change',function(){
+    transaction_table.ajax.reload();
+  })
 });

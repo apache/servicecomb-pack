@@ -29,6 +29,9 @@ public interface TransactionRepository {
   GlobalTransaction getGlobalTransactionByGlobalTxId(String globalTxId)
       throws Exception;
 
+  PagingGlobalTransactions getGlobalTransactions(String state, int page, int size)
+      throws Exception;
+
   PagingGlobalTransactions getGlobalTransactions(int page, int size)
       throws Exception;
 

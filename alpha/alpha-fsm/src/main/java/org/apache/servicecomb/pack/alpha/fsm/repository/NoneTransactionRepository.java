@@ -40,6 +40,11 @@ public class NoneTransactionRepository implements TransactionRepository {
   }
 
   @Override
+  public PagingGlobalTransactions getGlobalTransactions(String state, int page, int size) throws Exception {
+    throw new UnsupportedOperationException("NoneTransactionRepository Unsupported!");
+  }
+
+  @Override
   public PagingGlobalTransactions getGlobalTransactions(int page, int size) throws Exception {
     throw new UnsupportedOperationException("NoneTransactionRepository Unsupported!");
   }
