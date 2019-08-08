@@ -61,8 +61,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(value = {APIControllerV1.class, AlphaMetricsEndpoint.class})
-public class APIControllerV1Tests {
+@WebMvcTest(value = {APIv1Controller.class, AlphaMetricsEndpoint.class})
+public class APIv1ControllerTests {
 
   @Autowired
   private MockMvc mockMvc;
@@ -102,28 +102,28 @@ public class APIControllerV1Tests {
     metricsBean.doSagaAvgTime(5);
     when(metricsService.metrics()).thenReturn(metricsBean);
     when(nodeStatus.getTypeEnum()).thenReturn(TypeEnum.MASTER);
-    mockMvc.perform(get("/alpha/api/v1/metrics"))
+    mockMvc.perform(get("/alpha/api/v1/getMetrics"))
         .andExpect(status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-        .andExpect(jsonPath("$.metrics.eventReceived").value(1))
-        .andExpect(jsonPath("$.metrics.eventAccepted").value(1))
-        .andExpect(jsonPath("$.metrics.eventRejected").value(0))
-        .andExpect(jsonPath("$.metrics.eventAvgTime").value(5.0))
-        .andExpect(jsonPath("$.metrics.actorReceived").value(1))
-        .andExpect(jsonPath("$.metrics.actorAccepted").value(1))
-        .andExpect(jsonPath("$.metrics.actorRejected").value(0))
-        .andExpect(jsonPath("$.metrics.actorAvgTime").value(5.0))
-        .andExpect(jsonPath("$.metrics.repositoryReceived").value(1))
-        .andExpect(jsonPath("$.metrics.repositoryAccepted").value(1))
-        .andExpect(jsonPath("$.metrics.repositoryRejected").value(0))
-        .andExpect(jsonPath("$.metrics.repositoryAvgTime").value(5.0))
-        .andExpect(jsonPath("$.metrics.sagaBeginCounter").value(1))
-        .andExpect(jsonPath("$.metrics.sagaEndCounter").value(1))
-        .andExpect(jsonPath("$.metrics.sagaAvgTime").value(5.0))
-        .andExpect(jsonPath("$.metrics.committed").value(1))
-        .andExpect(jsonPath("$.metrics.compensated").value(1))
-        .andExpect(jsonPath("$.metrics.suspended").value(1))
+        .andExpect(jsonPath("$.getMetrics.eventReceived").value(1))
+        .andExpect(jsonPath("$.getMetrics.eventAccepted").value(1))
+        .andExpect(jsonPath("$.getMetrics.eventRejected").value(0))
+        .andExpect(jsonPath("$.getMetrics.eventAvgTime").value(5.0))
+        .andExpect(jsonPath("$.getMetrics.actorReceived").value(1))
+        .andExpect(jsonPath("$.getMetrics.actorAccepted").value(1))
+        .andExpect(jsonPath("$.getMetrics.actorRejected").value(0))
+        .andExpect(jsonPath("$.getMetrics.actorAvgTime").value(5.0))
+        .andExpect(jsonPath("$.getMetrics.repositoryReceived").value(1))
+        .andExpect(jsonPath("$.getMetrics.repositoryAccepted").value(1))
+        .andExpect(jsonPath("$.getMetrics.repositoryRejected").value(0))
+        .andExpect(jsonPath("$.getMetrics.repositoryAvgTime").value(5.0))
+        .andExpect(jsonPath("$.getMetrics.sagaBeginCounter").value(1))
+        .andExpect(jsonPath("$.getMetrics.sagaEndCounter").value(1))
+        .andExpect(jsonPath("$.getMetrics.sagaAvgTime").value(5.0))
+        .andExpect(jsonPath("$.getMetrics.committed").value(1))
+        .andExpect(jsonPath("$.getMetrics.compensated").value(1))
+        .andExpect(jsonPath("$.getMetrics.suspended").value(1))
         .andExpect(jsonPath("$.nodeType").value(TypeEnum.MASTER.name()))
         .andReturn();
   }
