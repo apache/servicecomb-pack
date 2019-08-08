@@ -28,6 +28,7 @@ public class DataTablesRequestDTO {
   private int start;
   private int length;
   private String query;
+  private String state;
 
   public int getDraw() {
     return draw;
@@ -75,5 +76,13 @@ public class DataTablesRequestDTO {
 
   public void setQuery(String query) {
     this.query = query;
+  }
+
+  public String getState() {
+    return state;
+  }
+
+  public void setState(String state) {
+    this.state = state;
   }
 }

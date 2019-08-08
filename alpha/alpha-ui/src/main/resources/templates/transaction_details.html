@@ -32,9 +32,9 @@
         </div>
         <div class="card-body">
           <div class="events" th:each="event,stat : ${events}">
-            <div th:class="${event.type}=='TxAbortedEvent' ? 'row text-danger' : 'row'">
+            <div th:class="${event.type}=='TxAbortedEvent' or ${event.type}=='SagaAbortedEvent' ? 'row text-danger' : 'row'">
               <div class="col-xl-6 col-lg-6">
-                <div><i class="fas fa-envelope"></i> <span th:class="${event.type}=='TxAbortedEvent' ? 'small text-danger' : 'small text-success'" th:text="${event.type}"></span></div>
+                <div><i class="fas fa-envelope"></i> <span th:class="${event.type}=='TxAbortedEvent' or ${event.type}=='SagaAbortedEvent' ? 'small text-danger' : 'small text-success'" th:text="${event.type}"></span></div>
                 <div><i class="fas fa-bell"></i> <span class="small" th:text="${event.serviceName} + '(' + ${event.instanceId} + ')'"></span></div>
                 <div><i class="fas fa-mars-stroke"></i> <span class="small" th:text="${event.parentTxId}"></span></div>
                 <div><i class="fas fa-transgender"></i> <span class="small" th:text="${event.localTxId}"></span></div>
@@ -43,7 +43,7 @@
                 <div><i class="fas fa-calendar"></i> <span class="small" th:text="${event.createTime}"></span></div>
                 <div><i class="fas fa-clock"></i> <span class="small" th:text="${event.timeout}+' ms'"></span></div>
                 <div th:if="${event.type}==TxStartedEvent"><i class="fas fa-undo"></i> <span class="small" th:text="${event.retries}"></span></div>
-                <div th:if="${event.type}==TxStartedEvent  or ${event.type}==TxAbortedEvent" class="position-absolute" style="bottom: 0px; right: 15px;">
+                <div th:if="${event.type}==TxStartedEvent  or ${event.type}==TxAbortedEvent or ${event.type}=='SagaAbortedEvent'" class="position-absolute" style="bottom: 0px; right: 15px;">
                   <i name="event_more" class="fas fa-caret-square-down" style="cursor:pointer" th:target="'div-more-'+${stat.index}"></i>
                 </div>
               </div>
@@ -60,7 +60,7 @@
             </div>
 
             <!-- TxAbortedEvent more -->
-            <div th:id="'div-more-'+${stat.index}" th:if="${event.type}==TxAbortedEvent" class="d-none" style="padding-top: 10px">
+            <div th:id="'div-more-'+${stat.index}" th:if="${event.type}==TxAbortedEvent or ${event.type}==SagaAbortedEvent" class="d-none" style="padding-top: 10px">
               <div class="card border-danger">
                 <div class="card-header small border-danger bg-danger text-white">Exception Stack</div>
                 <div class="card-body">

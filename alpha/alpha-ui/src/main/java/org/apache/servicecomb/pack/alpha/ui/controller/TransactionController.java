@@ -17,6 +17,8 @@
 
 package org.apache.servicecomb.pack.alpha.ui.controller;
 
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,6 +33,8 @@ import org.apache.servicecomb.pack.alpha.ui.vo.EventDTO;
 import org.apache.servicecomb.pack.alpha.ui.vo.SubTransactionDTO;
 import org.apache.servicecomb.pack.alpha.ui.vo.TransactionRowDTO;
 import org.apache.servicecomb.pack.alpha.ui.vo.TransactionStatisticsDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -44,11 +48,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import sun.misc.BASE64Decoder;
 
 @Controller
 @EnableScheduling
 public class TransactionController {
-
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private static final String WEBSOCKET_BROKER_METRICES_TOPIC = "/topic/metrics";
 
   @Autowired
@@ -65,7 +70,8 @@ public class TransactionController {
       throws Exception {
     List<TransactionRowDTO> data = new ArrayList<>();
     PagingGlobalTransactions pagingGlobalTransactions = apiv1
-        .getTransactions(dataTablesRequestDTO.getStart() / dataTablesRequestDTO.getLength(),
+        .getTransactions(dataTablesRequestDTO.getState(),
+            dataTablesRequestDTO.getStart() / dataTablesRequestDTO.getLength(),
             dataTablesRequestDTO.getLength());
     pagingGlobalTransactions.getGlobalTransactions().forEach(globalTransaction -> {
       data.add(TransactionRowDTO.builder()
@@ -140,8 +146,8 @@ public class TransactionController {
           .serviceName(event.get("serviceName").toString())
           .instanceId(event.get("instanceId").toString())
           .globalTxId(event.get("globalTxId").toString())
-          .parentTxId(event.get("parentTxId").toString())
-          .localTxId(event.get("localTxId").toString())
+          .parentTxId(event.get("parentTxId") != null ? event.get("parentTxId").toString() : null)
+          .localTxId(event.get("localTxId") != null ? event.get("localTxId").toString() : null)
           .createTime(new Date(Long.valueOf(event.get("createTime").toString())))
           .build();
       if (eventDTO.getType().equals("TxStartedEvent")) {
@@ -156,10 +162,18 @@ public class TransactionController {
           eventDTO.setTimeout(Long.valueOf(event.get("timeout").toString()));
         }
       }
-      if (eventDTO.getType().equals("TxAbortedEvent")) {
+      if (eventDTO.getType().equals("TxAbortedEvent") || eventDTO.getType().equals("SagaAbortedEvent")) {
         // TxAbortedEvent properties
         if (event.containsKey("payloads")) {
-          eventDTO.setException(event.get("payloads").toString());
+          BASE64Decoder decoder = new BASE64Decoder();
+          String exception;
+          try {
+            exception = new String(decoder.decodeBuffer(event.get("payloads").toString()), "UTF-8");
+          } catch (IOException e) {
+            exception = "BASE64Decoder error";
+            LOG.error(e.getMessage(),e);
+          }
+          eventDTO.setException(exception);
         }
       }
       events.add(eventDTO);

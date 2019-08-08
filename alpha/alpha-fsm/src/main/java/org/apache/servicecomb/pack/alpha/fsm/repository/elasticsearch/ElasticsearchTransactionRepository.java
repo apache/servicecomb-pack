@@ -32,6 +32,7 @@ import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -109,15 +110,25 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
 
   @Override
   public PagingGlobalTransactions getGlobalTransactions(int page, int size) {
+    return getGlobalTransactions(null, page, size);
+  }
+
+  @Override
+  public PagingGlobalTransactions getGlobalTransactions(String state, int page, int size) {
     long start = System.currentTimeMillis();
     List<GlobalTransaction> globalTransactions = new ArrayList();
+    QueryBuilder query;
+    if (state != null && state.trim().length() > 0) {
+      query = QueryBuilders.termQuery("state.keyword", state);
+    } else {
+      query = QueryBuilders.matchAllQuery();
+    }
     SearchQuery searchQuery = new NativeSearchQueryBuilder()
         .withIndices(INDEX_NAME)
         .withTypes(INDEX_TYPE)
-        .withQuery(QueryBuilders.matchAllQuery())
+        .withQuery(query)
         .withPageable(PageRequest.of(page, size))
         .build();
-
     ScrolledPage<GlobalTransactionDocument> scroll = (ScrolledPage<GlobalTransactionDocument>) this.template
         .startScroll(SCROLL_TIMEOUT, searchQuery, GlobalTransactionDocument.class,
             searchResultMapper);
@@ -223,7 +234,9 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
     long end = System.currentTimeMillis();
     metricsService.metrics().doRepositoryAvgTime((end - begin) / queries.size());
     queries.clear();
-    LOG.info("save queries={}, received={}, accepted={}",queries.size(),metricsService.metrics().getRepositoryReceived(),metricsService.metrics().getRepositoryAccepted());
+    LOG.info("save queries={}, received={}, accepted={}", queries.size(),
+        metricsService.metrics().getRepositoryReceived(),
+        metricsService.metrics().getRepositoryAccepted());
   }
 
   class RefreshTimer implements Runnable {

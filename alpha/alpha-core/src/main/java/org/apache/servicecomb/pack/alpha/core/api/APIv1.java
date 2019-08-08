@@ -30,6 +30,9 @@ public interface APIv1 {
   GlobalTransaction getTransactionByGlobalTxId(String globalTxId)
       throws Exception;
 
+  PagingGlobalTransactions getTransactions(String state, int page, int size)
+      throws Exception;
+
   PagingGlobalTransactions getTransactions(int page, int size)
       throws Exception;
 

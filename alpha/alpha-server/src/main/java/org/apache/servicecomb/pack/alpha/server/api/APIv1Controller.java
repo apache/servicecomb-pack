@@ -52,7 +52,7 @@ public class APIv1Controller {
   ResponseEntity<PagingGlobalTransactions> getTransactions(@RequestParam(value = "page", required = false, defaultValue = "0") int page,
       @RequestParam(value = "size", required = false, defaultValue = "50") int size)
       throws Exception {
-    return ResponseEntity.ok(APIv1Impl.getTransactions(page,size));
+    return ResponseEntity.ok(APIv1Impl.getTransactions(null,page,size));
   }
 
   @GetMapping(value = "/transaction/statistics")
