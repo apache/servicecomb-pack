@@ -17,6 +17,12 @@
 
 package org.apache.servicecomb.pack.alpha.ui;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import org.apache.servicecomb.pack.alpha.ui.vo.SystemInfoDTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.metrics.MetricsEndpoint;
+import org.springframework.boot.actuate.metrics.MetricsEndpoint.Sample;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -26,9 +32,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class IndexController implements ErrorController {
 
+  @Autowired
+  MetricsEndpoint metricsEndpoint;
+
   // index
   @GetMapping("/admin")
-  public String index() {
+  public String index(ModelMap map) {
+    map.put("systemInfo",getSystemInfo());
     return "index";
   }
 
@@ -56,5 +66,46 @@ public class IndexController implements ErrorController {
   @Override
   public String getErrorPath() {
     return "/error";
+  }
+
+  private SystemInfoDTO getSystemInfo() {
+    SystemInfoDTO systemInfoDTO = new SystemInfoDTO();
+
+    //uptime
+    long startTime = metricsEndpoint.metric("process.start.time", null).getMeasurements().get(0)
+        .getValue().longValue();
+    long seconds = System.currentTimeMillis() / 1000 - startTime;
+    int day = (int) TimeUnit.SECONDS.toDays(seconds);
+    long hours = TimeUnit.SECONDS.toHours(seconds) - (day * 24);
+    long minute = TimeUnit.SECONDS.toMinutes(seconds) - (TimeUnit.SECONDS.toHours(seconds) * 60);
+    long second = TimeUnit.SECONDS.toSeconds(seconds) - (TimeUnit.SECONDS.toMinutes(seconds) * 60);
+    systemInfoDTO.setUpTime(String.format("%dd %dh %dm %ds", day, hours, minute, second));
+
+    //cpus
+    systemInfoDTO.setCpus(
+        metricsEndpoint.metric("system.cpu.count", null).getMeasurements().get(0).getValue()
+            .intValue());
+
+    //system load
+    systemInfoDTO.setSystemLoad(Math.round(
+        metricsEndpoint.metric("system.load.average.1m", null).getMeasurements().get(0).getValue()
+            .floatValue() * 100) / 100);
+
+    //thread
+    systemInfoDTO.setThreadsLive(
+        metricsEndpoint.metric("jvm.threads.live", null).getMeasurements().get(0).getValue()
+            .intValue());
+    systemInfoDTO.setThreadsDaemon(
+        metricsEndpoint.metric("jvm.threads.daemon", null).getMeasurements().get(0).getValue()
+            .intValue());
+    systemInfoDTO.setThreadsPeak(
+        metricsEndpoint.metric("jvm.threads.peak", null).getMeasurements().get(0).getValue()
+            .intValue());
+
+    //gc
+    List<Sample> samples = metricsEndpoint.metric("jvm.gc.pause", null).getMeasurements();
+    systemInfoDTO.setGcCount(samples.get(0).getValue().intValue());
+    systemInfoDTO.setGcTime(samples.get(1).getValue().floatValue());
+    return systemInfoDTO;
   }
 }
