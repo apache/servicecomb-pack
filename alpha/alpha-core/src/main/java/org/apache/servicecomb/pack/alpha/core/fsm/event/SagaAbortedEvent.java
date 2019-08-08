@@ -22,6 +22,16 @@ import org.apache.servicecomb.pack.alpha.core.fsm.event.base.SagaEvent;
 
 public class SagaAbortedEvent extends SagaEvent {
 
+  private byte[] payloads;
+
+  public byte[] getPayloads() {
+    return payloads;
+  }
+
+  public void setPayloads(byte[] payloads) {
+    this.payloads = payloads;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -49,8 +59,13 @@ public class SagaAbortedEvent extends SagaEvent {
       return this;
     }
 
-    public Builder createTime(Date createTime){
+    public Builder createTime(Date createTime) {
       sagaAbortedEvent.setCreateTime(createTime);
+      return this;
+    }
+
+    public Builder payloads(byte[] payloads) {
+      sagaAbortedEvent.setPayloads(payloads);
       return this;
     }
 
