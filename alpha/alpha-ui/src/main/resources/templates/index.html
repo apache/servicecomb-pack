@@ -115,7 +115,7 @@
         </div>
       </div>
 
-      <!-- Top Chart -->
+      <!-- Slow Transaction Top N  -->
       <div class="col-xl-4 col-lg-5">
         <div class="card shadow mb-4">
           <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -129,6 +129,103 @@
         </div>
       </div>
     </div>
+
+    <div class="row">
+
+      <!-- Health Chart -->
+      <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Health Overview</h6>
+          </div>
+          <!-- Card Body -->
+          <div class="card-body">
+            <div class="chart-area">
+              <canvas></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Card  -->
+      <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">System Info</h6>
+          </div>
+          <!-- Card Body -->
+          <div class="card-body">
+            <div class="row">
+              <div class="col-xl-5 col-lg-5">
+                <div class="mb-1 small">UPTIME</div>
+              </div>
+              <div class="col-xl-7 col-lg-7">
+                <div class="mb-1 small" th:text="${systemInfo.upTime}"></div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-5 col-lg-5">
+                <div class="mb-1 small">CPUS</div>
+              </div>
+              <div class="col-xl-7 col-lg-7">
+                <div class="mb-1 small" th:text="${systemInfo.cpus}"></div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-5 col-lg-5">
+                <div class="mb-1 small">SYSTEM LOAD</div>
+              </div>
+              <div class="col-xl-7 col-lg-7">
+                <div class="mb-1 small" th:text="${systemInfo.systemLoad}"></div>
+              </div>
+            </div>
+            <hr/>
+            <div class="row">
+              <div class="col-xl-5 col-lg-5">
+                <div class="mb-1 small">THREAD LIVE</div>
+              </div>
+              <div class="col-xl-7 col-lg-7">
+                <div class="mb-1 small" th:text="${systemInfo.threadsLive}"></div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-5 col-lg-5">
+                <div class="mb-1 small">THREAD DAEMON</div>
+              </div>
+              <div class="col-xl-7 col-lg-7">
+                <div class="mb-1 small" th:text="${systemInfo.threadsDaemon}"></div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-5 col-lg-5">
+                <div class="mb-1 small">THREAD PEAK</div>
+              </div>
+              <div class="col-xl-7 col-lg-7">
+                <div class="mb-1 small" th:text="${systemInfo.threadsPeak}"></div>
+              </div>
+            </div>
+            <hr/>
+            <div class="row">
+              <div class="col-xl-5 col-lg-5">
+                <div class="mb-1 small">GC COUNT</div>
+              </div>
+              <div class="col-xl-7 col-lg-7">
+                <div class="mb-1 small" th:text="${systemInfo.gcCount}"></div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-5 col-lg-5">
+                <div class="mb-1 small">GC TIME</div>
+              </div>
+              <div class="col-xl-7 col-lg-7">
+                <div class="mb-1 small" th:text="${systemInfo.gcTime} + ' sec'"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
   <div layout:fragment="scripts">
     <script th:src="@{/js/alpha-dashboard.js}"></script>
