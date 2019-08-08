@@ -18,10 +18,10 @@
 $(document).ready(function () {
   $.ajax('/ui/transaction/statistics', {
     success: function (data) {
-      $('#statistics-total').text(data.total)
-      $('#statistics-successful').text(data.successful)
-      $('#statistics-compensated').text(data.compensated)
-      $('#statistics-failed').text(data.failed)
+      $('#statistics-total').text(digitUnit(data.total,0));
+      $('#statistics-successful').text(digitUnit(data.successful,0));
+      $('#statistics-compensated').text(digitUnit(data.compensated,0));
+      $('#statistics-failed').text(digitUnit(data.failed,0));
     },
     error: function (state) {
       // TODO show message
@@ -46,5 +46,57 @@ $(document).ready(function () {
     }
   });
 
+  $.ajax('/ui/transaction/metrics', {
+    success: function (data) {
+      //events
+      $('#metrics-events-received').text(digitUnit(data.metrics.eventReceived,0));
+      $('#metrics-events-accepted').text(digitUnit(data.metrics.eventAccepted,0));
+      $('#metrics-events-rejected').text(digitUnit(data.metrics.eventRejected,0));
+      $('#metrics-events-average-time').text(data.metrics.eventAvgTime+' ms / event');
+      $('#metrics-events-received-progress').css('width',data.metrics.eventReceived==0?'0%':'100%');
+      $('#metrics-events-accepted-progress').css('width',(data.metrics.eventAccepted/data.metrics.eventReceived)*100+'%');
+      $('#metrics-events-rejected-progress').css('width',(data.metrics.eventRejected/data.metrics.eventReceived)*100+'%');
+      //actors
+      $('#metrics-actors-received').text(digitUnit(data.metrics.actorReceived,0));
+      $('#metrics-actors-accepted').text(digitUnit(data.metrics.actorAccepted,0));
+      $('#metrics-actors-rejected').text(digitUnit(data.metrics.actorRejected,0));
+      $('#metrics-actors-average-time').text(data.metrics.actorAvgTime+' ms / event');
+      $('#metrics-actors-received-progress').css('width',data.metrics.actorReceived==0?'0%':'100%');
+      $('#metrics-actors-accepted-progress').css('width',(data.metrics.actorAccepted/data.metrics.actorReceived)*100+'%');
+      $('#metrics-actors-rejected-progress').css('width',(data.metrics.actorRejected/data.metrics.actorReceived)*100+'%');
+      //persistence
+      $('#metrics-persistence-received').text(digitUnit(data.metrics.repositoryReceived,0));
+      $('#metrics-persistence-accepted').text(digitUnit(data.metrics.repositoryAccepted,0));
+      $('#metrics-persistence-rejected').text(digitUnit(data.metrics.repositoryRejected,0));
+      $('#metrics-persistence-average-time').text(data.metrics.repositoryAvgTime+' ms / transaction');
+      $('#metrics-persistence-received-progress').css('width',data.metrics.repositoryReceived==0?'0%':'100%');
+      $('#metrics-persistence-accepted-progress').css('width',(data.metrics.repositoryAccepted/data.metrics.repositoryReceived)*100+'%');
+      $('#metrics-persistence-rejected-progress').css('width',(data.metrics.repositoryRejected/data.metrics.repositoryReceived)*100+'%');
+      //saga
+      $('#metrics-saga-begin').text(digitUnit(data.metrics.sagaBeginCounter,0));
+      $('#metrics-saga-end').text(digitUnit(data.metrics.sagaEndCounter,0));
+      $('#metrics-saga-average-time').text(data.metrics.sagaAvgTime+' ms / transaction');
+      $('#metrics-saga-begin-progress').css('width',data.metrics.sagaBeginCounter==0?'0%':'100%');
+      $('#metrics-saga-end-progress').css('width',(data.metrics.sagaEndCounter/data.metrics.sagaBeginCounter)*100+'%');
+      //counter
+      $('#metrics-committed').text(digitUnit(data.metrics.committed,2));
+      $('#metrics-compensated').text(digitUnit(data.metrics.compensated,2));
+      $('#metrics-suspended').text(digitUnit(data.metrics.suspended,2));
+    },
+    error: function (state) {
+      // TODO show message
+    }
+  });
 
+  function digitUnit(n, d) {
+    if (n >= 1000) {
+      var x = ('' + parseInt(n, 10)).length;
+      var d = Math.pow(10, x+1)
+      var arr = " kMGTPE";
+      x -= x % 3;
+      return Math.round(n * d / Math.pow(10, x)) / d + arr[x / 3].trim();
+    } else {
+      return n;
+    }
+  }
 });

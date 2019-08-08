@@ -19,14 +19,14 @@ package org.apache.servicecomb.pack.alpha.server.metrics;
 
 import org.apache.servicecomb.pack.alpha.core.NodeStatus;
 import org.apache.servicecomb.pack.alpha.core.NodeStatus.TypeEnum;
-import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsBean;
+import org.apache.servicecomb.pack.alpha.core.metrics.MetricsBean;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AlphaMetrics {
+public class AlphaMetricsEndpoint {
 
   @Autowired
   @Lazy

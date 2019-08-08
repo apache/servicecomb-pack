@@ -19,10 +19,11 @@ package org.apache.servicecomb.pack.alpha.server.api;
 
 import java.util.List;
 import java.util.Map;
+import org.apache.servicecomb.pack.alpha.core.metrics.AlphaMetrics;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransaction;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.PagingGlobalTransactions;
-import org.apache.servicecomb.pack.alpha.server.metrics.AlphaMetrics;
+import org.apache.servicecomb.pack.alpha.server.metrics.AlphaMetricsEndpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,14 +37,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class APIControllerV1 {
 
   @Autowired
-  AlphaMetrics AlphaMetrics;
+  AlphaMetricsEndpoint alphaMetricsEndpoint;
 
   @Autowired(required = false)
   TransactionRepository transactionRepository;
 
   @GetMapping(value = "/metrics")
   ResponseEntity<AlphaMetrics> metrics() {
-    return ResponseEntity.ok(AlphaMetrics);
+    AlphaMetrics alphaMetrics = new AlphaMetrics();
+    alphaMetrics.setMetrics(alphaMetricsEndpoint.getMetrics());
+    alphaMetrics.setNodeType(alphaMetricsEndpoint.getNodeType());
+    return ResponseEntity.ok(alphaMetrics);
   }
 
   @GetMapping(value = "/transaction/{globalTxId}")

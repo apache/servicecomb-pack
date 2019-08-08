@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.metrics;
+package org.apache.servicecomb.pack.alpha.core.metrics;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import java.util.concurrent.atomic.AtomicLong;
