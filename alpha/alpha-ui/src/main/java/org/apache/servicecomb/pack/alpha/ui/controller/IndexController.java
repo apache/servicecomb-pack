@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.ui;
+package org.apache.servicecomb.pack.alpha.ui.controller;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +38,7 @@ public class IndexController implements ErrorController {
   // index
   @GetMapping("/admin")
   public String index(ModelMap map) {
-    map.put("systemInfo",getSystemInfo());
+    map.put("systemInfo", getSystemInfo());
     return "index";
   }
 

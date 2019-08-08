@@ -119,15 +119,15 @@
         <!-- Card Body -->
         <div class="card-body">
           <div class="row">
-            <div class="col-xl-4 col-md-8 mb-4">
+            <div class="col-xl-4 col-md-4 mb-4">
               <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">COMMITTED</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800" id="metrics-committed">0</div>
             </div>
-            <div class="col-xl-4 col-md-8 mb-4">
+            <div class="col-xl-4 col-md-4 mb-4">
               <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">COMPENSATED</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800" id="metrics-compensated">0</div>
             </div>
-            <div class="col-xl-4 col-md-8 mb-4">
+            <div class="col-xl-4 col-md-4 mb-4">
               <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">SUSPENDED</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800" id="metrics-suspended">0</div>
             </div>
@@ -193,7 +193,7 @@
             </div>
             <div class="col-xl-6 col-lg-6">
               <!-- Persistence health -->
-              <h4 class="small font-weight-bold">Persistence<span
+              <h4 class="small font-weight-bold">DB<span
                   class="float-right font-weight-light" id="metrics-persistence-average-time"></span></h4>
               <div class="small">Received<span id="metrics-persistence-received" class="float-right">0</span></div>
               <div class="progress mb-3">
@@ -309,6 +309,8 @@
 </div>
 <div layout:fragment="scripts">
   <script th:src="@{/js/alpha-dashboard.js}"></script>
+  <script th:src="@{/webjars/sockjs-client/sockjs.min.js}"></script>
+  <script th:src="@{/webjars/stomp-websocket/stomp.min.js}"></script>
 </div>
 </body>
 </html>

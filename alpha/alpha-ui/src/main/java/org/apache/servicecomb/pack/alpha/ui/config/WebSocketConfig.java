@@ -15,24 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.ui;
+package org.apache.servicecomb.pack.alpha.ui.config;
 
-import org.apache.servicecomb.pack.alpha.ui.config.WebSocketConfig;
-import org.apache.servicecomb.pack.alpha.ui.controller.IndexController;
-import org.apache.servicecomb.pack.alpha.ui.controller.TransactionController;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 @Configuration
-@ConditionalOnProperty(value = {"alpha.feature.akka.enabled"})
-@Import({WebSocketConfig.class, IndexController.class, TransactionController.class})
-public class UIAutoConfiguration {
+@EnableWebSocketMessageBroker
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-  @Bean
-  public RestTemplate restTemplate(){
-    return new RestTemplate();
+  @Override
+  public void configureMessageBroker(MessageBrokerRegistry config) {
+    config.enableSimpleBroker("/topic");
+  }
+
+  @Override
+  public void registerStompEndpoints(StompEndpointRegistry registry) {
+    registry.addEndpoint("/websocket-config").withSockJS();
   }
 }

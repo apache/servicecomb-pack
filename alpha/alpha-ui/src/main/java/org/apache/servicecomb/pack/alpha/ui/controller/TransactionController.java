@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.ui;
+package org.apache.servicecomb.pack.alpha.ui.controller;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
+import org.apache.servicecomb.pack.alpha.core.api.APIv1;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransaction;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.PagingGlobalTransactions;
 import org.apache.servicecomb.pack.alpha.core.metrics.AlphaMetrics;
@@ -32,11 +32,11 @@ import org.apache.servicecomb.pack.alpha.ui.vo.SubTransactionDTO;
 import org.apache.servicecomb.pack.alpha.ui.vo.TransactionRowDTO;
 import org.apache.servicecomb.pack.alpha.ui.vo.TransactionStatisticsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.context.WebServerInitializedEvent;
-import org.springframework.context.ApplicationListener;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,31 +44,29 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
-public class TransactionController implements ApplicationListener<WebServerInitializedEvent> {
+@EnableScheduling
+public class TransactionController {
+
+  private static final String WEBSOCKET_BROKER_METRICES_TOPIC = "/topic/metrics";
 
   @Autowired
-  RestTemplate restTemplate;
+  SimpMessagingTemplate template;
 
-  int serverPort;
+  @Autowired
+  APIv1 apiv1;
+
+  boolean applicationReady = false;
 
   @PostMapping("/ui/transaction/sagalist")
   @ResponseBody
-  public DataTablesResponseDTO sagaList(@ModelAttribute DataTablesRequestDTO dataTablesRequestDTO,
-      HttpServletRequest request) {
-    UriComponents uriComponents = UriComponentsBuilder
-        .fromUriString("http://localhost:" + serverPort + "/alpha/api/v1/transaction")
-        .queryParam("page", dataTablesRequestDTO.getStart()/dataTablesRequestDTO.getLength())
-        .queryParam("size", dataTablesRequestDTO.getLength())
-        .build();
+  public DataTablesResponseDTO sagaList(@ModelAttribute DataTablesRequestDTO dataTablesRequestDTO)
+      throws Exception {
     List<TransactionRowDTO> data = new ArrayList<>();
-    ResponseEntity<PagingGlobalTransactions> entity = restTemplate
-        .getForEntity(uriComponents.toUriString(), PagingGlobalTransactions.class);
-    PagingGlobalTransactions pagingGlobalTransactions = entity.getBody();
+    PagingGlobalTransactions pagingGlobalTransactions = apiv1
+        .getTransactions(dataTablesRequestDTO.getStart() / dataTablesRequestDTO.getLength(),
+            dataTablesRequestDTO.getLength());
     pagingGlobalTransactions.getGlobalTransactions().forEach(globalTransaction -> {
       data.add(TransactionRowDTO.builder()
           .serviceName(globalTransaction.getServiceName())
@@ -105,9 +103,10 @@ public class TransactionController implements ApplicationListener<WebServerIniti
   @PostMapping("/ui/transaction/search")
   @ResponseBody
   public DataTablesResponseDTO searchList(
-      @ModelAttribute DataTablesRequestDTO dataTablesRequestDTO) {
+      @ModelAttribute DataTablesRequestDTO dataTablesRequestDTO) throws Exception {
     List<TransactionRowDTO> data = new ArrayList<>();
-    GlobalTransaction globalTransaction = findGlobalTransactionByGlobalTxId(dataTablesRequestDTO.getQuery());
+    GlobalTransaction globalTransaction = findGlobalTransactionByGlobalTxId(
+        dataTablesRequestDTO.getQuery());
     if (globalTransaction != null) {
       data.add(TransactionRowDTO.builder()
           .serviceName(globalTransaction.getServiceName())
@@ -129,7 +128,8 @@ public class TransactionController implements ApplicationListener<WebServerIniti
   }
 
   @GetMapping("/ui/transaction/{globalTxId}")
-  public String getGlobalTransaction(ModelMap map, @PathVariable("globalTxId") String globalTxId) {
+  public String getGlobalTransaction(ModelMap map, @PathVariable("globalTxId") String globalTxId)
+      throws Exception {
     List<EventDTO> events = new ArrayList<>();
     List<SubTransactionDTO> subTransactions = new ArrayList<>();
     GlobalTransaction globalTransaction = findGlobalTransactionByGlobalTxId(globalTxId);
@@ -144,28 +144,28 @@ public class TransactionController implements ApplicationListener<WebServerIniti
           .localTxId(event.get("localTxId").toString())
           .createTime(new Date(Long.valueOf(event.get("createTime").toString())))
           .build();
-      if(eventDTO.getType().equals("TxStartedEvent")){
+      if (eventDTO.getType().equals("TxStartedEvent")) {
         // TxStartedEvent properties
-        if(event.containsKey("compensationMethod")){
+        if (event.containsKey("compensationMethod")) {
           eventDTO.setCompensationMethod(event.get("compensationMethod").toString());
         }
-        if(event.containsKey("retries")){
+        if (event.containsKey("retries")) {
           eventDTO.setRetries(Long.valueOf(event.get("retries").toString()));
         }
-        if(event.containsKey("timeout")){
+        if (event.containsKey("timeout")) {
           eventDTO.setTimeout(Long.valueOf(event.get("timeout").toString()));
         }
       }
-      if(eventDTO.getType().equals("TxAbortedEvent")){
+      if (eventDTO.getType().equals("TxAbortedEvent")) {
         // TxAbortedEvent properties
-        if(event.containsKey("payloads")){
+        if (event.containsKey("payloads")) {
           eventDTO.setException(event.get("payloads").toString());
         }
       }
       events.add(eventDTO);
     });
 
-    globalTransaction.getSubTransactions().forEach( sub -> {
+    globalTransaction.getSubTransactions().forEach(sub -> {
       subTransactions.add(
           SubTransactionDTO.builder().parentTxId(globalTxId).localTxId(sub.getLocalTxId())
               .beginTime(sub.getBeginTime()).endTime(sub.getEndTime())
@@ -181,19 +181,14 @@ public class TransactionController implements ApplicationListener<WebServerIniti
   @ResponseBody
   public TransactionStatisticsDTO getGlobalTransactionStatistics() {
     TransactionStatisticsDTO statisticsDTO = new TransactionStatisticsDTO();
-    UriComponents uriComponents = UriComponentsBuilder
-        .fromUriString("http://localhost:" + serverPort + "/alpha/api/v1/transaction/statistics")
-        .build();
-    ResponseEntity<Map> entity = restTemplate
-        .getForEntity(uriComponents.toUriString(), Map.class);
-    Map<String,Number> statistics = entity.getBody();
-    if(statistics.containsKey("COMMITTED")){
+    Map<String, Long> statistics = apiv1.getTransactionStatistics();
+    if (statistics.containsKey("COMMITTED")) {
       statisticsDTO.setSuccessful(statistics.get("COMMITTED").longValue());
     }
-    if(statistics.containsKey("SUSPENDED")){
+    if (statistics.containsKey("SUSPENDED")) {
       statisticsDTO.setFailed(statistics.get("SUSPENDED").longValue());
     }
-    if(statistics.containsKey("COMPENSATED")){
+    if (statistics.containsKey("COMPENSATED")) {
       statisticsDTO.setCompensated(statistics.get("COMPENSATED").longValue());
     }
     return statisticsDTO;
@@ -203,15 +198,8 @@ public class TransactionController implements ApplicationListener<WebServerIniti
   @ResponseBody
   public List<TransactionRowDTO> getSlowGlobalTransactionTopN() {
     List<TransactionRowDTO> transactionRowDTOS = new ArrayList<>();
-    UriComponents uriComponents = UriComponentsBuilder
-        .fromUriString("http://localhost:" + serverPort + "/alpha/api/v1/transaction/slow")
-        .build();
-    ResponseEntity<List<GlobalTransaction>> entity = restTemplate
-        .exchange(uriComponents.toUriString(), HttpMethod.GET, null,
-            new ParameterizedTypeReference<List<GlobalTransaction>>() {
-            });
-    List<GlobalTransaction> transactions = entity.getBody();
-    transactions.stream().forEach( globalTransaction -> {
+    List<GlobalTransaction> transactions = apiv1.getSlowTransactions();
+    transactions.stream().forEach(globalTransaction -> {
       transactionRowDTOS.add(TransactionRowDTO.builder()
           .serviceName(globalTransaction.getServiceName())
           .instanceId(globalTransaction.getInstanceId())
@@ -232,28 +220,25 @@ public class TransactionController implements ApplicationListener<WebServerIniti
     return getAlphaMetrics();
   }
 
-  private GlobalTransaction findGlobalTransactionByGlobalTxId(String globalTxId){
-    UriComponents uriComponents = UriComponentsBuilder
-        .fromUriString("http://localhost:" + serverPort + "/alpha/api/v1/transaction/"+globalTxId)
-        .build();
-    ResponseEntity<GlobalTransaction> entity = restTemplate
-        .getForEntity(uriComponents.toUriString(), GlobalTransaction.class);
-    GlobalTransaction globalTransaction = entity.getBody();
+  @Scheduled(fixedDelay = 1000)
+  public void publishUpdates() {
+    if (applicationReady) {
+      template.convertAndSend(WEBSOCKET_BROKER_METRICES_TOPIC, getAlphaMetrics());
+    }
+  }
+
+  private GlobalTransaction findGlobalTransactionByGlobalTxId(String globalTxId) throws Exception {
+    GlobalTransaction globalTransaction = apiv1.getTransactionByGlobalTxId(globalTxId);
     return globalTransaction;
   }
 
-  private AlphaMetrics getAlphaMetrics(){
-    UriComponents uriComponents = UriComponentsBuilder
-        .fromUriString("http://localhost:" + serverPort + "/alpha/api/v1/metrics")
-        .build();
-    ResponseEntity<AlphaMetrics> entity = restTemplate
-        .getForEntity(uriComponents.toUriString(), AlphaMetrics.class);
-    AlphaMetrics alphaMetrics = entity.getBody();
+  private AlphaMetrics getAlphaMetrics() {
+    AlphaMetrics alphaMetrics = apiv1.getMetrics();
     return alphaMetrics;
   }
 
-  @Override
-  public void onApplicationEvent(WebServerInitializedEvent webServerInitializedEvent) {
-    serverPort = webServerInitializedEvent.getWebServer().getPort();
+  @EventListener(ApplicationReadyEvent.class)
+  public void startUp() {
+    applicationReady = true;
   }
 }
