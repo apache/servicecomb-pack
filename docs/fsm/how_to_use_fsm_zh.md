@@ -37,7 +37,32 @@
   alpha.feature.akka.enabled=true
   ```
   
+* WEB管理界面
+
+  在浏览器中打开 http://localhost:8090/admin
+
+  仪表盘
+
+  ![image-20190809122237766](assets/ui-dashboard.png)
+
+  事务列表
+
+  ![image-20190809122324563](assets/ui-transactions-list.png)
+
+  事务明细-成功
+
+  ![image-20190809122352852](assets/ui-transaction-details-successful.png)
+
+  事务明细-补偿
+
+  ![image-20190809122516345](assets/ui-transaction-details-compensated.png)
+  
+  事务明细-失败
+
+  ![image-20190809122442186](assets/ui-transaction-details-failed.png)
+
 ## Alpha APIs
+
 #### 性能度量
 
 你可以使用 API 查询 Alpha 的性能指标，你可以使用基准测试工具 `AlphaBenchmark` 模拟发送数据后快速体验这一功能

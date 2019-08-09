@@ -35,7 +35,32 @@ The state machine mode save completed transaction data to elasticsearch
   alpha.feature.akka.enabled=true
   ```
 
+* WEB管理界面
+
+  在浏览器中打开 http://localhost:8090/admin
+
+  Dashboard
+
+  ![image-20190809122237766](assets/ui-dashboard.png)
+
+  Transactions List
+
+  ![image-20190809122324563](assets/ui-transactions-list.png)
+
+  Transaction Details - Successful
+
+  ![image-20190809122352852](assets/ui-transaction-details-successful.png)
+
+  Transaction Details - Compensated
+
+  ![image-20190809122516345](assets/ui-transaction-details-compensated.png)
+  
+  Transaction Details - Failed
+
+  ![image-20190809122442186](assets/ui-transaction-details-failed.png)
+
 ## Alpha APIs
+
 #### Metrics
 
 You can query Alpha metrics by RESTful API, Use the  `AlphaBenchmark` to simulate sending data and quickly experience this feature.
