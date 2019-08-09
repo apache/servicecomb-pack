@@ -114,6 +114,12 @@ $(document).ready(function () {
     x -= x % 3;
     more = Math.round(n * d / p(10, x)) % d;
     y = Math.round(n * d / p(10, x)) / d + " kMGTPE"[x / 3];
-    return more==0?y:y+'+';
+    return more == 0 ? y : y + '+';
+  }
+
+  function millisToMinutesAndSeconds(millis) {
+    var minutes = Math.floor(millis / 60000);
+    var seconds = ((millis % 60000) / 1000).toFixed(0);
+    return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
   }
 });
