@@ -22,10 +22,10 @@ $(document).ready(function () {
       $('#statistics-successful').text(digitUnit(data.successful,2));
       $('#statistics-compensated').text(digitUnit(data.compensated,2));
       $('#statistics-failed').text(digitUnit(data.failed,2));
-      $('#statistics-total-tip').text(data.total);
-      $('#statistics-successful-tip').text(data.successful);
-      $('#statistics-compensated-tip').text(data.compensated);
-      $('#statistics-failed-tip').text(data.failed);
+      $('#statistics-total-tip').text(parseInt(data.total).toLocaleString());
+      $('#statistics-successful-tip').text(parseInt(data.successful).toLocaleString());
+      $('#statistics-compensated-tip').text(parseInt(data.compensated).toLocaleString());
+      $('#statistics-failed-tip').text(parseInt(data.failed).toLocaleString());
     },
     error: function (state) {
       // TODO show message
@@ -71,32 +71,32 @@ $(document).ready(function () {
 
   function refreshActiveTransactionCard(data){
     //events
-    $('#metrics-events-received').text(data.metrics.eventReceived);
-    $('#metrics-events-accepted').text(data.metrics.eventAccepted);
-    $('#metrics-events-rejected').text(data.metrics.eventRejected);
+    $('#metrics-events-received').text(parseInt(data.metrics.eventReceived).toLocaleString());
+    $('#metrics-events-accepted').text(parseInt(data.metrics.eventAccepted).toLocaleString());
+    $('#metrics-events-rejected').text(parseInt(data.metrics.eventRejected).toLocaleString());
     $('#metrics-events-average-time').text(data.metrics.eventAvgTime+' ms / event');
     $('#metrics-events-received-progress').css('width',data.metrics.eventReceived==0?'0%':'100%');
     $('#metrics-events-accepted-progress').css('width',(data.metrics.eventAccepted/data.metrics.eventReceived)*100+'%');
     $('#metrics-events-rejected-progress').css('width',(data.metrics.eventRejected/data.metrics.eventReceived)*100+'%');
     //actors
-    $('#metrics-actors-received').text(data.metrics.actorReceived);
-    $('#metrics-actors-accepted').text(data.metrics.actorAccepted);
-    $('#metrics-actors-rejected').text(data.metrics.actorRejected);
+    $('#metrics-actors-received').text(parseInt(data.metrics.actorReceived).toLocaleString());
+    $('#metrics-actors-accepted').text(parseInt(data.metrics.actorAccepted).toLocaleString());
+    $('#metrics-actors-rejected').text(parseInt(data.metrics.actorRejected).toLocaleString());
     $('#metrics-actors-average-time').text(data.metrics.actorAvgTime+' ms / event');
     $('#metrics-actors-received-progress').css('width',data.metrics.actorReceived==0?'0%':'100%');
     $('#metrics-actors-accepted-progress').css('width',(data.metrics.actorAccepted/data.metrics.actorReceived)*100+'%');
     $('#metrics-actors-rejected-progress').css('width',(data.metrics.actorRejected/data.metrics.actorReceived)*100+'%');
     //persistence
-    $('#metrics-persistence-received').text(data.metrics.repositoryReceived);
-    $('#metrics-persistence-accepted').text(data.metrics.repositoryAccepted);
-    $('#metrics-persistence-rejected').text(data.metrics.repositoryRejected);
+    $('#metrics-persistence-received').text(parseInt(data.metrics.repositoryReceived).toLocaleString());
+    $('#metrics-persistence-accepted').text(parseInt(data.metrics.repositoryAccepted).toLocaleString());
+    $('#metrics-persistence-rejected').text(parseInt(data.metrics.repositoryRejected).toLocaleString());
     $('#metrics-persistence-average-time').text(data.metrics.repositoryAvgTime+' ms / transaction');
     $('#metrics-persistence-received-progress').css('width',data.metrics.repositoryReceived==0?'0%':'100%');
     $('#metrics-persistence-accepted-progress').css('width',(data.metrics.repositoryAccepted/data.metrics.repositoryReceived)*100+'%');
     $('#metrics-persistence-rejected-progress').css('width',(data.metrics.repositoryRejected/data.metrics.repositoryReceived)*100+'%');
     //saga
-    $('#metrics-saga-begin').text(data.metrics.sagaBeginCounter);
-    $('#metrics-saga-end').text(data.metrics.sagaEndCounter);
+    $('#metrics-saga-begin').text(parseInt(data.metrics.sagaBeginCounter).toLocaleString());
+    $('#metrics-saga-end').text(parseInt(data.metrics.sagaEndCounter).toLocaleString());
     $('#metrics-saga-average-time').text(data.metrics.sagaAvgTime+' ms / transaction');
     $('#metrics-saga-begin-progress').css('width',data.metrics.sagaBeginCounter==0?'0%':'100%');
     $('#metrics-saga-end-progress').css('width',(data.metrics.sagaEndCounter/data.metrics.sagaBeginCounter)*100+'%');
@@ -104,9 +104,9 @@ $(document).ready(function () {
     $('#metrics-committed').text(digitUnit(data.metrics.committed,2));
     $('#metrics-compensated').text(digitUnit(data.metrics.compensated,2));
     $('#metrics-suspended').text(digitUnit(data.metrics.suspended,2));
-    $('#metrics-committed-tip').text(data.metrics.committed);
-    $('#metrics-compensated-tip').text(data.metrics.compensated);
-    $('#metrics-suspended-tip').text(data.metrics.suspended);
+    $('#metrics-committed-tip').text(parseInt(data.metrics.committed).toLocaleString());
+    $('#metrics-compensated-tip').text(parseInt(data.metrics.compensated).toLocaleString());
+    $('#metrics-suspended-tip').text(parseInt(data.metrics.suspended).toLocaleString());
   }
 
   function digitUnit(n, d) {
