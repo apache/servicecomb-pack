@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.core.fsm.event;
 
+import java.util.Date;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.TxEvent;
 
 public class TxAbortedEvent extends TxEvent {
@@ -70,6 +71,11 @@ public class TxAbortedEvent extends TxEvent {
 
     public Builder payloads(byte[] payloads) {
       txAbortedEvent.setPayloads(payloads);
+      return this;
+    }
+
+    public Builder createTime(Date createTime){
+      txAbortedEvent.setCreateTime(createTime);
       return this;
     }
 

@@ -86,6 +86,7 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
           .subTxSize(sagaData.getTxEntityMap().size())
           .subTransactions(subTransactions)
           .events(sagaData.getEvents())
+          .suspendedType(sagaData.getSuspendedType())
           .build();
       repositoryChannel.send(record);
       sagaDataMap.remove(globalTxId);

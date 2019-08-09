@@ -41,7 +41,7 @@
               </div>
               <div class="col-xl-6 col-lg-6">
                 <div><i class="fas fa-calendar"></i> <span class="small" th:text="${event.createTime}"></span></div>
-                <div><i class="fas fa-clock"></i> <span class="small" th:text="${event.timeout}+' ms'"></span></div>
+                <div th:if="${event.type}==SagaStartedEvent"><i class="fas fa-clock"></i> <span class="small" th:text="${event.timeout}+' ms'"></span></div>
                 <div th:if="${event.type}==TxStartedEvent"><i class="fas fa-undo"></i> <span class="small" th:text="${event.retries}"></span></div>
                 <div th:if="${event.type}==TxStartedEvent  or ${event.type}==TxAbortedEvent or ${event.type}=='SagaAbortedEvent'" class="position-absolute" style="bottom: 0px; right: 15px;">
                   <i name="event_more" class="fas fa-caret-square-down" style="cursor:pointer" th:target="'div-more-'+${stat.index}"></i>
@@ -69,6 +69,14 @@
               </div>
             </div>
             <hr th:if="${!stat.last}"/>
+          </div>
+          <div class="events">
+            <hr/>
+            <div th:if="${state}=='SUSPENDED'" class="row text-danger">
+              <div class="col-xl-12 col-lg-12">
+                <div><span class="small" th:text="'Suspended Type: ' + ${suspendedType} + ' - ' + ${endTime}"></span></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

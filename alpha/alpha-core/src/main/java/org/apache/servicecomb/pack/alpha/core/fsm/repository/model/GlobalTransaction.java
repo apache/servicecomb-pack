@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.apache.servicecomb.pack.alpha.core.fsm.SuspendedType;
 import org.apache.servicecomb.pack.alpha.core.fsm.TransactionType;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 
@@ -40,6 +41,7 @@ public class GlobalTransaction {
   private Long durationTime;
   private List<SagaSubTransaction> subTransactions = new ArrayList<>();
   private List<Map<String,Object>> events = new LinkedList<>();
+  private SuspendedType suspendedType;
 
   public String getGlobalTxId() {
     return globalTxId;
@@ -85,6 +87,10 @@ public class GlobalTransaction {
     return events;
   }
 
+  public SuspendedType getSuspendedType() {
+    return suspendedType;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -101,6 +107,7 @@ public class GlobalTransaction {
     private Integer subTxSize;
     private List<SagaSubTransaction> subTransactions;
     private List<BaseEvent> events;
+    private SuspendedType suspendedType;
 
     private Builder() {
     }
@@ -155,6 +162,11 @@ public class GlobalTransaction {
       return this;
     }
 
+    public Builder suspendedType(SuspendedType suspendedType) {
+      this.suspendedType = suspendedType;
+      return this;
+    }
+
     public GlobalTransaction build() {
       GlobalTransaction globalTransaction = new GlobalTransaction();
       globalTransaction.instanceId = this.instanceId;
@@ -167,6 +179,7 @@ public class GlobalTransaction {
       globalTransaction.subTxSize = this.subTxSize;
       globalTransaction.durationTime = this.endTime.getTime() - this.beginTime.getTime();
       globalTransaction.subTransactions = this.subTransactions;
+      globalTransaction.suspendedType = this.suspendedType;
       for(BaseEvent event : events){
         try {
           globalTransaction.events.add(event.toMap());

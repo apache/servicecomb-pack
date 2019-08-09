@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.servicecomb.pack.alpha.core.fsm.SuspendedType;
 import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 
@@ -34,6 +35,8 @@ public class SagaData implements Serializable {
   private Date endTime;
   private String globalTxId;
   private Date expirationTime;
+  private int timeout;
+  private SuspendedType suspendedType = SuspendedType.NULL;
   private boolean terminated;
   private SagaActorState lastState;
   private AtomicLong compensationRunningCounter = new AtomicLong();
@@ -86,6 +89,18 @@ public class SagaData implements Serializable {
 
   public void setExpirationTime(Date expirationTime) {
     this.expirationTime = expirationTime;
+  }
+
+  public void setTimeout(int timeout) {
+    this.timeout = timeout;
+  }
+
+  public SuspendedType getSuspendedType() {
+    return suspendedType;
+  }
+
+  public void setSuspendedType(SuspendedType suspendedType) {
+    this.suspendedType = suspendedType;
   }
 
   public boolean isTerminated() {
@@ -166,6 +181,11 @@ public class SagaData implements Serializable {
       return this;
     }
 
+    public Builder timeout(int timeout) {
+      sagaData.setTimeout(timeout);
+      return this;
+    }
+
     public Builder terminated(boolean terminated) {
       sagaData.setTerminated(terminated);
       return this;
@@ -188,6 +208,11 @@ public class SagaData implements Serializable {
 
     public Builder instanceId(String instanceId) {
       sagaData.setInstanceId(instanceId);
+      return this;
+    }
+
+    public Builder suspendedType(SuspendedType suspendedType) {
+      sagaData.setSuspendedType(suspendedType);
       return this;
     }
 
