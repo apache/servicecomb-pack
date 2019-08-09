@@ -41,9 +41,9 @@ The state machine mode save completed transaction data to elasticsearch
   alpha.feature.akka.enabled=true
   ```
 
-* WEB管理界面
+* WEB
 
-  在浏览器中打开 http://localhost:8090/admin
+  Open http://localhost:8090/admin in browser,  [Screencast](https://youtu.be/ORoRkZeg8gA)
 
   Dashboard
 

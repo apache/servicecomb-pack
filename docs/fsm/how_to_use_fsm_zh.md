@@ -45,7 +45,7 @@
 
 * WEB管理界面
 
-  在浏览器中打开 http://localhost:8090/admin
+  在浏览器中打开 http://localhost:8090/admin，[视频截屏](https://youtu.be/ORoRkZeg8gA)
 
   仪表盘
 
