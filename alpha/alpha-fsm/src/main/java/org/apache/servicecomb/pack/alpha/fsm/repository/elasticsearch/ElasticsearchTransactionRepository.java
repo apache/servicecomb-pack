@@ -185,7 +185,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
           .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
           .setQuery(QueryBuilders.matchAllQuery())
           .addSort(SortBuilders.fieldSort("durationTime").order(SortOrder.DESC))
-          .setFrom(0).setSize(10).setExplain(true)
+          .setFrom(0).setSize(n).setExplain(true)
           .get();
       response.getHits().forEach(hit -> {
         try {

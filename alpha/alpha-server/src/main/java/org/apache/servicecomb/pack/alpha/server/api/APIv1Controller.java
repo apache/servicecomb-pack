@@ -61,7 +61,7 @@ public class APIv1Controller {
   }
 
   @GetMapping(value = "/transaction/slow")
-  ResponseEntity<List<GlobalTransaction>> getSlowTransactions() {
-    return ResponseEntity.ok(APIv1Impl.getSlowTransactions());
+  ResponseEntity<List<GlobalTransaction>> getSlowTransactions(@RequestParam(name="size", defaultValue = "10") int size) {
+    return ResponseEntity.ok(APIv1Impl.getSlowTransactions(size));
   }
 }

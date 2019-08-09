@@ -38,5 +38,5 @@ public interface APIv1 {
 
   Map<String, Long> getTransactionStatistics();
 
-  List<GlobalTransaction> getSlowTransactions();
+  List<GlobalTransaction> getSlowTransactions(int size);
 }

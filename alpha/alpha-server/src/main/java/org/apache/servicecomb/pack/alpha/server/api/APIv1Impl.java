@@ -67,7 +67,7 @@ public class APIv1Impl implements APIv1 {
     return transactionRepository.getTransactionStatistics();
   }
 
-  public List<GlobalTransaction> getSlowTransactions() {
-    return transactionRepository.getSlowGlobalTransactionsTopN(10);
+  public List<GlobalTransaction> getSlowTransactions(int size) {
+    return transactionRepository.getSlowGlobalTransactionsTopN(size);
   }
 }

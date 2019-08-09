@@ -222,7 +222,7 @@ public class TransactionController {
   @ResponseBody
   public List<TransactionRowDTO> getSlowGlobalTransactionTopN() {
     List<TransactionRowDTO> transactionRowDTOS = new ArrayList<>();
-    List<GlobalTransaction> transactions = apiv1.getSlowTransactions();
+    List<GlobalTransaction> transactions = apiv1.getSlowTransactions(10);
     transactions.stream().forEach(globalTransaction -> {
       transactionRowDTOS.add(TransactionRowDTO.builder()
           .serviceName(globalTransaction.getServiceName())
