@@ -41,7 +41,7 @@ $(document).ready(function () {
             + '<div class="progress-bar" role="progressbar" style="cursor:pointer; width: '
             + (data[i].durationTime / data[0].durationTime) * 100
             + '%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">'
-            + data[i].durationTime + ' ms</div>\n'
+            + parseInt(data[i].durationTime).toLocaleString() + ' ms</div>\n'
             + '</div></a>')
       }
     },
