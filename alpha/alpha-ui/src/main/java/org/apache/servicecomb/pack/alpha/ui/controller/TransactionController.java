@@ -53,6 +53,7 @@ import sun.misc.BASE64Decoder;
 @Controller
 @EnableScheduling
 public class TransactionController {
+
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private static final String WEBSOCKET_BROKER_METRICES_TOPIC = "/topic/metrics";
 
@@ -110,27 +111,31 @@ public class TransactionController {
   @ResponseBody
   public DataTablesResponseDTO searchList(
       @ModelAttribute DataTablesRequestDTO dataTablesRequestDTO) throws Exception {
-    List<TransactionRowDTO> data = new ArrayList<>();
-    GlobalTransaction globalTransaction = findGlobalTransactionByGlobalTxId(
-        dataTablesRequestDTO.getQuery());
-    if (globalTransaction != null) {
-      data.add(TransactionRowDTO.builder()
-          .serviceName(globalTransaction.getServiceName())
-          .instanceId(globalTransaction.getInstanceId())
-          .globalTxId(globalTransaction.getGlobalTxId())
-          .state(globalTransaction.getState())
-          .beginTime(globalTransaction.getBeginTime())
-          .endTime(globalTransaction.getEndTime())
-          .subTxSize(globalTransaction.getSubTxSize())
-          .durationTime(globalTransaction.getDurationTime())
-          .build());
+    if (dataTablesRequestDTO.getQuery() != null) {
+      List<TransactionRowDTO> data = new ArrayList<>();
+      GlobalTransaction globalTransaction = findGlobalTransactionByGlobalTxId(
+          dataTablesRequestDTO.getQuery());
+      if (globalTransaction != null) {
+        data.add(TransactionRowDTO.builder()
+            .serviceName(globalTransaction.getServiceName())
+            .instanceId(globalTransaction.getInstanceId())
+            .globalTxId(globalTransaction.getGlobalTxId())
+            .state(globalTransaction.getState())
+            .beginTime(globalTransaction.getBeginTime())
+            .endTime(globalTransaction.getEndTime())
+            .subTxSize(globalTransaction.getSubTxSize())
+            .durationTime(globalTransaction.getDurationTime())
+            .build());
+      }
+      return DataTablesResponseDTO.builder()
+          .draw(dataTablesRequestDTO.getDraw())
+          .recordsTotal(1)
+          .recordsFiltered(1)
+          .data(data)
+          .build();
+    } else {
+      return this.sagaList(dataTablesRequestDTO);
     }
-    return DataTablesResponseDTO.builder()
-        .draw(dataTablesRequestDTO.getDraw())
-        .recordsTotal(1)
-        .recordsFiltered(1)
-        .data(data)
-        .build();
   }
 
   @GetMapping("/ui/transaction/{globalTxId}")
@@ -162,7 +167,8 @@ public class TransactionController {
           eventDTO.setTimeout(Long.valueOf(event.get("timeout").toString()));
         }
       }
-      if (eventDTO.getType().equals("TxAbortedEvent") || eventDTO.getType().equals("SagaAbortedEvent")) {
+      if (eventDTO.getType().equals("TxAbortedEvent") || eventDTO.getType()
+          .equals("SagaAbortedEvent")) {
         // TxAbortedEvent properties
         if (event.containsKey("payloads")) {
           BASE64Decoder decoder = new BASE64Decoder();
@@ -171,7 +177,7 @@ public class TransactionController {
             exception = new String(decoder.decodeBuffer(event.get("payloads").toString()), "UTF-8");
           } catch (IOException e) {
             exception = "BASE64Decoder error";
-            LOG.error(e.getMessage(),e);
+            LOG.error(e.getMessage(), e);
           }
           eventDTO.setException(exception);
         }
