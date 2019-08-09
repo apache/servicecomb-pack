@@ -4,6 +4,12 @@
 
 状态机模式使用 Elasticsearch 存储已结束的事务数据
 
+* 启动 Postgress
+
+  ```bash
+  docker run -d -e "POSTGRES_DB=saga" -e "POSTGRES_USER=saga" -e "POSTGRES_PASSWORD=password" -p 5432:5432 postgres
+  ```
+
 * 启动 Elasticsearch
 
   ```bash
@@ -16,8 +22,8 @@
   ```bash
   java -jar alpha-server-${version}-exec.jar \
     --spring.datasource.url=jdbc:postgresql://0.0.0.0:5432/saga?useSSL=false \
-    --spring.datasource.username=saga-user \
-    --spring.datasource.password=saga-password \
+    --spring.datasource.username=saga \
+    --spring.datasource.password=password \
     --spring.profiles.active=prd \
     --alpha.feature.akka.enabled=true \
     --alpha.feature.akka.transaction.repository.type=elasticsearch \
@@ -36,7 +42,7 @@
   ```base
   alpha.feature.akka.enabled=true
   ```
-  
+
 * WEB管理界面
 
   在浏览器中打开 http://localhost:8090/admin
@@ -56,7 +62,7 @@
   事务明细-补偿
 
   ![image-20190809122516345](assets/ui-transaction-details-compensated.png)
-  
+
   事务明细-失败
 
   ![image-20190809122442186](assets/ui-transaction-details-failed.png)

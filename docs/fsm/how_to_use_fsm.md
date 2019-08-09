@@ -4,7 +4,13 @@
 
 The state machine mode save completed transaction data to elasticsearch
 
-* run elasticsearch with docker
+* run postgress
+
+  ```bash
+  docker run -d -e "POSTGRES_DB=saga" -e "POSTGRES_USER=saga" -e "POSTGRES_PASSWORD=password" -p 5432:5432 postgres
+  ```
+
+* run elasticsearch
 
   ```bash
   docker run --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:6.6.2
@@ -16,8 +22,8 @@ The state machine mode save completed transaction data to elasticsearch
   ```bash
   java -jar alpha-server-${version}-exec.jar \
     --spring.datasource.url=jdbc:postgresql://0.0.0.0:5432/saga?useSSL=false \
-    --spring.datasource.username=saga-user \
-    --spring.datasource.password=saga-password \
+    --spring.datasource.username=saga \
+    --spring.datasource.password=password \
     --spring.profiles.active=prd \
     --alpha.feature.akka.enabled=true \
     --alpha.feature.akka.transaction.repository.type=elasticsearch \
@@ -54,7 +60,7 @@ The state machine mode save completed transaction data to elasticsearch
   Transaction Details - Compensated
 
   ![image-20190809122516345](assets/ui-transaction-details-compensated.png)
-  
+
   Transaction Details - Failed
 
   ![image-20190809122442186](assets/ui-transaction-details-failed.png)
