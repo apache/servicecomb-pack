@@ -40,7 +40,7 @@ public class SagaEndedDomain implements DomainEvent {
       this.event = event;
     }
     this.state = state;
-    this.suspendedType = SuspendedType.NULL;
+    this.suspendedType = SuspendedType.NONE;
   }
 
 

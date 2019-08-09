@@ -36,7 +36,7 @@ public class SagaData implements Serializable {
   private String globalTxId;
   private Date expirationTime;
   private int timeout;
-  private SuspendedType suspendedType = SuspendedType.NULL;
+  private SuspendedType suspendedType = SuspendedType.NONE;
   private boolean terminated;
   private SagaActorState lastState;
   private AtomicLong compensationRunningCounter = new AtomicLong();
