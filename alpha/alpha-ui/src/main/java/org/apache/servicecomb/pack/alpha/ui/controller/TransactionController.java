@@ -150,6 +150,7 @@ public class TransactionController {
           .type(event.get("type").toString())
           .serviceName(event.get("serviceName").toString())
           .instanceId(event.get("instanceId").toString())
+          .timeout(event.get("timeout") != null ? Integer.valueOf(event.get("timeout").toString()) : 0)
           .globalTxId(event.get("globalTxId").toString())
           .parentTxId(event.get("parentTxId") != null ? event.get("parentTxId").toString() : null)
           .localTxId(event.get("localTxId") != null ? event.get("localTxId").toString() : null)
@@ -193,6 +194,9 @@ public class TransactionController {
     });
     map.put("events", events);
     map.put("globalTxId", globalTransaction.getGlobalTxId());
+    map.put("state", globalTransaction.getState());
+    map.put("endTime", globalTransaction.getEndTime());
+    map.put("suspendedType", globalTransaction.getSuspendedType());
     map.put("subTransactions", subTransactions);
     return "transaction_details";
   }

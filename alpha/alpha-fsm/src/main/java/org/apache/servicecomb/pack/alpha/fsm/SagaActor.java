@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import org.apache.servicecomb.pack.alpha.core.AlphaException;
+import org.apache.servicecomb.pack.alpha.core.fsm.SuspendedType;
 import org.apache.servicecomb.pack.alpha.core.fsm.TxState;
 import org.apache.servicecomb.pack.alpha.fsm.domain.AddTxEventDomain;
 import org.apache.servicecomb.pack.alpha.fsm.domain.DomainEvent;
@@ -75,6 +76,7 @@ public class SagaActor extends
               SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(context().system()).doSagaBeginCounter();
               SagaStartedDomain domainEvent = new SagaStartedDomain(event);
               if (event.getTimeout() > 0) {
+                data.setTimeout(event.getTimeout());
                 return goTo(SagaActorState.READY)
                     .applying(domainEvent)
                     .forMax(Duration.create(event.getTimeout(), TimeUnit.SECONDS));
@@ -102,19 +104,19 @@ public class SagaActor extends
             }
         ).event(SagaEndedEvent.class,
             (event, data) -> {
-              SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.SUSPENDED);
+              SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.SUSPENDED, SuspendedType.UNPREDICTABLE);
               return goTo(SagaActorState.SUSPENDED)
                   .applying(domainEvent);
             }
         ).event(SagaAbortedEvent.class,
             (event, data) -> {
-              SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.SUSPENDED);
+              SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.SUSPENDED, SuspendedType.UNPREDICTABLE);
               return goTo(SagaActorState.SUSPENDED)
                   .applying(domainEvent);
             }
         ).event(Collections.singletonList(StateTimeout()), SagaData.class,
             (event, data) -> {
-              SagaEndedDomain domainEvent = new SagaEndedDomain(null, SagaActorState.SUSPENDED);
+              SagaEndedDomain domainEvent = new SagaEndedDomain(null, SagaActorState.SUSPENDED, SuspendedType.TIMEOUT);
               return goTo(SagaActorState.SUSPENDED)
                   .applying(domainEvent);
             })
@@ -146,7 +148,8 @@ public class SagaActor extends
             }
         ).event(SagaTimeoutEvent.class,
             (event, data) -> {
-              SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.SUSPENDED);
+              SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.SUSPENDED,
+                  SuspendedType.TIMEOUT);
               return goTo(SagaActorState.SUSPENDED)
                   .applying(domainEvent);
             }
@@ -158,7 +161,8 @@ public class SagaActor extends
             }
         ).event(Collections.singletonList(StateTimeout()), SagaData.class,
             (event, data) -> {
-              return goTo(SagaActorState.SUSPENDED);
+              SagaEndedDomain domainEvent = new SagaEndedDomain(null, SagaActorState.SUSPENDED, SuspendedType.TIMEOUT);
+              return goTo(SagaActorState.SUSPENDED).applying(domainEvent);
             })
     );
 
@@ -188,7 +192,7 @@ public class SagaActor extends
             }
         ).event(SagaTimeoutEvent.class,
             (event, data) -> {
-              SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.SUSPENDED);
+              SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.SUSPENDED, SuspendedType.TIMEOUT);
               return goTo(SagaActorState.SUSPENDED)
                   .applying(domainEvent);
             }
@@ -210,14 +214,15 @@ public class SagaActor extends
             }
         ).event(Collections.singletonList(StateTimeout()), SagaData.class,
             (event, data) -> {
-              return goTo(SagaActorState.SUSPENDED);
+              SagaEndedDomain domainEvent = new SagaEndedDomain(null, SagaActorState.SUSPENDED, SuspendedType.TIMEOUT);
+              return goTo(SagaActorState.SUSPENDED).applying(domainEvent);
             })
     );
 
     when(SagaActorState.FAILED,
         matchEvent(SagaTimeoutEvent.class, SagaData.class,
             (event, data) -> {
-              SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.SUSPENDED);
+              SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.SUSPENDED, SuspendedType.TIMEOUT);
               return goTo(SagaActorState.SUSPENDED)
                   .applying(domainEvent);
             }
@@ -273,7 +278,7 @@ public class SagaActor extends
             }
         ).event(Arrays.asList(StateTimeout()), SagaData.class,
             (event, data) -> {
-              SagaEndedDomain domainEvent = new SagaEndedDomain(SagaActorState.SUSPENDED);
+              SagaEndedDomain domainEvent = new SagaEndedDomain(SagaActorState.SUSPENDED, SuspendedType.TIMEOUT);
               return goTo(SagaActorState.SUSPENDED)
                   .applying(domainEvent);
             })
@@ -438,6 +443,7 @@ public class SagaActor extends
       } else if (domainEvent.getState() == SagaActorState.SUSPENDED) {
         data.setEndTime(new Date());
         data.setTerminated(true);
+        data.setSuspendedType(domainEvent.getSuspendedType());
       } else if (domainEvent.getState() == SagaActorState.COMPENSATED) {
         data.setEndTime(new Date());
         data.setTerminated(true);

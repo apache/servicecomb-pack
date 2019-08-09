@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.fsm.domain;
 
+import org.apache.servicecomb.pack.alpha.core.fsm.SuspendedType;
 import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 
@@ -24,16 +25,26 @@ public class SagaEndedDomain implements DomainEvent {
 
   private SagaActorState state;
   private BaseEvent event;
+  private SuspendedType suspendedType;
+
+  public SagaEndedDomain(BaseEvent event, SagaActorState state, SuspendedType suspendedType) {
+    if(event != null){
+      this.event = event;
+    }
+    this.state = state;
+    this.suspendedType = suspendedType;
+  }
 
   public SagaEndedDomain(BaseEvent event, SagaActorState state) {
     if(event != null){
       this.event = event;
     }
     this.state = state;
+    this.suspendedType = SuspendedType.NULL;
   }
 
 
-  public SagaEndedDomain(SagaActorState state) {
+  public SagaEndedDomain(SagaActorState state, SuspendedType suspendedType) {
     this.state = state;
   }
 
@@ -44,5 +55,9 @@ public class SagaEndedDomain implements DomainEvent {
   @Override
   public BaseEvent getEvent() {
     return event;
+  }
+
+  public SuspendedType getSuspendedType() {
+    return suspendedType;
   }
 }

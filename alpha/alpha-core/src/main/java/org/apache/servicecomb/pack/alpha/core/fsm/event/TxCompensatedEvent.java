@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.core.fsm.event;
 
+import java.util.Date;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.TxEvent;
 
 public class TxCompensatedEvent extends TxEvent {
@@ -55,6 +56,11 @@ public class TxCompensatedEvent extends TxEvent {
 
     public Builder globalTxId(String globalTxId) {
       txCompensatedEvent.setGlobalTxId(globalTxId);
+      return this;
+    }
+
+    public Builder createTime(Date createTime){
+      txCompensatedEvent.setCreateTime(createTime);
       return this;
     }
 

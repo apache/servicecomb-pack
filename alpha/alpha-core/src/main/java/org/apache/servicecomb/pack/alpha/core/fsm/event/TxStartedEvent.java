@@ -17,6 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.core.fsm.event;
 
+import java.util.Date;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.TxEvent;
 
 public class TxStartedEvent extends TxEvent {
@@ -111,6 +112,11 @@ public class TxStartedEvent extends TxEvent {
 
     public Builder retries(int retries) {
       txStartedEvent.setRetries(retries);
+      return this;
+    }
+
+    public Builder createTime(Date createTime){
+      txStartedEvent.setCreateTime(createTime);
       return this;
     }
 
