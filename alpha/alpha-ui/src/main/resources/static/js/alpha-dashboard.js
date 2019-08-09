@@ -18,10 +18,14 @@
 $(document).ready(function () {
   $.ajax('/ui/transaction/statistics', {
     success: function (data) {
-      $('#statistics-total').text(digitUnit(data.total,0));
-      $('#statistics-successful').text(digitUnit(data.successful,0));
-      $('#statistics-compensated').text(digitUnit(data.compensated,0));
-      $('#statistics-failed').text(digitUnit(data.failed,0));
+      $('#statistics-total').text(digitUnit(data.total,2));
+      $('#statistics-successful').text(digitUnit(data.successful,2));
+      $('#statistics-compensated').text(digitUnit(data.compensated,2));
+      $('#statistics-failed').text(digitUnit(data.failed,2));
+      $('#statistics-total-tip').text(data.total);
+      $('#statistics-successful-tip').text(data.successful);
+      $('#statistics-compensated-tip').text(data.compensated);
+      $('#statistics-failed-tip').text(data.failed);
     },
     error: function (state) {
       // TODO show message
@@ -100,17 +104,16 @@ $(document).ready(function () {
     $('#metrics-committed').text(digitUnit(data.metrics.committed,2));
     $('#metrics-compensated').text(digitUnit(data.metrics.compensated,2));
     $('#metrics-suspended').text(digitUnit(data.metrics.suspended,2));
+    $('#metrics-committed-tip').text(data.metrics.committed);
+    $('#metrics-compensated-tip').text(data.metrics.compensated);
+    $('#metrics-suspended-tip').text(data.metrics.suspended);
   }
 
   function digitUnit(n, d) {
-    if (n >= 1000) {
-      var x = ('' + parseInt(n, 10)).length;
-      var d = Math.pow(10, x+1)
-      var arr = " kMGTPE";
-      x -= x % 3;
-      return Math.round(n * d / Math.pow(10, x)) / d + arr[x / 3].trim();
-    } else {
-      return n;
-    }
+    x = ('' + n).length, p = Math.pow, d = p(10, d);
+    x -= x % 3;
+    more = Math.round(n * d / p(10, x)) % d;
+    y = Math.round(n * d / p(10, x)) / d + " kMGTPE"[x / 3];
+    return more==0?y:y+'+';
   }
 });
