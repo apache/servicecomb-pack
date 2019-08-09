@@ -37,7 +37,7 @@ public class APIv1Controller {
   @Autowired
   APIv1Impl APIv1Impl;
 
-  @GetMapping(value = "/getMetrics")
+  @GetMapping(value = "/metrics")
   ResponseEntity<AlphaMetrics> metrics() {
     return ResponseEntity.ok(APIv1Impl.getMetrics());
   }
