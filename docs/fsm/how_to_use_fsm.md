@@ -59,7 +59,7 @@ The state machine mode save completed transaction data to elasticsearch
 
   ![image-20190809122442186](assets/ui-transaction-details-failed.png)
 
-## Alpha APIs
+## APIs
 
 #### Metrics
 

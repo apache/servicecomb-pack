@@ -61,7 +61,7 @@
 
   ![image-20190809122442186](assets/ui-transaction-details-failed.png)
 
-## Alpha APIs
+## APIs
 
 #### 性能度量
 
@@ -148,7 +148,7 @@ curl http://localhost:8090/alpha/api/v1/metrics
 
   * page 页号
 
-  * size 返回行树
+  * size 返回行数
 
   返回参数
 
