@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransac
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.PagingGlobalTransactions;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
+import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -156,14 +158,19 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
     TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders
         .terms("count_group_by_state").field("state.keyword");
     SearchQuery searchQuery = new NativeSearchQueryBuilder()
+        .withIndices(INDEX_NAME)
         .addAggregation(termsAggregationBuilder)
         .build();
     return this.template.query(searchQuery, response -> {
-      final StringTerms groupState = response.getAggregations().get("count_group_by_state");
-      return groupState.getBuckets()
-          .stream()
-          .collect(Collectors.toMap(MultiBucketsAggregation.Bucket::getKeyAsString,
-              MultiBucketsAggregation.Bucket::getDocCount));
+      Map<String, Long> statistics = new HashMap<>();
+      if (response.getHits().totalHits > 0) {
+        final StringTerms groupState = response.getAggregations().get("count_group_by_state");
+        statistics = groupState.getBuckets()
+            .stream()
+            .collect(Collectors.toMap(MultiBucketsAggregation.Bucket::getKeyAsString,
+                MultiBucketsAggregation.Bucket::getDocCount));
+      }
+      return statistics;
     });
   }
 
@@ -172,21 +179,24 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
     // ElasticsearchTemplate.prepareScroll() does not add sorting https://jira.spring.io/browse/DATAES-457
     ObjectMapper jsonMapper = new ObjectMapper();
     List<GlobalTransaction> globalTransactions = new ArrayList();
-    SearchResponse response = this.template.getClient().prepareSearch(INDEX_NAME)
-        .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-        .setQuery(QueryBuilders.matchAllQuery())
-        .addSort(SortBuilders.fieldSort("durationTime").order(SortOrder.DESC))
-        .setFrom(0).setSize(10).setExplain(true)
-        .get();
-    response.getHits().forEach(hit -> {
-      try {
-        GlobalTransactionDocument dto = jsonMapper
-            .readValue(hit.getSourceAsString(), GlobalTransactionDocument.class);
-        globalTransactions.add(dto);
-      } catch (Exception e) {
-        LOG.error(e.getMessage(), e);
-      }
-    });
+    IndicesStatsResponse indicesStatsResponse = this.template.getClient().admin().indices().prepareStats(INDEX_NAME).get();
+    if(indicesStatsResponse.getIndices().get(INDEX_NAME).getTotal().docs.getCount()>0){
+      SearchResponse response = this.template.getClient().prepareSearch(INDEX_NAME)
+          .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+          .setQuery(QueryBuilders.matchAllQuery())
+          .addSort(SortBuilders.fieldSort("durationTime").order(SortOrder.DESC))
+          .setFrom(0).setSize(10).setExplain(true)
+          .get();
+      response.getHits().forEach(hit -> {
+        try {
+          GlobalTransactionDocument dto = jsonMapper
+              .readValue(hit.getSourceAsString(), GlobalTransactionDocument.class);
+          globalTransactions.add(dto);
+        } catch (Exception e) {
+          LOG.error(e.getMessage(), e);
+        }
+      });
+    }
     return globalTransactions;
   }
 
