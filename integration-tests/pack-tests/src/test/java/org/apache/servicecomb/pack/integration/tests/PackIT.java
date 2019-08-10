@@ -280,7 +280,7 @@ public class PackIT {
     assertThat(compensatedMessages.isEmpty(), is(true));
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = 10000)
   public void compensateWhenRetryReachesMaximum() throws InterruptedException {
     // retries 3 times and then compensate
     ResponseEntity<String> entity = restTemplate.getForEntity("/open?name={name}&retries={retries}",
@@ -290,7 +290,7 @@ public class PackIT {
 
     assertThat(entity.getStatusCode(), is(INTERNAL_SERVER_ERROR));
 
-    await().atMost(5, SECONDS).until(() -> eventRepo.count() == 11);
+    await().atMost(10, SECONDS).until(() -> eventRepo.count() == 11);
 
     List<String> distinctGlobalTxIds = eventRepo.findDistinctGlobalTxId();
     assertThat(distinctGlobalTxIds.size(), is(1));
