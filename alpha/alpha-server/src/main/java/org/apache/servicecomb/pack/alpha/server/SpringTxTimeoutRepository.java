@@ -63,7 +63,7 @@ public class SpringTxTimeoutRepository implements TxTimeoutRepository {
   @Override
   @Segment(name = "findFirstTimeout", category = "application", library = "kamon")
   public List<TxTimeout> findFirstTimeout() {
-    List<TxTimeout> timeoutEvents = timeoutRepo.findFirstTimeoutTxOrderByExpireTimeAsc(new PageRequest(0, 1));
+    List<TxTimeout> timeoutEvents = timeoutRepo.findFirstTimeoutTxOrderByExpireTimeAsc(PageRequest.of(0, 1));
     timeoutEvents.forEach(event -> timeoutRepo
         .updateStatusByGlobalTxIdAndLocalTxId(PENDING.name(), event.globalTxId(), event.localTxId()));
     return timeoutEvents;

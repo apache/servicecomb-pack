@@ -73,17 +73,17 @@ public class SagaTransactionsControllerTest {
     // Populate events for /recent API's
     eventStarted = new LinkedList<>();
     eventStarted.add(populateEvents(TxStartedEvent.name()));
-    when(eventRepository.findPendingEvents(new PageRequest(0, 5))).thenReturn(eventStarted);
-    when(eventRepository.findCompensatingEvents(new PageRequest(0, 5))).thenReturn(eventStarted);
+    when(eventRepository.findPendingEvents(PageRequest.of(0, 5))).thenReturn(eventStarted);
+    when(eventRepository.findCompensatingEvents(PageRequest.of(0, 5))).thenReturn(eventStarted);
 
     eventCompensated = new LinkedList<>();
     eventCompensated.add(populateEvents(TxCompensatedEvent.name()));
-    when(eventRepository.findRollBackedEvents(new PageRequest(0, 5))).thenReturn(eventCompensated);
+    when(eventRepository.findRollBackedEvents(PageRequest.of(0, 5))).thenReturn(eventCompensated);
 
     eventCommitted = new LinkedList<>();
     eventCommitted.add(populateEvents(TxEndedEvent.name()));
     eventCommitted.add(populateEvents(SagaEndedEvent.name()));
-    when(eventRepository.findCommittedEvents(new PageRequest(0, 5))).thenReturn(eventCommitted);
+    when(eventRepository.findCommittedEvents(PageRequest.of(0, 5))).thenReturn(eventCommitted);
 
     // Populate events for /transactions
     pendingTransactions = new LinkedList<>();

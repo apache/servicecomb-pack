@@ -115,19 +115,19 @@ public class SagaTransactionsController {
     List<SagaTransactionsController.TxEventVo> eventVos = new LinkedList<>();
     switch (status) {
       case "PENDING":
-        events = eventRepository.findPendingEvents(new PageRequest(0, count));
+        events = eventRepository.findPendingEvents(PageRequest.of(0, count));
         events.forEach(event -> eventVos.add(new SagaTransactionsController.TxEventVo(event)));
         break;
       case "COMMITTED":
-        events = eventRepository.findCommittedEvents(new PageRequest(0, count));
+        events = eventRepository.findCommittedEvents(PageRequest.of(0, count));
         events.forEach(event -> eventVos.add(new SagaTransactionsController.TxEventVo(event)));
         break;
       case "COMPENSATING":
-        events = eventRepository.findCompensatingEvents(new PageRequest(0, count));
+        events = eventRepository.findCompensatingEvents(PageRequest.of(0, count));
         events.forEach(event -> eventVos.add(new SagaTransactionsController.TxEventVo(event)));
         break;
       case "ROLLBACKED":
-        events = eventRepository.findRollBackedEvents(new PageRequest(0, count));
+        events = eventRepository.findRollBackedEvents(PageRequest.of(0, count));
         events.forEach(event -> eventVos.add(new SagaTransactionsController.TxEventVo(event)));
         break;
       default:
