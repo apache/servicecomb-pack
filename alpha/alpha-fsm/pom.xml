@@ -71,7 +71,10 @@
       <groupId>org.apache.servicecomb.pack</groupId>
       <artifactId>alpha-fsm-channel-redis</artifactId>
     </dependency>
-
+    <dependency>
+      <groupId>org.apache.servicecomb.pack</groupId>
+      <artifactId>alpha-fsm-channel-kafka</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
