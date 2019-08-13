@@ -26,6 +26,7 @@ import com.typesafe.config.ConfigFactory;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 import org.apache.servicecomb.pack.alpha.fsm.channel.ActiveMQActorEventChannel;
+import org.apache.servicecomb.pack.alpha.fsm.channel.kafka.KafkaMessagePublisher;
 import org.apache.servicecomb.pack.alpha.fsm.channel.redis.RedisMessagePublisher;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.repository.NoneTransactionRepository;
@@ -102,6 +103,7 @@ public class FsmAutoConfiguration {
   }
 
   @Bean
+  @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "memory")
   @ConditionalOnMissingBean(ActorEventChannel.class)
   public ActorEventChannel memoryEventChannel(ActorEventSink actorEventSink,
       MetricsService metricsService) {
@@ -111,6 +113,7 @@ public class FsmAutoConfiguration {
 
   @Bean
   @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "activemq")
+  @ConditionalOnMissingBean(ActorEventChannel.class)
   public ActorEventChannel activeMqEventChannel(ActorEventSink actorEventSink,
       MetricsService metricsService) {
     return new ActiveMQActorEventChannel(actorEventSink, metricsService);
@@ -118,9 +121,10 @@ public class FsmAutoConfiguration {
 
   @Bean
   @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "kafka")
+  @ConditionalOnMissingBean(ActorEventChannel.class)
   public ActorEventChannel kafkaEventChannel(ActorEventSink actorEventSink,
-      MetricsService metricsService) {
-    return new KafkaActorEventChannel(actorEventSink, metricsService);
+      MetricsService metricsService, @Lazy KafkaMessagePublisher kafkaMessagePublisher){
+    return new KafkaActorEventChannel(actorEventSink, metricsService, kafkaMessagePublisher);
   }
 
   @Bean
