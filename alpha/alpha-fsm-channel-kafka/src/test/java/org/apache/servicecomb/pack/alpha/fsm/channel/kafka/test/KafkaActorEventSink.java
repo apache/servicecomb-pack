@@ -19,8 +19,13 @@ package org.apache.servicecomb.pack.alpha.fsm.channel.kafka.test;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.sink.ActorEventSink;
 
+import java.util.concurrent.CountDownLatch;
+
 public class KafkaActorEventSink implements ActorEventSink {
+    public static final CountDownLatch countDownLatch = new CountDownLatch(8);
+
     @Override
     public void send(BaseEvent event) throws Exception {
+        countDownLatch.countDown();
     }
 }
