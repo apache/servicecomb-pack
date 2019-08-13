@@ -34,6 +34,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.Assert.assertEquals;
+
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = KafkaApplication.class,
@@ -52,6 +54,9 @@ public class KafkaChannelTest {
     @Autowired
     private KafkaMessagePublisher kafkaMessagePublisher;
 
+    @Autowired
+    private KafkaActorEventSink actorEventSink;
+
     @Before
     public void setup(){
     }
@@ -66,10 +71,12 @@ public class KafkaChannelTest {
         buildData(globalTxId, localTxId_1, localTxId_2, localTxId_3).forEach(baseEvent -> kafkaMessagePublisher.publish(baseEvent));
 
         try {
-            TimeUnit.SECONDS.sleep(100);
+            // Waiting for sub
+            TimeUnit.SECONDS.sleep(5);
         } catch (InterruptedException e) {
-            e.printStackTrace();
         }
+
+        assertEquals(0, actorEventSink.countDownLatch.getCount());
 
     }
 
