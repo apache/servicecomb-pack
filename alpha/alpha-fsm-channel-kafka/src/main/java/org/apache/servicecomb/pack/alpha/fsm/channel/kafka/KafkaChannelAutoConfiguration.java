@@ -68,7 +68,7 @@ public class KafkaChannelAutoConfiguration {
     @Value("${spring.kafka.producer.retries:0}")
     private int retries;
 
-    @Value("${spring.kafka.producer.buffer.memory:33364432}")
+    @Value("${spring.kafka.producer.buffer.memory:33554432}")
     private long bufferMemory;
 
     @Value("${spring.kafka.consumer.auto.offset.reset:earliest}")
