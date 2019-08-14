@@ -61,6 +61,16 @@ public class KafkaChannelAutoConfiguration {
     @Value("${spring.kafka.consumer.properties.spring.json.trusted.packages:org.apache.servicecomb.pack.alpha.core.fsm.event,org.apache.servicecomb.pack.alpha.core.fsm.event.base,}org.apache.servicecomb.pack.alpha.core.fsm.event.internal")
     private String trusted_packages;
 
+    @Value("${spring.kafka.producer.batch-size:16384}")
+    private int batchSize;
+
+    @Value("${spring.kafka.producer.retries:0}")
+    private int retries;
+
+    @Value("${spring.kafka.producer.buffer.memory:33364432}")
+    private long bufferMemory;
+
+
     @Bean
     @ConditionalOnMissingBean
     public ProducerFactory<String, Object> producerFactory(){
@@ -68,9 +78,9 @@ public class KafkaChannelAutoConfiguration {
         map.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap_servers);
         map.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         map.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-        map.put(ProducerConfig.RETRIES_CONFIG, 0);
-        map.put(ProducerConfig.BATCH_SIZE_CONFIG, 16304);
-        map.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33354432);
+        map.put(ProducerConfig.RETRIES_CONFIG, retries);
+        map.put(ProducerConfig.BATCH_SIZE_CONFIG, batchSize);
+        map.put(ProducerConfig.BUFFER_MEMORY_CONFIG, bufferMemory);
 
         return new DefaultKafkaProducerFactory<>(map);
     }
