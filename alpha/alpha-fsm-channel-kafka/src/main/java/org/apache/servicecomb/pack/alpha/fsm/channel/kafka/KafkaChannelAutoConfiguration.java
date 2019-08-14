@@ -73,7 +73,7 @@ public class KafkaChannelAutoConfiguration {
     @Value("${spring.kafka.consumer.auto.offset.reset:earliest}")
     private String autoOffsetReset;
 
-    @Value("${spring.kafka.consumer.enable.auto.commit:true}")
+    @Value("${spring.kafka.consumer.enable.auto.commit:false}")
     private boolean enableAutoCommit;
 
     @Value("${spring.kafka.consumer.auto.commit.interval.ms:100}")
