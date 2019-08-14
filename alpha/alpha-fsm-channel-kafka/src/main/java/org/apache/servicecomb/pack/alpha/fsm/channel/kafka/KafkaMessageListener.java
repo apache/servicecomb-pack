@@ -21,6 +21,7 @@ import org.apache.servicecomb.pack.alpha.core.fsm.sink.ActorEventSink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
 
 public class KafkaMessageListener {
 
@@ -33,17 +34,16 @@ public class KafkaMessageListener {
     }
 
     @KafkaListener(topics = "${alpha.feature.akka.channel.kafka.topic:servicecomb-pack-actor-event}")
-    public void listener(BaseEvent baseEvent){
+    public void listener(BaseEvent baseEvent, Acknowledgment acknowledgment){
         if(logger.isDebugEnabled()){
             logger.debug("listener event = [{}]", baseEvent);
         }
 
         try {
             actorEventSink.send(baseEvent);
+            acknowledgment.acknowledge();
         }catch (Exception e){
             logger.error("subscriber Exception = [{}]", e.getMessage(), e);
         }
-
-
     }
 }
