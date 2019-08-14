@@ -70,6 +70,14 @@ public class KafkaChannelAutoConfiguration {
     @Value("${spring.kafka.producer.buffer.memory:33364432}")
     private long bufferMemory;
 
+    @Value("${spring.kafka.consumer.auto.offset.reset:earliest}")
+    private String autoOffsetReset;
+
+    @Value("${spring.kafka.consumer.enable.auto.commit:true}")
+    private boolean enableAutoCommit;
+
+    @Value("${spring.kafka.consumer.auto.commit.interval.ms:100}")
+    private int autoCommitIntervalMs;
 
     @Bean
     @ConditionalOnMissingBean
@@ -100,9 +108,9 @@ public class KafkaChannelAutoConfiguration {
         map.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         map.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         map.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        map.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        map.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
-        map.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, 100);
+        map.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
+        map.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, enableAutoCommit);
+        map.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, autoCommitIntervalMs);
         map.put(JsonDeserializer.TRUSTED_PACKAGES, trusted_packages);
 
         if(logger.isDebugEnabled()){
