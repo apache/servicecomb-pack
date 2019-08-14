@@ -20,4 +20,6 @@ spring.kafka.producer.buffer.memory = producer buffer memory, default 33364432
 spring.kafka.consumer.auto.offset.reset = consumer auto offset reset, default earliest
 spring.kafka.consumer.enable.auto.commit = consumer enable auto commit, default false
 spring.kafka.consumer.auto.commit.interval.ms = consumer auto commit interval ms, default 100
+spring.kafka.listener.ackMode = consumer listener ack mode , default AckMode.MANUAL_IMMEDIATE
+spring.kafka.listener.pollTimeout = consumer listener pool timeout, default 1500 ms
 ```
