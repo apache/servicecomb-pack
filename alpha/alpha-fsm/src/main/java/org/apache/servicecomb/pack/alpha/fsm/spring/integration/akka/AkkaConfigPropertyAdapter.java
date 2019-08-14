@@ -31,10 +31,15 @@ public class AkkaConfigPropertyAdapter {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   public static final String PROPERTY_SOURCE_NAME = "akkaConfig.";
+  static final String AKKA_CLUSTER_SEED_NODES_KEY = "akka.cluster.seed-nodes";
+  static final String AKKA_ESTENSIONS_KEY = "akka.extensions";
+  static final String AKKA_LOGGERS_KEY = "akka.loggers";
 
   public static Map<String, Object> getPropertyMap(ConfigurableEnvironment environment) {
     final Map<String, Object> propertyMap = new HashMap<>();
-
+    final List<String> seedNodes = new ArrayList<>();
+    final List<String> extensions = new ArrayList<>();
+    final List<String> loggers = new ArrayList<>();
     for (final PropertySource source : environment.getPropertySources()) {
       if (isEligiblePropertySource(source)) {
         final EnumerablePropertySource enumerable = (EnumerablePropertySource) source;
@@ -42,14 +47,25 @@ public class AkkaConfigPropertyAdapter {
         for (final String name : enumerable.getPropertyNames()) {
           if (name.startsWith(PROPERTY_SOURCE_NAME) && !propertyMap.containsKey(name)) {
             String key = name.substring(PROPERTY_SOURCE_NAME.length());
-            Object value = environment.getProperty(name);
-            if (LOG.isTraceEnabled()) {
-              LOG.trace("Adding property {}={}" + key, value);
+            String value = environment.getProperty(name);
+            if (key.startsWith(AKKA_CLUSTER_SEED_NODES_KEY)) {
+              seedNodes.add(value);
+            } else if (key.startsWith(AKKA_ESTENSIONS_KEY)) {
+              extensions.add(value);
+            } else if (key.startsWith(AKKA_LOGGERS_KEY)) {
+              loggers.add(value);
+            } else {
+              if (LOG.isTraceEnabled()) {
+                LOG.trace("Adding property {}={}" + key, value);
+              }
+              propertyMap.put(key, value);
             }
-            propertyMap.put(key, value);
           }
         }
       }
+      propertyMap.put(AKKA_CLUSTER_SEED_NODES_KEY, seedNodes);
+      propertyMap.put(AKKA_ESTENSIONS_KEY, extensions);
+      propertyMap.put(AKKA_LOGGERS_KEY, loggers);
     }
 
     return Collections.unmodifiableMap(propertyMap);

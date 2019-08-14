@@ -52,10 +52,20 @@ eureka:
 
 
 akkaConfig:
+  # persistence
   akka.persistence.journal.plugin: akka.persistence.journal.inmem
   akka.persistence.journal.leveldb.dir: target/example/journal
   akka.persistence.snapshot-store.plugin: akka.persistence.snapshot-store.local
   akka.persistence.snapshot-store.local.dir: target/example/snapshots
+  # cluster
+  akka.actor.provider: cluster
+  akka.remote.log-remote-lifecycle-events: info
+  akka.remote.netty.tcp.hostname: 127.0.0.1
+  akka.remote.netty.tcp.port: 8070
+  akka.cluster.seed-nodes: ["akka.tcp://alpha-akka@127.0.0.1:8070"]
+  #
+  akka.extensions: ["akka.cluster.metrics.ClusterMetricsExtension"]
+
 
 management:
   endpoints:
