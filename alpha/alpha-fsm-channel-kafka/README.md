@@ -12,6 +12,6 @@ alpha.feature.akka.channel.type=kafka
 setting spring boot kafka
 ```
 spring.kafka.bootstrap-servers=kafka bootstrap_servers 
-spring.kafka.consumer.group-id=kafka consumer group id
-alpha.feature.akka.channel.kafka.topic= kafka topic name
+spring.kafka.consumer.group-id=kafka consumer group id, default servicecomb-pack
+alpha.feature.akka.channel.kafka.topic= kafka topic name, default servicecomb-pack-actor-event
 ```
