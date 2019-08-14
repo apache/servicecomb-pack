@@ -21,9 +21,8 @@ import org.apache.servicecomb.pack.alpha.core.fsm.channel.MessagePublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
-import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.util.concurrent.ListenableFutureCallback;
+
+import java.util.concurrent.ExecutionException;
 
 public class KafkaMessagePublisher implements MessagePublisher {
 
@@ -42,23 +41,12 @@ public class KafkaMessagePublisher implements MessagePublisher {
         if(logger.isDebugEnabled()){
             logger.debug("send message [{}] to [{}]", data, topic);
         }
-        ListenableFuture<SendResult<String, Object>> listenableFuture = kafkaTemplate.send(topic, data);
 
-        listenableFuture.addCallback(new ListenableFutureCallback<SendResult<String, Object>>() {
-            @Override
-            public void onFailure(Throwable throwable) {
-
-                if(logger.isDebugEnabled()){
-                    logger.debug("send message failure [{}]", throwable.getMessage(), throwable);
-                }
-            }
-
-            @Override
-            public void onSuccess(SendResult<String, Object> result) {
-                if(logger.isDebugEnabled()){
-                    logger.debug("send success result offset = [{}]", result.getRecordMetadata().offset());
-                }
-            }
-        });
+        try {
+            kafkaTemplate.send(topic, data).get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("publish Exception = [{}]", e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
     }
 }
