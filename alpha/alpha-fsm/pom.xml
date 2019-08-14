@@ -48,6 +48,16 @@
         <artifactId>akka-persistence_2.12</artifactId>
         <version>${akka.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-cluster_2.12</artifactId>
+        <version>${akka.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-cluster-metrics_2.12</artifactId>
+        <version>${akka.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -127,7 +137,27 @@
       <artifactId>akka-persistence-redis_2.12</artifactId>
       <version>${akka-persistence-redis.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-cluster_2.12</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-cluster-metrics_2.12</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-slf4j_2.12</artifactId>
+    </dependency>
 
+    <!--
+      jmx over http
+      http://0.0.0.0:8090/actuator/jolokia/read/akka:type=Cluster
+    -->
+    <dependency>
+      <groupId>org.jolokia</groupId>
+      <artifactId>jolokia-core</artifactId>
+    </dependency>
     <!-- For testing the artifacts scope are test-->
     <dependency>
       <groupId>org.springframework.boot</groupId>
