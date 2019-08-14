@@ -37,6 +37,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
+import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
@@ -78,6 +79,12 @@ public class KafkaChannelAutoConfiguration {
 
     @Value("${spring.kafka.consumer.auto.commit.interval.ms:100}")
     private int autoCommitIntervalMs;
+
+    @Value("${spring.kafka.listener.ackMode:MANUAL_IMMEDIATE}")
+    private String ackMode;
+
+    @Value("${spring.kafka.listener.pollTimeout:1500}")
+    private long poolTimeout;
 
     @Bean
     @ConditionalOnMissingBean
@@ -125,7 +132,8 @@ public class KafkaChannelAutoConfiguration {
         ConcurrentKafkaListenerContainerFactory<String,Object> concurrentKafkaListenerContainerFactory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         concurrentKafkaListenerContainerFactory.setConsumerFactory(consumerFactory());
-        concurrentKafkaListenerContainerFactory.getContainerProperties().setPollTimeout(1500L);
+        concurrentKafkaListenerContainerFactory.getContainerProperties().setPollTimeout(poolTimeout);
+        concurrentKafkaListenerContainerFactory.getContainerProperties().setAckMode(ContainerProperties.AckMode.valueOf(ackMode));
 
         return concurrentKafkaListenerContainerFactory;
     }
