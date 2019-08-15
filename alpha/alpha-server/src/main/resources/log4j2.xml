@@ -16,15 +16,37 @@
   ~ limitations under the License.
   -->
 
-<Configuration status="WARN">
+<Configuration status="WARN" monitorInterval="30">
+  <Properties>
+    <Property name="LOG_PATTERN">
+      %d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${hostName} --- [%15.15t] %-40.40c{1.} : %m%n%ex
+    </Property>
+  </Properties>
   <Appenders>
     <Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+      <PatternLayout>
+        <Pattern>${LOG_PATTERN}</Pattern>
+      </PatternLayout>
     </Console>
+    <RollingFile name="FileAppender" fileName="logs/alpha-server.log"
+      filePattern="logs/alpha-server-%d{yyyy-MM-dd}-%i.log">
+      <PatternLayout>
+        <Pattern>${LOG_PATTERN}</Pattern>
+      </PatternLayout>
+      <Policies>
+        <SizeBasedTriggeringPolicy size="10MB" />
+      </Policies>
+      <DefaultRolloverStrategy max="10"/>
+    </RollingFile>
+    <Async name="ASYNC">
+      <AppenderRef ref="FileAppender"/>
+      <AppenderRef ref="Console"/>
+    </Async>
   </Appenders>
   <Loggers>
-    <AsyncRoot level="info">
-      <AppenderRef ref="Console"/>
-    </AsyncRoot>
+    <Root level="info">
+      <AppenderRef ref="ASYNC"/>
+    </Root>
   </Loggers>
+
 </Configuration>
