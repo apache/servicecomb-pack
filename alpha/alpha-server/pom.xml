@@ -164,21 +164,7 @@
       <groupId>io.netty</groupId>
       <artifactId>netty-tcnative-boringssl-static</artifactId>
     </dependency>
-
-    <!-- for the performance monitor -->
-    <dependency>
-      <groupId>io.kamon</groupId>
-      <artifactId>kamon-core_2.12</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.kamon</groupId>
-      <artifactId>kamon-annotation_2.12</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-actor_2.12</artifactId>
-    </dependency>
-
+    
     <!-- For testing the artifacts scope are test-->
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -299,51 +285,6 @@
           <artifactId>mysql-connector-java</artifactId>
         </dependency>
       </dependencies>
-    </profile>
-    <profile>
-      <id>perf</id>
-      <dependencies>
-        <dependency>
-          <groupId>io.kamon</groupId>
-          <artifactId>kamon-log-reporter_2.12</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>io.kamon</groupId>
-          <artifactId>kamon-statsd_2.12</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.aspectj</groupId>
-          <artifactId>aspectjweaver</artifactId>
-        </dependency>
-      </dependencies>
-      <!-- copy the aspectj file -->
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>aspectj.copy</id>
-                <phase>process-test-resources</phase>
-                <goals>
-                  <goal>copy</goal>
-                </goals>
-                <configuration>
-                  <artifactItems>
-                    <artifactItem>
-                      <groupId>org.aspectj</groupId>
-                      <artifactId>aspectjweaver</artifactId>
-                    </artifactItem>
-                  </artifactItems>
-                  <outputDirectory>${project.build.directory}/saga</outputDirectory>
-                  <stripVersion>true</stripVersion>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
   </profiles>
 </project>

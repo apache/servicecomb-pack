@@ -26,8 +26,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import kamon.annotation.EnableKamon;
-import kamon.annotation.Trace;
 import org.apache.servicecomb.pack.alpha.core.TxEvent;
 import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension;
@@ -42,7 +40,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@EnableKamon
 @Controller
 @RequestMapping("/test/saga/akka")
 @Profile("test")
@@ -54,7 +51,6 @@ class FsmSagaDataController {
   @Autowired
   ActorSystem system;
 
-  @Trace("getEvents")
   @GetMapping(value = "/events/last")
   ResponseEntity<Collection<Map>> events() {
     LOG.info("Get the events request");
@@ -72,7 +68,6 @@ class FsmSagaDataController {
     return ResponseEntity.ok(eventVos);
   }
 
-  @Trace("deleteEvents")
   @DeleteMapping("/events")
   ResponseEntity<String> clear() {
     return ResponseEntity.ok("All events deleted");

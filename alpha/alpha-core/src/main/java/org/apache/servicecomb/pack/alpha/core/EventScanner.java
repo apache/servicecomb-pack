@@ -27,13 +27,9 @@ import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
-import kamon.annotation.EnableKamon;
-import kamon.annotation.Trace;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@EnableKamon
 public class EventScanner implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -102,7 +98,6 @@ public class EventScanner implements Runnable {
         MILLISECONDS);
   }
 
-  @Trace("findTimeoutEvents")
   private void findTimeoutEvents() {
     eventRepository.findTimeoutEvents()
         .forEach(event -> {
@@ -115,7 +110,6 @@ public class EventScanner implements Runnable {
     timeoutRepository.markTimeoutAsDone();
   }
 
-  @Trace("saveUncompensatedEventsToCommands")
   private void saveUncompensatedEventsToCommands() {
     eventRepository.findFirstUncompensatedEventByIdGreaterThan(nextEndedEventId, TxEndedEvent.name())
         .forEach(event -> {
@@ -125,7 +119,6 @@ public class EventScanner implements Runnable {
         });
   }
 
-  @Trace("updateCompensationStatus")
   private void updateCompensatedCommands() {
     eventRepository.findFirstCompensatedEventByIdGreaterThan(nextCompensatedEventId)
         .ifPresent(event -> {
@@ -135,7 +128,6 @@ public class EventScanner implements Runnable {
         });
   }
 
-  @Trace("deleteDuplicateSagaEndedEvents")
   private void deleteDuplicateSagaEndedEvents() {
     try {
       eventRepository.deleteDuplicateEvents(SagaEndedEvent.name());
@@ -153,7 +145,6 @@ public class EventScanner implements Runnable {
     markSagaEnded(event);
   }
 
-  @Trace("abortTimeoutEvents")
   private void abortTimeoutEvents() {
     timeoutRepository.findFirstTimeout().forEach(timeout -> {
       LOG.info("Found timeout event {} to abort", timeout);
@@ -167,7 +158,6 @@ public class EventScanner implements Runnable {
     });
   }
 
-  @Trace("updateTransactionStatus")
   private void updateTransactionStatus() {
     eventRepository.findFirstAbortedGlobalTransaction().ifPresent(this::markGlobalTxEndWithEvents);
   }
@@ -210,8 +200,7 @@ public class EventScanner implements Runnable {
         "",
         EMPTY_PAYLOAD);
   }
-
-  @Trace("compensate")
+  
   private void compensate() {
     commandRepository.findFirstCommandToCompensate()
         .forEach(command -> {

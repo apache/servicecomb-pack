@@ -36,9 +36,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
-import kamon.annotation.EnableKamon;
-
-@EnableKamon
 @Controller
 @RequestMapping("/tcc")
 @Profile("test")
