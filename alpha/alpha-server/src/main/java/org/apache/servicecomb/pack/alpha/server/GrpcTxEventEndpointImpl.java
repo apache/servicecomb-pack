@@ -26,8 +26,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import kamon.annotation.EnableKamon;
-import kamon.annotation.Trace;
 import org.apache.servicecomb.pack.alpha.core.OmegaCallback;
 import org.apache.servicecomb.pack.alpha.core.TxConsistentService;
 import org.apache.servicecomb.pack.alpha.core.TxEvent;
@@ -39,7 +37,6 @@ import org.apache.servicecomb.pack.contract.grpc.TxEventServiceGrpc.TxEventServi
 
 import io.grpc.stub.StreamObserver;
 
-@EnableKamon
 class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
 
   private static final GrpcAck ALLOW = GrpcAck.newBuilder().setAborted(false).build();
@@ -56,7 +53,6 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
   }
 
   @Override
-  @Trace("alphaConnected")
   public void onConnected(GrpcServiceConfig request, StreamObserver<GrpcCompensateCommand> responseObserver) {
     omegaCallbacks
         .computeIfAbsent(request.getServiceName(), key -> new ConcurrentHashMap<>())
@@ -65,7 +61,6 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
 
   // TODO: 2018/1/5 connect is async and disconnect is sync, meaning callback may not be registered on disconnected
   @Override
-  @Trace("alphaDisconnected")
   public void onDisconnected(GrpcServiceConfig request, StreamObserver<GrpcAck> responseObserver) {
     OmegaCallback callback = omegaCallbacks.getOrDefault(request.getServiceName(), emptyMap())
         .remove(request.getInstanceId());
@@ -79,7 +74,6 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
   }
 
   @Override
-  @Trace("onTransactionEvent")
   public void onTxEvent(GrpcTxEvent message, StreamObserver<GrpcAck> responseObserver) {
     boolean ok = txConsistentService.handle(new TxEvent(
         message.getServiceName(),

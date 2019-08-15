@@ -19,19 +19,17 @@ package org.apache.servicecomb.pack.alpha.server;
 
 import javax.annotation.PreDestroy;
 
-import kamon.Kamon;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class AlphaApplication {
   public static void main(String[] args) {
-    Kamon.start();
     SpringApplication.run(AlphaApplication.class, args);
   }
 
   @PreDestroy
   void shutdown() {
-    Kamon.shutdown();
+    // do nothing here
   }
 }

@@ -34,10 +34,7 @@ import org.apache.servicecomb.pack.alpha.core.TxEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kamon.annotation.EnableKamon;
-import kamon.annotation.Segment;
 
-@EnableKamon
 public class SpringCommandRepository implements CommandRepository {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -50,7 +47,6 @@ public class SpringCommandRepository implements CommandRepository {
   }
 
   @Override
-  @Segment(name = "saveCompensationCommands", category = "application", library = "kamon")
   public void saveCompensationCommands(String globalTxId) {
     List<TxEvent> events = eventRepository
         .findStartedEventsWithMatchingEndedButNotCompensatedEvents(globalTxId);
@@ -73,20 +69,17 @@ public class SpringCommandRepository implements CommandRepository {
   }
 
   @Override
-  @Segment(name = "markCommandAsDone", category = "application", library = "kamon")
   public void markCommandAsDone(String globalTxId, String localTxId) {
     commandRepository.updateStatusByGlobalTxIdAndLocalTxId(DONE.name(), globalTxId, localTxId);
   }
 
   @Override
-  @Segment(name = "findUncompletedCommands", category = "application", library = "kamon")
   public List<Command> findUncompletedCommands(String globalTxId) {
     return commandRepository.findByGlobalTxIdAndStatus(globalTxId, NEW.name());
   }
 
   @Transactional
   @Override
-  @Segment(name = "findFirstCommandToCompensate", category = "application", library = "kamon")
   public List<Command> findFirstCommandToCompensate() {
     List<Command> commands = commandRepository
         .findFirstGroupByGlobalTxIdWithoutPendingOrderByIdDesc();

@@ -25,7 +25,6 @@ import java.util.List;
 import org.apache.servicecomb.pack.alpha.core.TxEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -36,10 +35,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
-import kamon.annotation.EnableKamon;
-import kamon.annotation.Trace;
-
-@EnableKamon
 @Controller
 @RequestMapping("/saga")
 @Profile("test")
@@ -53,7 +48,6 @@ class AlphaEventController {
     this.eventRepository = eventRepository;
   }
 
-  @Trace("getEvents")
   @GetMapping(value = "/events")
   ResponseEntity<Collection<TxEventVo>> events() {
     LOG.info("Get the events request");
@@ -66,7 +60,6 @@ class AlphaEventController {
     return ResponseEntity.ok(eventVos);
   }
 
-  @Trace("deleteEvents")
   @DeleteMapping("/events")
   ResponseEntity<String> clear() {
     eventRepository.deleteAll();

@@ -24,7 +24,6 @@ import java.lang.invoke.MethodHandles;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import kamon.annotation.Trace;
 import org.apache.servicecomb.pack.alpha.core.OmegaCallback;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.channel.ActorEventChannel;
@@ -52,7 +51,6 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
   }
 
   @Override
-  @Trace("alphaConnected")
   public void onConnected(
       GrpcServiceConfig request, StreamObserver<GrpcCompensateCommand> responseObserver) {
     omegaCallbacks
@@ -62,7 +60,6 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
 
   // TODO: 2018/1/5 connect is async and disconnect is sync, meaning callback may not be registered on disconnected
   @Override
-  @Trace("alphaDisconnected")
   public void onDisconnected(GrpcServiceConfig request, StreamObserver<GrpcAck> responseObserver) {
     OmegaCallback callback = omegaCallbacks.getOrDefault(request.getServiceName(), emptyMap())
         .remove(request.getInstanceId());
@@ -76,7 +73,6 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
   }
 
   @Override
-  @Trace("onTransactionEvent")
   public void onTxEvent(GrpcTxEvent message, StreamObserver<GrpcAck> responseObserver) {
     if(LOG.isDebugEnabled()){
       LOG.debug("onText {}",message);

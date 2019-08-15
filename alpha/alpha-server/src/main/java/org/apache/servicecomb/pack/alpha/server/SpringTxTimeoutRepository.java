@@ -30,10 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 
-import kamon.annotation.EnableKamon;
-import kamon.annotation.Segment;
-
-@EnableKamon
 public class SpringTxTimeoutRepository implements TxTimeoutRepository {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -44,7 +40,6 @@ public class SpringTxTimeoutRepository implements TxTimeoutRepository {
   }
 
   @Override
-  @Segment(name = "TxTimeoutEventSave", category = "application", library = "kamon")
   public void save(TxTimeout timeout) {
     try {
       timeoutRepo.save(timeout);
@@ -54,14 +49,12 @@ public class SpringTxTimeoutRepository implements TxTimeoutRepository {
   }
 
   @Override
-  @Segment(name = "markTimeoutAsDone", category = "application", library = "kamon")
   public void markTimeoutAsDone() {
     timeoutRepo.updateStatusOfFinishedTx();
   }
 
   @Transactional
   @Override
-  @Segment(name = "findFirstTimeout", category = "application", library = "kamon")
   public List<TxTimeout> findFirstTimeout() {
     List<TxTimeout> timeoutEvents = timeoutRepo.findFirstTimeoutTxOrderByExpireTimeAsc(PageRequest.of(0, 1));
     timeoutEvents.forEach(event -> timeoutRepo

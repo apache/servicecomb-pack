@@ -19,9 +19,6 @@ package org.apache.servicecomb.pack.alpha.server.console.saga;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
-import kamon.annotation.EnableKamon;
-import kamon.annotation.Trace;
-
 import org.apache.servicecomb.pack.alpha.core.TxEvent;
 import org.apache.servicecomb.pack.alpha.server.TxEventEnvelopeRepository;
 import org.apache.servicecomb.pack.alpha.server.console.saga.model.Stats;
@@ -37,7 +34,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.lang.invoke.MethodHandles;
 import java.util.*;
 
-@EnableKamon
 @Controller
 @RequestMapping("/saga")
 
@@ -51,7 +47,6 @@ public class SagaTransactionsController {
     this.eventRepository = eventRepository;
   }
 
-  @Trace("getStats")
   @GetMapping(value = "/stats")
   ResponseEntity<Stats> getStats() {
         /*
@@ -81,7 +76,6 @@ public class SagaTransactionsController {
   }
 
 
-  @Trace("getRecentTransactions")
   @GetMapping(value = "/recent")
   ResponseEntity<Collection<SagaTransactionsController.TxEventVo>> recentTransactions(
       @RequestParam(name = "status") String status, @RequestParam(name = "count") int count) {
@@ -136,7 +130,6 @@ public class SagaTransactionsController {
     return ResponseEntity.ok(eventVos);
   }
 
-  @Trace("getTransactions")
   @GetMapping(value = "/transactions")
   ResponseEntity<Collection<SagaTransactionsController.TxEventVo>> getTransactions(
       @RequestParam(name = "status") String status) {
@@ -200,8 +193,7 @@ public class SagaTransactionsController {
 
     return ResponseEntity.ok(eventVos);
   }
-
-  @Trace("findTransactions")
+  
   @GetMapping(value = "/findTransactions")
   ResponseEntity<Collection<SagaTransactionsController.TxEventVo>> findTransactions(
       @RequestParam(required = false, name = "globalTxID") Object globalTxID,
