@@ -58,7 +58,7 @@ public class FsmAutoConfiguration {
   @Value("${alpha.feature.akka.channel.memory.size:-1}")
   int memoryEventChannelMemorySize;
 
-  @Value("${alpha.feature.akka.transaction.repository.elasticsearch.batchSize:100}")
+  @Value("${alpha.feature.akka.transaction.repository.elasticsearch.batchSize:1000}")
   int repositoryElasticsearchBatchSize;
 
   @Value("${alpha.feature.akka.transaction.repository.elasticsearch.refreshTime:5000}")
