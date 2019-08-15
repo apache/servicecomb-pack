@@ -89,12 +89,12 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
 
   @Override
   public void send(GlobalTransaction transaction) throws Exception {
-    long begin = System.currentTimeMillis();
-    queries.add(convert(transaction));
-    batchSizeCounter++;
-    metricsService.metrics().doRepositoryReceived();
-    if (batchSize == 0 || batchSizeCounter == batchSize) {
-      synchronized (lock) {
+    synchronized (lock) {
+      long begin = System.currentTimeMillis();
+      queries.add(convert(transaction));
+      batchSizeCounter++;
+      metricsService.metrics().doRepositoryReceived();
+      if (batchSize == 0 || batchSizeCounter == batchSize) {
         save(begin);
         batchSizeCounter = 0;
       }

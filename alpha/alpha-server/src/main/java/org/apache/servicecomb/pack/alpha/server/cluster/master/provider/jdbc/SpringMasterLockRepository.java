@@ -17,9 +17,6 @@
 
 package org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc;
 
-import kamon.annotation.EnableKamon;
-import kamon.annotation.Segment;
-
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLock;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.jpa.MasterLockRepository;
 import org.slf4j.Logger;
@@ -30,7 +27,6 @@ import java.lang.invoke.MethodHandles;
 import java.util.Date;
 import java.util.Optional;
 
-@EnableKamon
 @ConditionalOnProperty(name = "alpha.cluster.master.enabled", havingValue = "true")
 public class SpringMasterLockRepository implements MasterLockRepository {
 
@@ -43,7 +39,6 @@ public class SpringMasterLockRepository implements MasterLockRepository {
   }
 
   @Override
-  @Segment(name = "MasterLockInit", category = "application", library = "kamon")
   public boolean initLock(MasterLock masterLock) {
     try {
       Optional<MasterLock> lock = this.findMasterLockByServiceName(masterLock.getServiceName());
@@ -60,7 +55,6 @@ public class SpringMasterLockRepository implements MasterLockRepository {
   }
 
   @Override
-  @Segment(name = "MasterUpdateLock", category = "application", library = "kamon")
   public boolean updateLock(MasterLock masterLock) {
     try {
       int size = electionRepo.updateLock(
@@ -76,7 +70,6 @@ public class SpringMasterLockRepository implements MasterLockRepository {
   }
 
   @Override
-  @Segment(name = "MasterUnLock", category = "application", library = "kamon")
   public void unLock(String serviceName, Date expireTime) {
     electionRepo.unLock(serviceName, expireTime);
   }
