@@ -70,7 +70,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
   private int batchSizeCounter;
   private int refreshTime;
   private final List<IndexQuery> queries = new ArrayList<>();
-  private final static Boolean lock = true;
+  private final Boolean lock = true;
 
   public ElasticsearchTransactionRepository(
       ElasticsearchTemplate template, MetricsService metricsService, int batchSize,
@@ -89,12 +89,12 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
 
   @Override
   public void send(GlobalTransaction transaction) throws Exception {
-    long begin = System.currentTimeMillis();
-    queries.add(convert(transaction));
-    batchSizeCounter++;
-    metricsService.metrics().doRepositoryReceived();
-    if (batchSize == 0 || batchSizeCounter == batchSize) {
-      synchronized (lock) {
+    synchronized (lock) {
+      long begin = System.currentTimeMillis();
+      queries.add(convert(transaction));
+      batchSizeCounter++;
+      metricsService.metrics().doRepositoryReceived();
+      if (batchSize == 0 || batchSizeCounter == batchSize) {
         save(begin);
         batchSizeCounter = 0;
       }
