@@ -70,7 +70,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
   private int batchSizeCounter;
   private int refreshTime;
   private final List<IndexQuery> queries = new ArrayList<>();
-  private final Boolean lock = true;
+  private final static Boolean lock = true;
 
   public ElasticsearchTransactionRepository(
       ElasticsearchTemplate template, MetricsService metricsService, int batchSize,
