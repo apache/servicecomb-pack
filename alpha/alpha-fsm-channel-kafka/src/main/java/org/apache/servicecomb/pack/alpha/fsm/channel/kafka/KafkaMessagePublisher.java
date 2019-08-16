@@ -48,9 +48,9 @@ public class KafkaMessagePublisher implements MessagePublisher {
                 BaseEvent event = (BaseEvent) data;
                 kafkaTemplate.send(topic, event.getGlobalTxId(), event).get();
             }else{
-                kafkaTemplate.send(topic, data).get();
+                throw new UnsupportedOperationException("data must be BaseEvent type");
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException | UnsupportedOperationException e) {
             logger.error("publish Exception = [{}]", e.getMessage(), e);
             throw new RuntimeException(e);
         }
