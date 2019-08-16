@@ -249,7 +249,7 @@ public class PackIT {
     assertThat(compensatedMessages.isEmpty(), is(true));
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = 7000)
   public void retrySubTransactionSuccess() {
     ResponseEntity<String> entity = restTemplate.getForEntity("/open?name={name}&retries={retries}",
         String.class,
@@ -259,7 +259,7 @@ public class PackIT {
     assertThat(entity.getStatusCode(), is(OK));
     assertThat(entity.getBody(), is("Greetings, eric; Welcome to visit the zoo, eric"));
 
-    await().atMost(3, SECONDS).until(() -> eventRepo.count() == 8);
+    await().atMost(5, SECONDS).until(() -> eventRepo.count() == 8);
 
     List<String> distinctGlobalTxIds = eventRepo.findDistinctGlobalTxId();
     assertThat(distinctGlobalTxIds.size(), is(1));
