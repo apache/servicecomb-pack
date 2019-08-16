@@ -17,6 +17,7 @@
 package org.apache.servicecomb.pack.alpha.fsm.channel.kafka;
 
 import com.google.common.collect.Maps;
+import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -147,5 +148,15 @@ public class KafkaChannelAutoConfiguration {
     @ConditionalOnMissingBean
     public KafkaMessageListener kafkaMessageListener(@Lazy @Qualifier("actorEventSink") ActorEventSink actorEventSink){
         return new KafkaMessageListener(actorEventSink);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public KafkaAdmin kafkaAdmin(){
+        Map<String, Object> map = Maps.newHashMap();
+
+        map.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap_servers);
+
+        return new KafkaAdmin(map);
     }
 }
