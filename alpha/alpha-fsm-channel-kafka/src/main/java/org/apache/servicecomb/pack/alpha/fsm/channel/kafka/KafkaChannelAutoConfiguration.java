@@ -17,6 +17,8 @@
 package org.apache.servicecomb.pack.alpha.fsm.channel.kafka;
 
 import com.google.common.collect.Maps;
+import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -86,6 +88,12 @@ public class KafkaChannelAutoConfiguration {
     @Value("${spring.kafka.listener.pollTimeout:1500}")
     private long poolTimeout;
 
+    @Value("${kafka.numPartitions:6}")
+    private int  numPartitions;
+
+    @Value("${kafka.replicationFactor:1}")
+    private short replicationFactor;
+
     @Bean
     @ConditionalOnMissingBean
     public ProducerFactory<String, Object> producerFactory(){
@@ -147,5 +155,21 @@ public class KafkaChannelAutoConfiguration {
     @ConditionalOnMissingBean
     public KafkaMessageListener kafkaMessageListener(@Lazy @Qualifier("actorEventSink") ActorEventSink actorEventSink){
         return new KafkaMessageListener(actorEventSink);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public KafkaAdmin kafkaAdmin(){
+        Map<String, Object> map = Maps.newHashMap();
+
+        map.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap_servers);
+
+        return new KafkaAdmin(map);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public NewTopic newTopic(){
+        return new NewTopic(topic, numPartitions, replicationFactor);
     }
 }

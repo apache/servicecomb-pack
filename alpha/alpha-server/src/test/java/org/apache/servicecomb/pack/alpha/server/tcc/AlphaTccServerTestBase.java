@@ -248,8 +248,8 @@ public abstract class AlphaTccServerTestBase {
         .build();
     asyncStub.onConnected(config, commandStreamObserver);
 
-    await().atMost(1, SECONDS).until(() -> (OmegaCallbacksRegistry.getRegistry().get(serviceName) != null));
-    await().atMost(1, SECONDS).until(() -> (OmegaCallbacksRegistry.getRegistry().get(serviceName).size() == 2));
+    await().atMost(2, SECONDS).until(() -> (OmegaCallbacksRegistry.getRegistry().get(serviceName) != null));
+    await().atMost(2, SECONDS).until(() -> (OmegaCallbacksRegistry.getRegistry().get(serviceName).size() == 2));
 
     OmegaCallbacksRegistry.getRegistry().get(serviceName).remove(instanceId);
     blockingStub.onTccTransactionStarted(newTxStart());
@@ -257,7 +257,7 @@ public abstract class AlphaTccServerTestBase {
     blockingStub.onParticipationEnded(newParticipationEndedEvent("Succeed"));
     GrpcAck result = blockingStub.onTccTransactionEnded(newTxEnd("Succeed"));
 
-    await().atMost(2, SECONDS).until(() -> !receivedCommands.isEmpty());
+    await().atMost(4, SECONDS).until(() -> !receivedCommands.isEmpty());
     assertThat(receivedCommands.size(), is(1));
     GrpcTccCoordinateCommand command = receivedCommands.poll();
     assertThat(command.getMethod(), is("confirm"));

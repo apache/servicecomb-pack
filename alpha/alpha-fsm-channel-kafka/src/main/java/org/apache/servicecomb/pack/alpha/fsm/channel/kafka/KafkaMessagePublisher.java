@@ -18,6 +18,7 @@
 package org.apache.servicecomb.pack.alpha.fsm.channel.kafka;
 
 import org.apache.servicecomb.pack.alpha.core.fsm.channel.MessagePublisher;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -43,8 +44,13 @@ public class KafkaMessagePublisher implements MessagePublisher {
         }
 
         try {
-            kafkaTemplate.send(topic, data).get();
-        } catch (InterruptedException | ExecutionException e) {
+            if(data instanceof BaseEvent) {
+                BaseEvent event = (BaseEvent) data;
+                kafkaTemplate.send(topic, event.getGlobalTxId(), event).get();
+            }else{
+                throw new UnsupportedOperationException("data must be BaseEvent type");
+            }
+        } catch (InterruptedException | ExecutionException | UnsupportedOperationException e) {
             logger.error("publish Exception = [{}]", e.getMessage(), e);
             throw new RuntimeException(e);
         }
