@@ -211,6 +211,30 @@ public void bar(BarCommandWithTxContext cmdWithTxContext) {
 
 和前面一种方式类似，TransactionContextProperties.get{Global,Local}TxId()返回的也是注入的事务上下文信息。
 
+#### 手动结束Saga
+
+从pack-0.5.0开始`@SagaStart`添加了一个属性`autoClose`，该属性用于控制`@SagaStart`所标记的方法执行后是否自动发送SagaEndedEvent（默认值为`true`）。当`autoClose=false`时你需要使用`@SagaEnd`来手动发送`SagaEndedEvent`，比如：
+
+Service A:
+
+```java
+@SagaStart(autoClose=false)
+public void foo() {
+  restTemplate.postForEntity("http://service-b/bar", ...);
+}
+```
+
+Service B:
+
+```java
+@GetMapping("/bar")
+@Compensable
+@SagaEnd
+public void bar() {
+  ...
+}
+```
+
 ### TCC 支持
 在对应的方法中添加TccStart 和 Participate标注 
  以一个转账应用为例：

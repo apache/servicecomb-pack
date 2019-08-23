@@ -211,6 +211,30 @@ public void bar(BarCommandWithTxContext cmdWithTxContext) {
 
 Similar to the previous approach, `cmdWithTxContext.get{Global,Local}TxId()` also returns injected transaction context information.
 
+#### End a Saga manually
+
+Since pack-0.5.0 an attribute name `autoClose` is added to `@SagaStart` annotation, this attribute is used to control whether a SagaEndedEvent should be sent to Alpha after `SagaStart` annotated method is executed (default value is `true`). When `autoClose=false` you should use `@SagaEnd` to send SagaEndedEvent manually, for example:
+
+Service A:
+
+```java
+@SagaStart(autoClose=false)
+public void foo() {
+  restTemplate.postForEntity("http://service-b/bar", ...);
+}
+```
+
+Service B:
+
+```java
+@GetMapping("/bar")
+@Compensable
+@SagaEnd
+public void bar() {
+  ...
+}
+```
+
 ### TCC support
 
 Add TCC annotations and corresponding confirm and cancel methods
