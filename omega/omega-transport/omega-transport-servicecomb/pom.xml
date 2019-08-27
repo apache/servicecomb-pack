@@ -22,7 +22,7 @@
   <parent>
     <artifactId>omega-transport</artifactId>
     <groupId>org.apache.servicecomb.pack</groupId>
-    <version>0.5.0-SNAPSHOT</version>
+    <version>0.6.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 

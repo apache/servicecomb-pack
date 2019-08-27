@@ -28,7 +28,7 @@
   <groupId>org.apache.servicecomb.pack</groupId>
   <artifactId>pack</artifactId>
   <packaging>pom</packaging>
-  <version>0.5.0-SNAPSHOT</version>
+  <version>0.6.0-SNAPSHOT</version>
 
   <modules>
     <module>docker-build-config</module>
@@ -242,132 +242,132 @@
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-transport-feign</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack.transports</groupId>
         <artifactId>transport-httpclient</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-context</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-transaction</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-spring-tx</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-transport-resttemplate</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-transport-dubbo</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-transport-servicecomb</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-connector-grpc</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-spring-starter</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-spring-cloud-consul-starter</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-spring-cloud-zookeeper-starter</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-spring-cloud-nacos-starter</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-format</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>alpha-core</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>alpha-fsm</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>alpha-fsm-channel-redis</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
           <groupId>org.apache.servicecomb.pack</groupId>
           <artifactId>alpha-fsm-channel-kafka</artifactId>
-          <version>0.5.0-SNAPSHOT</version>
+          <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>alpha-server</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>alpha-ui</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>alpha-spring-cloud-starter-eureka</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>alpha-spring-cloud-starter-consul</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>alpha-spring-cloud-starter-zookeeper</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>alpha-spring-cloud-starter-nacos</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>pack-contract-grpc</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>pack-common</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.springframework.cloud</groupId>
@@ -388,7 +388,7 @@
       <dependency>
        <groupId>org.apache.servicecomb.pack</groupId>
        <artifactId>persistence-jpa</artifactId>
-       <version>0.5.0-SNAPSHOT</version>
+       <version>0.6.0-SNAPSHOT</version>
        </dependency>
       <dependency>
         <groupId>commons-io</groupId>
