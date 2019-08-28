@@ -137,11 +137,83 @@ Sub Transactions 面板：本事务包含的子事务ID，子事务状态，子�
 
 因为并没有收到子事务的任何事件，这并不符合状态机预期，所以红色字体显示不可预期挂起
 
+## 集群
+
+可以通过部署多个 Alpha 实现处理能力的水平扩展，集群依赖 Kafka 服务。
+
+* 启动 Kafka，可以使用 docker compose 方式启动，以下是一个 compose 文件样例
+
+  ```yaml
+  version: '3.2'
+  services:
+    zookeeper:
+      image: coolbeevip/alpine-zookeeper
+      ports:
+        - 2181:2181
+    kafka:
+      image: coolbeevip/alpine-kafka
+      environment:
+        KAFKA_ADVERTISED_HOST_NAME: 192.168.1.10
+        KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      ports:
+        - 9092:9092
+      links:
+        - zookeeper
+  ```
+
+  **注意：** KAFKA_ADVERTISED_HOST_NAME 一定要配置成服务器的真实 IP 地址，不能配置成 127.0.0.1 或者 localhost
+
+* 启动两个 Alpha 节点  
+
+  启动 Alpha 1
+
+  ```bash
+  java -jar alpha-server-${version}-exec.jar \
+    --server.port=8090
+    --alpha.server.port=8080
+    --spring.datasource.url=jdbc:postgresql://0.0.0.0:5432/saga?useSSL=false \
+    --spring.datasource.username=saga \
+    --spring.datasource.password=password \
+    --spring.profiles.active=prd \
+    --alpha.feature.akka.enabled=true \
+    --alpha.feature.akka.transaction.repository.type=elasticsearch \
+    --spring.data.elasticsearch.cluster-name=docker-cluster \
+    --spring.data.elasticsearch.cluster-nodes=localhost:9300 \
+    --alpha.feature.akka.channel.type=kafka \
+    --spring.kafka.bootstrap-servers=192.168.1.10:9092
+  ```
+
+  启动 Alpha 2
+
+  ```bash
+  java -jar alpha-server-${version}-exec.jar \
+    --server.port=8091
+    --alpha.server.port=8081
+    --spring.datasource.url=jdbc:postgresql://0.0.0.0:5432/saga?useSSL=false \
+    --spring.datasource.username=saga \
+    --spring.datasource.password=password \
+    --spring.profiles.active=prd \
+    --alpha.feature.akka.enabled=true \
+    --alpha.feature.akka.transaction.repository.type=elasticsearch \
+    --spring.data.elasticsearch.cluster-name=docker-cluster \
+    --spring.data.elasticsearch.cluster-nodes=localhost:9300 \
+    --alpha.feature.akka.channel.type=kafka \
+    --spring.kafka.bootstrap-servers=192.168.1.10:9092
+  ```
+
+  集群参数说明
+
+  server.port: REST 端口
+
+  alpha.server.port: gRPC 端口
+
+  alpha.feature.akka.channel.type: 数据通道类型配置成 kafka
+
+  spring.kafka.bootstrap-servers: kafka 地址，多个地址逗号分隔
+
 ## 后续计划
 
-状态机集群支持
-
-事件通道支持 Kafka
+Akka集群支持
 
 APIs 集成 Swagger
 
