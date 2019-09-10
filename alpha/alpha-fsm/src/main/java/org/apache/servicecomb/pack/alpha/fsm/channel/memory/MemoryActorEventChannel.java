@@ -15,39 +15,40 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.fsm.channel;
+package org.apache.servicecomb.pack.alpha.fsm.channel.memory;
 
-import org.apache.servicecomb.pack.alpha.core.fsm.channel.ActorEventChannel;
+import java.lang.invoke.MethodHandles;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
+import org.apache.servicecomb.pack.alpha.fsm.channel.AbstractActorEventChannel;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.core.fsm.sink.ActorEventSink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractActorEventChannel implements ActorEventChannel {
-  private static final Logger logger = LoggerFactory.getLogger(AbstractActorEventChannel.class);
+public class MemoryActorEventChannel extends AbstractActorEventChannel {
 
-  protected final MetricsService metricsService;
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private final LinkedBlockingQueue<BaseEvent> eventQueue;
+  private int size;
 
-  public abstract void sendTo(BaseEvent event);
-
-  public AbstractActorEventChannel(
-      MetricsService metricsService) {
-    this.metricsService = metricsService;
+  public MemoryActorEventChannel(MetricsService metricsService, int size) {
+    super(metricsService);
+    this.size = size > 0 ? size : Integer.MAX_VALUE;
+    eventQueue = new LinkedBlockingQueue(this.size);
   }
 
-  public void send(BaseEvent event) {
-    long begin = System.currentTimeMillis();
-    metricsService.metrics().doEventReceived();
+  public LinkedBlockingQueue<BaseEvent> getEventQueue() {
+    return eventQueue;
+  }
+
+  @Override
+  public void sendTo(BaseEvent event) {
     try {
-      this.sendTo(event);
-      metricsService.metrics().doEventAccepted();
-    } catch (Exception ex) {
-      logger.error("send Exception = [{}]", ex.getMessage(), ex);
-      metricsService.metrics().doEventRejected();
+      eventQueue.put(event);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
-    long end = System.currentTimeMillis();
-    metricsService.metrics().doEventAvgTime(end - begin);
   }
-
 }
