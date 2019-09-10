@@ -58,6 +58,9 @@
 
     <java.chassis.version>1.2.1</java.chassis.version>
     <akka.version>2.5.14</akka.version>
+    <alpakka.version>1.0.5</alpakka.version>
+    <leveldbjni-all.version>1.8</leveldbjni-all.version>
+    <akka-persistence-redis.version>0.4.0</akka-persistence-redis.version>
     <rat.version>0.12</rat.version>
     <maven.failsafe.version>2.19.1</maven.failsafe.version>
     <grpc.version>1.14.0</grpc.version>
@@ -429,6 +432,41 @@
         <groupId>com.typesafe.akka</groupId>
         <artifactId>akka-actor_2.12</artifactId>
         <version>${akka.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-persistence-typed_2.12</artifactId>
+        <version>${akka.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-cluster-typed_2.12</artifactId>
+        <version>${akka.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-cluster-sharding-typed_2.12</artifactId>
+        <version>${akka.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-stream-kafka_2.12</artifactId>
+        <version>${alpakka.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-cluster-metrics_2.12</artifactId>
+        <version>${akka.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.safety-data</groupId>
+        <artifactId>akka-persistence-redis_2.12</artifactId>
+        <version>${akka-persistence-redis.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.fusesource.leveldbjni</groupId>
+        <artifactId>leveldbjni-all</artifactId>
+        <version>${leveldbjni-all.version}</version>
       </dependency>
       <dependency>
         <groupId>com.typesafe.akka</groupId>
