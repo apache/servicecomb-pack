@@ -57,6 +57,9 @@ eureka:
 
 akkaConfig:
   akka:
+    loglevel: INFO
+    loggers: ["akka.event.slf4j.Slf4jLogger"]
+    logging-filter: akka.event.slf4j.Slf4jLoggingFilter
     log-dead-letters: off
     log-dead-letters-during-shutdown: off
     actor:
@@ -70,18 +73,26 @@ akkaConfig:
         plugin: akka.persistence.snapshot-store.local
         local.dir: target/example/snapshots
     remote:
+      watch-failure-detector:
+        acceptable-heartbeat-pause: 6s
       artery:
         enabled: on
         transport: tcp
+        advanced:
+          outbound-message-queue-size: 20000
         canonical:
           hostname: ${alpha.server.host}
           port: 8070
     cluster:
+      auto-down-unreachable-after: "off" # disable automatic downing
+      failure-detector:
+        heartbeat-interval: 3s
+        acceptable-heartbeat-pause: 6s
       seed-nodes: ["akka://alpha-cluster@127.0.0.1:8070"]
       sharding:
         state-store-mode: "persistence"
         remember-entities: true
-        shard-failure-backoff: "5 s"
+        shard-failure-backoff: 5s
 
 management:
   endpoints:
