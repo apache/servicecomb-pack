@@ -43,21 +43,6 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <dependency>
-        <groupId>com.typesafe.akka</groupId>
-        <artifactId>akka-persistence_2.12</artifactId>
-        <version>${akka.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.typesafe.akka</groupId>
-        <artifactId>akka-cluster_2.12</artifactId>
-        <version>${akka.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.typesafe.akka</groupId>
-        <artifactId>akka-cluster-metrics_2.12</artifactId>
-        <version>${akka.version}</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -78,16 +63,16 @@
       <artifactId>alpha-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.servicecomb.pack</groupId>
-      <artifactId>alpha-fsm-channel-redis</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.servicecomb.pack</groupId>
-      <artifactId>alpha-fsm-channel-kafka</artifactId>
+      <groupId>org.springframework.kafka</groupId>
+      <artifactId>spring-kafka</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -124,22 +109,12 @@
       <artifactId>akka-actor_2.12</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-persistence_2.12</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.fusesource.leveldbjni</groupId>
       <artifactId>leveldbjni-all</artifactId>
-      <version>${leveldbjni-all.version}</version>
     </dependency>
     <dependency>
       <groupId>com.safety-data</groupId>
       <artifactId>akka-persistence-redis_2.12</artifactId>
-      <version>${akka-persistence-redis.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-cluster_2.12</artifactId>
     </dependency>
     <dependency>
       <groupId>com.typesafe.akka</groupId>
@@ -147,7 +122,28 @@
     </dependency>
     <dependency>
       <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-stream-kafka_2.12</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-cluster-sharding-typed_2.12</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-cluster-typed_2.12</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-persistence-typed_2.12</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.typesafe.akka</groupId>
       <artifactId>akka-slf4j_2.12</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka-clients</artifactId>
+      <version>2.1.1</version>
     </dependency>
 
     <!--
