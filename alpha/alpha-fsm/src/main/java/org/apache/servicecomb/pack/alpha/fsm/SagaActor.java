@@ -59,13 +59,13 @@ public class SagaActor extends
     return Props.create(SagaActor.class, persistenceId);
   }
 
-  private final String persistenceId;
+  private String persistenceId;
 
   private long sagaBeginTime;
   private long sagaEndTime;
 
-  public SagaActor(String persistenceId) {
-    this.persistenceId = persistenceId;
+  public SagaActor() {
+    this.persistenceId = getSelf().path().name();
 
     startWith(SagaActorState.IDLE, SagaData.builder().build());
 
@@ -380,6 +380,12 @@ public class SagaActor extends
 
   @Override
   public SagaData applyEvent(DomainEvent event, SagaData data) {
+    if (this.recoveryRunning()) {
+      LOG.info("SagaActor recovery {}",event.getEvent());
+    }
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("SagaActor apply event {}", event.getEvent());
+    }
     // log event to SagaData
     if (event.getEvent() != null && !(event
         .getEvent() instanceof ComponsitedCheckEvent)) {
@@ -404,6 +410,7 @@ public class SagaActor extends
             .compensationMethod(domainEvent.getCompensationMethod())
             .payloads(domainEvent.getPayloads())
             .state(domainEvent.getState())
+            .beginTime(domainEvent.getEvent().getCreateTime())
             .build();
         data.getTxEntityMap().put(txEntity.getLocalTxId(), txEntity);
       } else {
@@ -412,7 +419,7 @@ public class SagaActor extends
     } else if (event instanceof UpdateTxEventDomain) {
       UpdateTxEventDomain domainEvent = (UpdateTxEventDomain) event;
       TxEntity txEntity = data.getTxEntityMap().get(domainEvent.getLocalTxId());
-      txEntity.setEndTime(new Date());
+      txEntity.setEndTime(domainEvent.getEvent().getCreateTime());
       if (domainEvent.getState() == TxState.COMMITTED) {
         txEntity.setState(domainEvent.getState());
       } else if (domainEvent.getState() == TxState.FAILED) {
@@ -441,27 +448,24 @@ public class SagaActor extends
           }
         });
       } else if (domainEvent.getState() == SagaActorState.SUSPENDED) {
-        data.setEndTime(new Date());
+        data.setEndTime(event.getEvent().getCreateTime());
         data.setTerminated(true);
         data.setSuspendedType(domainEvent.getSuspendedType());
       } else if (domainEvent.getState() == SagaActorState.COMPENSATED) {
-        data.setEndTime(new Date());
+        data.setEndTime(event.getEvent().getCreateTime());
         data.setTerminated(true);
       } else if (domainEvent.getState() == SagaActorState.COMMITTED) {
-        data.setEndTime(new Date());
+        data.setEndTime(event.getEvent().getCreateTime());
         data.setTerminated(true);
       }
-    }
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("applyEvent: {} {}", stateName(), stateData().getGlobalTxId());
     }
     return data;
   }
 
   @Override
   public void onRecoveryCompleted() {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("onRecoveryCompleted: {} {}", stateName(), stateData().getGlobalTxId());
+    if(stateName() != SagaActorState.IDLE){
+      LOG.info("SagaActor {} recovery completed, state={}", stateData().getGlobalTxId(), stateName());
     }
   }
 
