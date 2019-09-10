@@ -17,11 +17,35 @@
 
 package org.apache.servicecomb.pack.alpha.core.fsm.event.base;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.SagaAbortedEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.SagaEndedEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.SagaStartedEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.SagaTimeoutEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.TxAbortedEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.TxCompensatedEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.TxEndedEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.TxStartedEvent;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = SagaStartedEvent.class, name = "SagaStartedEvent"),
+    @JsonSubTypes.Type(value = SagaEndedEvent.class, name = "SagaEndedEvent"),
+    @JsonSubTypes.Type(value = SagaAbortedEvent.class, name = "SagaAbortedEvent"),
+    @JsonSubTypes.Type(value = SagaTimeoutEvent.class, name = "SagaTimeoutEvent"),
+    @JsonSubTypes.Type(value = TxStartedEvent.class, name = "TxStartedEvent"),
+    @JsonSubTypes.Type(value = TxEndedEvent.class, name = "TxEndedEvent"),
+    @JsonSubTypes.Type(value = TxAbortedEvent.class, name = "TxAbortedEvent"),
+    @JsonSubTypes.Type(value = TxCompensatedEvent.class, name = "TxCompensatedEvent")
+})
 public abstract class BaseEvent implements Serializable {
   private final ObjectMapper mapper = new ObjectMapper();
   private String serviceName;
@@ -89,6 +113,9 @@ public abstract class BaseEvent implements Serializable {
 
   @Override
   public String toString() {
+    try {
+      return mapper.writeValueAsString(this);
+    } catch (JsonProcessingException e) {
     return this.getClass().getSimpleName()+"{" +
         "serviceName='" + serviceName + '\'' +
         ", instanceId='" + instanceId + '\'' +
@@ -97,6 +124,7 @@ public abstract class BaseEvent implements Serializable {
         ", localTxId='" + localTxId + '\'' +
         ", createTime=" + createTime +
         '}';
+    }
   }
 
   public Map<String,Object> toMap() throws Exception {
