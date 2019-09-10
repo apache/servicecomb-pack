@@ -16,8 +16,8 @@
  */
 package org.apache.servicecomb.pack.alpha.core.fsm.channel;
 
-public interface MessagePublisher {
+public interface MessagePublisher<T> {
 
-    void publish(Object data);
+    void publish(T data);
 
 }
