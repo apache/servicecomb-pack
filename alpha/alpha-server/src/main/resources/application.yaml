@@ -16,16 +16,20 @@
 ## ---------------------------------------------------------------------------
 server:
   port: 8090
+  host: 0.0.0.0
 
 alpha:
   server:
-    host: 0.0.0.0
+    host: ${server.host}
     port: 8080
   feature:
     akka:
       enabled: false
       channel:
         type: memory
+      transaction:
+        repository:
+          type: elasticsearch
 
 spring:
   datasource:
@@ -52,20 +56,32 @@ eureka:
 
 
 akkaConfig:
-  # persistence
-  akka.persistence.journal.plugin: akka.persistence.journal.inmem
-  akka.persistence.journal.leveldb.dir: target/example/journal
-  akka.persistence.snapshot-store.plugin: akka.persistence.snapshot-store.local
-  akka.persistence.snapshot-store.local.dir: target/example/snapshots
-  # cluster
-  akka.actor.provider: cluster
-  akka.remote.log-remote-lifecycle-events: info
-  akka.remote.netty.tcp.hostname: 127.0.0.1
-  akka.remote.netty.tcp.port: 8070
-  akka.cluster.seed-nodes: ["akka.tcp://alpha-akka@127.0.0.1:8070"]
-  #
-  akka.extensions: ["akka.cluster.metrics.ClusterMetricsExtension"]
-
+  akka:
+    log-dead-letters: off
+    log-dead-letters-during-shutdown: off
+    actor:
+      warn-about-java-serializer-usage: false
+      provider: cluster
+    persistence:
+      journal:
+        plugin: akka.persistence.journal.inmem
+        leveldb.dir: target/example/journal
+      snapshot-store:
+        plugin: akka.persistence.snapshot-store.local
+        local.dir: target/example/snapshots
+    remote:
+      artery:
+        enabled: on
+        transport: tcp
+        canonical:
+          hostname: ${alpha.server.host}
+          port: 8070
+    cluster:
+      seed-nodes: ["akka://alpha-cluster@127.0.0.1:8070"]
+      sharding:
+        state-store-mode: "persistence"
+        remember-entities: true
+        shard-failure-backoff: "5 s"
 
 management:
   endpoints:
@@ -120,14 +136,51 @@ spring:
 
 ---
 spring:
-  profiles: akka-persistence-redis
+  profiles: cluster
+
+alpha:
+  feature:
+    akka:
+      enabled: true
+      channel:
+        type: kafka
+
 akkaConfig:
-  akka.persistence.journal.plugin: akka-persistence-redis.journal
-  akka.persistence.snapshot-store.plugin: akka-persistence-redis.snapshot
-  akka-persistence-redis:
-    redis:
-      mode: simple
-      host: localhost
-      port: 6379
-      database: 0
-      #password:
+  akka:
+    actor:
+      provider: cluster
+    persistence: # redis persistence
+      journal:
+        plugin: akka-persistence-redis.journal
+      snapshot-store:
+        plugin: akka-persistence-redis.snapshot
+    kafka:
+      consumer:
+        poll-interval: 50ms
+        stop-timeout: 30s
+        close-timeout: 20s
+        commit-timeout: 15s
+        commit-time-warning: 1s
+        commit-refresh-interval: infinite
+        use-dispatcher: "akka.kafka.default-dispatcher"
+        kafka-clients.enable.auto.commit: false
+        wait-close-partition: 500ms
+        position-timeout: 5s
+        offset-for-times-timeout: 5s
+        metadata-request-timeout: 5s
+        eos-draining-check-interval: 30ms
+        partition-handler-warning: 5s
+        connection-checker.enable: false
+        connection-checker.max-retries: 3
+        connection-checker.check-interval: 15s
+        connection-checker.backoff-factor: 2.0
+        max-batch: 1000
+        max-interval: 10s
+        parallelism: 1
+
+akka-persistence-redis:
+  redis:
+    mode: "simple"
+    host: "127.0.0.1"
+    port: 6379
+    database: 0
