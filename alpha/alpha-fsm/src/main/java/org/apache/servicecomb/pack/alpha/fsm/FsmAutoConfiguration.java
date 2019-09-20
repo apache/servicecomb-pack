@@ -55,7 +55,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 @ConditionalOnProperty(value = {"alpha.feature.akka.enabled"})
 public class FsmAutoConfiguration {
 
-  @Value("${alpha.feature.akka.transaction.repository.elasticsearch.batchSize:1000}")
+  @Value("${alpha.feature.akka.transaction.repository.elasticsearch.batchSize:100}")
   int repositoryElasticsearchBatchSize;
 
   @Value("${alpha.feature.akka.transaction.repository.elasticsearch.refreshTime:5000}")

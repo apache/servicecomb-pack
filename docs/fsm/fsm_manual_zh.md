@@ -139,43 +139,7 @@ Sub Transactions 面板：本事务包含的子事务ID，子事务状态，子�
 
 ## 集群
 
-参数
-
-| 参数名                     | 参数值 | 说明 |
-| -------------------------- | ------ | ---- |
-| server.port                | 8090   |      |
-| alpha.server.port          | 8080   |      |
-| alpha.feature.akka.enabled | true   |      |
-
-参数
-
-| 参数名                          | 参数值            | 说明 |
-| ------------------------------- | ----------------- | ---- |
-| alpha.feature.akka.channel.type | kafka             |      |
-| spring.kafka.bootstrap-servers  | 192.168.1.10:9092 |      |
-|                                 |                   |      |
-
-持久化参数
-
-| 参数名                                         | 参数值         | 说明 |
-| ---------------------------------------------- | -------------- | ---- |
-| alpha.feature.akka.transaction.repository.type | elasticsearch  |      |
-| spring.data.elasticsearch.cluster-name         | docker-cluster |      |
-| spring.data.elasticsearch.cluster-nodes        | localhost:9300 |      |
-
-Akka
-
-| 参数名                                            | 参数值                          | 说明 |
-| ------------------------------------------------- | ------------------------------- | ---- |
-| akkaConfig.akka.persistence.journal.plugin        | akka-persistence-redis.journal  |      |
-| akkaConfig.akka.persistence.snapshot-store.plugin | akka-persistence-redis.snapshot |      |
-| akkaConfig.akka-persistence-redis.redis.mode      | simple                          |      |
-| akkaConfig.akka-persistence-redis.redis.host      | localhost                       |      |
-| akkaConfig.akka-persistence-redis.redis.port      | 6379                            |      |
-| akkaConfig.akka-persistence-redis.redis.database  | 0                               |      |
-|                                                   |                                 |      |
-
-可以通过部署多个 Alpha 实现处理能力的水平扩展，集群依赖 Kafka 服务。
+可以通过部署多个 Alpha 实现处理能力的水平扩展和高可用，集群依赖 Kafka 服务。
 
 * 启动 Kafka，可以使用 docker compose 方式启动，以下是一个 compose 文件样例
 
@@ -208,6 +172,7 @@ Akka
     --server.port=8090 \
     --server.host=127.0.0.1 \
     --alpha.server.port=8080 \
+    --alpha.feature.akka.enabled=true \
     --spring.datasource.url=jdbc:postgresql://0.0.0.0:5432/saga?useSSL=false \
     --spring.datasource.username=saga \
     --spring.datasource.password=password \
@@ -216,10 +181,8 @@ Akka
     --spring.data.elasticsearch.cluster-nodes=127.0.0.1:9300 \
     --akkaConfig.akka.remote.artery.canonical.port=8070 \
     --akkaConfig.akka.cluster.seed-nodes[0]="akka://alpha-cluster@127.0.0.1:8070" \
-    --akkaConfig.akka-persistence-redis.redis.mode=simple \
     --akkaConfig.akka-persistence-redis.redis.host=127.0.0.1 \
     --akkaConfig.akka-persistence-redis.redis.port=6379 \
-    --akkaConfig.akka-persistence-redis.redis.database=0 \
     --spring.profiles.active=prd,cluster
   ```
 
@@ -230,6 +193,7 @@ Akka
     --server.port=8091 \
     --server.host=127.0.0.1 \
     --alpha.server.port=8081 \
+    --alpha.feature.akka.enabled=true \
     --spring.datasource.url=jdbc:postgresql://0.0.0.0:5432/saga?useSSL=false \
     --spring.datasource.username=saga \
     --spring.datasource.password=password \
@@ -238,30 +202,43 @@ Akka
     --spring.data.elasticsearch.cluster-nodes=127.0.0.1:9300 \
     --akkaConfig.akka.remote.artery.canonical.port=8071 \
     --akkaConfig.akka.cluster.seed-nodes[0]="akka://alpha-cluster@127.0.0.1:8070" \
-    --akkaConfig.akka-persistence-redis.redis.mode=simple \
     --akkaConfig.akka-persistence-redis.redis.host=127.0.0.1 \
     --akkaConfig.akka-persistence-redis.redis.port=6379 \
-    --akkaConfig.akka-persistence-redis.redis.database=0 \
     --spring.profiles.active=prd,cluster
   ```
 
   集群参数说明
 
-  server.port: REST 端口
+  | 参数名                                                       | 默认值 | 说明                                       |
+  | ------------------------------------------------------------ | ------ | ------------------------------------------ |
+  | server.port                                                  | 8090   | REST 端口，每个节点唯一                    |
+  | alpha.server.port                                            | 8080   | GRPC 端口，每个节点唯一                    |
+  | spring.kafka.bootstrap-servers                               |        | Kafka 访问地址                             |
+| kafka.numPartitions                                          | 6      | Kafka 访问地址                             |
+  | akkaConfig.akka.remote.artery.canonical.port                 |        | Akka集群 端口，每个节点唯一                |
+  | akkaConfig.akka.cluster.seed-nodes[x]                        |        | Akka集群种子节点地址，每个种子节点配置一行 |
+  | akkaConfig.akka-persistence-redis.redis.host                 |        | Redis 服务地址                             |
+  | akkaConfig.akka-persistence-redis.redis.port                 |        | Redis 服务端口                             |
+  | akkaConfig.akka-persistence-redis.redis.database             | 0      | Redis 库名                                 |
+  | alpha.feature.akka.transaction.repository.elasticsearch.batchSize | 100    | ES批量提交大小                             |
+  | alpha.feature.akka.transaction.repository.elasticsearch.refreshTime | 5000   | ES定时提交间隔                             |
+  | spring.profiles.active                                       |        | 激活配置，必须填写 prd,cluster             |
 
-  alpha.server.port: gRPC 端口
+## 高可用
 
-  alpha.feature.akka.channel.type: 数据通道类型配置成 kafka
+集群部署时当一个节点宕机，那么另外一个节点会自动接管宕机节点未结束的 Actor
 
-  spring.kafka.bootstrap-servers: kafka 地址，多个地址逗号分隔
+**注意：** Alpha 采用"至少一次"的方式从 Kafka 接收事物事件，所以请确保 Kafka 服务的可靠性
 
-  
+**注意：** Alpha 状态机采用 Redis 存储当前状态，并在节点宕机后通过 Redis 在集群其他节点上恢复状态机，所以请确保 Redis 服务的可靠性
 
+**注意：** `alpha.feature.akka.transaction.repository.elasticsearch.batchSize` 设置的批量提交ES参数默认是100，在数据可靠性要求较高的场景请将此参数设置为 0
 
+## 动态扩容
+
+Alpha 收到事件消息后会放入 Kafka，Alpha 集群中的所有节点从 Kafka 中消费数据并发送给状态机处理，默认创建的 Topic 分区数量是 6，当你部署的集群节点数大于 6 时，你可以通过 `kafka.numPartitions` 参数修改默认分区数
 
 ## 后续计划
-
-Akka集群支持
 
 APIs 集成 Swagger
 
