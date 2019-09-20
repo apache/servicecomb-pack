@@ -26,7 +26,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 
 public class KafkaMessagePublisher implements MessagePublisher<BaseEvent> {
 
-    private static final Logger logger = LoggerFactory.getLogger(KafkaMessagePublisher.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KafkaMessagePublisher.class);
 
     private String topic;
     private KafkaTemplate<String, Object> kafkaTemplate;
@@ -38,14 +38,13 @@ public class KafkaMessagePublisher implements MessagePublisher<BaseEvent> {
 
     @Override
     public void publish(BaseEvent data) {
-        if(logger.isDebugEnabled()){
-            logger.debug("send message [{}] to [{}]", data, topic);
+        if(LOG.isDebugEnabled()){
+            LOG.debug("send to kafka {} {} to {}", data.getGlobalTxId(), data.getType(), topic);
         }
-
         try {
             kafkaTemplate.send(topic, data.getGlobalTxId(), data).get();
         } catch (InterruptedException | ExecutionException | UnsupportedOperationException e) {
-            logger.error("publish Exception = [{}]", e.getMessage(), e);
+            LOG.error("publish Exception = [{}]", e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
