@@ -39,11 +39,11 @@ ServiceComb Pack 0.5.0 开始支持 Saga 状态机模式，你只需要在启动
     --spring.datasource.url=jdbc:postgresql://0.0.0.0:5432/saga?useSSL=false \
     --spring.datasource.username=saga \
     --spring.datasource.password=password \
-    --spring.profiles.active=prd \
     --alpha.feature.akka.enabled=true \
     --alpha.feature.akka.transaction.repository.type=elasticsearch \
     --spring.data.elasticsearch.cluster-name=docker-cluster \
-    --spring.data.elasticsearch.cluster-nodes=localhost:9300  
+    --spring.data.elasticsearch.cluster-nodes=localhost:9300 \
+    --spring.profiles.active=prd  
   ```
 
 * Alpha WEB 管理界面
@@ -139,6 +139,42 @@ Sub Transactions 面板：本事务包含的子事务ID，子事务状态，子�
 
 ## 集群
 
+参数
+
+| 参数名                     | 参数值 | 说明 |
+| -------------------------- | ------ | ---- |
+| server.port                | 8090   |      |
+| alpha.server.port          | 8080   |      |
+| alpha.feature.akka.enabled | true   |      |
+
+参数
+
+| 参数名                          | 参数值            | 说明 |
+| ------------------------------- | ----------------- | ---- |
+| alpha.feature.akka.channel.type | kafka             |      |
+| spring.kafka.bootstrap-servers  | 192.168.1.10:9092 |      |
+|                                 |                   |      |
+
+持久化参数
+
+| 参数名                                         | 参数值         | 说明 |
+| ---------------------------------------------- | -------------- | ---- |
+| alpha.feature.akka.transaction.repository.type | elasticsearch  |      |
+| spring.data.elasticsearch.cluster-name         | docker-cluster |      |
+| spring.data.elasticsearch.cluster-nodes        | localhost:9300 |      |
+
+Akka
+
+| 参数名                                            | 参数值                          | 说明 |
+| ------------------------------------------------- | ------------------------------- | ---- |
+| akkaConfig.akka.persistence.journal.plugin        | akka-persistence-redis.journal  |      |
+| akkaConfig.akka.persistence.snapshot-store.plugin | akka-persistence-redis.snapshot |      |
+| akkaConfig.akka-persistence-redis.redis.mode      | simple                          |      |
+| akkaConfig.akka-persistence-redis.redis.host      | localhost                       |      |
+| akkaConfig.akka-persistence-redis.redis.port      | 6379                            |      |
+| akkaConfig.akka-persistence-redis.redis.database  | 0                               |      |
+|                                                   |                                 |      |
+
 可以通过部署多个 Alpha 实现处理能力的水平扩展，集群依赖 Kafka 服务。
 
 * 启动 Kafka，可以使用 docker compose 方式启动，以下是一个 compose 文件样例
@@ -169,36 +205,44 @@ Sub Transactions 面板：本事务包含的子事务ID，子事务状态，子�
 
   ```bash
   java -jar alpha-server-${version}-exec.jar \
-    --server.port=8090
-    --alpha.server.port=8080
+    --server.port=8090 \
+    --server.host=127.0.0.1 \
+    --alpha.server.port=8080 \
     --spring.datasource.url=jdbc:postgresql://0.0.0.0:5432/saga?useSSL=false \
     --spring.datasource.username=saga \
     --spring.datasource.password=password \
-    --spring.profiles.active=prd \
-    --alpha.feature.akka.enabled=true \
-    --alpha.feature.akka.transaction.repository.type=elasticsearch \
+    --spring.kafka.bootstrap-servers=127.0.0.1:9092 \
     --spring.data.elasticsearch.cluster-name=docker-cluster \
-    --spring.data.elasticsearch.cluster-nodes=localhost:9300 \
-    --alpha.feature.akka.channel.type=kafka \
-    --spring.kafka.bootstrap-servers=192.168.1.10:9092
+    --spring.data.elasticsearch.cluster-nodes=127.0.0.1:9300 \
+    --akkaConfig.akka.remote.artery.canonical.port=8070 \
+    --akkaConfig.akka.cluster.seed-nodes[0]="akka://alpha-cluster@127.0.0.1:8070" \
+    --akkaConfig.akka-persistence-redis.redis.mode=simple \
+    --akkaConfig.akka-persistence-redis.redis.host=127.0.0.1 \
+    --akkaConfig.akka-persistence-redis.redis.port=6379 \
+    --akkaConfig.akka-persistence-redis.redis.database=0 \
+    --spring.profiles.active=prd,cluster
   ```
 
   启动 Alpha 2
 
   ```bash
   java -jar alpha-server-${version}-exec.jar \
-    --server.port=8091
-    --alpha.server.port=8081
+    --server.port=8091 \
+    --server.host=127.0.0.1 \
+    --alpha.server.port=8081 \
     --spring.datasource.url=jdbc:postgresql://0.0.0.0:5432/saga?useSSL=false \
     --spring.datasource.username=saga \
     --spring.datasource.password=password \
-    --spring.profiles.active=prd \
-    --alpha.feature.akka.enabled=true \
-    --alpha.feature.akka.transaction.repository.type=elasticsearch \
+    --spring.kafka.bootstrap-servers=127.0.0.1:9092 \
     --spring.data.elasticsearch.cluster-name=docker-cluster \
-    --spring.data.elasticsearch.cluster-nodes=localhost:9300 \
-    --alpha.feature.akka.channel.type=kafka \
-    --spring.kafka.bootstrap-servers=192.168.1.10:9092
+    --spring.data.elasticsearch.cluster-nodes=127.0.0.1:9300 \
+    --akkaConfig.akka.remote.artery.canonical.port=8071 \
+    --akkaConfig.akka.cluster.seed-nodes[0]="akka://alpha-cluster@127.0.0.1:8070" \
+    --akkaConfig.akka-persistence-redis.redis.mode=simple \
+    --akkaConfig.akka-persistence-redis.redis.host=127.0.0.1 \
+    --akkaConfig.akka-persistence-redis.redis.port=6379 \
+    --akkaConfig.akka-persistence-redis.redis.database=0 \
+    --spring.profiles.active=prd,cluster
   ```
 
   集群参数说明
@@ -210,6 +254,10 @@ Sub Transactions 面板：本事务包含的子事务ID，子事务状态，子�
   alpha.feature.akka.channel.type: 数据通道类型配置成 kafka
 
   spring.kafka.bootstrap-servers: kafka 地址，多个地址逗号分隔
+
+  
+
+
 
 ## 后续计划
 
