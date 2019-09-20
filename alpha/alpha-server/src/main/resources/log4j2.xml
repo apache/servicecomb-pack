@@ -16,7 +16,7 @@
   ~ limitations under the License.
   -->
 
-<Configuration status="WARN" monitorInterval="30">
+<Configuration status="WARN" monitorInterval="30" shutdownHook="disable">
   <Properties>
     <Property name="LOG_PATTERN">
       %d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${hostName} --- [%15.15t] %-40.40c{1.} : %m%n%ex
