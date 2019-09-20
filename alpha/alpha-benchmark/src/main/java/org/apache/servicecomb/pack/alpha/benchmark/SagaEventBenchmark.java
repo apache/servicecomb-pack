@@ -63,7 +63,8 @@ public class SagaEventBenchmark {
     CountDownLatch end = new CountDownLatch(concurrency);
     begin.countDown();
     for (int i = 0; i < concurrency; i++) {
-      Execute execute = new Execute(sender, requests / concurrency, begin, end);
+      String id_prefix = "";
+      Execute execute = new Execute(sender, id_prefix,requests / concurrency, begin, end);
       new Thread(execute).start();
     }
     try {
@@ -109,7 +110,8 @@ public class SagaEventBenchmark {
     // 预热
     if (warmUp > 0) {
       for (int i = 0; i < warmUp; i++) {
-        Execute execute = new Execute(sender, warmUpRequests, begin, end);
+        String id_prefix = "warmup-";
+        Execute execute = new Execute(sender, id_prefix, warmUpRequests, begin, end);
         new Thread(execute).start();
       }
       try {
@@ -131,15 +133,16 @@ public class SagaEventBenchmark {
   }
 
   private class Execute implements Runnable {
-
+    String id_prefix;
     SagaMessageSender sender;
     CountDownLatch begin;
     CountDownLatch end;
     int requests;
 
-    public Execute(SagaMessageSender sender, int requests, CountDownLatch begin,
+    public Execute(SagaMessageSender sender, String id_prefix, int requests, CountDownLatch begin,
         CountDownLatch end) {
       this.sender = sender;
+      this.id_prefix = id_prefix;
       this.requests = requests;
       this.begin = begin;
       this.end = end;
@@ -158,7 +161,12 @@ public class SagaEventBenchmark {
           final String localTxId_3 = UUID.randomUUID().toString();
           try {
             sagaSuccessfulEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream()
-                .forEach(event -> sender.send(event));
+                .forEach(event -> {
+                  if(LOG.isDebugEnabled()){
+                    LOG.debug(event.toString());
+                  }
+                  sender.send(event);
+                });
           } catch (Throwable e) {
             metrics.failedRequestsIncrement();
           } finally {
