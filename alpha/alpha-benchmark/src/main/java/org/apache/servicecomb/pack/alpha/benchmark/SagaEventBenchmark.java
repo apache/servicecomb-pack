@@ -21,6 +21,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalDouble;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
@@ -62,9 +63,9 @@ public class SagaEventBenchmark {
     CountDownLatch begin = new CountDownLatch(1);
     CountDownLatch end = new CountDownLatch(concurrency);
     begin.countDown();
+    String[] id_prefixs = generateRandomIdPrefix(concurrency);
     for (int i = 0; i < concurrency; i++) {
-      String id_prefix = "";
-      Execute execute = new Execute(sender, id_prefix,requests / concurrency, begin, end);
+      Execute execute = new Execute(sender, id_prefixs[i],requests / concurrency, begin, end);
       new Thread(execute).start();
     }
     try {
@@ -155,7 +156,7 @@ public class SagaEventBenchmark {
         for (int i = 0; i < requests; i++) {
           metrics.completeRequestsIncrement();
           long s = System.currentTimeMillis();
-          final String globalTxId = UUID.randomUUID().toString();
+          final String globalTxId = id_prefix + "-" + i;
           final String localTxId_1 = UUID.randomUUID().toString();
           final String localTxId_2 = UUID.randomUUID().toString();
           final String localTxId_3 = UUID.randomUUID().toString();
@@ -208,5 +209,18 @@ public class SagaEventBenchmark {
     sagaEvents.add(
         new TxEvent(EventType.SagaEndedEvent, globalTxId, globalTxId, globalTxId, "", 0, null, 0));
     return sagaEvents;
+  }
+
+  private String[] generateRandomIdPrefix(int numberOfWords) {
+    String[] randomStrings = new String[numberOfWords];
+    Random random = new Random();
+    for (int i = 0; i < numberOfWords; i++) {
+      char[] word = new char[8];
+      for (int j = 0; j < word.length; j++) {
+        word[j] = (char) ('a' + random.nextInt(26));
+      }
+      randomStrings[i] = new String(word);
+    }
+    return randomStrings;
   }
 }
