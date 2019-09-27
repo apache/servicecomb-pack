@@ -47,6 +47,8 @@ import org.apache.servicecomb.pack.alpha.core.fsm.event.TxStartedEvent;
     @JsonSubTypes.Type(value = TxCompensatedEvent.class, name = "TxCompensatedEvent")
 })
 public abstract class BaseEvent implements Serializable {
+
+  private static final long serialVersionUID = 7587021626678201246L;
   private final ObjectMapper mapper = new ObjectMapper();
   private String serviceName;
   private String instanceId;
