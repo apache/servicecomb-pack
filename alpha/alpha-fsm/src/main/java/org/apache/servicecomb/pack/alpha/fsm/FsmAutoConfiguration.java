@@ -55,6 +55,9 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 @ConditionalOnProperty(value = {"alpha.feature.akka.enabled"})
 public class FsmAutoConfiguration {
 
+  // TODO
+  //  Size of bulk request, When this value is greater than 0, the batch data will be lost when the jvm crashes.
+  //  In the future, we can use Kafka to solve this problem instead of storing it directly in the ES.
   @Value("${alpha.feature.akka.transaction.repository.elasticsearch.batchSize:100}")
   int repositoryElasticsearchBatchSize;
 
