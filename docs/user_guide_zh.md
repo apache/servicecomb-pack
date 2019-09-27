@@ -802,4 +802,4 @@ Alpha 可以通过部署多实例的方式保证高可用，使用 `alpha.cluste
 
 ## 实验
 
-[Alpha 状态机模式](fsm/fsm_manual_zh.md)
+[状态机模式](fsm/fsm_manual_zh.md)
