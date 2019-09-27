@@ -39,12 +39,11 @@ public class KafkaMessagePublisher implements MessagePublisher<BaseEvent> {
     @Override
     public void publish(BaseEvent data) {
         if(LOG.isDebugEnabled()){
-            LOG.debug("send to kafka {} {} to {}", data.getGlobalTxId(), data.getType(), topic);
+            LOG.debug("send [{}] {} {}", data.getGlobalTxId(), data.getType(), data.getLocalTxId());
         }
         try {
             kafkaTemplate.send(topic, data.getGlobalTxId(), data).get();
         } catch (InterruptedException | ExecutionException | UnsupportedOperationException e) {
-            LOG.error("publish Exception = [{}]", e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
