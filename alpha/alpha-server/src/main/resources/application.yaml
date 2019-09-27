@@ -68,10 +68,10 @@ akkaConfig:
     persistence:
       journal:
         plugin: akka.persistence.journal.inmem
-        leveldb.dir: target/example/journal
+        leveldb.dir: actor/persistence/journal
       snapshot-store:
         plugin: akka.persistence.snapshot-store.local
-        local.dir: target/example/snapshots
+        local.dir: actor/persistence/snapshots
     remote:
       watch-failure-detector:
         acceptable-heartbeat-pause: 6s

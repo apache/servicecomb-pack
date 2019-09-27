@@ -277,14 +277,14 @@ services:
 
 ## 动态扩容
 
-* Alpha 支持通过动态增加节点的的方式实现在线处理能力扩容
-* Alpha 默认创建的 Kafka Topic 分区数量是 6，也就是说 Alpha 集群节点大于6个时将不能再提升处理性能，你可以根据规划在初次启动的时候使用  `kafka.numPartitions` 参数修改自动创建的 Topic 分区数
+- Alpha 支持通过动态增加节点的的方式实现在线处理能力扩容
+- Alpha 默认创建的 Kafka Topic 分区数量是 6，也就是说 Alpha 集群节点大于6个时将不能再提升处理性能，你可以根据规划在初次启动的时候使用  `kafka.numPartitions` 参数修改自动创建的 Topic 分区数
 
 ## 附件
 
 [事件通道](eventchannel_zh.md)
 
-[事务数据持久化](persistence_zh.md)
+[持久化](persistence_zh.md)
 
 [Akka 配置](akka_zh.md)
 
