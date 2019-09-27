@@ -90,9 +90,6 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
           .build();
       repositoryChannel.send(record);
       sagaDataMap.remove(globalTxId);
-      if(LOG.isDebugEnabled()){
-        LOG.info("send repository channel {}",globalTxId);
-      }
     }
 
     // Only for Test
