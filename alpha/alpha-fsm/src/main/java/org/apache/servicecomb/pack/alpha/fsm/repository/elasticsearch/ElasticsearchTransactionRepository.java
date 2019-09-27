@@ -243,9 +243,11 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
     metricsService.metrics().doRepositoryAccepted(queries.size());
     long end = System.currentTimeMillis();
     metricsService.metrics().doRepositoryAvgTime((end - begin) / queries.size());
-    LOG.info("save queries={}, received={}, accepted={}", queries.size(),
-        metricsService.metrics().getRepositoryReceived(),
-        metricsService.metrics().getRepositoryAccepted());
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("save queries={}, received={}, accepted={}", queries.size(),
+          metricsService.metrics().getRepositoryReceived(),
+          metricsService.metrics().getRepositoryAccepted());
+    }
     queries.clear();
   }
 
