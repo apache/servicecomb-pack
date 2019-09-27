@@ -70,7 +70,7 @@ public class SagaShardRegionActor extends AbstractActor {
     sagaActorRegion = ClusterSharding.get(system)
         .start(
             SagaActor.class.getSimpleName(),
-            Props.create(SagaActor.class),
+            SagaActor.props(null),
             settings,
             messageExtractor);
   }
@@ -79,14 +79,16 @@ public class SagaShardRegionActor extends AbstractActor {
   public Receive createReceive() {
     return receiveBuilder()
         .matchAny(event -> {
-          final BaseEvent evt = (BaseEvent) event;
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("=> [{}] {} {}", evt.getGlobalTxId(), evt.getType(), evt.getLocalTxId());
-          }
+          if(event instanceof BaseEvent){
+            final BaseEvent evt = (BaseEvent) event;
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("=> [{}] {} {}", evt.getGlobalTxId(), evt.getType(), evt.getLocalTxId());
+            }
 
-          sagaActorRegion.tell(event, getSelf());
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("<= [{}] {} {}", evt.getGlobalTxId(), evt.getType(), evt.getLocalTxId());
+            sagaActorRegion.tell(event, getSelf());
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("<= [{}] {} {}", evt.getGlobalTxId(), evt.getType(), evt.getLocalTxId());
+            }
           }
           getSender().tell("confirm", getSelf());
         })

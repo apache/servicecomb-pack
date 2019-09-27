@@ -83,8 +83,11 @@ public class SagaIntegrationTest {
       memoryActorEventChannel.send(event);
     });
     await().atMost(2, SECONDS).until(() -> {
-      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
-      return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()== SagaActorState.COMMITTED;
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system)
+          .getLastSagaData();
+      return sagaData != null && sagaData.isTerminated()
+          && sagaData.getLastState() == SagaActorState.COMMITTED
+          && metricsService.metrics().getSagaEndCounter() == 1;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertNotNull(sagaData.getBeginTime());
