@@ -24,11 +24,15 @@ import akka.actor.Props;
 import akka.cluster.sharding.ClusterSharding;
 import akka.cluster.sharding.ClusterShardingSettings;
 import akka.cluster.sharding.ShardRegion;
+import java.lang.invoke.MethodHandles;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SagaShardRegionActor extends AbstractActor {
 
-  private final ActorRef workerRegion;
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private final ActorRef sagaActorRegion;
 
   static ShardRegion.MessageExtractor messageExtractor = new ShardRegion.MessageExtractor() {
     @Override
@@ -47,7 +51,7 @@ public class SagaShardRegionActor extends AbstractActor {
 
     @Override
     public String shardId(Object message) {
-      int numberOfShards = 100;
+      int numberOfShards = 10; // NOTE: Greater than the number of alpha nodes
       if (message instanceof BaseEvent) {
         String actorId = ((BaseEvent) message).getGlobalTxId();
         return String.valueOf(actorId.hashCode() % numberOfShards);
@@ -63,9 +67,9 @@ public class SagaShardRegionActor extends AbstractActor {
   public SagaShardRegionActor() {
     ActorSystem system = getContext().getSystem();
     ClusterShardingSettings settings = ClusterShardingSettings.create(system);
-    workerRegion = ClusterSharding.get(system)
+    sagaActorRegion = ClusterSharding.get(system)
         .start(
-            "saga-shard-region-actor",
+            SagaActor.class.getSimpleName(),
             Props.create(SagaActor.class),
             settings,
             messageExtractor);
@@ -74,8 +78,17 @@ public class SagaShardRegionActor extends AbstractActor {
   @Override
   public Receive createReceive() {
     return receiveBuilder()
-        .matchAny(msg -> {
-          workerRegion.tell(msg, getSelf());
+        .matchAny(event -> {
+          final BaseEvent evt = (BaseEvent) event;
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("=> [{}] {} {}", evt.getGlobalTxId(), evt.getType(), evt.getLocalTxId());
+          }
+
+          sagaActorRegion.tell(event, getSelf());
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("<= [{}] {} {}", evt.getGlobalTxId(), evt.getType(), evt.getLocalTxId());
+          }
+          getSender().tell("confirm", getSelf());
         })
         .build();
   }

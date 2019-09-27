@@ -23,9 +23,11 @@ import akka.kafka.ConsumerMessage;
 import akka.kafka.ConsumerSettings;
 import akka.kafka.Subscriptions;
 import akka.kafka.javadsl.Consumer;
+import akka.pattern.Patterns;
 import akka.stream.ActorMaterializer;
 import akka.stream.Materializer;
 import akka.stream.javadsl.Sink;
+import akka.util.Timeout;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.typesafe.config.Config;
 import java.lang.invoke.MethodHandles;
@@ -39,6 +41,9 @@ import org.apache.servicecomb.pack.alpha.fsm.channel.AbstractEventConsumer;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
+import scala.concurrent.duration.Duration;
 
 public class KafkaSagaEventConsumer extends AbstractEventConsumer {
 
@@ -64,10 +69,10 @@ public class KafkaSagaEventConsumer extends AbstractEventConsumer {
             .withProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "StringDeserializer.class")
             .withProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "StringDeserializer.class");
     Consumer.committableSource(consumerSettings, Subscriptions.topics(topic))
-        .mapAsync(10, event -> {
+        .mapAsync(20, event -> {
           BaseEvent bean = jsonMapper.readValue(event.record().value(), BaseEvent.class);
           if (LOG.isDebugEnabled()) {
-            LOG.debug("kafka receive {} {}", bean.getGlobalTxId(), bean.getType());
+            LOG.debug("receive [{}] {} {}", bean.getGlobalTxId(), bean.getType(), bean.getLocalTxId());
           }
           return sendSagaActor(bean).thenApply(done -> event.committableOffset());
         })
@@ -76,7 +81,7 @@ public class KafkaSagaEventConsumer extends AbstractEventConsumer {
             ConsumerMessage::createCommittableOffsetBatch,
             ConsumerMessage.CommittableOffsetBatch::updated
         )
-        .mapAsync(10, offset -> offset.commitJavadsl())
+        .mapAsync(20, offset -> offset.commitJavadsl())
         .to(Sink.ignore())
         .run(materializer);
   }
@@ -85,14 +90,14 @@ public class KafkaSagaEventConsumer extends AbstractEventConsumer {
     try {
       long begin = System.currentTimeMillis();
       metricsService.metrics().doActorReceived();
-      sagaShardRegionActor.tell(event, sagaShardRegionActor);
+      // Use the synchronous method call to ensure that Kafka's Offset is set after the delivery is successful.
+      Timeout timeout = new Timeout(Duration.create(10, "seconds"));
+      Future<Object> future = Patterns.ask(sagaShardRegionActor, event, timeout);
+      Await.result(future, timeout.duration());
       long end = System.currentTimeMillis();
       metricsService.metrics().doActorAccepted();
       metricsService.metrics().doActorAvgTime(end - begin);
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("send saga actor {} {}", event, event.getType());
-      }
-      return CompletableFuture.completedFuture("");
+      return CompletableFuture.completedFuture("OK");
     } catch (Exception ex) {
       LOG.error(ex.getMessage(),ex);
       metricsService.metrics().doActorRejected();

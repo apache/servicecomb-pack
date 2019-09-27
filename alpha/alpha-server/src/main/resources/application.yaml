@@ -88,11 +88,11 @@ akkaConfig:
       failure-detector:
         heartbeat-interval: 3s
         acceptable-heartbeat-pause: 6s
-      seed-nodes: ["akka://alpha-cluster@127.0.0.1:8070"]
-      sharding:
-        state-store-mode: "ddata" #ddata,persistence
-        remember-entities: true
-        shard-failure-backoff: 5s
+      seed-nodes: ["akka://alpha-cluster@0.0.0.0:8070"]
+    sharding:
+      state-store-mode: ddata
+      remember-entities: "on"
+      shard-failure-backoff: 5s
 
 management:
   endpoints:
@@ -160,11 +160,16 @@ akkaConfig:
   akka:
     actor:
       provider: cluster
-    persistence: # redis persistence
+    persistence:
+      at-least-once-delivery:
+        redeliver-interval: 10s
+        redelivery-burst-limit: 2000
       journal:
         plugin: akka-persistence-redis.journal
       snapshot-store:
         plugin: akka-persistence-redis.snapshot
+    sharding:
+      state-store-mode: persistence
     kafka:
       consumer:
         poll-interval: 50ms
