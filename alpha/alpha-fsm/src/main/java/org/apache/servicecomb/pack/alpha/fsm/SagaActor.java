@@ -56,19 +56,20 @@ public class SagaActor extends
     AbstractPersistentFSM<SagaActorState, SagaData, DomainEvent> {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
+  private String persistenceId;
+  private long sagaBeginTime;
+  private long sagaEndTime;
 
   public static Props props(String persistenceId) {
     return Props.create(SagaActor.class, persistenceId);
   }
 
-  private String persistenceId;
-
-  private long sagaBeginTime;
-  private long sagaEndTime;
-
-  public SagaActor() {
-    this.persistenceId = getSelf().path().name();
+  public SagaActor(String persistenceId) {
+    if (persistenceId != null) {
+      this.persistenceId = persistenceId;
+    } else {
+      this.persistenceId = getSelf().path().name();
+    }
 
     startWith(SagaActorState.IDLE, SagaData.builder().build());
 
@@ -487,14 +488,14 @@ public class SagaActor extends
             }
           });
         } else if (domainEvent.getState() == SagaActorState.SUSPENDED) {
-          data.setEndTime(event.getEvent().getCreateTime());
+          data.setEndTime(event.getEvent() != null ? event.getEvent().getCreateTime() : new Date());
           data.setTerminated(true);
           data.setSuspendedType(domainEvent.getSuspendedType());
         } else if (domainEvent.getState() == SagaActorState.COMPENSATED) {
-          data.setEndTime(event.getEvent().getCreateTime());
+          data.setEndTime(event.getEvent() != null ? event.getEvent().getCreateTime() : new Date());
           data.setTerminated(true);
         } else if (domainEvent.getState() == SagaActorState.COMMITTED) {
-          data.setEndTime(event.getEvent().getCreateTime());
+          data.setEndTime(event.getEvent() != null ? event.getEvent().getCreateTime() : new Date());
           data.setTerminated(true);
         }
       }

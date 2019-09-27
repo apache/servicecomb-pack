@@ -228,7 +228,6 @@ public class SagaActorTest {
           SagaActorState.PARTIALLY_ACTIVE);
 
       //expectTerminated(fsm);
-
       ActorRef recoveredSaga = system.actorOf(SagaActor.props(persistenceId), "recoveredSaga");
       watch(recoveredSaga);
       recoveredSaga.tell(new PersistentFSM.SubscribeTransitionCallBack(getRef()), getRef());

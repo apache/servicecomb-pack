@@ -1,0 +1,205 @@
+## ---------------------------------------------------------------------------
+## Licensed to the Apache Software Foundation (ASF) under one or more
+## contributor license agreements.  See the NOTICE file distributed with
+## this work for additional information regarding copyright ownership.
+## The ASF licenses this file to You under the Apache License, Version 2.0
+## (the "License"); you may not use this file except in compliance with
+## the License.  You may obtain a copy of the License at
+##
+##      http://www.apache.org/licenses/LICENSE-2.0
+##
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
+## ---------------------------------------------------------------------------
+server:
+  port: 8090
+  host: 0.0.0.0
+
+alpha:
+  server:
+    host: ${server.host}
+    port: 8080
+  feature:
+    akka:
+      enabled: false
+      channel:
+        type: memory
+      transaction:
+        repository:
+          type: elasticsearch
+
+spring:
+  datasource:
+    initialization-mode: always
+  main:
+    allow-bean-definition-overriding: true
+  cloud:
+    consul:
+      host: 0.0.0.0
+      port: 8500
+      discovery:
+        serviceName: {spring.application.name}
+        healthCheckPath: /actuator/health
+        healthCheckInterval: 10s
+        instanceId: ${spring.application.name}-${alpha.server.host}-${random.value}
+        tags: alpha-server-host=${alpha.server.host},alpha-server-port=${alpha.server.port}
+
+eureka:
+  client:
+    enabled: false
+  instance:
+    metadataMap:
+      servicecomb-alpha-server: ${alpha.server.host}:${alpha.server.port}
+
+
+akkaConfig:
+  akka:
+    loglevel: INFO
+    loggers: ["akka.event.slf4j.Slf4jLogger"]
+    logging-filter: akka.event.slf4j.Slf4jLoggingFilter
+    log-dead-letters: off
+    log-dead-letters-during-shutdown: off
+    actor:
+      warn-about-java-serializer-usage: false
+      provider: cluster
+    persistence:
+      journal:
+        plugin: akka.persistence.journal.inmem
+        leveldb.dir: actor/persistence/journal
+      snapshot-store:
+        plugin: akka.persistence.snapshot-store.local
+        local.dir: actor/persistence/snapshots
+    remote:
+      watch-failure-detector:
+        acceptable-heartbeat-pause: 6s
+      artery:
+        enabled: on
+        transport: tcp
+        advanced:
+          outbound-message-queue-size: 20000
+        canonical:
+          hostname: ${alpha.server.host}
+          port: 8070
+    cluster:
+      auto-down-unreachable-after: "off" # disable automatic downing
+      failure-detector:
+        heartbeat-interval: 3s
+        acceptable-heartbeat-pause: 6s
+      seed-nodes: ["akka://alpha-cluster@0.0.0.0:8070"]
+    sharding:
+      state-store-mode: ddata
+      remember-entities: "on"
+      shard-failure-backoff: 5s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    redis:
+      enabled: false
+    elasticsearch:
+      enabled: false
+
+---
+spring:
+  profiles: ssl
+alpha:
+  server:
+    ssl:
+      enable: true
+      cert: server.crt
+      key: server.pem
+      mutualAuth: true
+      clientCert: client.crt
+
+---
+spring:
+  profiles: prd
+  datasource:
+    username: saga
+    password: password
+    url: jdbc:postgresql://postgresql.servicecomb.io:5432/saga?useSSL=false
+    platform: postgresql
+    continue-on-error: false
+  jpa:
+    properties:
+      eclipselink:
+        ddl-generation: none
+
+---
+spring:
+  profiles: mysql
+  datasource:
+    username: saga
+    password: password
+    url: jdbc:mysql://mysql.servicecomb.io:3306/saga?useSSL=false
+    platform: mysql
+    continue-on-error: false
+  jpa:
+    properties:
+      eclipselink:
+        ddl-generation: none
+
+---
+spring:
+  profiles: cluster
+
+alpha:
+  feature:
+    akka:
+      enabled: true
+      channel:
+        type: kafka
+
+akkaConfig:
+  akka:
+    actor:
+      provider: cluster
+    persistence:
+      at-least-once-delivery:
+        redeliver-interval: 10s
+        redelivery-burst-limit: 2000
+      journal:
+        plugin: akka-persistence-redis.journal
+      snapshot-store:
+        plugin: akka-persistence-redis.snapshot
+    sharding:
+      state-store-mode: persistence
+    kafka:
+      consumer:
+        poll-interval: 50ms
+        stop-timeout: 30s
+        close-timeout: 20s
+        commit-timeout: 15s
+        commit-time-warning: 5s
+        commit-refresh-interval: infinite
+        use-dispatcher: "akka.kafka.saga-kafka"
+        kafka-clients.enable.auto.commit: false
+        wait-close-partition: 500ms
+        position-timeout: 10s
+        offset-for-times-timeout: 10s
+        metadata-request-timeout: 10s
+        eos-draining-check-interval: 30ms
+        partition-handler-warning: 5s
+        connection-checker.enable: false
+        connection-checker.max-retries: 3
+        connection-checker.check-interval: 15s
+        connection-checker.backoff-factor: 2.0
+      saga-kafka:
+        type: "Dispatcher"
+        executor: "thread-pool-executor"
+        thread-pool-executor:
+          fixed-pool-size: 20
+
+
+akka-persistence-redis:
+  redis:
+    mode: "simple"
+    host: "127.0.0.1"
+    port: 6379
+    database: 0
