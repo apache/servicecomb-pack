@@ -176,7 +176,7 @@ akkaConfig:
         stop-timeout: 30s
         close-timeout: 20s
         commit-timeout: 15s
-        commit-time-warning: 1s
+        commit-time-warning: 5s
         commit-refresh-interval: infinite
         use-dispatcher: "akka.kafka.saga-kafka"
         kafka-clients.enable.auto.commit: false
