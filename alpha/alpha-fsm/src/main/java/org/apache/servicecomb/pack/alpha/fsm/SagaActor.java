@@ -75,7 +75,6 @@ public class SagaActor extends
     when(SagaActorState.IDLE,
         matchEvent(SagaStartedEvent.class,
             (event, data) -> {
-              log(event);
               sagaBeginTime = System.currentTimeMillis();
               SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(context().system()).doSagaBeginCounter();
               SagaStartedDomain domainEvent = new SagaStartedDomain(event);
@@ -96,7 +95,6 @@ public class SagaActor extends
     when(SagaActorState.READY,
         matchEvent(TxStartedEvent.class, SagaData.class,
             (event, data) -> {
-              log(event);
               AddTxEventDomain domainEvent = new AddTxEventDomain(event);
               if (data.getExpirationTime() != null) {
                 return goTo(SagaActorState.PARTIALLY_ACTIVE)
@@ -109,14 +107,12 @@ public class SagaActor extends
             }
         ).event(SagaEndedEvent.class,
             (event, data) -> {
-              log(event);
               SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.SUSPENDED, SuspendedType.UNPREDICTABLE);
               return goTo(SagaActorState.SUSPENDED)
                   .applying(domainEvent);
             }
         ).event(SagaAbortedEvent.class,
             (event, data) -> {
-              log(event);
               SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.SUSPENDED, SuspendedType.UNPREDICTABLE);
               return goTo(SagaActorState.SUSPENDED)
                   .applying(domainEvent);
@@ -132,7 +128,6 @@ public class SagaActor extends
     when(SagaActorState.PARTIALLY_ACTIVE,
         matchEvent(TxEndedEvent.class, SagaData.class,
             (event, data) -> {
-              log(event);
               UpdateTxEventDomain domainEvent = new UpdateTxEventDomain(event);
               if (data.getExpirationTime() != null) {
                 return goTo(SagaActorState.PARTIALLY_COMMITTED)
@@ -145,7 +140,6 @@ public class SagaActor extends
             }
         ).event(TxStartedEvent.class,
             (event, data) -> {
-              log(event);
               AddTxEventDomain domainEvent = new AddTxEventDomain(event);
               if (data.getExpirationTime() != null) {
                 return stay()
@@ -157,7 +151,6 @@ public class SagaActor extends
             }
         ).event(SagaTimeoutEvent.class,
             (event, data) -> {
-              log(event);
               SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.SUSPENDED,
                   SuspendedType.TIMEOUT);
               return goTo(SagaActorState.SUSPENDED)
@@ -165,7 +158,6 @@ public class SagaActor extends
             }
         ).event(TxAbortedEvent.class,
             (event, data) -> {
-              log(event);
               UpdateTxEventDomain domainEvent = new UpdateTxEventDomain(event);
               return goTo(SagaActorState.FAILED)
                   .applying(domainEvent);
@@ -180,7 +172,6 @@ public class SagaActor extends
     when(SagaActorState.PARTIALLY_COMMITTED,
         matchEvent(TxStartedEvent.class,
             (event, data) -> {
-              log(event);
               AddTxEventDomain domainEvent = new AddTxEventDomain(event);
               if (data.getExpirationTime() != null) {
                 return goTo(SagaActorState.PARTIALLY_ACTIVE)
@@ -193,7 +184,6 @@ public class SagaActor extends
             }
         ).event(TxEndedEvent.class,
             (event, data) -> {
-              log(event);
               UpdateTxEventDomain domainEvent = new UpdateTxEventDomain(event);
               if (data.getExpirationTime() != null) {
                 return stay()
@@ -205,27 +195,23 @@ public class SagaActor extends
             }
         ).event(SagaTimeoutEvent.class,
             (event, data) -> {
-              log(event);
               SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.SUSPENDED, SuspendedType.TIMEOUT);
               return goTo(SagaActorState.SUSPENDED)
                   .applying(domainEvent);
             }
         ).event(SagaEndedEvent.class,
             (event, data) -> {
-              log(event);
               SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.COMMITTED);
               return goTo(SagaActorState.COMMITTED)
                   .applying(domainEvent);
             }
         ).event(SagaAbortedEvent.class,
             (event, data) -> {
-              log(event);
               SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.FAILED);
               return goTo(SagaActorState.FAILED).applying(domainEvent);
             }
         ).event(TxAbortedEvent.class,
             (event, data) -> {
-              log(event);
               UpdateTxEventDomain domainEvent = new UpdateTxEventDomain(event);
               return goTo(SagaActorState.FAILED).applying(domainEvent);
             }
@@ -239,14 +225,12 @@ public class SagaActor extends
     when(SagaActorState.FAILED,
         matchEvent(SagaTimeoutEvent.class, SagaData.class,
             (event, data) -> {
-              log(event);
               SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.SUSPENDED, SuspendedType.TIMEOUT);
               return goTo(SagaActorState.SUSPENDED)
                   .applying(domainEvent);
             }
         ).event(TxCompensatedEvent.class, SagaData.class,
             (event, data) -> {
-              log(event);
               UpdateTxEventDomain domainEvent = new UpdateTxEventDomain(event);
               return stay().applying(domainEvent).andThen(exec(_data -> {
                 self().tell(ComponsitedCheckEvent.builder().build(), self());
@@ -254,7 +238,6 @@ public class SagaActor extends
             }
         ).event(ComponsitedCheckEvent.class, SagaData.class,
             (event, data) -> {
-              log(event);
               if (hasCompensationSentTx(data) || !data.isTerminated()) {
                 return stay();
               } else {
@@ -266,7 +249,6 @@ public class SagaActor extends
             }
         ).event(SagaAbortedEvent.class, SagaData.class,
             (event, data) -> {
-              log(event);
               data.setTerminated(true);
               if (hasCommittedTx(data)) {
                 SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.FAILED);
@@ -285,13 +267,11 @@ public class SagaActor extends
             }
         ).event(TxStartedEvent.class, SagaData.class,
             (event, data) -> {
-              log(event);
               AddTxEventDomain domainEvent = new AddTxEventDomain(event);
               return stay().applying(domainEvent);
             }
         ).event(TxEndedEvent.class, SagaData.class,
             (event, data) -> {
-              log(event);
               UpdateTxEventDomain domainEvent = new UpdateTxEventDomain(event);
               return stay().applying(domainEvent).andThen(exec(_data -> {
                 TxEntity txEntity = _data.getTxEntityMap().get(event.getLocalTxId());
@@ -310,8 +290,7 @@ public class SagaActor extends
     when(SagaActorState.COMMITTED,
         matchEvent(org.apache.servicecomb.pack.alpha.core.fsm.event.internal.StopEvent.class,
             (event, data) -> {
-              log(event);
-              beforeStop(stateName(), data);
+              beforeStop(event, stateName(), data);
               return stop();
             }
         )
@@ -320,8 +299,7 @@ public class SagaActor extends
     when(SagaActorState.SUSPENDED,
         matchEvent(org.apache.servicecomb.pack.alpha.core.fsm.event.internal.StopEvent.class,
             (event, data) -> {
-              log(event);
-              beforeStop(stateName(), data);
+              beforeStop(event, stateName(), data);
               return stop();
             }
         )
@@ -330,8 +308,7 @@ public class SagaActor extends
     when(SagaActorState.COMPENSATED,
         matchEvent(org.apache.servicecomb.pack.alpha.core.fsm.event.internal.StopEvent.class,
             (event, data) -> {
-              log(event);
-              beforeStop(stateName(), data);
+              beforeStop(event, stateName(), data);
               return stop();
             }
         )
@@ -339,7 +316,9 @@ public class SagaActor extends
 
     whenUnhandled(
         matchAnyEvent((event, data) -> {
-          LOG.error("Unhandled event {}", event);
+          if (event instanceof BaseEvent){
+            LOG.error("Unhandled event {}", event);
+          }
           return stay();
         })
     );
@@ -352,33 +331,29 @@ public class SagaActor extends
                 .putSagaData(stateData().getGlobalTxId(), stateData());
           }
           if (LOG.isDebugEnabled()) {
-            LOG.debug("transition {} {} -> {}", stateData().getGlobalTxId(), from, to);
+            LOG.debug("transition [{}] {} -> {}", stateData().getGlobalTxId(), from, to);
           }
           if (to == SagaActorState.COMMITTED ||
               to == SagaActorState.SUSPENDED ||
               to == SagaActorState.COMPENSATED) {
             self().tell(org.apache.servicecomb.pack.alpha.core.fsm.event.internal.StopEvent.builder().build(), self());
           }
-          LOG.info("transition {} {} -> {}", stateData().getGlobalTxId(), from, to);
         })
     );
 
     onTermination(
         matchStop(
             Normal(), (state, data) -> {
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("saga actor stopped {} {}", getSelf(), state);
-              }
-              LOG.info("stopped {} {}", data.getGlobalTxId(), state);
+              LOG.info("stopped [{}] {}", data.getGlobalTxId(), state);
             }
         )
     );
 
   }
 
-  private void beforeStop(SagaActorState state, SagaData data){
+  private void beforeStop(BaseEvent event, SagaActorState state, SagaData data){
     if (LOG.isDebugEnabled()) {
-      LOG.debug("stop {} {}", data.getGlobalTxId(), state);
+      LOG.debug("stop [{}] {}", data.getGlobalTxId(), state);
     }
     try{
       sagaEndTime = System.currentTimeMillis();
@@ -394,11 +369,8 @@ public class SagaActor extends
       // destroy self from cluster shard region
       getContext().getParent()
           .tell(new ShardRegion.Passivate(PoisonPill.getInstance()), getSelf());
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("destroy saga actor {} from cluster shard region", getSelf());
-      }
 
-      // clear self mailbox from persistence
+      //  clear self mailbox from persistence
       //  已经停止的Actor使用以下两个命令清理，但是 highestSequenceNr 不会被删除，需要手工清理
       //  以下基于 journal-redis 说明:
       //    假设 globalTxId=ed2cdb9c-e86c-4b01-9f43-8e34704e7694, 那么在 Redis 中会生成三个 key
@@ -418,10 +390,30 @@ public class SagaActor extends
       //      并删除 journal:persisted:item:highestSequenceNr
       //
       //  目前可以看到的解释是 https://github.com/akka/akka/issues/21181
+      //
+      //  Lua script akka-persistence-redis-clean.lua
+
+      //  local ids = redis.call('smembers','journal:persistenceIds');
+      //  local delkeys = {};
+      //  for k, v in pairs(ids) do
+      //    local jpid = 'journal:persisted:' .. v;
+      //    local jpidnr = 'journal:persisted:' .. v .. ':highestSequenceNr';
+      //    local hasjpid  = redis.call('exists',jpid);
+      //    if(hasjpid == 0)
+      //    then
+      //      local hasjpidnr  = redis.call('exists',jpidnr);
+      //      if(hasjpidnr == 1)
+      //      then
+      //        redis.call('del',jpidnr);
+      //        table.insert(delkeys,jpid);
+      //      end
+      //    end
+      //  end
+      //  return delkeys;
       deleteMessages(lastSequenceNr());
       deleteSnapshot(snapshotSequenceNr());
     }catch(Exception e){
-      LOG.error("stop {} fail",data.getGlobalTxId());
+      LOG.error("stop [{}] fail",data.getGlobalTxId());
       throw e;
     }
   }
@@ -430,11 +422,10 @@ public class SagaActor extends
   public SagaData applyEvent(DomainEvent event, SagaData data) {
     try{
       if (this.recoveryRunning()) {
-        LOG.info("SagaActor recovery {}",event.getEvent());
+        LOG.info("recovery {}",event.getEvent());
       }else if (LOG.isDebugEnabled()) {
-        LOG.debug("SagaActor apply event {}", event.getEvent());
+        LOG.debug("persistence {}", event.getEvent());
       }
-      // log event to SagaData
       if (event.getEvent() != null && !(event
           .getEvent() instanceof ComponsitedCheckEvent)) {
         data.logEvent(event.getEvent());
@@ -508,8 +499,9 @@ public class SagaActor extends
         }
       }
     }catch (Exception ex){
-      LOG.error("SagaActor apply event {}", event.getEvent());
-      beforeStop(SagaActorState.SUSPENDED, data);
+      LOG.error("apply {}", event.getEvent(), ex);
+      LOG.error(ex.getMessage(), ex);
+      beforeStop(event.getEvent(), SagaActorState.SUSPENDED, data);
       stop();
       //TODO 增加 SagaActor 处理失败指标
     }
@@ -519,7 +511,7 @@ public class SagaActor extends
   @Override
   public void onRecoveryCompleted() {
     if(stateName() != SagaActorState.IDLE){
-      LOG.info("SagaActor {} recovery completed, state={}", stateData().getGlobalTxId(), stateName());
+      LOG.info("recovery completed [{}] state={}", stateData().getGlobalTxId(), stateName());
     }
   }
 
@@ -583,12 +575,6 @@ public class SagaActor extends
         }
         compensation(txEntity, data);
       }
-    }
-  }
-
-  private void log(BaseEvent event) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug(event.toString());
     }
   }
 }
