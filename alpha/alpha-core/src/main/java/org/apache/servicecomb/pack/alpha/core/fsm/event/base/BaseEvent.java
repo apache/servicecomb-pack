@@ -118,14 +118,7 @@ public abstract class BaseEvent implements Serializable {
     try {
       return mapper.writeValueAsString(this);
     } catch (JsonProcessingException e) {
-    return this.getClass().getSimpleName()+"{" +
-        "serviceName='" + serviceName + '\'' +
-        ", instanceId='" + instanceId + '\'' +
-        ", globalTxId='" + globalTxId + '\'' +
-        ", parentTxId='" + parentTxId + '\'' +
-        ", localTxId='" + localTxId + '\'' +
-        ", createTime=" + createTime +
-        '}';
+      throw new RuntimeException(e);
     }
   }
 
