@@ -185,8 +185,8 @@ public class MetricsBean {
     return repositoryAccepted.get();
   }
 
-  public AtomicLong getRepositoryRejected() {
-    return repositoryRejected;
+  public long getRepositoryRejected() {
+    return repositoryRejected.get();
   }
 
   public double getRepositoryAvgTime() {
