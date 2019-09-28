@@ -144,11 +144,11 @@
     <!--
       jmx over http
       http://0.0.0.0:8090/actuator/jolokia/read/akka:type=Cluster
-    -->
     <dependency>
       <groupId>org.jolokia</groupId>
       <artifactId>jolokia-core</artifactId>
     </dependency>
+    -->
     <!-- For testing the artifacts scope are test-->
     <dependency>
       <groupId>org.springframework.boot</groupId>
