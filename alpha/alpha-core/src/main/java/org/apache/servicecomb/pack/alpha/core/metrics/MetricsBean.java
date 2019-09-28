@@ -50,7 +50,6 @@ public class MetricsBean {
   }
 
   public void doEventRejected() {
-    eventReceived.decrementAndGet();
     eventRejected.incrementAndGet();
   }
 
@@ -71,7 +70,6 @@ public class MetricsBean {
   }
 
   public void doActorRejected() {
-    actorReceived.decrementAndGet();
     actorRejected.incrementAndGet();
   }
 
@@ -124,7 +122,6 @@ public class MetricsBean {
   }
 
   public void doRepositoryRejected() {
-    repositoryReceived.decrementAndGet();
     repositoryRejected.incrementAndGet();
   }
 
