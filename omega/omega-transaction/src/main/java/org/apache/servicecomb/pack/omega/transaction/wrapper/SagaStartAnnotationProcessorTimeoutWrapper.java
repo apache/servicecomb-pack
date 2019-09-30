@@ -57,9 +57,15 @@ public class SagaStartAnnotationProcessorTimeoutWrapper {
         if (timeoutProb.getInterruptFailureException() != null) {
           throw new OmegaException(timeoutProb.getInterruptFailureException());
         }
-        sagaStartAnnotationProcessor.postIntercept(context.globalTxId());
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("Transaction with context {} has finished.", context);
+        if (sagaStart.autoClose()) {
+          sagaStartAnnotationProcessor.postIntercept(context.globalTxId());
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Transaction with context {} has finished.", context);
+          }
+        } else {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Transaction with context {} is not finished in the SagaStarted annotated method.", context);
+          }
         }
         return output;
       } catch (Throwable throwable) {

@@ -16,11 +16,12 @@
   ~ limitations under the License.
   -->
 
-<Configuration status="WARN" monitorInterval="30">
+<Configuration status="WARN" monitorInterval="30" shutdownHook="disable">
   <Properties>
     <Property name="LOG_PATTERN">
       %d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${hostName} --- [%15.15t] %-40.40c{1.} : %m%n%ex
     </Property>
+    <Property name="log-file-name">alpha-server</Property>
   </Properties>
   <Appenders>
     <Console name="Console" target="SYSTEM_OUT">
@@ -28,13 +29,13 @@
         <Pattern>${LOG_PATTERN}</Pattern>
       </PatternLayout>
     </Console>
-    <RollingFile name="FileAppender" fileName="logs/alpha-server.log"
-      filePattern="logs/alpha-server-%d{yyyy-MM-dd}-%i.log">
+    <RollingFile name="FileAppender" fileName="logs/${sys:log-file-name}.log"
+      filePattern="logs/${sys:log-file-name}-%d{yyyy-MM-dd}-%i.log">
       <PatternLayout>
         <Pattern>${LOG_PATTERN}</Pattern>
       </PatternLayout>
       <Policies>
-        <SizeBasedTriggeringPolicy size="10MB" />
+        <SizeBasedTriggeringPolicy size="100MB" />
       </Policies>
       <DefaultRolloverStrategy max="10"/>
     </RollingFile>

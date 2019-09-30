@@ -116,7 +116,7 @@ alpha:
       key: server.pem
       mutualAuth: true
       clientCert: client.crt
-        
+
 ---
 spring:
   profiles: prd

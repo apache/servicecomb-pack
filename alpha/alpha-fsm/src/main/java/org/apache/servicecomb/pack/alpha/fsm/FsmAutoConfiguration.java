@@ -20,52 +20,49 @@ package org.apache.servicecomb.pack.alpha.fsm;
 import static org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER;
 import static org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SpringAkkaExtension.SPRING_EXTENSION_PROVIDER;
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.actor.Props;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.util.Map;
 import javax.annotation.PostConstruct;
-import org.apache.servicecomb.pack.alpha.fsm.channel.ActiveMQActorEventChannel;
-import org.apache.servicecomb.pack.alpha.fsm.channel.kafka.KafkaMessagePublisher;
-import org.apache.servicecomb.pack.alpha.fsm.channel.redis.RedisMessagePublisher;
+import org.apache.servicecomb.pack.alpha.fsm.channel.kafka.KafkaChannelAutoConfiguration;
+import org.apache.servicecomb.pack.alpha.fsm.channel.memory.MemoryChannelAutoConfiguration;
+import org.apache.servicecomb.pack.alpha.fsm.channel.redis.RedisChannelAutoConfiguration;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.repository.NoneTransactionRepository;
+import org.apache.servicecomb.pack.alpha.fsm.repository.channel.DefaultTransactionRepositoryChannel;
 import org.apache.servicecomb.pack.alpha.fsm.repository.elasticsearch.ElasticsearchTransactionRepository;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
-import org.apache.servicecomb.pack.alpha.fsm.repository.channel.MemoryTransactionRepositoryChannel;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepositoryChannel;
-import org.apache.servicecomb.pack.alpha.core.fsm.sink.ActorEventSink;
-import org.apache.servicecomb.pack.alpha.core.fsm.channel.ActorEventChannel;
-import org.apache.servicecomb.pack.alpha.fsm.channel.KafkaActorEventChannel;
-import org.apache.servicecomb.pack.alpha.fsm.channel.MemoryActorEventChannel;
-import org.apache.servicecomb.pack.alpha.fsm.channel.RedisActorEventChannel;
-import org.apache.servicecomb.pack.alpha.fsm.sink.SagaActorEventSender;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.AkkaConfigPropertyAdapter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
 @Configuration
+@ImportAutoConfiguration({
+    MemoryChannelAutoConfiguration.class,
+    KafkaChannelAutoConfiguration.class,
+    RedisChannelAutoConfiguration.class})
 @ConditionalOnProperty(value = {"alpha.feature.akka.enabled"})
 public class FsmAutoConfiguration {
 
-  @Value("${alpha.feature.akka.channel.memory.size:-1}")
-  int memoryEventChannelMemorySize;
-
-  @Value("${alpha.feature.akka.transaction.repository.elasticsearch.batchSize:1000}")
+  // TODO
+  //  Size of bulk request, When this value is greater than 0, the batch data will be lost when the jvm crashes.
+  //  In the future, we can use Kafka to solve this problem instead of storing it directly in the ES.
+  @Value("${alpha.feature.akka.transaction.repository.elasticsearch.batchSize:100}")
   int repositoryElasticsearchBatchSize;
 
   @Value("${alpha.feature.akka.transaction.repository.elasticsearch.refreshTime:5000}")
   int repositoryElasticsearchRefreshTime;
-
-  @Value("${alpha.feature.akka.transaction.repository.elasticsearch.memory.size:-1}")
-  int memoryTransactionRepositoryChannelSize;
 
   @PostConstruct
   void init() {
@@ -77,7 +74,8 @@ public class FsmAutoConfiguration {
       ConfigurableEnvironment environment, MetricsService metricsService,
       TransactionRepositoryChannel repositoryChannel) {
     ActorSystem system = ActorSystem
-        .create("alpha-akka", akkaConfiguration(applicationContext, environment));
+        .create("alpha-cluster", akkaConfiguration(applicationContext, environment));
+
     SPRING_EXTENSION_PROVIDER.get(system).initialize(applicationContext);
     SAGA_DATA_EXTENSION_PROVIDER.get(system).setRepositoryChannel(repositoryChannel);
     SAGA_DATA_EXTENSION_PROVIDER.get(system).setMetricsService(metricsService);
@@ -97,40 +95,9 @@ public class FsmAutoConfiguration {
     return new MetricsService();
   }
 
-  @Bean
-  public ActorEventSink actorEventSink(MetricsService metricsService) {
-    return new SagaActorEventSender(metricsService);
-  }
-
-  @Bean
-  @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "memory")
-  @ConditionalOnMissingBean(ActorEventChannel.class)
-  public ActorEventChannel memoryEventChannel(ActorEventSink actorEventSink,
-      MetricsService metricsService) {
-    return new MemoryActorEventChannel(actorEventSink, memoryEventChannelMemorySize,
-        metricsService);
-  }
-
-  @Bean
-  @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "activemq")
-  @ConditionalOnMissingBean(ActorEventChannel.class)
-  public ActorEventChannel activeMqEventChannel(ActorEventSink actorEventSink,
-      MetricsService metricsService) {
-    return new ActiveMQActorEventChannel(actorEventSink, metricsService);
-  }
-
-  @Bean
-  @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "kafka")
-  @ConditionalOnMissingBean(ActorEventChannel.class)
-  public ActorEventChannel kafkaEventChannel(ActorEventSink actorEventSink,
-      MetricsService metricsService, @Lazy KafkaMessagePublisher kafkaMessagePublisher){
-    return new KafkaActorEventChannel(actorEventSink, metricsService, kafkaMessagePublisher);
-  }
-
-  @Bean
-  @ConditionalOnProperty(value = "alpha.feature.akka.channel.type", havingValue = "redis")
-  public ActorEventChannel redisEventChannel(ActorEventSink actorEventSink, MetricsService metricsService, @Lazy RedisMessagePublisher redisMessagePublisher){
-    return new RedisActorEventChannel(actorEventSink, metricsService, redisMessagePublisher);
+  @Bean(name = "sagaShardRegionActor")
+  public ActorRef sagaShardRegionActor(ActorSystem actorSystem) {
+    return actorSystem.actorOf(Props.create(SagaShardRegionActor.class));
   }
 
   @Bean
@@ -148,12 +115,9 @@ public class FsmAutoConfiguration {
   }
 
   @Bean
-  @ConditionalOnMissingBean(TransactionRepositoryChannel.class)
-  @ConditionalOnProperty(value = "alpha.feature.akka.transaction.repository.channel.type", havingValue = "memory", matchIfMissing = true)
   TransactionRepositoryChannel memoryTransactionRepositoryChannel(TransactionRepository repository,
       MetricsService metricsService) {
-    return new MemoryTransactionRepositoryChannel(repository, memoryTransactionRepositoryChannelSize,
-        metricsService);
+    return new DefaultTransactionRepositoryChannel(repository, metricsService);
   }
 
 }

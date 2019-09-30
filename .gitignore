@@ -36,3 +36,6 @@ target/
 
 #skip the maven-wrapper.jar
 .mvn/wrapper/maven-wrapper.jar
+
+#akka distributed data
+ddata-*

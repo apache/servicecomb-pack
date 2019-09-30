@@ -14,10 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.servicecomb.pack.alpha.core.fsm.channel;
 
-public interface MessagePublisher<T> {
+package org.apache.servicecomb.pack.alpha.fsm.channel.kafka;
 
-    void publish(T data);
+import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
+import org.apache.servicecomb.pack.alpha.fsm.channel.AbstractActorEventChannel;
+import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 
+public class KafkaActorEventChannel extends AbstractActorEventChannel {
+
+  private KafkaMessagePublisher kafkaMessagePublisher;
+
+  public KafkaActorEventChannel(MetricsService metricsService, KafkaMessagePublisher kafkaMessagePublisher) {
+    super(metricsService);
+    this.kafkaMessagePublisher = kafkaMessagePublisher;
+  }
+
+  @Override
+  public void sendTo(BaseEvent event){
+      kafkaMessagePublisher.publish(event);
+  }
 }

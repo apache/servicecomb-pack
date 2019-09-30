@@ -24,11 +24,10 @@ import static org.junit.Assert.assertNotNull;
 
 import akka.actor.ActorSystem;
 import java.util.UUID;
-import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
 import org.apache.servicecomb.pack.alpha.core.fsm.TxState;
+import org.apache.servicecomb.pack.alpha.fsm.channel.memory.MemoryActorEventChannel;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
-import org.apache.servicecomb.pack.alpha.fsm.sink.SagaActorEventSender;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension;
 import org.junit.After;
 import org.junit.Test;
@@ -61,7 +60,7 @@ public class SagaIntegrationTest {
   ActorSystem system;
   
   @Autowired
-  SagaActorEventSender sagaActorEventSender;
+  MemoryActorEventChannel memoryActorEventChannel;
 
   @Autowired
   MetricsService metricsService;
@@ -81,11 +80,14 @@ public class SagaIntegrationTest {
     final String localTxId_2 = UUID.randomUUID().toString();
     final String localTxId_3 = UUID.randomUUID().toString();
     SagaEventSender.successfulEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
-      sagaActorEventSender.send(event);
+      memoryActorEventChannel.send(event);
     });
-    await().atMost(2, SECONDS).until(() -> {
-      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
-      return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()== SagaActorState.COMMITTED;
+    await().atMost(10, SECONDS).until(() -> {
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system)
+          .getLastSagaData();
+      return sagaData != null && sagaData.isTerminated()
+          && sagaData.getLastState() == SagaActorState.COMMITTED
+          && metricsService.metrics().getSagaEndCounter() == 1;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertNotNull(sagaData.getBeginTime());
@@ -105,10 +107,10 @@ public class SagaIntegrationTest {
     final String globalTxId = UUID.randomUUID().toString();
     final String localTxId_1 = UUID.randomUUID().toString();
     SagaEventSender.firstTxAbortedEvents(globalTxId, localTxId_1).stream().forEach( event -> {
-      sagaActorEventSender.send(event);
+      memoryActorEventChannel.send(event);
     });
 
-    await().atMost(2, SECONDS).until(() -> {
+    await().atMost(10, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
@@ -125,9 +127,9 @@ public class SagaIntegrationTest {
     final String localTxId_1 = UUID.randomUUID().toString();
     final String localTxId_2 = UUID.randomUUID().toString();
     SagaEventSender.middleTxAbortedEvents(globalTxId, localTxId_1, localTxId_2).stream().forEach( event -> {
-      sagaActorEventSender.send(event);
+      memoryActorEventChannel.send(event);
     });
-    await().atMost(2, SECONDS).until(() -> {
+    await().atMost(10, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
@@ -146,9 +148,9 @@ public class SagaIntegrationTest {
     final String localTxId_2 = UUID.randomUUID().toString();
     final String localTxId_3 = UUID.randomUUID().toString();
     SagaEventSender.lastTxAbortedEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
-      sagaActorEventSender.send(event);
+      memoryActorEventChannel.send(event);
     });
-    await().atMost(2, SECONDS).until(() -> {
+    await().atMost(10, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
@@ -168,9 +170,9 @@ public class SagaIntegrationTest {
     final String localTxId_2 = UUID.randomUUID().toString();
     final String localTxId_3 = UUID.randomUUID().toString();
     SagaEventSender.sagaAbortedEventBeforeTxComponsitedEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
-      sagaActorEventSender.send(event);
+      memoryActorEventChannel.send(event);
     });
-    await().atMost(2, SECONDS).until(() -> {
+    await().atMost(10, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
@@ -190,9 +192,9 @@ public class SagaIntegrationTest {
     final String localTxId_2 = UUID.randomUUID().toString();
     final String localTxId_3 = UUID.randomUUID().toString();
     SagaEventSender.receivedRemainingEventAfterFirstTxAbortedEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
-      sagaActorEventSender.send(event);
+      memoryActorEventChannel.send(event);
     });
-    await().atMost(2, SECONDS).until(() -> {
+    await().atMost(10, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
@@ -212,9 +214,9 @@ public class SagaIntegrationTest {
     final String localTxId_2 = UUID.randomUUID().toString();
     final String localTxId_3 = UUID.randomUUID().toString();
     SagaEventSender.sagaAbortedEventAfterAllTxEndedsEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
-      sagaActorEventSender.send(event);
+      memoryActorEventChannel.send(event);
     });
-    await().atMost(2, SECONDS).until(() -> {
+    await().atMost(10, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
@@ -234,9 +236,9 @@ public class SagaIntegrationTest {
     final String localTxId_2 = UUID.randomUUID().toString();
     final String localTxId_3 = UUID.randomUUID().toString();
     SagaEventSender.omegaSendSagaTimeoutEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
-      sagaActorEventSender.send(event);
+      memoryActorEventChannel.send(event);
     });
-    await().atMost(2, SECONDS).until(() -> {
+    await().atMost(10, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.SUSPENDED;
     });
@@ -257,9 +259,9 @@ public class SagaIntegrationTest {
     final String localTxId_3 = UUID.randomUUID().toString();
     final int timeout = 5; // second
     SagaEventSender.sagaActorTriggerTimeoutEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3, timeout).stream().forEach( event -> {
-      sagaActorEventSender.send(event);
+      memoryActorEventChannel.send(event);
     });
-    await().atMost(timeout + 2, SECONDS).until(() -> {
+    await().atMost(timeout + 10, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.SUSPENDED;
     });
@@ -279,9 +281,9 @@ public class SagaIntegrationTest {
     final String localTxId_2 = UUID.randomUUID().toString();
     final String localTxId_3 = UUID.randomUUID().toString();
     SagaEventSender.successfulWithTxConcurrentEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
-      sagaActorEventSender.send(event);
+      memoryActorEventChannel.send(event);
     });
-    await().atMost(2, SECONDS).until(() -> {
+    await().atMost(10, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMMITTED;
     });
@@ -301,9 +303,9 @@ public class SagaIntegrationTest {
     final String localTxId_2 = UUID.randomUUID().toString();
     final String localTxId_3 = UUID.randomUUID().toString();
     SagaEventSender.successfulWithTxConcurrentCrossEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
-      sagaActorEventSender.send(event);
+      memoryActorEventChannel.send(event);
     });
-    await().atMost(2, SECONDS).until(() -> {
+    await().atMost(10, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMMITTED;
     });
@@ -323,9 +325,9 @@ public class SagaIntegrationTest {
     final String localTxId_2 = UUID.randomUUID().toString();
     final String localTxId_3 = UUID.randomUUID().toString();
     SagaEventSender.lastTxAbortedEventWithTxConcurrentEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
-      sagaActorEventSender.send(event);
+      memoryActorEventChannel.send(event);
     });
-    await().atMost(2, SECONDS).until(() -> {
+    await().atMost(10, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });

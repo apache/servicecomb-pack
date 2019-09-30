@@ -21,6 +21,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalDouble;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
@@ -62,8 +63,9 @@ public class SagaEventBenchmark {
     CountDownLatch begin = new CountDownLatch(1);
     CountDownLatch end = new CountDownLatch(concurrency);
     begin.countDown();
+    String[] id_prefixs = generateRandomIdPrefix(concurrency);
     for (int i = 0; i < concurrency; i++) {
-      Execute execute = new Execute(sender, requests / concurrency, begin, end);
+      Execute execute = new Execute(sender, id_prefixs[i],requests / concurrency, begin, end);
       new Thread(execute).start();
     }
     try {
@@ -109,7 +111,8 @@ public class SagaEventBenchmark {
     // 预热
     if (warmUp > 0) {
       for (int i = 0; i < warmUp; i++) {
-        Execute execute = new Execute(sender, warmUpRequests, begin, end);
+        String id_prefix = "warmup-";
+        Execute execute = new Execute(sender, id_prefix, warmUpRequests, begin, end);
         new Thread(execute).start();
       }
       try {
@@ -131,15 +134,16 @@ public class SagaEventBenchmark {
   }
 
   private class Execute implements Runnable {
-
+    String id_prefix;
     SagaMessageSender sender;
     CountDownLatch begin;
     CountDownLatch end;
     int requests;
 
-    public Execute(SagaMessageSender sender, int requests, CountDownLatch begin,
+    public Execute(SagaMessageSender sender, String id_prefix, int requests, CountDownLatch begin,
         CountDownLatch end) {
       this.sender = sender;
+      this.id_prefix = id_prefix;
       this.requests = requests;
       this.begin = begin;
       this.end = end;
@@ -152,13 +156,18 @@ public class SagaEventBenchmark {
         for (int i = 0; i < requests; i++) {
           metrics.completeRequestsIncrement();
           long s = System.currentTimeMillis();
-          final String globalTxId = UUID.randomUUID().toString();
+          final String globalTxId = id_prefix + "-" + i;
           final String localTxId_1 = UUID.randomUUID().toString();
           final String localTxId_2 = UUID.randomUUID().toString();
           final String localTxId_3 = UUID.randomUUID().toString();
           try {
             sagaSuccessfulEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream()
-                .forEach(event -> sender.send(event));
+                .forEach(event -> {
+                  if(LOG.isDebugEnabled()){
+                    LOG.debug(event.toString());
+                  }
+                  sender.send(event);
+                });
           } catch (Throwable e) {
             metrics.failedRequestsIncrement();
           } finally {
@@ -200,5 +209,18 @@ public class SagaEventBenchmark {
     sagaEvents.add(
         new TxEvent(EventType.SagaEndedEvent, globalTxId, globalTxId, globalTxId, "", 0, null, 0));
     return sagaEvents;
+  }
+
+  private String[] generateRandomIdPrefix(int numberOfWords) {
+    String[] randomStrings = new String[numberOfWords];
+    Random random = new Random();
+    for (int i = 0; i < numberOfWords; i++) {
+      char[] word = new char[8];
+      for (int j = 0; j < word.length; j++) {
+        word[j] = (char) ('a' + random.nextInt(26));
+      }
+      randomStrings[i] = new String(word);
+    }
+    return randomStrings;
   }
 }
