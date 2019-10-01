@@ -26,6 +26,6 @@ import org.springframework.data.repository.CrudRepository;
 interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
   List<TxEvent> findByGlobalTxIdOrderByCreationTime(String globalTxId);
 
-  @Query("SELECT DISTINCT(e.globalTxId) from TxEvent e")
+  @Query("SELECT DISTINCT(e.globalTxId) from TxEvent e order by e.creationTime desc")
   List<String> findDistinctGlobalTxId();
 }
