@@ -226,14 +226,16 @@ public class SagaTransactionsController {
     Iterable<TxEvent> events;
     if (globalTxID != null) {
       events = eventRepository.findByGlobalTxId(globalTxID.toString());
-    } else if (microServiceName != "") {
+    } else if (!"".equals(microServiceName)) {
       events = eventRepository.findByServiceName(microServiceName);
     } else {
       events = null;
     }
 
     Collection<TxEventVo> eventVos = new LinkedList<>();
-    events.forEach(event -> eventVos.add(new SagaTransactionsController.TxEventVo(event)));
+    if (events != null) {
+      events.forEach(event -> eventVos.add(new SagaTransactionsController.TxEventVo(event)));
+    }
 
     return ResponseEntity.ok(eventVos);
   }
