@@ -171,7 +171,7 @@ public class PackIT {
     assertThat(txAbortedEvent.serviceName(), is(serviceName));
     assertThat(txAbortedEvent.instanceId(), is(txStartedEvent2.instanceId()));
 
-    // The TxAbortedEvent and TxCompensatedEvent could arrive in different order 
+    // The TxAbortedEvent and TxCompensatedEvent could arrive in different order
     TxEvent event = events.get(5);
     checkedLastTwoEvents(globalTxId, txStartedEvent1, event);
 
@@ -280,7 +280,7 @@ public class PackIT {
     assertThat(compensatedMessages.isEmpty(), is(true));
   }
 
-  @Test(timeout = 10000)
+  @Test(timeout = 15000)
   public void compensateWhenRetryReachesMaximum() throws InterruptedException {
     // retries 3 times and then compensate
     ResponseEntity<String> entity = restTemplate.getForEntity("/open?name={name}&retries={retries}",
@@ -311,7 +311,7 @@ public class PackIT {
     // This event is for the whole saga event
     assertThat(events.get(9).type(), is("TxAbortedEvent"));
     assertThat(events.get(10).type(), is("TxCompensatedEvent"));
-    
+
     assertThat(compensatedMessages, Matchers.contains("Goodbye, " + GreetingController.TRESPASSER));
   }
 }
