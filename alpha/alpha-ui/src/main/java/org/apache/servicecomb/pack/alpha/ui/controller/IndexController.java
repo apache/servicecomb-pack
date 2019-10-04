@@ -89,7 +89,7 @@ public class IndexController implements ErrorController {
     //system load
     systemInfoDTO.setSystemLoad(Math.round(
         metricsEndpoint.metric("system.load.average.1m", null).getMeasurements().get(0).getValue()
-            .floatValue() * 100) / 100);
+            .floatValue() * 100) / (float)100);
 
     //thread
     systemInfoDTO.setThreadsLive(

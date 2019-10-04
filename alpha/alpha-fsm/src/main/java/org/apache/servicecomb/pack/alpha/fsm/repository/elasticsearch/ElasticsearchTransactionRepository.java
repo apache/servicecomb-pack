@@ -70,7 +70,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
   private int batchSizeCounter;
   private int refreshTime;
   private final List<IndexQuery> queries = new ArrayList<>();
-  private final Boolean lock = true;
+  private final Object lock = new Object();
 
   public ElasticsearchTransactionRepository(
       ElasticsearchTemplate template, MetricsService metricsService, int batchSize,
@@ -215,7 +215,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
           globalTransactionDocument = mapper.readValue(hit.getSourceAsString(),
               GlobalTransactionDocument.class);
         } catch (IOException e) {
-          new RuntimeException(e.getMessage(), e);
+          throw new RuntimeException(e.getMessage(), e);
         }
         result.add(globalTransactionDocument);
       }

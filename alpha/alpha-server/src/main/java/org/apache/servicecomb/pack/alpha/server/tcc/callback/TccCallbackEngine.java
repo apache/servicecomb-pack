@@ -61,7 +61,7 @@ public class TccCallbackEngine implements CallbackEngine {
         "Failed to invoke service [{}] instance [{}] with method [{}], global tx id [{}] and local tx id [{}]",
         event.getServiceName(),
         event.getInstanceId(),
-        TransactionStatus.Succeed.equals(event.getStatus()) ? event.getConfirmMethod() : event.getCancelMethod(),
+        TransactionStatus.Succeed.name().equals(event.getStatus()) ? event.getConfirmMethod() : event.getCancelMethod(),
         event.getGlobalTxId(),
         event.getLocalTxId(),
         ex);

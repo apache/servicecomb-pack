@@ -184,7 +184,7 @@ public class GlobalTransaction {
         try {
           globalTransaction.events.add(event.toMap());
         } catch (Exception e) {
-          new RuntimeException(e.getMessage(),e);
+          throw new RuntimeException(e.getMessage(),e);
         }
       }
       return globalTransaction;
