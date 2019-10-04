@@ -18,7 +18,7 @@
 #bin/sh
 
 echo "Deploy a Non-Signed Staging Release"
-		mvn deploy -Ddocker.skip -DskipTests --settings .travis.settings.xml
+		mvn deploy -B -Ddocker.skip -DskipTests --settings .travis.settings.xml
     if [ $? == 0 ]; then
 			echo "${green}Snapshot Deployment is Success, please log on to Nexus Repo to see the snapshot release..${reset}"
 		else
