@@ -23,6 +23,8 @@ import java.lang.reflect.Method;
 import org.apache.servicecomb.pack.common.TransactionStatus;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.context.TransactionContext;
+import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
+import org.apache.servicecomb.pack.omega.transaction.OmegaException;
 import org.apache.servicecomb.pack.omega.transaction.TransactionContextHelper;
 import org.apache.servicecomb.pack.omega.transaction.annotations.Participate;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.ParticipationEndedEvent;
@@ -70,8 +72,11 @@ public class TccParticipatorAspect extends TransactionContextHelper {
     LOG.debug("Updated context {} for participate method {} ", context, method.toString());
 
     try {
-      tccMessageSender.participationStart(new ParticipationStartedEvent(context.globalTxId(), context.localTxId(), localTxId,
-          confirmMethod, cancelMethod));
+      AlphaResponse response = tccMessageSender.participationStart(new ParticipationStartedEvent(context.globalTxId(), context.localTxId(), localTxId,
+                                   confirmMethod, cancelMethod));
+      if(response.aborted()){
+        throw new OmegaException("transcation has aborted: " + context.globalTxId());
+      }
       Object result = joinPoint.proceed();
       // Send the participate message back
       tccMessageSender.participationEnd(new ParticipationEndedEvent(context.globalTxId(), context.localTxId(), localTxId,
@@ -82,8 +87,10 @@ public class TccParticipatorAspect extends TransactionContextHelper {
       return result;
     } catch (Throwable throwable) {
       // Now we don't handle the error message
-      tccMessageSender.participationEnd(new ParticipationEndedEvent(context.globalTxId(), context.localTxId(), localTxId,
-          confirmMethod, cancelMethod, TransactionStatus.Failed));
+      if(!(throwable instanceof OmegaException)){
+        tccMessageSender.participationEnd(new ParticipationEndedEvent(context.globalTxId(), context.localTxId(), localTxId,
+                confirmMethod, cancelMethod, TransactionStatus.Failed));
+      }
       LOG.error("Participate Transaction with context {} failed.", context, throwable);
       throw throwable;
     } finally {
