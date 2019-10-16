@@ -19,12 +19,15 @@ package org.apache.servicecomb.pack.omega.transport.feign;
 
 import feign.RequestInterceptor;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.apache.servicecomb.pack.omega.transport.feign.hystrix.HystrixServiceCombAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration
+@Import(HystrixServiceCombAutoConfiguration.class)
 public class FeignAutoConfiguration {
 
     @Bean
