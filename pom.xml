@@ -534,6 +534,11 @@
         <artifactId>kafka-clients</artifactId>
         <version>${kafka.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.netflix.hystrix</groupId>
+        <artifactId>hystrix-core</artifactId>
+        <version>1.5.12</version>
+      </dependency>
 
       <!-- test dependencies -->
       <dependency>

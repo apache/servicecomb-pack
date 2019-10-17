@@ -36,6 +36,7 @@
     <module>omega-transport-servicecomb</module>
     <module>omega-transport-dubbo</module>
     <module>omega-transport-feign</module>
+    <module>omega-transport-hystrix</module>
   </modules>
 
   <dependencies>
