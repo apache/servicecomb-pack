@@ -29,27 +29,28 @@ import org.junit.Test;
 
 public class HystrixWithoutConcurrencyStrategyTests {
 
-    private OmegaContext omegaContext = new OmegaContext(new UniqueIdGenerator());
+  private OmegaContext omegaContext = new OmegaContext(new UniqueIdGenerator());
 
-    @Test
-    public void testCircuitBreakerWithoutServiceCombConcurrencyStrategy() {
+  @Test
+  public void testCircuitBreakerWithoutServiceCombConcurrencyStrategy() {
 
-        for (int i = 0; i < 5; i++) {
-            try {
-                omegaContext.newGlobalTxId();
-                HystrixCommand<String> command = new HystrixConcurrencyStrategyTests.TestCircuitBreakerCommand("testCircuitBreaker", omegaContext);
-                String result = command.execute();
-                //after core thread all invoked (3 times) ,globalTxId can not be inheritable
-                if (i > 2) {
-                    Assert.assertNotEquals(result, omegaContext.globalTxId());
-                } else {
-                    Assert.assertEquals(result, omegaContext.globalTxId());
-                }
-            } finally {
-                omegaContext.clear();
-            }
+    for (int i = 0; i < 5; i++) {
+      try {
+        omegaContext.newGlobalTxId();
+        HystrixCommand<String> command = new HystrixConcurrencyStrategyTests.TestCircuitBreakerCommand(
+            "testCircuitBreaker", omegaContext);
+        String result = command.execute();
+        //after core thread all invoked (3 times) ,globalTxId can not be inheritable
+        if (i > 2) {
+          Assert.assertNotEquals(result, omegaContext.globalTxId());
+        } else {
+          Assert.assertEquals(result, omegaContext.globalTxId());
         }
+      } finally {
+        omegaContext.clear();
+      }
     }
+  }
 
 
 }

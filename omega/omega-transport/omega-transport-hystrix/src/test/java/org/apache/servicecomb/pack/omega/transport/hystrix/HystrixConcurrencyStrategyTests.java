@@ -17,7 +17,13 @@
 
 package org.apache.servicecomb.pack.omega.transport.hystrix;
 
-import com.netflix.hystrix.*;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.netflix.hystrix.HystrixCommand;
+import com.netflix.hystrix.HystrixCommandGroupKey;
+import com.netflix.hystrix.HystrixCommandKey;
+import com.netflix.hystrix.HystrixThreadPoolKey;
+import com.netflix.hystrix.HystrixThreadPoolProperties;
 import com.netflix.hystrix.strategy.HystrixPlugins;
 import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategy;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
@@ -29,8 +35,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * use ServiceCombConcurrencyStrategy，threadLocal variables  can not be inheritable
  */
@@ -39,58 +43,59 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(classes = HystrixTestApplication.class)
 public class HystrixConcurrencyStrategyTests {
 
-    @Autowired
-    private OmegaContext omegaContext;
+  @Autowired
+  private OmegaContext omegaContext;
 
-    @Test
-    public void testConcurrencyStrategyInstalled() {
+  @Test
+  public void testConcurrencyStrategyInstalled() {
 
-        HystrixConcurrencyStrategy concurrencyStrategy = HystrixPlugins.getInstance()
-                .getConcurrencyStrategy();
-        assertThat(concurrencyStrategy)
-                .isInstanceOf(ServiceCombConcurrencyStrategy.class);
+    HystrixConcurrencyStrategy concurrencyStrategy = HystrixPlugins.getInstance()
+        .getConcurrencyStrategy();
+    assertThat(concurrencyStrategy)
+        .isInstanceOf(ServiceCombConcurrencyStrategy.class);
+  }
+
+  @Test
+  public void testCircuitBreaker() {
+    for (int i = 0; i < 5; i++) {
+      try {
+        omegaContext.newGlobalTxId();
+        HystrixCommand<String> command = new TestCircuitBreakerCommand("testCircuitBreaker",
+            omegaContext);
+        String result = command.execute();
+        //inheritable GlobalTxId
+        Assert.assertEquals(result, omegaContext.globalTxId());
+      } finally {
+        omegaContext.clear();
+      }
+    }
+  }
+
+
+  public static class TestCircuitBreakerCommand extends HystrixCommand<String> {
+
+    private final OmegaContext omegaContext;
+
+    public TestCircuitBreakerCommand(String name, OmegaContext omegaContext) {
+      super(Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("ThreadPoolTestGroup"))
+          .andCommandKey(HystrixCommandKey.Factory.asKey("testCommandKey"))
+          .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(name))
+          .andThreadPoolPropertiesDefaults(
+              HystrixThreadPoolProperties.Setter()
+                  .withMaxQueueSize(10)
+                  .withCoreSize(3)
+                  .withMaximumSize(3)
+          )
+
+      );
+      this.omegaContext = omegaContext;
     }
 
-    @Test
-    public void testCircuitBreaker() {
-        for (int i = 0; i < 5; i++) {
-            try {
-                omegaContext.newGlobalTxId();
-                HystrixCommand<String> command = new TestCircuitBreakerCommand("testCircuitBreaker", omegaContext);
-                String result = command.execute();
-                //inheritable GlobalTxId
-                Assert.assertEquals(result, omegaContext.globalTxId());
-            } finally {
-                omegaContext.clear();
-            }
-        }
+    @Override
+    protected String run() {
+      //return threadLocal variable
+      return this.omegaContext.globalTxId();
     }
-
-
-    public static class TestCircuitBreakerCommand extends HystrixCommand<String> {
-
-        private final OmegaContext omegaContext;
-
-        public TestCircuitBreakerCommand(String name, OmegaContext omegaContext) {
-            super(Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("ThreadPoolTestGroup"))
-                    .andCommandKey(HystrixCommandKey.Factory.asKey("testCommandKey"))
-                    .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(name))
-                    .andThreadPoolPropertiesDefaults(
-                            HystrixThreadPoolProperties.Setter()
-                                    .withMaxQueueSize(10)
-                                    .withCoreSize(3)
-                                    .withMaximumSize(3)
-                    )
-
-            );
-            this.omegaContext = omegaContext;
-        }
-
-        @Override
-        protected String run() {
-            //return threadLocal variable
-            return this.omegaContext.globalTxId();
-        }
-    }
+  }
 
 }

@@ -76,6 +76,7 @@
     <netty.version>4.1.24.Final</netty.version>
     <zookeeper.version>3.4.13</zookeeper.version>
     <kafka.version>2.1.1</kafka.version>
+    <hystrix.version>1.5.12</hystrix.version>
   </properties>
 
   <name>ServiceComb Saga</name>
@@ -537,7 +538,7 @@
       <dependency>
         <groupId>com.netflix.hystrix</groupId>
         <artifactId>hystrix-core</artifactId>
-        <version>1.5.12</version>
+        <version>${hystrix.version}</version>
       </dependency>
 
       <!-- test dependencies -->

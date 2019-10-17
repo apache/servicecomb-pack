@@ -25,21 +25,22 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 public interface HystrixCallableWrapper {
 
-    /**
-     * is need wrap
-     *
-     * @return return true will invoke  {@link #wrapCallable(Callable)}
-     */
-    boolean shouldWrap();
+  /**
+   * is need wrap
+   *
+   * @return return true will invoke  {@link #wrapCallable(Callable)}
+   */
+  boolean shouldWrap();
 
-    /**
-     * Provides an opportunity to wrap/decorate a {@code Callable<T>} before execution.
-     * <p>
-     * This can be used to inject additional behavior such as copying of thread state (such as {@link ThreadLocal}).
-     *
-     * @param callable {@code Callable<T>} to be executed via a {@link ThreadPoolExecutor}
-     * @return {@code Callable<T>} either as a pass-thru or wrapping the one given
-     */
-    <T> Callable<T> wrapCallable(Callable<T> callable);
+  /**
+   * Provides an opportunity to wrap/decorate a {@code Callable<T>} before execution.
+   * <p>
+   * This can be used to inject additional behavior such as copying of thread state (such as {@link
+   * ThreadLocal}).
+   *
+   * @param callable {@code Callable<T>} to be executed via a {@link ThreadPoolExecutor}
+   * @return {@code Callable<T>} either as a pass-thru or wrapping the one given
+   */
+  <T> Callable<T> wrapCallable(Callable<T> callable);
 
 }

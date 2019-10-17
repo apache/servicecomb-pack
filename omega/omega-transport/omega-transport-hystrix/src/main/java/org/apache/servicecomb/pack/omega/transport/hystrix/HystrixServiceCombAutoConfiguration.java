@@ -17,9 +17,6 @@
 
 package org.apache.servicecomb.pack.omega.transport.hystrix;
 
-import javax.annotation.PostConstruct;
-import java.util.List;
-
 import com.netflix.hystrix.Hystrix;
 import com.netflix.hystrix.strategy.HystrixPlugins;
 import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategy;
@@ -27,6 +24,8 @@ import com.netflix.hystrix.strategy.eventnotifier.HystrixEventNotifier;
 import com.netflix.hystrix.strategy.executionhook.HystrixCommandExecutionHook;
 import com.netflix.hystrix.strategy.metrics.HystrixMetricsPublisher;
 import com.netflix.hystrix.strategy.properties.HystrixPropertiesStrategy;
+import java.util.List;
+import javax.annotation.PostConstruct;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
@@ -49,65 +48,67 @@ import org.springframework.util.CollectionUtils;
 @ConditionalOnClass({Hystrix.class})
 public class HystrixServiceCombAutoConfiguration {
 
-    private static final Log log = LogFactory.getLog(HystrixServiceCombAutoConfiguration.class);
+  private static final Log log = LogFactory.getLog(HystrixServiceCombAutoConfiguration.class);
 
-    @Autowired(required = false)
-    List<HystrixCallableWrapper> hystrixCallableWrappers;
+  @Autowired(required = false)
+  List<HystrixCallableWrapper> hystrixCallableWrappers;
 
-    @PostConstruct
-    public void init() {
-        try {
-            if (CollectionUtils.isEmpty(hystrixCallableWrappers)) {
-                log.info("no hystrixCallableWrapper find ,ServiceCombConcurrencyStrategy ignore Configuration");
-                return;
-            }
-            HystrixConcurrencyStrategy concurrencyStrategy = detectRegisteredConcurrencyStrategy();
-            if (concurrencyStrategy instanceof ServiceCombConcurrencyStrategy) {
-                log.info("Current Hystrix plugins concurrencyStrategy is ServiceCombConcurrencyStrategy ignore Configuration");
-                return;
-            }
+  @PostConstruct
+  public void init() {
+    try {
+      if (CollectionUtils.isEmpty(hystrixCallableWrappers)) {
+        log.info(
+            "no hystrixCallableWrapper find ,ServiceCombConcurrencyStrategy ignore Configuration");
+        return;
+      }
+      HystrixConcurrencyStrategy concurrencyStrategy = detectRegisteredConcurrencyStrategy();
+      if (concurrencyStrategy instanceof ServiceCombConcurrencyStrategy) {
+        log.info(
+            "Current Hystrix plugins concurrencyStrategy is ServiceCombConcurrencyStrategy ignore Configuration");
+        return;
+      }
 
-            // Keeps references of existing Hystrix plugins.
-            HystrixEventNotifier eventNotifier = HystrixPlugins.getInstance()
-                    .getEventNotifier();
-            HystrixMetricsPublisher metricsPublisher = HystrixPlugins.getInstance()
-                    .getMetricsPublisher();
-            HystrixPropertiesStrategy propertiesStrategy = HystrixPlugins.getInstance()
-                    .getPropertiesStrategy();
-            HystrixCommandExecutionHook commandExecutionHook = HystrixPlugins.getInstance()
-                    .getCommandExecutionHook();
+      // Keeps references of existing Hystrix plugins.
+      HystrixEventNotifier eventNotifier = HystrixPlugins.getInstance()
+          .getEventNotifier();
+      HystrixMetricsPublisher metricsPublisher = HystrixPlugins.getInstance()
+          .getMetricsPublisher();
+      HystrixPropertiesStrategy propertiesStrategy = HystrixPlugins.getInstance()
+          .getPropertiesStrategy();
+      HystrixCommandExecutionHook commandExecutionHook = HystrixPlugins.getInstance()
+          .getCommandExecutionHook();
 
-            log.info("Current Hystrix plugins configuration is ["
-                    + "concurrencyStrategy [" + concurrencyStrategy + "]," + "eventNotifier ["
-                    + eventNotifier + "]," + "metricPublisher [" + metricsPublisher + "],"
-                    + "propertiesStrategy [" + propertiesStrategy + "]," + "]");
-            HystrixPlugins.reset();
+      log.info("Current Hystrix plugins configuration is ["
+          + "concurrencyStrategy [" + concurrencyStrategy + "]," + "eventNotifier ["
+          + eventNotifier + "]," + "metricPublisher [" + metricsPublisher + "],"
+          + "propertiesStrategy [" + propertiesStrategy + "]," + "]");
+      HystrixPlugins.reset();
 
-            // Registers existing plugins excepts the Concurrent Strategy plugin.
-            HystrixPlugins.getInstance().registerConcurrencyStrategy(
-                    new ServiceCombConcurrencyStrategy(concurrencyStrategy, hystrixCallableWrappers));
-            HystrixPlugins.getInstance().registerEventNotifier(eventNotifier);
-            HystrixPlugins.getInstance().registerMetricsPublisher(metricsPublisher);
-            HystrixPlugins.getInstance().registerPropertiesStrategy(propertiesStrategy);
-            HystrixPlugins.getInstance().registerCommandExecutionHook(commandExecutionHook);
+      // Registers existing plugins excepts the Concurrent Strategy plugin.
+      HystrixPlugins.getInstance().registerConcurrencyStrategy(
+          new ServiceCombConcurrencyStrategy(concurrencyStrategy, hystrixCallableWrappers));
+      HystrixPlugins.getInstance().registerEventNotifier(eventNotifier);
+      HystrixPlugins.getInstance().registerMetricsPublisher(metricsPublisher);
+      HystrixPlugins.getInstance().registerPropertiesStrategy(propertiesStrategy);
+      HystrixPlugins.getInstance().registerCommandExecutionHook(commandExecutionHook);
 
-            log.info("Succeeded to register ServiceComb Hystrix Concurrency Strategy");
+      log.info("Succeeded to register ServiceComb Hystrix Concurrency Strategy");
 
-        } catch (Exception e) {
-            log.error("Failed to register ServiceComb Hystrix Concurrency Strategy", e);
-        }
-
+    } catch (Exception e) {
+      log.error("Failed to register ServiceComb Hystrix Concurrency Strategy", e);
     }
 
-    private HystrixConcurrencyStrategy detectRegisteredConcurrencyStrategy() {
-        return HystrixPlugins.getInstance()
-                .getConcurrencyStrategy();
-    }
+  }
 
-    @Bean
-    @ConditionalOnBean(OmegaContext.class)
-    public OmegaContextCallableWrapper omegaContextCallableWrapper(OmegaContext context) {
-        return new OmegaContextCallableWrapper(context);
-    }
+  private HystrixConcurrencyStrategy detectRegisteredConcurrencyStrategy() {
+    return HystrixPlugins.getInstance()
+        .getConcurrencyStrategy();
+  }
+
+  @Bean
+  @ConditionalOnBean(OmegaContext.class)
+  public OmegaContextCallableWrapper omegaContextCallableWrapper(OmegaContext context) {
+    return new OmegaContextCallableWrapper(context);
+  }
 
 }

@@ -27,8 +27,8 @@ import org.springframework.context.annotation.Configuration;
 @SpringBootApplication
 public class HystrixTestApplication {
 
-    @Bean
-    public OmegaContext omegaContext() {
-        return new OmegaContext(new UniqueIdGenerator());
-    }
+  @Bean
+  public OmegaContext omegaContext() {
+    return new OmegaContext(new UniqueIdGenerator());
+  }
 }
