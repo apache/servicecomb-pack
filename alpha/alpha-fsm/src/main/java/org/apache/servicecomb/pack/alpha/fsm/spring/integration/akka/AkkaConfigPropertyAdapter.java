@@ -31,6 +31,7 @@ public class AkkaConfigPropertyAdapter {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   public static final String PROPERTY_SOURCE_NAME = "akkaConfig.";
+  public static final String REDIS_NAME = "akkaConfig.akka-persistence-redis.redis.";
   static final String AKKA_CLUSTER_SEED_NODES_KEY = "akka.cluster.seed-nodes";
   static final String AKKA_ESTENSIONS_KEY = "akka.extensions";
   static final String AKKA_LOGGERS_KEY = "akka.loggers";
@@ -58,7 +59,18 @@ public class AkkaConfigPropertyAdapter {
               if (LOG.isTraceEnabled()) {
                 LOG.trace("Adding property {}={}" + key, value);
               }
+              
               propertyMap.put(key, value);
+              
+              if(name.startsWith(REDIS_NAME) && !propertyMap.containsKey(name)){
+                String readJournalKey = ("akka-persistence-redis.read-journal.redis.").concat(name.substring(REDIS_NAME.length()));
+                String journalKey = ("akka-persistence-redis.journal.redis.").concat(name.substring(REDIS_NAME.length()));
+                String snapshotKey = ("akka-persistence-redis.snapshot.redis.").concat(name.substring(REDIS_NAME.length()));
+                propertyMap.put( readJournalKey, value);
+                propertyMap.put( journalKey, value);
+                propertyMap.put( snapshotKey, value);
+             }
+              
             }
           }
         }
