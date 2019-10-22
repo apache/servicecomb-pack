@@ -32,7 +32,9 @@
         <dependency>
             <groupId>io.github.openfeign</groupId>
             <artifactId>feign-core</artifactId>
-            <version>9.5.1</version>
+            <version>${openfeign.version}</version>
+            <!-- here we don't specify the feign version, it should work with feign runtime -->
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
