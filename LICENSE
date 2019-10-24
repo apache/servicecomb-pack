@@ -207,3 +207,11 @@ This product bundles ngx-admin libraries which is licensed under the
 MIT license.
 For details, see https://github.com/akveo/ngx-admin
 ================================================================
+For docker-build-config
+================================================================
+This product bundles wait-for script which is licensed under the
+MIT license.
+For details, see https://github.com/eficode/wait-for
+
+* wait-for script (docker-build-config/wait-for - https://github.com/eficode/wait-for)
+================================================================
