@@ -721,3 +721,9 @@ For details, see https://github.com/webjars
 * SockJS-client (org.webjars:sockjs-client:1.0.2 - http://webjars.org)
 * webjars-locator (org.webjars:webjars-locator:0.36 - http://webjars.org)
 * webjars-locator-core (org.webjars:webjars-locator-core:0.35 - http://webjars.org)
+
+===========================================================================
+This product bundles from wait-for script which is licensed under the MIT license.
+For details, see https://github.com/eficode/wait-for
+
+* wait-for script (docker-build-config/wait-for - https://github.com/eficode/wait-for)

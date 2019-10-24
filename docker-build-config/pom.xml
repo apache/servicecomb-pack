@@ -51,8 +51,7 @@
                     </descriptor>
                   </assembly>
                   <runCmds>
-                    <run>wget -O /wait-for https://raw.githubusercontent.com/eficode/wait-for/master/wait-for</run>
-                    <run>chmod +x /wait-for</run>
+                    <run>chmod +x /maven/saga/wait-for</run>
                   </runCmds>
                   <entryPoint>
                     <shell>/maven/saga/docker-entrypoint.sh</shell>
