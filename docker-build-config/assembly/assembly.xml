@@ -46,5 +46,11 @@
       <fileMode>0755</fileMode>
       <filtered>true</filtered>
     </file>
+    <file>
+      <source>${root.basedir}/docker-build-config/wait-for</source>
+      <outputDirectory>saga</outputDirectory>
+      <fileMode>0755</fileMode>
+      <filtered>true</filtered>
+    </file>
   </files>
 </assembly>

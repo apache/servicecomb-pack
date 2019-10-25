@@ -22,7 +22,7 @@ wait_for_services() {
     port=$(printf "%s\n" "$svc"| cut -d : -f 2)
     timeout=$(printf "%s\n" "$svc"| cut -d : -f 3)
     echo "Waiting for service $host:$port(timeout: $timeout seconds) ready"
-    /wait-for $host:$port -t $timeout
+    /maven/saga/wait-for $host:$port -t $timeout
     result=$?
     if [ $result -eq 0 ] ; then
       echo "Service $host:$port is ready"
