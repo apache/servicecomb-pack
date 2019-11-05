@@ -60,6 +60,11 @@ public class GrpcTccClientMessageSender implements TccMessageSender {
   }
 
   @Override
+  public ServerMeta onGetServerMeta() {
+    return null;
+  }
+
+  @Override
   public void close() {
     // do nothing here
   }

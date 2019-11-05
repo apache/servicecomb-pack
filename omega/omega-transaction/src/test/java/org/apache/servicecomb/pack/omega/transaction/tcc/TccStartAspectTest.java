@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.servicecomb.pack.common.TransactionStatus;
+import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.context.annotations.TccStart;
@@ -55,6 +56,11 @@ public class TccStartAspectTest {
     @Override
     public void onDisconnected() {
 
+    }
+
+    @Override
+    public ServerMeta onGetServerMeta() {
+      return null;
     }
 
     @Override

@@ -20,6 +20,7 @@ package org.apache.servicecomb.pack.omega.connector.grpc.core;
 import com.google.common.base.Optional;
 import io.grpc.ManagedChannel;
 import java.lang.invoke.MethodHandles;
+import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.pack.omega.transaction.MessageSender;
 import org.apache.servicecomb.pack.omega.transaction.OmegaException;
@@ -82,6 +83,32 @@ public abstract class LoadBalanceSenderAdapter implements MessageSender {
         LOG.error("Failed disconnecting from alpha at {}", sender.target(), e);
       }
     }
+  }
+
+  @Override
+  public ServerMeta onGetServerMeta() {
+    boolean metaConsistency = true;
+    ServerMeta serverMeta = null;
+    for (MessageSender sender : loadContext.getSenders().keySet()) {
+      try {
+        if (serverMeta == null) {
+          serverMeta = sender.onGetServerMeta();
+          LOG.info("Alpha configuration is " + serverMeta.getMetaMap());
+        } else {
+          ServerMeta otherServerMeta = sender.onGetServerMeta();
+          if (!serverMeta.getMetaMap().equals(otherServerMeta.getMetaMap())) {
+            metaConsistency = false;
+            LOG.warn("Alpha configuration is " + otherServerMeta.getMetaMap());
+          }
+        }
+        if (!metaConsistency) {
+          throw new Exception("Using different Alpha configuration with multiple Alpha");
+        }
+      } catch (Exception e) {
+        LOG.error("Failed disconnecting from alpha at {}", sender.target(), e);
+      }
+    }
+    return serverMeta;
   }
 
   @Override

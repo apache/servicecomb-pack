@@ -25,6 +25,7 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.servicecomb.pack.common.TransactionStatus;
+import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.apache.servicecomb.pack.omega.context.CallbackContext;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
@@ -45,6 +46,11 @@ public class CoordinateMessageHandlerTest {
     @Override
     public void onDisconnected() {
 
+    }
+
+    @Override
+    public ServerMeta onGetServerMeta() {
+      return null;
     }
 
     @Override

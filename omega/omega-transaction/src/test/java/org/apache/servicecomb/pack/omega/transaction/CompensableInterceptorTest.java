@@ -29,6 +29,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import org.apache.servicecomb.pack.common.EventType;
+import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.junit.Before;
@@ -49,6 +50,11 @@ public class CompensableInterceptorTest {
 
     @Override
     public void onDisconnected() {
+    }
+
+    @Override
+    public ServerMeta onGetServerMeta() {
+      return null;
     }
 
     @Override

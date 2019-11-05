@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.servicecomb.pack.common.EventType;
+import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.context.TransactionContextProperties;
@@ -64,6 +65,11 @@ public class TransactionAspectTest {
 
     @Override
     public void onDisconnected() {
+    }
+
+    @Override
+    public ServerMeta onGetServerMeta() {
+      return null;
     }
 
     @Override
