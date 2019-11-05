@@ -30,3 +30,7 @@ message GrpcServiceConfig {
 message GrpcAck {
   bool aborted = 1;
 }
+
+message ServerMeta {
+  map<string, string> meta = 1;
+}

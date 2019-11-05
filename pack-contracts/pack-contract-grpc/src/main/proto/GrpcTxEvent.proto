@@ -29,6 +29,7 @@ service TxEventService {
   rpc OnTxEvent (GrpcTxEvent) returns (GrpcAck) {}
   rpc OnDisconnected (GrpcServiceConfig) returns (GrpcAck) {
   }
+  rpc onGetServerMeta(GrpcServiceConfig) returns (ServerMeta) {}
 }
 
 message GrpcTxEvent {
