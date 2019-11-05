@@ -33,6 +33,7 @@ import org.apache.servicecomb.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.pack.contract.grpc.GrpcCompensateCommand;
 import org.apache.servicecomb.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.pack.contract.grpc.GrpcTxEvent;
+import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.apache.servicecomb.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceImplBase;
 
 import io.grpc.stub.StreamObserver;
@@ -45,11 +46,13 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
   private final TxConsistentService txConsistentService;
 
   private final Map<String, Map<String, OmegaCallback>> omegaCallbacks;
+  private final ServerMeta serverMeta;
 
   GrpcTxEventEndpointImpl(TxConsistentService txConsistentService,
-      Map<String, Map<String, OmegaCallback>> omegaCallbacks) {
+      Map<String, Map<String, OmegaCallback>> omegaCallbacks, ServerMeta serverMeta) {
     this.txConsistentService = txConsistentService;
     this.omegaCallbacks = omegaCallbacks;
+    this.serverMeta = serverMeta;
   }
 
   @Override
@@ -91,6 +94,12 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
     ));
 
     responseObserver.onNext(ok ? ALLOW : REJECT);
+    responseObserver.onCompleted();
+  }
+
+  @Override
+  public void onGetServerMeta(GrpcServiceConfig request, StreamObserver<ServerMeta> responseObserver){
+    responseObserver.onNext(this.serverMeta);
     responseObserver.onCompleted();
   }
 }

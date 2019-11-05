@@ -35,6 +35,8 @@ import org.apache.servicecomb.pack.alpha.server.tcc.GrpcTccEventService;
 import org.apache.servicecomb.pack.alpha.server.tcc.callback.TccPendingTaskRunner;
 import org.apache.servicecomb.pack.alpha.server.tcc.service.TccEventScanner;
 import org.apache.servicecomb.pack.alpha.server.tcc.service.TccTxEventService;
+import org.apache.servicecomb.pack.common.AlphaMetaKeys;
+import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -153,8 +155,10 @@ public class AlphaConfig {
   ServerStartable serverStartable(GrpcServerConfig serverConfig, TxConsistentService txConsistentService,
       Map<String, Map<String, OmegaCallback>> omegaCallbacks, GrpcTccEventService grpcTccEventService,
       TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner, @Qualifier("alphaEventBus") EventBus eventBus) throws IOException {
+    ServerMeta serverMeta = ServerMeta.newBuilder()
+        .putMeta(AlphaMetaKeys.AkkaEnabled.name(), String.valueOf(false)).build();
     ServerStartable bootstrap = new GrpcStartable(serverConfig, eventBus,
-        new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks), grpcTccEventService);
+        new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks, serverMeta), grpcTccEventService);
     new Thread(bootstrap::start).start();
     tccPendingTaskRunner.start();
     tccEventScanner.start();
@@ -171,8 +175,10 @@ public class AlphaConfig {
   ServerStartable serverStartableWithAkka(GrpcServerConfig serverConfig,
       Map<String, Map<String, OmegaCallback>> omegaCallbacks, GrpcTccEventService grpcTccEventService,
       TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner, @Qualifier("alphaEventBus") EventBus eventBus, ActorEventChannel actorEventChannel) throws IOException {
+    ServerMeta serverMeta = ServerMeta.newBuilder()
+        .putMeta(AlphaMetaKeys.AkkaEnabled.name(), String.valueOf(true)).build();
     ServerStartable bootstrap = new GrpcStartable(serverConfig, eventBus,
-        new GrpcSagaEventService(actorEventChannel, omegaCallbacks), grpcTccEventService);
+        new GrpcSagaEventService(actorEventChannel, omegaCallbacks, serverMeta), grpcTccEventService);
     new Thread(bootstrap::start).start();
     tccPendingTaskRunner.start();
     tccEventScanner.start();

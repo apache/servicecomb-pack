@@ -32,6 +32,7 @@ import org.apache.servicecomb.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.pack.contract.grpc.GrpcCompensateCommand;
 import org.apache.servicecomb.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.pack.contract.grpc.GrpcTxEvent;
+import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.apache.servicecomb.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceImplBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,11 +44,13 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
 
   private final Map<String, Map<String, OmegaCallback>> omegaCallbacks;
   private final ActorEventChannel actorEventChannel;
+  private final ServerMeta serverMeta;
 
   public GrpcSagaEventService(ActorEventChannel actorEventChannel,
-      Map<String, Map<String, OmegaCallback>> omegaCallbacks) {
+      Map<String, Map<String, OmegaCallback>> omegaCallbacks, ServerMeta serverMeta) {
     this.actorEventChannel = actorEventChannel;
     this.omegaCallbacks = omegaCallbacks;
+    this.serverMeta = serverMeta;
   }
 
   @Override
@@ -148,6 +151,12 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
       actorEventChannel.send(event);
     }
     responseObserver.onNext(ok ? ALLOW : REJECT);
+    responseObserver.onCompleted();
+  }
+
+  @Override
+  public void onGetServerMeta(GrpcServiceConfig request, StreamObserver<ServerMeta> responseObserver){
+    responseObserver.onNext(this.serverMeta);
     responseObserver.onCompleted();
   }
 }

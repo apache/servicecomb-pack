@@ -29,6 +29,7 @@ import org.apache.servicecomb.pack.alpha.core.OmegaCallback;
 import org.apache.servicecomb.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.pack.contract.grpc.GrpcCompensateCommand;
 import org.apache.servicecomb.pack.contract.grpc.GrpcServiceConfig;
+import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.apache.servicecomb.pack.contract.grpc.TxEventServiceGrpc;
 import org.apache.servicecomb.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceBlockingStub;
 import org.apache.servicecomb.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceStub;
@@ -70,6 +71,10 @@ public class OmegaEventSender {
 
   public void onDisconnected(){
     blockingStub.onDisconnected(serviceConfig);
+  }
+
+  public ServerMeta onGetServerMeta(){
+    return blockingStub.onGetServerMeta(serviceConfig);
   }
 
   public void setOmegaCallbacks(

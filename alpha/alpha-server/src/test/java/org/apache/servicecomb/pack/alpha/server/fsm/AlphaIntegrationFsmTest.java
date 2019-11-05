@@ -36,6 +36,8 @@ import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExt
 import org.apache.servicecomb.pack.alpha.server.AlphaApplication;
 import org.apache.servicecomb.pack.alpha.server.AlphaConfig;
 import org.apache.servicecomb.pack.common.EventType;
+import org.apache.servicecomb.pack.common.AlphaMetaKeys;
+import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -103,6 +105,12 @@ public class AlphaIntegrationFsmTest {
   public void after() {
     SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).cleanLastSagaData();
     omegaEventSender.onDisconnected();
+  }
+
+  @Test
+  public void serverMetaTest(){
+    ServerMeta serverMeta = omegaEventSender.onGetServerMeta();
+    assertEquals(Boolean.parseBoolean(serverMeta.getMetaMap().get(AlphaMetaKeys.AkkaEnabled.name())),true);
   }
 
   @Test

@@ -30,6 +30,7 @@ import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import com.google.protobuf.ByteString;
@@ -48,10 +49,12 @@ import javax.annotation.PostConstruct;
 
 import org.apache.servicecomb.pack.alpha.core.*;
 import org.apache.servicecomb.pack.common.EventType;
+import org.apache.servicecomb.pack.common.AlphaMetaKeys;
 import org.apache.servicecomb.pack.contract.grpc.GrpcAck;
 import org.apache.servicecomb.pack.contract.grpc.GrpcCompensateCommand;
 import org.apache.servicecomb.pack.contract.grpc.GrpcServiceConfig;
 import org.apache.servicecomb.pack.contract.grpc.GrpcTxEvent;
+import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.apache.servicecomb.pack.contract.grpc.TxEventServiceGrpc;
 import org.apache.servicecomb.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceBlockingStub;
 import org.apache.servicecomb.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceStub;
@@ -167,6 +170,12 @@ public class AlphaIntegrationTest {
       } catch (Exception ignored) {
       }
     } while (!deleted);
+  }
+
+  @Test
+  public void serverMetaTest(){
+    ServerMeta serverMeta = blockingStub.onGetServerMeta(serviceConfig);
+    assertEquals(Boolean.parseBoolean(serverMeta.getMetaMap().get(AlphaMetaKeys.AkkaEnabled.name())),false);
   }
 
   @Test
