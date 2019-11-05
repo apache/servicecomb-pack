@@ -18,6 +18,8 @@
 package org.apache.servicecomb.pack.omega.spring;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.servicecomb.pack.common.AlphaMetaKeys;
+import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterDiscovery;
 import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterConfig;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.FastestSender;
@@ -55,8 +57,6 @@ class OmegaSpringConfig {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  @Value("${alpha.feature.akka.enabled:false}")
-  private boolean alphaFeatureAkkaEnabled;
 
   @Bean(name = {"omegaUniqueIdGenerator"})
   IdGenerator<String> idGenerator() {
@@ -64,9 +64,10 @@ class OmegaSpringConfig {
   }
 
   @Bean
-  OmegaContext omegaContext(@Qualifier("omegaUniqueIdGenerator") IdGenerator<String> idGenerator) {
-    LOG.info("alpha.feature.akka.enabled={}",alphaFeatureAkkaEnabled);
-    return new OmegaContext(idGenerator,alphaFeatureAkkaEnabled);
+  OmegaContext omegaContext(@Qualifier("omegaUniqueIdGenerator") IdGenerator<String> idGenerator, SagaMessageSender messageSender) {
+    ServerMeta serverMeta = messageSender.onGetServerMeta();
+    boolean akkaEnabeld = Boolean.parseBoolean(serverMeta.getMetaMap().get(AlphaMetaKeys.AkkaEnabled.name()));
+    return new OmegaContext(idGenerator,akkaEnabeld);
   }
 
   @Bean(name = {"compensationContext"})
