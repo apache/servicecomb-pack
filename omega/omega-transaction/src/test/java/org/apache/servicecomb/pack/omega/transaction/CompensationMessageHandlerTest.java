@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.servicecomb.pack.common.EventType;
+import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.apache.servicecomb.pack.omega.context.CallbackContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +44,11 @@ public class CompensationMessageHandlerTest {
     @Override
     public void onDisconnected() {
 
+    }
+
+    @Override
+    public ServerMeta onGetServerMeta() {
+      return null;
     }
 
     @Override

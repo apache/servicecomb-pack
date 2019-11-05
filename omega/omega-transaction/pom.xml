@@ -90,6 +90,10 @@
       <artifactId>log4j-core</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.servicecomb.pack</groupId>
+      <artifactId>pack-contract-grpc</artifactId>
+    </dependency>
   </dependencies>
 
 </project>

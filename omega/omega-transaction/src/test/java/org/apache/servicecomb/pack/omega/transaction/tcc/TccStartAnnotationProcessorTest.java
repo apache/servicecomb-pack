@@ -29,6 +29,7 @@ import java.util.UUID;
 import javax.transaction.TransactionalException;
 
 import org.apache.servicecomb.pack.common.TransactionStatus;
+import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
@@ -59,6 +60,11 @@ public class TccStartAnnotationProcessorTest {
     @Override
     public void onDisconnected() {
 
+    }
+
+    @Override
+    public ServerMeta onGetServerMeta() {
+      return null;
     }
 
     @Override

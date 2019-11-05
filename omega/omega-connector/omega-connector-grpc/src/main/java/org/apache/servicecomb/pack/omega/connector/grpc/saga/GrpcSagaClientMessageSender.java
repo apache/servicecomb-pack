@@ -19,6 +19,7 @@ package org.apache.servicecomb.pack.omega.connector.grpc.saga;
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
+import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
 import org.apache.servicecomb.pack.omega.context.ServiceConfig;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
@@ -73,6 +74,11 @@ public class GrpcSagaClientMessageSender implements SagaMessageSender {
   @Override
   public void onDisconnected() {
     blockingEventService.onDisconnected(serviceConfig);
+  }
+
+  @Override
+  public ServerMeta onGetServerMeta() {
+    return blockingEventService.onGetServerMeta(serviceConfig);
   }
 
   @Override

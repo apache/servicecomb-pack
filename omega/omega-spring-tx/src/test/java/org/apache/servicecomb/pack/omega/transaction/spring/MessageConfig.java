@@ -19,6 +19,7 @@ package org.apache.servicecomb.pack.omega.transaction.spring;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.apache.servicecomb.pack.omega.context.CallbackContext;
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
@@ -81,6 +82,11 @@ public class MessageConfig {
       }
 
       @Override
+      public ServerMeta onGetServerMeta() {
+        return null;
+      }
+
+      @Override
       public void close() {
 
       }
@@ -108,6 +114,11 @@ public class MessageConfig {
       @Override
       public void onDisconnected() {
 
+      }
+
+      @Override
+      public ServerMeta onGetServerMeta() {
+        return null;
       }
 
       @Override

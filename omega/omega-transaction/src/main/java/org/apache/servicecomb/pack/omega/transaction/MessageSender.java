@@ -17,11 +17,15 @@
 
 package org.apache.servicecomb.pack.omega.transaction;
 
+import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
+
 public interface MessageSender {
 
   void onConnected();
 
   void onDisconnected();
+
+  ServerMeta onGetServerMeta();
 
   void close();
 

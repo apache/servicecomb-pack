@@ -20,6 +20,7 @@ package org.apache.servicecomb.pack.omega.connector.grpc.saga;
 import static org.apache.servicecomb.pack.common.EventType.SagaStartedEvent;
 
 import java.util.concurrent.BlockingQueue;
+import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.apache.servicecomb.pack.omega.transaction.AlphaResponse;
 import org.apache.servicecomb.pack.omega.transaction.MessageSender;
 import org.apache.servicecomb.pack.omega.transaction.OmegaException;
@@ -41,6 +42,11 @@ public class RetryableMessageSender implements SagaMessageSender {
   @Override
   public void onDisconnected() {
 
+  }
+
+  @Override
+  public ServerMeta onGetServerMeta() {
+    return null;
   }
 
   @Override
