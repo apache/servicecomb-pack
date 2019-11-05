@@ -25,7 +25,7 @@ mvn clean verify -f acceptance-tests -pl acceptance-pack-akka-spring-demo -Ddock
 
 ## Enabled Saga State Machine Module
 
-Using `alpha.feature.akka.enabled=true` launch Alpha and Omega Side 
+Using `alpha.feature.akka.enabled=true` launch Alpha 
 
 ```properties
 alpha.feature.akka.enabled=true
