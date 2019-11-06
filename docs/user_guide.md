@@ -63,7 +63,7 @@ After executing either one of the above command, you will find alpha server's ex
 ### Saga Support
 Add saga annotations and corresponding compensation methods
 Take a transfer money application as an example:
-1. add `@SagaStart` at the starting point of the global transaction
+1. Add `@SagaStart` at the starting point of the global transaction to prepare the new global transaction context. If you don't specify the SagaStart the flowing sub-transaction will complain that the global transaction id is not found.
    ```java
    import org.apache.servicecomb.pack.omega.context.annotations.SagaStart;
    
@@ -75,7 +75,7 @@ Take a transfer money application as an example:
    ```
    **Note:** By default, timeout is disable.
 
-2. add `@Compensable` at the sub-transaction and specify its corresponding compensation method
+2. Add `@Compensable` at the sub-transaction and specify its corresponding compensation method.
    ```java
    import javax.transaction.Transactional;
    import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
@@ -140,9 +140,9 @@ Here is how Omega does:
 2. [TransactionClientHttpRequestInterceptor][src-TransactionClientHttpRequestInterceptor] injects transaction context into request headers when `RestTemplate` request Service B.
 3. When Service B receive the request, [TransactionHandlerInterceptor][src-TransactionHandlerInterceptor] extract context info from request headers.
 
-Omega supports following implicity transaction context passing:
+Omega supports following implicit transaction context passing:
 
-1. omega-transport-{dubbo,feign,resttemplate,servicecomb}.
+1. omega-transport-{dubbo,feign,resttemplate,servicecomb}. Please make sure you add these transport artifacts into your classpath, otherwise you may face an issue that Omega complains about cannot find global transaction id.
 2. Method call in the same thread (based on `OmegaContext` thread local fields).
 3. `java.util.concurrent.Executor{Service}` annotated by `@OmegaContextAware`.
 
