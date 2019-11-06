@@ -55,7 +55,10 @@ public class TransactionAspect extends TransactionContextHelper {
     if (transactionContext != null) {
       populateOmegaContext(context, transactionContext);
     }
-
+    // SCB-1011 Need to check if the globalTxId transaction is null to avoid the message sending failure
+    if (context.globalTxId() == null) {
+      throw new OmegaException("Cannot find the globalTxId from OmegaContext. Please using @SagaStart to start a global transaction.");
+    }
     String localTxId = context.localTxId();
     context.newLocalTxId();
     LOG.debug("Updated context {} for compensable method {} ", context, method.toString());
