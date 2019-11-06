@@ -22,6 +22,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -140,6 +141,17 @@ public class TransactionAspectTest {
 
     assertThat(omegaContext.globalTxId(), is(transactionGlobalTxId));
     assertThat(omegaContext.localTxId(), is(transactionLocalTxId));
+  }
+
+  @Test
+  public void globalTxIsNotSet() throws Throwable {
+    omegaContext.setGlobalTxId(null);
+    try {
+      aspect.advise(joinPoint, compensable);
+      fail("Expect exception here");
+    } catch (OmegaException ex) {
+      assertThat(ex.getMessage(), is("Cannot find the globalTxId from OmegaContext. Please using @SagaStart to start a global transaction."));
+    }
   }
 
   @Test
