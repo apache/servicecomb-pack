@@ -64,7 +64,7 @@ Saga可通过以下任一方式进行构建：
 ### Saga 支持 
 添加Saga的注解及相应的补偿方法
 以一个转账应用为例：
-1. 在全局事务的起点添加 `@SagaStart` 的注解来让Omega创建一个新的全局事务。如果不标准这个事务起点的话，后续子事务在执行过程中会报找不到全局事务ID的错误。
+1. 在全局事务的起点添加 `@SagaStart` 的注解来让Omega创建一个新的全局事务。如果不标注这个事务起点的话，后续子事务在执行过程中会报找不到全局事务ID的错误。
    ```java
    import org.apache.servicecomb.pack.omega.context.annotations.SagaStart;
    
