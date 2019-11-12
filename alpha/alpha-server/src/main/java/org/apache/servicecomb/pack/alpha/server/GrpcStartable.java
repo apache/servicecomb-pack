@@ -62,23 +62,13 @@ public class GrpcStartable implements ServerStartable {
     try {
       OptionalInt unusedPort = findUnusedPort(serverConfig);
       if(unusedPort.isPresent()){
+        serverBuilder = getServerBuilder(unusedPort.getAsInt());
         if (serverConfig.isSslEnable()){
-          serverBuilder = NettyServerBuilder.forAddress(
-                  new InetSocketAddress(serverConfig.getHost(), unusedPort.getAsInt()))
-              .channelType(NioServerSocketChannel.class)
-              .bossEventLoopGroup(new NioEventLoopGroup(1))
-              .workerEventLoopGroup(new NioEventLoopGroup());
-
           try {
             ((NettyServerBuilder) serverBuilder).sslContext(getSslContextBuilder(serverConfig).build());
           } catch (SSLException e) {
             throw new IllegalStateException("Unable to setup grpc to use SSL.", e);
           }
-        } else {
-          serverBuilder = NettyServerBuilder.forPort(unusedPort.getAsInt())
-              .channelType(NioServerSocketChannel.class)
-              .bossEventLoopGroup(new NioEventLoopGroup(1))
-              .workerEventLoopGroup(new NioEventLoopGroup());
         }
         Arrays.stream(services).forEach(serverBuilder::addService);
         server = serverBuilder.build();
@@ -108,6 +98,14 @@ public class GrpcStartable implements ServerStartable {
   @Override
   public GrpcServerConfig getGrpcServerConfig() {
     return this.serverConfig;
+  }
+
+  private ServerBuilder getServerBuilder(int port) {
+    return NettyServerBuilder.forAddress(
+        new InetSocketAddress(serverConfig.getHost(), port))
+        .channelType(NioServerSocketChannel.class)
+        .bossEventLoopGroup(new NioEventLoopGroup(1))
+        .workerEventLoopGroup(new NioEventLoopGroup());
   }
 
   private SslContextBuilder getSslContextBuilder(GrpcServerConfig config) {
