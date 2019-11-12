@@ -20,6 +20,8 @@
 
 package org.apache.servicecomb.pack.alpha.server;
 
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
@@ -45,7 +47,6 @@ import io.grpc.netty.NettyServerBuilder;
 import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
-import org.springframework.context.ApplicationEventPublisher;
 
 public class GrpcStartable implements ServerStartable {
 
@@ -63,7 +64,10 @@ public class GrpcStartable implements ServerStartable {
       if(unusedPort.isPresent()){
         if (serverConfig.isSslEnable()){
           serverBuilder = NettyServerBuilder.forAddress(
-                  new InetSocketAddress(serverConfig.getHost(), unusedPort.getAsInt()));
+                  new InetSocketAddress(serverConfig.getHost(), unusedPort.getAsInt()))
+              .channelType(NioServerSocketChannel.class)
+              .bossEventLoopGroup(new NioEventLoopGroup(1))
+              .workerEventLoopGroup(new NioEventLoopGroup());
 
           try {
             ((NettyServerBuilder) serverBuilder).sslContext(getSslContextBuilder(serverConfig).build());
@@ -71,7 +75,10 @@ public class GrpcStartable implements ServerStartable {
             throw new IllegalStateException("Unable to setup grpc to use SSL.", e);
           }
         } else {
-          serverBuilder = ServerBuilder.forPort(unusedPort.getAsInt());
+          serverBuilder = NettyServerBuilder.forPort(unusedPort.getAsInt())
+              .channelType(NioServerSocketChannel.class)
+              .bossEventLoopGroup(new NioEventLoopGroup(1))
+              .workerEventLoopGroup(new NioEventLoopGroup());
         }
         Arrays.stream(services).forEach(serverBuilder::addService);
         server = serverBuilder.build();
