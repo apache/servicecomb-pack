@@ -1,7 +1,7 @@
 # Saga Pack Design
 [![ZH doc](https://img.shields.io/badge/document-中文-blue.svg)](design_zh.md)
 
-##BackGround Introduction
+## BackGround Introduction
 The following illustration shows a typical distributed transaction call, in which a user requests a distributed service call, and the initial service calls two participating services in sequence (Service A, Service B). When Service A executes successfully and Service B hits a problem, our distributed transaction need to call  service A's compensation operation to ensure the consistency of the distributed transaction (a single transaction fails and the entire distributed transaction needs to be rolled back), because there is no connection between the two participating services. A coordinator is therefore required to assist with related recovery.
 
 ![image-distributed-transaction](static_files/image-distributed-transaction.png)
