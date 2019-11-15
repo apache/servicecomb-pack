@@ -799,7 +799,7 @@ Alpha 可以通过部署多实例的方式保证高可用，使用 `alpha.cluste
 
 ## Native transports
 
-Alpha 使用 `alpha.feature.native=true` 开启JNI调用Socket Transport的功能，与基于NIO的传输相比，这些JNI传输添加了特定于特定平台的功能，产生了更少的垃圾，并总体上提高性能
+Alpha 使用 `alpha.feature.nativetransport=true` 开启JNI调用Socket Transport的功能，与基于NIO的传输相比，这些JNI传输添加了特定于特定平台的功能，产生了更少的垃圾，并总体上提高性能
 
 [src-TransactionClientHttpRequestInterceptor]: ../omega/omega-transport/omega-transport-resttemplate/src/main/java/org/apache/servicecomb/pack/omega/transport/resttemplate/TransactionClientHttpRequestInterceptor.java
 [src-TransactionHandlerInterceptor]: ../omega/omega-transport/omega-transport-resttemplate/src/main/java/org/apache/servicecomb/pack/omega/transport/resttemplate/TransactionHandlerInterceptor.java

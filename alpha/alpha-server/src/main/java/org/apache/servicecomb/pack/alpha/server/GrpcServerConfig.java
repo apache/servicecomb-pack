@@ -55,7 +55,7 @@ public class GrpcServerConfig {
   @Value("${alpha.server.ssl.clientCert:client.crt}")
   private String clientCert;
 
-  @Value("${alpha.feature.native:false}")
+  @Value("${alpha.feature.nativetransport:false}")
   private boolean nativeTransport;
 
   public String getHost() {
