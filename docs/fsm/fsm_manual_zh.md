@@ -293,7 +293,7 @@ services:
 
 [设计文档](design_fsm_zh.md)
 
-[压力测试报告](benchmark_zh.md)
+[基准测试报告](benchmark_zh.md)
 
 
 
