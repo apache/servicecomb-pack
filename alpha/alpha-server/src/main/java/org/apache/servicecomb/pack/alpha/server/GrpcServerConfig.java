@@ -56,7 +56,7 @@ public class GrpcServerConfig {
   private String clientCert;
 
   @Value("${alpha.feature.native:false}")
-  private boolean nettyTransport;
+  private boolean nativeTransport;
 
   public String getHost() {
     return host;
@@ -102,8 +102,8 @@ public class GrpcServerConfig {
     return clientCert;
   }
 
-  public boolean isNettyTransport() {
-    return nettyTransport;
+  public boolean isNativeTransport() {
+    return nativeTransport;
   }
 }
 
