@@ -23,6 +23,7 @@ alpha:
     host: ${server.host}
     port: 8080
   feature:
+    native: false # Default disabled Netty Native Transport
     akka:
       enabled: false
       channel:
