@@ -224,7 +224,7 @@ public class GrpcStartable implements ServerStartable {
    * */
   private Class<? extends ServerChannel> selectorServerChannel() {
     Class<? extends ServerChannel> channel = NioServerSocketChannel.class;
-    if (serverConfig.isNettyTransport()) {
+    if (serverConfig.isNativeTransport()) {
       if (OSInfo.isLinux()) {
         channel = EpollServerSocketChannel.class;
       } else if (OSInfo.isMacOS()) {
@@ -237,7 +237,7 @@ public class GrpcStartable implements ServerStartable {
 
   private EventLoopGroup selectorEventLoopGroup(int nThreads) {
     EventLoopGroup group = new NioEventLoopGroup(nThreads);
-    if (serverConfig.isNettyTransport()) {
+    if (serverConfig.isNativeTransport()) {
       if (OSInfo.isLinux()) {
         group = new EpollEventLoopGroup(nThreads);
       } else if (OSInfo.isMacOS()) {
