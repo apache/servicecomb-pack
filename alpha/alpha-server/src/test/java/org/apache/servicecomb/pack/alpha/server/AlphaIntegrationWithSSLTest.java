@@ -60,8 +60,7 @@ public class AlphaIntegrationWithSSLTest extends AlphaIntegrationTest {
       sslContext = GrpcSslContexts.forClient().sslProvider(SslProvider.OPENSSL)
           .protocols("TLSv1.2","TLSv1.1")
           .ciphers(Arrays.asList("ECDHE-RSA-AES128-GCM-SHA256",
-              "ECDHE-RSA-AES256-GCM-SHA384",
-              "ECDHE-ECDSA-AES128-SHA256"))
+              "ECDHE-RSA-AES256-GCM-SHA384"))
           .trustManager(new File(classLoader.getResource("ca.crt").getFile()))
           .keyManager(new File(classLoader.getResource("client.crt").getFile()),
               new File(classLoader.getResource("client.pem").getFile())).build();
