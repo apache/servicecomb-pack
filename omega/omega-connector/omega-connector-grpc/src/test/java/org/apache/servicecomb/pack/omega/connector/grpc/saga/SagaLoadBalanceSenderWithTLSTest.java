@@ -107,8 +107,7 @@ public class SagaLoadBalanceSenderWithTLSTest extends SagaLoadBalancedSenderTest
         new File(classLoader.getResource("server.pem").getFile()))
         .protocols("TLSv1.2","TLSv1.1")
         .ciphers(Arrays.asList("ECDHE-RSA-AES128-GCM-SHA256",
-            "ECDHE-RSA-AES256-GCM-SHA384",
-            "ECDHE-ECDSA-AES128-SHA256"));
+            "ECDHE-RSA-AES256-GCM-SHA384"));
 
       sslClientContextBuilder.trustManager(new File(classLoader.getResource("client.crt").getFile()));
       sslClientContextBuilder.clientAuth(ClientAuth.REQUIRE);
