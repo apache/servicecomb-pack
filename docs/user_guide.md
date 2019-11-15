@@ -815,7 +815,7 @@ Alpha can be highly available by deploying multiple instances, enable cluster su
 
 ## Native transports
 
-Alpha enabled JNI transports support with `alpha.feature.native=true`, These JNI transports add features specific to a particular platform, generate less garbage, and generally improve performance when compared to the NIO based transport.
+Alpha enabled JNI transports support with `alpha.feature.nativetransport=true`, These JNI transports add features specific to a particular platform, generate less garbage, and generally improve performance when compared to the NIO based transport.
 
 ## Experiment
 

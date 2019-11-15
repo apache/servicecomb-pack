@@ -72,7 +72,7 @@ java \
   --spring.datasource.password=saga-password \
   --spring.datasource.url="jdbc:postgresql://10.22.1.234:5432/saga?useSSL=false" \
   --spring.profile.active=prd \
-  --alpha.feature.native=true \
+  --alpha.feature.nativetransport=true \
   --alpha.feature.akka.enabled=true
 ```
 
@@ -104,7 +104,7 @@ java \
 集群场景
 
 * 使用5台服务器，分别部署2节点Alpha集群和3节点模拟客户端
-* 使用 Alpha 0.6.0 版本并开启 `alpha.feature.native=true` 参数
+* 使用 Alpha 0.6.0 版本并开启 `alpha.feature.nativetransport=true` 参数
 
 | 客户端 | 并发数 | 总耗时(s) | 平均耗时(ms) | 吞吐率 | 事务量 |
 | ------ | ------ | --------- | ---- | ------ | ---- |
