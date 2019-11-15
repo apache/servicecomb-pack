@@ -62,7 +62,7 @@
     <akka-persistence-redis.version>0.4.0</akka-persistence-redis.version>
     <rat.version>0.12</rat.version>
     <maven.failsafe.version>2.19.1</maven.failsafe.version>
-    <grpc.version>1.14.0</grpc.version>
+    <grpc.version>1.22.0</grpc.version>
     <kryo.version>4.0.1</kryo.version>
     <javax.transaction.version>1.2</javax.transaction.version>
     <eclipse.link.version>2.7.1</eclipse.link.version>
@@ -71,8 +71,8 @@
     <jaxb.version>2.3.0</jaxb.version>
     <javax.activation.version>1.1.1</javax.activation.version>
     <maven-dependency-plugin.version>3.0.2</maven-dependency-plugin.version>
-    <netty.boringssl.version>2.0.7.Final</netty.boringssl.version>
-    <netty.version>4.1.24.Final</netty.version>
+    <netty.boringssl.version>2.0.25.Final</netty.boringssl.version>
+    <netty.version>4.1.35.Final</netty.version>
     <zookeeper.version>3.4.13</zookeeper.version>
     <kafka.version>2.1.1</kafka.version>
     <hystrix.version>1.5.12</hystrix.version>
@@ -233,6 +233,18 @@
         <groupId>io.netty</groupId>
         <artifactId>netty-transport</artifactId>
         <version>${netty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-transport-native-kqueue</artifactId>
+        <version>${netty.version}</version>
+        <classifier>osx-x86_64</classifier>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-transport-native-epoll</artifactId>
+        <version>${netty.version}</version>
+        <classifier>linux-x86_64</classifier>
       </dependency>
       <dependency>
         <groupId>com.google.code.gson</groupId>
