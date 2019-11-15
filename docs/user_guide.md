@@ -813,6 +813,9 @@ Alpha can be highly available by deploying multiple instances, enable cluster su
 [src-TransactionClientHttpRequestInterceptor]: ../omega/omega-transport/omega-transport-resttemplate/src/main/java/org/apache/servicecomb/pack/omega/transport/resttemplate/TransactionClientHttpRequestInterceptor.java
 [src-TransactionHandlerInterceptor]: ../omega/omega-transport/omega-transport-resttemplate/src/main/java/org/apache/servicecomb/pack/omega/transport/resttemplate/TransactionHandlerInterceptor.java
 
+## Native transports
+
+Alpha enabled JNI transports support with `alpha.feature.native=true`, These JNI transports add features specific to a particular platform, generate less garbage, and generally improve performance when compared to the NIO based transport.
 
 ## Experiment
 
