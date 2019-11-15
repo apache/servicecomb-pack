@@ -20,6 +20,12 @@
 
 package org.apache.servicecomb.pack.alpha.server;
 
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.ServerChannel;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
+import io.netty.channel.kqueue.KQueueEventLoopGroup;
+import io.netty.channel.kqueue.KQueueServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import java.io.IOException;
@@ -103,9 +109,9 @@ public class GrpcStartable implements ServerStartable {
   private ServerBuilder getServerBuilder(int port) {
     return NettyServerBuilder.forAddress(
         new InetSocketAddress(serverConfig.getHost(), port))
-        .channelType(NioServerSocketChannel.class)
-        .bossEventLoopGroup(new NioEventLoopGroup(1))
-        .workerEventLoopGroup(new NioEventLoopGroup());
+        .channelType(selectorServerChannel())
+        .bossEventLoopGroup(selectorEventLoopGroup(1))
+        .workerEventLoopGroup(selectorEventLoopGroup(0));
   }
 
   private SslContextBuilder getSslContextBuilder(GrpcServerConfig config) {
@@ -200,6 +206,57 @@ public class GrpcStartable implements ServerStartable {
       return bindPort;
     }else{
       throw error[0];
+    }
+  }
+
+  /**
+   * https://netty.io/wiki/native-transports.html
+   *
+   * RHEL/CentOS/Fedora:
+   * sudo yum install autoconf automake libtool make tar \
+   *                  glibc-devel libaio-devel \
+   *                  libgcc.i686 glibc-devel.i686
+   * Debian/Ubuntu:
+   * sudo apt-get install autoconf automake libtool make tar \
+   *                      gcc-multilib libaio-dev
+   *
+   * brew install autoconf automake libtool
+   * */
+  private Class<? extends ServerChannel> selectorServerChannel() {
+    Class<? extends ServerChannel> channel = NioServerSocketChannel.class;
+    if (serverConfig.isNettyTransport()) {
+      if (OSInfo.isLinux()) {
+        channel = EpollServerSocketChannel.class;
+      } else if (OSInfo.isMacOS()) {
+        channel = KQueueServerSocketChannel.class;
+      }
+    }
+    LOG.info("Netty channel type is " + channel.getSimpleName());
+    return channel;
+  }
+
+  private EventLoopGroup selectorEventLoopGroup(int nThreads) {
+    EventLoopGroup group = new NioEventLoopGroup(nThreads);
+    if (serverConfig.isNettyTransport()) {
+      if (OSInfo.isLinux()) {
+        group = new EpollEventLoopGroup(nThreads);
+      } else if (OSInfo.isMacOS()) {
+        group = new KQueueEventLoopGroup(nThreads);
+      }
+    }
+    LOG.info("Netty event loop group is " + group.getClass().getSimpleName());
+    return group;
+  }
+
+  static class OSInfo {
+    private static String OS = System.getProperty("os.name").toLowerCase();
+
+    public static boolean isLinux() {
+      return OS.indexOf("linux") >= 0;
+    }
+
+    public static boolean isMacOS() {
+      return OS.indexOf("mac") >= 0;
     }
   }
 }
