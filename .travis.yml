@@ -28,6 +28,10 @@ cache:
   - "$HOME/.m2"
 language: java
 
+# SonarCloud give a warning if using shallow clone (default), so we disable it
+git:
+  depth: false
+  
 install: true
 jdk:
 - openjdk8
