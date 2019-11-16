@@ -79,9 +79,9 @@
     <openfeign.version>9.5.1</openfeign.version>
   </properties>
 
-  <name>ServiceComb Saga</name>
+  <name>Apache ServiceComb Pack</name>
   <description>Eventual consistency component for distributed systems</description>
-  <url>https://github.com/apache/servicecomb-saga</url>
+  <url>https://github.com/apache/servicecomb-pack</url>
 
   <licenses>
     <license>
