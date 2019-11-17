@@ -44,6 +44,10 @@
     <module>omega-format</module>
   </modules>
 
+  <properties>
+    <sonar.java.source>1.7</sonar.java.source>
+  </properties>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
