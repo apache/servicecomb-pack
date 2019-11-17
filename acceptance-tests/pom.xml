@@ -30,6 +30,7 @@
   <name>Pack:Acceptance Tests</name>
   <packaging>pom</packaging>
   <modules>
+    <module>acceptance-test-common</module>
     <module>acceptance-pack-dubbo-demo</module>
     <module>acceptance-pack-spring-demo</module>
     <module>acceptance-pack-tcc-spring-demo</module>
@@ -42,21 +43,79 @@
 
   <properties>
     <cucumber.version>2.3.1</cucumber.version>
+    <groovy.version>2.4.15</groovy.version>
     <info.service.uri>/actuator/info</info.service.uri>
   </properties>
 
+  <dependencyManagement>
+     <dependencies>
+       <dependency>
+         <groupId>io.cucumber</groupId>
+         <artifactId>cucumber-java8</artifactId>
+         <version>${cucumber.version}</version>
+         <scope>test</scope>
+       </dependency>
+       <dependency>
+         <groupId>io.cucumber</groupId>
+         <artifactId>cucumber-junit</artifactId>
+         <version>${cucumber.version}</version>
+         <scope>test</scope>
+       </dependency>
+       <dependency>
+         <groupId>org.jboss.byteman</groupId>
+         <artifactId>byteman-submit</artifactId>
+         <version>${byteman.version}</version>
+         <scope>test</scope>
+       </dependency>
+       <dependency>
+         <groupId>com.fasterxml.jackson.core</groupId>
+         <artifactId>jackson-core</artifactId>
+         <version>${jackson.version}</version>
+         <scope>test</scope>
+       </dependency>
+       <dependency>
+         <groupId>com.fasterxml.jackson.core</groupId>
+         <artifactId>jackson-databind</artifactId>
+         <version>${jackson.version}</version>
+         <scope>test</scope>
+       </dependency>
+       <dependency>
+         <groupId>org.codehaus.groovy</groupId>
+         <artifactId>groovy</artifactId>
+         <version>${groovy.version}</version>
+         <scope>test</scope>
+       </dependency>
+       <!-- Added the dependency version of acceptance-test-common -->
+       <dependency>
+         <groupId>org.apache.servicecomb.pack</groupId>
+         <artifactId>acceptance-test-common</artifactId>
+         <version>${project.version}</version>
+         <type>test-jar</type>
+         <scope>test</scope>
+       </dependency>
+     </dependencies>
+  </dependencyManagement>
+
   <dependencies>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.byteman</groupId>
+      <artifactId>byteman-submit</artifactId>
+    </dependency>
     <dependency>
       <groupId>io.cucumber</groupId>
       <artifactId>cucumber-java8</artifactId>
-      <version>${cucumber.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.cucumber</groupId>
       <artifactId>cucumber-junit</artifactId>
-      <version>${cucumber.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -65,27 +124,22 @@
     <dependency>
       <groupId>io.rest-assured</groupId>
       <artifactId>rest-assured</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-slf4j-impl</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.awaitility</groupId>
@@ -95,8 +149,58 @@
     <dependency>
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy</artifactId>
-      <version>2.4.15</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>jdk9</id>
+      <activation>
+        <jdk>[9,)</jdk>
+      </activation>
+      <!-- TODO using jdk argLine to get rid of the jaxb dependencies -->
+      <properties>
+        <jdk.argLine>--add-modules java.xml.bind</jdk.argLine>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>javax.xml.bind</groupId>
+          <artifactId>jaxb-api</artifactId>
+          <version>${jaxb.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>com.sun.xml.bind</groupId>
+          <artifactId>jaxb-impl</artifactId>
+          <version>${jaxb.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.glassfish.jaxb</groupId>
+          <artifactId>jaxb-runtime</artifactId>
+          <version>${jaxb.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>javax.activation</groupId>
+          <artifactId>activation</artifactId>
+          <version>${javax.activation.version}</version>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>

@@ -30,14 +30,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-      <version>${jackson.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>${jackson.version}</version>
+      <groupId>org.apache.servicecomb.pack</groupId>
+      <artifactId>acceptance-test-common</artifactId>
+      <type>test-jar</type>
     </dependency>
   </dependencies>
 

@@ -19,7 +19,6 @@ package org.apache.servicecomb.pack.acceptance.dubbodemo;
 
 import static io.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.Is.is;
 
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.apache.servicecomb.pack.StepDefSupport;
 import org.hamcrest.core.StringContains;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ import cucumber.api.DataTable;
 import cucumber.api.java.Before;
 import cucumber.api.java8.En;
 
-public class DubboDemoStepdefs implements En {
+public class DubboDemoStepdefs extends StepDefSupport {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private static final String ALPHA_REST_ADDRESS = "alpha.rest.address";
@@ -50,10 +50,6 @@ public class DubboDemoStepdefs implements En {
 
   private static final String SERVICEC_ADDRESS = "servicec.address";
 
-  private static final String INFO_SERVICE_URI = "info.service.uri";
-
-  private static final Consumer<Map<String, String>[]> NO_OP_CONSUMER = (dataMap) -> {
-  };
 
   public DubboDemoStepdefs() {
     Given("^ServiceA is up and running$", () -> probe(System.getProperty(SERVICEA_ADDRESS)));
@@ -76,9 +72,9 @@ public class DubboDemoStepdefs implements En {
     });
 
     Then("^Alpha records the following events$", (DataTable dataTable) -> {
-      Consumer<Map<String, Object>[]> sortAndColumnStrippingConsumer = dataMaps -> {
+      Consumer<Map<String, String>[]> sortAndColumnStrippingConsumer = dataMaps -> {
         //blur match: service for sagaEndedEvent may be unable to que
-        for (Map<String, Object> dataMap : dataMaps) {
+        for (Map<String, String> dataMap : dataMaps) {
           if (dataMap.values().contains("SagaEndedEvent")) {
             for (String key : dataMap.keySet()) {
               if ("SagaEndedEvent".equals(dataMap.get(key))) {
@@ -89,7 +85,7 @@ public class DubboDemoStepdefs implements En {
           }
         }
         //strip columns
-        for (Map<String, Object> map : dataMaps) {
+        for (Map<String, String> map : dataMaps) {
           map.keySet().retainAll(dataTable.topCells());
         }
       };
@@ -98,8 +94,8 @@ public class DubboDemoStepdefs implements En {
     });
 
     And("^(service[a-c]+) success update status$", (String serviceName, DataTable dataTable) -> {
-      Consumer<Map<String, Object>[]> columnStrippingConsumer = dataMap -> {
-        for (Map<String, Object> map : dataMap) {
+      Consumer<Map<String, String>[]> columnStrippingConsumer = dataMap -> {
+        for (Map<String, String> map : dataMap) {
           map.keySet().retainAll(dataTable.topCells());
         }
       };
@@ -120,56 +116,5 @@ public class DubboDemoStepdefs implements En {
         .statusCode(is(200));
   }
 
-  @SuppressWarnings("unchecked")
-  private void dataMatches(String address, DataTable dataTable, Consumer<Map<String, Object>[]> dataProcessor) {
-    List<Map<String, Object>> expectedMaps = dataTable.asMaps(String.class, Object.class);
-    List<Map<String, Object>> actualMaps = new ArrayList<>();
 
-    await().atMost(8, SECONDS).until(() -> {
-      actualMaps.clear();
-      Collections.addAll(actualMaps, retrieveDataMaps(address, dataProcessor));
-
-      return expectedMaps.size() == actualMaps.size();
-    });
-
-    if (expectedMaps.isEmpty() && actualMaps.isEmpty()) {
-      return;
-    }
-
-    LOG.info("Retrieved data {} from service", actualMaps);
-    dataTable.unorderedDiff(DataTable.create(actualMaps));
-  }
-
-  @SuppressWarnings("unchecked")
-  private Map<String, Object>[] retrieveDataMaps(String address, Consumer<Map<String, Object>[]> dataProcessor) {
-    Map<String, Object>[] dataMap = given()
-        .when()
-        .get(address)
-        .then()
-        .statusCode(is(200))
-        .extract()
-        .body()
-        .as(Map[].class);
-
-    dataProcessor.accept(dataMap);
-    return dataMap;
-  }
-
-  private void probe(String address) {
-    String infoURI = System.getProperty(INFO_SERVICE_URI);
-    if (isEmpty(infoURI)) {
-      infoURI = "/info";
-    }
-    LOG.info("The info service uri is " + infoURI);
-    probe(address, infoURI);
-  }
-
-  private void probe(String address, String infoURI) {
-    LOG.info("Connecting to service address {}", address);
-    given()
-        .when()
-        .get(address + infoURI)
-        .then()
-        .statusCode(is(200));
-  }
 }

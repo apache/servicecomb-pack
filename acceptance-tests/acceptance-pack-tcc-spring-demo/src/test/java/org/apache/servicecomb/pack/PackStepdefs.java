@@ -18,15 +18,9 @@
 package org.apache.servicecomb.pack;
 
 import static io.restassured.RestAssured.given;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.Is.is;
 
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -36,9 +30,9 @@ import org.slf4j.LoggerFactory;
 import io.restassured.response.Response;
 import cucumber.api.DataTable;
 import cucumber.api.java.After;
-import cucumber.api.java8.En;
 
-public class PackStepdefs implements En {
+
+public class PackStepdefs extends StepDefSupport {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private static final String ALPHA_REST_ADDRESS = "alpha.rest.address";
@@ -47,12 +41,8 @@ public class PackStepdefs implements En {
   private static final String ORDERING_SERVICE_ADDRESS = "ordering.service.address";
   private static final String INVENTORY_ORDERS_URI = "/orderings";
   private static final String PAYMENT_ORDERS_URI = "/transactions";
-  private static final String INFO_SERVICE_URI = "info.service.uri";
   private static final String[] addresses = {INVENTORY_SERVICE_ADDRESS, PAYMENT_SERVICE_ADDRESS};
   private static final String[] uris = {INVENTORY_ORDERS_URI, PAYMENT_ORDERS_URI};
-
-  private static final Consumer<Map<String, String>[]> NO_OP_CONSUMER = (dataMap) -> {
-  };
 
   public PackStepdefs() {
     Given("^Inventory Service is up and running$", () -> {
@@ -128,62 +118,4 @@ public class PackStepdefs implements En {
         .statusCode(is(200));
 
   }
-
-  @SuppressWarnings("unchecked")
-  private void dataMatches(String address, DataTable dataTable, Consumer<Map<String, String>[]> dataProcessor) {
-    List<Map<String, String>> expectedMaps = dataTable.asMaps(String.class, String.class);
-    List<Map<String, String>> actualMaps = new ArrayList<>();
-
-    await().atMost(5, SECONDS).until(() -> {
-      actualMaps.clear();
-      Collections.addAll(actualMaps, retrieveDataMaps(address, dataProcessor));
-      // write the log if the Map size is not same
-      boolean result = expectedMaps.size() == actualMaps.size();
-      if (!result) {
-        LOG.warn("The response message size is not we expected. ExpectedMap size is {},  ActualMap size is {}", expectedMaps.size(), actualMaps.size());
-      }
-      return expectedMaps.size() == actualMaps.size();
-    });
-
-    if (expectedMaps.isEmpty() && actualMaps.isEmpty()) {
-      return;
-    }
-
-    LOG.info("Retrieved data {} from service", actualMaps);
-    dataTable.diff(DataTable.create(actualMaps));
-  }
-
-  @SuppressWarnings("unchecked")
-  private Map<String, String>[] retrieveDataMaps(String address, Consumer<Map<String, String>[]> dataProcessor) {
-    Map<String, String>[] dataMap = given()
-        .when()
-        .get(address)
-        .then()
-        .statusCode(is(200))
-        .extract()
-        .body()
-        .as(Map[].class);
-
-    dataProcessor.accept(dataMap);
-    return dataMap;
-  }
-
-  private void probe(String address) {
-    String infoURI = System.getProperty(INFO_SERVICE_URI);
-    if (isEmpty(infoURI)) {
-      infoURI = "/info";
-    }
-    LOG.info("The info service uri is " + infoURI);
-    probe(address, infoURI);
-  }
-
-  private void probe(String address, String infoURI) {
-    LOG.info("Connecting to service address {}", address);
-    given()
-        .when()
-        .get(address + infoURI)
-        .then()
-        .statusCode(is(200));
-  }
-
 }
