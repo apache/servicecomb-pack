@@ -38,30 +38,30 @@ public class APIv1Controller {
   APIv1Impl APIv1Impl;
 
   @GetMapping(value = "/metrics")
-  ResponseEntity<AlphaMetrics> metrics() {
+  public ResponseEntity<AlphaMetrics> metrics() {
     return ResponseEntity.ok(APIv1Impl.getMetrics());
   }
 
   @GetMapping(value = "/transaction/{globalTxId}")
-  ResponseEntity<GlobalTransaction> getTransactionByGlobalTxId(@PathVariable String globalTxId)
+  public ResponseEntity<GlobalTransaction> getTransactionByGlobalTxId(@PathVariable String globalTxId)
       throws Exception {
     return ResponseEntity.ok(APIv1Impl.getTransactionByGlobalTxId(globalTxId));
   }
 
   @GetMapping(value = "/transaction")
-  ResponseEntity<PagingGlobalTransactions> getTransactions(@RequestParam(value = "page", required = false, defaultValue = "0") int page,
+  public ResponseEntity<PagingGlobalTransactions> getTransactions(@RequestParam(value = "page", required = false, defaultValue = "0") int page,
       @RequestParam(value = "size", required = false, defaultValue = "50") int size)
       throws Exception {
     return ResponseEntity.ok(APIv1Impl.getTransactions(null,page,size));
   }
 
   @GetMapping(value = "/transaction/statistics")
-  ResponseEntity<Map<String,Long>> getTransactionStatistics() {
+  public ResponseEntity<Map<String,Long>> getTransactionStatistics() {
     return ResponseEntity.ok(APIv1Impl.getTransactionStatistics());
   }
 
   @GetMapping(value = "/transaction/slow")
-  ResponseEntity<List<GlobalTransaction>> getSlowTransactions(@RequestParam(name="size", defaultValue = "10") int size) {
+  public ResponseEntity<List<GlobalTransaction>> getSlowTransactions(@RequestParam(name="size", defaultValue = "10") int size) {
     return ResponseEntity.ok(APIv1Impl.getSlowTransactions(size));
   }
 }
