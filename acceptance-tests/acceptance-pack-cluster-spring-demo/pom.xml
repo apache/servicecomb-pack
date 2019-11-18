@@ -106,11 +106,11 @@
                     </env>
                     <wait>
                       <log>database system is ready to accept connections</log>
-                      <tcp>
+                      <!--tcp>
                         <ports>
                           <port>5432</port>
                         </ports>
-                      </tcp>
+                      </tcp-->
                       <time>60000</time>
                     </wait>
                     <ports>
@@ -136,12 +136,12 @@
                     </links>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
-                      <tcp>
+                      <!--tcp>
                         <ports>
                           <port>8080</port>
                           <port>8090</port>
                         </ports>
-                      </tcp>
+                      </tcp-->
                       <time>120000</time>
                     </wait>
                     <ports>
@@ -172,12 +172,12 @@
                     </links>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
-                      <tcp>
+                      <!--tcp>
                         <ports>
                           <port>8081</port>
                           <port>8091</port>
                         </ports>
-                      </tcp>
+                      </tcp-->
                       <time>120000</time>
                     </wait>
                     <ports>
@@ -202,12 +202,12 @@
                     </env>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
-                      <tcp>
+                      <!--tcp>
                         <ports>
                           <port>8080</port>
                           <port>9092</port>
                         </ports>
-                      </tcp>
+                      </tcp-->
                       <time>120000</time>
                     </wait>
                     <links>
@@ -237,12 +237,12 @@
                     </env>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
-                      <tcp>
+                      <!--tcp>
                         <ports>
                           <port>8080</port>
                           <port>9093</port>
                         </ports>
-                      </tcp>
+                      </tcp-->
                       <time>120000</time>
                     </wait>
                     <links>
@@ -273,12 +273,12 @@
                     </env>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
-                      <tcp>
+                      <!--tcp>
                         <ports>
                           <port>8080</port>
                           <port>9091</port>
                         </ports>
-                      </tcp>
+                      </tcp-->
                       <time>120000</time>
                     </wait>
                     <links>
