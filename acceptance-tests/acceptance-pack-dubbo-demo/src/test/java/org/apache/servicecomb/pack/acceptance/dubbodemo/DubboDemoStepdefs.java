@@ -90,7 +90,7 @@ public class DubboDemoStepdefs extends StepDefSupport {
         }
       };
 
-      dataMatches(System.getProperty(ALPHA_REST_ADDRESS) + "/saga/events", dataTable, sortAndColumnStrippingConsumer);
+      dataMatches(System.getProperty(ALPHA_REST_ADDRESS) + "/saga/events", dataTable, sortAndColumnStrippingConsumer, false);
     });
 
     And("^(service[a-c]+) success update status$", (String serviceName, DataTable dataTable) -> {
@@ -101,7 +101,7 @@ public class DubboDemoStepdefs extends StepDefSupport {
       };
 
       dataMatches(System.getProperty(SERVICEA_ADDRESS) + "/serviceInfo/" + serviceName, dataTable,
-          columnStrippingConsumer);
+          columnStrippingConsumer, false);
     });
   }
 

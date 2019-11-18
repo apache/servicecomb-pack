@@ -50,6 +50,10 @@ public class StepDefSupport implements En {
   };
 
   protected void dataMatches(String address, DataTable dataTable, Consumer<Map<String, String>[]> dataProcessor) {
+    dataMatches(address, dataTable, dataProcessor, true);
+  }
+
+  protected void dataMatches(String address, DataTable dataTable, Consumer<Map<String, String>[]> dataProcessor, boolean checkOrder) {
     List<Map<String, String>> expectedMaps = dataTable.asMaps(String.class, String.class);
     List<Map<String, String>> actualMaps = new ArrayList<>();
 
@@ -69,7 +73,11 @@ public class StepDefSupport implements En {
     }
 
     LOG.info("Retrieved data {} from service", actualMaps);
-    dataTable.diff(DataTable.create(actualMaps));
+    if (checkOrder) {
+      dataTable.diff(DataTable.create(actualMaps));
+    } else {
+      dataTable.unorderedDiff(DataTable.create(actualMaps));
+    }
   }
 
   @SuppressWarnings("unchecked")
