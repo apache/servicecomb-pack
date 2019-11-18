@@ -41,21 +41,16 @@ import cucumber.api.DataTable;
 import cucumber.api.java.After;
 import cucumber.api.java8.En;
 
-public class PackStepdefs implements En {
+public class PackStepdefs extends StepDefSupport {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private static final String ALPHA_REST_ADDRESS = "alpha.rest.address";
   private static final String CAR_SERVICE_ADDRESS = "car.service.address";
   private static final String HOTEL_SERVICE_ADDRESS = "hotel.service.address";
   private static final String BOOKING_SERVICE_ADDRESS = "booking.service.address";
-  private static final String INFO_SERVICE_URI = "info.service.uri";
   private static final String[] addresses = {CAR_SERVICE_ADDRESS, HOTEL_SERVICE_ADDRESS};
 
-  private static final Consumer<Map<String, String>[]> NO_OP_CONSUMER = (dataMap) -> {
-  };
-
   private static AlpahClusterAddress alphaClusterAddress;
-  private static final Map<String, Submit> submits = new HashMap<>();
 
   @Before
   public void before() {
@@ -151,132 +146,6 @@ public class PackStepdefs implements En {
         bm.deleteAllRules();
       } catch (Exception e) {
         LOG.warn("Fail to delete the byteman rules " + e);
-      }
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  private void dataMatches(String address, DataTable dataTable, Consumer<Map<String, String>[]> dataProcessor) {
-    List<Map<String, String>> expectedMaps = dataTable.asMaps(String.class, String.class);
-    List<Map<String, String>> actualMaps = new ArrayList<>();
-
-    await().atMost(5, SECONDS).until(() -> {
-      actualMaps.clear();
-      Collections.addAll(actualMaps, retrieveDataMaps(address, dataProcessor));
-      // write the log if the Map size is not same
-      boolean result = expectedMaps.size() == actualMaps.size();
-      if (!result) {
-        LOG.warn("The response message size is not we expected. ExpectedMap size is {},  ActualMap size is {}", expectedMaps.size(), actualMaps.size());
-      }
-      return expectedMaps.size() == actualMaps.size();
-    });
-
-    if (expectedMaps.isEmpty() && actualMaps.isEmpty()) {
-      return;
-    }
-
-    LOG.info("Retrieved data {} from service", actualMaps);
-    dataTable.diff(DataTable.create(actualMaps));
-  }
-
-  @SuppressWarnings("unchecked")
-  private Map<String, String>[] retrieveDataMaps(String address, Consumer<Map<String, String>[]> dataProcessor) {
-    Map<String, String>[] dataMap = given()
-        .when()
-        .get(address)
-        .then()
-        .statusCode(is(200))
-        .extract()
-        .body()
-        .as(Map[].class);
-
-    dataProcessor.accept(dataMap);
-    return dataMap;
-  }
-
-  private void probe(String address) {
-    String infoURI = System.getProperty(INFO_SERVICE_URI);
-    if (isEmpty(infoURI)) {
-      infoURI = "/info";
-    }
-    LOG.info("The info service uri is " + infoURI);
-    probe(address, infoURI);
-  }
-
-  private void probe(String address, String infoURI) {
-    LOG.info("Connecting to service address {}", address);
-    given()
-        .when()
-        .get(address + infoURI)
-        .then()
-        .statusCode(is(200));
-  }
-
-  private void probeAlphaMaster(AlpahClusterAddress alphaClusterAddress) {
-    LOG.info("Check to Alpah Master server");
-    assertNotNull(alphaClusterAddress.getMasterAddress());
-  }
-
-  private Submit getBytemanSubmit(String service) {
-    if (submits.containsKey(service)) {
-      return submits.get(service);
-    } else {
-      String address = System.getProperty("byteman.address");
-      String port = System.getProperty(service.toLowerCase() + ".byteman.port");
-      Submit bm = new Submit(address, Integer.parseInt(port));
-      submits.put(service, bm);
-      return bm;
-    }
-  }
-
-  class AlpahClusterAddress {
-
-    private List<String> addresss;
-
-    private int maxRetry=6;
-
-    AlpahClusterAddress(String address) {
-      this.addresss = Arrays.asList(address.split(","));
-    }
-
-    public List<String> getAddresss() {
-      return addresss;
-    }
-
-    // get the master node in the alpha server cluster
-    public String getMasterAddress() {
-      Predicate<String> matchMasterNode =
-              endpoint -> matches(endpoint::toString, ofNullable("MASTER"));
-      Optional<String> masterAddress = Optional.empty();
-      int retryCounter = 0;
-      while(!masterAddress.isPresent() && retryCounter<maxRetry){
-        masterAddress = addresss.stream().filter(matchMasterNode).findAny();
-        try {
-          Thread.sleep(1000);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-        retryCounter++;
-      }
-      if(masterAddress.isPresent()){
-        return masterAddress.get();
-      }else{
-        throw new RuntimeException("Max retries exception!");
-      }
-    }
-
-    private <T> boolean matches(Supplier<T> supplier, Optional<String> value) {
-      try{
-        String nodeType = given().get(supplier.get() + "/alpha/api/v1/metrics").jsonPath().getString("nodeType");
-        LOG.info("Check alpha server {} nodeType is {}",supplier.get(),nodeType);
-        if (value.get().equalsIgnoreCase(nodeType)) {
-          return true;
-        } else {
-          return false;
-        }
-      }catch (Exception ex){
-        LOG.info("Check alpha server {} nodeType fail, {}",supplier.get(),ex.getMessage());
-        return false;
       }
     }
   }
