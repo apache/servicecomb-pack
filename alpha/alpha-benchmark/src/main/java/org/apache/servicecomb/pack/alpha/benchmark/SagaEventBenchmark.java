@@ -118,7 +118,7 @@ public class SagaEventBenchmark {
       try {
         end.await();
       } catch (InterruptedException e) {
-        e.printStackTrace();
+          LOG.error("warmUp Exception = [{}]", e.getMessage(), e);
       }
     }
 
