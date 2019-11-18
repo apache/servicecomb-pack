@@ -48,7 +48,7 @@ public class SagaTransactionsController {
   }
 
   @GetMapping(value = "/stats")
-  ResponseEntity<Stats> getStats() {
+  public ResponseEntity<Stats> getStats() {
         /*
         This function gives returns the count of the transactions listed below
         1. Total Transactions
@@ -77,7 +77,7 @@ public class SagaTransactionsController {
 
 
   @GetMapping(value = "/recent")
-  ResponseEntity<Collection<SagaTransactionsController.TxEventVo>> recentTransactions(
+  public ResponseEntity<Collection<SagaTransactionsController.TxEventVo>> recentTransactions(
       @RequestParam(name = "status") String status, @RequestParam(name = "count") int count) {
         /*
         This will return the list of recent transactions
@@ -131,7 +131,7 @@ public class SagaTransactionsController {
   }
 
   @GetMapping(value = "/transactions")
-  ResponseEntity<Collection<SagaTransactionsController.TxEventVo>> getTransactions(
+  public ResponseEntity<Collection<SagaTransactionsController.TxEventVo>> getTransactions(
       @RequestParam(name = "status") String status) {
         /*
         This will return the list of transactions with pagination enabled.
@@ -195,7 +195,7 @@ public class SagaTransactionsController {
   }
   
   @GetMapping(value = "/findTransactions")
-  ResponseEntity<Collection<SagaTransactionsController.TxEventVo>> findTransactions(
+  public ResponseEntity<Collection<SagaTransactionsController.TxEventVo>> findTransactions(
       @RequestParam(required = false, name = "globalTxID") Object globalTxID,
       @RequestParam(required = false, name = "microServiceName") String microServiceName) {
         /*

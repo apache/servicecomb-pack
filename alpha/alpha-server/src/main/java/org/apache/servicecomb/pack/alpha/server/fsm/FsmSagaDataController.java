@@ -52,7 +52,7 @@ class FsmSagaDataController {
   ActorSystem system;
 
   @GetMapping(value = "/events/last")
-  ResponseEntity<Collection<Map>> events() {
+  public ResponseEntity<Collection<Map>> events() {
     LOG.info("Get the events request");
     List<Map> eventVos = new LinkedList<>();
     SagaData data = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
@@ -70,7 +70,7 @@ class FsmSagaDataController {
   }
 
   @DeleteMapping("/events")
-  ResponseEntity<String> clear() {
+  public ResponseEntity<String> clear() {
     return ResponseEntity.ok("All events deleted");
   }
 

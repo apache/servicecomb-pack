@@ -49,7 +49,7 @@ class AlphaEventController {
   }
 
   @GetMapping(value = "/events")
-  ResponseEntity<Collection<TxEventVo>> events() {
+  public ResponseEntity<Collection<TxEventVo>> events() {
     LOG.info("Get the events request");
     Iterable<TxEvent> events = eventRepository.findAll();
 
@@ -61,7 +61,7 @@ class AlphaEventController {
   }
 
   @DeleteMapping("/events")
-  ResponseEntity<String> clear() {
+  public ResponseEntity<String> clear() {
     eventRepository.deleteAll();
     return ResponseEntity.ok("All events deleted");
   }

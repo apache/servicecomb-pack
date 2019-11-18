@@ -50,7 +50,7 @@ public class AlphaTccEventController {
   }
 
   @GetMapping(value = "/events")
-  ResponseEntity<Collection<TccTxEventVo>> events() {
+  public ResponseEntity<Collection<TccTxEventVo>> events() {
     LOG.info("Get the events request");
     Iterable<TccTxEvent> events = tccTxEventRepository.findAll();
 
@@ -62,7 +62,7 @@ public class AlphaTccEventController {
   }
 
   @DeleteMapping("/events")
-  ResponseEntity<String> clear() {
+  public ResponseEntity<String> clear() {
    tccTxEventRepository.deleteAll();
     return ResponseEntity.ok("All events deleted");
   }
