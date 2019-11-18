@@ -253,10 +253,10 @@
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
                       <!--tcp>
-                        <!--ports>
+                        <ports>
                           <port>8080</port>
                           <port>9091</port>
-                        </ports-->
+                        </ports>
                       <tcp-->
                       <time>120000</time>
                     </wait>
