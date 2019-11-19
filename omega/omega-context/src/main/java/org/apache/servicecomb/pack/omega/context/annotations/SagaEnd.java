@@ -16,12 +16,20 @@
  */
 package org.apache.servicecomb.pack.omega.context.annotations;
 
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
 /**
  * Indicates once the annotated method is finished, it will end a saga.
  * Please note:
  *  You need to set the attribute of @SagaStart autoClose to be false，
  *  then you can end the Saga transaction as you want with this SagaEnd annotation.
  */
-public class SagaEnd {
+@Retention(RUNTIME)
+@Target(METHOD)
+public @interface SagaEnd {
 
 }
