@@ -74,6 +74,7 @@ public class GrpcOnErrorHandler {
           }
           return messageSender;
         } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
           throw new OmegaException("Failed to get reconnected sender", e);
         }
       }

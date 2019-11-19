@@ -67,6 +67,7 @@ public class RetryableMessageSender implements SagaMessageSender {
     try {
       return ((SagaMessageSender)availableMessageSenders.take()).send(event);
     } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
       throw new OmegaException("Failed to send event " + event + " due to interruption", e);
     }
   }
