@@ -46,6 +46,7 @@
                     <port>8080</port>
                   </ports>
                   <assembly>
+                    <tarLongFileMode>posix</tarLongFileMode>
                     <mode>tar</mode>
                     <descriptor>${root.basedir}/docker-build-config/assembly/assembly.xml
                     </descriptor>
