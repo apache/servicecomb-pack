@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.servicecomb.pack.alpha.ui.vo.SystemInfoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.MetricsEndpoint;
+import org.springframework.boot.actuate.metrics.MetricsEndpoint.MetricResponse;
 import org.springframework.boot.actuate.metrics.MetricsEndpoint.Sample;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
@@ -86,10 +87,11 @@ public class IndexController implements ErrorController {
         metricsEndpoint.metric("system.cpu.count", null).getMeasurements().get(0).getValue()
             .intValue());
 
-    //system load
-    systemInfoDTO.setSystemLoad(Math.round(
-        metricsEndpoint.metric("system.load.average.1m", null).getMeasurements().get(0).getValue()
-            .floatValue() * 100) / (float)100);
+    //system load window os not support
+    MetricResponse metricResponse = metricsEndpoint.metric("system.load.average.1m", null);
+    if (metricResponse != null) {
+      systemInfoDTO.setSystemLoad(Math.round(metricResponse.getMeasurements().get(0).getValue().floatValue() * 100) / (float) 100);
+    }
 
     //thread
     systemInfoDTO.setThreadsLive(
