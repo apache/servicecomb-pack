@@ -17,7 +17,6 @@
 
 package org.apache.servicecomb.pack.omega.transaction.wrapper;
 
-import java.lang.invoke.MethodHandles;
 import java.nio.channels.ClosedByInterruptException;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.transaction.AbstractRecoveryPolicy;
@@ -26,8 +25,6 @@ import org.apache.servicecomb.pack.omega.transaction.OmegaException;
 import org.apache.servicecomb.pack.omega.transaction.TransactionTimeoutException;
 import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * RecoveryPolicy Wrapper
@@ -45,61 +42,11 @@ import org.slf4j.LoggerFactory;
 
 public class RecoveryPolicyTimeoutWrapper {
 
-  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  //private static RecoveryPolicyTimeoutWrapper instance = new RecoveryPolicyTimeoutWrapper();
   private AbstractRecoveryPolicy recoveryPolicy;
-  //private final transient Set<TimeoutProb> timeoutProbs = new ConcurrentSkipListSet<TimeoutProb>();
-
-//  public static RecoveryPolicyTimeoutWrapper getInstance() {
-//    return instance;
-//  }
 
   public RecoveryPolicyTimeoutWrapper(AbstractRecoveryPolicy recoveryPolicy) {
     this.recoveryPolicy = recoveryPolicy;
-//    this.interrupter.scheduleWithFixedDelay(
-//        new Runnable() {
-//          @Override
-//          public void run() {
-//            try {
-//              RecoveryPolicyTimeoutWrapper.this.interrupt();
-//            } catch (Exception e) {
-//              LOG.error("The overtime thread interrupt fail",e);
-//            }
-//          }
-//        },
-//        0, delay, TimeUnit.MICROSECONDS
-//    );
   }
-
-  /**
-   * Configuration timeout probe thread
-   */
-//  private final transient ScheduledExecutorService interrupter =
-//      Executors.newSingleThreadScheduledExecutor(
-//          new TimeoutProbeThreadFactory()
-//      );
-
-  /**
-   * Loop detection of all thread timeout probes, remove probe if the thread has terminated
-   */
-//  private void interrupt() {
-//    synchronized (this.interrupter) {
-//      for (TimeoutProb timeoutProb : this.timeoutProbs) {
-//        if (timeoutProb.interruptFailureException == null) {
-//          if (timeoutProb.expired()) {
-//            if (timeoutProb.interrupted()) {
-//              this.timeoutProbs.remove(timeoutProb);
-//            }
-//          }
-//        }
-//      }
-//    }
-//  }
-
-//  public RecoveryPolicyTimeoutWrapper wrapper(AbstractRecoveryPolicy recoveryPolicy) {
-//    this.recoveryPolicy = recoveryPolicy;
-//    return this;
-//  }
 
   public Object applyTo(ProceedingJoinPoint joinPoint, Compensable compensable,
       CompensableInterceptor interceptor, OmegaContext context, String parentTxId, int retries)
@@ -137,86 +84,4 @@ public class RecoveryPolicyTimeoutWrapper {
     }
     return output;
   }
-
-  /**
-   * Define timeout probe
-   */
-//  private static final class TimeoutProb implements
-//      Comparable<TimeoutProb> {
-//
-//    private final transient Thread thread = Thread.currentThread();
-//    private final transient long startTime = System.currentTimeMillis();
-//    private final transient long expireTime;
-//    private Exception interruptFailureException = null;
-//    private final transient ProceedingJoinPoint joinPoint;
-//
-//    public TimeoutProb(final ProceedingJoinPoint pnt, Compensable compensable) {
-//      this.joinPoint = pnt;
-//      this.expireTime = this.startTime + TimeUnit.SECONDS.toMillis(compensable.timeout());
-//    }
-//
-//    @Override
-//    public int compareTo(final TimeoutProb obj) {
-//      int compare;
-//      if (this.expireTime > obj.expireTime) {
-//        compare = 1;
-//      } else if (this.expireTime < obj.expireTime) {
-//        compare = -1;
-//      } else {
-//        compare = 0;
-//      }
-//      return compare;
-//    }
-//
-//    public Exception getInterruptFailureException() {
-//      return interruptFailureException;
-//    }
-//
-//    /**
-//     *
-//     * @return Returns TRUE if expired
-//     */
-//    public boolean expired() {
-//      return this.expireTime < System.currentTimeMillis();
-//    }
-//
-//    /**
-//     * Interrupt thread
-//     *
-//     * @return Returns TRUE if the thread has been interrupted
-//     */
-//    public boolean interrupted() {
-//      boolean interrupted;
-//      if (this.thread.isAlive()) {
-//        // 如果当前线程是活动状态，则发送线程中断信号
-//        try {
-//          this.thread.interrupt();
-//        } catch (Exception e) {
-//          this.interruptFailureException = e;
-//          LOG.info("Failed to interrupt the thread " + this.thread.getName(), e);
-//          throw e;
-//        }
-//        final Method method = MethodSignature.class.cast(this.joinPoint.getSignature()).getMethod();
-//        LOG.warn("{}: interrupted on {}ms timeout (over {}ms)",
-//            new Object[]{method, System.currentTimeMillis() - this.startTime,
-//                this.expireTime - this.startTime}
-//        );
-//        interrupted = false;
-//      } else {
-//        interrupted = true;
-//      }
-//      return interrupted;
-//    }
-//  }
-//
-//  public class TimeoutProbeThreadFactory implements ThreadFactory {
-//
-//    public Thread newThread(Runnable runnable) {
-//      Thread thread = new Thread(new ThreadGroup("recovery-policy-timeout-wrapper"), runnable,
-//          "probe");
-//      thread.setPriority(Thread.MAX_PRIORITY);
-//      thread.setDaemon(true);
-//      return thread;
-//    }
-//  }
 }
