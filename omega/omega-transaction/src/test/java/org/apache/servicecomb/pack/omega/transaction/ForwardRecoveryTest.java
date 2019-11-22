@@ -44,8 +44,12 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ForwardRecoveryTest {
+  public static final Logger logger = LoggerFactory.getLogger(ForwardRecoveryTest.class);
+
   private final List<TxEvent> messages = new ArrayList<>();
 
   private final String globalTxId = UUID.randomUUID().toString();
@@ -153,8 +157,13 @@ public class ForwardRecoveryTest {
       //Sometimes thrown interrupt exception with CI
       assertThat(e.getMessage(), anyOf(containsString("oops"),
           containsString("Failed to handle tx because it is interrupted")));
+      logger.error("Exception = [{}]", e.getMessage(), e);
     }
 
+    logger.info("messages size = [{}] messages = [{}]", messages.size(), messages);
+    messages.forEach(message -> {
+      logger.info("element message = [{}]", message);
+    });
     assertThat(messages.size(), is(4));
     assertThat(messages.get(0).type(), is(EventType.TxStartedEvent));
     assertThat(messages.get(1).type(), is(EventType.TxAbortedEvent));
