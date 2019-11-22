@@ -66,7 +66,6 @@ public class ForwardRecovery extends DefaultRecovery {
         }
       }
     } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
       String errorMessage = "Failed to handle tx because it is interrupted, global tx id: " + context.globalTxId()
           + ", local tx id: " + context.localTxId() + ", method: " + method.toString();
       LOG.error(errorMessage);
