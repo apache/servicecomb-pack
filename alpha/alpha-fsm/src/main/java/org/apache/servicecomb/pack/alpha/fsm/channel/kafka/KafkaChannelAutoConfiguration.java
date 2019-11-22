@@ -111,7 +111,9 @@ public class KafkaChannelAutoConfiguration {
             .createTopics(Collections.singleton(newTopic));
         createTopicsResult.values().get(topic).get();
       } catch (InterruptedException | ExecutionException e) {
-        Thread.currentThread().interrupt();
+        if(e.getCause() instanceof InterruptedException) {
+          Thread.currentThread().interrupt();
+        }
         if (!(e.getCause() instanceof TopicExistsException)) {
           throw new RuntimeException(e.getMessage(), e);
         }
