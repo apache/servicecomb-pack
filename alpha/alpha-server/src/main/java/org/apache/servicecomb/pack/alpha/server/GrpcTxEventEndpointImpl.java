@@ -22,6 +22,7 @@ package org.apache.servicecomb.pack.alpha.server;
 
 import static java.util.Collections.emptyMap;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,9 +38,12 @@ import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.apache.servicecomb.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceImplBase;
 
 import io.grpc.stub.StreamObserver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
 
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private static final GrpcAck ALLOW = GrpcAck.newBuilder().setAborted(false).build();
   private static final GrpcAck REJECT = GrpcAck.newBuilder().setAborted(true).build();
 
@@ -56,10 +60,29 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
   }
 
   @Override
-  public void onConnected(GrpcServiceConfig request, StreamObserver<GrpcCompensateCommand> responseObserver) {
-    omegaCallbacks
-        .computeIfAbsent(request.getServiceName(), key -> new ConcurrentHashMap<>())
-        .put(request.getInstanceId(), new GrpcOmegaCallback(responseObserver));
+  public StreamObserver<GrpcServiceConfig> onConnected(StreamObserver<GrpcCompensateCommand> responseObserver) {
+    return new StreamObserver<GrpcServiceConfig>() {
+      @Override
+      public void onNext(GrpcServiceConfig grpcServiceConfig) {
+        omegaCallbacks
+            .computeIfAbsent(grpcServiceConfig.getServiceName(), key -> new ConcurrentHashMap<>())
+            .put(grpcServiceConfig.getInstanceId(), new GrpcOmegaCallback(responseObserver));
+        // Respond to Omega connection request
+        responseObserver.onNext(GrpcCompensateCommand.newBuilder()
+            .setConnectedResponse(true)
+            .build());
+      }
+
+      @Override
+      public void onError(Throwable throwable) {
+        LOG.error(throwable.getMessage());
+      }
+
+      @Override
+      public void onCompleted() {
+        // Do nothing here
+      }
+    };
   }
 
   // TODO: 2018/1/5 connect is async and disconnect is sync, meaning callback may not be registered on disconnected
