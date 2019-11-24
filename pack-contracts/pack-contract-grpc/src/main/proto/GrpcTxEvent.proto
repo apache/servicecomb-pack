@@ -24,7 +24,7 @@ option java_outer_classname = "TxEventProto";
 import "GrpcCommon.proto";
 
 service TxEventService {
-  rpc OnConnected (GrpcServiceConfig) returns (stream GrpcCompensateCommand) {
+  rpc OnConnected (stream GrpcServiceConfig) returns (stream GrpcCompensateCommand) {
   }
   rpc OnTxEvent (GrpcTxEvent) returns (GrpcAck) {}
   rpc OnDisconnected (GrpcServiceConfig) returns (GrpcAck) {
@@ -53,5 +53,6 @@ message GrpcCompensateCommand {
   string parentTxId = 3;
   string compensationMethod = 4;
   bytes payloads = 5;
+  bool connectedResponse = 6;
 }
 
