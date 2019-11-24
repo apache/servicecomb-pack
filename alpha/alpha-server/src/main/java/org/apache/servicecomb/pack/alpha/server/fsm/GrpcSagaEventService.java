@@ -54,11 +54,32 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
   }
 
   @Override
-  public void onConnected(
-      GrpcServiceConfig request, StreamObserver<GrpcCompensateCommand> responseObserver) {
-    omegaCallbacks
-        .computeIfAbsent(request.getServiceName(), key -> new ConcurrentHashMap<>())
-        .put(request.getInstanceId(), new GrpcOmegaCallback(responseObserver));
+  public StreamObserver<GrpcServiceConfig> onConnected(StreamObserver<GrpcCompensateCommand> responseObserver) {
+    return new StreamObserver<GrpcServiceConfig>(){
+
+      private GrpcOmegaCallback grpcOmegaCallback;
+
+      @Override
+      public void onNext(GrpcServiceConfig grpcServiceConfig) {
+        grpcOmegaCallback = new GrpcOmegaCallback(responseObserver);
+        omegaCallbacks
+            .computeIfAbsent(grpcServiceConfig.getServiceName(), key -> new ConcurrentHashMap<>())
+            .put(grpcServiceConfig.getInstanceId(), grpcOmegaCallback);
+        responseObserver.onNext(GrpcCompensateCommand.newBuilder()
+            .setConnectedResponse(true)
+            .build());
+      }
+
+      @Override
+      public void onError(Throwable throwable) {
+        LOG.error(throwable.getMessage());
+      }
+
+      @Override
+      public void onCompleted() {
+        // Do nothing here
+      }
+    };
   }
 
   // TODO: 2018/1/5 connect is async and disconnect is sync, meaning callback may not be registered on disconnected

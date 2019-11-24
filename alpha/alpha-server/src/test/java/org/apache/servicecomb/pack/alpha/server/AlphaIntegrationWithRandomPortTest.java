@@ -164,7 +164,7 @@ public class AlphaIntegrationWithRandomPortTest {
 
   @Test
   public void persistsEvent() {
-    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+    asyncStub.onConnected(compensateResponseObserver).onNext(serviceConfig);
     blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent));
     // use the asynchronous stub need to wait for some time
     await().atMost(1, SECONDS).until(() -> !eventRepo.findByGlobalTxId(globalTxId).isEmpty());
@@ -185,7 +185,7 @@ public class AlphaIntegrationWithRandomPortTest {
 
   @Test
   public void closeStreamOnDisconnected() {
-    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+    asyncStub.onConnected(compensateResponseObserver).onNext(serviceConfig);
 
     await().atMost(1, SECONDS).until(() -> omegaCallbacks.containsKey(serviceConfig.getServiceName()));
 
@@ -203,12 +203,13 @@ public class AlphaIntegrationWithRandomPortTest {
 
   @Test
   public void closeStreamOfDisconnectedClientOnly() {
-    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+    asyncStub.onConnected(compensateResponseObserver).onNext(serviceConfig);
     await().atMost(1, SECONDS).until(() -> omegaCallbacks.containsKey(serviceConfig.getServiceName()));
 
     GrpcServiceConfig anotherServiceConfig = someServiceConfig();
     CompensationStreamObserver anotherResponseObserver = new CompensationStreamObserver();
-    TxEventServiceGrpc.newStub(clientChannel).onConnected(anotherServiceConfig, anotherResponseObserver);
+    TxEventServiceStub otherAsyncStub = TxEventServiceGrpc.newStub(clientChannel);
+    otherAsyncStub.onConnected(anotherResponseObserver).onNext(anotherServiceConfig);
 
     await().atMost(1, SECONDS).until(() -> omegaCallbacks.containsKey(anotherServiceConfig.getServiceName()));
 
@@ -224,8 +225,8 @@ public class AlphaIntegrationWithRandomPortTest {
   }
 
   @Test
-  public void removeCallbackOnClientDown() throws Exception {
-    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+  public void removeCallbackOnClientDown() {
+    asyncStub.onConnected(compensateResponseObserver).onNext(serviceConfig);
     blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent));
     blockingStub.onTxEvent(someGrpcEvent(TxEndedEvent));
 
@@ -237,8 +238,8 @@ public class AlphaIntegrationWithRandomPortTest {
   }
 
   @Test
-  public void compensateImmediatelyWhenGlobalTxAlreadyAborted() throws Exception {
-    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+  public void compensateImmediatelyWhenGlobalTxAlreadyAborted() {
+    asyncStub.onConnected(compensateResponseObserver).onNext(serviceConfig);
     blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent));
     blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
 
@@ -256,7 +257,7 @@ public class AlphaIntegrationWithRandomPortTest {
   @Test
   public void doNotCompensateDuplicateTxOnFailure() {
     // duplicate events with same content but different timestamp
-    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+    asyncStub.onConnected(compensateResponseObserver).onNext(serviceConfig);
     blockingStub.onTxEvent(eventOf(TxStartedEvent, localTxId, parentTxId, "service a".getBytes(), "method a"));
     blockingStub.onTxEvent(eventOf(TxStartedEvent, localTxId, parentTxId, "service a".getBytes(), "method a"));
     blockingStub.onTxEvent(eventOf(TxEndedEvent, localTxId, parentTxId, new byte[0], "method a"));
@@ -267,7 +268,7 @@ public class AlphaIntegrationWithRandomPortTest {
     blockingStub.onTxEvent(eventOf(TxEndedEvent, localTxId1, parentTxId1, new byte[0], "method b"));
 
     blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
-    await().atMost(1, SECONDS).until(() -> receivedCommandsCounter.get() > 1);
+    await().atMost(2, SECONDS).until(() -> receivedCommandsCounter.get() > 1);
 
     assertThat(receivedCommands, contains(
         GrpcCompensateCommand.newBuilder().setGlobalTxId(globalTxId).setLocalTxId(localTxId1).setParentTxId(parentTxId1)
@@ -279,7 +280,7 @@ public class AlphaIntegrationWithRandomPortTest {
 
   @Test
   public void getCompensateCommandOnFailure() {
-    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+    asyncStub.onConnected(compensateResponseObserver).onNext(serviceConfig);
     blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent));
     blockingStub.onTxEvent(someGrpcEvent(TxEndedEvent));
     await().atMost(1, SECONDS).until(() -> !eventRepo.findByGlobalTxId(globalTxId).isEmpty());
@@ -297,13 +298,14 @@ public class AlphaIntegrationWithRandomPortTest {
 
   @Test
   public void compensateOnlyFailedGlobalTransaction() {
-    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+    asyncStub.onConnected(compensateResponseObserver).onNext(serviceConfig);
     blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent));
     blockingStub.onTxEvent(someGrpcEvent(TxEndedEvent));
 
     // simulates connection from another service with different globalTxId
     GrpcServiceConfig anotherServiceConfig = someServiceConfig();
-    TxEventServiceGrpc.newStub(clientChannel).onConnected(anotherServiceConfig, new CompensationStreamObserver());
+    TxEventServiceStub otherAsyncStub =TxEventServiceGrpc.newStub(clientChannel);
+    otherAsyncStub.onConnected(new CompensationStreamObserver()).onNext(anotherServiceConfig);
 
     TxEventServiceBlockingStub anotherBlockingStub = TxEventServiceGrpc.newBlockingStub(clientChannel);
     anotherBlockingStub.onTxEvent(someGrpcEvent(TxStartedEvent, UUID.randomUUID().toString()));
@@ -321,14 +323,14 @@ public class AlphaIntegrationWithRandomPortTest {
 
   @Test
   public void doNotStartSubTxOnFailure() {
-    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+    asyncStub.onConnected(compensateResponseObserver).onNext(serviceConfig);
 
     blockingStub.onTxEvent(eventOf(TxStartedEvent, localTxId, parentTxId, "service a".getBytes(), "method a"));
     blockingStub.onTxEvent(someGrpcEvent(TxEndedEvent));
 
     blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
 
-    await().atMost(1, SECONDS).until(() -> receivedCommandsCounter.get() == 1);
+    await().atMost(1000, SECONDS).until(() -> receivedCommandsCounter.get() == 1);
 
     String localTxId1 = UUID.randomUUID().toString();
     String parentTxId1 = UUID.randomUUID().toString();
@@ -340,7 +342,7 @@ public class AlphaIntegrationWithRandomPortTest {
 
   @Test
   public void compensateOnlyCompletedTransactions() {
-    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+    asyncStub.onConnected(compensateResponseObserver).onNext(serviceConfig);
     blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent));
     blockingStub.onTxEvent(someGrpcEvent(TxEndedEvent));
 
@@ -362,8 +364,8 @@ public class AlphaIntegrationWithRandomPortTest {
   }
 
   @Test
-  public void sagaEndedEventIsAlwaysInTheEnd() throws Exception {
-    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+  public void sagaEndedEventIsAlwaysInTheEnd() {
+    asyncStub.onConnected(compensateResponseObserver).onNext(serviceConfig);
     blockingStub.onTxEvent(someGrpcEvent(TxStartedEvent));
     blockingStub.onTxEvent(someGrpcEvent(TxEndedEvent));
 
@@ -381,7 +383,7 @@ public class AlphaIntegrationWithRandomPortTest {
 
   @Test
   public void abortTimeoutSagaStartedEvent() {
-    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+    asyncStub.onConnected(compensateResponseObserver).onNext(serviceConfig);
     blockingStub.onTxEvent(someGrpcEventWithTimeout(SagaStartedEvent, globalTxId, null, 1));
 
     await().atMost(2, SECONDS).until(() -> eventRepo.count() == 3);
@@ -404,7 +406,7 @@ public class AlphaIntegrationWithRandomPortTest {
 
   @Test
   public void abortTimeoutTxStartedEvent() {
-    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+    asyncStub.onConnected(compensateResponseObserver).onNext(serviceConfig);
     blockingStub.onTxEvent(someGrpcEvent(SagaStartedEvent, globalTxId, globalTxId, null));
     blockingStub.onTxEvent(someGrpcEventWithTimeout(TxStartedEvent, localTxId, globalTxId, 1));
 
@@ -437,8 +439,8 @@ public class AlphaIntegrationWithRandomPortTest {
   }
 
   @Test
-  public void doNotCompensateRetryingEvents() throws InterruptedException {
-    asyncStub.onConnected(serviceConfig, compensateResponseObserver);
+  public void doNotCompensateRetryingEvents() {
+    asyncStub.onConnected(compensateResponseObserver).onNext(serviceConfig);
     blockingStub.onTxEvent(someGrpcEventWithRetry(TxStartedEvent, retryMethod, 1));
     blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
     blockingStub.onTxEvent(someGrpcEventWithRetry(TxStartedEvent, retryMethod, 0));
@@ -566,9 +568,12 @@ public class AlphaIntegrationWithRandomPortTest {
     @Override
     public void onNext(GrpcCompensateCommand command) {
       // intercept received command
-      consumer.accept(command);
-      receivedCommands.add(command);
-      receivedCommandsCounter.incrementAndGet();
+      if(!command.getConnectedResponse()){
+        // ignore the connection response
+        consumer.accept(command);
+        receivedCommands.add(command);
+        receivedCommandsCounter.incrementAndGet();
+      }
     }
 
     @Override

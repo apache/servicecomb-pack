@@ -20,6 +20,7 @@ package org.apache.servicecomb.pack.omega.connector.grpc.core;
 import io.grpc.stub.StreamObserver;
 import java.lang.invoke.MethodHandles;
 
+import java.util.concurrent.CountDownLatch;
 import org.apache.servicecomb.pack.omega.transaction.MessageSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,8 @@ public abstract class ReconnectStreamObserver<T> implements StreamObserver<T> {
 
   private final MessageSender messageSender;
 
+  private final CountDownLatch latch = new CountDownLatch(1);
+
   public ReconnectStreamObserver(
       LoadBalanceContext loadContext, MessageSender messageSender) {
     this.loadContext = loadContext;
@@ -42,10 +45,23 @@ public abstract class ReconnectStreamObserver<T> implements StreamObserver<T> {
   public void onError(Throwable t) {
     LOG.error("Failed to process grpc coordinate command.", t);
     loadContext.getGrpcOnErrorHandler().handle(messageSender);
+    cancelWait();
   }
 
   @Override
   public void onCompleted() {
     // Do nothing here
+  }
+
+  public void cancelWait(){
+    latch.countDown();
+  }
+
+  public void waitConnected() {
+    try {
+      latch.await();
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

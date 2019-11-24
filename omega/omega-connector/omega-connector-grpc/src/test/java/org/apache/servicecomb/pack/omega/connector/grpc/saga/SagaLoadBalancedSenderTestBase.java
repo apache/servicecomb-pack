@@ -108,7 +108,7 @@ public abstract class SagaLoadBalancedSenderTestBase {
   protected final SagaLoadBalanceSender messageSender = newMessageSender(addresses);
 
   @AfterClass
-  public static void tearDown() throws Exception {
+  public static void tearDown() {
     for(Server server: servers.values()) {
       server.shutdown();
     }
@@ -117,7 +117,7 @@ public abstract class SagaLoadBalancedSenderTestBase {
   protected abstract SagaLoadBalanceSender newMessageSender(String[] addresses);
 
   @After
-  public void after() throws Exception {
+  public void after() {
     messageSender.onDisconnected();
     messageSender.close();
     for (Queue<TxEvent> queue :eventsMap.values()) {
@@ -142,9 +142,26 @@ public abstract class SagaLoadBalancedSenderTestBase {
     }
 
     @Override
-    public void onConnected(GrpcServiceConfig request, StreamObserver<GrpcCompensateCommand> responseObserver) {
+    public StreamObserver<GrpcServiceConfig> onConnected(final StreamObserver<GrpcCompensateCommand> responseObserver) {
       this.responseObserver = responseObserver;
-      connected.add("Connected " + request.getServiceName());
+      return new StreamObserver<GrpcServiceConfig>() {
+
+        @Override
+        public void onNext(GrpcServiceConfig grpcServiceConfig) {
+          connected.add("Connected " + grpcServiceConfig.getServiceName());
+          responseObserver.onNext(GrpcCompensateCommand.newBuilder().setConnectedResponse(true).build());
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+          throw new RuntimeException(throwable);
+        }
+
+        @Override
+        public void onCompleted() {
+          // Do nothing here
+        }
+      };
     }
 
     @Override

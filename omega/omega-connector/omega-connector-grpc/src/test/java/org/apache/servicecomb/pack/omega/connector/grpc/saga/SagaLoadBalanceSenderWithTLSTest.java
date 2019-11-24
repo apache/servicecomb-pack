@@ -131,7 +131,7 @@ public class SagaLoadBalanceSenderWithTLSTest extends SagaLoadBalancedSenderTest
   }
 
   @Test
-  public void broadcastConnectionAndDisconnection() throws Exception {
+  public void broadcastConnectionAndDisconnection() {
     messageSender.onConnected();
     await().atMost(1, SECONDS).until( new Callable<Boolean>() {
       @Override
