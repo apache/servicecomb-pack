@@ -137,7 +137,7 @@ public class PackIT {
     assertThat(compensatedMessages.isEmpty(), is(true));
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = 10000)
   public void compensatesFailedGlobalTransaction() throws Exception {
     ResponseEntity<String> entity = restTemplate.getForEntity("/greet?name={name}",
         String.class,
@@ -145,7 +145,7 @@ public class PackIT {
 
     assertThat(entity.getStatusCode(), is(INTERNAL_SERVER_ERROR));
 
-    await().atMost(2, SECONDS).until(() -> eventRepo.count() == 7);
+    await().atMost(4, SECONDS).until(() -> eventRepo.count() == 7);
 
     List<String> distinctGlobalTxIds = eventRepo.findDistinctGlobalTxId();
     assertThat(distinctGlobalTxIds.size(), greaterThanOrEqualTo(1));
