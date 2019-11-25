@@ -101,14 +101,11 @@ ServiceComb Pack 架构是由 **alpha** 和 **omega**组成，其中：
 * [gitter聊天室](https://gitter.im/ServiceCombUsers/Saga)
 * 邮件列表: [订阅](mailto:dev-subscribe@servicecomb.apache.org) [浏览](https://lists.apache.org/list.html?dev@servicecomb.apache.org)
 
+## 项目贡献者
+[![贡献者](https://badges.implements.io/api/contributors?org=apache&repo=servicecomb-pack&width=1280&size=48&padding=6&type=jpeg)](https://github.com/apache/servicecomb-pack/graphs/contributors)
 
-## 贡献
+## 参与贡献
 详情可浏览[代码提交指南](http://servicecomb.apache.org/cn/developers/submit-codes/)。
-
-
-## Github加星之旅
-[![Stargazers over time](https://starcharts.herokuapp.com/apache/servicecomb-pack.svg)](https://starcharts.herokuapp.com/apache/servicecomb-pack)
-
 
 ## License
 [Apache 2.0 license](https://github.com/apache/servicecomb-pack/blob/master/LICENSE)。
