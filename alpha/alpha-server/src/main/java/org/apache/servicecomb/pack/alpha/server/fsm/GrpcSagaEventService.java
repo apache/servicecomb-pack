@@ -65,9 +65,6 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
         omegaCallbacks
             .computeIfAbsent(grpcServiceConfig.getServiceName(), key -> new ConcurrentHashMap<>())
             .put(grpcServiceConfig.getInstanceId(), grpcOmegaCallback);
-        responseObserver.onNext(GrpcCompensateCommand.newBuilder()
-            .setConnectedResponse(true)
-            .build());
       }
 
       @Override

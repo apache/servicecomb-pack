@@ -568,12 +568,9 @@ public class AlphaIntegrationWithRandomPortTest {
     @Override
     public void onNext(GrpcCompensateCommand command) {
       // intercept received command
-      if(!command.getConnectedResponse()){
-        // ignore the connection response
-        consumer.accept(command);
-        receivedCommands.add(command);
-        receivedCommandsCounter.incrementAndGet();
-      }
+      consumer.accept(command);
+      receivedCommands.add(command);
+      receivedCommandsCounter.incrementAndGet();
     }
 
     @Override

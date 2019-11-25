@@ -149,7 +149,6 @@ public abstract class SagaLoadBalancedSenderTestBase {
         @Override
         public void onNext(GrpcServiceConfig grpcServiceConfig) {
           connected.add("Connected " + grpcServiceConfig.getServiceName());
-          responseObserver.onNext(GrpcCompensateCommand.newBuilder().setConnectedResponse(true).build());
         }
 
         @Override
