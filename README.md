@@ -95,11 +95,12 @@ Get snapshot version:
 * [gitter](https://gitter.im/ServiceCombUsers/Saga)
 * mailing list: [subscribe](mailto:dev-subscribe@servicecomb.apache.org) [view](https://lists.apache.org/list.html?dev@servicecomb.apache.org)
 
-## Contributing
+## Contributors
+[![contributors](https://badges.implements.io/api/contributors?org=apache&repo=servicecomb-pack&width=1280&size=48&padding=6&type=jpeg)](https://github.com/apache/servicecomb-pack/graphs/contributors)
+
+## How to Contribute
 See [Pull Request Guide](http://servicecomb.apache.org/developers/submit-codes/) for details.
 
-## Stargazers over time
-[![Stargazers over time](https://starcharts.herokuapp.com/apache/servicecomb-pack.svg)](https://starcharts.herokuapp.com/apache/servicecomb-pack)
 
 ## License
 Licensed under an [Apache 2.0 license](https://github.com/apache/servicecomb-pack/blob/master/LICENSE).
