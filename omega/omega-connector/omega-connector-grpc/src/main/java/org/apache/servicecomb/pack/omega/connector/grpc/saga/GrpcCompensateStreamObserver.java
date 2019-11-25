@@ -49,16 +49,11 @@ class GrpcCompensateStreamObserver extends ReconnectStreamObserver<GrpcCompensat
     LOG.info("Received compensate command, global tx id: {}, local tx id: {}, compensation method: {}",
         command.getGlobalTxId(), command.getLocalTxId(), command.getCompensationMethod());
 
-    if(command.getConnectedResponse()){
-      // Wait until you receive an Alpha connection response
-      cancelWait();
-    }else{
-      messageHandler.onReceive(
-          command.getGlobalTxId(),
-          command.getLocalTxId(),
-          command.getParentTxId().isEmpty() ? null : command.getParentTxId(),
-          command.getCompensationMethod(),
-          deserializer.deserialize(command.getPayloads().toByteArray()));
-    }
+    messageHandler.onReceive(
+        command.getGlobalTxId(),
+        command.getLocalTxId(),
+        command.getParentTxId().isEmpty() ? null : command.getParentTxId(),
+        command.getCompensationMethod(),
+        deserializer.deserialize(command.getPayloads().toByteArray()));
   }
 }

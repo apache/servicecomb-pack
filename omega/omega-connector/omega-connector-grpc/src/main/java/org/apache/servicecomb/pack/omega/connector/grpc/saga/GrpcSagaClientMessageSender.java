@@ -74,7 +74,6 @@ public class GrpcSagaClientMessageSender implements SagaMessageSender {
   @Override
   public void onConnected() {
     asyncEventService.onConnected(compensateStreamObserver).onNext(serviceConfig);
-    compensateStreamObserver.waitConnected();
   }
 
   @Override

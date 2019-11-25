@@ -53,6 +53,5 @@ message GrpcCompensateCommand {
   string parentTxId = 3;
   string compensationMethod = 4;
   bytes payloads = 5;
-  bool connectedResponse = 6;
 }
 

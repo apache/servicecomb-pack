@@ -67,10 +67,6 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
         omegaCallbacks
             .computeIfAbsent(grpcServiceConfig.getServiceName(), key -> new ConcurrentHashMap<>())
             .put(grpcServiceConfig.getInstanceId(), new GrpcOmegaCallback(responseObserver));
-        // Respond to Omega connection request
-        responseObserver.onNext(GrpcCompensateCommand.newBuilder()
-            .setConnectedResponse(true)
-            .build());
       }
 
       @Override
@@ -80,7 +76,6 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
 
       @Override
       public void onCompleted() {
-        // Do nothing here
         LOG.info("Omega client called method onCompleted of GrpcServiceConfig");
       }
     };
