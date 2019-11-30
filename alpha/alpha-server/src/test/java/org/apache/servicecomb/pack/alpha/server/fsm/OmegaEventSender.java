@@ -94,6 +94,10 @@ public class OmegaEventSender {
     return omegaCallbacks;
   }
 
+  public GrpcServiceConfig getServiceConfig() {
+    return serviceConfig;
+  }
+
   public void reset(){
     receivedCommands.clear();
   }

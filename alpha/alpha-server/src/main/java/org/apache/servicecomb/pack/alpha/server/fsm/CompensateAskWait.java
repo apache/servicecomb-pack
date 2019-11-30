@@ -15,20 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.core;
+package org.apache.servicecomb.pack.alpha.server.fsm;
 
+import java.util.concurrent.CountDownLatch;
 import org.apache.servicecomb.pack.alpha.core.fsm.CompensateAskType;
 
-public interface OmegaCallback {
-  void compensate(TxEvent event);
+public class CompensateAskWait extends CountDownLatch {
+  private CompensateAskType type;
 
-  default void disconnect() {
+  public CompensateAskWait(int count) {
+    super(count);
   }
 
-  default void ask(CompensateAskType type) {
+  public CompensateAskType getType() {
+    return type;
   }
 
-  default boolean isWaiting() {
-    return false;
+  public void countDown(CompensateAskType type) {
+    this.type = type;
+    super.countDown();
   }
 }

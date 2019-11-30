@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.servicecomb.pack.alpha.core.exception.CompensateAskFailedException;
+import org.apache.servicecomb.pack.alpha.core.exception.CompensateConnectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +56,11 @@ public class CompositeOmegaCallback implements OmegaCallback {
 
     try {
       omegaCallback.compensate(event);
+    } catch (CompensateConnectException e) {
+      serviceCallbacks.values().remove(omegaCallback);
+      throw e;
+    } catch (CompensateAskFailedException e) {
+      throw e;
     } catch (Exception e) {
       serviceCallbacks.values().remove(omegaCallback);
       throw e;
