@@ -145,14 +145,14 @@ public class PackIT {
 
     assertThat(entity.getStatusCode(), is(INTERNAL_SERVER_ERROR));
 
-    await().atMost(4, SECONDS).until(() -> eventRepo.count() == 7);
+    await().atMost(4, SECONDS).until(() -> eventRepo.count() == 8);
 
     List<String> distinctGlobalTxIds = eventRepo.findDistinctGlobalTxId();
     assertThat(distinctGlobalTxIds.size(), greaterThanOrEqualTo(1));
 
     String globalTxId = distinctGlobalTxIds.get(0);
     List<TxEvent> events = eventRepo.findByGlobalTxIdOrderByCreationTime(globalTxId);
-    assertThat(events.size(), is(7));
+    assertThat(events.size(), is(8));
 
     TxEvent sagaStartedEvent = events.get(0);
     assertThat(sagaStartedEvent.type(), is("SagaStartedEvent"));
@@ -290,14 +290,14 @@ public class PackIT {
 
     assertThat(entity.getStatusCode(), is(INTERNAL_SERVER_ERROR));
 
-    await().atMost(10, SECONDS).until(() -> eventRepo.count() == 11);
+    await().atMost(10, SECONDS).until(() -> eventRepo.count() == 12);
 
     List<String> distinctGlobalTxIds = eventRepo.findDistinctGlobalTxId();
     assertThat(distinctGlobalTxIds.size(), greaterThanOrEqualTo(1));
 
     String globalTxId = distinctGlobalTxIds.get(0);
     List<TxEvent> events = eventRepo.findByGlobalTxIdOrderByCreationTime(globalTxId);
-    assertThat(events.size(), is(11));
+    assertThat(events.size(), is(12));
 
     assertThat(events.get(0).type(), is("SagaStartedEvent"));
     assertThat(events.get(1).type(), is("TxStartedEvent"));
@@ -310,7 +310,8 @@ public class PackIT {
     assertThat(events.get(8).type(), is("TxAbortedEvent"));
     // This event is for the whole saga event
     assertThat(events.get(9).type(), is("TxAbortedEvent"));
-    assertThat(events.get(10).type(), is("TxCompensatedEvent"));
+    assertThat(events.get(10).type(), is("TxCompensateAckSucceedEvent"));
+    assertThat(events.get(11).type(), is("TxCompensatedEvent"));
 
     assertThat(compensatedMessages, Matchers.contains("Goodbye, " + GreetingController.TRESPASSER));
   }
