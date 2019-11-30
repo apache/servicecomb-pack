@@ -17,8 +17,6 @@
 
 package org.apache.servicecomb.pack.omega.transaction;
 
-import org.apache.servicecomb.pack.omega.context.CallbackContext;
-
 public class CompensationMessageHandler implements MessageHandler {
   private final SagaMessageSender sender;
 

@@ -20,7 +20,7 @@ package org.apache.servicecomb.pack.omega.transaction.spring;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import org.apache.servicecomb.pack.omega.context.CallbackContext;
+import org.apache.servicecomb.pack.omega.transaction.CallbackContext;
 import org.apache.servicecomb.pack.omega.transaction.OmegaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

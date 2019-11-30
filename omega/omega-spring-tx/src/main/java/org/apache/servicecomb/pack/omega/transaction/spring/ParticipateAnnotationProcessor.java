@@ -17,7 +17,7 @@
 
 package org.apache.servicecomb.pack.omega.transaction.spring;
 
-import org.apache.servicecomb.pack.omega.context.CallbackContext;
+import org.apache.servicecomb.pack.omega.transaction.CallbackContext;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
