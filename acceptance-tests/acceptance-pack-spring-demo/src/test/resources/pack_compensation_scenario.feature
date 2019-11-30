@@ -31,6 +31,7 @@ Feature: Alpha records transaction events
       | hotel   | TxStartedEvent     |
       | hotel   | TxAbortedEvent     |
       | booking | TxAbortedEvent     |
+      | car     | TxCompensateAckSucceedEvent |
       | car     | TxCompensatedEvent |
       | car     | SagaEndedEvent     |
     

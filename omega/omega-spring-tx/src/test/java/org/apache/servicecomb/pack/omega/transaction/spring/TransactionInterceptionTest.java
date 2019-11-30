@@ -49,6 +49,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
+import org.apache.servicecomb.pack.omega.transaction.TxCompensateAckSucceedEvent;
 import org.apache.servicecomb.pack.omega.transaction.spring.annotations.OmegaContextAware;
 import org.apache.servicecomb.pack.omega.transaction.MessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.TxAbortedEvent;
@@ -187,7 +188,9 @@ public class TransactionInterceptionTest {
             new TxStartedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod, 0, "", 0,
                 anotherUser).toString(),
             new TxEndedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod).toString(),
+            new TxCompensateAckSucceedEvent(globalTxId, newLocalTxId, globalTxId).toString(),
             new TxCompensatedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod).toString(),
+            new TxCompensateAckSucceedEvent(globalTxId, anotherLocalTxId, globalTxId).toString(),
             new TxCompensatedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod).toString()
         },
         toArray(messages)

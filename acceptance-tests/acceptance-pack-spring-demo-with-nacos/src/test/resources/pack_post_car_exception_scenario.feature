@@ -26,11 +26,12 @@ Feature: Alpha records transaction events
     When User Sean requests to book 1 cars and 1 rooms fail
 
     Then Alpha records the following events
-      | serviceName  | type               |
+      | serviceName  | type          |
       | booking | SagaStartedEvent   |
       | car     | TxStartedEvent     |
       | car     | TxEndedEvent       |
       | booking | TxAbortedEvent     |
+      | car     | TxCompensateAckSucceedEvent |
       | car     | TxCompensatedEvent |
       | car     | SagaEndedEvent     |
 
