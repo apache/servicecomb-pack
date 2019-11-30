@@ -18,7 +18,7 @@
 package org.apache.servicecomb.pack.omega.transaction.tcc;
 
 import org.apache.servicecomb.pack.common.TransactionStatus;
-import org.apache.servicecomb.pack.omega.context.CallbackContext;
+import org.apache.servicecomb.pack.omega.transaction.CallbackContext;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.CoordinatedEvent;
 

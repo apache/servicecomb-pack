@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.omega.context;
+package org.apache.servicecomb.pack.omega.transaction;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

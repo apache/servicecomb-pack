@@ -28,7 +28,7 @@ import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContextB
 import org.apache.servicecomb.pack.omega.connector.grpc.core.TransactionType;
 import org.apache.servicecomb.pack.omega.connector.grpc.saga.SagaLoadBalanceSender;
 import org.apache.servicecomb.pack.omega.connector.grpc.tcc.TccLoadBalanceSender;
-import org.apache.servicecomb.pack.omega.context.CallbackContext;
+import org.apache.servicecomb.pack.omega.transaction.CallbackContext;
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.context.ServiceConfig;

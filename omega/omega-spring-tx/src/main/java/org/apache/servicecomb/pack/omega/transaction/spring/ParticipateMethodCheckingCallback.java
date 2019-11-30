@@ -18,7 +18,7 @@
 package org.apache.servicecomb.pack.omega.transaction.spring;
 
 import java.lang.reflect.Method;
-import org.apache.servicecomb.pack.omega.context.CallbackContext;
+import org.apache.servicecomb.pack.omega.transaction.CallbackContext;
 import org.apache.servicecomb.pack.omega.transaction.annotations.Participate;
 
 public class ParticipateMethodCheckingCallback extends MethodCheckingCallback {
