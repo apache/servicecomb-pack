@@ -15,20 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.core;
+package org.apache.servicecomb.pack.alpha.core.exception;
 
-import org.apache.servicecomb.pack.alpha.core.fsm.CompensateAskType;
-
-public interface OmegaCallback {
-  void compensate(TxEvent event);
-
-  default void disconnect() {
-  }
-
-  default void ask(CompensateAskType type) {
-  }
-
-  default boolean isWaiting() {
-    return false;
+public class CompensateConnectException extends RuntimeException {
+  public CompensateConnectException(String cause) {
+    super(cause);
   }
 }

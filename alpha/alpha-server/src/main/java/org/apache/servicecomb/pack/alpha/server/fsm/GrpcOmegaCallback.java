@@ -19,13 +19,21 @@ package org.apache.servicecomb.pack.alpha.server.fsm;
 
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
+import java.lang.invoke.MethodHandles;
 import org.apache.servicecomb.pack.alpha.core.OmegaCallback;
 import org.apache.servicecomb.pack.alpha.core.TxEvent;
+import org.apache.servicecomb.pack.alpha.core.exception.CompensateAskFailedException;
+import org.apache.servicecomb.pack.alpha.core.exception.CompensateConnectException;
+import org.apache.servicecomb.pack.alpha.core.fsm.CompensateAskType;
 import org.apache.servicecomb.pack.contract.grpc.GrpcCompensateCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class GrpcOmegaCallback implements OmegaCallback {
 
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final StreamObserver<GrpcCompensateCommand> observer;
+  private CompensateAskWait compensateAskWait;
 
   GrpcOmegaCallback(StreamObserver<GrpcCompensateCommand> observer) {
     this.observer = observer;
@@ -33,18 +41,49 @@ class GrpcOmegaCallback implements OmegaCallback {
 
   @Override
   public void compensate(TxEvent event) {
-    GrpcCompensateCommand command = GrpcCompensateCommand.newBuilder()
-        .setGlobalTxId(event.globalTxId())
-        .setLocalTxId(event.localTxId())
-        .setParentTxId(event.parentTxId() == null ? "" : event.parentTxId())
-        .setCompensationMethod(event.compensationMethod())
-        .setPayloads(ByteString.copyFrom(event.payloads()))
-        .build();
-    observer.onNext(command);
+    compensateAskWait = new CompensateAskWait(1);
+    try {
+      GrpcCompensateCommand command = GrpcCompensateCommand.newBuilder()
+          .setGlobalTxId(event.globalTxId())
+          .setLocalTxId(event.localTxId())
+          .setParentTxId(event.parentTxId() == null ? "" : event.parentTxId())
+          .setCompensationMethod(event.compensationMethod())
+          .setPayloads(ByteString.copyFrom(event.payloads()))
+          .build();
+      observer.onNext(command);
+      compensateAskWait.await();
+      if (compensateAskWait.getType() == CompensateAskType.Disconnected) {
+        throw new CompensateConnectException("Omega connect exception");
+      }else{
+        LOG.info("compensate ask "+compensateAskWait.getType().name());
+        if(compensateAskWait.getType() == CompensateAskType.Failed){
+          throw new CompensateAskFailedException("An exception is thrown inside the compensation method");
+        }
+      }
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    } finally {
+      compensateAskWait = null;
+    }
   }
 
   @Override
   public void disconnect() {
     observer.onCompleted();
+    if (compensateAskWait != null) {
+      compensateAskWait.countDown(CompensateAskType.Disconnected);
+    }
+  }
+
+  @Override
+  public void ask(CompensateAskType type) {
+    if (compensateAskWait != null) {
+      compensateAskWait.countDown(type);
+    }
+  }
+
+  @Override
+  public boolean isWaiting(){
+    return compensateAskWait == null ? false : true;
   }
 }

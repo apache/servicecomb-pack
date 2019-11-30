@@ -25,6 +25,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.servicecomb.pack.alpha.core.OmegaCallback;
+import org.apache.servicecomb.pack.alpha.core.fsm.CompensateAskType;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.TxCompensateAckEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.channel.ActorEventChannel;
 import org.apache.servicecomb.pack.common.EventType;
@@ -162,6 +164,28 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
           .parentTxId(message.getParentTxId())
           .createTime(new Date())
           .localTxId(message.getLocalTxId()).build();
+    } else if (message.getType().equals(EventType.TxCompensateAckSucceedEvent.name())) {
+      event = TxCompensateAckEvent.builder()
+          .succeed(true)
+          .serviceName(message.getServiceName())
+          .instanceId(message.getInstanceId())
+          .globalTxId(message.getGlobalTxId())
+          .parentTxId(message.getParentTxId())
+          .createTime(new Date())
+          .localTxId(message.getLocalTxId()).build();
+      omegaCallbacks.get(message.getServiceName()).get(message.getInstanceId())
+          .ask(CompensateAskType.Succeed);
+    } else if (message.getType().equals(EventType.TxCompensateAckFailedEvent.name())) {
+      event = TxCompensateAckEvent.builder()
+          .succeed(false)
+          .serviceName(message.getServiceName())
+          .instanceId(message.getInstanceId())
+          .globalTxId(message.getGlobalTxId())
+          .parentTxId(message.getParentTxId())
+          .createTime(new Date())
+          .localTxId(message.getLocalTxId()).build();
+      omegaCallbacks.get(message.getServiceName()).get(message.getInstanceId())
+          .ask(CompensateAskType.Failed);
     } else {
       ok = false;
     }
