@@ -44,13 +44,13 @@ public class MessageConfig {
   }
 
   @Bean(name = "compensationContext")
-  CallbackContext recoveryCompensationContext(OmegaContext omegaContext) {
-    return new CallbackContext(omegaContext);
+  CallbackContext recoveryCompensationContext(OmegaContext omegaContext, SagaMessageSender sender) {
+    return new CallbackContext(omegaContext, sender);
   }
 
   @Bean(name = "coordinateContext")
-  CallbackContext coordinateContext(OmegaContext omegaContext) {
-    return new CallbackContext(omegaContext);
+  CallbackContext coordinateContext(OmegaContext omegaContext, SagaMessageSender sender) {
+    return new CallbackContext(omegaContext, sender);
   }
 
   @Bean

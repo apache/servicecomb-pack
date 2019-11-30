@@ -26,5 +26,7 @@ public enum EventType {
   SagaEndedEvent,
   SagaAbortedEvent,
   SagaTimeoutEvent,
-  TxCompensateEvent
+  TxCompensateEvent,
+  TxCompensateAckFailedEvent,
+  TxCompensateAckSucceedEvent
 }

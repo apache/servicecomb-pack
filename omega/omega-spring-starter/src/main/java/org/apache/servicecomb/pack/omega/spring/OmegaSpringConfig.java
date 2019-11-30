@@ -71,13 +71,13 @@ class OmegaSpringConfig {
   }
 
   @Bean(name = {"compensationContext"})
-  CallbackContext compensationContext(OmegaContext omegaContext) {
-    return new CallbackContext(omegaContext);
+  CallbackContext compensationContext(OmegaContext omegaContext, SagaMessageSender sender) {
+    return new CallbackContext(omegaContext, sender);
   }
 
   @Bean(name = {"coordinateContext"})
-  CallbackContext coordinateContext(OmegaContext omegaContext) {
-    return new CallbackContext(omegaContext);
+  CallbackContext coordinateContext(OmegaContext omegaContext, SagaMessageSender sender) {
+    return new CallbackContext(omegaContext, sender);
   }
 
   @Bean
