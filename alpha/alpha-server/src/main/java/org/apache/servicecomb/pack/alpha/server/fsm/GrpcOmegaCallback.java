@@ -33,7 +33,7 @@ class GrpcOmegaCallback implements OmegaCallback {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final StreamObserver<GrpcCompensateCommand> observer;
-  private CompensateAskWait compensateAskWait;
+  private CompensateAckCountDownLatch compensateAckCountDownLatch;
 
   GrpcOmegaCallback(StreamObserver<GrpcCompensateCommand> observer) {
     this.observer = observer;
@@ -41,7 +41,7 @@ class GrpcOmegaCallback implements OmegaCallback {
 
   @Override
   public void compensate(TxEvent event) {
-    compensateAskWait = new CompensateAskWait(1);
+    compensateAckCountDownLatch = new CompensateAckCountDownLatch(1);
     try {
       GrpcCompensateCommand command = GrpcCompensateCommand.newBuilder()
           .setGlobalTxId(event.globalTxId())
@@ -51,39 +51,39 @@ class GrpcOmegaCallback implements OmegaCallback {
           .setPayloads(ByteString.copyFrom(event.payloads()))
           .build();
       observer.onNext(command);
-      compensateAskWait.await();
-      if (compensateAskWait.getType() == CompensateAckType.Disconnected) {
+      compensateAckCountDownLatch.await();
+      if (compensateAckCountDownLatch.getType() == CompensateAckType.Disconnected) {
         throw new CompensateConnectException("Omega connect exception");
       }else{
-        LOG.info("compensate ask "+compensateAskWait.getType().name());
-        if(compensateAskWait.getType() == CompensateAckType.Failed){
+        LOG.info("compensate ask "+ compensateAckCountDownLatch.getType().name());
+        if(compensateAckCountDownLatch.getType() == CompensateAckType.Failed){
           throw new CompensateAckFailedException("An exception is thrown inside the compensation method");
         }
       }
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     } finally {
-      compensateAskWait = null;
+      compensateAckCountDownLatch = null;
     }
   }
 
   @Override
   public void disconnect() {
     observer.onCompleted();
-    if (compensateAskWait != null) {
-      compensateAskWait.countDown(CompensateAckType.Disconnected);
+    if (compensateAckCountDownLatch != null) {
+      compensateAckCountDownLatch.countDown(CompensateAckType.Disconnected);
     }
   }
 
   @Override
   public void ask(CompensateAckType type) {
-    if (compensateAskWait != null) {
-      compensateAskWait.countDown(type);
+    if (compensateAckCountDownLatch != null) {
+      compensateAckCountDownLatch.countDown(type);
     }
   }
 
   @Override
   public boolean isWaiting(){
-    return compensateAskWait == null ? false : true;
+    return compensateAckCountDownLatch == null ? false : true;
   }
 }
