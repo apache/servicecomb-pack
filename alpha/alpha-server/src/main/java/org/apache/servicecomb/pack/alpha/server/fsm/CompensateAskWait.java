@@ -18,20 +18,20 @@
 package org.apache.servicecomb.pack.alpha.server.fsm;
 
 import java.util.concurrent.CountDownLatch;
-import org.apache.servicecomb.pack.alpha.core.fsm.CompensateAskType;
+import org.apache.servicecomb.pack.alpha.core.fsm.CompensateAckType;
 
 public class CompensateAskWait extends CountDownLatch {
-  private CompensateAskType type;
+  private CompensateAckType type;
 
   public CompensateAskWait(int count) {
     super(count);
   }
 
-  public CompensateAskType getType() {
+  public CompensateAckType getType() {
     return type;
   }
 
-  public void countDown(CompensateAskType type) {
+  public void countDown(CompensateAckType type) {
     this.type = type;
     super.countDown();
   }

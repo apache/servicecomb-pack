@@ -17,6 +17,6 @@
 
 package org.apache.servicecomb.pack.alpha.core.fsm;
 
-public enum CompensateAskType {
+public enum CompensateAckType {
   Failed,Succeed,Disconnected
 }

@@ -25,7 +25,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.servicecomb.pack.alpha.core.OmegaCallback;
-import org.apache.servicecomb.pack.alpha.core.fsm.CompensateAskType;
+import org.apache.servicecomb.pack.alpha.core.fsm.CompensateAckType;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.TxCompensateAckEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.channel.ActorEventChannel;
@@ -174,7 +174,7 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
           .createTime(new Date())
           .localTxId(message.getLocalTxId()).build();
       omegaCallbacks.get(message.getServiceName()).get(message.getInstanceId())
-          .ask(CompensateAskType.Succeed);
+          .ask(CompensateAckType.Succeed);
     } else if (message.getType().equals(EventType.TxCompensateAckFailedEvent.name())) {
       event = TxCompensateAckEvent.builder()
           .succeed(false)
@@ -185,7 +185,7 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
           .createTime(new Date())
           .localTxId(message.getLocalTxId()).build();
       omegaCallbacks.get(message.getServiceName()).get(message.getInstanceId())
-          .ask(CompensateAskType.Failed);
+          .ask(CompensateAckType.Failed);
     } else {
       ok = false;
     }

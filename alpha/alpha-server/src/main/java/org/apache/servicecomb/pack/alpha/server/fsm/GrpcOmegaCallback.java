@@ -24,7 +24,7 @@ import org.apache.servicecomb.pack.alpha.core.OmegaCallback;
 import org.apache.servicecomb.pack.alpha.core.TxEvent;
 import org.apache.servicecomb.pack.alpha.core.exception.CompensateAckFailedException;
 import org.apache.servicecomb.pack.alpha.core.exception.CompensateConnectException;
-import org.apache.servicecomb.pack.alpha.core.fsm.CompensateAskType;
+import org.apache.servicecomb.pack.alpha.core.fsm.CompensateAckType;
 import org.apache.servicecomb.pack.contract.grpc.GrpcCompensateCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,11 +52,11 @@ class GrpcOmegaCallback implements OmegaCallback {
           .build();
       observer.onNext(command);
       compensateAskWait.await();
-      if (compensateAskWait.getType() == CompensateAskType.Disconnected) {
+      if (compensateAskWait.getType() == CompensateAckType.Disconnected) {
         throw new CompensateConnectException("Omega connect exception");
       }else{
         LOG.info("compensate ask "+compensateAskWait.getType().name());
-        if(compensateAskWait.getType() == CompensateAskType.Failed){
+        if(compensateAskWait.getType() == CompensateAckType.Failed){
           throw new CompensateAckFailedException("An exception is thrown inside the compensation method");
         }
       }
@@ -71,12 +71,12 @@ class GrpcOmegaCallback implements OmegaCallback {
   public void disconnect() {
     observer.onCompleted();
     if (compensateAskWait != null) {
-      compensateAskWait.countDown(CompensateAskType.Disconnected);
+      compensateAskWait.countDown(CompensateAckType.Disconnected);
     }
   }
 
   @Override
-  public void ask(CompensateAskType type) {
+  public void ask(CompensateAckType type) {
     if (compensateAskWait != null) {
       compensateAskWait.countDown(type);
     }
