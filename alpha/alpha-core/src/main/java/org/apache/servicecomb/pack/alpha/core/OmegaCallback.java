@@ -17,7 +17,7 @@
 
 package org.apache.servicecomb.pack.alpha.core;
 
-import org.apache.servicecomb.pack.alpha.core.fsm.CompensateAskType;
+import org.apache.servicecomb.pack.alpha.core.fsm.CompensateAckType;
 
 public interface OmegaCallback {
   void compensate(TxEvent event);
@@ -25,7 +25,7 @@ public interface OmegaCallback {
   default void disconnect() {
   }
 
-  default void ask(CompensateAskType type) {
+  default void ask(CompensateAckType type) {
   }
 
   default boolean isWaiting() {
