@@ -22,7 +22,7 @@ import io.grpc.stub.StreamObserver;
 import java.lang.invoke.MethodHandles;
 import org.apache.servicecomb.pack.alpha.core.OmegaCallback;
 import org.apache.servicecomb.pack.alpha.core.TxEvent;
-import org.apache.servicecomb.pack.alpha.core.exception.CompensateAskFailedException;
+import org.apache.servicecomb.pack.alpha.core.exception.CompensateAckFailedException;
 import org.apache.servicecomb.pack.alpha.core.exception.CompensateConnectException;
 import org.apache.servicecomb.pack.alpha.core.fsm.CompensateAskType;
 import org.apache.servicecomb.pack.contract.grpc.GrpcCompensateCommand;
@@ -57,7 +57,7 @@ class GrpcOmegaCallback implements OmegaCallback {
       }else{
         LOG.info("compensate ask "+compensateAskWait.getType().name());
         if(compensateAskWait.getType() == CompensateAskType.Failed){
-          throw new CompensateAskFailedException("An exception is thrown inside the compensation method");
+          throw new CompensateAckFailedException("An exception is thrown inside the compensation method");
         }
       }
     } catch (InterruptedException e) {

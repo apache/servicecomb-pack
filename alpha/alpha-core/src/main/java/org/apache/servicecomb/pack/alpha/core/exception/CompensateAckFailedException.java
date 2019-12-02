@@ -17,8 +17,8 @@
 
 package org.apache.servicecomb.pack.alpha.core.exception;
 
-public class CompensateAskFailedException extends RuntimeException {
-  public CompensateAskFailedException(String cause) {
+public class CompensateAckFailedException extends RuntimeException {
+  public CompensateAckFailedException(String cause) {
     super(cause);
   }
 }
