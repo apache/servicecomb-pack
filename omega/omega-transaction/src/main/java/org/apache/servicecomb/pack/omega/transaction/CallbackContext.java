@@ -51,10 +51,18 @@ public class CallbackContext {
       omegaContext.setGlobalTxId(globalTxId);
       omegaContext.setLocalTxId(localTxId);
       contextInternal.callbackMethod.invoke(contextInternal.target, payloads);
+      if (omegaContext.getAlphaMetas().isAkkaEnabled()) {
+        sender.send(
+            new TxCompensateAckSucceedEvent(omegaContext.globalTxId(), omegaContext.localTxId(),
+                omegaContext.globalTxId()));
+      }
       LOG.info("Callback transaction with global tx id [{}], local tx id [{}]", globalTxId, localTxId);
-      sender.send(new TxCompensateAckSucceedEvent(omegaContext.globalTxId(),omegaContext.localTxId(),omegaContext.globalTxId()));
     } catch (IllegalAccessException | InvocationTargetException e) {
-      sender.send(new TxCompensateAckFailedEvent(omegaContext.globalTxId(),omegaContext.localTxId(),omegaContext.globalTxId()));
+      if (omegaContext.getAlphaMetas().isAkkaEnabled()) {
+        sender.send(
+            new TxCompensateAckFailedEvent(omegaContext.globalTxId(), omegaContext.localTxId(),
+                omegaContext.globalTxId()));
+      }
       LOG.error(
           "Pre-checking for callback method " + contextInternal.callbackMethod.toString()
               + " was somehow skipped, did you forget to configure callback method checking on service startup?",
