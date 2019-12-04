@@ -77,15 +77,15 @@ Feature: Alpha records transaction events
     When User Sean requests to book 1 cars and 1 rooms fail
 
     Then Alpha records the following events
-      | serviceName  | type               |
-      | booking | SagaStartedEvent   |
-      | car     | TxStartedEvent     |
-      | car     | TxEndedEvent       |
-      | hotel     | TxStartedEvent     |
-      | hotel     | TxEndedEvent       |
-      | booking | SagaAbortedEvent     |
-      | hotel     | TxCompensatedEvent |
-      | car     | TxCompensatedEvent |
+      | serviceName | type               |
+      | booking     | SagaStartedEvent   |
+      | car         | TxStartedEvent     |
+      | car         | TxEndedEvent       |
+      | hotel       | TxStartedEvent     |
+      | hotel       | TxEndedEvent       |
+      | booking     | SagaAbortedEvent   |
+      | hotel       | TxCompensatedEvent |
+      | car         | TxCompensatedEvent |
 
     Then Car Service contains the following booking orders
       | id | name | amount | confirmed | cancelled |

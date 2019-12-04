@@ -188,9 +188,7 @@ public class TransactionInterceptionTest {
             new TxStartedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod, 0, "", 0,
                 anotherUser).toString(),
             new TxEndedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod).toString(),
-            new TxCompensateAckSucceedEvent(globalTxId, newLocalTxId, globalTxId).toString(),
             new TxCompensatedEvent(globalTxId, newLocalTxId, globalTxId, compensationMethod).toString(),
-            new TxCompensateAckSucceedEvent(globalTxId, anotherLocalTxId, globalTxId).toString(),
             new TxCompensatedEvent(globalTxId, anotherLocalTxId, localTxId, compensationMethod).toString()
         },
         toArray(messages)

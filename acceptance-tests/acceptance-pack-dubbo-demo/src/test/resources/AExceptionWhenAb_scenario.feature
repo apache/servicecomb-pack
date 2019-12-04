@@ -30,7 +30,6 @@ Feature: Alpha records transaction events
       | serviceb   | TxEndedEvent   |
       | servicea   | TxAbortedEvent     |
       | servicea   | TxAbortedEvent     |
-      | serviceb | TxCompensateAckSucceedEvent   |
       | serviceb | TxCompensatedEvent   |
       | * | SagaEndedEvent   |
 
