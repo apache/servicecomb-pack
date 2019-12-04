@@ -21,8 +21,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.servicecomb.pack.alpha.core.fsm.SuspendedType;
 import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
@@ -40,7 +39,7 @@ public class SagaData implements Serializable {
   private boolean terminated;
   private SagaActorState lastState;
   private AtomicLong compensationRunningCounter = new AtomicLong();
-  private Map<String,TxEntity> txEntityMap = new ConcurrentHashMap<>();
+  private ConcurrentSkipListMap<String,TxEntity> txEntityMap = new ConcurrentSkipListMap<>();
   private List<BaseEvent> events = new LinkedList<>();
 
   public String getServiceName() {
@@ -120,12 +119,12 @@ public class SagaData implements Serializable {
     this.compensationRunningCounter = compensationRunningCounter;
   }
 
-  public Map<String, TxEntity> getTxEntityMap() {
+  public ConcurrentSkipListMap<String, TxEntity> getTxEntityMap() {
     return txEntityMap;
   }
 
   public void setTxEntityMap(
-      Map<String, TxEntity> txEntityMap) {
+      ConcurrentSkipListMap<String, TxEntity> txEntityMap) {
     this.txEntityMap = txEntityMap;
   }
 
@@ -196,7 +195,7 @@ public class SagaData implements Serializable {
       return this;
     }
 
-    public Builder txEntityMap(Map<String, TxEntity> txEntityMap) {
+    public Builder txEntityMap(ConcurrentSkipListMap<String, TxEntity> txEntityMap) {
       sagaData.setTxEntityMap(txEntityMap);
       return this;
     }

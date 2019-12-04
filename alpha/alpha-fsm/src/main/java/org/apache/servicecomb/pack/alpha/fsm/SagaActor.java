@@ -481,7 +481,7 @@ public class SagaActor extends
         SagaEndedDomain domainEvent = (SagaEndedDomain) event;
         if (domainEvent.getState() == SagaActorState.FAILED) {
           data.setTerminated(true);
-          data.getTxEntityMap().forEach((k, v) -> {
+          data.getTxEntityMap().descendingMap().forEach((k, v) -> {
             if (v.getState() == TxState.COMMITTED) {
               // call compensate
               compensation(v, data);
