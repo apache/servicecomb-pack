@@ -310,8 +310,7 @@ public class PackIT {
     assertThat(events.get(8).type(), is("TxAbortedEvent"));
     // This event is for the whole saga event
     assertThat(events.get(9).type(), is("TxAbortedEvent"));
-    assertThat(events.get(10).type(), is("TxCompensateAckSucceedEvent"));
-    assertThat(events.get(11).type(), is("TxCompensatedEvent"));
+    assertThat(events.get(10).type(), is("TxCompensatedEvent"));
 
     assertThat(compensatedMessages, Matchers.contains("Goodbye, " + GreetingController.TRESPASSER));
   }

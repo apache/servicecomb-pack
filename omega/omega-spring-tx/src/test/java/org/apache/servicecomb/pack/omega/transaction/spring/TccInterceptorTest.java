@@ -112,9 +112,7 @@ public class TccInterceptorTest {
             new ParticipationEndedEvent(globalTxId, anotherLocalTxId, globalTxId, confirmMethod, cancelMethod,
                 TransactionStatus.Succeed).toString(),
             new TccEndedEvent(globalTxId, globalTxId, TransactionStatus.Succeed).toString(),
-            new TxCompensateAckSucceedEvent(globalTxId, newLocalTxId, globalTxId).toString(),
             new CoordinatedEvent(globalTxId, newLocalTxId, globalTxId, confirmMethod, TransactionStatus.Succeed).toString(),
-            new TxCompensateAckSucceedEvent(globalTxId, anotherLocalTxId, globalTxId).toString(),
             new CoordinatedEvent(globalTxId, anotherLocalTxId, globalTxId, confirmMethod, TransactionStatus.Succeed).toString()
         },
         toArray(messages)
@@ -149,7 +147,6 @@ public class TccInterceptorTest {
             new ParticipationEndedEvent(globalTxId, anotherLocalTxId, globalTxId, confirmMethod, cancelMethod,
                 TransactionStatus.Failed).toString(),
             new TccEndedEvent(globalTxId, globalTxId, TransactionStatus.Failed).toString(),
-            new TxCompensateAckFailedEvent(globalTxId, newLocalTxId, globalTxId).toString(),
             new CoordinatedEvent(globalTxId, newLocalTxId, globalTxId, cancelMethod, TransactionStatus.Succeed).toString()
         },
         toArray(messages)
