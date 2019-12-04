@@ -42,7 +42,7 @@ public class SagaStartAspect {
   @Around("execution(@org.apache.servicecomb.pack.omega.context.annotations.SagaStart * *(..)) && @annotation(sagaStart)")
   Object advise(ProceedingJoinPoint joinPoint, SagaStart sagaStart) throws Throwable {
     initializeOmegaContext();
-    if(context.isAlphaFeatureAkkaEnabled() && sagaStart.timeout()>0){
+    if(context.getAlphaMetas().isAkkaEnabled() && sagaStart.timeout()>0){
       SagaStartAnnotationProcessorTimeoutWrapper wrapper = new SagaStartAnnotationProcessorTimeoutWrapper(this.sagaStartAnnotationProcessor);
       return wrapper.apply(joinPoint,sagaStart,context);
     }else{

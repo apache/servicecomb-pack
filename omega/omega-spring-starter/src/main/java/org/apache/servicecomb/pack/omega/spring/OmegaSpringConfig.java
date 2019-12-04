@@ -28,6 +28,7 @@ import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContextB
 import org.apache.servicecomb.pack.omega.connector.grpc.core.TransactionType;
 import org.apache.servicecomb.pack.omega.connector.grpc.saga.SagaLoadBalanceSender;
 import org.apache.servicecomb.pack.omega.connector.grpc.tcc.TccLoadBalanceSender;
+import org.apache.servicecomb.pack.omega.context.AlphaMetas;
 import org.apache.servicecomb.pack.omega.transaction.CallbackContext;
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
@@ -68,7 +69,7 @@ class OmegaSpringConfig {
   OmegaContext omegaContext(@Qualifier("omegaUniqueIdGenerator") IdGenerator<String> idGenerator, SagaMessageSender messageSender) {
     ServerMeta serverMeta = messageSender.onGetServerMeta();
     boolean akkaEnabeld = Boolean.parseBoolean(serverMeta.getMetaMap().get(AlphaMetaKeys.AkkaEnabled.name()));
-    return new OmegaContext(idGenerator,akkaEnabeld);
+    return new OmegaContext(idGenerator, AlphaMetas.builder().akkaEnabled(akkaEnabeld).build());
   }
 
   @Bean(name = {"compensationContext"})

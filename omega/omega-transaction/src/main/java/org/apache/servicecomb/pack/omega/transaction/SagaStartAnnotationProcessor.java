@@ -50,7 +50,7 @@ public class SagaStartAnnotationProcessor {
 
   public void onError(String compensationMethod, Throwable throwable) {
     String globalTxId = omegaContext.globalTxId();
-    if(omegaContext.isAlphaFeatureAkkaEnabled()){
+    if(omegaContext.getAlphaMetas().isAkkaEnabled()){
       sender.send(
           new SagaAbortedEvent(globalTxId, omegaContext.localTxId(), null, compensationMethod,
               throwable));
