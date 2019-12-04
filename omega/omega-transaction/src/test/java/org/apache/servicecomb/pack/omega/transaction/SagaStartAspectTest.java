@@ -29,6 +29,7 @@ import java.util.UUID;
 
 import org.apache.servicecomb.pack.common.EventType;
 import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
+import org.apache.servicecomb.pack.omega.context.AlphaMetas;
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.context.annotations.SagaStart;
@@ -169,7 +170,7 @@ public class SagaStartAspectTest {
 
   @Test
   public void clearContextOnSagaStartErrorWithAkka() throws Throwable {
-    omegaContext = new OmegaContext(idGenerator,true);
+    omegaContext = new OmegaContext(idGenerator, AlphaMetas.builder().akkaEnabled(true).build());
     aspect = new SagaStartAspect(sender, omegaContext);
     RuntimeException oops = new RuntimeException("oops");
 
