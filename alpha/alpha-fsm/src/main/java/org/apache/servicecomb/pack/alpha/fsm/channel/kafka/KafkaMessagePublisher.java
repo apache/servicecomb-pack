@@ -44,6 +44,9 @@ public class KafkaMessagePublisher implements MessagePublisher<BaseEvent> {
         try {
             kafkaTemplate.send(topic, data.getGlobalTxId(), data).get();
         } catch (InterruptedException | ExecutionException | UnsupportedOperationException e) {
+            if (e.getCause() instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             throw new RuntimeException(e);
         }
     }
