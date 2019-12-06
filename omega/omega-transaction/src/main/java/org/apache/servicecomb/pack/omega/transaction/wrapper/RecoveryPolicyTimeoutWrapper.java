@@ -60,7 +60,6 @@ public class RecoveryPolicyTimeoutWrapper {
         throw new OmegaException(timeoutProb.getInterruptFailureException());
       }
     } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
       if (timeoutProb.getInterruptFailureException() != null) {
         throw new OmegaException(timeoutProb.getInterruptFailureException());
       }else{
