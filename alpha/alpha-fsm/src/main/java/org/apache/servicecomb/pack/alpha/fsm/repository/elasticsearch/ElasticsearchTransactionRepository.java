@@ -268,6 +268,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
           try {
             Thread.sleep(refreshTime);
           } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             LOG.error(e.getMessage(), e);
           }
         }

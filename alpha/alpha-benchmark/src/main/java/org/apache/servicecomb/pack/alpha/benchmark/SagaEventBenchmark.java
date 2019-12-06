@@ -32,11 +32,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import java.security.SecureRandom;
 
 @Component
 public class SagaEventBenchmark {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+  private final static SecureRandom SECURERANDOM = new SecureRandom();
 
   @Autowired(required = false)
   SagaMessageSender sender;
@@ -98,6 +101,7 @@ public class SagaEventBenchmark {
       }
 
     } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
       LOG.error(e.getMessage(), e);
     }
     LOG.info("OK");
@@ -118,7 +122,8 @@ public class SagaEventBenchmark {
       try {
         end.await();
       } catch (InterruptedException e) {
-          LOG.error("warmUp Exception = [{}]", e.getMessage(), e);
+        Thread.currentThread().interrupt();
+        LOG.error("warmUp Exception = [{}]", e.getMessage(), e);
       }
     }
 
@@ -177,6 +182,7 @@ public class SagaEventBenchmark {
         }
         end.countDown();
       } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
         LOG.error(e.getMessage(), e);
       }
     }
@@ -213,11 +219,10 @@ public class SagaEventBenchmark {
 
   private String[] generateRandomIdPrefix(int numberOfWords) {
     String[] randomStrings = new String[numberOfWords];
-    Random random = new Random();
     for (int i = 0; i < numberOfWords; i++) {
       char[] word = new char[8];
       for (int j = 0; j < word.length; j++) {
-        word[j] = (char) ('a' + random.nextInt(26));
+        word[j] = (char) ('a' + SECURERANDOM.nextInt(26));
       }
       randomStrings[i] = new String(word);
     }
