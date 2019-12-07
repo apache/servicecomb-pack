@@ -25,7 +25,7 @@ public interface OmegaCallback {
   default void disconnect() {
   }
 
-  default void ask(CompensateAckType type) {
+  default void getAck(CompensateAckType type) {
   }
 
   default boolean isWaiting() {
