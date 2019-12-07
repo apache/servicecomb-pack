@@ -174,7 +174,7 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
           .createTime(new Date())
           .localTxId(message.getLocalTxId()).build();
       omegaCallbacks.get(message.getServiceName()).get(message.getInstanceId())
-          .ask(CompensateAckType.Succeed);
+          .getAck(CompensateAckType.Succeed);
     } else if (message.getType().equals(EventType.TxCompensateAckFailedEvent.name())) {
       event = TxCompensateAckEvent.builder()
           .succeed(false)
@@ -185,7 +185,7 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
           .createTime(new Date())
           .localTxId(message.getLocalTxId()).build();
       omegaCallbacks.get(message.getServiceName()).get(message.getInstanceId())
-          .ask(CompensateAckType.Failed);
+          .getAck(CompensateAckType.Failed);
     } else {
       ok = false;
     }
