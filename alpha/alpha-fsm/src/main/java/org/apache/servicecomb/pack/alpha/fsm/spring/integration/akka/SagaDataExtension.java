@@ -66,7 +66,7 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
         this.metricsService.metrics().doSuspended();
       }
       List<SagaSubTransaction> subTransactions = new ArrayList();
-      sagaData.getTxEntityMap().forEach((k,v)->{
+      sagaData.getTxEntities().forEach((k,v)->{
         subTransactions.add(SagaSubTransaction.builder()
             .parentTxId(v.getParentTxId())
             .localTxId(v.getLocalTxId())
@@ -83,7 +83,7 @@ public class SagaDataExtension extends AbstractExtensionId<SagaDataExt> {
           .beginTime(sagaData.getBeginTime())
           .endTime(sagaData.getEndTime())
           .state(sagaData.getLastState().name())
-          .subTxSize(sagaData.getTxEntityMap().size())
+          .subTxSize(sagaData.getTxEntities().size())
           .subTransactions(subTransactions)
           .events(sagaData.getEvents())
           .suspendedType(sagaData.getSuspendedType())

@@ -239,7 +239,7 @@ public class SagaActor extends
             }
         ).event(ComponsitedCheckEvent.class, SagaData.class,
             (event, data) -> {
-              if (hasCompensationSentTx(data) || !data.isTerminated()) {
+              if (data.getTxEntities().hasCompensationSentTx() || !data.isTerminated()) {
                 return stay();
               } else {
                 SagaEndedDomain domainEvent = new SagaEndedDomain(event,
@@ -251,11 +251,11 @@ public class SagaActor extends
         ).event(SagaAbortedEvent.class, SagaData.class,
             (event, data) -> {
               data.setTerminated(true);
-              if (hasCommittedTx(data)) {
+              if (data.getTxEntities().hasCommittedTx()) {
                 SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.FAILED);
                 return stay()
                     .applying(domainEvent);
-              } else if (hasCompensationSentTx(data)) {
+              } else if (data.getTxEntities().hasCompensationSentTx()) {
                 SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.FAILED);
                 return stay()
                     .applying(domainEvent);
@@ -275,7 +275,7 @@ public class SagaActor extends
             (event, data) -> {
               UpdateTxEventDomain domainEvent = new UpdateTxEventDomain(event);
               return stay().applying(domainEvent).andThen(exec(_data -> {
-                TxEntity txEntity = _data.getTxEntityMap().get(event.getLocalTxId());
+                TxEntity txEntity = _data.getTxEntities().get(event.getLocalTxId());
                 // call compensate
                 compensation(txEntity, _data);
               }));
@@ -440,7 +440,7 @@ public class SagaActor extends
         data.setExpirationTime(domainEvent.getExpirationTime());
       } else if (event instanceof AddTxEventDomain) {
         AddTxEventDomain domainEvent = (AddTxEventDomain) event;
-        if (!data.getTxEntityMap().containsKey(domainEvent.getEvent().getLocalTxId())) {
+        if (!data.getTxEntities().exists(domainEvent.getEvent().getLocalTxId())) {
           TxEntity txEntity = TxEntity.builder()
               .serviceName(domainEvent.getEvent().getServiceName())
               .instanceId(domainEvent.getEvent().getInstanceId())
@@ -452,20 +452,20 @@ public class SagaActor extends
               .state(domainEvent.getState())
               .beginTime(domainEvent.getEvent().getCreateTime())
               .build();
-          data.getTxEntityMap().put(txEntity.getLocalTxId(), txEntity);
+          data.getTxEntities().put(txEntity.getLocalTxId(), txEntity);
         } else {
           LOG.warn("TxEntity {} already exists", domainEvent.getEvent().getLocalTxId());
         }
       } else if (event instanceof UpdateTxEventDomain) {
         UpdateTxEventDomain domainEvent = (UpdateTxEventDomain) event;
-        TxEntity txEntity = data.getTxEntityMap().get(domainEvent.getLocalTxId());
+        TxEntity txEntity = data.getTxEntities().get(domainEvent.getLocalTxId());
         txEntity.setEndTime(domainEvent.getEvent().getCreateTime());
         if (domainEvent.getState() == TxState.COMMITTED) {
           txEntity.setState(domainEvent.getState());
         } else if (domainEvent.getState() == TxState.FAILED) {
           txEntity.setState(domainEvent.getState());
           txEntity.setThrowablePayLoads(domainEvent.getThrowablePayLoads());
-          data.getTxEntityMap().forEach((k, v) -> {
+          data.getTxEntities().forEachReverse((k, v) -> {
             if (v.getState() == TxState.COMMITTED) {
               // call compensate
               compensation(v, data);
@@ -481,7 +481,7 @@ public class SagaActor extends
         SagaEndedDomain domainEvent = (SagaEndedDomain) event;
         if (domainEvent.getState() == SagaActorState.FAILED) {
           data.setTerminated(true);
-          data.getTxEntityMap().descendingMap().forEach((k, v) -> {
+          data.getTxEntities().forEachReverse((k, v) -> {
             if (v.getState() == TxState.COMMITTED) {
               // call compensate
               compensation(v, data);
@@ -525,18 +525,6 @@ public class SagaActor extends
   @Override
   public String persistenceId() {
     return persistenceId;
-  }
-
-  private boolean hasCommittedTx(SagaData data) {
-    return data.getTxEntityMap().entrySet().stream()
-        .filter(map -> map.getValue().getState() == TxState.COMMITTED)
-        .count() > 0;
-  }
-
-  private boolean hasCompensationSentTx(SagaData data) {
-    return data.getTxEntityMap().entrySet().stream()
-        .filter(map -> map.getValue().getState() == TxState.COMPENSATION_SENT)
-        .count() > 0;
   }
 
   //call omega compensate method

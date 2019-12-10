@@ -129,13 +129,13 @@ public class AlphaIntegrationFsmTest {
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMMITTED;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
-    assertEquals(sagaData.getTxEntityMap().size(),3);
+    assertEquals(sagaData.getTxEntities().size(),3);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
     assertTrue(sagaData.getEndTime().getTime() > sagaData.getBeginTime().getTime());
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(),TxState.COMMITTED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(),TxState.COMMITTED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(),TxState.COMMITTED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_1).getState(),TxState.COMMITTED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_2).getState(),TxState.COMMITTED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_3).getState(),TxState.COMMITTED);
   }
 
   @Test
@@ -152,11 +152,11 @@ public class AlphaIntegrationFsmTest {
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getLastState(),SagaActorState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().size(),1);
+    assertEquals(sagaData.getTxEntities().size(),1);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
     assertTrue(sagaData.getEndTime().getTime() > sagaData.getBeginTime().getTime());
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(),TxState.FAILED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_1).getState(),TxState.FAILED);
   }
 
   @Test
@@ -175,12 +175,12 @@ public class AlphaIntegrationFsmTest {
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getLastState(),SagaActorState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().size(),2);
+    assertEquals(sagaData.getTxEntities().size(),2);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
     assertTrue(sagaData.getEndTime().getTime() > sagaData.getBeginTime().getTime());
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(),TxState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(),TxState.FAILED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_1).getState(),TxState.COMPENSATED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_2).getState(),TxState.FAILED);
   }
 
   @Test
@@ -200,14 +200,14 @@ public class AlphaIntegrationFsmTest {
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getLastState(),SagaActorState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().size(),3);
+    assertEquals(sagaData.getTxEntities().size(),3);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
     assertTrue(sagaData.getEndTime().getTime() > sagaData.getBeginTime().getTime());
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(),TxState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(),TxState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(),TxState.FAILED);
-    assertArrayEquals(sagaData.getTxEntityMap().get(localTxId_3).getThrowablePayLoads(),NullPointerException.class.getName().getBytes());
+    assertEquals(sagaData.getTxEntities().get(localTxId_1).getState(),TxState.COMPENSATED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_2).getState(),TxState.COMPENSATED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_3).getState(),TxState.FAILED);
+    assertArrayEquals(sagaData.getTxEntities().get(localTxId_3).getThrowablePayLoads(),NullPointerException.class.getName().getBytes());
   }
 
   @Test
@@ -227,13 +227,13 @@ public class AlphaIntegrationFsmTest {
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getLastState(),SagaActorState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().size(),3);
+    assertEquals(sagaData.getTxEntities().size(),3);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
     assertTrue(sagaData.getEndTime().getTime() > sagaData.getBeginTime().getTime());
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(),TxState.FAILED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(),TxState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(),TxState.COMPENSATED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_1).getState(),TxState.FAILED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_2).getState(),TxState.COMPENSATED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_3).getState(),TxState.COMPENSATED);
   }
 
   @Test
@@ -260,13 +260,13 @@ public class AlphaIntegrationFsmTest {
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getLastState(),SagaActorState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().size(),3);
+    assertEquals(sagaData.getTxEntities().size(),3);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
     assertTrue(sagaData.getEndTime().getTime() > sagaData.getBeginTime().getTime());
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(),TxState.FAILED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(),TxState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(),TxState.COMPENSATED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_1).getState(),TxState.FAILED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_2).getState(),TxState.COMPENSATED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_3).getState(),TxState.COMPENSATED);
   }
 
   @Test
@@ -286,13 +286,13 @@ public class AlphaIntegrationFsmTest {
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getLastState(),SagaActorState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().size(),3);
+    assertEquals(sagaData.getTxEntities().size(),3);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
     assertTrue(sagaData.getEndTime().getTime() > sagaData.getBeginTime().getTime());
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(),TxState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(),TxState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(),TxState.COMPENSATED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_1).getState(),TxState.COMPENSATED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_2).getState(),TxState.COMPENSATED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_3).getState(),TxState.COMPENSATED);
   }
 
   @Test
@@ -310,13 +310,13 @@ public class AlphaIntegrationFsmTest {
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.SUSPENDED;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
-    assertEquals(sagaData.getTxEntityMap().size(),3);
+    assertEquals(sagaData.getTxEntities().size(),3);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
     assertTrue(sagaData.getEndTime().getTime() > sagaData.getBeginTime().getTime());
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(),TxState.COMMITTED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(),TxState.COMMITTED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(),TxState.COMMITTED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_1).getState(),TxState.COMMITTED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_2).getState(),TxState.COMMITTED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_3).getState(),TxState.COMMITTED);
   }
 
   @Test
@@ -335,13 +335,13 @@ public class AlphaIntegrationFsmTest {
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.SUSPENDED;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
-    assertEquals(sagaData.getTxEntityMap().size(),3);
+    assertEquals(sagaData.getTxEntities().size(),3);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
     assertTrue(sagaData.getEndTime().getTime() > sagaData.getBeginTime().getTime());
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(),TxState.COMMITTED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(),TxState.COMMITTED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(),TxState.COMMITTED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_1).getState(),TxState.COMMITTED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_2).getState(),TxState.COMMITTED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_3).getState(),TxState.COMMITTED);
   }
 
   @Test
@@ -359,13 +359,13 @@ public class AlphaIntegrationFsmTest {
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMMITTED;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
-    assertEquals(sagaData.getTxEntityMap().size(),3);
+    assertEquals(sagaData.getTxEntities().size(),3);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
     assertTrue(sagaData.getEndTime().getTime() > sagaData.getBeginTime().getTime());
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(),TxState.COMMITTED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(),TxState.COMMITTED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(),TxState.COMMITTED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_1).getState(),TxState.COMMITTED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_2).getState(),TxState.COMMITTED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_3).getState(),TxState.COMMITTED);
   }
 
   @Test
@@ -383,13 +383,13 @@ public class AlphaIntegrationFsmTest {
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMMITTED;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
-    assertEquals(sagaData.getTxEntityMap().size(),3);
+    assertEquals(sagaData.getTxEntities().size(),3);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
     assertTrue(sagaData.getEndTime().getTime() > sagaData.getBeginTime().getTime());
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(),TxState.COMMITTED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(),TxState.COMMITTED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(),TxState.COMMITTED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_1).getState(),TxState.COMMITTED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_2).getState(),TxState.COMMITTED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_3).getState(),TxState.COMMITTED);
   }
 
   @Test
@@ -408,13 +408,13 @@ public class AlphaIntegrationFsmTest {
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
-    assertEquals(sagaData.getTxEntityMap().size(),3);
+    assertEquals(sagaData.getTxEntities().size(),3);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
     assertTrue(sagaData.getEndTime().getTime() > sagaData.getBeginTime().getTime());
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(),TxState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(),TxState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(),TxState.FAILED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_1).getState(),TxState.COMPENSATED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_2).getState(),TxState.COMPENSATED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_3).getState(),TxState.FAILED);
   }
 
   @Test
@@ -434,13 +434,13 @@ public class AlphaIntegrationFsmTest {
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getLastState(),SagaActorState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().size(),3);
+    assertEquals(sagaData.getTxEntities().size(),3);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
     assertTrue(sagaData.getEndTime().getTime() > sagaData.getBeginTime().getTime());
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(),TxState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(),TxState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(),TxState.FAILED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_1).getState(),TxState.COMPENSATED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_2).getState(),TxState.COMPENSATED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_3).getState(),TxState.FAILED);
   }
 
   @Test
@@ -464,7 +464,7 @@ public class AlphaIntegrationFsmTest {
     //simulate omega connected
     await().atMost(5, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
-      return sagaData !=null && sagaData.getTxEntityMap().size()==3;
+      return sagaData !=null && sagaData.getTxEntities().size()==3;
     });
     omegaEventSender.getOmegaCallbacks().put(serviceName[0], omegaInstance[0]);
     waitAlphaCallCompensate(omegaEventSender, globalTxId, localTxId_1, localTxId_2);
@@ -474,14 +474,14 @@ public class AlphaIntegrationFsmTest {
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getLastState(),SagaActorState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().size(),3);
+    assertEquals(sagaData.getTxEntities().size(),3);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
     assertTrue(sagaData.getEndTime().getTime() > sagaData.getBeginTime().getTime());
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(),TxState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(),TxState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(),TxState.FAILED);
-    assertArrayEquals(sagaData.getTxEntityMap().get(localTxId_3).getThrowablePayLoads(),NullPointerException.class.getName().getBytes());
+    assertEquals(sagaData.getTxEntities().get(localTxId_1).getState(),TxState.COMPENSATED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_2).getState(),TxState.COMPENSATED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_3).getState(),TxState.FAILED);
+    assertArrayEquals(sagaData.getTxEntities().get(localTxId_3).getThrowablePayLoads(),NullPointerException.class.getName().getBytes());
   }
 
   @Test
@@ -501,14 +501,14 @@ public class AlphaIntegrationFsmTest {
     });
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getLastState(),SagaActorState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().size(),3);
+    assertEquals(sagaData.getTxEntities().size(),3);
     assertNotNull(sagaData.getBeginTime());
     assertNotNull(sagaData.getEndTime());
     assertTrue(sagaData.getEndTime().getTime() > sagaData.getBeginTime().getTime());
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_1).getState(),TxState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_2).getState(),TxState.COMPENSATED);
-    assertEquals(sagaData.getTxEntityMap().get(localTxId_3).getState(),TxState.FAILED);
-    assertArrayEquals(sagaData.getTxEntityMap().get(localTxId_3).getThrowablePayLoads(),NullPointerException.class.getName().getBytes());
+    assertEquals(sagaData.getTxEntities().get(localTxId_1).getState(),TxState.COMPENSATED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_2).getState(),TxState.COMPENSATED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_3).getState(),TxState.FAILED);
+    assertArrayEquals(sagaData.getTxEntities().get(localTxId_3).getThrowablePayLoads(),NullPointerException.class.getName().getBytes());
   }
 
   /**
