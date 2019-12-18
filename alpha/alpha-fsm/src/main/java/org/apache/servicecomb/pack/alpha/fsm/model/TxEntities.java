@@ -17,20 +17,27 @@
 
 package org.apache.servicecomb.pack.alpha.fsm.model;
 
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.ListIterator;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import org.apache.servicecomb.pack.alpha.core.fsm.TxState;
 
 public class TxEntities {
 
-  private ConcurrentSkipListMap<String, TxEntity> entities = new ConcurrentSkipListMap<>();
+  private LinkedHashMap<String, TxEntity> entities = new LinkedHashMap<>();
 
   public void forEach(BiConsumer<String, TxEntity> action) {
     entities.forEach(action);
   }
 
   public void forEachReverse(BiConsumer<String, TxEntity> action) {
-    entities.descendingMap().forEach(action);
+    ListIterator<Map.Entry<String, TxEntity>> iterator = new ArrayList<>(entities.entrySet()).listIterator(entities.size());
+    while (iterator.hasPrevious()) {
+      Map.Entry<String, TxEntity> entry = iterator.previous();
+      action.accept(entry.getKey(),entry.getValue());
+    }
   }
 
   public TxEntity get(String localTxId) {
