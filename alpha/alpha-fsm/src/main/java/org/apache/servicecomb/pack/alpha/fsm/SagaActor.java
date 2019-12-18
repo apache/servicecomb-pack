@@ -534,7 +534,7 @@ public class SagaActor extends
     txEntity.setState(TxState.COMPENSATION_SENT);
     try {
       SpringAkkaExtension.SPRING_EXTENSION_PROVIDER.get(context().system()).compensate(txEntity);
-      LOG.info("compensate {}", txEntity.getLocalTxId());
+      LOG.info("compensate {} {} {}", txEntity.getServiceName(), txEntity.getInstanceId(), txEntity.getLocalTxId());
     } catch (AlphaException ex) {
       LOG.error(ex.getMessage(), ex);
       try {
