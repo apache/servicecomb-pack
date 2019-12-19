@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,17 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.integration.tests;
+package org.apache.servicecomb.pack.integration.tests.resttemplate;
 
-import java.util.List;
-
-import org.apache.servicecomb.pack.alpha.core.TxEvent;
-import org.springframework.data.jpa.repository.Query;
+import org.apache.servicecomb.pack.alpha.core.Command;
 import org.springframework.data.repository.CrudRepository;
 
-interface TxEventEnvelopeRepository extends CrudRepository<TxEvent, Long> {
-  List<TxEvent> findByGlobalTxIdOrderByCreationTime(String globalTxId);
-
-  @Query("SELECT DISTINCT(e.globalTxId) from TxEvent e order by e.creationTime desc")
-  List<String> findDistinctGlobalTxId();
+interface CommandEnvelopeRepository extends CrudRepository<Command, Long> {
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.integration.tests;
+package org.apache.servicecomb.pack.integration.tests.resttemplate;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
