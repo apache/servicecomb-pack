@@ -32,6 +32,7 @@
   <modules>
     <module>coverage-aggregate</module>
     <module>pack-tests</module>
+    <module>explicit-transaction-context-tests</module>
   </modules>
 
   <build>
