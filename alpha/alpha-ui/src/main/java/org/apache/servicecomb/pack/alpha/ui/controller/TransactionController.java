@@ -20,6 +20,7 @@ package org.apache.servicecomb.pack.alpha.ui.controller;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +49,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import sun.misc.BASE64Decoder;
+import java.util.Base64.Decoder;
 
 @Controller
 @EnableScheduling
@@ -172,10 +173,10 @@ public class TransactionController {
           .equals("SagaAbortedEvent")) {
         // TxAbortedEvent properties
         if (event.containsKey("payloads")) {
-          BASE64Decoder decoder = new BASE64Decoder();
+          Decoder decoder = Base64.getDecoder();
           String exception;
           try {
-            exception = new String(decoder.decodeBuffer(event.get("payloads").toString()), "UTF-8");
+            exception = new String(decoder.decode(event.get("payloads").toString()), "UTF-8");
           } catch (IOException e) {
             exception = "BASE64Decoder error";
             LOG.error(e.getMessage(), e);
