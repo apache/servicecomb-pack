@@ -16,11 +16,13 @@
  */
 package org.apache.servicecomb.pack.omega.context;
 
+import java.io.Serializable;
+
 /**
  *  This class is holding the Transaction related context which could be use in customer code
  *  , and it is immutable.
  */
-public class TransactionContext {
+public class TransactionContext implements Serializable {
   private final String globalTxId;
   private final String localTxId;
 
