@@ -27,7 +27,7 @@ import static org.apache.servicecomb.pack.common.EventType.TxCompensatedEvent;
 import static org.apache.servicecomb.pack.common.EventType.TxEndedEvent;
 import static org.apache.servicecomb.pack.common.EventType.TxStartedEvent;
 import static org.awaitility.Awaitility.await;
-import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
@@ -286,7 +286,7 @@ public class AlphaIntegrationTest {
     blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
     await().atMost(1, SECONDS).until(() -> receivedCommandsCounter.get() > 1);
 
-    assertThat(receivedCommands, contains(
+    assertThat(receivedCommands, hasItems(
         GrpcCompensateCommand.newBuilder().setGlobalTxId(globalTxId).setLocalTxId(localTxId1).setParentTxId(parentTxId1)
             .setCompensationMethod("method b").setPayloads(ByteString.copyFrom("service b".getBytes())).build(),
         GrpcCompensateCommand.newBuilder().setGlobalTxId(globalTxId).setLocalTxId(localTxId).setParentTxId(parentTxId)

@@ -48,7 +48,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.servicecomb.pack.alpha.core.TaskStatus.DONE;
 import static org.apache.servicecomb.pack.common.EventType.*;
 import static org.awaitility.Awaitility.await;
-import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -270,7 +270,7 @@ public class AlphaIntegrationWithRandomPortTest {
     blockingStub.onTxEvent(someGrpcEvent(TxAbortedEvent));
     await().atMost(2, SECONDS).until(() -> receivedCommandsCounter.get() > 1);
 
-    assertThat(receivedCommands, contains(
+    assertThat(receivedCommands, hasItems(
         GrpcCompensateCommand.newBuilder().setGlobalTxId(globalTxId).setLocalTxId(localTxId1).setParentTxId(parentTxId1)
             .setCompensationMethod("method b").setPayloads(ByteString.copyFrom("service b".getBytes())).build(),
         GrpcCompensateCommand.newBuilder().setGlobalTxId(globalTxId).setLocalTxId(localTxId).setParentTxId(parentTxId)
