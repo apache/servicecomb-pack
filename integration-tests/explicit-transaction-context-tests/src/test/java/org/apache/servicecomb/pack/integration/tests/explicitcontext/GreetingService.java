@@ -63,7 +63,7 @@ class GreetingService  {
     return appendMessage("My bad, please take the window instead, " + name);
   }
 
-  @Compensable(retries = MAX_COUNT, compensationMethod = "close")
+  @Compensable(forwardRetries = MAX_COUNT, compensationMethod = "close")
   String open(String name, int retries, TransactionContext transactionContext) {
     if (failedCount < retries) {
       failedCount += 1;

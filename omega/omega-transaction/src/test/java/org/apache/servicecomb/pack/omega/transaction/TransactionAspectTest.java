@@ -108,7 +108,7 @@ public class TransactionAspectTest {
 
     when(methodSignature.getMethod()).thenReturn(this.getClass().getDeclaredMethod("doNothing"));
     when(compensable.compensationMethod()).thenReturn("doNothing");
-    when(compensable.retries()).thenReturn(0);
+    when(compensable.forwardRetries()).thenReturn(0);
 
     omegaContext.setGlobalTxId(globalTxId);
     omegaContext.setLocalTxId(localTxId);
@@ -204,7 +204,7 @@ public class TransactionAspectTest {
 
   @Test
   public void interruptsOnCompensableTimeoutExceptionWithSleepBlocked() throws Throwable {
-    when(compensable.timeout()).thenReturn(2);
+    when(compensable.forwardTimeout()).thenReturn(2);
     when(joinPoint.proceed()).thenAnswer(new Answer<Object>() {
       @Override
       public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -222,7 +222,7 @@ public class TransactionAspectTest {
 
   @Test
   public void interruptsOnCompensableTimeoutExceptionWithWaitBlocked() throws Throwable {
-    when(compensable.timeout()).thenReturn(2);
+    when(compensable.forwardTimeout()).thenReturn(2);
     when(joinPoint.proceed()).thenAnswer(new Answer<Object>() {
       @Override
       public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -240,7 +240,7 @@ public class TransactionAspectTest {
 
   @Test
   public void interruptsOnCompensableTimeoutExceptionWithIOBlocked() throws Throwable {
-    when(compensable.timeout()).thenReturn(2);
+    when(compensable.forwardTimeout()).thenReturn(2);
     when(joinPoint.proceed()).thenAnswer(new Answer<Object>() {
       @Override
       public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -270,7 +270,7 @@ public class TransactionAspectTest {
 
   @Test
   public void interruptsOnCompensableTimeoutExceptionWithCPUBusyBlocked() throws Throwable {
-    when(compensable.timeout()).thenReturn(3);
+    when(compensable.forwardTimeout()).thenReturn(3);
     when(joinPoint.proceed()).thenAnswer(new Answer<Object>() {
       @Override
       public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -290,7 +290,7 @@ public class TransactionAspectTest {
   @Test
   public void interruptsOnCompensableTimeoutRejectionBySecurity() throws Throwable {
     final Thread main = Thread.currentThread();
-    when(compensable.timeout()).thenReturn(2);
+    when(compensable.forwardTimeout()).thenReturn(2);
     when(joinPoint.proceed()).thenAnswer(new Answer<Object>() {
       @Override
       public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -309,7 +309,7 @@ public class TransactionAspectTest {
   public void retryReachesMaximumAndForwardException() throws Throwable {
     RuntimeException oops = new RuntimeException("oops");
     when(joinPoint.proceed()).thenThrow(oops);
-    when(compensable.retries()).thenReturn(3);
+    when(compensable.forwardRetries()).thenReturn(3);
 
     try {
       aspect.advise(joinPoint, compensable);
@@ -353,7 +353,7 @@ public class TransactionAspectTest {
   public void keepRetryingTillSuccess() throws Throwable {
     RuntimeException oops = new RuntimeException("oops");
     when(joinPoint.proceed()).thenThrow(oops).thenThrow(oops).thenReturn(null);
-    when(compensable.retries()).thenReturn(-1);
+    when(compensable.forwardRetries()).thenReturn(-1);
 
     aspect.advise(joinPoint, compensable);
 

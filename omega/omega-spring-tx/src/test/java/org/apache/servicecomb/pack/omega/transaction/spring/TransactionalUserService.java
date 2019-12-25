@@ -51,7 +51,7 @@ public class TransactionalUserService {
     userRepository.delete(user);
   }
 
-  @Compensable(retries = 2, compensationMethod = "delete")
+  @Compensable(forwardRetries = 2, compensationMethod = "delete")
   public User add(User user, int count) {
     if (this.count < count) {
       this.count += 1;

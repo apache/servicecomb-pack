@@ -39,15 +39,15 @@ import java.lang.annotation.Target;
 public @interface Compensable {
 
   /**
-   * The retires number of the compensable method.
+   * The retires number of the forward compensable method.
    * Default value is 0, which means never retry it
    * value is -1, which means retry it until succeed
    * value &gt; 0, which means the retry number
    * value &lt; -1, an IllegalArgumentException will be thrown
    *
-   * @return the retries number
+   * @return the forward retries number
    */
-  int retries() default 0;
+  int forwardRetries() default 0;
 
   /**
    * Compensation method name.<br>
@@ -66,11 +66,11 @@ public @interface Compensable {
   int retryDelayInMilliseconds() default 0;
 
   /**
-   * <code>@Compensable</code> method timeout, in seconds. <br>
+   * <code>@Compensable</code> forward compensable method timeout, in seconds. <br>
    * Default value is 0, which means never timeout.
    *
-   * @return the timeout value
+   * @return the forward timeout value
    */
-  int timeout() default 0;
+  int forwardTimeout() default 0;
 
 }

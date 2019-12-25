@@ -28,8 +28,8 @@ import org.aspectj.lang.ProceedingJoinPoint;
 
 /**
  * RecoveryPolicy Wrapper
- * 1.Use this wrapper to send a request if the @Compensable timeout>0
- * 2.Terminate thread execution if execution time is greater than the timeout of @Compensable
+ * 1.Use this wrapper to send a request if the @Compensable forwardTimeout>0
+ * 2.Terminate thread execution if execution time is greater than the forwardTimeout of @Compensable
  *
  * Exception
  * 1.If the interrupt succeeds, a TransactionTimeoutException is thrown and the local transaction is rollback
@@ -51,7 +51,7 @@ public class RecoveryPolicyTimeoutWrapper {
   public Object applyTo(ProceedingJoinPoint joinPoint, Compensable compensable,
       CompensableInterceptor interceptor, OmegaContext context, String parentTxId, int retries)
       throws Throwable {
-    final TimeoutProb timeoutProb = TimeoutProbManager.getInstance().addTimeoutProb(compensable.timeout());
+    final TimeoutProb timeoutProb = TimeoutProbManager.getInstance().addTimeoutProb(compensable.forwardTimeout());
     Object output;
     try {
       output = this.recoveryPolicy

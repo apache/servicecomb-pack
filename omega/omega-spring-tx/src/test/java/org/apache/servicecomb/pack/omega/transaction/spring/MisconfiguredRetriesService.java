@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 @Component
 class MisconfiguredRetriesService {
 
-  @Compensable(retries = -2)
+  @Compensable(forwardRetries = -2)
   void doSomething() {
   }
 }

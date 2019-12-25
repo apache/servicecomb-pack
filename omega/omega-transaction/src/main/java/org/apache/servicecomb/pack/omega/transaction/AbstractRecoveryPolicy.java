@@ -33,7 +33,7 @@ public abstract class AbstractRecoveryPolicy implements RecoveryPolicy {
       CompensableInterceptor interceptor, OmegaContext context, String parentTxId, int retries)
       throws Throwable {
     Object result;
-    if(compensable.timeout()>0){
+    if(compensable.forwardTimeout()>0){
       RecoveryPolicyTimeoutWrapper wrapper = new RecoveryPolicyTimeoutWrapper(this);
       result = wrapper.applyTo(joinPoint, compensable, interceptor, context, parentTxId, retries);
     } else {

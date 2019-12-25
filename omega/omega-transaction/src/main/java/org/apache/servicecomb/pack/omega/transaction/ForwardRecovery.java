@@ -30,14 +30,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * ForwardRecovery is used to execute business logic with the given retries times.
- * If retries is above 0, it will retry the given times at most.
- * If retries == -1, it will retry forever until interrupted.
+ * ForwardRecovery is used to execute business logic with the given forwardRetries times.
+ * If forwardRetries is above 0, it will retry the given times at most.
+ * If forwardRetries == -1, it will retry forever until interrupted.
  */
 public class ForwardRecovery extends DefaultRecovery {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  // TODO: 2018/03/10 we do not support retry with timeout yet
+  // TODO: 2018/03/10 we do not support retry with forward timeout yet
   @Override
   public Object applyTo(ProceedingJoinPoint joinPoint, Compensable compensable, CompensableInterceptor interceptor,
       OmegaContext context, String parentTxId, int retries) throws Throwable {
