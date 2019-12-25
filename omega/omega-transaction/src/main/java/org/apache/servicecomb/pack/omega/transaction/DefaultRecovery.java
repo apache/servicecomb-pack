@@ -56,7 +56,7 @@ public class DefaultRecovery extends AbstractRecoveryPolicy {
 
     String retrySignature = (retries != 0 || compensationSignature.isEmpty()) ? method.toString() : "";
 
-    AlphaResponse response = interceptor.preIntercept(parentTxId, compensationSignature, compensable.timeout(),
+    AlphaResponse response = interceptor.preIntercept(parentTxId, compensationSignature, compensable.forwardTimeout(),
         retrySignature, retries, joinPoint.getArgs());
     if (response.aborted()) {
       String abortedLocalTxId = context.localTxId();

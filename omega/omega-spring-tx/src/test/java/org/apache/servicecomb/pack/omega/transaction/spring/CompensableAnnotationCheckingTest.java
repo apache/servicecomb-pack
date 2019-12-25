@@ -51,7 +51,7 @@ public class CompensableAnnotationCheckingTest {
         expectFailing(BeanCreationException.class);
       }
     } catch (BeanCreationException e) {
-      assertThat(e.getCause().getMessage(), endsWith("the retries should not below -1."));
+      assertThat(e.getCause().getMessage(), endsWith("the forward retries should not below -1."));
     }
   }
 

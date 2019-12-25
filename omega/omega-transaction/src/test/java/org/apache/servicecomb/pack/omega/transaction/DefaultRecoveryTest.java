@@ -113,7 +113,7 @@ public class DefaultRecoveryTest {
 
     when(methodSignature.getMethod()).thenReturn(this.getClass().getDeclaredMethod("doNothing"));
     when(compensable.compensationMethod()).thenReturn("doNothing");
-    when(compensable.retries()).thenReturn(0);
+    when(compensable.forwardRetries()).thenReturn(0);
 
     omegaContext.setGlobalTxId(globalTxId);
     omegaContext.setLocalTxId(localTxId);
@@ -191,7 +191,7 @@ public class DefaultRecoveryTest {
   @Test
   public void recordRetryMethodWhenRetriesIsSet() throws Throwable {
     int retries = new Random().nextInt(Integer.MAX_VALUE - 1) + 1;
-    when(compensable.retries()).thenReturn(retries);
+    when(compensable.forwardRetries()).thenReturn(retries);
 
     recoveryPolicy.apply(joinPoint, compensable, interceptor, omegaContext, parentTxId, retries);
 

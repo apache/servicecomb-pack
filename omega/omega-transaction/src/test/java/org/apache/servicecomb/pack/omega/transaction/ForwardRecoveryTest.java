@@ -116,7 +116,7 @@ public class ForwardRecoveryTest {
 
     when(methodSignature.getMethod()).thenReturn(this.getClass().getDeclaredMethod("doNothing"));
     when(compensable.compensationMethod()).thenReturn("doNothing");
-    when(compensable.retries()).thenReturn(0);
+    when(compensable.forwardRetries()).thenReturn(0);
 
     omegaContext.setGlobalTxId(globalTxId);
     omegaContext.setLocalTxId(localTxId);
@@ -143,7 +143,7 @@ public class ForwardRecoveryTest {
 
   @Test
   public void throwExceptionWhenRetryReachesMaximum() throws Throwable {
-    when(compensable.retries()).thenReturn(2);
+    when(compensable.forwardRetries()).thenReturn(2);
     when(joinPoint.proceed()).thenThrow(oops);
 
     try {
@@ -164,7 +164,7 @@ public class ForwardRecoveryTest {
 
   @Test
   public void keepRetryingTillInterrupted() throws Throwable {
-    when(compensable.retries()).thenReturn(-1);
+    when(compensable.forwardRetries()).thenReturn(-1);
     when(compensable.retryDelayInMilliseconds()).thenReturn(1000);
     when(joinPoint.proceed()).thenThrow(oops);
 

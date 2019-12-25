@@ -35,8 +35,8 @@ class CompensableMethodCheckingCallback extends MethodCheckingCallback {
     Compensable compensable = method.getAnnotation(Compensable.class);
     String compensationMethod = compensable.compensationMethod();
     // we don't support the retries number below -1.
-    if (compensable.retries() < -1) {
-      throw new IllegalArgumentException(String.format("Compensable %s of method %s, the retries should not below -1.", compensable, method.getName()));
+    if (compensable.forwardRetries() < -1) {
+      throw new IllegalArgumentException(String.format("Compensable %s of method %s, the forward retries should not below -1.", compensable, method.getName()));
     }
     loadMethodContext(method, compensationMethod);
   }
