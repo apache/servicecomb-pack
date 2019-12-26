@@ -807,3 +807,8 @@ Alpha 使用 `alpha.feature.nativetransport=true` 开启JNI调用Socket Transpor
 ## 实验
 
 [状态机模式](fsm/fsm_manual_zh.md)
+
+## 升级指南
+
+[Pack 0.6.0 升级指南](./upgrade_guide/0.6.0-upgrade_guide_zh.md)
+

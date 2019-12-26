@@ -820,3 +820,7 @@ Alpha enabled JNI transports support with `alpha.feature.nativetransport=true`, 
 ## Experiment
 
 [State Machine Mode](fsm/fsm_manual.md)
+
+## Upgrade Guide
+
+[Pack 0.6.0 Migration Guide](./upgrade_guide/0.6.0-upgrade_guide.md)
