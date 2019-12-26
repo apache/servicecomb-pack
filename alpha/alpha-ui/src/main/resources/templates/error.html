@@ -16,16 +16,25 @@
   -->
 
 <!DOCTYPE html>
-<html xmlns:layout="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml" layout:decorate="~{fragments/main_layout}">
+<html lang="en" xmlns:layout="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
   <title>Alpha Admin - Dashboard</title>
+  <link th:href="@{/webjars/font-awesome/css/all.min.css}" rel="stylesheet" type="text/css">
+  <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet" type="text/css">
+  <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
 </head>
 <body>
-<div layout:fragment="content" class="container-fluid">
+<div class="container-fluid">
   <div class="text-center">
     <div class="error mx-auto" data-text="404">404</div>
     <p class="lead text-gray-800 mb-5">Page Not Found</p>
-    <p class="text-gray-500 mb-0">It looks like you found a glitch in the matrix...</p>
+    <p class="text-gray-800 mb-3">Alpha UI only supports state machine mode</p>
     <a th:href="@{/admin}">&larr; Back to Dashboard</a>
   </div>
 </div>
