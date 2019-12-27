@@ -18,25 +18,22 @@
 
 package org.apache.servicecomb.pack.omega.transport.resttemplate;
 
-import java.util.List;
-
+import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
-
-import org.apache.servicecomb.pack.omega.context.OmegaContext;
 
 @Configuration
 public class RestTemplateConfig {
 
   @Bean(name = "omegaRestTemplate")
-  public RestTemplate omegaRestTemplate(@Autowired(required=false) OmegaContext context) {
-    RestTemplate template = new RestTemplate();
-    List<ClientHttpRequestInterceptor> interceptors = template.getInterceptors();
-    interceptors.add(new TransactionClientHttpRequestInterceptor(context));
-    template.setInterceptors(interceptors);
-    return template;
+  public RestTemplate omegaRestTemplate(@Autowired(required = false) OmegaContext context,
+      RestTemplateBuilder restTemplateBuilder) {
+    return restTemplateBuilder
+        .additionalInterceptors(new TransactionClientHttpRequestInterceptor(context))
+        .build();
   }
+
 }
