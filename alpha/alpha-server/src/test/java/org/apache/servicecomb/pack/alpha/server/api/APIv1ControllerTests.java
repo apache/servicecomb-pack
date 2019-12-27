@@ -28,7 +28,9 @@ import com.fasterxml.jackson.core.JsonGenerator.Feature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.apache.servicecomb.pack.alpha.core.NodeStatus;
 import org.apache.servicecomb.pack.alpha.core.NodeStatus.TypeEnum;
@@ -46,11 +48,14 @@ import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransaction;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.PagingGlobalTransactions;
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.SagaSubTransaction;
+import org.apache.servicecomb.pack.alpha.server.AlphaApplication;
+import org.apache.servicecomb.pack.alpha.server.AlphaConfig;
 import org.apache.servicecomb.pack.alpha.server.metrics.AlphaMetricsEndpoint;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.http.MediaType;
@@ -61,7 +66,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(value = {APIv1Controller.class, AlphaMetricsEndpoint.class})
+@AutoConfigureMockMvc
+@SpringBootTest(classes = {AlphaApplication.class, AlphaConfig.class})
 public class APIv1ControllerTests {
 
   @Autowired
@@ -187,7 +193,7 @@ public class APIv1ControllerTests {
         .globalTransactions(globalTransactions)
         .build();
 
-    when(transactionRepository.getGlobalTransactions(0, 50)).thenReturn(paging);
+    when(transactionRepository.getGlobalTransactions(null,0, 50)).thenReturn(paging);
 
     ObjectMapper mapper = new ObjectMapper();
     mapper.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, false);
@@ -305,6 +311,43 @@ public class APIv1ControllerTests {
             .value(globalTransaction.getDurationTime()))
         .andExpect(jsonPath("$.subTransactions", hasSize(3)))
         .andExpect(jsonPath("$.events", hasSize(8)))
+        .andReturn();
+  }
+
+  @Test
+  public void transactionStatisticsTest() throws Exception {
+    Map<String, Long> statistics = new HashMap<>();
+    statistics.put("COMMITTED", 1l);
+    statistics.put("SUSPENDED", 2l);
+    statistics.put("COMPENSATED", 3l);
+    when(transactionRepository.getTransactionStatistics()).thenReturn(statistics);
+    mockMvc.perform(get("/alpha/api/v1/transaction/statistics"))
+        .andExpect(status().isOk())
+        .andExpect(
+            MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+        .andExpect(jsonPath("$.COMMITTED").value(statistics.get("COMMITTED")))
+        .andExpect(jsonPath("$.SUSPENDED").value(statistics.get("SUSPENDED")))
+        .andExpect(jsonPath("$.COMPENSATED").value(statistics.get("COMPENSATED")))
+        .andReturn();
+  }
+
+  @Test
+  public void transactionSlowTest() throws Exception {
+    List<GlobalTransaction> globalTransactions = new ArrayList<>();
+    for(int i=0;i<10;i++){
+      globalTransactions.add(GlobalTransaction.builder()
+          .beginTime(new Date())
+          .endTime(new Date())
+          .events(new ArrayList<>())
+          .subTransactions(new ArrayList<>())
+          .build());
+    }
+    when(transactionRepository.getSlowGlobalTransactionsTopN(10)).thenReturn(globalTransactions);
+    mockMvc.perform(get("/alpha/api/v1/transaction/slow"))
+        .andExpect(status().isOk())
+        .andExpect(
+            MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+        .andExpect(jsonPath("$", hasSize(10)))
         .andReturn();
   }
 }

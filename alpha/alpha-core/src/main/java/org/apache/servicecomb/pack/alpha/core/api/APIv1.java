@@ -33,9 +33,6 @@ public interface APIv1 {
   PagingGlobalTransactions getTransactions(String state, int page, int size)
       throws Exception;
 
-  PagingGlobalTransactions getTransactions(int page, int size)
-      throws Exception;
-
   Map<String, Long> getTransactionStatistics();
 
   List<GlobalTransaction> getSlowTransactions(int size);
