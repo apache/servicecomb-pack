@@ -51,11 +51,6 @@ public class APIv1Impl implements APIv1 {
     return globalTransaction;
   }
 
-  public PagingGlobalTransactions getTransactions(int page, int size)
-      throws Exception {
-    return getTransactions(null, page, size);
-  }
-
   public PagingGlobalTransactions getTransactions(String state, int page, int size)
       throws Exception {
     PagingGlobalTransactions pagingGlobalTransactions = transactionRepository
