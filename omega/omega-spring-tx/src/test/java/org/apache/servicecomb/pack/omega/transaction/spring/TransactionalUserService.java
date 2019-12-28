@@ -18,6 +18,7 @@
 package org.apache.servicecomb.pack.omega.transaction.spring;
 
 import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
+import org.apache.servicecomb.pack.omega.transaction.annotations.CompensableMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +52,7 @@ public class TransactionalUserService {
     userRepository.delete(user);
   }
 
-  @Compensable(forwardRetries = 2, compensationMethod = "delete")
+  @Compensable(mode = CompensableMode.forward, forwardRetries = 2, compensationMethod = "delete")
   public User add(User user, int count) {
     if (this.count < count) {
       this.count += 1;

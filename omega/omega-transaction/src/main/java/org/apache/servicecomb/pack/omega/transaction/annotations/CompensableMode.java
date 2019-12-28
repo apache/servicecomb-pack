@@ -15,18 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.omega.transaction.spring;
+package org.apache.servicecomb.pack.omega.transaction.annotations;
 
-import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
-import org.apache.servicecomb.pack.omega.transaction.annotations.CompensableMode;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
-
-@Profile("annotation-retries-checking")
-@Component
-class MisconfiguredRetriesService {
-
-  @Compensable(mode = CompensableMode.forward, forwardRetries = -2)
-  void doSomething() {
-  }
+public enum CompensableMode {
+  forward, reverse, combine
 }
