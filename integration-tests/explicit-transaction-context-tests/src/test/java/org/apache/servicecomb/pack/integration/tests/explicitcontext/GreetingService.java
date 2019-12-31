@@ -21,7 +21,6 @@ import java.util.Queue;
 
 import org.apache.servicecomb.pack.omega.context.TransactionContext;
 import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
-import org.apache.servicecomb.pack.omega.transaction.annotations.CompensableMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -64,7 +63,7 @@ class GreetingService  {
     return appendMessage("My bad, please take the window instead, " + name);
   }
 
-  @Compensable(mode = CompensableMode.forward, forwardRetries = MAX_COUNT, compensationMethod = "close")
+  @Compensable(forwardRetries = MAX_COUNT, compensationMethod = "close")
   String open(String name, int retries, TransactionContext transactionContext) {
     if (failedCount < retries) {
       failedCount += 1;

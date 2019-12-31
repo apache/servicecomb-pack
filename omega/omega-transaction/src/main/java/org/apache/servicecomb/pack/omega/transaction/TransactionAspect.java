@@ -63,9 +63,10 @@ public class TransactionAspect extends TransactionContextHelper {
     context.newLocalTxId();
     LOG.debug("Updated context {} for compensable method {} ", context, method.toString());
 
-    RecoveryPolicy recoveryPolicy = RecoveryPolicyFactory.getRecoveryPolicy(compensable.mode());
+    int retries = compensable.forwardRetries();
+    RecoveryPolicy recoveryPolicy = RecoveryPolicyFactory.getRecoveryPolicy(retries);
     try {
-      return recoveryPolicy.apply(joinPoint, compensable, interceptor, context, localTxId, compensable.forwardRetries());
+      return recoveryPolicy.apply(joinPoint, compensable, interceptor, context, localTxId, retries);
     } finally {
       context.setLocalTxId(localTxId);
       LOG.debug("Restored context back to {}", context);

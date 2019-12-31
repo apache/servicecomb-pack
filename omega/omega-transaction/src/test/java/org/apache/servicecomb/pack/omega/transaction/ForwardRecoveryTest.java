@@ -40,7 +40,6 @@ import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
-import org.apache.servicecomb.pack.omega.transaction.annotations.CompensableMode;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.Before;
@@ -145,7 +144,6 @@ public class ForwardRecoveryTest {
   @Test
   public void throwExceptionWhenRetryReachesMaximum() throws Throwable {
     when(compensable.forwardRetries()).thenReturn(2);
-    when(compensable.mode()).thenReturn(CompensableMode.forward);
     when(joinPoint.proceed()).thenThrow(oops);
 
     try {
@@ -168,7 +166,6 @@ public class ForwardRecoveryTest {
   public void keepRetryingTillInterrupted() throws Throwable {
     when(compensable.forwardRetries()).thenReturn(-1);
     when(compensable.retryDelayInMilliseconds()).thenReturn(1000);
-    when(compensable.mode()).thenReturn(CompensableMode.forward);
     when(joinPoint.proceed()).thenThrow(oops);
 
     Thread thread = new Thread(new Runnable() {
