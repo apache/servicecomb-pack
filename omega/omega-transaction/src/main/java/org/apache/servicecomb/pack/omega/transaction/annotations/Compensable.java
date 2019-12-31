@@ -73,13 +73,4 @@ public @interface Compensable {
    */
   int forwardTimeout() default 0;
 
-  /**
-   * Compensation mode. <br>
-   * Default value is reverse
-   * value is forward, it will use the forward recovery
-   * value is reverse, it will use the reverse recovery
-   * value is combine, first forward then reverse
-   * @return compensable mode enum value
-   */
-  CompensableMode mode() default CompensableMode.reverse;
 }

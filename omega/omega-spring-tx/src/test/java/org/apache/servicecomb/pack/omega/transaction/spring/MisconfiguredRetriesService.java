@@ -18,7 +18,6 @@
 package org.apache.servicecomb.pack.omega.transaction.spring;
 
 import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
-import org.apache.servicecomb.pack.omega.transaction.annotations.CompensableMode;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +25,7 @@ import org.springframework.stereotype.Component;
 @Component
 class MisconfiguredRetriesService {
 
-  @Compensable(mode = CompensableMode.forward, forwardRetries = -2)
+  @Compensable(forwardRetries = -2)
   void doSomething() {
   }
 }

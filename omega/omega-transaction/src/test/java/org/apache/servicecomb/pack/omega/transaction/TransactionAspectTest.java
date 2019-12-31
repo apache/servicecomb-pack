@@ -42,7 +42,6 @@ import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.context.TransactionContextProperties;
 import org.apache.servicecomb.pack.omega.transaction.annotations.Compensable;
-import org.apache.servicecomb.pack.omega.transaction.annotations.CompensableMode;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.Before;
@@ -311,7 +310,6 @@ public class TransactionAspectTest {
     RuntimeException oops = new RuntimeException("oops");
     when(joinPoint.proceed()).thenThrow(oops);
     when(compensable.forwardRetries()).thenReturn(3);
-    when(compensable.mode()).thenReturn(CompensableMode.forward);
 
     try {
       aspect.advise(joinPoint, compensable);
@@ -356,7 +354,6 @@ public class TransactionAspectTest {
     RuntimeException oops = new RuntimeException("oops");
     when(joinPoint.proceed()).thenThrow(oops).thenThrow(oops).thenReturn(null);
     when(compensable.forwardRetries()).thenReturn(-1);
-    when(compensable.mode()).thenReturn(CompensableMode.forward);
 
     aspect.advise(joinPoint, compensable);
 

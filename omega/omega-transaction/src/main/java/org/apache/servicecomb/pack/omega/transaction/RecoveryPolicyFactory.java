@@ -17,19 +17,17 @@
 
 package org.apache.servicecomb.pack.omega.transaction;
 
-import org.apache.servicecomb.pack.omega.transaction.annotations.CompensableMode;
-
 public class RecoveryPolicyFactory {
   private static final RecoveryPolicy DEFAULT_RECOVERY = new DefaultRecovery();
 
   private static final RecoveryPolicy FORWARD_RECOVERY = new ForwardRecovery();
 
   /**
-   * If mode is reverse, it will use the reverse recovery
-   * If mode is forward, it will use the forward recovery
-   * If mode is combine, it will use the first forward then reverse
+   * If retries == 0, use the default recovery to execute only once.
+   * If retries > 0, it will use the forward recovery and retry the given times at most.
+   * If retries == -1, it will use the forward recovery and retry forever until interrupted.
    */
-  static RecoveryPolicy getRecoveryPolicy(CompensableMode mode) {
-    return mode == CompensableMode.forward ? FORWARD_RECOVERY : DEFAULT_RECOVERY;
+  static RecoveryPolicy getRecoveryPolicy(int retries) {
+    return retries != 0 ? FORWARD_RECOVERY : DEFAULT_RECOVERY;
   }
 }
