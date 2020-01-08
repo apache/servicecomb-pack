@@ -155,11 +155,10 @@ public class ForwardRecoveryTest {
           containsString("Failed to handle tx because it is interrupted")));
     }
 
-    assertThat(messages.size(), is(4));
+    assertThat(messages.size(), is(3));
     assertThat(messages.get(0).type(), is(EventType.TxStartedEvent));
-    assertThat(messages.get(1).type(), is(EventType.TxAbortedEvent));
-    assertThat(messages.get(2).type(), is(EventType.TxStartedEvent));
-    assertThat(messages.get(3).type(), is(EventType.TxAbortedEvent));
+    assertThat(messages.get(1).type(), is(EventType.TxStartedEvent));
+    assertThat(messages.get(2).type(), is(EventType.TxAbortedEvent));
   }
 
   @Test
