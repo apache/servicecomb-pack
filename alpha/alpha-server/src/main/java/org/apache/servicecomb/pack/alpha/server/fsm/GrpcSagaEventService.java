@@ -108,7 +108,7 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
           .instanceId(message.getInstanceId())
           .globalTxId(message.getGlobalTxId())
           .createTime(new Date())
-          .timeout(message.getTimeout()).build();
+          .timeout(message.getForwardTimeout()).build();
     } else if (message.getType().equals(EventType.SagaEndedEvent.name())) {
       event = org.apache.servicecomb.pack.alpha.core.fsm.event.SagaEndedEvent.builder()
           .serviceName(message.getServiceName())
@@ -137,7 +137,7 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
           .parentTxId(message.getParentTxId().isEmpty() ? null : message.getParentTxId())
           .compensationMethod(message.getCompensationMethod())
           .retryMethod(message.getRetryMethod())
-          .retries(message.getRetries())
+          .forwardRetries(message.getForwardRetries())
           .createTime(new Date())
           .payloads(message.getPayloads().toByteArray()).build();
     } else if (message.getType().equals(EventType.TxEndedEvent.name())) {
