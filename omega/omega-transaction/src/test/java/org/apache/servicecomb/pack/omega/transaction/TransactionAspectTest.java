@@ -129,7 +129,7 @@ public class TransactionAspectTest {
     assertThat(startedEvent.localTxId(), is(newLocalTxId));
     assertThat(startedEvent.parentTxId(), is(transactionLocalTxId));
     assertThat(startedEvent.type(), is(EventType.TxStartedEvent));
-    assertThat(startedEvent.retries(), is(0));
+    assertThat(startedEvent.forwardRetries(), is(0));
     assertThat(startedEvent.retryMethod().isEmpty(), is(true));
 
     TxEvent endedEvent = messages.get(1);
@@ -164,7 +164,7 @@ public class TransactionAspectTest {
     assertThat(startedEvent.localTxId(), is(newLocalTxId));
     assertThat(startedEvent.parentTxId(), is(localTxId));
     assertThat(startedEvent.type(), is(EventType.TxStartedEvent));
-    assertThat(startedEvent.retries(), is(0));
+    assertThat(startedEvent.forwardRetries(), is(0));
     assertThat(startedEvent.retryMethod().isEmpty(), is(true));
 
     TxEvent endedEvent = messages.get(1);
@@ -305,6 +305,13 @@ public class TransactionAspectTest {
     }
   }
 
+  /**
+   * Send TxAbortedEvent after three failed retries
+   * TxStartedEvent retry 1
+   * TxStartedEvent retry 2
+   * TxStartedEvent retry 3
+   * TxAbortedEvent
+   * */
   @Test
   public void retryReachesMaximumAndForwardException() throws Throwable {
     RuntimeException oops = new RuntimeException("oops");
@@ -318,32 +325,32 @@ public class TransactionAspectTest {
       assertThat(e.getMessage(), is("oops"));
     }
 
-    assertThat(messages.size(), is(6));
+    assertThat(messages.size(), is(4));
 
+    // TxStartedEvent retry 1
     TxEvent startedEvent1 = messages.get(0);
     assertThat(startedEvent1.globalTxId(), is(globalTxId));
     assertThat(startedEvent1.localTxId(), is(newLocalTxId));
     assertThat(startedEvent1.parentTxId(), is(localTxId));
     assertThat(startedEvent1.type(), is(EventType.TxStartedEvent));
-    assertThat(startedEvent1.retries(), is(3));
+    assertThat(startedEvent1.forwardRetries(), is(3));
     assertThat(startedEvent1.retryMethod(),
         is(this.getClass().getDeclaredMethod("doNothing").toString()));
 
-    assertThat(messages.get(1).type(), is(EventType.TxAbortedEvent));
-
-    TxEvent startedEvent2 = messages.get(2);
+    // TxStartedEvent retry 2
+    TxEvent startedEvent2 = messages.get(1);
     assertThat(startedEvent2.localTxId(), is(newLocalTxId));
     assertThat(startedEvent2.type(), is(EventType.TxStartedEvent));
-    assertThat(startedEvent2.retries(), is(2));
+    assertThat(startedEvent2.forwardRetries(), is(2));
 
-    assertThat(messages.get(3).type(), is(EventType.TxAbortedEvent));
-
-    TxEvent startedEvent3 = messages.get(4);
+    // TxStartedEvent retry 3
+    TxEvent startedEvent3 = messages.get(2);
     assertThat(startedEvent3.localTxId(), is(newLocalTxId));
     assertThat(startedEvent3.type(), is(EventType.TxStartedEvent));
-    assertThat(startedEvent3.retries(), is(1));
+    assertThat(startedEvent3.forwardRetries(), is(1));
 
-    assertThat(messages.get(5).type(), is(EventType.TxAbortedEvent));
+    // TxAbortedEvent
+    assertThat(messages.get(3).type(), is(EventType.TxAbortedEvent));
 
     assertThat(omegaContext.globalTxId(), is(globalTxId));
     assertThat(omegaContext.localTxId(), is(localTxId));
@@ -357,32 +364,28 @@ public class TransactionAspectTest {
 
     aspect.advise(joinPoint, compensable);
 
-    assertThat(messages.size(), is(6));
+    assertThat(messages.size(), is(4));
 
     TxEvent startedEvent1 = messages.get(0);
     assertThat(startedEvent1.globalTxId(), is(globalTxId));
     assertThat(startedEvent1.localTxId(), is(newLocalTxId));
     assertThat(startedEvent1.parentTxId(), is(localTxId));
     assertThat(startedEvent1.type(), is(EventType.TxStartedEvent));
-    assertThat(startedEvent1.retries(), is(-1));
+    assertThat(startedEvent1.forwardRetries(), is(-1));
     assertThat(startedEvent1.retryMethod(),
         is(this.getClass().getDeclaredMethod("doNothing").toString()));
 
-    assertThat(messages.get(1).type(), is(EventType.TxAbortedEvent));
-
-    TxEvent startedEvent2 = messages.get(2);
+    TxEvent startedEvent2 = messages.get(1);
     assertThat(startedEvent2.localTxId(), is(newLocalTxId));
     assertThat(startedEvent2.type(), is(EventType.TxStartedEvent));
-    assertThat(startedEvent2.retries(), is(-1));
+    assertThat(startedEvent2.forwardRetries(), is(-1));
 
-    assertThat(messages.get(3).type(), is(EventType.TxAbortedEvent));
-
-    TxEvent startedEvent3 = messages.get(4);
+    TxEvent startedEvent3 = messages.get(2);
     assertThat(startedEvent3.localTxId(), is(newLocalTxId));
     assertThat(startedEvent3.type(), is(EventType.TxStartedEvent));
-    assertThat(startedEvent3.retries(), is(-1));
+    assertThat(startedEvent3.forwardRetries(), is(-1));
 
-    assertThat(messages.get(5).type(), is(EventType.TxEndedEvent));
+    assertThat(messages.get(3).type(), is(EventType.TxEndedEvent));
 
     assertThat(omegaContext.globalTxId(), is(globalTxId));
     assertThat(omegaContext.localTxId(), is(localTxId));
