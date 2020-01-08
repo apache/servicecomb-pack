@@ -171,9 +171,9 @@ public abstract class SagaLoadBalancedSenderTestBase {
           request.getLocalTxId(),
           request.getParentTxId(),
           request.getCompensationMethod(),
-          request.getTimeout(),
+          request.getForwardTimeout(),
           request.getRetryMethod(),
-          request.getRetries(),
+          request.getForwardRetries(),
           new String(request.getPayloads().toByteArray())));
 
       sleep();

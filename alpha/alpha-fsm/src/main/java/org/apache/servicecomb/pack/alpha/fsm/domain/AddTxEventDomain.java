@@ -32,7 +32,7 @@ public class AddTxEventDomain implements DomainEvent {
     this.event = event;
     this.compensationMethod = event.getCompensationMethod();
     this.payloads = event.getPayloads();
-    this.retries = event.getRetries();
+    this.retries = event.getForwardRetries();
   }
 
   public TxState getState() {

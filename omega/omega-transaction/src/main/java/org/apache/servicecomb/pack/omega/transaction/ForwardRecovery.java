@@ -40,9 +40,9 @@ public class ForwardRecovery extends DefaultRecovery {
   // TODO: 2018/03/10 we do not support retry with forward timeout yet
   @Override
   public Object applyTo(ProceedingJoinPoint joinPoint, Compensable compensable, CompensableInterceptor interceptor,
-      OmegaContext context, String parentTxId, int retries) throws Throwable {
+      OmegaContext context, String parentTxId, int forwardRetries) throws Throwable {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
-    int remains = retries;
+    int remains = forwardRetries;
     try {
       while (true) {
         try {
@@ -55,12 +55,12 @@ public class ForwardRecovery extends DefaultRecovery {
           remains = remains == -1 ? -1 : remains - 1;
           if (remains == 0) {
             LOG.error(
-                "Retried sub tx failed maximum times, global tx id: {}, local tx id: {}, method: {}, retried times: {}",
-                context.globalTxId(), context.localTxId(), method.toString(), retries);
+                "Forward Retried sub tx failed maximum times, global tx id: {}, local tx id: {}, method: {}, retried times: {}",
+                context.globalTxId(), context.localTxId(), method.toString(), forwardRetries);
             throw throwable;
           }
 
-          LOG.warn("Retrying sub tx failed, global tx id: {}, local tx id: {}, method: {}, remains: {}",
+          LOG.warn("Forward Retrying sub tx failed, global tx id: {}, local tx id: {}, method: {}, remains: {}",
               context.globalTxId(), context.localTxId(), method.toString(), remains);
           Thread.sleep(compensable.retryDelayInMilliseconds());
         }

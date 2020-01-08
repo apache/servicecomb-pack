@@ -24,7 +24,7 @@ public class TxStartedEvent extends TxEvent {
   private String compensationMethod;
   private byte[] payloads;
   private String retryMethod;
-  private int retries;
+  private int forwardRetries;
 
   public String getCompensationMethod() {
     return compensationMethod;
@@ -50,12 +50,12 @@ public class TxStartedEvent extends TxEvent {
     this.retryMethod = retryMethod;
   }
 
-  public int getRetries() {
-    return retries;
+  public int getForwardRetries() {
+    return forwardRetries;
   }
 
-  public void setRetries(int retries) {
-    this.retries = retries;
+  public void setForwardRetries(int forwardRetries) {
+    this.forwardRetries = forwardRetries;
   }
 
   public static Builder builder() {
@@ -110,8 +110,8 @@ public class TxStartedEvent extends TxEvent {
       return this;
     }
 
-    public Builder retries(int retries) {
-      txStartedEvent.setRetries(retries);
+    public Builder forwardRetries(int forwardRetries) {
+      txStartedEvent.setForwardRetries(forwardRetries);
       return this;
     }
 

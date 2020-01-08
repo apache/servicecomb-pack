@@ -255,23 +255,22 @@ public class ExplicitTransactionContextIT {
     assertThat(entity.getStatusCode(), is(OK));
     assertThat(entity.getBody(), is("Greetings, eric; Welcome to visit the zoo, eric"));
 
-    await().atMost(10, SECONDS).until(() -> eventRepo.count() == 8);
+    await().atMost(10, SECONDS).until(() -> eventRepo.count() == 7);
 
     List<String> distinctGlobalTxIds = eventRepo.findDistinctGlobalTxId();
     assertThat(distinctGlobalTxIds.size(), greaterThanOrEqualTo(1));
 
     String globalTxId = distinctGlobalTxIds.get(0);
     List<TxEvent> events = eventRepo.findByGlobalTxIdOrderByCreationTime(globalTxId);
-    assertThat(events.size(), is(8));
+    assertThat(events.size(), is(7));
 
     assertThat(events.get(0).type(), is("SagaStartedEvent"));
     assertThat(events.get(1).type(), is("TxStartedEvent"));
     assertThat(events.get(2).type(), is("TxEndedEvent"));
     assertThat(events.get(3).type(), is("TxStartedEvent"));
-    assertThat(events.get(4).type(), is("TxAbortedEvent"));
-    assertThat(events.get(5).type(), is("TxStartedEvent"));
-    assertThat(events.get(6).type(), is("TxEndedEvent"));
-    assertThat(events.get(7).type(), is("SagaEndedEvent"));
+    assertThat(events.get(4).type(), is("TxStartedEvent"));
+    assertThat(events.get(5).type(), is("TxEndedEvent"));
+    assertThat(events.get(6).type(), is("SagaEndedEvent"));
 
     assertThat(compensatedMessages.isEmpty(), is(true));
   }
@@ -286,27 +285,25 @@ public class ExplicitTransactionContextIT {
 
     assertThat(entity.getStatusCode(), is(INTERNAL_SERVER_ERROR));
 
-    await().atMost(10, SECONDS).until(() -> eventRepo.count() == 12);
+    await().atMost(10, SECONDS).until(() -> eventRepo.count() == 10);
 
     List<String> distinctGlobalTxIds = eventRepo.findDistinctGlobalTxId();
     assertThat(distinctGlobalTxIds.size(), greaterThanOrEqualTo(1));
 
     String globalTxId = distinctGlobalTxIds.get(0);
     List<TxEvent> events = eventRepo.findByGlobalTxIdOrderByCreationTime(globalTxId);
-    assertThat(events.size(), is(12));
+    assertThat(events.size(), is(10));
 
     assertThat(events.get(0).type(), is("SagaStartedEvent"));
     assertThat(events.get(1).type(), is("TxStartedEvent"));
     assertThat(events.get(2).type(), is("TxEndedEvent"));
     assertThat(events.get(3).type(), is("TxStartedEvent"));
-    assertThat(events.get(4).type(), is("TxAbortedEvent"));
+    assertThat(events.get(4).type(), is("TxStartedEvent"));
     assertThat(events.get(5).type(), is("TxStartedEvent"));
     assertThat(events.get(6).type(), is("TxAbortedEvent"));
-    assertThat(events.get(7).type(), is("TxStartedEvent"));
-    assertThat(events.get(8).type(), is("TxAbortedEvent"));
-    // This event is for the whole saga event
-    assertThat(events.get(9).type(), is("TxAbortedEvent"));
-    assertThat(events.get(10).type(), is("TxCompensatedEvent"));
+    assertThat(events.get(7).type(), is("TxAbortedEvent"));
+    assertThat(events.get(8).type(), is("TxCompensatedEvent"));
+    assertThat(events.get(9).type(), is("SagaEndedEvent"));
 
     assertThat(compensatedMessages, Matchers.contains("Goodbye, " + GreetingController.TRESPASSER));
   }

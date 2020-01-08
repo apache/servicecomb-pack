@@ -42,8 +42,8 @@ message GrpcTxEvent {
   bytes payloads = 7;
   string serviceName = 8;
   string instanceId = 9;
-  int32 timeout = 10;
-  int32 retries = 11;
+  int32 forwardTimeout = 10;
+  int32 forwardRetries = 11;
   string retryMethod = 12;
 }
 

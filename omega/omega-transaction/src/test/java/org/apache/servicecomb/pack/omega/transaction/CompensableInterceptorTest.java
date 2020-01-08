@@ -91,15 +91,15 @@ public class CompensableInterceptorTest {
 
   @Test
   public void sendsTxStartedEventBefore() throws Exception {
-    int retries = new Random().nextInt();
-    interceptor.preIntercept(parentTxId, compensationMethod, 0, retryMethod, retries, message);
+    int forwardRetries = new Random().nextInt();
+    interceptor.preIntercept(parentTxId, compensationMethod, 0, retryMethod, forwardRetries, message);
 
     TxEvent event = messages.get(0);
 
     assertThat(event.globalTxId(), is(globalTxId));
     assertThat(event.localTxId(), is(localTxId));
     assertThat(event.parentTxId(), is(parentTxId));
-    assertThat(event.retries(), is(retries));
+    assertThat(event.forwardRetries(), is(forwardRetries));
     assertThat(event.retryMethod(), is(retryMethod));
     assertThat(event.type(), is(EventType.TxStartedEvent));
     assertThat(event.compensationMethod(), is(compensationMethod));

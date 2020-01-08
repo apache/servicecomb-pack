@@ -131,7 +131,7 @@ public class DefaultRecoveryTest {
     assertThat(startedEvent.localTxId(), is(localTxId));
     assertThat(startedEvent.parentTxId(), is(parentTxId));
     assertThat(startedEvent.type(), is(EventType.TxStartedEvent));
-    assertThat(startedEvent.retries(), is(0));
+    assertThat(startedEvent.forwardRetries(), is(0));
     assertThat(startedEvent.retryMethod(), is(""));
 
     TxEvent endedEvent = messages.get(1);
@@ -159,7 +159,7 @@ public class DefaultRecoveryTest {
     assertThat(startedEvent.localTxId(), is(localTxId));
     assertThat(startedEvent.parentTxId(), is(parentTxId));
     assertThat(startedEvent.type(), is(EventType.TxStartedEvent));
-    assertThat(startedEvent.retries(), is(0));
+    assertThat(startedEvent.forwardRetries(), is(0));
     assertThat(startedEvent.retryMethod(), is(""));
 
     TxEvent abortedEvent = messages.get(1);
@@ -201,7 +201,7 @@ public class DefaultRecoveryTest {
     assertThat(startedEvent.localTxId(), is(localTxId));
     assertThat(startedEvent.parentTxId(), is(parentTxId));
     assertThat(startedEvent.type(), is(EventType.TxStartedEvent));
-    assertThat(startedEvent.retries(), is(retries));
+    assertThat(startedEvent.forwardRetries(), is(retries));
     assertThat(startedEvent.retryMethod(), is(this.getClass().getDeclaredMethod("doNothing").toString()));
   }
 
