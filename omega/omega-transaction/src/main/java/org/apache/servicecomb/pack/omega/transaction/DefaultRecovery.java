@@ -47,17 +47,17 @@ public class DefaultRecovery extends AbstractRecoveryPolicy {
 
   @Override
   public Object applyTo(ProceedingJoinPoint joinPoint, Compensable compensable, CompensableInterceptor interceptor,
-      OmegaContext context, String parentTxId, int retries) throws Throwable {
+      OmegaContext context, String parentTxId, int forwardRetries) throws Throwable {
     Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
     LOG.debug("Intercepting compensable method {} with context {}", method.toString(), context);
 
     String compensationSignature =
         compensable.compensationMethod().isEmpty() ? "" : compensationMethodSignature(joinPoint, compensable, method);
 
-    String retrySignature = (retries != 0 || compensationSignature.isEmpty()) ? method.toString() : "";
+    String retrySignature = (forwardRetries != 0 || compensationSignature.isEmpty()) ? method.toString() : "";
 
     AlphaResponse response = interceptor.preIntercept(parentTxId, compensationSignature, compensable.forwardTimeout(),
-        retrySignature, retries, joinPoint.getArgs());
+        retrySignature, forwardRetries, joinPoint.getArgs());
     if (response.aborted()) {
       String abortedLocalTxId = context.localTxId();
       context.setLocalTxId(parentTxId);
@@ -71,7 +71,10 @@ public class DefaultRecovery extends AbstractRecoveryPolicy {
 
       return result;
     } catch (Throwable throwable) {
-      interceptor.onError(parentTxId, compensationSignature, throwable);
+      if (compensable.forwardRetries() == 0 || (compensable.forwardRetries() > 0
+          && forwardRetries == 1)) {
+        interceptor.onError(parentTxId, compensationSignature, throwable);
+      }
       throw throwable;
     }
   }
