@@ -161,33 +161,6 @@ public class ForwardRecoveryTest {
     assertThat(messages.get(2).type(), is(EventType.TxAbortedEvent));
   }
 
-  @Test
-  public void keepRetryingTillInterrupted() throws Throwable {
-    when(compensable.forwardRetries()).thenReturn(-1);
-    when(compensable.retryDelayInMilliseconds()).thenReturn(1000);
-    when(joinPoint.proceed()).thenThrow(oops);
-
-    Thread thread = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          recoveryPolicy.apply(joinPoint, compensable, interceptor, omegaContext, parentTxId, -1);
-          expectFailing(OmegaException.class);
-        } catch (OmegaException e) {
-          exception = e;
-        } catch (Throwable throwable) {
-          fail("unexpected exception throw: " + throwable);
-        }
-      }
-    });
-    thread.start();
-
-    thread.interrupt();
-    thread.join();
-
-    assertThat(exception.getMessage().contains("Failed to handle tx because it is interrupted"), is(true));
-  }
-
   private String doNothing() {
     return "doNothing";
   }
