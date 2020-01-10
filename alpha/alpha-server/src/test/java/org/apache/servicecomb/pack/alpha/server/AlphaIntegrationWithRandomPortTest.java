@@ -497,12 +497,12 @@ public class AlphaIntegrationWithRandomPortTest {
 
   private GrpcTxEvent someGrpcEventWithTimeout(EventType type, String localTxId, String parentTxId, int timeout) {
     return eventOf(type, globalTxId, localTxId, parentTxId, payload.getBytes(), getClass().getCanonicalName(), timeout,
-        "", 0);
+        "", 0, 0, 0, 0);
   }
 
-  private GrpcTxEvent someGrpcEventWithRetry(EventType type, String retryMethod, int retries) {
+  private GrpcTxEvent someGrpcEventWithRetry(EventType type, String retryMethod, int forwardRetries) {
     return eventOf(type, globalTxId, localTxId, parentTxId, payload.getBytes(), compensationMethod, 0,
-        retryMethod, retries);
+        retryMethod, forwardRetries, 0, 0, 0);
   }
 
   private GrpcTxEvent someGrpcEvent(EventType type) {
@@ -519,12 +519,12 @@ public class AlphaIntegrationWithRandomPortTest {
 
   private GrpcTxEvent someGrpcEvent(EventType type, String globalTxId, String localTxId, String parentTxId) {
     return eventOf(type, globalTxId, localTxId, parentTxId, payload.getBytes(), getClass().getCanonicalName(), 0, "",
-        0);
+        0, 0, 0, 0);
   }
 
   private GrpcTxEvent eventOf(EventType eventType, String localTxId, String parentTxId, byte[] payloads,
       String compensationMethod) {
-    return eventOf(eventType, globalTxId, localTxId, parentTxId, payloads, compensationMethod, 0, "", 0);
+    return eventOf(eventType, globalTxId, localTxId, parentTxId, payloads, compensationMethod, 0, "", 0, 0, 0, 0);
   }
 
   private GrpcTxEvent eventOf(EventType eventType,
@@ -535,7 +535,10 @@ public class AlphaIntegrationWithRandomPortTest {
       String compensationMethod,
       int timeout,
       String retryMethod,
-      int forwardRetries) {
+      int forwardRetries,
+      int forwardTimeout,
+      int reverseRetries,
+      int reverseTimeout) {
 
     return GrpcTxEvent.newBuilder()
         .setServiceName(serviceName)
@@ -546,9 +549,12 @@ public class AlphaIntegrationWithRandomPortTest {
         .setParentTxId(parentTxId == null ? "" : parentTxId)
         .setType(eventType.name())
         .setCompensationMethod(compensationMethod)
-        .setForwardTimeout(timeout)
+        .setTimeout(timeout)
+        .setForwardTimeout(forwardTimeout)
+        .setReverseTimeout(reverseTimeout)
         .setRetryMethod(retryMethod)
         .setForwardRetries(forwardRetries)
+        .setReverseRetries(reverseRetries)
         .setPayloads(ByteString.copyFrom(payloads))
         .build();
   }

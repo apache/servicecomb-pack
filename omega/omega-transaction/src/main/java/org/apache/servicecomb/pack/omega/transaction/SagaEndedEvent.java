@@ -21,6 +21,6 @@ import org.apache.servicecomb.pack.common.EventType;
 
 public class SagaEndedEvent extends TxEvent {
   SagaEndedEvent(String globalTxId, String localTxId) {
-    super(EventType.SagaEndedEvent, globalTxId, localTxId, null, "", 0, "", 0);
+    super(EventType.SagaEndedEvent, globalTxId, localTxId, null, "", 0, "", 0, 0, 0, 0);
   }
 }

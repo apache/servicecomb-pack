@@ -50,6 +50,16 @@ public @interface Compensable {
   int forwardRetries() default 0;
 
   /**
+   * The retires number of the reverse compensable method.
+   * Default value is 0, which means never retry it
+   * value &gt; 0, which means the retry number
+   * value &lt; 0, an IllegalArgumentException will be thrown
+   *
+   * @return the reverse retries number
+   */
+  int reverseRetries() default 0;
+
+  /**
    * Compensation method name.<br>
    * A compensation method should satisfy below requirements:
    * <ol>
@@ -73,4 +83,11 @@ public @interface Compensable {
    */
   int forwardTimeout() default 0;
 
+  /**
+   * <code>@Compensable</code> reverse compensable method timeout, in seconds. <br>
+   * Default value is 0, which means never timeout.
+   *
+   * @return the reverse timeout value
+   */
+  int reverseTimeout() default 0;
 }

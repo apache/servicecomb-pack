@@ -52,7 +52,7 @@ public class ForwardRecovery extends DefaultRecovery {
             throw throwable;
           }
 
-          remains = remains == -1 ? -1 : remains - 1;
+          remains--;
           if (remains == 0) {
             LOG.error(
                 "Forward Retried sub tx failed maximum times, global tx id: {}, local tx id: {}, method: {}, retried times: {}",

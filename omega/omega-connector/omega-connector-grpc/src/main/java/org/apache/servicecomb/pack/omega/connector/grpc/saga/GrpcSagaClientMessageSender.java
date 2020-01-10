@@ -109,10 +109,12 @@ public class GrpcSagaClientMessageSender implements SagaMessageSender {
         .setLocalTxId(event.localTxId())
         .setParentTxId(event.parentTxId() == null ? "" : event.parentTxId())
         .setType(event.type().name())
-        .setForwardTimeout(event.timeout())
+        .setTimeout(event.timeout())
+        .setForwardTimeout(event.forwardTimeout())
         .setCompensationMethod(event.compensationMethod())
         .setRetryMethod(event.retryMethod() == null ? "" : event.retryMethod())
         .setForwardRetries(event.forwardRetries())
+        .setReverseRetries(event.reverseRetries())
         .setPayloads(payloads);
 
     return builder.build();
