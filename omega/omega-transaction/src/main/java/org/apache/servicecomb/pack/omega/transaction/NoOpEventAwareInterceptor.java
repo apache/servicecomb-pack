@@ -23,8 +23,8 @@ public class NoOpEventAwareInterceptor implements EventAwareInterceptor {
 
   @Override
   public AlphaResponse preIntercept(String parentTxId, String compensationMethod, int timeout,
-      String retriesMethod,
-      int forwardRetries, Object... message) {
+      String retriesMethod, int forwardRetries, int forwardTimeout, int reverseRetries,
+      int reverseTimeout, Object... message) {
     return new AlphaResponse(false);
   }
 

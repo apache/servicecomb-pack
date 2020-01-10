@@ -106,7 +106,7 @@ class GrpcTxEventEndpointImpl extends TxEventServiceImplBase {
         message.getParentTxId().isEmpty() ? null : message.getParentTxId(),
         message.getType(),
         message.getCompensationMethod(),
-        message.getForwardTimeout(),
+        message.getTimeout(),
         message.getRetryMethod(),
         message.getForwardRetries(),
         message.getPayloads().toByteArray()

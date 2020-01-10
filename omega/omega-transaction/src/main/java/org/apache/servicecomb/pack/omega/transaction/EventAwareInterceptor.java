@@ -20,8 +20,9 @@ package org.apache.servicecomb.pack.omega.transaction;
 public interface EventAwareInterceptor {
 
   AlphaResponse preIntercept(String parentTxId, String compensationMethod, int timeout,
-      String retriesMethod,
-      int forwardRetries, Object... message);
+      String retriesMethod, int forwardRetries, int forwardTimeout, int reverseRetries,
+      int reverseTimeout,
+      Object... message);
 
   void postIntercept(String parentTxId, String compensationMethod);
 

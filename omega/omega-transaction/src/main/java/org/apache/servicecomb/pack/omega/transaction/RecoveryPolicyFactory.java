@@ -25,9 +25,8 @@ public class RecoveryPolicyFactory {
   /**
    * If retries == 0, use the default recovery to execute only once.
    * If retries > 0, it will use the forward recovery and retry the given times at most.
-   * If retries == -1, it will use the forward recovery and retry forever until interrupted.
    */
   static RecoveryPolicy getRecoveryPolicy(int forwardRetries) {
-    return forwardRetries != 0 ? FORWARD_RECOVERY : DEFAULT_RECOVERY;
+    return forwardRetries > 0 ? FORWARD_RECOVERY : DEFAULT_RECOVERY;
   }
 }

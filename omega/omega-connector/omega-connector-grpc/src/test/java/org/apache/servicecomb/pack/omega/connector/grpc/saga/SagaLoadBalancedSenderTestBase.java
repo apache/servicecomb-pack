@@ -74,7 +74,7 @@ public abstract class SagaLoadBalancedSenderTestBase {
   protected final String compensationMethod = getClass().getCanonicalName();
 
   protected final TxEvent event = new TxEvent(EventType.TxStartedEvent, globalTxId, localTxId, parentTxId,
-      compensationMethod, 0, "", 0, "blah");
+      compensationMethod, 0, "", 0, 0, 0, 0, "blah");
 
   protected final String serviceName = uniquify("serviceName");
 
@@ -174,6 +174,9 @@ public abstract class SagaLoadBalancedSenderTestBase {
           request.getForwardTimeout(),
           request.getRetryMethod(),
           request.getForwardRetries(),
+          request.getForwardTimeout(),
+          request.getReverseRetries(),
+          request.getReverseTimeout(),
           new String(request.getPayloads().toByteArray())));
 
       sleep();
