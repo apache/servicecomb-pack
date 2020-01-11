@@ -37,10 +37,12 @@ public class TxEvent {
   private final int forwardTimeout;
   private final int reverseRetries;
   private final int reverseTimeout;
+  private final int retryDelayInMilliseconds;
 
-
-  public TxEvent(EventType type, String globalTxId, String localTxId, String parentTxId, String compensationMethod,
-      int timeout, String retryMethod, int forwardRetries, int forwardTimeout, int reverseRetries, int reverseTimeout, Object... payloads) {
+  public TxEvent(EventType type, String globalTxId, String localTxId, String parentTxId,
+      String compensationMethod,
+      int timeout, String retryMethod, int forwardRetries, int forwardTimeout, int reverseRetries,
+      int reverseTimeout, int retryDelayInMilliseconds, Object... payloads) {
     this.timestamp = System.currentTimeMillis();
     this.type = type;
     this.globalTxId = globalTxId;
@@ -53,6 +55,7 @@ public class TxEvent {
     this.forwardTimeout = forwardTimeout;
     this.reverseRetries = reverseRetries;
     this.reverseTimeout = reverseTimeout;
+    this.retryDelayInMilliseconds = retryDelayInMilliseconds;
     this.payloads = payloads;
   }
 
@@ -106,6 +109,10 @@ public class TxEvent {
 
   public int reverseTimeout() {
     return reverseTimeout;
+  }
+
+  public int retryDelayInMilliseconds() {
+    return retryDelayInMilliseconds;
   }
 
   @Override

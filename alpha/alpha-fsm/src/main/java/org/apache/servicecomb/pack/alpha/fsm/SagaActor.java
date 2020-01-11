@@ -538,27 +538,27 @@ public class SagaActor extends
     } catch (AlphaException ex) {
       LOG.error(ex.getMessage(), ex);
       try {
-        Thread.sleep(1000);
+        Thread.sleep(txEntity.getRetryDelayInMilliseconds());
       } catch (InterruptedException e) {
         LOG.error(e.getMessage(), e);
       }
       compensation(txEntity, data);
     } catch (Exception ex) {
       LOG.error("compensation failed " + txEntity.getLocalTxId(), ex);
-      if (txEntity.getRetries() > 0) {
+      if (txEntity.getReverseRetries() > 0) {
         // which means the retry number
-        if (txEntity.getRetriesCounter().incrementAndGet() < txEntity.getRetries()) {
+        if (txEntity.getRetriesCounter().incrementAndGet() < txEntity.getReverseRetries()) {
           try {
-            Thread.sleep(1000);
+            Thread.sleep(txEntity.getRetryDelayInMilliseconds());
           } catch (InterruptedException e) {
             LOG.error(e.getMessage(), e);
           }
           compensation(txEntity, data);
         }
-      } else if (txEntity.getRetries() == -1) {
+      } else if (txEntity.getReverseRetries() == -1) {
         // which means retry it until succeed
         try {
-          Thread.sleep(1000);
+          Thread.sleep(txEntity.getRetryDelayInMilliseconds());
         } catch (InterruptedException e) {
           LOG.error(e.getMessage(), e);
         }

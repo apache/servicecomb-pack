@@ -58,7 +58,7 @@ public class DefaultRecovery extends AbstractRecoveryPolicy {
 
     AlphaResponse response = interceptor.preIntercept(parentTxId, compensationSignature, compensable.forwardTimeout(),
             retrySignature, forwardRetries, compensable.forwardTimeout(),
-            compensable.reverseRetries(), compensable.reverseTimeout(), joinPoint.getArgs());
+            compensable.reverseRetries(), compensable.reverseTimeout(), compensable.retryDelayInMilliseconds(), joinPoint.getArgs());
     if (response.aborted()) {
       String abortedLocalTxId = context.localTxId();
       context.setLocalTxId(parentTxId);

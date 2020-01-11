@@ -21,6 +21,6 @@ import org.apache.servicecomb.pack.common.EventType;
 
 public class TxCompensateAckFailedEvent extends TxEvent {
   public TxCompensateAckFailedEvent(String globalTxId, String localTxId, String parentTxId) {
-    super(EventType.TxCompensateAckFailedEvent, globalTxId, localTxId, parentTxId, "", 0, "", 0,0 ,0 ,0);
+    super(EventType.TxCompensateAckFailedEvent, globalTxId, localTxId, parentTxId, "", 0, "", 0,0 ,0 ,0, 0);
   }
 }

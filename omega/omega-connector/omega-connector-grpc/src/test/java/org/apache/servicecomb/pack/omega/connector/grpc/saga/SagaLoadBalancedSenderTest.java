@@ -305,7 +305,7 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
     assertThat(messageSender.send(event).aborted(), is(false));
 
     TxEvent rejectEvent = new TxStartedEvent(globalTxId, localTxId, parentTxId, "reject", 0, "", 0,
-        0, 0, 0, "blah");
+        0, 0, 0, 0, "blah");
     assertThat(messageSender.send(rejectEvent).aborted(), is(true));
   }
 
