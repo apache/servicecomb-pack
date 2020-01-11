@@ -23,7 +23,9 @@ import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 
 public class AddTxEventDomain implements DomainEvent {
   private TxState state = TxState.ACTIVE;
-  private int retries;
+  private int reverseRetries;
+  private int reverseTimeout;
+  private int retryDelayInMilliseconds;
   private String compensationMethod;
   private byte[] payloads;
   private BaseEvent event;
@@ -32,7 +34,9 @@ public class AddTxEventDomain implements DomainEvent {
     this.event = event;
     this.compensationMethod = event.getCompensationMethod();
     this.payloads = event.getPayloads();
-    this.retries = event.getForwardRetries();
+    this.reverseRetries = event.getReverseRetries();
+    this.reverseTimeout = event.getReverseTimeout();
+    this.retryDelayInMilliseconds = event.getRetryDelayInMilliseconds();
   }
 
   public TxState getState() {
@@ -47,12 +51,28 @@ public class AddTxEventDomain implements DomainEvent {
     this.compensationMethod = compensationMethod;
   }
 
-  public int getRetries() {
-    return retries;
+  public int getReverseRetries() {
+    return reverseRetries;
   }
 
-  public void setRetries(int retries) {
-    this.retries = retries;
+  public void setReverseRetries(int reverseRetries) {
+    this.reverseRetries = reverseRetries;
+  }
+
+  public int getReverseTimeout() {
+    return reverseTimeout;
+  }
+
+  public void setReverseTimeout(int reverseTimeout) {
+    this.reverseTimeout = reverseTimeout;
+  }
+
+  public int getRetryDelayInMilliseconds() {
+    return retryDelayInMilliseconds;
+  }
+
+  public void setRetryDelayInMilliseconds(int retryDelayInMilliseconds) {
+    this.retryDelayInMilliseconds = retryDelayInMilliseconds;
   }
 
   public byte[] getPayloads() {

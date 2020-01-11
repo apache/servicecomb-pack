@@ -73,7 +73,7 @@ public @interface Compensable {
    */
   String compensationMethod() default "";
 
-  int retryDelayInMilliseconds() default 0;
+  int retryDelayInMilliseconds() default 5;
 
   /**
    * <code>@Compensable</code> forward compensable method timeout, in seconds. <br>

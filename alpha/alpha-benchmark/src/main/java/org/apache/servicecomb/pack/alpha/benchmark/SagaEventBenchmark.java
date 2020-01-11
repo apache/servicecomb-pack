@@ -193,27 +193,27 @@ public class SagaEventBenchmark {
     List<TxEvent> sagaEvents = new ArrayList<>();
     sagaEvents.add(
         new TxEvent(EventType.SagaStartedEvent, globalTxId, globalTxId, globalTxId, "", 0, null,
-            0, 0, 0, 0));
+            0, 0, 0, 0, 0));
     sagaEvents.add(
         new TxEvent(EventType.TxStartedEvent, globalTxId, localTxId_1, globalTxId, "service a", 0,
-            null, 0, 0, 0, 0));
+            null, 0, 0, 0, 0, 0));
     sagaEvents.add(
         new TxEvent(EventType.TxEndedEvent, globalTxId, localTxId_1, globalTxId, "service a", 0,
-            null, 0, 0, 0, 0));
+            null, 0, 0, 0, 0, 0));
     sagaEvents.add(
         new TxEvent(EventType.TxStartedEvent, globalTxId, localTxId_2, globalTxId, "service b", 0,
-            null, 0, 0, 0, 0));
+            null, 0, 0, 0, 0, 0));
     sagaEvents.add(
         new TxEvent(EventType.TxEndedEvent, globalTxId, localTxId_2, globalTxId, "service b", 0,
-            null, 0, 0, 0, 0));
+            null, 0, 0, 0, 0, 0));
     sagaEvents.add(
         new TxEvent(EventType.TxStartedEvent, globalTxId, localTxId_3, globalTxId, "service c", 0,
-            null, 0, 0, 0, 0));
+            null, 0, 0, 0, 0, 0));
     sagaEvents.add(
         new TxEvent(EventType.TxEndedEvent, globalTxId, localTxId_3, globalTxId, "service c", 0,
-            null, 0, 0, 0, 0));
+            null, 0, 0, 0, 0, 0));
     sagaEvents.add(
-        new TxEvent(EventType.SagaEndedEvent, globalTxId, globalTxId, globalTxId, "", 0, null, 0, 0, 0, 0));
+        new TxEvent(EventType.SagaEndedEvent, globalTxId, globalTxId, globalTxId, "", 0, null, 0, 0, 0, 0, 0));
     return sagaEvents;
   }
 

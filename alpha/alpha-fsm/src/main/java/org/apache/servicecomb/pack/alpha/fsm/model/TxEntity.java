@@ -34,7 +34,9 @@ public class TxEntity implements Serializable {
   private String compensationMethod;
   private byte[] payloads;
   private byte[] throwablePayLoads;
-  private int retries;
+  private int reverseRetries;
+  private int reverseTimeout;
+  private int retryDelayInMilliseconds = 5;
   private AtomicInteger retriesCounter = new AtomicInteger();
 
   public String getServiceName() {
@@ -125,12 +127,28 @@ public class TxEntity implements Serializable {
     this.throwablePayLoads = throwablePayLoads;
   }
 
-  public int getRetries() {
-    return retries;
+  public int getReverseRetries() {
+    return reverseRetries;
   }
 
-  public void setRetries(int retries) {
-    this.retries = retries;
+  public void setReverseRetries(int reverseRetries) {
+    this.reverseRetries = reverseRetries;
+  }
+
+  public int getReverseTimeout() {
+    return reverseTimeout;
+  }
+
+  public void setReverseTimeout(int reverseTimeout) {
+    this.reverseTimeout = reverseTimeout;
+  }
+
+  public int getRetryDelayInMilliseconds() {
+    return retryDelayInMilliseconds;
+  }
+
+  public void setRetryDelayInMilliseconds(int retryDelayInMilliseconds) {
+    this.retryDelayInMilliseconds = retryDelayInMilliseconds;
   }
 
   public AtomicInteger getRetriesCounter() {
@@ -204,8 +222,18 @@ public class TxEntity implements Serializable {
       return this;
     }
 
-    public Builder retries(int retries) {
-      txEntity.setRetries(retries);
+    public Builder reverseRetries(int reverseRetries) {
+      txEntity.setReverseRetries(reverseRetries);
+      return this;
+    }
+
+    public Builder reverseTimeout(int reverseTimeout) {
+      txEntity.setReverseTimeout(reverseTimeout);
+      return this;
+    }
+
+    public Builder retryDelayInMilliseconds(int retryDelayInMilliseconds) {
+      txEntity.setRetryDelayInMilliseconds(retryDelayInMilliseconds);
       return this;
     }
 

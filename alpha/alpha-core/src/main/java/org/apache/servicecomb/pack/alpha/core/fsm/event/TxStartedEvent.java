@@ -28,6 +28,7 @@ public class TxStartedEvent extends TxEvent {
   private int forwardTimeout;
   private int reverseRetries;
   private int reverseTimeout;
+  private int retryDelayInMilliseconds;
 
   public String getCompensationMethod() {
     return compensationMethod;
@@ -83,6 +84,14 @@ public class TxStartedEvent extends TxEvent {
 
   public void setReverseTimeout(int reverseTimeout) {
     this.reverseTimeout = reverseTimeout;
+  }
+
+  public int getRetryDelayInMilliseconds() {
+    return retryDelayInMilliseconds;
+  }
+
+  public void setRetryDelayInMilliseconds(int retryDelayInMilliseconds) {
+    this.retryDelayInMilliseconds = retryDelayInMilliseconds;
   }
 
   public static Builder builder() {
@@ -154,6 +163,11 @@ public class TxStartedEvent extends TxEvent {
 
     public Builder reverseTimeout(int reverseTimeout) {
       txStartedEvent.setReverseTimeout(reverseTimeout);
+      return this;
+    }
+
+    public Builder retryDelayInMilliseconds(int retryDelayInMilliseconds) {
+      txStartedEvent.setRetryDelayInMilliseconds(retryDelayInMilliseconds);
       return this;
     }
 

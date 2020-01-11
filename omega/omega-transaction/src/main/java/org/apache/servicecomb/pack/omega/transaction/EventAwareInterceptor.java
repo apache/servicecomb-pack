@@ -21,7 +21,7 @@ public interface EventAwareInterceptor {
 
   AlphaResponse preIntercept(String parentTxId, String compensationMethod, int timeout,
       String retriesMethod, int forwardRetries, int forwardTimeout, int reverseRetries,
-      int reverseTimeout,
+      int reverseTimeout, int retryDelayInMilliseconds,
       Object... message);
 
   void postIntercept(String parentTxId, String compensationMethod);
