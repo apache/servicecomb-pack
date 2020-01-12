@@ -22,5 +22,7 @@ public enum TxState {
   FAILED,
   COMMITTED,
   COMPENSATION_SENT, // The compensation method has been called to wait for TxCompensatedEvent
-  COMPENSATED
+  COMPENSATED, // Just for compatibility with historical data  deserialization in ES
+  COMPENSATED_SUCCEED,
+  COMPENSATED_FAILED,
 }

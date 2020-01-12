@@ -26,7 +26,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.servicecomb.pack.alpha.core.OmegaCallback;
 import org.apache.servicecomb.pack.alpha.core.fsm.CompensateAckType;
-import org.apache.servicecomb.pack.alpha.core.fsm.event.TxCompensateAckEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.TxCompensateAckFailedEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.TxCompensateAckSucceedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.channel.ActorEventChannel;
 import org.apache.servicecomb.pack.common.EventType;
@@ -141,6 +142,7 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
           .forwardTimeout(message.getForwardTimeout())
           .reverseRetries(message.getReverseRetries())
           .reverseTimeout(message.getReverseTimeout())
+          .retryDelayInMilliseconds(message.getRetryDelayInMilliseconds())
           .createTime(new Date())
           .payloads(message.getPayloads().toByteArray()).build();
     } else if (message.getType().equals(EventType.TxEndedEvent.name())) {
@@ -168,8 +170,7 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
           .createTime(new Date())
           .localTxId(message.getLocalTxId()).build();
     } else if (message.getType().equals(EventType.TxCompensateAckSucceedEvent.name())) {
-      event = TxCompensateAckEvent.builder()
-          .succeed(true)
+      event = TxCompensateAckSucceedEvent.builder()
           .serviceName(message.getServiceName())
           .instanceId(message.getInstanceId())
           .globalTxId(message.getGlobalTxId())
@@ -179,8 +180,8 @@ public class GrpcSagaEventService extends TxEventServiceImplBase {
       omegaCallbacks.get(message.getServiceName()).get(message.getInstanceId())
           .getAck(CompensateAckType.Succeed);
     } else if (message.getType().equals(EventType.TxCompensateAckFailedEvent.name())) {
-      event = TxCompensateAckEvent.builder()
-          .succeed(false)
+      event = TxCompensateAckFailedEvent.builder()
+          .payloads(message.getPayloads().toByteArray())
           .serviceName(message.getServiceName())
           .instanceId(message.getInstanceId())
           .globalTxId(message.getGlobalTxId())

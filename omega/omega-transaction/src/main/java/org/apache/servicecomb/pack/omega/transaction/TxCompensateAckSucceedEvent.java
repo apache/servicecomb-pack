@@ -20,7 +20,7 @@ package org.apache.servicecomb.pack.omega.transaction;
 import org.apache.servicecomb.pack.common.EventType;
 
 public class TxCompensateAckSucceedEvent extends TxEvent {
-  public TxCompensateAckSucceedEvent(String globalTxId, String localTxId, String parentTxId) {
-    super(EventType.TxCompensateAckSucceedEvent, globalTxId, localTxId, parentTxId, "", 0, "", 0, 0, 0, 0, 0);
+  public TxCompensateAckSucceedEvent(String globalTxId, String localTxId, String parentTxId, String compensationMethod) {
+    super(EventType.TxCompensateAckSucceedEvent, globalTxId, localTxId, parentTxId, compensationMethod, 0, "", 0, 0, 0, 0, 0);
   }
 }

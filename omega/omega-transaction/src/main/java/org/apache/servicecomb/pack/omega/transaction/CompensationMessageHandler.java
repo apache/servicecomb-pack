@@ -30,7 +30,9 @@ public class CompensationMessageHandler implements MessageHandler {
   @Override
   public void onReceive(String globalTxId, String localTxId, String parentTxId, String compensationMethod,
       Object... payloads) {
-    context.apply(globalTxId, localTxId, compensationMethod, payloads);
-    sender.send(new TxCompensatedEvent(globalTxId, localTxId, parentTxId, compensationMethod));
+    context.apply(globalTxId, localTxId, parentTxId, compensationMethod, payloads);
+    if (!context.getOmegaContext().getAlphaMetas().isAkkaEnabled()) {
+      sender.send(new TxCompensatedEvent(globalTxId, localTxId, parentTxId, compensationMethod));
+    }
   }
 }

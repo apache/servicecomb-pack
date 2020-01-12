@@ -29,6 +29,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.servicecomb.pack.alpha.core.AlphaException;
 import org.apache.servicecomb.pack.alpha.core.fsm.SuspendedType;
 import org.apache.servicecomb.pack.alpha.core.fsm.TxState;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.TxCompensateAckFailedEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.TxCompensateAckSucceedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 import org.apache.servicecomb.pack.alpha.fsm.domain.AddTxEventDomain;
 import org.apache.servicecomb.pack.alpha.fsm.domain.DomainEvent;
@@ -40,7 +42,6 @@ import org.apache.servicecomb.pack.alpha.core.fsm.event.SagaEndedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.SagaStartedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.SagaTimeoutEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.TxAbortedEvent;
-import org.apache.servicecomb.pack.alpha.core.fsm.event.TxCompensatedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.internal.ComponsitedCheckEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.TxEndedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.TxStartedEvent;
@@ -230,7 +231,14 @@ public class SagaActor extends
               return goTo(SagaActorState.SUSPENDED)
                   .applying(domainEvent);
             }
-        ).event(TxCompensatedEvent.class, SagaData.class,
+        ).event(TxCompensateAckSucceedEvent.class, SagaData.class,
+            (event, data) -> {
+              UpdateTxEventDomain domainEvent = new UpdateTxEventDomain(event);
+              return stay().applying(domainEvent).andThen(exec(_data -> {
+                self().tell(ComponsitedCheckEvent.builder().build(), self());
+              }));
+            }
+        ).event(TxCompensateAckFailedEvent.class, SagaData.class,
             (event, data) -> {
               UpdateTxEventDomain domainEvent = new UpdateTxEventDomain(event);
               return stay().applying(domainEvent).andThen(exec(_data -> {
@@ -242,10 +250,13 @@ public class SagaActor extends
               if (data.getTxEntities().hasCompensationSentTx() || !data.isTerminated()) {
                 return stay();
               } else {
-                SagaEndedDomain domainEvent = new SagaEndedDomain(event,
-                    SagaActorState.COMPENSATED);
-                return goTo(SagaActorState.COMPENSATED)
-                    .applying(domainEvent);
+                if(data.getSuspendedType() == SuspendedType.COMPENSATE_FAILED) {
+                  SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.SUSPENDED, SuspendedType.COMPENSATE_FAILED);
+                  return goTo(SagaActorState.SUSPENDED).applying(domainEvent);
+                } else {
+                  SagaEndedDomain domainEvent = new SagaEndedDomain(event, SagaActorState.COMPENSATED);
+                  return goTo(SagaActorState.COMPENSATED).applying(domainEvent);
+                }
               }
             }
         ).event(SagaAbortedEvent.class, SagaData.class,
@@ -450,6 +461,9 @@ public class SagaActor extends
               .compensationMethod(domainEvent.getCompensationMethod())
               .payloads(domainEvent.getPayloads())
               .state(domainEvent.getState())
+              .reverseRetries(domainEvent.getReverseRetries())
+              .reverseTimeout(domainEvent.getReverseTimeout())
+              .retryDelayInMilliseconds(domainEvent.getRetryDelayInMilliseconds())
               .beginTime(domainEvent.getEvent().getCreateTime())
               .build();
           data.getTxEntities().put(txEntity.getLocalTxId(), txEntity);
@@ -471,11 +485,15 @@ public class SagaActor extends
               compensation(v, data);
             }
           });
-        } else if (domainEvent.getState() == TxState.COMPENSATED) {
+        } else if (domainEvent.getState() == TxState.COMPENSATED_SUCCEED || domainEvent.getState() == TxState.COMPENSATED_FAILED) {
           // decrement the compensation running counter by one
           data.getCompensationRunningCounter().decrementAndGet();
           txEntity.setState(domainEvent.getState());
-          LOG.info("compensation is completed {}", txEntity.getLocalTxId());
+          if (domainEvent.getState() == TxState.COMPENSATED_SUCCEED) {
+            LOG.info("compensation is succeed {}", txEntity.getLocalTxId());
+          } else {
+            LOG.info("compensation is failed {}", txEntity.getLocalTxId());
+          }
         }
       } else if (event instanceof SagaEndedDomain) {
         SagaEndedDomain domainEvent = (SagaEndedDomain) event;
@@ -548,21 +566,19 @@ public class SagaActor extends
       if (txEntity.getReverseRetries() > 0) {
         // which means the retry number
         if (txEntity.getRetriesCounter().incrementAndGet() < txEntity.getReverseRetries()) {
+          LOG.info("Retry compensate {}/{} after {} ms", txEntity.getRetriesCounter().get() + 1, txEntity.getReverseRetries(),
+              txEntity.getRetryDelayInMilliseconds());
           try {
             Thread.sleep(txEntity.getRetryDelayInMilliseconds());
           } catch (InterruptedException e) {
             LOG.error(e.getMessage(), e);
           }
           compensation(txEntity, data);
+        } else {
+          data.setSuspendedType(SuspendedType.COMPENSATE_FAILED);
         }
-      } else if (txEntity.getReverseRetries() == -1) {
-        // which means retry it until succeed
-        try {
-          Thread.sleep(txEntity.getRetryDelayInMilliseconds());
-        } catch (InterruptedException e) {
-          LOG.error(e.getMessage(), e);
-        }
-        compensation(txEntity, data);
+      } else {
+        data.setSuspendedType(SuspendedType.COMPENSATE_FAILED);
       }
     }
   }

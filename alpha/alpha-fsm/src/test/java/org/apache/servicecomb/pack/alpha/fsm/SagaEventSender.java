@@ -24,7 +24,9 @@ import org.apache.servicecomb.pack.alpha.core.fsm.event.SagaEndedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.SagaStartedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.SagaTimeoutEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.TxAbortedEvent;
-import org.apache.servicecomb.pack.alpha.core.fsm.event.TxCompensatedEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.TxCompensateAckFailedEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.TxCompensateAckSucceedEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.TxCompensateAckSucceedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.TxEndedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.TxStartedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
@@ -79,7 +81,7 @@ public class SagaEventSender {
    * 3. TxEndedEvent-11
    * 4. TxStartedEvent-12
    * 5. TxAbortedEvent-12
-   * 6. TxCompensatedEvent-11
+   * 6. TxCompensateAckSucceedEvent-11
    * 7. SagaAbortedEvent-1
    */
   public static List<BaseEvent> middleTxAbortedEvents(String globalTxId, String localTxId_1, String localTxId_2){
@@ -89,7 +91,7 @@ public class SagaEventSender {
     sagaEvents.add(TxEndedEvent.builder().serviceName("service_c1").instanceId("instance_c1").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
     sagaEvents.add(TxStartedEvent.builder().serviceName("service_c2").instanceId("instance_c2").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
     sagaEvents.add(TxAbortedEvent.builder().serviceName("service_c2").instanceId("instance_c2").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
-    sagaEvents.add(TxCompensatedEvent.builder().serviceName("service_c1").instanceId("instance_c1").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
+    sagaEvents.add(TxCompensateAckSucceedEvent.builder().serviceName("service_c1").instanceId("instance_c1").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
     sagaEvents.add(SagaAbortedEvent.builder().serviceName("service_g").instanceId("instance_g").globalTxId(globalTxId).build());
     return sagaEvents;
   }
@@ -102,8 +104,8 @@ public class SagaEventSender {
    * 5. TxEndedEvent-12
    * 6. TxStartedEvent-13
    * 7. TxAbortedEvent-13
-   * 8. TxCompensatedEvent-11
-   * 9. TxCompensatedEvent-12
+   * 8. TxCompensateAckSucceedEvent-11
+   * 9. TxCompensateAckSucceedEvent-12
    * 10. SagaAbortedEvent-1
    */
   public static List<BaseEvent> lastTxAbortedEvents(String globalTxId, String localTxId_1, String localTxId_2, String localTxId_3){
@@ -115,8 +117,33 @@ public class SagaEventSender {
     sagaEvents.add(TxEndedEvent.builder().serviceName("service_c2").instanceId("instance_c2").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
     sagaEvents.add(TxStartedEvent.builder().serviceName("service_c3").instanceId("instance_c3").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_3).build());
     sagaEvents.add(TxAbortedEvent.builder().serviceName("service_c3").instanceId("instance_c3").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_3).build());
-    sagaEvents.add(TxCompensatedEvent.builder().serviceName("service_c1").instanceId("instance_c1").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
-    sagaEvents.add(TxCompensatedEvent.builder().serviceName("service_c2").instanceId("instance_c2").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
+    sagaEvents.add(TxCompensateAckSucceedEvent.builder().serviceName("service_c1").instanceId("instance_c1").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
+    sagaEvents.add(TxCompensateAckSucceedEvent.builder().serviceName("service_c2").instanceId("instance_c2").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
+    sagaEvents.add(SagaAbortedEvent.builder().serviceName("service_g").instanceId("instance_g").globalTxId(globalTxId).build());
+    return sagaEvents;
+  }
+
+  /**
+   * 1. SagaStartedEvent-1
+   * 2. TxStartedEvent-11
+   * 3. TxEndedEvent-11
+   * 4. TxStartedEvent-12
+   * 5. TxAbortedEvent-12
+   * 6. TxCompensateAckFailedEvent-11
+   * 7. TxCompensateAckFailedEvent-11
+   * 8. TxCompensateAckFailedEvent-11
+   * 9. SagaAbortedEvent-1
+   */
+  public static List<BaseEvent> middleTxAbortedAndRetryCompensationEvents(String globalTxId, String localTxId_1, String localTxId_2){
+    List<BaseEvent> sagaEvents = new ArrayList<>();
+    sagaEvents.add(SagaStartedEvent.builder().serviceName("service_g").instanceId("instance_g").globalTxId(globalTxId).build());
+    sagaEvents.add(TxStartedEvent.builder().serviceName("service_c1").instanceId("instance_c1").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).reverseRetries(3).build());
+    sagaEvents.add(TxEndedEvent.builder().serviceName("service_c1").instanceId("instance_c1").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
+    sagaEvents.add(TxStartedEvent.builder().serviceName("service_c2").instanceId("instance_c2").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
+    sagaEvents.add(TxAbortedEvent.builder().serviceName("service_c2").instanceId("instance_c2").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
+    sagaEvents.add(TxCompensateAckFailedEvent.builder().serviceName("service_c1").instanceId("instance_c1").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
+    sagaEvents.add(TxCompensateAckFailedEvent.builder().serviceName("service_c1").instanceId("instance_c1").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
+    sagaEvents.add(TxCompensateAckSucceedEvent.builder().serviceName("service_c1").instanceId("instance_c1").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
     sagaEvents.add(SagaAbortedEvent.builder().serviceName("service_g").instanceId("instance_g").globalTxId(globalTxId).build());
     return sagaEvents;
   }
@@ -130,8 +157,8 @@ public class SagaEventSender {
    * 6. TxStartedEvent-13
    * 7. TxAbortedEvent-13
    * 8. SagaAbortedEvent-1
-   * 9. TxCompensatedEvent-11
-   * 10. TxCompensatedEvent-12
+   * 9. TxCompensateAckSucceedEvent-11
+   * 10. TxCompensateAckSucceedEvent-12
    */
   public static List<BaseEvent> sagaAbortedEventBeforeTxComponsitedEvents(String globalTxId, String localTxId_1, String localTxId_2, String localTxId_3){
     List<BaseEvent> sagaEvents = new ArrayList<>();
@@ -143,8 +170,8 @@ public class SagaEventSender {
     sagaEvents.add(TxStartedEvent.builder().serviceName("service_c3").instanceId("instance_c3").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_3).build());
     sagaEvents.add(TxAbortedEvent.builder().serviceName("service_c3").instanceId("instance_c3").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_3).build());
     sagaEvents.add(SagaAbortedEvent.builder().serviceName("service_g").instanceId("instance_g").globalTxId(globalTxId).build());
-    sagaEvents.add(TxCompensatedEvent.builder().serviceName("service_c1").instanceId("instance_c1").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
-    sagaEvents.add(TxCompensatedEvent.builder().serviceName("service_c2").instanceId("instance_c2").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
+    sagaEvents.add(TxCompensateAckSucceedEvent.builder().serviceName("service_c1").instanceId("instance_c1").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
+    sagaEvents.add(TxCompensateAckSucceedEvent.builder().serviceName("service_c2").instanceId("instance_c2").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
     return sagaEvents;
   }
 
@@ -156,8 +183,8 @@ public class SagaEventSender {
    * 5. TxEndedEvent-12
    * 6. TxStartedEvent-13
    * 7. TxEndedEvent-13
-   * 8. TxCompensatedEvent-12
-   * 9. TxCompensatedEvent-13
+   * 8. TxCompensateAckSucceedEvent-12
+   * 9. TxCompensateAckSucceedEvent-13
    * 10. SagaAbortedEvent-1
    */
   public static List<BaseEvent> receivedRemainingEventAfterFirstTxAbortedEvents(String globalTxId, String localTxId_1, String localTxId_2, String localTxId_3){
@@ -169,8 +196,8 @@ public class SagaEventSender {
     sagaEvents.add(TxEndedEvent.builder().serviceName("service_c2").instanceId("instance_c2").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
     sagaEvents.add(TxStartedEvent.builder().serviceName("service_c3").instanceId("instance_c3").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_3).build());
     sagaEvents.add(TxEndedEvent.builder().serviceName("service_c3").instanceId("instance_c3").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_3).build());
-    sagaEvents.add(TxCompensatedEvent.builder().serviceName("service_c2").instanceId("instance_c2").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
-    sagaEvents.add(TxCompensatedEvent.builder().serviceName("service_c3").instanceId("instance_c3").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_3).build());
+    sagaEvents.add(TxCompensateAckSucceedEvent.builder().serviceName("service_c2").instanceId("instance_c2").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
+    sagaEvents.add(TxCompensateAckSucceedEvent.builder().serviceName("service_c3").instanceId("instance_c3").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_3).build());
     sagaEvents.add(SagaAbortedEvent.builder().serviceName("service_g").instanceId("instance_g").globalTxId(globalTxId).build());
     return sagaEvents;
   }
@@ -184,9 +211,9 @@ public class SagaEventSender {
    * 6. TxStartedEvent-13
    * 7. TxEndedEvent-13
    * 8. SagaAbortedEvent-1
-   * 9. TxCompensatedEvent-11
-   * 8. TxCompensatedEvent-12
-   * 9. TxCompensatedEvent-13
+   * 9. TxCompensateAckSucceedEvent-11
+   * 8. TxCompensateAckSucceedEvent-12
+   * 9. TxCompensateAckSucceedEvent-13
    */
   public static List<BaseEvent> sagaAbortedEventAfterAllTxEndedsEvents(String globalTxId, String localTxId_1, String localTxId_2, String localTxId_3){
     List<BaseEvent> sagaEvents = new ArrayList<>();
@@ -198,9 +225,9 @@ public class SagaEventSender {
     sagaEvents.add(TxStartedEvent.builder().serviceName("service_c3").instanceId("instance_c3").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_3).build());
     sagaEvents.add(TxEndedEvent.builder().serviceName("service_c3").instanceId("instance_c3").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_3).build());
     sagaEvents.add(SagaAbortedEvent.builder().serviceName("service_g").instanceId("instance_g").globalTxId(globalTxId).build());
-    sagaEvents.add(TxCompensatedEvent.builder().serviceName("service_c1").instanceId("instance_c1").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
-    sagaEvents.add(TxCompensatedEvent.builder().serviceName("service_c2").instanceId("instance_c2").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
-    sagaEvents.add(TxCompensatedEvent.builder().serviceName("service_c3").instanceId("instance_c3").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_3).build());
+    sagaEvents.add(TxCompensateAckSucceedEvent.builder().serviceName("service_c1").instanceId("instance_c1").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
+    sagaEvents.add(TxCompensateAckSucceedEvent.builder().serviceName("service_c2").instanceId("instance_c2").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
+    sagaEvents.add(TxCompensateAckSucceedEvent.builder().serviceName("service_c3").instanceId("instance_c3").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_3).build());
     return sagaEvents;
   }
 
@@ -302,8 +329,8 @@ public class SagaEventSender {
    * 3. TxEndedEvent-11
    * 5. TxEndedEvent-12
    * 7. TxAbortedEvent-13
-   * 8. TxCompensatedEvent-11
-   * 9. TxCompensatedEvent-12
+   * 8. TxCompensateAckSucceedEvent-11
+   * 9. TxCompensateAckSucceedEvent-12
    * 10. SagaAbortedEvent-1
    */
   public static List<BaseEvent> lastTxAbortedEventWithTxConcurrentEvents(String globalTxId, String localTxId_1, String localTxId_2, String localTxId_3){
@@ -315,8 +342,8 @@ public class SagaEventSender {
     sagaEvents.add(TxEndedEvent.builder().serviceName("service_c1").instanceId("instance_c1").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
     sagaEvents.add(TxEndedEvent.builder().serviceName("service_c2").instanceId("instance_c2").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
     sagaEvents.add(TxAbortedEvent.builder().serviceName("service_c3").instanceId("instance_c3").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_3).build());
-    sagaEvents.add(TxCompensatedEvent.builder().serviceName("service_c1").instanceId("instance_c1").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
-    sagaEvents.add(TxCompensatedEvent.builder().serviceName("service_c2").instanceId("instance_c2").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
+    sagaEvents.add(TxCompensateAckSucceedEvent.builder().serviceName("service_c1").instanceId("instance_c1").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_1).build());
+    sagaEvents.add(TxCompensateAckSucceedEvent.builder().serviceName("service_c2").instanceId("instance_c2").globalTxId(globalTxId).parentTxId(globalTxId).localTxId(localTxId_2).build());
     sagaEvents.add(SagaAbortedEvent.builder().serviceName("service_g").instanceId("instance_g").globalTxId(globalTxId).build());
     return sagaEvents;
   }

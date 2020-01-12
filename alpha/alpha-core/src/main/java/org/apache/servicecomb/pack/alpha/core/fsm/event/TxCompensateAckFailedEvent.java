@@ -20,16 +20,16 @@ package org.apache.servicecomb.pack.alpha.core.fsm.event;
 import java.util.Date;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.TxEvent;
 
-public class TxCompensateAckEvent extends TxEvent {
+public class TxCompensateAckFailedEvent extends TxEvent {
 
-  private boolean succeed;
+  private byte[] payloads;
 
-  public boolean isSucceed() {
-    return succeed;
+  public byte[] getPayloads() {
+    return payloads;
   }
 
-  public void setSucceed(boolean succeed) {
-    this.succeed = succeed;
+  public void setPayloads(byte[] payloads) {
+    this.payloads = payloads;
   }
 
   public static Builder builder() {
@@ -38,10 +38,10 @@ public class TxCompensateAckEvent extends TxEvent {
 
   public static final class Builder {
 
-    private TxCompensateAckEvent txCompensatedEvent;
+    private TxCompensateAckFailedEvent txCompensatedEvent;
 
     private Builder() {
-      txCompensatedEvent = new TxCompensateAckEvent();
+      txCompensatedEvent = new TxCompensateAckFailedEvent();
     }
 
     public Builder serviceName(String serviceName) {
@@ -74,12 +74,12 @@ public class TxCompensateAckEvent extends TxEvent {
       return this;
     }
 
-    public Builder succeed(boolean succeed){
-      txCompensatedEvent.setSucceed(succeed);
+    public Builder payloads(byte[] payloads){
+      txCompensatedEvent.setPayloads(payloads);
       return this;
     }
 
-    public TxCompensateAckEvent build() {
+    public TxCompensateAckFailedEvent build() {
       return txCompensatedEvent;
     }
   }
