@@ -1,0 +1,36 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+##############################################################
+# rules to compensable failed after car order failed
+#
+###############################################################
+
+RULE set_the_compensable_reverseretries_to_3
+INTERFACE org.apache.servicecomb.pack.omega.transaction.annotations.Compensable
+METHOD reverseRetries
+AT EXIT
+IF TRUE
+DO RETURN 3
+ENDRULE
+
+RULE car_cancel_exception
+CLASS org.apache.servicecomb.pack.demo.car.CarBookingService
+METHOD cancel
+AT ENTRY
+IF TRUE
+DO debug("throw RuntimeException here"),
+   throw new RuntimeException("Car cancel failed!")
+ENDRULE
