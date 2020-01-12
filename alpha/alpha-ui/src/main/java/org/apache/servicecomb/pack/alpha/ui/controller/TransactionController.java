@@ -162,16 +162,28 @@ public class TransactionController {
         if (event.containsKey("compensationMethod")) {
           eventDTO.setCompensationMethod(event.get("compensationMethod").toString());
         }
-        if (event.containsKey("retries")) {
-          eventDTO.setRetries(Long.valueOf(event.get("retries").toString()));
+        if (event.containsKey("reverseRetries")) {
+          eventDTO.setReverseRetries(Long.valueOf(event.get("reverseRetries").toString()));
+        }
+        if (event.containsKey("forwardRetries")) {
+          eventDTO.setForwardRetries(Long.valueOf(event.get("forwardRetries").toString()));
+        }
+        if (event.containsKey("reverseTimeout")) {
+          eventDTO.setReverseTimeout(Long.valueOf(event.get("reverseTimeout").toString()));
+        }
+        if (event.containsKey("forwardTimeout")) {
+          eventDTO.setForwardTimeout(Long.valueOf(event.get("forwardTimeout").toString()));
         }
         if (event.containsKey("timeout")) {
           eventDTO.setTimeout(Long.valueOf(event.get("timeout").toString()));
         }
+        if (event.containsKey("retryDelayInMilliseconds")) {
+          eventDTO.setRetryDelayInMilliseconds(Long.valueOf(event.get("retryDelayInMilliseconds").toString()));
+        }
       }
       if (eventDTO.getType().equals("TxAbortedEvent") || eventDTO.getType()
-          .equals("SagaAbortedEvent")) {
-        // TxAbortedEvent properties
+          .equals("SagaAbortedEvent") || eventDTO.getType()
+          .equals("TxCompensateAckFailedEvent")) {
         if (event.containsKey("payloads")) {
           Decoder decoder = Base64.getDecoder();
           String exception;
