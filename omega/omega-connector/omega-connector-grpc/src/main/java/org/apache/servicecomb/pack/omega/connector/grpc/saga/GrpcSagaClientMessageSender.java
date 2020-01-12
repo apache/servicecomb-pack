@@ -111,10 +111,12 @@ public class GrpcSagaClientMessageSender implements SagaMessageSender {
         .setType(event.type().name())
         .setTimeout(event.timeout())
         .setForwardTimeout(event.forwardTimeout())
+        .setReverseTimeout(event.reverseTimeout())
         .setCompensationMethod(event.compensationMethod())
         .setRetryMethod(event.retryMethod() == null ? "" : event.retryMethod())
         .setForwardRetries(event.forwardRetries())
         .setReverseRetries(event.reverseRetries())
+        .setRetryDelayInMilliseconds(event.retryDelayInMilliseconds())
         .setPayloads(payloads);
 
     return builder.build();

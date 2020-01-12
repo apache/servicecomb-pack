@@ -45,7 +45,7 @@ public class CoordinateMessageHandler implements TccMessageHandler {
   public void onReceive(String globalTxId, String localTxId, String parentTxId, String methodName) {
     // TODO need to catch the exception and send the failed message
     // The parameter need to be updated here
-    callbackContext.apply(globalTxId, localTxId, methodName, parametersContext.getParameters(localTxId));
+    callbackContext.apply(globalTxId, localTxId, parentTxId, methodName, parametersContext.getParameters(localTxId));
     tccMessageSender.coordinate(new CoordinatedEvent(globalTxId, localTxId, parentTxId, methodName, TransactionStatus.Succeed));
     // Need to remove the parameter
     parametersContext.removeParameter(localTxId);

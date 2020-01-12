@@ -18,5 +18,5 @@
 package org.apache.servicecomb.pack.alpha.core.fsm;
 
 public enum SuspendedType {
-  NONE, TIMEOUT, UNPREDICTABLE
+  NONE, TIMEOUT, COMPENSATE_FAILED, UNPREDICTABLE
 }

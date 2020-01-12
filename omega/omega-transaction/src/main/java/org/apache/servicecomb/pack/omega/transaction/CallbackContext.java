@@ -43,7 +43,7 @@ public class CallbackContext {
     contexts.put(key, new CallbackContextInternal(target, compensationMethod));
   }
 
-  public void apply(String globalTxId, String localTxId, String callbackMethod, Object... payloads) {
+  public void apply(String globalTxId, String localTxId, String parentTxId, String callbackMethod, Object... payloads) {
     CallbackContextInternal contextInternal = contexts.get(callbackMethod);
     String oldGlobalTxId = omegaContext.globalTxId();
     String oldLocalTxId = omegaContext.localTxId();
@@ -54,14 +54,14 @@ public class CallbackContext {
       if (omegaContext.getAlphaMetas().isAkkaEnabled()) {
         sender.send(
             new TxCompensateAckSucceedEvent(omegaContext.globalTxId(), omegaContext.localTxId(),
-                omegaContext.globalTxId()));
+                parentTxId, callbackMethod));
       }
       LOG.info("Callback transaction with global tx id [{}], local tx id [{}]", globalTxId, localTxId);
     } catch (IllegalAccessException | InvocationTargetException e) {
       if (omegaContext.getAlphaMetas().isAkkaEnabled()) {
         sender.send(
             new TxCompensateAckFailedEvent(omegaContext.globalTxId(), omegaContext.localTxId(),
-                omegaContext.globalTxId()));
+                parentTxId, callbackMethod, e));
       }
       LOG.error(
           "Pre-checking for callback method " + contextInternal.callbackMethod.toString()
@@ -71,6 +71,10 @@ public class CallbackContext {
       omegaContext.setGlobalTxId(oldGlobalTxId);
       omegaContext.setLocalTxId(oldLocalTxId);
     }
+  }
+
+  public OmegaContext getOmegaContext() {
+    return omegaContext;
   }
 
   private static final class CallbackContextInternal {
