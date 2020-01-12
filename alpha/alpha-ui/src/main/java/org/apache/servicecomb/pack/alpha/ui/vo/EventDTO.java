@@ -28,7 +28,11 @@ public class EventDTO {
   private String localTxId;
   private Date createTime;
   private long timeout;
-  private long retries;
+  private long reverseRetries;
+  private long forwardRetries;
+  private long reverseTimeout;
+  private long forwardTimeout;
+  private long retryDelayInMilliseconds;
   private String compensationMethod;
   private String exception;
 
@@ -64,8 +68,8 @@ public class EventDTO {
     return timeout;
   }
 
-  public long getRetries() {
-    return retries;
+  public long getReverseRetries() {
+    return reverseRetries;
   }
 
   public String getCompensationMethod() {
@@ -80,8 +84,40 @@ public class EventDTO {
     this.timeout = timeout;
   }
 
-  public void setRetries(long retries) {
-    this.retries = retries;
+  public void setReverseRetries(long reverseRetries) {
+    this.reverseRetries = reverseRetries;
+  }
+
+  public long getForwardRetries() {
+    return forwardRetries;
+  }
+
+  public void setForwardRetries(long forwardRetries) {
+    this.forwardRetries = forwardRetries;
+  }
+
+  public long getReverseTimeout() {
+    return reverseTimeout;
+  }
+
+  public void setReverseTimeout(long reverseTimeout) {
+    this.reverseTimeout = reverseTimeout;
+  }
+
+  public long getForwardTimeout() {
+    return forwardTimeout;
+  }
+
+  public void setForwardTimeout(long forwardTimeout) {
+    this.forwardTimeout = forwardTimeout;
+  }
+
+  public long getRetryDelayInMilliseconds() {
+    return retryDelayInMilliseconds;
+  }
+
+  public void setRetryDelayInMilliseconds(long retryDelayInMilliseconds) {
+    this.retryDelayInMilliseconds = retryDelayInMilliseconds;
   }
 
   public void setCompensationMethod(String compensationMethod) {
@@ -107,7 +143,11 @@ public class EventDTO {
     private String localTxId;
     private Date createTime;
     private long timeout;
-    private long retries;
+    private long reverseRetries;
+    private long forwardRetries;
+    private long reverseTimeout;
+    private long forwardTimeout;
+    private long retryDelayInMilliseconds;
     private String compensationMethod;
     private String exception;
 
@@ -154,8 +194,28 @@ public class EventDTO {
       return this;
     }
 
-    public Builder retries(long retries) {
-      this.retries = retries;
+    public Builder reverseRetries(long reverseRetries) {
+      this.reverseRetries = reverseRetries;
+      return this;
+    }
+
+    public Builder forwardRetries(long forwardRetries) {
+      this.forwardRetries = forwardRetries;
+      return this;
+    }
+
+    public Builder reverseTimeout(long reverseTimeout) {
+      this.reverseTimeout = reverseTimeout;
+      return this;
+    }
+
+    public Builder forwardTimeout(long forwardTimeout) {
+      this.forwardTimeout = forwardTimeout;
+      return this;
+    }
+
+    public Builder retryDelayInMilliseconds(long retryDelayInMilliseconds) {
+      this.retryDelayInMilliseconds = retryDelayInMilliseconds;
       return this;
     }
 
@@ -179,7 +239,7 @@ public class EventDTO {
       eventDTO.instanceId = this.instanceId;
       eventDTO.globalTxId = this.globalTxId;
       eventDTO.timeout = this.timeout;
-      eventDTO.retries = this.retries;
+      eventDTO.reverseRetries = this.reverseRetries;
       eventDTO.compensationMethod = this.compensationMethod;
       eventDTO.exception = this.exception;
       return eventDTO;
