@@ -33,7 +33,7 @@ FAILED --> COMPENSATED : SagaAbortedEvent<font color=red>:doCompensation</font>
 
 FAILED --> SUSPENDED : SagaTimeoutEvent
 
-FAILED --> FAILED : TxComponsitedEvent<font color=blue>:UpdateTxEntity</font>\nTxStartedEvent<font color=blue>:AddTxEntity</font>\nTxEndedEvent<font color=red>:doCompensation</font>\nTxComponsitedCheckInternalEvent
+FAILED --> FAILED : TxCompensateAckSucceedEvent<font color=blue>:UpdateTxEntity</font>\nTxCompensateAckFailedEvent<font color=blue>:UpdateTxEntity</font>\nTxStartedEvent<font color=blue>:AddTxEntity</font>\nTxEndedEvent<font color=red>:doCompensation</font>\nComponsitedCheckEvent
 
 COMPENSATED --> [*]
 
