@@ -181,9 +181,10 @@ public class TransactionController {
           eventDTO.setRetryDelayInMilliseconds(Long.valueOf(event.get("retryDelayInMilliseconds").toString()));
         }
       }
-      if (eventDTO.getType().equals("TxAbortedEvent") || eventDTO.getType()
-          .equals("SagaAbortedEvent") || eventDTO.getType()
-          .equals("TxCompensateAckFailedEvent")) {
+      if (eventDTO.getType().equals("TxAbortedEvent") ||
+          eventDTO.getType().equals("SagaAbortedEvent") ||
+          eventDTO.getType().equals("TxCompensateAckFailedEvent") ||
+          eventDTO.getType().equals("TxCompensateAckTimeoutEvent")) {
         if (event.containsKey("payloads")) {
           Decoder decoder = Base64.getDecoder();
           String exception;
