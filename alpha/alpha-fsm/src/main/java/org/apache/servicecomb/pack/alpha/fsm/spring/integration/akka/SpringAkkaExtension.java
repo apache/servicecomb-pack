@@ -23,6 +23,10 @@ import akka.actor.AbstractExtensionId;
 import akka.actor.ExtendedActorSystem;
 import akka.actor.Extension;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.apache.servicecomb.pack.alpha.core.OmegaCallback;
 import org.apache.servicecomb.pack.alpha.core.TxEvent;
 import org.apache.servicecomb.pack.alpha.fsm.model.TxEntity;
@@ -47,7 +51,17 @@ public class SpringAkkaExtension extends AbstractExtensionId<SpringExt> {
     private volatile ApplicationContext applicationContext;
     private OmegaCallback omegaCallback;
 
-    public void compensate(TxEntity txEntity) {
+    public void compensate(TxEntity txEntity)
+        throws InterruptedException, ExecutionException, TimeoutException {
+      if (txEntity.getReverseTimeout() > 0) {
+        CompletableFuture.runAsync(() -> doCompensate(txEntity))
+            .get(txEntity.getReverseTimeout(), TimeUnit.SECONDS);
+      } else {
+        doCompensate(txEntity);
+      }
+    }
+
+    private void doCompensate(TxEntity txEntity) {
       if (applicationContext != null) {
         if (applicationContext.containsBean(omegaCallbackBeanName)) {
           omegaCallback = applicationContext.getBean(omegaCallbackBeanName, OmegaCallback.class);
