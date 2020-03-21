@@ -21,17 +21,21 @@ import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.cluster.sharding.ShardRegion;
 import akka.persistence.fsm.AbstractPersistentFSM;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.apache.servicecomb.pack.alpha.core.AlphaException;
 import org.apache.servicecomb.pack.alpha.core.fsm.SuspendedType;
 import org.apache.servicecomb.pack.alpha.core.fsm.TxState;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.TxCompensateAckFailedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.TxCompensateAckSucceedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.internal.CompensateAckTimeoutEvent;
 import org.apache.servicecomb.pack.alpha.fsm.domain.AddTxEventDomain;
 import org.apache.servicecomb.pack.alpha.fsm.domain.DomainEvent;
 import org.apache.servicecomb.pack.alpha.fsm.domain.SagaEndedDomain;
@@ -55,7 +59,7 @@ import scala.concurrent.duration.Duration;
 
 public class SagaActor extends
     AbstractPersistentFSM<SagaActorState, SagaData, DomainEvent> {
-
+  protected static final int PAYLOADS_MAX_LENGTH = 10240;
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private String persistenceId;
   private long sagaBeginTime;
@@ -239,6 +243,13 @@ public class SagaActor extends
               }));
             }
         ).event(TxCompensateAckFailedEvent.class, SagaData.class,
+            (event, data) -> {
+              UpdateTxEventDomain domainEvent = new UpdateTxEventDomain(event);
+              return stay().applying(domainEvent).andThen(exec(_data -> {
+                self().tell(ComponsitedCheckEvent.builder().build(), self());
+              }));
+            }
+        ).event(CompensateAckTimeoutEvent.class, SagaData.class,
             (event, data) -> {
               UpdateTxEventDomain domainEvent = new UpdateTxEventDomain(event);
               return stay().applying(domainEvent).andThen(exec(_data -> {
@@ -485,15 +496,16 @@ public class SagaActor extends
               compensation(v, data);
             }
           });
-        } else if (domainEvent.getState() == TxState.COMPENSATED_SUCCEED || domainEvent.getState() == TxState.COMPENSATED_FAILED) {
+        } else if (domainEvent.getState() == TxState.COMPENSATED_SUCCEED) {
           // decrement the compensation running counter by one
           data.getCompensationRunningCounter().decrementAndGet();
           txEntity.setState(domainEvent.getState());
-          if (domainEvent.getState() == TxState.COMPENSATED_SUCCEED) {
-            LOG.info("compensation is succeed {}", txEntity.getLocalTxId());
-          } else {
-            LOG.info("compensation is failed {}", txEntity.getLocalTxId());
-          }
+          LOG.info("compensation is succeed {}", txEntity.getLocalTxId());
+        } else if (domainEvent.getState() == TxState.COMPENSATED_FAILED) {
+          data.getCompensationRunningCounter().decrementAndGet();
+          txEntity.setState(domainEvent.getState());
+          txEntity.setThrowablePayLoads(domainEvent.getThrowablePayLoads());
+          LOG.info("compensation is failed {}", txEntity.getLocalTxId());
         }
       } else if (event instanceof SagaEndedDomain) {
         SagaEndedDomain domainEvent = (SagaEndedDomain) event;
@@ -562,6 +574,24 @@ public class SagaActor extends
       }
       compensation(txEntity, data);
     } catch (Exception ex) {
+      if (ex instanceof TimeoutException) {
+        StringWriter writer = new StringWriter();
+        ex.printStackTrace(new PrintWriter(writer));
+        String stackTrace = writer.toString();
+        if (stackTrace.length() > PAYLOADS_MAX_LENGTH) {
+          stackTrace = stackTrace.substring(0, PAYLOADS_MAX_LENGTH);
+        }
+        CompensateAckTimeoutEvent event = CompensateAckTimeoutEvent.builder()
+            .createTime(new Date(System.currentTimeMillis()))
+            .globalTxId(txEntity.getGlobalTxId())
+            .parentTxId(txEntity.getParentTxId())
+            .localTxId(txEntity.getLocalTxId())
+            .serviceName(txEntity.getServiceName())
+            .instanceId(txEntity.getInstanceId())
+            .payloads(stackTrace.getBytes())
+            .build();
+        self().tell(event, self());
+      }
       LOG.error("compensation failed " + txEntity.getLocalTxId(), ex);
       if (txEntity.getReverseRetries() > 0) {
         // which means the retry number
