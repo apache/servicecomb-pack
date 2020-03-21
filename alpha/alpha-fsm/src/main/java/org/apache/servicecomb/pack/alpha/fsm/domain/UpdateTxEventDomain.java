@@ -21,6 +21,7 @@ import org.apache.servicecomb.pack.alpha.core.fsm.TxState;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.TxAbortedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.TxCompensateAckFailedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.TxCompensateAckSucceedEvent;
+import org.apache.servicecomb.pack.alpha.core.fsm.event.internal.CompensateAckTimeoutEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.TxEndedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 
@@ -57,6 +58,14 @@ public class UpdateTxEventDomain implements DomainEvent {
     this.event = event;
     this.parentTxId = event.getParentTxId();
     this.localTxId = event.getLocalTxId();
+    this.state = TxState.COMPENSATED_FAILED;
+  }
+
+  public UpdateTxEventDomain(CompensateAckTimeoutEvent event) {
+    this.event = event;
+    this.parentTxId = event.getParentTxId();
+    this.localTxId = event.getLocalTxId();
+    this.throwablePayLoads = event.getPayloads();
     this.state = TxState.COMPENSATED_FAILED;
   }
 
