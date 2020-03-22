@@ -26,7 +26,6 @@ import org.apache.servicecomb.pack.alpha.core.fsm.event.TxEndedEvent;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 
 public class UpdateTxEventDomain implements DomainEvent {
-  private String parentTxId;
   private String localTxId;
   private TxState state;
   private byte[] throwablePayLoads;
@@ -34,14 +33,12 @@ public class UpdateTxEventDomain implements DomainEvent {
 
   public UpdateTxEventDomain(TxEndedEvent event) {
     this.event = event;
-    this.parentTxId = event.getParentTxId();
     this.localTxId = event.getLocalTxId();
     this.state = TxState.COMMITTED;
   }
 
   public UpdateTxEventDomain(TxAbortedEvent event) {
     this.event = event;
-    this.parentTxId = event.getParentTxId();
     this.localTxId = event.getLocalTxId();
     this.throwablePayLoads = event.getPayloads();
     this.state = TxState.FAILED;
@@ -49,56 +46,33 @@ public class UpdateTxEventDomain implements DomainEvent {
 
   public UpdateTxEventDomain(TxCompensateAckSucceedEvent event) {
     this.event = event;
-    this.parentTxId = event.getParentTxId();
     this.localTxId = event.getLocalTxId();
     this.state = TxState.COMPENSATED_SUCCEED;
   }
 
   public UpdateTxEventDomain(TxCompensateAckFailedEvent event) {
     this.event = event;
-    this.parentTxId = event.getParentTxId();
     this.localTxId = event.getLocalTxId();
     this.state = TxState.COMPENSATED_FAILED;
   }
 
   public UpdateTxEventDomain(CompensateAckTimeoutEvent event) {
     this.event = event;
-    this.parentTxId = event.getParentTxId();
     this.localTxId = event.getLocalTxId();
     this.throwablePayLoads = event.getPayloads();
     this.state = TxState.COMPENSATED_FAILED;
-  }
-
-  public String getParentTxId() {
-    return parentTxId;
-  }
-
-  public void setParentTxId(String parentTxId) {
-    this.parentTxId = parentTxId;
   }
 
   public String getLocalTxId() {
     return localTxId;
   }
 
-  public void setLocalTxId(String localTxId) {
-    this.localTxId = localTxId;
-  }
-
   public TxState getState() {
     return state;
   }
 
-  public void setState(TxState state) {
-    this.state = state;
-  }
-
   public byte[] getThrowablePayLoads() {
     return throwablePayLoads;
-  }
-
-  public void setThrowablePayLoads(byte[] throwablePayLoads) {
-    this.throwablePayLoads = throwablePayLoads;
   }
 
   @Override
