@@ -184,6 +184,33 @@ public class AlphaIntegrationFsmTest {
   }
 
   @Test
+  public void middleTxAbortedEventAndCompensationTimeoutTest() {
+    omegaEventSender.onConnected();
+    final String globalTxId = UUID.randomUUID().toString();
+    final String localTxId_1 = UUID.randomUUID().toString();
+    final String localTxId_2 = UUID.randomUUID().toString();
+    omegaEventSender.getOmegaEventSagaSimulator()
+        .middleTxAbortedEventAndCompensationTimeoutEvents(globalTxId, localTxId_1, localTxId_2).stream().forEach(event -> {
+      omegaEventSender.getBlockingStub().onTxEvent(event);
+    });
+    await().atMost(6, SECONDS).until(() -> {
+      SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system)
+          .getLastSagaData();
+      return sagaData != null && sagaData.isTerminated()
+          && sagaData.getLastState() == SagaActorState.SUSPENDED;
+    });
+    SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system)
+        .getLastSagaData();
+    assertEquals(sagaData.getLastState(), SagaActorState.SUSPENDED);
+    assertEquals(sagaData.getTxEntities().size(), 2);
+    assertNotNull(sagaData.getBeginTime());
+    assertNotNull(sagaData.getEndTime());
+    assertTrue(sagaData.getEndTime().getTime() > sagaData.getBeginTime().getTime());
+    assertEquals(sagaData.getTxEntities().get(localTxId_1).getState(), TxState.COMPENSATED_FAILED);
+    assertEquals(sagaData.getTxEntities().get(localTxId_2).getState(), TxState.FAILED);
+  }
+
+  @Test
   public void lastTxAbortedEventTest() {
     omegaEventSender.onConnected();
     final String globalTxId = UUID.randomUUID().toString();
