@@ -61,6 +61,19 @@ public class OmegaEventSagaSimulator {
     return sagaEvents;
   }
 
+  public List<GrpcTxEvent> middleTxAbortedEventAndCompensationTimeoutEvents(String globalTxId, String localTxId_1, String localTxId_2){
+    final int localTxId_1_ReverseTimeoutSecond = 2;
+    List<GrpcTxEvent> sagaEvents = new ArrayList<>();
+    sagaEvents.add(sagaStartedEvent(globalTxId));
+    sagaEvents.add(txStartedEvent(globalTxId, localTxId_1, globalTxId, "service a".getBytes(), "method a", 0, localTxId_1_ReverseTimeoutSecond));
+    sagaEvents.add(txEndedEvent(globalTxId, localTxId_1, globalTxId, "service a".getBytes(), "method a"));
+    sagaEvents.add(txStartedEvent(globalTxId, localTxId_2, globalTxId, "service b".getBytes(), "method b"));
+    sagaEvents.add(txAbortedEvent(globalTxId, localTxId_2, globalTxId, NullPointerException.class.getName().getBytes(), "method b"));
+    sagaEvents.add(txCompensateAckTimeoutEvent(globalTxId, localTxId_2, globalTxId));
+    sagaEvents.add(sagaAbortedEvent(globalTxId));
+    return sagaEvents;
+  }
+
   public List<GrpcTxEvent> lastTxAbortedEvents(String globalTxId, String localTxId_1, String localTxId_2, String localTxId_3){
     List<GrpcTxEvent> sagaEvents = new ArrayList<>();
     sagaEvents.add(sagaStartedEvent(globalTxId));
@@ -219,6 +232,13 @@ public class OmegaEventSagaSimulator {
         0, 0, 0, 0);
   }
 
+  private GrpcTxEvent txStartedEvent(String globalTxId,
+      String localTxId, String parentTxId, byte[] payloads, String compensationMethod, int reverseRetries, int reverseTimeout) {
+    return eventOf(EventType.TxStartedEvent, globalTxId, localTxId,
+        parentTxId, payloads, compensationMethod, 0, "",
+        0, 0, reverseRetries, reverseTimeout);
+  }
+
   private GrpcTxEvent txEndedEvent(String globalTxId,
       String localTxId, String parentTxId, byte[] payloads, String compensationMethod) {
     return eventOf(EventType.TxEndedEvent, globalTxId, localTxId,
@@ -243,6 +263,13 @@ public class OmegaEventSagaSimulator {
   public GrpcTxEvent txCompensateAckSucceedEvent(String globalTxId,
       String localTxId, String parentTxId) {
     return eventOf(EventType.TxCompensateAckSucceedEvent, globalTxId, localTxId,
+        parentTxId, new byte[0], "", 0, "",
+        0, 0, 0, 0);
+  }
+
+  public GrpcTxEvent txCompensateAckTimeoutEvent(String globalTxId,
+      String localTxId, String parentTxId) {
+    return eventOf(EventType.CompensateAckTimeoutEvent, globalTxId, localTxId,
         parentTxId, new byte[0], "", 0, "",
         0, 0, 0, 0);
   }
