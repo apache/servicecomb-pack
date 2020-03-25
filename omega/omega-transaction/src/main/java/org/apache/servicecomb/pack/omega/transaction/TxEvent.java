@@ -21,10 +21,10 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
 
+import org.apache.servicecomb.pack.common.Environment;
 import org.apache.servicecomb.pack.common.EventType;
 
 public class TxEvent {
-  protected static final int PAYLOADS_MAX_LENGTH = 10240;
   private final long timestamp;
   private final EventType type;
   private final String globalTxId;
@@ -138,8 +138,8 @@ public class TxEvent {
     StringWriter writer = new StringWriter();
     e.printStackTrace(new PrintWriter(writer));
     String stackTrace = writer.toString();
-    if (stackTrace.length() > PAYLOADS_MAX_LENGTH) {
-      stackTrace = stackTrace.substring(0, PAYLOADS_MAX_LENGTH);
+    if (stackTrace.length() > Environment.getInstance().getPayloadsMaxLength()) {
+      stackTrace = stackTrace.substring(0, Environment.getInstance().getPayloadsMaxLength());
     }
     return stackTrace;
   }

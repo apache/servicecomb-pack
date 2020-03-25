@@ -53,13 +53,13 @@ import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
 import org.apache.servicecomb.pack.alpha.fsm.model.TxEntity;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SpringAkkaExtension;
+import org.apache.servicecomb.pack.common.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
 
 public class SagaActor extends
     AbstractPersistentFSM<SagaActorState, SagaData, DomainEvent> {
-  protected static final int PAYLOADS_MAX_LENGTH = 10240;
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private String persistenceId;
   private long sagaBeginTime;
@@ -578,8 +578,8 @@ public class SagaActor extends
         StringWriter writer = new StringWriter();
         ex.printStackTrace(new PrintWriter(writer));
         String stackTrace = writer.toString();
-        if (stackTrace.length() > PAYLOADS_MAX_LENGTH) {
-          stackTrace = stackTrace.substring(0, PAYLOADS_MAX_LENGTH);
+        if (stackTrace.length() > Environment.getInstance().getPayloadsMaxLength()) {
+          stackTrace = stackTrace.substring(0, Environment.getInstance().getPayloadsMaxLength());
         }
         CompensateAckTimeoutEvent event = CompensateAckTimeoutEvent.builder()
             .createTime(new Date(System.currentTimeMillis()))
