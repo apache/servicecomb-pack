@@ -17,7 +17,12 @@
 
 package org.apache.servicecomb.pack.common;
 
+import java.lang.invoke.MethodHandles;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Environment {
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private static Environment instance;
   private static final int PAYLOADS_MAX_LENGTH = 10240;
   private int payloadsMaxLength = 0;
@@ -32,6 +37,9 @@ public class Environment {
           payloadsMaxLength = Integer.parseInt(val);
         } catch (NumberFormatException ex) {
           payloadsMaxLength = PAYLOADS_MAX_LENGTH;
+          LOG.error(
+              "Failed to parse environment variable PAYLOADS_MAX_LENGTH={}, use default value {}",
+              val, PAYLOADS_MAX_LENGTH);
         }
       }
     }
