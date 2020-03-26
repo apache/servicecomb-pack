@@ -29,4 +29,10 @@
   <artifactId>pack-common</artifactId>
   <name>Pack::Pack Common</name>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+  </dependencies>
 </project>
