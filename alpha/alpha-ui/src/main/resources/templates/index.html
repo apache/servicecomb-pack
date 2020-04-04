@@ -254,7 +254,7 @@
               <div class="mb-1 small">UPTIME</div>
             </div>
             <div class="col-xl-7 col-lg-7">
-              <div class="mb-1 small" th:text="${systemInfo.upTime}"></div>
+              <div class="mb-1 small" th:text="${systemInfo?.upTime}"></div>
             </div>
           </div>
           <div class="row">
@@ -262,7 +262,7 @@
               <div class="mb-1 small">CPUS</div>
             </div>
             <div class="col-xl-7 col-lg-7">
-              <div class="mb-1 small" th:text="${systemInfo.cpus}"></div>
+              <div class="mb-1 small" th:text="${systemInfo?.cpus}"></div>
             </div>
           </div>
           <div class="row">
@@ -270,7 +270,7 @@
               <div class="mb-1 small">SYSTEM LOAD</div>
             </div>
             <div class="col-xl-7 col-lg-7">
-              <div class="mb-1 small" th:text="${systemInfo.systemLoad}"></div>
+              <div class="mb-1 small" th:text="${systemInfo?.systemLoad}"></div>
             </div>
           </div>
           <hr/>
@@ -279,7 +279,7 @@
               <div class="mb-1 small">THREAD LIVE</div>
             </div>
             <div class="col-xl-7 col-lg-7">
-              <div class="mb-1 small" th:text="${systemInfo.threadsLive}"></div>
+              <div class="mb-1 small" th:text="${systemInfo?.threadsLive}"></div>
             </div>
           </div>
           <div class="row">
@@ -287,7 +287,7 @@
               <div class="mb-1 small">THREAD DAEMON</div>
             </div>
             <div class="col-xl-7 col-lg-7">
-              <div class="mb-1 small" th:text="${systemInfo.threadsDaemon}"></div>
+              <div class="mb-1 small" th:text="${systemInfo?.threadsDaemon}"></div>
             </div>
           </div>
           <div class="row">
@@ -295,7 +295,7 @@
               <div class="mb-1 small">THREAD PEAK</div>
             </div>
             <div class="col-xl-7 col-lg-7">
-              <div class="mb-1 small" th:text="${systemInfo.threadsPeak}"></div>
+              <div class="mb-1 small" th:text="${systemInfo?.threadsPeak}"></div>
             </div>
           </div>
           <hr/>
@@ -304,7 +304,7 @@
               <div class="mb-1 small">GC COUNT</div>
             </div>
             <div class="col-xl-7 col-lg-7">
-              <div class="mb-1 small" th:text="${systemInfo.gcCount}"></div>
+              <div class="mb-1 small" th:text="${systemInfo?.gcCount}"></div>
             </div>
           </div>
           <div class="row">
@@ -312,7 +312,7 @@
               <div class="mb-1 small">GC TIME</div>
             </div>
             <div class="col-xl-7 col-lg-7">
-              <div class="mb-1 small" th:text="${systemInfo.gcTime} + ' sec'"></div>
+              <div class="mb-1 small" th:text="${systemInfo?.gcTime} + ' sec'"></div>
             </div>
           </div>
         </div>
