@@ -146,7 +146,7 @@ Sub Transactions 面板：本事务包含的子事务ID，子事务状态，子�
 
 ![image-20190927150455006](assets/alpha-cluster-architecture.png)
 
-上边是 Alpha 集群的工作架构图，表示部署了两个 Alpha 节点，分别是 8070 和 8071（这两编号是 [Gossip](https://en.wikipedia.org/wiki/Gossip_protocol) 协议的通信端口）。Omega 消息被发送到 Kafka ，并使用 globalTxId 作为分区策略，这保证了同一个全局事务下的子事务可以被有序的消费。KafkaConsumer 负责从 Kafak 中读取事件并发送给集群分片器 ShardingCoordinator，ShardingCoordinator 负责在 Alpha 集群中创建 SagaActor 并发送这个消息。运行中的 SagaActor 接收到消息后会持久化到 Redis 中，当这个集群中的节点奔溃后可以在集群其他节点恢复 SagaActor 以及它的状态。当 SagaActor 结束后就会将这一笔全局事务的数据存储到 ES。
+上边是 Alpha 集群的工作架构图，表示部署了两个 Alpha 节点，分别是 8070 和 8071（这两编号是 [Gossip](https://en.wikipedia.org/wiki/Gossip_protocol) 协议的通信端口）。Omega 消息被发送到 Kafka ，并使用 globalTxId 作为分区策略，这保证了同一个全局事务下的子事务可以被有序的消费。KafkaConsumer 负责从 Kafka 中读取事件并发送给集群分片器 ShardingCoordinator，ShardingCoordinator 负责在 Alpha 集群中创建 SagaActor 并发送这个消息。运行中的 SagaActor 接收到消息后会持久化到 Redis 中，当这个集群中的节点奔溃后可以在集群其他节点恢复 SagaActor 以及它的状态。当 SagaActor 结束后就会将这一笔全局事务的数据存储到 ES。
 
 启动 Alpha 集群非常容易，首先启动集群需要用到的中间件 Kafka Redis PostgreSQL/MySQL ElasticSearch，你使用 Docker 启动他们（在生产环境建议使用一个更可靠的部署方式），下边提供了一个 docker compose 文件 servicecomb-pack-middleware.yml，你可以直接使用命令 `docker-compose -f servicecomb-pack-middleware.yml up -d` 启动它。
 
