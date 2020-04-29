@@ -699,6 +699,14 @@ You can find a copy of the License at licenses/LICENSE-jquery
 * jQuery Easing Plugin (org.webjars:jquery-easing:1.4.1 - http://webjars.org)
 
 ===========================================================================
+This product bundles moment which is licensed under the
+Moment license.
+For details, see https://github.com/moment/moment/
+You can find a copy of the License at licenses/LICENSE-moment
+
+* jquery (org.webjars:momentjs:2.24.0 - http://webjars.org)
+
+===========================================================================
 This product bundles Font Awesome which is licensed under the
 Font Awesome license.
 For details, see https://github.com/FortAwesome/Font-Awesome
