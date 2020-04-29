@@ -45,10 +45,9 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.DefaultResultMapper;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
-import org.springframework.data.elasticsearch.core.ScrolledPage;
 import org.springframework.data.elasticsearch.core.SearchResultMapper;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.aggregation.impl.AggregatedPageImpl;
@@ -117,6 +116,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
 
   @Override
   public PagingGlobalTransactions getGlobalTransactions(String state, int page, int size) {
+    //ElasticsearchTemplate.prepareScroll() does not add sorting https://jira.spring.io/browse/DATAES-457
     long start = System.currentTimeMillis();
     List<GlobalTransaction> globalTransactions = new ArrayList();
     QueryBuilder query;
@@ -125,32 +125,26 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
     } else {
       query = QueryBuilders.matchAllQuery();
     }
-    SearchQuery searchQuery = new NativeSearchQueryBuilder()
-        .withIndices(INDEX_NAME)
-        .withTypes(INDEX_TYPE)
-        .withQuery(query)
-        .withPageable(PageRequest.of(page, size))
-        .build();
-    ScrolledPage<GlobalTransactionDocument> scroll = (ScrolledPage<GlobalTransactionDocument>) this.template
-        .startScroll(SCROLL_TIMEOUT, searchQuery, GlobalTransactionDocument.class,
-            searchResultMapper);
-    int pageCursor = 0;
-    while (scroll.hasContent()) {
-      if (pageCursor < page) {
-        scroll = (ScrolledPage<GlobalTransactionDocument>) this.template
-            .continueScroll(scroll.getScrollId(), SCROLL_TIMEOUT, GlobalTransactionDocument.class,
-                searchResultMapper);
-        pageCursor++;
-      } else {
-        for (GlobalTransactionDocument dto : scroll.getContent()) {
-          globalTransactions.add(dto);
-        }
-        break;
+    SearchResponse response = this.template.getClient().prepareSearch(INDEX_NAME)
+        .setTypes(INDEX_TYPE)
+        .setQuery(query)
+        .addSort(SortBuilders.fieldSort("beginTime").order(SortOrder.DESC))
+        .setSize(size)
+        .setFrom(page * size)
+        .execute()
+        .actionGet();
+    ObjectMapper jsonMapper = new ObjectMapper();
+    response.getHits().forEach(hit -> {
+      try {
+        GlobalTransactionDocument dto = jsonMapper
+            .readValue(hit.getSourceAsString(), GlobalTransactionDocument.class);
+        globalTransactions.add(dto);
+      } catch (Exception e) {
+        LOG.error(e.getMessage(), e);
       }
-    }
-    LOG.info("Query total hits {}, return page {}, size {}", scroll.getTotalElements(), page, size);
-    this.template.clearScroll(scroll.getScrollId());
-    return PagingGlobalTransactions.builder().page(page).size(size).total(scroll.getTotalElements())
+    });
+    LOG.info("Query total hits {}, return page {}, size {}", response.getHits().getTotalHits(), page, size);
+    return PagingGlobalTransactions.builder().page(page).size(size).total(response.getHits().getTotalHits())
         .globalTransactions(globalTransactions).elapsed(System.currentTimeMillis() - start).build();
   }
 
@@ -200,7 +194,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
     return globalTransactions;
   }
 
-  private final SearchResultMapper searchResultMapper = new SearchResultMapper() {
+  private final SearchResultMapper searchResultMapper = new DefaultResultMapper() {
     @Override
     public <T> AggregatedPage<T> mapResults(SearchResponse response, Class<T> aClass,
         Pageable pageable) {

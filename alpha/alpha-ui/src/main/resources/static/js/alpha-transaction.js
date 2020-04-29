@@ -61,18 +61,9 @@ $(document).ready(function () {
       {"data": "subTxSize"},
       {"data": "beginTime"},
       {"data": "durationTime"},
-      {"data": "state"},
-      {"data": ""}
+      {"data": "state"}
     ],
     columnDefs: [
-      {
-        render: function (data, type, row) {
-          return '<i class="fas fa-fw fa-bullseye row-transaction" style="cursor:pointer" globalTxId='
-              + row.globalTxId + '></i>';
-        },
-        width: "50px",
-        targets: -1
-      },
       {
         render: function (data, type, row) {
           if (data == 'COMMITTED') {
@@ -87,8 +78,12 @@ $(document).ready(function () {
         },
         width: "50px",
         targets: 6
-      },
-      {"visible": false, "targets": [4]}
+      },{
+        render: function (data, type, row) {
+          return moment(data).format('LLL');
+        },
+        targets: 4
+      }
     ]
   });
 
