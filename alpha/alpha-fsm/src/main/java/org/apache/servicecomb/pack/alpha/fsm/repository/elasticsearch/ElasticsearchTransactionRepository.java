@@ -31,6 +31,7 @@ import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransac
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.PagingGlobalTransactions;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -118,34 +119,49 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
   public PagingGlobalTransactions getGlobalTransactions(String state, int page, int size) {
     //ElasticsearchTemplate.prepareScroll() does not add sorting https://jira.spring.io/browse/DATAES-457
     long start = System.currentTimeMillis();
+    PagingGlobalTransactions pagingGlobalTransactions = PagingGlobalTransactions.builder().build();
     List<GlobalTransaction> globalTransactions = new ArrayList();
-    QueryBuilder query;
-    if (state != null && state.trim().length() > 0) {
-      query = QueryBuilders.termQuery("state.keyword", state);
-    } else {
-      query = QueryBuilders.matchAllQuery();
-    }
-    SearchResponse response = this.template.getClient().prepareSearch(INDEX_NAME)
-        .setTypes(INDEX_TYPE)
-        .setQuery(query)
-        .addSort(SortBuilders.fieldSort("beginTime").order(SortOrder.DESC))
-        .setSize(size)
-        .setFrom(page * size)
-        .execute()
-        .actionGet();
-    ObjectMapper jsonMapper = new ObjectMapper();
-    response.getHits().forEach(hit -> {
-      try {
-        GlobalTransactionDocument dto = jsonMapper
-            .readValue(hit.getSourceAsString(), GlobalTransactionDocument.class);
-        globalTransactions.add(dto);
-      } catch (Exception e) {
-        LOG.error(e.getMessage(), e);
+    try{
+      IndicesExistsRequest request = new IndicesExistsRequest(INDEX_NAME);
+      if (this.template.getClient().admin().indices().exists(request).actionGet().isExists()) {
+        QueryBuilder query;
+        if (state != null && state.trim().length() > 0) {
+          query = QueryBuilders.termQuery("state.keyword", state);
+        } else {
+          query = QueryBuilders.matchAllQuery();
+        }
+        SearchResponse response = this.template.getClient().prepareSearch(INDEX_NAME)
+            .setTypes(INDEX_TYPE)
+            .setQuery(query)
+            .addSort(SortBuilders.fieldSort("beginTime").order(SortOrder.DESC).missing("_last"))
+            .setSize(size)
+            .setFrom(page * size)
+            .execute()
+            .actionGet();
+        ObjectMapper jsonMapper = new ObjectMapper();
+        response.getHits().forEach(hit -> {
+          try {
+            GlobalTransactionDocument dto = jsonMapper
+                .readValue(hit.getSourceAsString(), GlobalTransactionDocument.class);
+            globalTransactions.add(dto);
+          } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+          }
+        });
+        pagingGlobalTransactions = PagingGlobalTransactions.builder().page(page).size(size).total(response.getHits().getTotalHits())
+            .globalTransactions(globalTransactions).elapsed(System.currentTimeMillis() - start).build();
+      } else {
+        LOG.warn("[alpha_global_transaction] index not exist");
+        pagingGlobalTransactions = PagingGlobalTransactions.builder().page(page).size(size).total(0)
+            .globalTransactions(globalTransactions).elapsed(System.currentTimeMillis() - start).build();
       }
-    });
-    LOG.info("Query total hits {}, return page {}, size {}", response.getHits().getTotalHits(), page, size);
-    return PagingGlobalTransactions.builder().page(page).size(size).total(response.getHits().getTotalHits())
-        .globalTransactions(globalTransactions).elapsed(System.currentTimeMillis() - start).build();
+    }catch (Exception ex){
+      LOG.error(ex.getMessage(),ex);
+      pagingGlobalTransactions = PagingGlobalTransactions.builder().page(page).size(size).total(0)
+          .globalTransactions(globalTransactions).elapsed(System.currentTimeMillis() - start).build();
+    }
+    LOG.info("Query total hits {}, return page {}, size {}", pagingGlobalTransactions.getTotal(), page, size);
+    return pagingGlobalTransactions;
   }
 
   public Map<String, Long> getTransactionStatistics() {
