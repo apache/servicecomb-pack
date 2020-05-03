@@ -119,7 +119,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
   public PagingGlobalTransactions getGlobalTransactions(String state, int page, int size) {
     //ElasticsearchTemplate.prepareScroll() does not add sorting https://jira.spring.io/browse/DATAES-457
     long start = System.currentTimeMillis();
-    PagingGlobalTransactions pagingGlobalTransactions = PagingGlobalTransactions.builder().build();
+    PagingGlobalTransactions pagingGlobalTransactions;
     List<GlobalTransaction> globalTransactions = new ArrayList();
     try{
       IndicesExistsRequest request = new IndicesExistsRequest(INDEX_NAME);
@@ -133,7 +133,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
         SearchResponse response = this.template.getClient().prepareSearch(INDEX_NAME)
             .setTypes(INDEX_TYPE)
             .setQuery(query)
-            .addSort(SortBuilders.fieldSort("beginTime").order(SortOrder.DESC).missing("_last"))
+            .addSort(SortBuilders.fieldSort("beginTime").order(SortOrder.DESC).unmappedType("date"))
             .setSize(size)
             .setFrom(page * size)
             .execute()
