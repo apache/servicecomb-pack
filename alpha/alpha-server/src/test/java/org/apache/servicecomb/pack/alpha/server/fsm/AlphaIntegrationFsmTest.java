@@ -61,6 +61,7 @@ import org.springframework.test.context.junit4.SpringRunner;
         "spring.profiles.active=akka-persistence-mem",
         //akka
         "alpha.feature.akka.enabled=true",
+        "alpha.feature.tcc.enabled=false",
         "alpha.feature.akka.channel.type=memory",
         "akkaConfig.akka.persistence.journal.plugin=akka.persistence.journal.inmem",
         "akkaConfig.akka.persistence.journal.leveldb.dir=target/example/journal",

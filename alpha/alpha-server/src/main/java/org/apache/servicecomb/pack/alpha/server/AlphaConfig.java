@@ -18,6 +18,8 @@
 package org.apache.servicecomb.pack.alpha.server;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,6 +50,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import io.grpc.BindableService;
 
 @EntityScan(basePackages = "org.apache.servicecomb.pack.alpha")
 @Configuration
@@ -141,7 +145,15 @@ public class AlphaConfig {
   }
 
   @Bean
-  GrpcTccEventService grpcTccEventService(TccTxEventService tccTxEventService) {
+  @ConditionalOnProperty(name = "alpha.feature.tcc.enabled", havingValue = "true", matchIfMissing = true)
+  GrpcTccEventService grpcTccEventService(TccTxEventService tccTxEventService, TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner) {
+    // start the service which are needed for TCC
+    tccPendingTaskRunner.start();
+    tccEventScanner.start();
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      tccPendingTaskRunner.shutdown();
+      tccEventScanner.shutdown();
+    }));
     return new GrpcTccEventService(tccTxEventService);
   }
 
@@ -150,43 +162,47 @@ public class AlphaConfig {
     return new TccEventScanner(tccTxEventService, delay, globalTxTimeoutSeconds);
   }
 
-  @Bean
+
+  @Bean()
   @ConditionalOnProperty(name = "alpha.feature.akka.enabled", havingValue = "false", matchIfMissing = true)
   ServerStartable serverStartable(GrpcServerConfig serverConfig, TxConsistentService txConsistentService,
-      Map<String, Map<String, OmegaCallback>> omegaCallbacks, GrpcTccEventService grpcTccEventService,
-      TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner, @Qualifier("alphaEventBus") EventBus eventBus) throws IOException {
+      Map<String, Map<String, OmegaCallback>> omegaCallbacks, @Autowired(required = false) GrpcTccEventService grpcTccEventService,
+      @Qualifier("alphaEventBus") EventBus eventBus) throws IOException {
     ServerMeta serverMeta = ServerMeta.newBuilder()
         .putMeta(AlphaMetaKeys.AkkaEnabled.name(), String.valueOf(false)).build();
+    List<BindableService> bindableServices = new ArrayList();
+    bindableServices.add(new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks, serverMeta));
+    if (grpcTccEventService != null) {
+      LOG.info("alpha.feature.tcc.enable=true, starting the TCC service.");
+      bindableServices.add(grpcTccEventService);
+    } else {
+      LOG.info("alpha.feature.tcc.enable=false, the TCC service is disabled.");
+    }
     ServerStartable bootstrap = new GrpcStartable(serverConfig, eventBus,
-        new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks, serverMeta), grpcTccEventService);
+        bindableServices.toArray(new BindableService[0]));
     new Thread(bootstrap::start).start();
-    tccPendingTaskRunner.start();
-    tccEventScanner.start();
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      tccPendingTaskRunner.shutdown();
-      tccEventScanner.shutdown();
-    }));
-    LOG.info("alpha.feature.akka.enabled=false");
+    LOG.info("alpha.feature.akka.enabled=false, starting the saga db service");
     return bootstrap;
   }
 
   @Bean
   @ConditionalOnProperty(name= "alpha.feature.akka.enabled", havingValue = "true")
   ServerStartable serverStartableWithAkka(GrpcServerConfig serverConfig,
-      Map<String, Map<String, OmegaCallback>> omegaCallbacks, GrpcTccEventService grpcTccEventService,
-      TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner, @Qualifier("alphaEventBus") EventBus eventBus, ActorEventChannel actorEventChannel) throws IOException {
+      Map<String, Map<String, OmegaCallback>> omegaCallbacks, @Autowired(required = false) GrpcTccEventService grpcTccEventService,
+      @Qualifier("alphaEventBus") EventBus eventBus, ActorEventChannel actorEventChannel) throws IOException {
     ServerMeta serverMeta = ServerMeta.newBuilder()
         .putMeta(AlphaMetaKeys.AkkaEnabled.name(), String.valueOf(true)).build();
-    ServerStartable bootstrap = new GrpcStartable(serverConfig, eventBus,
-        new GrpcSagaEventService(actorEventChannel, omegaCallbacks, serverMeta), grpcTccEventService);
+    List<BindableService> bindableServices = new ArrayList();
+    bindableServices.add(new GrpcSagaEventService(actorEventChannel, omegaCallbacks, serverMeta));
+    if (grpcTccEventService != null) {
+      LOG.info("alpha.feature.tcc.enable=true, starting the TCC service.");
+      bindableServices.add(grpcTccEventService);
+    } else {
+      LOG.info("alpha.feature.tcc.enable=false, the TCC service is disabled.");
+    }
+    ServerStartable bootstrap = new GrpcStartable(serverConfig, eventBus, bindableServices.toArray(new BindableService[0]));
     new Thread(bootstrap::start).start();
-    tccPendingTaskRunner.start();
-    tccEventScanner.start();
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      tccPendingTaskRunner.shutdown();
-      tccEventScanner.shutdown();
-    }));
-    LOG.info("alpha.feature.akka.enabled=true");
+    LOG.info("alpha.feature.akka.enabled=true, starting the saga akka service.");
     return bootstrap;
   }
 
