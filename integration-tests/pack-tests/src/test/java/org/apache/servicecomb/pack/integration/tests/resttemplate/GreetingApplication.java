@@ -20,13 +20,11 @@ package org.apache.servicecomb.pack.integration.tests.resttemplate;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.servicecomb.pack.omega.spring.EnableOmega;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 
-@EnableOmega
 @SpringBootApplication
 @EntityScan(basePackages = "org.apache.servicecomb.pack.alpha")
 public class GreetingApplication {
