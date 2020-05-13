@@ -17,12 +17,10 @@
 
 package org.apache.servicecomb.pack.demo.ordering;
 
-import org.apache.servicecomb.pack.omega.spring.EnableOmega;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@EnableOmega
 public class TccOrderingApplication {
   public static void main(String[] args) {
     SpringApplication.run(TccOrderingApplication.class, args);
