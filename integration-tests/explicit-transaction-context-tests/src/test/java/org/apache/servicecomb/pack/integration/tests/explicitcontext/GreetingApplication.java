@@ -20,7 +20,6 @@ package org.apache.servicecomb.pack.integration.tests.explicitcontext;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.servicecomb.pack.omega.spring.EnableOmega;
 import org.apache.servicecomb.pack.omega.transport.resttemplate.RestTemplateConfig;
 import org.apache.servicecomb.pack.omega.transport.resttemplate.WebConfig;
 import org.springframework.boot.SpringApplication;
@@ -28,10 +27,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.client.RestTemplate;
 
-@EnableOmega
 @SpringBootApplication(exclude = {WebConfig.class, RestTemplateConfig.class})
 @EntityScan(basePackages = "org.apache.servicecomb.pack.alpha")
 public class GreetingApplication {
