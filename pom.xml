@@ -28,7 +28,7 @@
   <groupId>org.apache.servicecomb.pack</groupId>
   <artifactId>pack</artifactId>
   <packaging>pom</packaging>
-  <version>0.6.0-SNAPSHOT</version>
+  <version>0.6.0</version>
 
   <modules>
     <module>docker-build-config</module>
@@ -259,17 +259,17 @@
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-transport-feign</artifactId>
-        <version>0.6.0-SNAPSHOT</version>
+        <version>0.6.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack.transports</groupId>
         <artifactId>transport-httpclient</artifactId>
-        <version>0.6.0-SNAPSHOT</version>
+        <version>0.6.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
         <artifactId>omega-context</artifactId>
-        <version>0.6.0-SNAPSHOT</version>
+        <version>0.6.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
@@ -395,7 +395,7 @@
       <dependency>
        <groupId>org.apache.servicecomb.pack</groupId>
        <artifactId>persistence-jpa</artifactId>
-       <version>0.6.0-SNAPSHOT</version>
+       <version>0.6.0</version>
        </dependency>
       <dependency>
         <groupId>commons-io</groupId>
