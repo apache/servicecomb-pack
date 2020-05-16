@@ -28,7 +28,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 
 /**
  * RecoveryPolicy Wrapper
- * 1.Use this wrapper to send a request if the @Compensable forwardTimeout > 0
+ * 1.Use this wrapper to send a request if the @Compensable forwardTimeout greaterThan 0
  * 2.Terminate thread execution if execution time is greater than the forwardTimeout of @Compensable
  *
  * Exception
