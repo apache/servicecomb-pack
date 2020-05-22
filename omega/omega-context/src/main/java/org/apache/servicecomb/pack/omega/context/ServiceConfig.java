@@ -40,10 +40,11 @@ public class ServiceConfig {
       }
     }else{
       instanceId = instanceId.trim();
-      if (instanceId.length() > MAX_LENGTH) {
-        throw new IllegalArgumentException(String.format("The instanceId length exceeds maximum length limit [%d].", MAX_LENGTH));
-      }
       this.instanceId = instanceId;
+    }
+
+    if (this.instanceId.length() > MAX_LENGTH) {
+      throw new IllegalArgumentException(String.format("The instanceId length exceeds maximum length limit [%d].", MAX_LENGTH));
     }
   }
 
