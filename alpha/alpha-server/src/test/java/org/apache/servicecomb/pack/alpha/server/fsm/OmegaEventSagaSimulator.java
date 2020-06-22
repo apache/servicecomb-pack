@@ -65,7 +65,7 @@ public class OmegaEventSagaSimulator {
     final int localTxId_1_ReverseTimeoutSecond = 2;
     List<GrpcTxEvent> sagaEvents = new ArrayList<>();
     sagaEvents.add(sagaStartedEvent(globalTxId));
-    sagaEvents.add(txStartedEvent(globalTxId, localTxId_1, globalTxId, "service a".getBytes(), "method a", 0, localTxId_1_ReverseTimeoutSecond));
+    sagaEvents.add(txStartedEvent(globalTxId, localTxId_1, globalTxId, "service a".getBytes(), "method a", 0, localTxId_1_ReverseTimeoutSecond, 5));
     sagaEvents.add(txEndedEvent(globalTxId, localTxId_1, globalTxId, "service a".getBytes(), "method a"));
     sagaEvents.add(txStartedEvent(globalTxId, localTxId_2, globalTxId, "service b".getBytes(), "method b"));
     sagaEvents.add(txAbortedEvent(globalTxId, localTxId_2, globalTxId, NullPointerException.class.getName().getBytes(), "method b"));
@@ -80,6 +80,19 @@ public class OmegaEventSagaSimulator {
     sagaEvents.add(txStartedEvent(globalTxId, localTxId_1, globalTxId, "service a".getBytes(), "method a"));
     sagaEvents.add(txEndedEvent(globalTxId, localTxId_1, globalTxId, "service a".getBytes(), "method a"));
     sagaEvents.add(txStartedEvent(globalTxId, localTxId_2, globalTxId, "service b".getBytes(), "method b"));
+    sagaEvents.add(txEndedEvent(globalTxId, localTxId_2, globalTxId, "service b".getBytes(), "method b"));
+    sagaEvents.add(txStartedEvent(globalTxId, localTxId_3, globalTxId, "service c".getBytes(), "method c"));
+    sagaEvents.add(txAbortedEvent(globalTxId, localTxId_3, globalTxId, NullPointerException.class.getName().getBytes(), "method c"));
+    sagaEvents.add(sagaAbortedEvent(globalTxId));
+    return sagaEvents;
+  }
+
+  public List<GrpcTxEvent> lastTxAbortedEventsAndReverseRetries(String globalTxId, String localTxId_1, String localTxId_2, String localTxId_3){
+    List<GrpcTxEvent> sagaEvents = new ArrayList<>();
+    sagaEvents.add(sagaStartedEvent(globalTxId));
+    sagaEvents.add(txStartedEvent(globalTxId, localTxId_1, globalTxId, "service a".getBytes(), "method a"));
+    sagaEvents.add(txEndedEvent(globalTxId, localTxId_1, globalTxId, "service a".getBytes(), "method a"));
+    sagaEvents.add(txStartedEvent(globalTxId, localTxId_2, globalTxId, "service b".getBytes(), "method b", 15, 0, 1000));
     sagaEvents.add(txEndedEvent(globalTxId, localTxId_2, globalTxId, "service b".getBytes(), "method b"));
     sagaEvents.add(txStartedEvent(globalTxId, localTxId_3, globalTxId, "service c".getBytes(), "method c"));
     sagaEvents.add(txAbortedEvent(globalTxId, localTxId_3, globalTxId, NullPointerException.class.getName().getBytes(), "method c"));
@@ -198,80 +211,87 @@ public class OmegaEventSagaSimulator {
   private GrpcTxEvent sagaStartedEvent(String globalTxId) {
     return eventOf(EventType.SagaStartedEvent, globalTxId, globalTxId,
         null, new byte[0], "", 0, "",
-        0, 0, 0, 0);
+        0, 0, 0, 0, 5);
   }
 
   private GrpcTxEvent sagaStartedEvent(String globalTxId, int timeout) {
     return eventOf(EventType.SagaStartedEvent, globalTxId, globalTxId,
         null, new byte[0], "", timeout, "",
-        0, 0, 0, 0);
+        0, 0, 0, 0, 5);
   }
 
   private GrpcTxEvent sagaEndedEvent(String globalTxId) {
     return eventOf(EventType.SagaEndedEvent, globalTxId, globalTxId,
         null, new byte[0], "", 0, "",
-        0, 0, 0, 0);
+        0, 0, 0, 0, 5);
   }
 
   private GrpcTxEvent sagaAbortedEvent(String globalTxId) {
     return eventOf(EventType.SagaAbortedEvent, globalTxId, globalTxId,
         null, new byte[0], "", 0, "",
-        0, 0, 0, 0);
+        0, 0, 0, 0, 5);
   }
 
   private GrpcTxEvent sagaTimeoutEvent(String globalTxId) {
     return eventOf(EventType.SagaTimeoutEvent, globalTxId, globalTxId,
         null, new byte[0], "", 0, "",
-        0, 0, 0, 0);
+        0, 0, 0, 0, 5);
   }
 
   private GrpcTxEvent txStartedEvent(String globalTxId,
       String localTxId, String parentTxId, byte[] payloads, String compensationMethod) {
     return eventOf(EventType.TxStartedEvent, globalTxId, localTxId,
         parentTxId, payloads, compensationMethod, 0, "",
-        0, 0, 0, 0);
+        0, 0, 0, 0, 5);
   }
 
   private GrpcTxEvent txStartedEvent(String globalTxId,
-      String localTxId, String parentTxId, byte[] payloads, String compensationMethod, int reverseRetries, int reverseTimeout) {
+      String localTxId, String parentTxId, byte[] payloads, String compensationMethod, int reverseRetries, int reverseTimeout, int retryDelayInMilliseconds) {
     return eventOf(EventType.TxStartedEvent, globalTxId, localTxId,
         parentTxId, payloads, compensationMethod, 0, "",
-        0, 0, reverseRetries, reverseTimeout);
+        0, 0, reverseRetries, reverseTimeout, retryDelayInMilliseconds);
   }
 
   private GrpcTxEvent txEndedEvent(String globalTxId,
       String localTxId, String parentTxId, byte[] payloads, String compensationMethod) {
     return eventOf(EventType.TxEndedEvent, globalTxId, localTxId,
         parentTxId, payloads, compensationMethod, 0, "",
-        0, 0, 0, 0);
+        0, 0, 0, 0, 5);
   }
 
   private GrpcTxEvent txAbortedEvent(String globalTxId,
       String localTxId, String parentTxId, byte[] payloads, String compensationMethod) {
     return eventOf(EventType.TxAbortedEvent, globalTxId, localTxId,
         parentTxId, payloads, compensationMethod, 0, "",
-        0, 0, 0, 0);
+        0, 0, 0, 0, 5);
   }
 
   public GrpcTxEvent txCompensatedEvent(String globalTxId,
       String localTxId, String parentTxId) {
     return eventOf(EventType.TxCompensatedEvent, globalTxId, localTxId,
         parentTxId,  new byte[0], "", 0, "",
-        0, 0, 0, 0);
+        0, 0, 0, 0, 5);
   }
 
   public GrpcTxEvent txCompensateAckSucceedEvent(String globalTxId,
       String localTxId, String parentTxId) {
     return eventOf(EventType.TxCompensateAckSucceedEvent, globalTxId, localTxId,
         parentTxId, new byte[0], "", 0, "",
-        0, 0, 0, 0);
+        0, 0, 0, 0, 5);
   }
 
   public GrpcTxEvent txCompensateAckTimeoutEvent(String globalTxId,
       String localTxId, String parentTxId) {
     return eventOf(EventType.CompensateAckTimeoutEvent, globalTxId, localTxId,
         parentTxId, new byte[0], "", 0, "",
-        0, 0, 0, 0);
+        0, 0, 0, 0,5);
+  }
+
+  public GrpcTxEvent txCompensateAckFailedEvent(String globalTxId,
+      String localTxId, String parentTxId) {
+    return eventOf(EventType.TxCompensateAckFailedEvent, globalTxId, localTxId,
+        parentTxId, new byte[0], "", 0, "",
+        0, 0, 0, 0, 5);
   }
 
   private GrpcTxEvent eventOf(EventType eventType,
@@ -285,7 +305,8 @@ public class OmegaEventSagaSimulator {
       int forwardRetries,
       int forwardTimeout,
       int reverseRetries,
-      int reverseTimeout) {
+      int reverseTimeout,
+      int retryDelayInMilliseconds) {
 
     return GrpcTxEvent.newBuilder()
         .setServiceName(serviceName)
@@ -302,6 +323,7 @@ public class OmegaEventSagaSimulator {
         .setRetryMethod(retryMethod)
         .setForwardRetries(forwardRetries)
         .setReverseRetries(reverseRetries)
+        .setRetryDelayInMilliseconds(retryDelayInMilliseconds)
         .setPayloads(ByteString.copyFrom(payloads))
         .build();
   }

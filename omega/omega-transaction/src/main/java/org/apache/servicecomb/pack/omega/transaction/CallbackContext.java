@@ -44,19 +44,32 @@ public class CallbackContext {
   }
 
   public void apply(String globalTxId, String localTxId, String parentTxId, String callbackMethod, Object... payloads) {
-    CallbackContextInternal contextInternal = contexts.get(callbackMethod);
     String oldGlobalTxId = omegaContext.globalTxId();
     String oldLocalTxId = omegaContext.localTxId();
     try {
       omegaContext.setGlobalTxId(globalTxId);
       omegaContext.setLocalTxId(localTxId);
-      contextInternal.callbackMethod.invoke(contextInternal.target, payloads);
-      if (omegaContext.getAlphaMetas().isAkkaEnabled()) {
-        sender.send(
-            new TxCompensateAckSucceedEvent(omegaContext.globalTxId(), omegaContext.localTxId(),
-                parentTxId, callbackMethod));
+      if (contexts.containsKey(callbackMethod)) {
+        CallbackContextInternal contextInternal = contexts.get(callbackMethod);
+        contextInternal.callbackMethod.invoke(contextInternal.target, payloads);
+        if (omegaContext.getAlphaMetas().isAkkaEnabled()) {
+          sender.send(
+              new TxCompensateAckSucceedEvent(omegaContext.globalTxId(), omegaContext.localTxId(),
+                  parentTxId, callbackMethod));
+        }
+        LOG.info("Callback transaction with global tx id [{}], local tx id [{}]", globalTxId, localTxId);
+      } else {
+        if (omegaContext.getAlphaMetas().isAkkaEnabled()) {
+          String msg = "callback method " + callbackMethod
+              + " not found on CallbackContext, If it is starting, please try again later";
+          sender.send(
+              new TxCompensateAckFailedEvent(omegaContext.globalTxId(), omegaContext.localTxId(),
+                  parentTxId, callbackMethod, new Exception(msg)));
+          LOG.error(msg);
+        }else{
+          throw new NullPointerException();
+        }
       }
-      LOG.info("Callback transaction with global tx id [{}], local tx id [{}]", globalTxId, localTxId);
     } catch (IllegalAccessException | InvocationTargetException e) {
       if (omegaContext.getAlphaMetas().isAkkaEnabled()) {
         sender.send(
@@ -64,7 +77,7 @@ public class CallbackContext {
                 parentTxId, callbackMethod, e));
       }
       LOG.error(
-          "Pre-checking for callback method " + contextInternal.callbackMethod.toString()
+          "Pre-checking for callback method " + callbackMethod
               + " was somehow skipped, did you forget to configure callback method checking on service startup?",
           e);
     } finally {
