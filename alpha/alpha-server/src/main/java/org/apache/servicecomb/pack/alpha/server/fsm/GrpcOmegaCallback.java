@@ -55,7 +55,7 @@ class GrpcOmegaCallback implements OmegaCallback {
       if (compensateAckCountDownLatch.getType() == CompensateAckType.Disconnected) {
         throw new CompensateConnectException("Omega connect exception");
       }else{
-        LOG.info("compensate ack "+ compensateAckCountDownLatch.getType().name());
+        LOG.debug("compensate ack "+ compensateAckCountDownLatch.getType().name());
         if(compensateAckCountDownLatch.getType() == CompensateAckType.Failed){
           throw new CompensateAckFailedException("An exception is thrown inside the compensation method");
         }

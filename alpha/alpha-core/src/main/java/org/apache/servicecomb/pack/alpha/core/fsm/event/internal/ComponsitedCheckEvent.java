@@ -17,9 +17,16 @@
 
 package org.apache.servicecomb.pack.alpha.core.fsm.event.internal;
 
+import org.apache.servicecomb.pack.alpha.core.fsm.TxState;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.TxEvent;
 
 public class ComponsitedCheckEvent extends TxEvent {
+
+  private TxState preState;
+
+  public TxState getPreState() {
+    return preState;
+  }
 
   public static Builder builder() {
     return new Builder();
@@ -31,6 +38,36 @@ public class ComponsitedCheckEvent extends TxEvent {
 
     private Builder() {
       txComponsitedEvent = new ComponsitedCheckEvent();
+    }
+    
+    public Builder serviceName(String serviceName) {
+      txComponsitedEvent.setServiceName(serviceName);
+      return this;
+    }
+
+    public Builder instanceId(String instanceId) {
+      txComponsitedEvent.setInstanceId(instanceId);
+      return this;
+    }
+
+    public Builder parentTxId(String parentTxId) {
+      txComponsitedEvent.setParentTxId(parentTxId);
+      return this;
+    }
+
+    public Builder localTxId(String localTxId) {
+      txComponsitedEvent.setLocalTxId(localTxId);
+      return this;
+    }
+
+    public Builder globalTxId(String globalTxId) {
+      txComponsitedEvent.setGlobalTxId(globalTxId);
+      return this;
+    }
+
+    public Builder preState(TxState txState) {
+      txComponsitedEvent.preState = txState;
+      return this;
     }
 
     public ComponsitedCheckEvent build() {

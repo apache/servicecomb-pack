@@ -67,4 +67,12 @@ public class TxEntities {
         .filter(map -> map.getValue().getState() == TxState.COMPENSATION_SENT)
         .count() > 0;
   }
+
+  public boolean hasCompensationFailedTx() {
+    return entities.entrySet().stream()
+        .filter(map -> map.getValue().getState() == TxState.COMPENSATED_FAILED
+            && map.getValue().getReverseRetries() > 0
+            && map.getValue().getReverseRetries() > map.getValue().getRetriesCounter().get())
+        .count() > 0;
+  }
 }
