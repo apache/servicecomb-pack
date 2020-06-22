@@ -30,14 +30,14 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.servicecomb.pack.alpha.core.OmegaCallback;
-import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
 import org.apache.servicecomb.pack.alpha.core.fsm.TxState;
+import org.apache.servicecomb.pack.alpha.fsm.SagaActorState;
 import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension;
 import org.apache.servicecomb.pack.alpha.server.AlphaApplication;
 import org.apache.servicecomb.pack.alpha.server.AlphaConfig;
-import org.apache.servicecomb.pack.common.EventType;
 import org.apache.servicecomb.pack.common.AlphaMetaKeys;
+import org.apache.servicecomb.pack.common.EventType;
 import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -480,7 +480,7 @@ public class AlphaIntegrationFsmTest {
     final String localTxId_3 = UUID.randomUUID().toString();
     final Map<String, OmegaCallback>[] omegaInstance = new Map[]{null};
     final String[] serviceName = new String[1];
-    omegaEventSender.getOmegaEventSagaSimulator().lastTxAbortedEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
+    omegaEventSender.getOmegaEventSagaSimulator().lastTxAbortedEventsAndReverseRetries(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
       if(event.getType().equals(EventType.TxAbortedEvent.name())){
         //simulate omega disconnect
         serviceName[0] = event.getServiceName();
@@ -489,17 +489,32 @@ public class AlphaIntegrationFsmTest {
       }
       omegaEventSender.getBlockingStub().onTxEvent(event);
     });
-    //simulate omega connected
     await().atMost(5, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.getTxEntities().size()==3;
     });
+
+    //simulate omega connected
     omegaEventSender.getOmegaCallbacks().put(serviceName[0], omegaInstance[0]);
-    waitAlphaCallCompensate(omegaEventSender, globalTxId, localTxId_1, localTxId_2);
-    await().atMost(2, SECONDS).until(() -> {
+
+    await().atMost(10, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
-      return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED;
+      if(sagaData != null){
+        if(sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED){
+          return true;
+        }else{
+          sagaData.getTxEntities().forEachReverse((k,v) -> {
+            if(v.getState() == TxState.COMPENSATION_SENT || v.getState() == TxState.COMPENSATED_FAILED){
+              omegaEventSender.getBlockingStub().onTxEvent(omegaEventSender.getOmegaEventSagaSimulator().getTxCompensateAckSucceedEvent(v.getGlobalTxId(),v.getLocalTxId()));
+            }
+          });
+          return false;
+        }
+      } else {
+        return false;
+      }
     });
+
     SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
     assertEquals(sagaData.getLastState(),SagaActorState.COMPENSATED);
     assertEquals(sagaData.getTxEntities().size(),3);
