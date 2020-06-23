@@ -497,7 +497,7 @@ public class AlphaIntegrationFsmTest {
     //simulate omega connected
     omegaEventSender.getOmegaCallbacks().put(serviceName[0], omegaInstance[0]);
 
-    await().atMost(10, SECONDS).until(() -> {
+    await().atMost(15, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       if(sagaData != null){
         if(sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMPENSATED){
