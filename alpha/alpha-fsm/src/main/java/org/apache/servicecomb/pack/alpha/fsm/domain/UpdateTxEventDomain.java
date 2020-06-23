@@ -67,7 +67,7 @@ public class UpdateTxEventDomain implements DomainEvent {
   public UpdateTxEventDomain(ComponsitedCheckEvent event) {
     this.event = event;
     this.localTxId = event.getLocalTxId();
-    this.state = event.getPreState();
+    this.state = event.getPreComponsitedState();
   }
 
   public String getLocalTxId() {

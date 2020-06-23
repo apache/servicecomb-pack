@@ -22,10 +22,10 @@ import org.apache.servicecomb.pack.alpha.core.fsm.event.base.TxEvent;
 
 public class ComponsitedCheckEvent extends TxEvent {
 
-  private TxState preState;
+  private TxState preComponsitedState;
 
-  public TxState getPreState() {
-    return preState;
+  public TxState getPreComponsitedState() {
+    return preComponsitedState;
   }
 
   public static Builder builder() {
@@ -66,7 +66,7 @@ public class ComponsitedCheckEvent extends TxEvent {
     }
 
     public Builder preState(TxState txState) {
-      txComponsitedEvent.preState = txState;
+      txComponsitedEvent.preComponsitedState = txState;
       return this;
     }
 
