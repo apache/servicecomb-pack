@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 public class Environment {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-  private static Environment instance;
+  private static Environment instance = new Environment();
   private static final int PAYLOADS_MAX_LENGTH = 10240;
   private int payloadsMaxLength = 0;
 
@@ -46,13 +46,6 @@ public class Environment {
   }
 
   public static Environment getInstance(){
-    if (instance == null) {
-      synchronized (Environment.class) {
-        if (instance == null) {
-          instance = new Environment();
-        }
-      }
-    }
     return instance;
   }
 
