@@ -88,7 +88,7 @@ You can run the demo using either docker compose or executable files.
 
    3. start ordering service. The executable jar file should be in `saga-demo/tcc-spring-demo/ordering/target/saga`.
    ```bash
-   java -Dserver.port=8083 -Dalpha.cluster.address=${alpha_address}:8080 -Dinventory.service.address=${host_address}:8082 -Dpayment.service.address=${host_address}:8081  -jar tcc-ordering-${saga_version}-exec.jar
+   java -Dserver.port=8083 -Dalpha.cluster.address=${alpha_address}:8080 -Dinventory.service.address=${host_address}:8081 -Dpayment.service.address=${host_address}:8082  -jar tcc-ordering-${saga_version}-exec.jar
    ```
 
 ## User Requests by command line tools
@@ -98,11 +98,11 @@ curl -X POST http://${host_address}:8083/ordering/order/UserA/ProductA/3/1
 ```
 Check the Inventory orders status with
 ```
-curl http://${host_address}:8082/orderings
+curl http://${host_address}:8081/orderings
 ```
 Check the Payment transaction status with
 ```
-curl http://${host_address}:8081/transactions
+curl http://${host_address}:8082/transactions
 
 ```
 
