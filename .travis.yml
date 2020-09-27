@@ -15,8 +15,6 @@
 ## limitations under the License.
 ## ---------------------------------------------------------------------------
 
-sudo: required
-
 addons:
   sonarcloud:
     organization: "apache"
