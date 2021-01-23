@@ -29,6 +29,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import org.apache.servicecomb.pack.alpha.fsm.channel.kafka.KafkaChannelAutoConfiguration;
 import org.apache.servicecomb.pack.alpha.fsm.channel.memory.MemoryChannelAutoConfiguration;
+import org.apache.servicecomb.pack.alpha.fsm.channel.rabbit.RabbitChannelAutoConfiguration;
 import org.apache.servicecomb.pack.alpha.fsm.channel.redis.RedisChannelAutoConfiguration;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.repository.NoneTransactionRepository;
@@ -51,7 +52,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 @ImportAutoConfiguration({
     MemoryChannelAutoConfiguration.class,
     KafkaChannelAutoConfiguration.class,
-    RedisChannelAutoConfiguration.class})
+    RedisChannelAutoConfiguration.class, RabbitChannelAutoConfiguration.class})
 @ConditionalOnProperty(value = {"alpha.feature.akka.enabled"})
 public class FsmAutoConfiguration {
 
