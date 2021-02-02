@@ -45,19 +45,11 @@ public class RabbitChannelAutoConfiguration {
     @ConditionalOnMissingBean()
     public RabbitMessagePublisher rabbitMessagePublisher(BindingServiceProperties bindingServiceProperties, RabbitMessageChannel producerMessage) {
         Map<String, BindingProperties> bindings = bindingServiceProperties.getBindings();
-        // 分区数量,现在现在生产者与消费这都在alpha-server，所以rabbit的分区partitionCount与该数量保持一直
+        // partitionCount must consistent with alpha server because of alpha server contains the consumer
         int partitionCount = bindings.get(RabbitMessageChannel.SERVICE_COMB_PACK_PRODUCER).getProducer().getPartitionCount();
         RabbitMessagePublisher messagePublisher = new RabbitMessagePublisher(partitionCount, producerMessage);
         return messagePublisher;
     }
-
-//    @StreamMessageConverter
-//    public MessageConverter StreamMessageConverter() {
-//        MappingJackson2MessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2MessageConverter();
-////        ObjectMapper objectMapper = new ObjectMapper();
-////        mappingJackson2HttpMessageConverter.setObjectMapper(objectMapper);
-//        return mappingJackson2HttpMessageConverter;
-//    }
 
     @Bean
     RabbitSagaEventConsumer sagaEventRabbitConsumer(ActorSystem actorSystem,
