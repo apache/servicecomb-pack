@@ -57,7 +57,7 @@ public class StepDefSupport implements En {
     List<Map<String, String>> expectedMaps = dataTable.asMaps(String.class, String.class);
     List<Map<String, String>> actualMaps = new ArrayList<>();
 
-    await().atMost(10, SECONDS).until(() -> {
+    await().atMost(30, SECONDS).until(() -> {
       actualMaps.clear();
       Collections.addAll(actualMaps, retrieveDataMaps(address, dataProcessor));
       // write the log if the Map size is not same
