@@ -18,6 +18,8 @@
 package org.apache.servicecomb.pack.omega.transaction;
 
 import static com.seanyinx.github.unit.scaffolding.AssertUtils.expectFailing;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
@@ -32,9 +34,8 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
+import java.util.concurrent.Callable;
 import javax.transaction.InvalidTransactionException;
-
 import org.apache.servicecomb.pack.common.EventType;
 import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
@@ -155,12 +156,16 @@ public class ForwardRecoveryTest {
           containsString("Failed to handle tx because it is interrupted")));
     }
 
-    assertThat(messages.size(), is(3));
+    await().atMost(10, SECONDS).until(new Callable() {
+      @Override
+      public Boolean call() {
+        return messages.size() == 3;
+      }
+    });
     assertThat(messages.get(0).type(), is(EventType.TxStartedEvent));
     assertThat(messages.get(1).type(), is(EventType.TxStartedEvent));
     assertThat(messages.get(2).type(), is(EventType.TxAbortedEvent));
   }
-
   private String doNothing() {
     return "doNothing";
   }
