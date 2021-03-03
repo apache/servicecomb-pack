@@ -185,6 +185,7 @@ Feature: Alpha records transaction events
       | booking | SagaAbortedEvent  |
       | car     | TxCompensateAckFailedEvent |
       | car     | TxCompensateAckFailedEvent |
+      | car     | TxCompensateAckFailedEvent |
 
     Then Car Service contains the following booking orders
       | id | name | amount | confirmed | cancelled |
