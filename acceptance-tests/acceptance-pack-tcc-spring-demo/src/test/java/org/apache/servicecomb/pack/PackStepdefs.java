@@ -87,8 +87,8 @@ public class PackStepdefs extends StepDefSupport {
         for (Map<String, String> map : dataMap)
           map.keySet().retainAll(dataTable.topCells());
       };
-
-      dataMatches(System.getProperty(ALPHA_REST_ADDRESS) + "/tcc/events", dataTable, columnStrippingConsumer);
+      // SCB-2201 Here we don't check the order of tcc event
+      dataMatches(System.getProperty(ALPHA_REST_ADDRESS) + "/tcc/events", dataTable, columnStrippingConsumer, false);
     });
 
     Then("^Inventory Service contains the following booking orders$", (DataTable dataTable) -> {
