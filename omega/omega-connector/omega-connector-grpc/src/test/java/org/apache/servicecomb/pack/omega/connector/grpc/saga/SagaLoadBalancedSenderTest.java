@@ -268,7 +268,7 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
     thread.start();
 
     // we don't want to keep sending on cluster down
-    await().atMost(10, SECONDS).until(new Callable<Boolean>() {
+    await().atMost(30, SECONDS).until(new Callable<Boolean>() {
       @Override
       public Boolean call() throws Exception {
         return thread.getState().equals(TERMINATED);
@@ -284,7 +284,13 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
     startServerOnPort(8080);
     startServerOnPort(8090);
 
-   messageSender.send(event);
+    await().atMost(10,SECONDS).until(new Callable<Boolean>() {
+      @Override
+      public Boolean call() throws Exception {
+        return messageSender.pickMessageSender()!=null;
+      }
+    });
+    messageSender.send(event);
     await().atMost(2, SECONDS).until(new Callable<Boolean>() {
       @Override
       public Boolean call() throws Exception {
