@@ -52,7 +52,7 @@ jobs:
         run: git log -n1
       - name: Build and test
         if: ${{ success() }}
-        run: ./mvnw clean install -B -Pjacoco -Pdocker coveralls:report -DrepoToken=ftogh57jTQ0GRa4AaOgFfltiUrwnO8tw9
+        run: ./mvnw clean install -B -Pdocker
       - name: Upload unit test results
         if: ${{ failure() }}
         uses: actions/upload-artifact@v2
