@@ -76,8 +76,8 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/master'
     env:
-      NEXUS_DEPLOY_USERNAME: ${{ secrets.NEXUS_USER }}
-      NEXUS_DEPLOY_PASSWORD: ${{ secrets.NEXUS_PW }}
+      NEXUS_DEPLOY_USERNAME: ${{ secrets.NEXUS_DEPLOY_USERNAME }}
+      NEXUS_DEPLOY_PASSWORD: ${{ secrets.NEXUS_DEPLOY_PASSWORD }}
     steps:
       - uses: actions/checkout@v2
         with:
