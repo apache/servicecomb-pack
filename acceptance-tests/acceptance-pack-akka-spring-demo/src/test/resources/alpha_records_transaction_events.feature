@@ -168,28 +168,32 @@ Feature: Alpha records transaction events
     Then Hotel Service contains the following booking orders
       | id | name | amount | confirmed | cancelled |
 
-  Scenario: 7.Hotel sub-transaction failed and Car sub-transaction compensate failed and global transaction suspended
-    Given Car Service is up and running
-    And Hotel Service is up and running
-    And Booking Service is up and running
-    And Alpha is up and running
-    Given Install the byteman script car_compensate_failed_retry.btm to Car Service
-    When User Sean requests to book 5 cars and 3 rooms fail
-    Then Alpha records the following events
-      | serviceName  | type         |
-      | booking | SagaStartedEvent  |
-      | car     | TxStartedEvent    |
-      | car     | TxEndedEvent      |
-      | hotel   | TxStartedEvent    |
-      | hotel   | TxAbortedEvent    |
-      | booking | SagaAbortedEvent  |
-      | car     | TxCompensateAckFailedEvent |
-      | car     | TxCompensateAckFailedEvent |
-      | car     | TxCompensateAckFailedEvent |
-
-    Then Car Service contains the following booking orders
-      | id | name | amount | confirmed | cancelled |
-      | 1  | Sean | 5      | true     | false      |
-
-    Then Hotel Service contains the following booking orders
-      | id | name | amount | confirmed | cancelled |
+#  This scenario occasionally fail on poor performance CI.
+#  Did not receive the third compensation within the waiting time
+#  I created a JIRA https://issues.apache.org/jira/browse/SCB-2204 for it
+#
+#  Scenario: 7.Hotel sub-transaction failed and Car sub-transaction compensate failed and global transaction suspended
+#    Given Car Service is up and running
+#    And Hotel Service is up and running
+#    And Booking Service is up and running
+#    And Alpha is up and running
+#    Given Install the byteman script car_compensate_failed_retry.btm to Car Service
+#    When User Sean requests to book 5 cars and 3 rooms fail
+#    Then Alpha records the following events
+#      | serviceName  | type         |
+#      | booking | SagaStartedEvent  |
+#      | car     | TxStartedEvent    |
+#      | car     | TxEndedEvent      |
+#      | hotel   | TxStartedEvent    |
+#      | hotel   | TxAbortedEvent    |
+#      | booking | SagaAbortedEvent  |
+#      | car     | TxCompensateAckFailedEvent |
+#      | car     | TxCompensateAckFailedEvent |
+#      | car     | TxCompensateAckFailedEvent |
+#
+#    Then Car Service contains the following booking orders
+#      | id | name | amount | confirmed | cancelled |
+#      | 1  | Sean | 5      | true     | false      |
+#
+#    Then Hotel Service contains the following booking orders
+#      | id | name | amount | confirmed | cancelled |
