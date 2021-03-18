@@ -48,7 +48,7 @@ public class RabbitMessagePublisher implements MessagePublisher<BaseEvent> {
         if (LOG.isDebugEnabled()) {
             LOG.debug("send message [{}] to [{}]", data, partitionIndex);
         }
-        //partitionKey 分区的名称必须与配置中的key保持一致
+        // the headerName must consistent with partition key expression of spring cloud stream
         producerMessage.messageChannel().send(MessageBuilder.withPayload(data).setHeader("partitionKey", partitionIndex).build());
 
     }
