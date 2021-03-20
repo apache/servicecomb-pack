@@ -37,7 +37,7 @@ public class IndexController implements ErrorController {
   MetricsEndpoint metricsEndpoint;
 
   // index
-  @GetMapping("/admin")
+  @GetMapping(value = {"/admin", "/"})
   public String index(ModelMap map) {
     map.put("systemInfo", getSystemInfo());
     return "index";
