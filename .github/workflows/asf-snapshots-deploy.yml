@@ -30,6 +30,7 @@ jobs:
   build:
     timeout-minutes: 180
     runs-on: ubuntu-20.04
+    if: github.repository == 'apache/servicecomb-pack'
     strategy:
       matrix:
         java: [ '1.8' ]
@@ -74,7 +75,7 @@ jobs:
       matrix:
         java: [ '1.8' ]
     needs: build
-    if: github.ref == 'refs/heads/master'
+    if: github.repository == 'apache/servicecomb-pack' && github.ref == 'refs/heads/master'
     env:
       NEXUS_DEPLOY_USERNAME: ${{ secrets.NEXUS_USER }}
       NEXUS_DEPLOY_PASSWORD: ${{ secrets.NEXUS_PW }}
