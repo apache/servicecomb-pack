@@ -123,7 +123,7 @@ public class SagaLoadBalancedSenderTest extends SagaLoadBalancedSenderTestBase {
     messageSender.send(event);
 
     startServerOnPort(deadPort);
-    await().atMost(5, SECONDS).until(new Callable<Boolean>() {
+    await().atMost(30, SECONDS).until(new Callable<Boolean>() {
 
       @Override
       public Boolean call() throws Exception {
