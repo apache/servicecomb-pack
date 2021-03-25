@@ -32,7 +32,8 @@ jobs:
     if: github.repository == 'apache/servicecomb-pack'
     strategy:
       matrix:
-        java: [ '1.8' ]
+        java: [ '8', '11' ]
+      fail-fast: false
     steps:
       - uses: actions/checkout@v2
         with:
