@@ -56,7 +56,7 @@
     <spring.cloud.starter.alibaba.nacos.discovery.version>0.2.2.RELEASE</spring.cloud.starter.alibaba.nacos.discovery.version>
     <spring-cloud-stream>2.2.1.RELEASE</spring-cloud-stream>
     <java.chassis.version>1.2.1</java.chassis.version>
-    <akka.version>2.5.14</akka.version>
+    <akka.version>2.5.32</akka.version>
     <alpakka.version>1.0.5</alpakka.version>
     <leveldbjni-all.version>1.8</leveldbjni-all.version>
     <akka-persistence-redis.version>0.4.0</akka-persistence-redis.version>
@@ -70,6 +70,7 @@
     <byteman.version>4.0.1</byteman.version>
     <jaxb.version>2.3.0</jaxb.version>
     <javax.activation.version>1.1.1</javax.activation.version>
+    <tomcat-annotations-api.version>6.0.53</tomcat-annotations-api.version>
     <maven-dependency-plugin.version>3.0.2</maven-dependency-plugin.version>
     <netty.boringssl.version>2.0.36.Final</netty.boringssl.version>
     <netty.version>4.1.59.Final</netty.version>
@@ -77,6 +78,7 @@
     <kafka.version>2.1.1</kafka.version>
     <hystrix.version>1.5.12</hystrix.version>
     <openfeign.version>9.5.1</openfeign.version>
+    <mockito.version>2.23.4</mockito.version>
   </properties>
 
   <name>Apache ServiceComb Pack</name>
@@ -539,6 +541,11 @@
         <version>1.2</version>
       </dependency>
       <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>annotations-api</artifactId>
+        <version>${tomcat-annotations-api.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.eclipse.persistence</groupId>
         <artifactId>org.eclipse.persistence.jpa</artifactId>
         <version>${eclipse.link.version}</version>
@@ -587,7 +594,7 @@
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
-        <version>2.16.0</version>
+        <version>${mockito.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
