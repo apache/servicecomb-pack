@@ -117,7 +117,7 @@ alpha:
       key: server.pem
       mutualAuth: true
       clientCert: client.crt
-        
+
 ---
 spring:
   profiles: prd
@@ -145,46 +145,6 @@ spring:
     properties:
       eclipselink:
         ddl-generation: none
-
----
-spring:
-  profiles: rabbit
-  cloud:
-    stream:
-      binders:
-        defaultRabbit:
-          type: rabbit
-          environment:
-            spring:
-              rabbitmq:
-                host: 127.0.0.1
-                username: servicecomb-pack
-                password: H123213PWD
-                virtual-host: servicecomb-pack
-      bindings:
-        service-comb-pack-producer:
-          destination: exchange-service-comb-pack
-          content-type: application/json
-          producer:
-            partition-count: 3
-            partition-key-expression: headers['partitionKey']
-
-        service-comb-pack-consumer:
-          group: group-pack
-          content-type: application/json
-          destination: exchange-service-comb-pack
-          consumer:
-            partitioned: true
-      instance-count: 1
-      instance-index: 0
-alpha:
-  feature:
-    akka:
-      enabled: true
-      channel:
-        type: rabbit
-
-
 
 ---
 spring:

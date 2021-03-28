@@ -18,7 +18,7 @@
 service=saga-demo
 
 show_usage() {
-  echo "Usage: $0 {up|up-alpha|up-demo|up-mysql|down}" >&2
+  echo "Usage: $0 {up|up-alpha|up-demo|up-mysql|down|up-rabbit}" >&2
 }
 
 fetch_version() {
@@ -65,6 +65,12 @@ case $1 in
     TAG=$version docker-compose -f docker-compose.yaml -f docker-compose.mysql.yaml up
     exit $?
   ;;
+  up-rabbit)
+    fetch_version
+        echo "Starting ${service}:${version}"
+    TAG=$version docker-compose -f docker-compose.alpha-rabbit.yaml up
+    exit $?
+  ;;
 
   down)
     fetch_version
@@ -72,6 +78,8 @@ case $1 in
     TAG=$version docker-compose down
     exit $?
   ;;
+
+
 
   *)
     show_usage
