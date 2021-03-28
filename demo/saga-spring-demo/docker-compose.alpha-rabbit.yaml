@@ -1,0 +1,114 @@
+## ---------------------------------------------------------------------------
+## Licensed to the Apache Software Foundation (ASF) under one or more
+## contributor license agreements.  See the NOTICE file distributed with
+## this work for additional information regarding copyright ownership.
+## The ASF licenses this file to You under the Apache License, Version 2.0
+## (the "License"); you may not use this file except in compliance with
+## the License.  You may obtain a copy of the License at
+##
+##      http://www.apache.org/licenses/LICENSE-2.0
+##
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
+## ---------------------------------------------------------------------------
+
+##
+#you need to add mysql drive to alpha pom.xml and saga-dubbo-demo pom.xml first
+##
+version: '3.0'
+
+services:
+
+  rabbit:
+    image: "rabbitmq:management"
+    hostname: rabbitmq
+    ports:
+     - "4369:4369"
+     - "5671:5671"
+     - "25672:25672"
+     - "5672:5672"
+     - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: servicecomb-pack
+      RABBITMQ_DEFAULT_PASS: H123213PWD
+    volumes:
+      - ./rabbitmq.sh:/home/rabbitmq.sh
+
+
+  elasticsearch:
+    image: elasticsearch:6.6.2
+    hostname: elasticsearch
+    container_name: elasticsearch
+    environment:
+      - "ES_JAVA_OPTS=-Xmx256m -Xms256m"
+      - "discovery.type=single-node"
+      - "cluster.routing.allocation.disk.threshold_enabled=false"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 9200:9200
+      - 9300:9300
+  redis:
+    image: redis:5.0.5-alpine
+    hostname: redis
+    container_name: redis
+    ports:
+      - 6379:6379
+
+  database:
+    image: "mysql/mysql-server:5.7"
+    hostname: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=saga
+      - MYSQL_USER=saga
+      - MYSQL_PASSWORD=password
+    ports:
+      - "3306:3306"
+
+  alpha:
+    image: "alpha-server:${TAG}"
+    hostname: alpha-server
+    links:
+      - "database:mysql.servicecomb.io"
+      - "rabbit:rabbitmq.servicecomb.io"
+      - "elasticsearch:elasticsearch.servicecomb.io"
+      - "redis:redis.servicecomb.io"
+    environment:
+      - JAVA_OPTS=-Dspring.profiles.active=mysql -Dspring.datasource.username=saga
+        -Dspring.datasource.password=password -Dspring.datasource.url=jdbc:mysql://mysql.servicecomb.io:3306/saga?useSSL=false
+        -Dspring.cloud.stream.instance-index=0
+        -Dspring.cloud.stream.instance-count=1
+        -Dspring.cloud.stream.binders.defaultRabbit.type=rabbit
+        -Dspring.cloud.stream.bindings.service-comb-pack-producer.producer.partition-count=1
+        -Dspring.cloud.stream.bindings.service-comb-pack-producer.producer.partition-key-expression=headers['partitionKey']
+        -Dspring.cloud.stream.bindings.service-comb-pack-consumer.group=group-pack
+        -DDspring.cloud.stream.binders.defaultRabbit.environment.spring.rabbitmq.virtual-host=servicecomb-pack
+        -DDspring.cloud.stream.binders.defaultRabbit.environment.spring.rabbitmq.host=rabbitmq.servicecomb.io
+        -Dspring.cloud.stream.bindings.service-comb-pack-consumer.content-type=application/json
+        -Dspring.cloud.stream.bindings.service-comb-pack-consumer.destination=exchange-service-comb-pack
+        -Dspring.cloud.stream.bindings.service-comb-pack-consumer.consumer.partitioned=true
+        -Dspring.cloud.stream.binders.defaultRabbit.environment.spring.rabbitmq.virtual-host=servicecomb-pack
+        -Dspring.cloud.stream.binders.defaultRabbit.environment.spring.rabbitmq.host=rabbitmq.servicecomb.io
+        -Dspring.cloud.stream.binders.defaultRabbit.environment.spring.rabbitmq.username=servicecomb-pack
+        -Dspring.cloud.stream.binders.defaultRabbit.environment.spring.rabbitmq.password=H123213PWD
+        -Dspring.cloud.stream.bindings.service-comb-pack-producer.destination=exchange-service-comb-pack
+        -Dspring.cloud.stream.bindings.service-comb-pack-producer.content-type=application/json
+        -Dspring.data.elasticsearch.cluster-name=docker-cluster
+        -Dspring.data.elasticsearch.cluster-nodes=elasticsearch.servicecomb.io:9300
+        -DakkaConfig.akka-persistence-redis.redis.host=redis.servicecomb.io
+        -DakkaConfig.akka-persistence-redis.redis.port=6379
+        -Dalpha.feature.akka.enabled=true
+        -Dalpha.feature.akka.channel.type=rabbit
+        -Dlogging.level.org.apache.servicecomb.pack.alpha.fsm.channel.rabbit.RabbitMessagePublisher=debug
+      - WAIT_FOR_SERVICES=mysql.servicecomb.io:3306:150
+    depends_on:
+      - database
+      - rabbit
+      - elasticsearch
+      - redis

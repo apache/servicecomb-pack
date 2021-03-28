@@ -60,7 +60,7 @@ public class RabbitChannelAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(ActorEventChannel.class)
-    public ActorEventChannel kafkaEventChannel(MetricsService metricsService,
+    public ActorEventChannel rabbitEventChannel(MetricsService metricsService,
                                                @Lazy RabbitMessagePublisher rabbitMessagePublisher) {
         return new org.apache.servicecomb.pack.alpha.fsm.channel.rabbit.RabbitActorEventChannel(metricsService, rabbitMessagePublisher);
     }
