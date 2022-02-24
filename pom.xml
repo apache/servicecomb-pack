@@ -62,7 +62,7 @@
     <akka-persistence-redis.version>0.4.0</akka-persistence-redis.version>
     <rat.version>0.12</rat.version>
     <maven.failsafe.version>2.19.1</maven.failsafe.version>
-    <grpc.version>1.35.0</grpc.version>
+    <grpc.version>1.44.1</grpc.version>
     <kryo.version>4.0.1</kryo.version>
     <javax.transaction.version>1.2</javax.transaction.version>
     <eclipse.link.version>2.7.1</eclipse.link.version>
@@ -73,7 +73,7 @@
     <tomcat-annotations-api.version>6.0.53</tomcat-annotations-api.version>
     <maven-dependency-plugin.version>3.0.2</maven-dependency-plugin.version>
     <jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
-    <netty.boringssl.version>2.0.36.Final</netty.boringssl.version>
+    <netty.boringssl.version>2.0.44.Final</netty.boringssl.version>
     <netty.version>4.1.59.Final</netty.version>
     <zookeeper.version>3.6.2</zookeeper.version>
     <kafka.version>2.1.1</kafka.version>
@@ -787,7 +787,7 @@
           <artifactId>protobuf-maven-plugin</artifactId>
           <version>0.5.0</version>
           <configuration>
-            <protocArtifact>com.google.protobuf:protoc:3.5.0:exe:${os.detected.classifier}</protocArtifact>
+            <protocArtifact>com.google.protobuf:protoc:3.19.2:exe:${os.detected.classifier}</protocArtifact>
             <pluginId>grpc-java</pluginId>
             <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
           </configuration>
