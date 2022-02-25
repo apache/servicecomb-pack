@@ -67,7 +67,6 @@
     <maven-javadoc-plugin.version>2.9.1</maven-javadoc-plugin.version>
     <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
     <maven.failsafe.version>2.19.1</maven.failsafe.version>
-    <docker.allContainers>true</docker.allContainers>
   </properties>
 
   <name>Apache ServiceComb Pack</name>
