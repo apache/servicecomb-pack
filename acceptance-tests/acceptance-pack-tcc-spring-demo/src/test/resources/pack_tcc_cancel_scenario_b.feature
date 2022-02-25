@@ -21,23 +21,20 @@ Feature: Alpha records transaction events
     And Ordering Service is up and running
     And Alpha is up and running
 
-    When User UserC requests to order 2 units of ProductA with unit price 2 fail
-    # Call Inventory Service success
-    # Call Payment Serivce failed because of the balance reason
+    When User UserC requests to order 4 units of ProductC with unit price 2 fail
+    # Call Inventory Service failed
+    # Doesn't call the Payment service
 
     Then Alpha records the following events
       | serviceName  | txType             |
       | ordering     | STARTED            |
       | inventory    | P_TX_STATED        |
       | inventory    | P_TX_ENDED         |
-      | payment      | P_TX_STATED        |
-      | payment      | P_TX_ENDED         |
       | ordering     | ENDED              |
       | inventory    | COORDINATED        |
 
     Then Inventory Service contains the following booking orders
       | userName | productName | units | confirmed | cancelled |
-      | UserC    | ProductA    |  2    | false     |  true     |
 
     Then Payment Service contains the following booking orders
       | userName | amount | balance | confirmed | cancelled |
