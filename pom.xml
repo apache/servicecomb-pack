@@ -46,6 +46,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>1.8</java.version>
+
     <!-- plugins -->
     <jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
     <license-maven-plugin.version>1.19</license-maven-plugin.version>
@@ -54,7 +55,7 @@
     <directory-maven-plugin.version>0.1</directory-maven-plugin.version>
     <gmaven-plugin.version>1.5</gmaven-plugin.version>
     <gmaven-plugin.provider.version>1.8</gmaven-plugin.provider.version>
-    <docker-maven-plugin.version>0.28.0</docker-maven-plugin.version>
+    <docker-maven-plugin.version>0.39.1</docker-maven-plugin.version>
     <mixin-maven-plugin.version>0.1-alpha-39</mixin-maven-plugin.version>
     <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
     <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
@@ -66,6 +67,9 @@
     <maven-javadoc-plugin.version>2.9.1</maven-javadoc-plugin.version>
     <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
     <maven.failsafe.version>2.19.1</maven.failsafe.version>
+    <protobuf-maven-plugin.version>0.5.0</protobuf-maven-plugin.version>
+    <os-maven-plugin.version>1.5.0.Final</os-maven-plugin.version>
+    <dependency-check-maven.version>6.5.3</dependency-check-maven.version>
   </properties>
 
   <name>Apache ServiceComb Pack</name>
@@ -369,6 +373,36 @@
   </build>
 
   <profiles>
+    <profile>
+      <id>dependency-check</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.owasp</groupId>
+            <artifactId>dependency-check-maven</artifactId>
+            <version>${dependency-check-maven.version}</version>
+            <configuration>
+              <name>notifier-dependency-check</name>
+              <format>HTML</format>
+              <failBuildOnCVSS>9</failBuildOnCVSS>
+              <failOnError>false</failOnError>
+              <skipProvidedScope>true</skipProvidedScope>
+              <skipRuntimeScope>true</skipRuntimeScope>
+              <skipTestScope>true</skipTestScope>
+              <retireJsAnalyzerEnabled>false</retireJsAnalyzerEnabled>
+              <skipArtifactType>pom</skipArtifactType>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>aggregate</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
     <profile>
       <id>release</id>
       <modules>
