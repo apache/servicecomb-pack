@@ -31,7 +31,6 @@ Feature: Alpha records transaction events
       | inventory    | P_TX_STATED        |
       | inventory    | P_TX_ENDED         |
       | ordering     | ENDED              |
-      | inventory    | COORDINATED        |
 
     Then Inventory Service contains the following booking orders
       | userName | productName | units | confirmed | cancelled |
