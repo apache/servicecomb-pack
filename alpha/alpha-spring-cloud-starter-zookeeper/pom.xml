@@ -29,40 +29,6 @@
   <artifactId>alpha-spring-cloud-starter-zookeeper</artifactId>
   <name>Pack::Alpha::Spring Cloud Starter Zookeeper</name>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-test</artifactId>
-        <version>${spring.boot.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-          </exclusion>
-        </exclusions>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-dependencies</artifactId>
-        <version>${spring.boot.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
-        <version>${spring.cloud.starter.zookeeper.discovery.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.zookeeper</groupId>
-        <artifactId>zookeeper</artifactId>
-        <version>${zookeeper.version}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.servicecomb.pack</groupId>

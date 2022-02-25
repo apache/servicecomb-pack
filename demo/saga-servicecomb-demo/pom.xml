@@ -37,18 +37,6 @@
     <module>scb-booking</module>
   </modules>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.apache.servicecomb</groupId>
-        <artifactId>java-chassis-dependencies</artifactId>
-        <version>${java.chassis.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <dependencies>
     <dependency>
       <groupId>com.google.guava</groupId>
