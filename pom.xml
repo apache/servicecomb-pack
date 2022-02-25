@@ -79,6 +79,7 @@
     <hystrix.version>1.5.12</hystrix.version>
     <openfeign.version>9.5.1</openfeign.version>
     <mockito.version>2.23.4</mockito.version>
+    <dependency-check.version>6.5.3</dependency-check.version>
   </properties>
 
   <name>Apache ServiceComb Pack</name>
@@ -874,6 +875,36 @@
   </build>
 
   <profiles>
+    <profile>
+      <id>dependency-check</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.owasp</groupId>
+            <artifactId>dependency-check-maven</artifactId>
+            <version>${dependency-check.version}</version>
+            <configuration>
+              <name>notifier-dependency-check</name>
+              <format>HTML</format>
+              <failBuildOnCVSS>9</failBuildOnCVSS>
+              <failOnError>false</failOnError>
+              <skipProvidedScope>true</skipProvidedScope>
+              <skipRuntimeScope>true</skipRuntimeScope>
+              <skipTestScope>true</skipTestScope>
+              <retireJsAnalyzerEnabled>false</retireJsAnalyzerEnabled>
+              <skipArtifactType>pom</skipArtifactType>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>aggregate</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
     <profile>
       <id>release</id>
       <modules>
