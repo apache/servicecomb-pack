@@ -272,7 +272,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
-            <version>${maven.failsafe.version}</version>
             <configuration>
               <systemPropertyVariables>
                 <alpha.cluster.address>

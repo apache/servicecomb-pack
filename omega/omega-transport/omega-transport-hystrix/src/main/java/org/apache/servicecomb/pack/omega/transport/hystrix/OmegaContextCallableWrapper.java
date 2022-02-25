@@ -18,7 +18,7 @@
 package org.apache.servicecomb.pack.omega.transport.hystrix;
 
 import java.util.concurrent.Callable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 
 /**
