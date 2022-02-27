@@ -185,6 +185,9 @@
                 <goals>
                   <goal>stop</goal>
                 </goals>
+                <configuration>
+                  <allContainers>true</allContainers>
+                </configuration>
               </execution>
             </executions>
           </plugin>
