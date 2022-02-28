@@ -53,7 +53,7 @@
             <configuration>
               <images>
                 <image>
-                  <name>nacos/nacos-server:1.1.0</name>
+                  <name>nacos/nacos-server</name>
                   <alias>nacos</alias>
                   <run>
                     <env>

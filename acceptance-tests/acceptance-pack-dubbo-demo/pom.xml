@@ -52,7 +52,7 @@
             <configuration>
               <images>
                 <image>
-                  <name>docker.io/zookeeper</name>
+                  <name>zookeeper</name>
                   <alias>zookeeper</alias>
                   <run>
                     <ports>
