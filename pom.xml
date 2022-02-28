@@ -72,6 +72,7 @@
     <tomcat-annotations-api.version>6.0.53</tomcat-annotations-api.version>
     <maven-dependency-plugin.version>3.0.2</maven-dependency-plugin.version>
     <jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
+    <docker-maven-plugin.version>0.39.1</docker-maven-plugin.version>
     <netty.boringssl.version>2.0.48.Final</netty.boringssl.version>
     <netty.version>4.1.74.Final</netty.version>
     <zookeeper.version>3.6.2</zookeeper.version>
@@ -691,7 +692,7 @@
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.39.1</version>
+          <version>${docker-maven-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>com.github.odavid.maven.plugins</groupId>
