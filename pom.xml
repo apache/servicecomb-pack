@@ -70,7 +70,7 @@
     <protobuf-maven-plugin.version>0.5.0</protobuf-maven-plugin.version>
     <os-maven-plugin.version>1.5.0.Final</os-maven-plugin.version>
     <dependency-check-maven.version>6.5.3</dependency-check-maven.version>
-  </properties>
+ </properties>
 
   <name>Apache ServiceComb Pack</name>
   <description>Eventual consistency component for distributed systems</description>
