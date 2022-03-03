@@ -29,11 +29,6 @@
   <artifactId>alpha-fsm</artifactId>
   <name>Pack::Alpha::Fsm</name>
 
-  <properties>
-    <leveldbjni-all.version>1.8</leveldbjni-all.version>
-    <akka-persistence-redis.version>0.4.0</akka-persistence-redis.version>
-  </properties>
-
   <dependencies>
     <!-- spring boot -->
     <dependency>

@@ -181,13 +181,10 @@
               </execution>
               <execution>
                 <id>stop</id>
-                <phase>post-integration-test</phase>
+                <phase>post-integration-tqest</phase>
                 <goals>
                   <goal>stop</goal>
                 </goals>
-                <configuration>
-                  <allContainers>true</allContainers>
-                </configuration>
               </execution>
             </executions>
           </plugin>
