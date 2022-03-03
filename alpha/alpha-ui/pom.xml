@@ -29,23 +29,6 @@
   <artifactId>alpha-ui</artifactId>
   <name>Pack::Alpha::UI</name>
 
-  <properties>
-    <leveldbjni-all.version>1.8</leveldbjni-all.version>
-    <akka-persistence-redis.version>0.4.0</akka-persistence-redis.version>
-  </properties>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-dependencies</artifactId>
-        <version>${spring.boot.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <dependencies>
 
     <!-- servicecomb pack -->
