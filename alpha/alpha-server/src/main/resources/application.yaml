@@ -105,6 +105,8 @@ management:
       enabled: false
     elasticsearch:
       enabled: false
+    rabbit:
+      enabled: false
 
 ---
 spring:
