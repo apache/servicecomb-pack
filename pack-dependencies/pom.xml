@@ -44,7 +44,7 @@
     <spring.cloud.starter.netflix.eureka.client.version>2.2.10.RELEASE</spring.cloud.starter.netflix.eureka.client.version>
     <spring.cloud.starter.consul.discovery.version>2.2.8.RELEASE</spring.cloud.starter.consul.discovery.version>
     <spring.cloud.starter.zookeeper.discovery.version>2.2.5.RELEASE</spring.cloud.starter.zookeeper.discovery.version>
-    <spring.cloud.starter.alibaba.nacos.discovery.version>2.2.7.RELEASE</spring.cloud.starter.alibaba.nacos.discovery.version>
+    <spring.cloud.starter.alibaba.nacos.discovery.version>2.2.6.RELEASE</spring.cloud.starter.alibaba.nacos.discovery.version>
     <spring.cloud.stream.version>3.0.13.RELEASE</spring.cloud.stream.version>
     <spring.cloud.function.version>3.0.14.RELEASE</spring.cloud.function.version>
 
