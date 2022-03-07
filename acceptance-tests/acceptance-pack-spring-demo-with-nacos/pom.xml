@@ -60,13 +60,13 @@
                       <MODE>standalone</MODE>
                     </env>
                     <wait>
-                      <log>Nacos started successfully</log>
+                      <log>Completed initialization in</log>
                       <tcp>
                         <ports>
                           <port>8848</port>
                         </ports>
                       </tcp>
-                      <time>60000</time>
+                      <time>300000</time>
                     </wait>
                     <ports>
                       <port>nacos.port:8848</port>
