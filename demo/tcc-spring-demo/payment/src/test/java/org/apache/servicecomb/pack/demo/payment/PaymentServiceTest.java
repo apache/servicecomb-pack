@@ -31,14 +31,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 // disable the omega to avoid the connection of Alpha
-@ActiveProfiles("test")
-@SpringBootTest(classes = {TccPaymentApplication.class},
-    properties = {"omega.enabled=false"})
+@SpringBootTest(classes = {TccPaymentApplication.class}, properties = {
+    "omega.enabled=false",
+    "spring.profiles.active=test"
+})
 
 public class PaymentServiceTest {
   @Autowired

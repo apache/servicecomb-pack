@@ -47,14 +47,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {TccApplication.class}, properties = {
-    "spring.jpa.show-sql=true"
+    "spring.jpa.show-sql=true",
+    "spring.profiles.active=tccTest"
 })
-@ActiveProfiles("tccTest")
 public class TccTxEventServiceTest {
 
   @Autowired
@@ -160,8 +159,8 @@ public class TccTxEventServiceTest {
 
     tccTxEventService.clearCompletedGlobalTx(1);
 
-    assertThat(participatedEventRepository.findByGlobalTxId(globalTxId).isPresent(), is(false));
-    assertThat(globalTxEventRepository.findByGlobalTxId(globalTxId).isPresent(), is(false));
+    assertThat(participatedEventRepository.findByGlobalTxId(globalTxId).get().isEmpty(), is(true));
+    assertThat(globalTxEventRepository.findByGlobalTxId(globalTxId).get().isEmpty(), is(true));
 
     Optional<List<TccTxEvent>> events = tccTxEventRepository.findByGlobalTxId(globalTxId);
     assertThat(events.get().size(), is(5));
@@ -189,8 +188,8 @@ public class TccTxEventServiceTest {
 
     tccTxEventService.clearCompletedGlobalTx(2);
 
-    assertThat(participatedEventRepository.findByGlobalTxId(globalTxId).isPresent(), is(false));
-    assertThat(globalTxEventRepository.findByGlobalTxId(globalTxId).isPresent(), is(false));
+    assertThat(participatedEventRepository.findByGlobalTxId(globalTxId).get().isEmpty(), is(true));
+    assertThat(globalTxEventRepository.findByGlobalTxId(globalTxId).get().isEmpty(), is(true));
 
     Optional<List<TccTxEvent>> events = tccTxEventRepository.findByGlobalTxId(globalTxId);
     assertThat(events.get().size(), is(5));

@@ -21,16 +21,15 @@ import io.grpc.netty.NettyChannelBuilder;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {TccApplication.class},
     properties = {
         "alpha.server.host=0.0.0.0",
-        "alpha.server.port=8091"
+        "alpha.server.port=8091",
+        "spring.profiles.active=tccTest"
     })
-@ActiveProfiles("tccTest")
 public class RdbAlphaTccServerTest extends AlphaTccServerTestBase {
 
   @BeforeClass

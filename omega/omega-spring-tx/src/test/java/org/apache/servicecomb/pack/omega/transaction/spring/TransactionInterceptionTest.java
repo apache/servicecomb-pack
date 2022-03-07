@@ -66,7 +66,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {TransactionTestMain.class, MessageConfig.class})
+@SpringBootTest(properties = {
+    "spring.jpa.hibernate.ddl-auto=none",
+    "spring.datasource.driver-class-name=org.h2.Driver",
+    "spring.datasource.url=jdbc:h2:mem:alpha;MODE=MYSQL"},
+    classes = {TransactionTestMain.class, MessageConfig.class})
 @AutoConfigureMockMvc
 public class TransactionInterceptionTest {
   @SuppressWarnings("unchecked")

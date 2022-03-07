@@ -29,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.apache.servicecomb.pack.alpha.server.cluster.master.provider.jdbc.MasterLockEntityRepository;
 
@@ -41,14 +40,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
-@ActiveProfiles("test")
 @SpringBootTest(classes = {AlphaApplication.class, AlphaConfig.class},
     properties = {
         "alpha.cluster.master.enabled=true",
         "alpha.server.host=0.0.0.0",
         "alpha.server.port=8090",
         "alpha.event.pollingInterval=1",
-        "spring.main.allow-bean-definition-overriding=true"
+        "spring.main.allow-bean-definition-overriding=true",
+        "spring.profiles.active=test"
     })
 public class ClusterLockServiceTest {
 

@@ -57,7 +57,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -83,7 +83,7 @@ public class APIv1ControllerTest {
   NodeStatus nodeStatus;
 
   @MockBean
-  ElasticsearchTemplate template;
+  ElasticsearchRestTemplate template;
 
   @MockBean
   TransactionRepository transactionRepository;
@@ -111,7 +111,7 @@ public class APIv1ControllerTest {
     mockMvc.perform(get("/alpha/api/v1/metrics"))
         .andExpect(status().isOk())
         .andExpect(
-            MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.metrics.eventReceived").value(1))
         .andExpect(jsonPath("$.metrics.eventAccepted").value(1))
         .andExpect(jsonPath("$.metrics.eventRejected").value(0))
@@ -201,7 +201,7 @@ public class APIv1ControllerTest {
     mockMvc.perform(get("/alpha/api/v1/transaction?page=0&size=50"))
         .andExpect(status().isOk())
         .andExpect(
-            MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.total").value(1))
         .andExpect(jsonPath("$.page").value(0))
         .andExpect(jsonPath("$.size").value(50))
@@ -290,7 +290,7 @@ public class APIv1ControllerTest {
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(
-            MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.globalTxId")
             .value(globalTransaction.getGlobalTxId()))
         .andExpect(jsonPath("$.type")
@@ -324,7 +324,7 @@ public class APIv1ControllerTest {
     mockMvc.perform(get("/alpha/api/v1/transaction/statistics"))
         .andExpect(status().isOk())
         .andExpect(
-            MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.COMMITTED").value(statistics.get("COMMITTED")))
         .andExpect(jsonPath("$.SUSPENDED").value(statistics.get("SUSPENDED")))
         .andExpect(jsonPath("$.COMPENSATED").value(statistics.get("COMPENSATED")))
@@ -346,7 +346,7 @@ public class APIv1ControllerTest {
     mockMvc.perform(get("/alpha/api/v1/transaction/slow"))
         .andExpect(status().isOk())
         .andExpect(
-            MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$", hasSize(10)))
         .andReturn();
   }

@@ -21,6 +21,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import akka.actor.ActorSystem;
 import java.util.UUID;
@@ -30,12 +32,16 @@ import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.IndexOperations;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
@@ -66,7 +72,13 @@ public class SagaIntegrationTest {
   MetricsService metricsService;
 
   @MockBean
-  ElasticsearchTemplate elasticsearchTemplate;
+  ElasticsearchRestTemplate elasticsearchRestTemplate;
+
+  @Before
+  public void before(){
+    when(elasticsearchRestTemplate.indexOps(ArgumentMatchers.any(IndexCoordinates.class))).thenReturn(mock(
+        IndexOperations.class));
+  }
 
   @After
   public void after(){

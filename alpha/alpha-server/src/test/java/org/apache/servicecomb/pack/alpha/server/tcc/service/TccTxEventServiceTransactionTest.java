@@ -43,12 +43,12 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {TccApplication.class, TccConfiguration.class})
-@ActiveProfiles("tccTest")
+@SpringBootTest(classes = {TccApplication.class, TccConfiguration.class}, properties = {
+    "spring.profiles.active=tccTest"
+})
 public class TccTxEventServiceTransactionTest {
 
   @Autowired
@@ -101,19 +101,19 @@ public class TccTxEventServiceTransactionTest {
 
     tccTxEventService.onTccStartedEvent(tccStartEvent);
     Optional<List<GlobalTxEvent>> startEvents = globalTxEventRepository.findByGlobalTxId(globalTxId);
-    assertThat(startEvents.isPresent(), is(false));
+    assertThat(startEvents.get().isEmpty(), is(true));
 
     tccTxEventService.onParticipationStartedEvent(participatedEvent);
     Optional<List<ParticipatedEvent>> participates = participatedEventRepository.findByGlobalTxId(globalTxId);
-    assertThat(participates.isPresent(), is(false));
+    assertThat(participates.get().isEmpty(), is(true));
 
     tccTxEventService.onTccEndedEvent(tccEndEvent);
     Optional<List<GlobalTxEvent>> endEvents = globalTxEventRepository.findByGlobalTxId(globalTxId);
-    assertThat(endEvents.isPresent(), is(false));
+    assertThat(endEvents.get().isEmpty(), is(true));
 
     participatedEventRepository.save(participatedEvent);
     tccTxEventService.onCoordinatedEvent(coordinateEvent);
     participates = participatedEventRepository.findByGlobalTxId(globalTxId);
-    assertThat(participates.isPresent(), is(true));
+    assertThat(participates.get().isEmpty(), is(false));
   }
 }

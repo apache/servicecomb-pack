@@ -48,7 +48,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
@@ -85,7 +85,7 @@ public class AlphaIntegrationFsmTest {
   private Map<String, Map<String, OmegaCallback>> omegaCallbacks;
 
   @MockBean
-  ElasticsearchTemplate elasticsearchTemplate;
+  ElasticsearchRestTemplate elasticsearchRestTemplate;
 
   @BeforeClass
   public static void beforeClass() {

@@ -34,6 +34,9 @@ public class CompensableAnnotationCheckingTest {
     try {
       try (ConfigurableApplicationContext ignored = new SpringApplicationBuilder(TransactionTestMain.class)
           .profiles("annotation-checking")
+          .properties("spring.jpa.hibernate.ddl-auto=none",
+              "spring.datasource.driver-class-name=org.h2.Driver",
+              "spring.datasource.url=jdbc:h2:mem:alpha;MODE=MYSQL")
           .run()) {
         expectFailing(BeanCreationException.class);
       }
@@ -47,6 +50,9 @@ public class CompensableAnnotationCheckingTest {
     try {
       try (ConfigurableApplicationContext ignored = new SpringApplicationBuilder(TransactionTestMain.class)
           .profiles("annotation-retries-checking")
+          .properties("spring.jpa.hibernate.ddl-auto=none",
+              "spring.datasource.driver-class-name=org.h2.Driver",
+              "spring.datasource.url=jdbc:h2:mem:alpha;MODE=MYSQL")
           .run()) {
         expectFailing(BeanCreationException.class);
       }
@@ -60,6 +66,9 @@ public class CompensableAnnotationCheckingTest {
     try {
       try (ConfigurableApplicationContext ignored = new SpringApplicationBuilder(TransactionTestMain.class)
           .profiles("omega-context-aware-checking")
+          .properties("spring.jpa.hibernate.ddl-auto=none",
+              "spring.datasource.driver-class-name=org.h2.Driver",
+              "spring.datasource.url=jdbc:h2:mem:alpha;MODE=MYSQL")
           .run()) {
         expectFailing(BeanCreationException.class);
       }

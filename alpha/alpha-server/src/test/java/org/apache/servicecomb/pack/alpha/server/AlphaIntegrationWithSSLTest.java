@@ -24,7 +24,6 @@ import javax.net.ssl.SSLException;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import io.grpc.netty.GrpcSslContexts;
@@ -34,13 +33,13 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslProvider;
 
 @RunWith(SpringRunner.class)
-@ActiveProfiles("ssl")
 @SpringBootTest(classes = {AlphaApplication.class, AlphaConfig.class},
     properties = {
         "alpha.server.host=0.0.0.0",
         "alpha.server.port=8092",
         "alpha.event.pollingInterval=1",
-        "spring.main.allow-bean-definition-overriding=true"
+        "spring.main.allow-bean-definition-overriding=true",
+        "spring.profiles.active=ssl"
     })
 public class AlphaIntegrationWithSSLTest extends AlphaIntegrationTest {
   private static final int port = 8092;

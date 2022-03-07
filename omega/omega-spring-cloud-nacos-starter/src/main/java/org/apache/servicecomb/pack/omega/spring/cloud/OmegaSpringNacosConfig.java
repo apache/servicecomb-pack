@@ -24,6 +24,7 @@
 
 package org.apache.servicecomb.pack.omega.spring.cloud;
 
+import com.alibaba.cloud.nacos.discovery.NacosDiscoveryAutoConfiguration;
 import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterDiscovery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.cloud.alibaba.nacos.NacosDiscoveryAutoConfiguration;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.context.annotation.Bean;

@@ -31,31 +31,23 @@ import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransac
 import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.PagingGlobalTransactions;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
-import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.elasticsearch.core.DefaultResultMapper;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
-import org.springframework.data.elasticsearch.core.SearchResultMapper;
-import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
-import org.springframework.data.elasticsearch.core.aggregation.impl.AggregatedPageImpl;
-import org.springframework.data.elasticsearch.core.query.GetQuery;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-import org.springframework.data.elasticsearch.core.query.SearchQuery;
+import org.springframework.data.elasticsearch.core.query.Query;
 
 public class ElasticsearchTransactionRepository implements TransactionRepository {
 
@@ -63,7 +55,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
   public static final String INDEX_NAME = "alpha_global_transaction";
   public static final String INDEX_TYPE = "alpha_global_transaction_type";
   private static final long SCROLL_TIMEOUT = 3000;
-  private final ElasticsearchTemplate template;
+  private final ElasticsearchRestTemplate template;
   private final MetricsService metricsService;
   private final ObjectMapper mapper = new ObjectMapper();
   private int batchSize;
@@ -73,7 +65,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
   private final Object lock = new Object();
 
   public ElasticsearchTransactionRepository(
-      ElasticsearchTemplate template, MetricsService metricsService, int batchSize,
+      ElasticsearchRestTemplate template, MetricsService metricsService, int batchSize,
       int refreshTime) {
     this.template = template;
     this.metricsService = metricsService;
@@ -103,11 +95,9 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
 
   @Override
   public GlobalTransaction getGlobalTransactionByGlobalTxId(String globalTxId) {
-    GetQuery getQuery = new GetQuery();
-    getQuery.setId(globalTxId);
-    GlobalTransactionDocument globalTransaction = this.template
-        .queryForObject(getQuery, GlobalTransactionDocument.class);
-    return globalTransaction;
+    Query query = new NativeSearchQueryBuilder().withIds(Collections.singletonList(globalTxId)).build();
+    SearchHit<GlobalTransactionDocument> result =  this.template.searchOne(query, GlobalTransactionDocument.class);
+    return result.getContent();
   }
 
   @Override
@@ -117,38 +107,30 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
 
   @Override
   public PagingGlobalTransactions getGlobalTransactions(String state, int page, int size) {
-    //ElasticsearchTemplate.prepareScroll() does not add sorting https://jira.spring.io/browse/DATAES-457
     long start = System.currentTimeMillis();
     PagingGlobalTransactions pagingGlobalTransactions;
     List<GlobalTransaction> globalTransactions = new ArrayList();
     try{
-      IndicesExistsRequest request = new IndicesExistsRequest(INDEX_NAME);
-      if (this.template.getClient().admin().indices().exists(request).actionGet().isExists()) {
-        QueryBuilder query;
+      if (this.template.indexOps(IndexCoordinates.of(INDEX_NAME)).exists()) {
+        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+        queryBuilder.withSearchType(SearchType.valueOf(INDEX_TYPE));
         if (state != null && state.trim().length() > 0) {
-          query = QueryBuilders.termQuery("state.keyword", state);
+          queryBuilder.withQuery(QueryBuilders.termQuery("state.keyword", state));
         } else {
-          query = QueryBuilders.matchAllQuery();
+          queryBuilder.withQuery(QueryBuilders.matchAllQuery());
         }
-        SearchResponse response = this.template.getClient().prepareSearch(INDEX_NAME)
-            .setTypes(INDEX_TYPE)
-            .setQuery(query)
-            .addSort(SortBuilders.fieldSort("beginTime").order(SortOrder.DESC).unmappedType("date"))
-            .setSize(size)
-            .setFrom(page * size)
-            .execute()
-            .actionGet();
-        ObjectMapper jsonMapper = new ObjectMapper();
-        response.getHits().forEach(hit -> {
+        queryBuilder.withSort(SortBuilders.fieldSort("beginTime").order(SortOrder.DESC).unmappedType("date"));
+        queryBuilder.withPageable(PageRequest.of(page, size));
+
+        SearchHits<GlobalTransactionDocument> result = this.template.search(queryBuilder.build(), GlobalTransactionDocument.class);
+        result.forEach(hit -> {
           try {
-            GlobalTransactionDocument dto = jsonMapper
-                .readValue(hit.getSourceAsString(), GlobalTransactionDocument.class);
-            globalTransactions.add(dto);
+            globalTransactions.add(hit.getContent());
           } catch (Exception e) {
             LOG.error(e.getMessage(), e);
           }
         });
-        pagingGlobalTransactions = PagingGlobalTransactions.builder().page(page).size(size).total(response.getHits().getTotalHits())
+        pagingGlobalTransactions = PagingGlobalTransactions.builder().page(page).size(size).total(result.getTotalHits())
             .globalTransactions(globalTransactions).elapsed(System.currentTimeMillis() - start).build();
       } else {
         LOG.warn("[alpha_global_transaction] index not exist");
@@ -165,91 +147,49 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
   }
 
   public Map<String, Long> getTransactionStatistics() {
-    TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders
-        .terms("count_group_by_state").field("state.keyword");
-    SearchQuery searchQuery = new NativeSearchQueryBuilder()
-        .withIndices(INDEX_NAME)
-        .addAggregation(termsAggregationBuilder)
+    Map<String, Long> statistics = new HashMap<>();
+
+    Query query = new NativeSearchQueryBuilder()
+        .addAggregation(AggregationBuilders.terms("count_group_by_state").field("state.keyword"))
         .build();
-    return this.template.query(searchQuery, response -> {
-      Map<String, Long> statistics = new HashMap<>();
-      if (response.getHits().totalHits > 0) {
-        final StringTerms groupState = response.getAggregations().get("count_group_by_state");
-        statistics = groupState.getBuckets()
-            .stream()
-            .collect(Collectors.toMap(MultiBucketsAggregation.Bucket::getKeyAsString,
-                MultiBucketsAggregation.Bucket::getDocCount));
-      }
-      return statistics;
-    });
+    SearchHits<Map> result = this.template.search(query,Map.class,IndexCoordinates.of(INDEX_NAME));
+    if (result.getTotalHits() > 0) {
+      final StringTerms groupState = result.getAggregations().get("count_group_by_state");
+      statistics = groupState.getBuckets()
+          .stream()
+          .collect(Collectors.toMap(MultiBucketsAggregation.Bucket::getKeyAsString,
+              MultiBucketsAggregation.Bucket::getDocCount));
+    }
+
+    return statistics;
   }
 
   @Override
   public List<GlobalTransaction> getSlowGlobalTransactionsTopN(int n) {
-    // ElasticsearchTemplate.prepareScroll() does not add sorting https://jira.spring.io/browse/DATAES-457
-    ObjectMapper jsonMapper = new ObjectMapper();
     List<GlobalTransaction> globalTransactions = new ArrayList();
-    IndicesStatsResponse indicesStatsResponse = this.template.getClient().admin().indices().prepareStats(INDEX_NAME).get();
-    if(indicesStatsResponse.getIndices().get(INDEX_NAME).getTotal().docs.getCount()>0){
-      SearchResponse response = this.template.getClient().prepareSearch(INDEX_NAME)
-          .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-          .setQuery(QueryBuilders.matchAllQuery())
-          .addSort(SortBuilders.fieldSort("durationTime").order(SortOrder.DESC))
-          .setFrom(0).setSize(n).setExplain(true)
-          .get();
-      response.getHits().forEach(hit -> {
-        try {
-          GlobalTransactionDocument dto = jsonMapper
-              .readValue(hit.getSourceAsString(), GlobalTransactionDocument.class);
-          globalTransactions.add(dto);
-        } catch (Exception e) {
-          LOG.error(e.getMessage(), e);
-        }
-      });
-    }
+    Query query = new NativeSearchQueryBuilder()
+        .withSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+        .withQuery(QueryBuilders.matchAllQuery())
+        .withSort(SortBuilders.fieldSort("durationTime").order(SortOrder.DESC))
+        .withPageable(PageRequest.of(0,n))
+        .build();
+    SearchHits<GlobalTransactionDocument> result = this.template.search(query,GlobalTransactionDocument.class);
+    result.forEach(hit -> {
+      globalTransactions.add(hit.getContent());
+    });
     return globalTransactions;
   }
-
-  private final SearchResultMapper searchResultMapper = new DefaultResultMapper() {
-    @Override
-    public <T> AggregatedPage<T> mapResults(SearchResponse response, Class<T> aClass,
-        Pageable pageable) {
-      List<GlobalTransactionDocument> result = new ArrayList<>();
-      for (SearchHit hit : response.getHits()) {
-        if (response.getHits().getHits().length <= 0) {
-          return new AggregatedPageImpl<T>(Collections.EMPTY_LIST, pageable,
-              response.getHits().getTotalHits(), response.getScrollId());
-        }
-        GlobalTransactionDocument globalTransactionDocument = null;
-        try {
-          globalTransactionDocument = mapper.readValue(hit.getSourceAsString(),
-              GlobalTransactionDocument.class);
-        } catch (IOException e) {
-          throw new RuntimeException(e.getMessage(), e);
-        }
-        result.add(globalTransactionDocument);
-      }
-      if (result.isEmpty()) {
-        return new AggregatedPageImpl<T>(Collections.EMPTY_LIST, pageable,
-            response.getHits().getTotalHits(), response.getScrollId());
-      }
-      return new AggregatedPageImpl<T>((List<T>) result, pageable,
-          response.getHits().getTotalHits(), response.getScrollId());
-    }
-  };
 
   private IndexQuery convert(GlobalTransaction transaction) throws JsonProcessingException {
     IndexQuery indexQuery = new IndexQuery();
     indexQuery.setId(transaction.getGlobalTxId());
     indexQuery.setSource(mapper.writeValueAsString(transaction));
-    indexQuery.setIndexName(INDEX_NAME);
-    indexQuery.setType(INDEX_TYPE);
     return indexQuery;
   }
 
   private void save(long begin) {
-    template.bulkIndex(queries);
-    template.refresh(INDEX_NAME);
+    template.bulkIndex(queries, IndexCoordinates.of(INDEX_NAME));
+    template.indexOps(IndexCoordinates.of(INDEX_NAME)).refresh();
     metricsService.metrics().doRepositoryAccepted(queries.size());
     long end = System.currentTimeMillis();
     metricsService.metrics().doRepositoryAvgTime((end - begin) / queries.size());

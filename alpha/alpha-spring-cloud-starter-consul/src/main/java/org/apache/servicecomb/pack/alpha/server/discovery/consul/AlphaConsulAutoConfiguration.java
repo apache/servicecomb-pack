@@ -18,6 +18,7 @@
 package org.apache.servicecomb.pack.alpha.server.discovery.consul;
 
 import com.ecwid.consul.v1.ConsulClient;
+import com.ecwid.consul.v1.QueryParams;
 import com.ecwid.consul.v1.Response;
 import com.ecwid.consul.v1.agent.model.NewService;
 import com.ecwid.consul.v1.catalog.model.CatalogService;
@@ -106,7 +107,8 @@ public class AlphaConsulAutoConfiguration {
       if(instanceRegisteredEvent.getConfig() instanceof ConsulDiscoveryProperties){
         ConsulDiscoveryProperties properties = (ConsulDiscoveryProperties)instanceRegisteredEvent.getConfig();
         this.consuleInstanceId = formatConsulInstanceId(properties.getInstanceId());
-        Response<List<CatalogService>> services = consulClient.getCatalogService(serviceName,null);
+        Response<List<CatalogService>> services = consulClient.getCatalogService(serviceName,
+            QueryParams.Builder.builder().build());
         if(services.getValue() != null){
           services.getValue().stream().filter(service ->
               service.getServiceId().equalsIgnoreCase(this.consuleInstanceId)).forEach(service -> {
