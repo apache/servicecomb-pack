@@ -42,7 +42,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
@@ -50,9 +49,9 @@ import org.springframework.test.context.junit4.SpringRunner;
     properties = {
         "alpha.server.host=0.0.0.0",
         "alpha.server.port=8092",
-        "alpha.compensation.retry.delay=30"
+        "alpha.compensation.retry.delay=30",
+        "spring.profiles.active=tccTest"
     })
-@ActiveProfiles("tccTest")
 public class TccCallbackEngineTest {
 
   @Autowired

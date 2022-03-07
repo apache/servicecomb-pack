@@ -20,6 +20,9 @@ package org.apache.servicecomb.pack.alpha.fsm;
 import static org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -37,10 +40,10 @@ import org.apache.servicecomb.pack.alpha.core.fsm.TxState;
 import org.apache.servicecomb.pack.alpha.core.fsm.event.base.BaseEvent;
 import org.apache.servicecomb.pack.alpha.fsm.metrics.MetricsService;
 import org.apache.servicecomb.pack.alpha.fsm.model.SagaData;
+import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
 import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepositoryChannel;
 import org.apache.servicecomb.pack.alpha.fsm.repository.channel.DefaultTransactionRepositoryChannel;
 import org.apache.servicecomb.pack.alpha.fsm.repository.elasticsearch.ElasticsearchTransactionRepository;
-import org.apache.servicecomb.pack.alpha.fsm.repository.TransactionRepository;
 import org.apache.servicecomb.pack.alpha.fsm.spring.integration.akka.SagaDataExtension;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -48,9 +51,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.IndexOperations;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 
 import static org.hamcrest.CoreMatchers.*;
 
@@ -60,7 +66,7 @@ public class SagaActorTest {
   static ActorSystem system;
 
   @Mock
-  ElasticsearchTemplate template;
+  ElasticsearchRestTemplate template;
 
   static MetricsService metricsService = new MetricsService();
 
@@ -99,6 +105,8 @@ public class SagaActorTest {
 
   @Before
   public void before(){
+    when(template.indexOps(ArgumentMatchers.any(IndexCoordinates.class))).thenReturn(mock(IndexOperations.class));
+
     TransactionRepository repository = new ElasticsearchTransactionRepository(template, metricsService, 0,0);
     TransactionRepositoryChannel repositoryChannel = new DefaultTransactionRepositoryChannel(repository, metricsService);
     SAGA_DATA_EXTENSION_PROVIDER.get(system).setRepositoryChannel(repositoryChannel);

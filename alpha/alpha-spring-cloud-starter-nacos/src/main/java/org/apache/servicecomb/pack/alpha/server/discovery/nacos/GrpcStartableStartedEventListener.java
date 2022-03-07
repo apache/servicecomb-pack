@@ -17,6 +17,8 @@
 
 package org.apache.servicecomb.pack.alpha.server.discovery.nacos;
 
+import com.alibaba.cloud.nacos.NacosDiscoveryProperties;
+import com.alibaba.cloud.nacos.discovery.NacosDiscoveryAutoConfiguration;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import org.apache.servicecomb.pack.alpha.core.event.GrpcStartableStartedEvent;
@@ -26,8 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.cloud.alibaba.nacos.NacosDiscoveryAutoConfiguration;
-import org.springframework.cloud.alibaba.nacos.NacosDiscoveryProperties;
+
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;

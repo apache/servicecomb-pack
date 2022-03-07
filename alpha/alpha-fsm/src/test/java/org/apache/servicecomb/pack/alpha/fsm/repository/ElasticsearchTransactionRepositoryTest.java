@@ -20,6 +20,8 @@ package org.apache.servicecomb.pack.alpha.fsm.repository;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,19 +34,24 @@ import org.apache.servicecomb.pack.alpha.core.fsm.repository.model.GlobalTransac
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.IndexOperations;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ElasticsearchTransactionRepositoryTest {
 
   @Mock
-  ElasticsearchTemplate template;
+  ElasticsearchRestTemplate template;
   MetricsService metricsService;
 
   @Before
   public void before() {
+    when(template.indexOps(ArgumentMatchers.any(IndexCoordinates.class))).thenReturn(mock(
+        IndexOperations.class));
     metricsService = new MetricsService();
   }
 

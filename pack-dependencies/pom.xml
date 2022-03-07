@@ -39,21 +39,20 @@
     <slf4j.version>1.7.25</slf4j.version>
 
     <!-- spring.io -->
-    <spring.boot.version>2.1.6.RELEASE</spring.boot.version>
-    <spring.cloud.version>Greenwich.SR1</spring.cloud.version>
-    <spring.cloud.starter.netflix.eureka.client.version>2.1.1.RELEASE</spring.cloud.starter.netflix.eureka.client.version>
-    <spring.cloud.starter.consul.discovery.version>2.1.1.RELEASE</spring.cloud.starter.consul.discovery.version>
-    <spring.cloud.starter.zookeeper.discovery.version>2.1.1.RELEASE</spring.cloud.starter.zookeeper.discovery.version>
-    <spring.cloud.starter.alibaba.nacos.discovery.version>0.2.2.RELEASE</spring.cloud.starter.alibaba.nacos.discovery.version>
-    <spring.cloud.stream.version>2.2.1.RELEASE</spring.cloud.stream.version>
-    <spring.cloud.function.version>2.1.1.RELEASE</spring.cloud.function.version>
+    <spring.boot.version>2.3.12.RELEASE</spring.boot.version>
+    <spring.cloud.version>Hoxton.SR12</spring.cloud.version>
+    <spring.cloud.starter.netflix.eureka.client.version>2.2.10.RELEASE</spring.cloud.starter.netflix.eureka.client.version>
+    <spring.cloud.starter.consul.discovery.version>2.2.8.RELEASE</spring.cloud.starter.consul.discovery.version>
+    <spring.cloud.starter.zookeeper.discovery.version>2.2.5.RELEASE</spring.cloud.starter.zookeeper.discovery.version>
+    <spring.cloud.starter.alibaba.nacos.discovery.version>2.2.7.RELEASE</spring.cloud.starter.alibaba.nacos.discovery.version>
+    <spring.cloud.stream.version>3.0.13.RELEASE</spring.cloud.stream.version>
+    <spring.cloud.function.version>3.0.14.RELEASE</spring.cloud.function.version>
 
     <!-- akka fsm -->
     <akka.version>2.5.32</akka.version>
     <alpakka.version>1.0.5</alpakka.version>
     <leveldbjni-all.version>1.8</leveldbjni-all.version>
     <akka-persistence-redis.version>0.4.0</akka-persistence-redis.version>
-    <kafka.version>2.1.1</kafka.version>
 
     <!-- grpc netty -->
     <grpc.version>1.44.1</grpc.version>
@@ -171,7 +170,7 @@
         <version>${spring.cloud.starter.zookeeper.discovery.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.springframework.cloud</groupId>
+        <groupId>com.alibaba.cloud</groupId>
         <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         <version>${spring.cloud.starter.alibaba.nacos.discovery.version}</version>
       </dependency>
@@ -504,6 +503,26 @@
       </dependency>
       <dependency>
         <groupId>io.grpc</groupId>
+        <artifactId>grpc-api</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-context</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-core</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-protobuf-lite</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
         <artifactId>grpc-netty</artifactId>
         <version>${grpc.version}</version>
       </dependency>
@@ -603,11 +622,11 @@
         <artifactId>commons-lang3</artifactId>
         <version>${commons-lang3.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.apache.kafka</groupId>
-        <artifactId>kafka-clients</artifactId>
-        <version>${kafka.version}</version>
-      </dependency>
+<!--      <dependency>-->
+<!--        <groupId>org.apache.kafka</groupId>-->
+<!--        <artifactId>kafka-clients</artifactId>-->
+<!--        <version>${kafka.version}</version>-->
+<!--      </dependency>-->
       <dependency>
         <groupId>com.netflix.hystrix</groupId>
         <artifactId>hystrix-core</artifactId>

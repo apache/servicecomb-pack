@@ -46,7 +46,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 
 @Configuration
 @ImportAutoConfiguration({
@@ -110,7 +110,7 @@ public class FsmAutoConfiguration {
   @Bean
   @ConditionalOnProperty(value = "alpha.feature.akka.transaction.repository.type", havingValue = "elasticsearch")
   public TransactionRepository transactionRepository(MetricsService metricsService,
-      ElasticsearchTemplate template) {
+      ElasticsearchRestTemplate template) {
     return new ElasticsearchTransactionRepository(template, metricsService,
         repositoryElasticsearchBatchSize, repositoryElasticsearchRefreshTime);
   }
