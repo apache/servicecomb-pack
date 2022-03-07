@@ -622,11 +622,6 @@
         <artifactId>commons-lang3</artifactId>
         <version>${commons-lang3.version}</version>
       </dependency>
-<!--      <dependency>-->
-<!--        <groupId>org.apache.kafka</groupId>-->
-<!--        <artifactId>kafka-clients</artifactId>-->
-<!--        <version>${kafka.version}</version>-->
-<!--      </dependency>-->
       <dependency>
         <groupId>com.netflix.hystrix</groupId>
         <artifactId>hystrix-core</artifactId>
