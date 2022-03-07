@@ -317,7 +317,7 @@ public class SagaIntegrationTest {
     SagaEventSender.successfulWithTxConcurrentCrossEvents(globalTxId, localTxId_1, localTxId_2, localTxId_3).stream().forEach( event -> {
       memoryActorEventChannel.send(event);
     });
-    await().atMost(10, SECONDS).until(() -> {
+    await().atMost(60, SECONDS).until(() -> {
       SagaData sagaData = SagaDataExtension.SAGA_DATA_EXTENSION_PROVIDER.get(system).getLastSagaData();
       return sagaData !=null && sagaData.isTerminated() && sagaData.getLastState()==SagaActorState.COMMITTED;
     });
