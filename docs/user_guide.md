@@ -421,10 +421,11 @@ Alpha instance can register to the discovery service, Omega obtains Alpha's inst
 
    - spring boot version compatible
 
-     If your project is not using spring boot 2.1.1, please refer to this list to add a compatible spring-cloud-starter-consul-discovery version
+     If your project is not using spring boot 2.3.X, please refer to this list to add a compatible spring-cloud-starter-consul-discovery version
 
      | spring boot   | spring-cloud-starter-consul-discovery |
      | ------------- | ------------------------------------- |
+     | 2.3.12.RELEASE | 2.2.8.RELEASE                        |
      | 2.1.x.RELEASE | 2.1.1.RELEASE                         |
      | 2.0.x.RELEASE | 2.0.2.RELEASE                         |
 
@@ -434,7 +435,7 @@ Alpha instance can register to the discovery service, Omega obtains Alpha's inst
            <dependency>
              <groupId>org.springframework.cloud</groupId>
              <artifactId>spring-cloud-starter-consul-discovery</artifactId>
-             <version>2.0.2.RELEASE</version>
+             <version>2.2.8.RELEASE</version>
            </dependency>
          </dependencies>
        </dependencyManagement>
@@ -533,10 +534,11 @@ Alpha instance can register to the discovery service, Omega obtains Alpha's inst
 
    * spring boot version compatible
 
-     If your project is not using spring boot 2.1.1, please refer to this list to add a compatible spring-cloud-starter-netflix-eureka-client version
+     If your project is not using spring boot 2.3.X, please refer to this list to add a compatible spring-cloud-starter-netflix-eureka-client version
 
      | spring boot   | spring-cloud-starter-netflix-eureka-client |
-     | ------------- | ------------------------------------------ |
+     |--------------------------------------------| ------------------------------------------ |
+     | 2.3.12.RELEASE | 2.2.10.RELEASE                             |
      | 2.1.x.RELEASE | 2.1.1.RELEASE                              |
      | 2.0.x.RELEASE | 2.0.3.RELEASE                              |
 
@@ -546,7 +548,7 @@ Alpha instance can register to the discovery service, Omega obtains Alpha's inst
            <dependency>
              <groupId>org.springframework.cloud</groupId>
              <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-             <version>2.0.3.RELEASE</version>
+             <version>2.2.10.RELEASE</version>
            </dependency>
          </dependencies>
        </dependencyManagement>
@@ -660,12 +662,13 @@ Alpha instance can register to the discovery service, Omega obtains Alpha's inst
 
    - spring boot version compatible
 
-     If your project is not using spring boot 2.1.1, please refer to this list to add a compatible spring-cloud-starter-zookeeper-discovery version
+     If your project is not using spring boot 2.3.X, please refer to this list to add a compatible spring-cloud-starter-zookeeper-discovery version
 
      | spring boot    | spring-cloud-starter-zookeeper-discovery |
-     | -------------  | ------------------------------------- |
-     | 2.1.x.RELEASE  | 2.1.1.RELEASE                         |
-     | 1.5.17.RELEASE | 1.2.2.RELEASE                         |
+     |------------------------------------------| ------------------------------------- |
+     | 2.3.12.RELEASE | 2.2.5.RELEASE                            |
+     | 2.1.x.RELEASE  | 2.1.1.RELEASE                            |
+     | 1.5.17.RELEASE | 1.2.2.RELEASE                            |
 
      ```xml
        <dependencyManagement>
@@ -673,7 +676,7 @@ Alpha instance can register to the discovery service, Omega obtains Alpha's inst
            <dependency>
              <groupId>org.springframework.cloud</groupId>
              <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
-             <version>2.1.1.RELEASE</version>
+             <version>2.2.5.RELEASE</version>
            </dependency>
          </dependencies>
        </dependencyManagement>
@@ -782,10 +785,11 @@ Alpha instance can register to the discovery service, Omega obtains Alpha's inst
 
    - spring boot version compatible
 
-     If your project is not using spring boot 2.1.1, please refer to this list to add a compatible spring-cloud-starter-alibaba-nacos-discovery version
+     If your project is not using spring boot 2.3.X, please refer to this list to add a compatible spring-cloud-starter-alibaba-nacos-discovery version
 
      | spring boot    | spring-cloud-starter-alibaba-nacos-discovery |
-     | -------------  | ------------------------------------- |
+----------------| -------------  | ------------------------------------- |
+     | 2.3.12.RELEASE  | 2.2.6.RELEASE                         |
      | 2.1.x.RELEASE  | 0.2.2.RELEASE                         |
      | 1.5.17.RELEASE | 0.1.2.RELEASE                         |
 
@@ -793,9 +797,9 @@ Alpha instance can register to the discovery service, Omega obtains Alpha's inst
        <dependencyManagement>
          <dependencies>
            <dependency>
-             <groupId>org.springframework.cloud</groupId>
+             <groupId>com.alibaba.cloud</groupId>
              <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-             <version>0.2.2.RELEASE</version>
+             <version>2.2.6.RELEASE</version>
            </dependency>
          </dependencies>
        </dependencyManagement>

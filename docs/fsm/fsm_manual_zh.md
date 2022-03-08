@@ -30,7 +30,7 @@ ServiceComb Pack 0.5.0 开始支持 Saga 状态机模式，你只需要在启动
 * 启动 Elasticsearch
 
   ```bash
-  docker run --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:6.6.2
+  docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:7.17.1
   ```
 
 * 启动 Alpha
@@ -42,8 +42,7 @@ ServiceComb Pack 0.5.0 开始支持 Saga 状态机模式，你只需要在启动
     --spring.datasource.password=password \
     --alpha.feature.akka.enabled=true \
     --alpha.feature.akka.transaction.repository.type=elasticsearch \
-    --spring.data.elasticsearch.cluster-name=docker-cluster \
-    --spring.data.elasticsearch.cluster-nodes=localhost:9300 \
+    --spring.elasticsearch.rest.uris=http://127.0.0.1:9200 \
     --spring.profiles.active=prd  
   ```
 
@@ -165,7 +164,7 @@ services:
       - POSTGRES_PASSWORD=password
 
   elasticsearch:
-    image: elasticsearch:6.6.2
+    image: elasticsearch:7.17.1
     hostname: elasticsearch
     container_name: elasticsearch
     environment:
@@ -246,8 +245,7 @@ services:
     --spring.datasource.username=saga \
     --spring.datasource.password=password \
     --spring.kafka.bootstrap-servers=127.0.0.1:9092 \
-    --spring.data.elasticsearch.cluster-name=docker-cluster \
-    --spring.data.elasticsearch.cluster-nodes=127.0.0.1:9300 \
+    --spring.elasticsearch.rest.uris=http://127.0.0.1:9200 \
     --akkaConfig.akka.remote.artery.canonical.port=8070 \
     --akkaConfig.akka.cluster.seed-nodes[0]="akka://alpha-cluster@127.0.0.1:8070" \
     --akkaConfig.akka-persistence-redis.redis.host=127.0.0.1 \
@@ -267,8 +265,7 @@ services:
     --spring.datasource.username=saga \
     --spring.datasource.password=password \
     --spring.kafka.bootstrap-servers=127.0.0.1:9092 \
-    --spring.data.elasticsearch.cluster-name=docker-cluster \
-    --spring.data.elasticsearch.cluster-nodes=127.0.0.1:9300 \
+    --spring.elasticsearch.rest.uris=http://127.0.0.1:9200 \
     --akkaConfig.akka.remote.artery.canonical.port=8071 \
     --akkaConfig.akka.cluster.seed-nodes[0]="akka://alpha-cluster@127.0.0.1:8070" \
     --akkaConfig.akka-persistence-redis.redis.host=127.0.0.1 \

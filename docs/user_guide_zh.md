@@ -423,10 +423,11 @@ public void bar() {
 
    - spring boot 版本兼容
 
-     如果你的项目使用的不是spring boot 2.1.1版本，那么请参照此列表增加兼容的spring-cloud-starter-consul-discovery版本
+     如果你的项目使用的不是 spring boot 2.3.X 版本，那么请参照此列表增加兼容的spring-cloud-starter-consul-discovery版本
 
      | spring boot   | spring-cloud-starter-consul-discovery |
      | ------------- | ------------------------------------- |
+     | 2.3.12.RELEASE | 2.2.8.RELEASE                        |
      | 2.1.x.RELEASE | 2.1.1.RELEASE                         |
      | 2.0.x.RELEASE | 2.0.2.RELEASE                         |
 
@@ -436,7 +437,7 @@ public void bar() {
            <dependency>
              <groupId>org.springframework.cloud</groupId>
              <artifactId>spring-cloud-starter-consul-discovery</artifactId>
-             <version>2.0.2.RELEASE</version>
+             <version>2.2.8.RELEASE</version>
            </dependency>
          </dependencies>
        </dependencyManagement>
@@ -532,10 +533,11 @@ public void bar() {
 
    * spring boot 版本兼容
 
-     如果你的项目使用的不是spring boot 2.1.1版本，那么请参照此列表增加兼容的spring-cloud-starter-consul-discovery版本
+     如果你的项目使用的不是 spring boot 2.3.X 版本，那么请参照此列表增加兼容的spring-cloud-starter-consul-discovery版本
 
      | spring boot   | spring-cloud-starter-netflix-eureka-client |
-     | ------------- | ------------------------------------------ |
+     |--------------------------------------------| ------------------------------------------ |
+     | 2.3.12.RELEASE | 2.2.10.RELEASE                             | 
      | 2.1.x.RELEASE | 2.1.1.RELEASE                              |
      | 2.0.x.RELEASE | 2.0.3.RELEASE                              |
 
@@ -545,7 +547,7 @@ public void bar() {
            <dependency>
              <groupId>org.springframework.cloud</groupId>
              <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-             <version>2.0.3.RELEASE</version>
+             <version>2.2.10.RELEASE</version>
            </dependency>
          </dependencies>
        </dependencyManagement>
@@ -656,10 +658,11 @@ public void bar() {
 
    - spring boot 版本兼容
 
-     如果你的项目使用的不是spring boot 2.1.1版本，那么请参照此列表增加兼容的spring-cloud-starter-zookeeper-discovery版本
+     如果你的项目使用的不是 spring boot 2.3.X 版本，那么请参照此列表增加兼容的spring-cloud-starter-zookeeper-discovery版本
 
      | spring boot    | spring-cloud-starter-zookeeper-discovery |
-     | -------------  | -------------------------------------    |
+     |------------------------------------------| -------------------------------------    |
+     | 2.3.12.RELEASE | 2.2.5.RELEASE                            | 
      | 2.1.x.RELEASE  | 2.1.1.RELEASE                            |
      | 1.5.17.RELEASE | 1.2.2.RELEASE                            |
 
@@ -669,7 +672,7 @@ public void bar() {
            <dependency>
              <groupId>org.springframework.cloud</groupId>
              <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
-             <version>2.1.1.RELEASE</version>
+             <version>2.2.5.RELEASE</version>
            </dependency>
          </dependencies>
        </dependencyManagement>
@@ -772,10 +775,11 @@ public void bar() {
 
    - spring boot 版本兼容
 
-     如果你的项目使用的不是spring boot 2.1.1版本，那么请参照此列表增加兼容的spring-cloud-starter-alibaba-nacos-discovery版本
+     如果你的项目使用的不是 spring boot 2.3.X 版本，那么请参照此列表增加兼容的spring-cloud-starter-alibaba-nacos-discovery版本
 
      | spring boot    | spring-cloud-starter-alibaba-nacos-discovery |
-     | -------------  | -------------------------------------    |
+----------------| -------------  | -------------------------------------    |
+     | 2.3.12.RELEASE  | 2.2.6.RELEASE                            | 
      | 2.1.x.RELEASE  | 0.2.2.RELEASE                            |
      | 1.5.17.RELEASE | 0.1.2.RELEASE                            |
 
@@ -783,9 +787,9 @@ public void bar() {
        <dependencyManagement>
          <dependencies>
            <dependency>
-             <groupId>org.springframework.cloud</groupId>
+             <groupId>com.alibaba.cloud</groupId>
              <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-             <version>0.2.2.RELEASE</version>
+             <version>2.2.6.RELEASE</version>
            </dependency>
          </dependencies>
        </dependencyManagement>
