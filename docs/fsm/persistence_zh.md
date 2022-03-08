@@ -15,13 +15,12 @@
 
 ### 持久化参数
 
-| 参数名                                                       | 默认值 | 说明                                                         |
-| ------------------------------------------------------------ | ------ | ------------------------------------------------------------ |
-| alpha.feature.akka.transaction.repository.type               |        | 持久化类型，目前可选值 elasticsearch，如果不设置则不存储     |
-| alpha.feature.akka.transaction.repository.elasticsearch.batchSize | 100    | elasticsearch 批量入库数量                                   |
-| alpha.feature.akka.transaction.repository.elasticsearch.refreshTime | 5000   | elasticsearch 定时同步到ES时间                               |
-| spring.data.elasticsearch.cluster-name                       |        | ES集群名称                                                   |
-| spring.data.elasticsearch.cluster-nodes                      |        | ES节点地址，格式：localhost:9300，多个地址逗号分隔           |
+| 参数名                                                       | 默认值 | 说明                                       |
+| ------------------------------------------------------------ | ------ |------------------------------------------|
+| alpha.feature.akka.transaction.repository.type               |        | 持久化类型，目前可选值 elasticsearch，如果不设置则不存储      |
+| alpha.feature.akka.transaction.repository.elasticsearch.batchSize | 100    | elasticsearch 批量入库数量                     |
+| alpha.feature.akka.transaction.repository.elasticsearch.refreshTime | 5000   | elasticsearch 定时同步到ES时间                  |
+| spring.elasticsearch.rest.uris                      |        | ES节点地址，格式：http://localhost:9200，多个地址逗号分隔 |
 
 ### Elasticsearch 索引
 
@@ -232,4 +231,4 @@ Alpha 会在 Elasticsearch 中创建一个名为 `alpha_global_transaction` 的�
   }
   ```
 
-  更多用法参考 [Elasticsearch APIs](https://www.elastic.co/guide/en/elasticsearch/reference/6.6/docs.html) 
+  更多用法参考 [Elasticsearch 7.X APIs](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/docs.html) 
