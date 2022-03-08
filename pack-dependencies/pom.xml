@@ -52,7 +52,7 @@
     <akka.version>2.5.32</akka.version>
     <alpakka.version>1.0.5</alpakka.version>
     <leveldbjni-all.version>1.8</leveldbjni-all.version>
-    <akka-persistence-redis.version>0.4.0</akka-persistence-redis.version>
+    <akka-persistence-redis.version>0.4.2</akka-persistence-redis.version>
 
     <!-- grpc netty -->
     <grpc.version>1.44.1</grpc.version>
@@ -86,6 +86,17 @@
     <javax.interceptor-api.version>1.2</javax.interceptor-api.version>
     <commons-lang3.version>3.6</commons-lang3.version>
     <protobuf-java.version>3.19.2</protobuf-java.version>
+
+    <!-- alpha ui -->
+    <webjars-locator-core.version>0.45</webjars-locator-core.version>
+    <org.webjars.bootstrap.version>4.3.1</org.webjars.bootstrap.version>
+    <org.webjars.jquery.version>3.4.1</org.webjars.jquery.version>
+    <org.webjars.jquery-easing.version>1.4.1</org.webjars.jquery-easing.version>
+    <org.webjars.font-awesome.version>5.9.0</org.webjars.font-awesome.version>
+    <org.webjars.datatables.version>1.10.25</org.webjars.datatables.version>
+    <org.webjars.momentjs.version>2.24.0</org.webjars.momentjs.version>
+    <org.webjars.sockjs-client.version>1.0.2</org.webjars.sockjs-client.version>
+    <org.webjars.stomp-websocket.version>2.3.3</org.webjars.stomp-websocket.version>
 
     <!-- test -->
     <byteman.version>4.0.1</byteman.version>
@@ -308,6 +319,53 @@
         <version>${project.version}</version>
       </dependency>
 
+      <!-- alpha ui -->
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>webjars-locator-core</artifactId>
+        <version>${webjars-locator-core.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>bootstrap</artifactId>
+        <version>${org.webjars.bootstrap.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>jquery</artifactId>
+        <version>${org.webjars.jquery.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>jquery-easing</artifactId>
+        <version>${org.webjars.jquery-easing.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>font-awesome</artifactId>
+        <version>${org.webjars.font-awesome.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>datatables</artifactId>
+        <version>${org.webjars.datatables.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>momentjs</artifactId>
+        <version>${org.webjars.momentjs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>sockjs-client</artifactId>
+        <version>${org.webjars.sockjs-client.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>stomp-websocket</artifactId>
+        <version>${org.webjars.stomp-websocket.version}</version>
+      </dependency>
+
       <!-- jackson -->
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
@@ -483,6 +541,16 @@
         <groupId>com.safety-data</groupId>
         <artifactId>akka-persistence-redis_2.12</artifactId>
         <version>${akka-persistence-redis.version}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>akka-persistence_2.12</artifactId>
+            <groupId>com.typesafe.akka</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>akka-protobuf_2.12</artifactId>
+            <groupId>com.typesafe.akka</groupId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.fusesource.leveldbjni</groupId>

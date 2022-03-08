@@ -30,7 +30,6 @@
   <name>Pack::Alpha::UI</name>
 
   <dependencies>
-
     <!-- servicecomb pack -->
     <dependency>
       <groupId>org.apache.servicecomb.pack</groupId>
@@ -40,50 +39,40 @@
     <!-- webjars -->
     <dependency>
       <groupId>org.webjars</groupId>
-      <artifactId>webjars-locator</artifactId>
-      <version>0.36</version>
+      <artifactId>webjars-locator-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>bootstrap</artifactId>
-      <version>4.3.1</version>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>jquery</artifactId>
-      <version>3.4.1</version>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>jquery-easing</artifactId>
-      <version>1.4.1</version>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>font-awesome</artifactId>
-      <version>5.9.0</version>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>datatables</artifactId>
-      <version>1.10.19</version>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>momentjs</artifactId>
-      <version>2.24.0</version>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>sockjs-client</artifactId>
-      <version>1.0.2</version>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>stomp-websocket</artifactId>
-      <version>2.3.3</version>
     </dependency>
-
 
     <!-- spring boot -->
     <dependency>
