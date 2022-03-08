@@ -75,21 +75,21 @@
                   </run>
                 </image>
                 <image>
-                  <name>elasticsearch:6.6.2</name>
+                  <name>elasticsearch:7.17.1</name>
                   <alias>elasticsearch</alias>
                   <run>
                     <env>
                       <discovery.type>single-node</discovery.type>
                     </env>
                     <wait>
-                      <log>started</log>
+                      <log>successfully reloaded</log>
                       <tcp>
                         <ports>
                           <port>9200</port>
                           <port>9300</port>
                         </ports>
                       </tcp>
-                      <time>60000</time>
+                      <time>120000</time>
                     </wait>
                     <ports>
                       <port>elasticsearch.rest.port:9200</port>
@@ -107,8 +107,7 @@
                       </JAVA_OPTS>
                       <alpha.feature.akka.enabled>true</alpha.feature.akka.enabled>
                       <alpha.feature.akka.transaction.repository.type>elasticsearch</alpha.feature.akka.transaction.repository.type>
-                      <spring.data.elasticsearch.cluster-name>docker-cluster</spring.data.elasticsearch.cluster-name>
-                      <spring.data.elasticsearch.cluster-nodes>elasticsearch.servicecomb.io:9300</spring.data.elasticsearch.cluster-nodes>
+                      <spring.elasticsearch.rest.uris>http://elasticsearch.servicecomb.io:9200</spring.elasticsearch.rest.uris>
                     </env>
                     <links>
                       <link>postgres:postgresql.servicecomb.io</link>
@@ -130,6 +129,7 @@
                     </ports>
                     <dependsOn>
                       <container>postgres</container>
+                      <container>elasticsearch</container>
                     </dependsOn>
                   </run>
                 </image>

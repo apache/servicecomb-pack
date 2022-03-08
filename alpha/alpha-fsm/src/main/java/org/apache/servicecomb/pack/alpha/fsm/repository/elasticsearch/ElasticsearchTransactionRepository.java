@@ -19,7 +19,6 @@ package org.apache.servicecomb.pack.alpha.fsm.repository.elasticsearch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,7 +34,7 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
-import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
@@ -113,7 +112,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
     try{
       if (this.template.indexOps(IndexCoordinates.of(INDEX_NAME)).exists()) {
         NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
-        queryBuilder.withSearchType(SearchType.valueOf(INDEX_TYPE));
+        //queryBuilder.withSearchType(SearchType.valueOf(INDEX_TYPE));
         if (state != null && state.trim().length() > 0) {
           queryBuilder.withQuery(QueryBuilders.termQuery("state.keyword", state));
         } else {
@@ -154,7 +153,7 @@ public class ElasticsearchTransactionRepository implements TransactionRepository
         .build();
     SearchHits<Map> result = this.template.search(query,Map.class,IndexCoordinates.of(INDEX_NAME));
     if (result.getTotalHits() > 0) {
-      final StringTerms groupState = result.getAggregations().get("count_group_by_state");
+      final ParsedStringTerms groupState = result.getAggregations().get("count_group_by_state");
       statistics = groupState.getBuckets()
           .stream()
           .collect(Collectors.toMap(MultiBucketsAggregation.Bucket::getKeyAsString,
