@@ -33,9 +33,12 @@ alpha:
           kafka:
             topic: servicecomb-pack-actor-event
             bootstrap-servers: 127.0.0.1:9092
+            numPartitions: 6
+            replicationFactor: 1
             consumer:
               group-id: servicecomb-pack
               auto.offset.reset: earliest
+              enable.auto.commit: false
             producer:
               batch-size: 16384
               retries: 0
