@@ -48,7 +48,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.servicecomb.pack</groupId>
-      <artifactId>alpha-spec-saga-fsm</artifactId>
+      <artifactId>alpha-spec-saga-akka</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.servicecomb.pack</groupId>

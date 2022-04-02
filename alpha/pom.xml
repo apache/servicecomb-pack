@@ -34,7 +34,7 @@
   <modules>
     <module>alpha-core</module>
     <module>alpha-persistence-jpa</module>
-    <module>alpha-spec-saga-fsm</module>
+    <module>alpha-spec-saga-akka</module>
     <module>alpha-spec-saga-db</module>
     <module>alpha-spec-tcc-db</module>
     <module>alpha-benchmark</module>
