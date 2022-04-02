@@ -48,6 +48,9 @@
     <spring.cloud.stream.version>3.0.13.RELEASE</spring.cloud.stream.version>
     <spring.cloud.function.version>3.0.14.RELEASE</spring.cloud.function.version>
 
+    <!-- specify the spring-framework version for cve-2022-22965 -->
+    <spring-framework.version>5.2.20.RELEASE</spring-framework.version>
+
     <!-- akka fsm -->
     <akka.version>2.5.32</akka.version>
     <alpakka.version>1.0.5</alpakka.version>
@@ -115,6 +118,13 @@
   <dependencyManagement>
     <dependencies>
       <!-- import dependencies -->
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-framework-bom</artifactId>
+        <version>${spring-framework.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
