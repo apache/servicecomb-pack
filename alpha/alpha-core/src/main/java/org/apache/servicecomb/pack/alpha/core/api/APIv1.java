@@ -33,7 +33,7 @@ public interface APIv1 {
   PagingGlobalTransactions getTransactions(String state, int page, int size)
       throws Exception;
 
-  Map<String, Long> getTransactionStatistics();
+  Map<String, Long> getTransactionStatistics() throws Exception;
 
-  List<GlobalTransaction> getSlowTransactions(int size);
+  List<GlobalTransaction> getSlowTransactions(int size) throws Exception;
 }

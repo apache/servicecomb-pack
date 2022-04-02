@@ -43,10 +43,9 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <!-- Added the eclipse link JPA configuration-->
     <dependency>
-      <groupId>org.apache.servicecomb.pack</groupId>
-      <artifactId>persistence-jpa</artifactId>
+      <groupId>org.eclipse.persistence</groupId>
+      <artifactId>org.eclipse.persistence.jpa</artifactId>
     </dependency>
     <!-- Added the driver of h2 -->
     <dependency>

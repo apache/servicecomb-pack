@@ -26,7 +26,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>acceptance-pack-cluster-spring</artifactId>
+  <artifactId>acceptance-pack-cluster-spring-demo</artifactId>
   <name>Pack:Acceptance Tests::Cluster Spring</name>
 
   <dependencies>
@@ -81,11 +81,10 @@
                   <alias>alpha-1</alias>
                   <run>
                     <env>
-                      <JAVA_OPTS>
-                        -Dspring.profiles.active=prd,test
-                      </JAVA_OPTS>
+                      <spring.profiles.active>prd,test</spring.profiles.active>
+                      <alpha.spec.names>saga-db</alpha.spec.names>
                       <alpha.server.port>8080</alpha.server.port>
-                      <alpha.cluster.master.enabled>true</alpha.cluster.master.enabled>
+                      <alpha.spec.sagaa.db.cluster.enabled>true</alpha.spec.sagaa.db.cluster.enabled>
                       <management.endpoints.web.exposure.include>*</management.endpoints.web.exposure.include>
                       <management.endpoint.shutdown.enabled>true</management.endpoint.shutdown.enabled>
                     </env>
@@ -116,12 +115,11 @@
                   <alias>alpha-2</alias>
                   <run>
                     <env>
-                      <JAVA_OPTS>
-                         -Dspring.profiles.active=prd,test
-                      </JAVA_OPTS>
+                      <spring.profiles.active>prd,test</spring.profiles.active>
+                      <alpha.spec.names>saga-db</alpha.spec.names>
                       <alpha.server.port>8081</alpha.server.port>
                       <server.port>8091</server.port>
-                      <alpha.cluster.master.enabled>true</alpha.cluster.master.enabled>
+                      <alpha.spec.sagaa.db.cluster.enabled>true</alpha.spec.sagaa.db.cluster.enabled>
                       <management.endpoints.web.exposure.include>*</management.endpoints.web.exposure.include>
                       <management.endpoint.shutdown.enabled>true</management.endpoint.shutdown.enabled>
                     </env>
@@ -156,6 +154,7 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9092,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <omega.spec.names>saga</omega.spec.names>
                       <alpha.cluster.address>alpha-server-1.servicecomb.io:8080,alpha-server-2.servicecomb.io:8081</alpha.cluster.address>
                     </env>
                     <wait>
@@ -191,6 +190,7 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9093,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <omega.spec.names>saga</omega.spec.names>
                       <alpha.cluster.address>alpha-server-1.servicecomb.io:8080,alpha-server-2.servicecomb.io:8081</alpha.cluster.address>
                     </env>
                     <wait>
@@ -226,6 +226,7 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9091,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <omega.spec.names>saga</omega.spec.names>
                       <alpha.cluster.address>alpha-server-1.servicecomb.io:8080,alpha-server-2.servicecomb.io:8081</alpha.cluster.address>
                       <alpha.rest.address>http://alpha-server-1.servicecomb.io:8090,http://alpha-server-2.servicecomb.io:8091</alpha.rest.address>
                     </env>

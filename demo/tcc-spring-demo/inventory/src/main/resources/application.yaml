@@ -26,6 +26,10 @@ spring:
       show-sql: true
       generate-ddl: true
 
+omega:
+  spec:
+    names: tcc
+
 alpha:
   cluster:
     address: alpha-server.servicecomb.io:8080

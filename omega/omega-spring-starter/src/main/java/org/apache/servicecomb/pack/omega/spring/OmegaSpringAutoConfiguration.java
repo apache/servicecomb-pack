@@ -23,7 +23,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@Import({OmegaSpringConfig.class,TransactionAspectConfig.class})
+@Import({OmegaSpringConfig.class, OmegaTccSpringConfig.class, OmegaSagaSpringConfig.class,
+    TransactionAspectConfig.class})
 @ConditionalOnProperty(value = {"omega.enabled"}, matchIfMissing = true)
 public class OmegaSpringAutoConfiguration {
+
 }

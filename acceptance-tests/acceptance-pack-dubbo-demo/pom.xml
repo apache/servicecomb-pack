@@ -26,7 +26,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <name>Pack:Acceptance Tests::Dubbo</name>
-  <artifactId>acceptance-pack-dubbo</artifactId>
+  <artifactId>acceptance-pack-dubbo-demo</artifactId>
 
   <dependencies>
     <dependency>
@@ -88,9 +88,8 @@
                   <alias>alpha</alias>
                   <run>
                     <env>
-                      <JAVA_OPTS>
-                        -Dspring.profiles.active=prd,test
-                      </JAVA_OPTS>
+                      <spring.profiles.active>prd,test</spring.profiles.active>
+                      <alpha.spec.names>saga-db</alpha.spec.names>
                     </env>
                     <links>
                       <link>postgres:postgresql.servicecomb.io</link>
@@ -129,6 +128,7 @@
                         -Dalpha.cluster.address=alpha-server.servicecomb.io:8080
                         -Dspring.datasource.initialization-mode=always
                       </JAVA_OPTS>
+                      <omega.spec.names>saga</omega.spec.names>
                     </env>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
@@ -169,6 +169,7 @@
                         -Dalpha.cluster.address=alpha-server.servicecomb.io:8080
                         -Dspring.datasource.initialization-mode=always
                       </JAVA_OPTS>
+                      <omega.spec.names>saga</omega.spec.names>
                     </env>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
@@ -209,6 +210,7 @@
                         -Dalpha.cluster.address=alpha-server.servicecomb.io:8080
                         -Dspring.datasource.initialization-mode=always
                       </JAVA_OPTS>
+                      <omega.spec.names>saga</omega.spec.names>
                     </env>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>

@@ -80,9 +80,8 @@
                   <alias>alpha</alias>
                   <run>
                     <env>
-                      <JAVA_OPTS>
-                        -Dspring.profiles.active=prd,test
-                      </JAVA_OPTS>
+                      <spring.profiles.active>prd,test</spring.profiles.active>
+                      <alpha.spec.names>tcc-db</alpha.spec.names>
                     </env>
                     <links>
                       <link>postgres:postgresql.servicecomb.io</link>
@@ -111,9 +110,8 @@
                   <alias>inventory</alias>
                   <run>
                     <env>
-                      <JAVA_OPTS>
-                        -Dspring.profiles.active=prd
-                      </JAVA_OPTS>
+                      <spring.profiles.active>prd</spring.profiles.active>
+                      <omega.spec.names>tcc</omega.spec.names>
                     </env>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
@@ -140,9 +138,8 @@
                   <alias>payment</alias>
                   <run>
                     <env>
-                      <JAVA_OPTS>
-                        -Dspring.profiles.active=prd
-                      </JAVA_OPTS>
+                      <spring.profiles.active>prd</spring.profiles.active>
+                      <omega.spec.names>tcc</omega.spec.names>
                     </env>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
@@ -177,6 +174,9 @@
                       </tcp>
                       <time>120000</time>
                     </wait>
+                    <env>
+                      <omega.spec.names>tcc</omega.spec.names>
+                    </env>
                     <links>
                       <link>alpha:alpha-server.servicecomb.io</link>
                       <link>inventory:inventory.servicecomb.io</link>

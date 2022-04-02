@@ -30,6 +30,11 @@ spring:
       naming:
         physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
         implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+
+omega:
+  spec:
+    names: tcc
+
 alpha:
   cluster:
     address: alpha-server.servicecomb.io:8080

@@ -22,21 +22,59 @@ alpha:
   server:
     host: ${server.host}
     port: 8080
+  spec:
+    names: saga-db
+    saga:
+      akka:
+        channel:
+          name: memory
+          memory:
+            max-length: -1
+          kafka:
+            topic: servicecomb-pack-actor-event
+            bootstrap-servers: 127.0.0.1:9092
+            consumer:
+              group-id: servicecomb-pack
+              auto.offset.reset: earliest
+            producer:
+              batch-size: 16384
+              retries: 0
+              buffer.memory: 33554432
+        repository:
+          name: elasticsearch
+          elasticsearch:
+            uris: http://localhost:9200
+            batch-size: 100
+            refresh-time: 5000
+      db:
+        datasource:
+          username: sa
+          password:
+          url: jdbc:hsqldb:mem:saga
+          initialization-mode: always
+        cluster:
+          enabled: true
+          type: jdbc
+          expire: 5000
+    tcc:
+      db:
+        memory-mode: true
+        datasource:
+          username: sa
+          password:
+          url: jdbc:hsqldb:mem:saga
+          initialization-mode: always
+
   feature:
     nativetransport: false # Default disabled Netty Native Transport
-    akka:
-      enabled: false
-      channel:
-        type: memory
-      transaction:
-        repository:
-          type: elasticsearch
 
 spring:
-  datasource:
-    initialization-mode: always
   main:
     allow-bean-definition-overriding: true
+  jpa:
+    properties:
+      eclipselink:
+        ddl-generation: none
   cloud:
     consul:
       host: 0.0.0.0
@@ -123,17 +161,29 @@ alpha:
 ---
 spring:
   profiles: prd
-  datasource:
-    username: saga
-    password: password
-    url: jdbc:postgresql://postgresql.servicecomb.io:5432/saga?useSSL=false
-    platform: postgresql
-    continue-on-error: false
   jpa:
     properties:
       eclipselink:
         ddl-generation: none
-
+alpha:
+  spec:
+    saga:
+      db:
+        datasource:
+          username: saga
+          password: password
+          url: jdbc:postgresql://postgresql.servicecomb.io:5432/saga?useSSL=false
+          platform: postgresql
+          continue-on-error: false
+    tcc:
+      db:
+        memory-mode: false
+        datasource:
+          username: saga
+          password: password
+          url: jdbc:postgresql://postgresql.servicecomb.io:5432/saga?useSSL=false
+          platform: postgresql
+          continue-on-error: false
 ---
 spring:
   profiles: mysql

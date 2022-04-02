@@ -54,7 +54,7 @@ jobs:
         run: git log -n1
       - name: Build and test
         if: ${{ success() }}
-        run: ./mvnw clean install -B -Pdocker
+        run: ./mvnw clean install -Pdocker -B
       - name: Upload unit test results
         if: ${{ failure() }}
         uses: actions/upload-artifact@v2
@@ -64,7 +64,7 @@ jobs:
           if-no-files-found: ignore
       - name: Verify demo
         if: ${{ success() }}
-        run: ./mvnw clean verify -B -f demo -Pdemo -Pdocker -Ddocker.useColor=false -Ddocker.showLogs
+        run: ./mvnw clean verify -f demo -Pdemo -Pdocker -Ddocker.useColor=false -Ddocker.showLogs -B
       - name: Verify Acceptance tests
         if: ${{ success() }}
-        run: ./mvnw clean verify -B -f acceptance-tests -Pdemo -Pdocker -Ddocker.useColor=false -Ddocker.showLogs
+        run: ./mvnw clean verify -f acceptance-tests -Pdemo -Pdocker -Ddocker.useColor=false -Ddocker.showLogs -B

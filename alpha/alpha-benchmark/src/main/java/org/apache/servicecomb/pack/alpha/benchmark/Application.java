@@ -56,6 +56,7 @@ public class Application implements CommandLineRunner {
       printHelp();
       System.exit(0);
     }
+    System.setProperty("omega.spec.names","saga");
     SpringApplication.run(Application.class, args);
   }
 
