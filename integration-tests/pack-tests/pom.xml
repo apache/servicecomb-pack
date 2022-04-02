@@ -81,8 +81,13 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.servicecomb.pack</groupId>
-      <artifactId>persistence-jpa</artifactId>
+      <groupId>org.eclipse.persistence</groupId>
+      <artifactId>org.eclipse.persistence.jpa</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -145,9 +150,9 @@
                   <alias>alpha</alias>
                   <run>
                     <env>
-                      <JAVA_OPTS>
-                        -Dspring.profiles.active=prd -Dspring.datasource.initialization-mode=always
-                      </JAVA_OPTS>
+                      <alpha.spec.names>saga-db</alpha.spec.names>
+                      <spring.profiles.active>prd</spring.profiles.active>
+                      <spring.datasource.initialization-mode>always</spring.datasource.initialization-mode>
                     </env>
                     <links>
                       <link>postgres:postgresql.servicecomb.io</link>

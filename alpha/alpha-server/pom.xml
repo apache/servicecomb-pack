@@ -48,7 +48,15 @@
     </dependency>
     <dependency>
       <groupId>org.apache.servicecomb.pack</groupId>
-      <artifactId>alpha-fsm</artifactId>
+      <artifactId>alpha-spec-saga-fsm</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicecomb.pack</groupId>
+      <artifactId>alpha-spec-saga-db</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicecomb.pack</groupId>
+      <artifactId>alpha-spec-tcc-db</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.servicecomb.pack</groupId>
@@ -89,15 +97,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-log4j2</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.servicecomb.pack</groupId>
-      <artifactId>persistence-jpa</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -148,7 +147,6 @@
     <dependency>
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.awaitility</groupId>

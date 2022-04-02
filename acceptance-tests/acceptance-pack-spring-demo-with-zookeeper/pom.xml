@@ -26,7 +26,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>acceptance-pack-spring-with-zookeeper</artifactId>
+  <artifactId>acceptance-pack-spring-demo-with-zookeeper</artifactId>
   <name>Pack:Acceptance Tests::Spring with zookeeper</name>
 
   <dependencies>
@@ -98,9 +98,8 @@
                   <alias>alpha</alias>
                   <run>
                     <env>
-                      <JAVA_OPTS>
-                        -Dspring.profiles.active=prd,test
-                      </JAVA_OPTS>
+                      <spring.profiles.active>prd,test</spring.profiles.active>
+                      <alpha.spec.names>saga-db</alpha.spec.names>
                       <spring.cloud.zookeeper.enabled>true</spring.cloud.zookeeper.enabled>
                       <spring.cloud.zookeeper.connectString>zookeeper.servicecomb.io:2181</spring.cloud.zookeeper.connectString>
                       <spring.cloud.zookeeper.discovery.preferIpAddress>true</spring.cloud.zookeeper.discovery.preferIpAddress>
@@ -138,6 +137,7 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9092,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <omega.spec.names>saga</omega.spec.names>
                       <spring.cloud.zookeeper.enabled>true</spring.cloud.zookeeper.enabled>
                       <alpha.cluster.register.type>zookeeper</alpha.cluster.register.type>
                       <spring.cloud.zookeeper.connectString>zookeeper.servicecomb.io:2181</spring.cloud.zookeeper.connectString>
@@ -176,6 +176,7 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9093,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <omega.spec.names>saga</omega.spec.names>
                       <spring.cloud.zookeeper.enabled>true</spring.cloud.zookeeper.enabled>
                       <alpha.cluster.register.type>zookeeper</alpha.cluster.register.type>
                       <spring.cloud.zookeeper.connectString>zookeeper.servicecomb.io:2181</spring.cloud.zookeeper.connectString>
@@ -213,6 +214,7 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9091,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <omega.spec.names>saga</omega.spec.names>
                       <spring.cloud.zookeeper.enabled>true</spring.cloud.zookeeper.enabled>
                       <alpha.cluster.register.type>zookeeper</alpha.cluster.register.type>
                       <spring.cloud.zookeeper.connectString>zookeeper.servicecomb.io:2181</spring.cloud.zookeeper.connectString>

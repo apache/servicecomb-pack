@@ -26,7 +26,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>acceptance-pack-akka-spring</artifactId>
+  <artifactId>acceptance-pack-akka-spring-demo</artifactId>
   <name>Pack:Acceptance Tests::Akka Spring</name>
 
   <dependencies>
@@ -51,29 +51,6 @@
             <artifactId>docker-maven-plugin</artifactId>
             <configuration>
               <images>
-                <image>
-                  <name>postgres</name>
-                  <alias>postgres</alias>
-                  <run>
-                    <env>
-                      <POSTGRES_DB>saga</POSTGRES_DB>
-                      <POSTGRES_USER>saga</POSTGRES_USER>
-                      <POSTGRES_PASSWORD>password</POSTGRES_PASSWORD>
-                    </env>
-                    <wait>
-                      <log>database system is ready to accept connections</log>
-                      <tcp>
-                        <ports>
-                          <port>5432</port>
-                        </ports>
-                      </tcp>
-                      <time>60000</time>
-                    </wait>
-                    <ports>
-                      <port>postgres.port:5432</port>
-                    </ports>
-                  </run>
-                </image>
                 <image>
                   <name>elasticsearch:7.17.1</name>
                   <alias>elasticsearch</alias>
@@ -102,15 +79,13 @@
                   <alias>alpha</alias>
                   <run>
                     <env>
-                      <JAVA_OPTS>
-                        -Dspring.profiles.active=prd,test
-                      </JAVA_OPTS>
-                      <alpha.feature.akka.enabled>true</alpha.feature.akka.enabled>
-                      <alpha.feature.akka.transaction.repository.type>elasticsearch</alpha.feature.akka.transaction.repository.type>
-                      <spring.elasticsearch.rest.uris>http://elasticsearch.servicecomb.io:9200</spring.elasticsearch.rest.uris>
+                      <spring.profiles.active>prd,test</spring.profiles.active>
+                      <alpha.spec.names>saga-akka</alpha.spec.names>
+                      <alpha.spec.saga.akka.channel.name>memory</alpha.spec.saga.akka.channel.name>
+                      <alpha.spec.saga.akka.repository.name>elasticsearch</alpha.spec.saga.akka.repository.name>
+                      <alpha.spec.saga.akka.repository.elasticsearch.uris>http://elasticsearch.servicecomb.io:9200</alpha.spec.saga.akka.repository.elasticsearch.uris>
                     </env>
                     <links>
-                      <link>postgres:postgresql.servicecomb.io</link>
                       <link>elasticsearch:elasticsearch.servicecomb.io</link>
                     </links>
                     <wait>
@@ -128,7 +103,6 @@
                       <port>alpha.rest.port:8090</port>
                     </ports>
                     <dependsOn>
-                      <container>postgres</container>
                       <container>elasticsearch</container>
                     </dependsOn>
                   </run>
@@ -142,6 +116,7 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9092,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <omega.spec.names>saga</omega.spec.names>
                     </env>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
@@ -174,6 +149,7 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9093,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <omega.spec.names>saga</omega.spec.names>
                     </env>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>
@@ -206,6 +182,7 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9091,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <omega.spec.names>saga</omega.spec.names>
                     </env>
                     <wait>
                       <log>Started [a-zA-Z]+ in [0-9.]+ seconds</log>

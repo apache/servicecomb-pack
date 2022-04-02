@@ -18,41 +18,38 @@
 package org.apache.servicecomb.pack.omega.spring;
 
 import com.google.common.collect.ImmutableList;
+import java.lang.invoke.MethodHandles;
 import org.apache.servicecomb.pack.common.AlphaMetaKeys;
 import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
-import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterDiscovery;
 import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterConfig;
+import org.apache.servicecomb.pack.omega.connector.grpc.AlphaClusterDiscovery;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.FastestSender;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContext;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.LoadBalanceContextBuilder;
 import org.apache.servicecomb.pack.omega.connector.grpc.core.TransactionType;
 import org.apache.servicecomb.pack.omega.connector.grpc.saga.SagaLoadBalanceSender;
-import org.apache.servicecomb.pack.omega.connector.grpc.tcc.TccLoadBalanceSender;
 import org.apache.servicecomb.pack.omega.context.AlphaMetas;
-import org.apache.servicecomb.pack.omega.transaction.CallbackContext;
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
 import org.apache.servicecomb.pack.omega.context.OmegaContext;
 import org.apache.servicecomb.pack.omega.context.ServiceConfig;
 import org.apache.servicecomb.pack.omega.context.UniqueIdGenerator;
 import org.apache.servicecomb.pack.omega.format.KryoMessageFormat;
 import org.apache.servicecomb.pack.omega.format.MessageFormat;
+import org.apache.servicecomb.pack.omega.transaction.CallbackContext;
 import org.apache.servicecomb.pack.omega.transaction.MessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.SagaMessageSender;
-import org.apache.servicecomb.pack.omega.transaction.tcc.DefaultParametersContext;
-import org.apache.servicecomb.pack.omega.transaction.tcc.ParametersContext;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;
-import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
-
-import java.lang.invoke.MethodHandles;
 
 @Configuration
 class OmegaSpringConfig {
@@ -66,30 +63,22 @@ class OmegaSpringConfig {
   }
 
   @Bean
-  OmegaContext omegaContext(@Qualifier("omegaUniqueIdGenerator") IdGenerator<String> idGenerator, SagaMessageSender messageSender) {
-    ServerMeta serverMeta = messageSender.onGetServerMeta();
-    boolean akkaEnabeld = Boolean.parseBoolean(serverMeta.getMetaMap().get(AlphaMetaKeys.AkkaEnabled.name()));
-    return new OmegaContext(idGenerator, AlphaMetas.builder().akkaEnabled(akkaEnabeld).build());
-  }
-
-  @Bean(name = {"compensationContext"})
-  CallbackContext compensationContext(OmegaContext omegaContext, SagaMessageSender sender) {
-    return new CallbackContext(omegaContext, sender);
-  }
-
-  @Bean(name = {"coordinateContext"})
-  CallbackContext coordinateContext(OmegaContext omegaContext, SagaMessageSender sender) {
-    return new CallbackContext(omegaContext, sender);
+  OmegaContext omegaContext(@Qualifier("omegaUniqueIdGenerator") IdGenerator<String> idGenerator, @Autowired(required = false) SagaMessageSender messageSender) {
+    if(messageSender!=null){
+      ServerMeta serverMeta = messageSender.onGetServerMeta();
+      boolean akkaEnabeld = false;
+      if(serverMeta!=null){
+        akkaEnabeld = Boolean.parseBoolean(serverMeta.getMetaMap().get(AlphaMetaKeys.AkkaEnabled.name()));
+      }
+      return new OmegaContext(idGenerator, AlphaMetas.builder().akkaEnabled(akkaEnabeld).build());
+    }else{
+      return new OmegaContext(idGenerator, AlphaMetas.builder().build());
+    }
   }
 
   @Bean
   ServiceConfig serviceConfig(@Value("${spring.application.name}") String serviceName, @Value("${omega.instance.instanceId:#{null}}") String instanceId) {
     return new ServiceConfig(serviceName,instanceId);
-  }
-
-  @Bean
-  ParametersContext parametersContext() {
-    return new DefaultParametersContext();
   }
 
   @Bean
@@ -124,63 +113,5 @@ class OmegaSpringConfig {
         .tccMessageHandler(tccMessageHandler)
         .build();
     return clusterConfig;
-  }
-
-  @Bean(name = "sagaLoadContext")
-  LoadBalanceContext sagaLoadBalanceSenderContext(
-      AlphaClusterConfig alphaClusterConfig,
-      ServiceConfig serviceConfig,
-      @Value("${omega.connection.reconnectDelay:3000}") int reconnectDelay,
-      @Value("${omega.connection.sending.timeout:8}") int timeoutSeconds) {
-    LoadBalanceContext loadBalanceSenderContext = new LoadBalanceContextBuilder(
-        TransactionType.SAGA,
-        alphaClusterConfig,
-        serviceConfig,
-        reconnectDelay,
-        timeoutSeconds).build();
-    return loadBalanceSenderContext;
-  }
-
-  @Bean
-  SagaMessageSender sagaLoadBalanceSender(@Qualifier("sagaLoadContext") LoadBalanceContext loadBalanceSenderContext) {
-    final SagaMessageSender sagaMessageSender = new SagaLoadBalanceSender(loadBalanceSenderContext, new FastestSender());
-    sagaMessageSender.onConnected();
-    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-      @Override
-      public void run() {
-        sagaMessageSender.onDisconnected();
-        sagaMessageSender.close();
-      }
-    }));
-    return sagaMessageSender;
-  }
-
-  @Bean(name = "tccLoadContext")
-  LoadBalanceContext loadBalanceSenderContext(
-      AlphaClusterConfig alphaClusterConfig,
-      ServiceConfig serviceConfig,
-      @Value("${omega.connection.reconnectDelay:3000}") int reconnectDelay,
-      @Value("${omega.connection.sending.timeout:8}") int timeoutSeconds) {
-    LoadBalanceContext loadBalanceSenderContext = new LoadBalanceContextBuilder(
-        TransactionType.TCC,
-        alphaClusterConfig,
-        serviceConfig,
-        reconnectDelay,
-        timeoutSeconds).build();
-    return loadBalanceSenderContext;
-  }
-
-  @Bean
-  TccMessageSender tccLoadBalanceSender(@Qualifier("tccLoadContext") LoadBalanceContext loadBalanceSenderContext) {
-    final TccMessageSender tccMessageSender = new TccLoadBalanceSender(loadBalanceSenderContext, new FastestSender());
-    tccMessageSender.onConnected();
-    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-      @Override
-      public void run() {
-        tccMessageSender.onDisconnected();
-        tccMessageSender.close();
-      }
-    }));
-    return tccMessageSender;
   }
 }

@@ -269,7 +269,22 @@
       </dependency>
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
-        <artifactId>alpha-fsm</artifactId>
+        <artifactId>alpha-spec-saga-fsm</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.servicecomb.pack</groupId>
+        <artifactId>alpha-spec-saga-db</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.servicecomb.pack</groupId>
+        <artifactId>alpha-spec-tcc-db</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.servicecomb.pack</groupId>
+        <artifactId>alpha-persistence-jpa</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -315,7 +330,7 @@
       <!-- TODO rename this artifact -->
       <dependency>
         <groupId>org.apache.servicecomb.pack</groupId>
-        <artifactId>persistence-jpa</artifactId>
+        <artifactId>alpha-persistence-jpa</artifactId>
         <version>${project.version}</version>
       </dependency>
 

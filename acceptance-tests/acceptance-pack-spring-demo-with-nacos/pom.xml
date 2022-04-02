@@ -26,7 +26,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>acceptance-pack-spring-with-nacos</artifactId>
+  <artifactId>acceptance-pack-spring-demo-with-nacos</artifactId>
   <name>Pack:Acceptance Tests::Spring with nacos</name>
 
   <dependencies>
@@ -60,7 +60,7 @@
                       <MODE>standalone</MODE>
                     </env>
                     <wait>
-                      <log>Completed initialization in</log>
+                      <log>Nacos started successfully</log>
                       <tcp>
                         <ports>
                           <port>8848</port>
@@ -101,9 +101,8 @@
                   <alias>alpha</alias>
                   <run>
                     <env>
-                      <JAVA_OPTS>
-                        -Dspring.profiles.active=prd,test
-                      </JAVA_OPTS>
+                      <spring.profiles.active>prd,test</spring.profiles.active>
+                      <alpha.spec.names>saga-db</alpha.spec.names>
                       <spring.cloud.nacos.discovery.enabled>true</spring.cloud.nacos.discovery.enabled>
                       <spring.cloud.nacos.discovery.serverAddr>nacos.servicecomb.io:8848</spring.cloud.nacos.discovery.serverAddr>
                       <nacos.client.enabled>true</nacos.client.enabled>
@@ -140,6 +139,7 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9092,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <omega.spec.names>saga</omega.spec.names>
                       <spring.cloud.nacos.discovery.enabled>true</spring.cloud.nacos.discovery.enabled>
                       <alpha.cluster.register.type>nacos</alpha.cluster.register.type>
                       <spring.cloud.nacos.discovery.serverAddr>nacos.servicecomb.io:8848</spring.cloud.nacos.discovery.serverAddr>
@@ -176,6 +176,7 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9093,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <omega.spec.names>saga</omega.spec.names>
                       <spring.cloud.nacos.discovery.enabled>true</spring.cloud.nacos.discovery.enabled>
                       <alpha.cluster.register.type>nacos</alpha.cluster.register.type>
                       <spring.cloud.nacos.discovery.serverAddr>nacos.servicecomb.io:8848</spring.cloud.nacos.discovery.serverAddr>
@@ -212,6 +213,7 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9091,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <omega.spec.names>saga</omega.spec.names>
                       <spring.cloud.nacos.discovery.enabled>true</spring.cloud.nacos.discovery.enabled>
                       <alpha.cluster.register.type>nacos</alpha.cluster.register.type>
                       <spring.cloud.nacos.discovery.serverAddr>nacos.servicecomb.io:8848</spring.cloud.nacos.discovery.serverAddr>

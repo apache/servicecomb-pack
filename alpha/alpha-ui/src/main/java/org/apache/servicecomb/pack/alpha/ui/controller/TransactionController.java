@@ -217,7 +217,7 @@ public class TransactionController {
 
   @GetMapping("/ui/transaction/statistics")
   @ResponseBody
-  public TransactionStatisticsDTO getGlobalTransactionStatistics() {
+  public TransactionStatisticsDTO getGlobalTransactionStatistics() throws Exception {
     TransactionStatisticsDTO statisticsDTO = new TransactionStatisticsDTO();
     Map<String, Long> statistics = apiv1.getTransactionStatistics();
     if (statistics.containsKey("COMMITTED")) {
@@ -234,7 +234,7 @@ public class TransactionController {
 
   @GetMapping("/ui/transaction/slow")
   @ResponseBody
-  public List<TransactionRowDTO> getSlowGlobalTransactionTopN() {
+  public List<TransactionRowDTO> getSlowGlobalTransactionTopN() throws Exception {
     List<TransactionRowDTO> transactionRowDTOS = new ArrayList<>();
     List<GlobalTransaction> transactions = apiv1.getSlowTransactions(10);
     transactions.stream().forEach(globalTransaction -> {

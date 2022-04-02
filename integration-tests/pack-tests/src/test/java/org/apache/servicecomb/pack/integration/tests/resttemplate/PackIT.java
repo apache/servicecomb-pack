@@ -44,8 +44,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = GreetingApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT,
-    properties = {"server.port=8080", "spring.application.name=greeting-service"})
+@SpringBootTest(classes = {GreetingApplication.class, EclipseLinkJpaConfiguration.class}, webEnvironment = WebEnvironment.DEFINED_PORT,
+    properties = {"omega.spec.names=saga", "server.port=8080", "spring.application.name=greeting-service"})
 public class PackIT {
   private static final String serviceName = "greeting-service";
 

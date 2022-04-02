@@ -26,7 +26,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>acceptance-pack-spring-with-consul</artifactId>
+  <artifactId>acceptance-pack-spring-demo-with-consul</artifactId>
   <name>Pack:Acceptance Tests::Spring with consul</name>
 
   <dependencies>
@@ -98,9 +98,8 @@
                   <alias>alpha</alias>
                   <run>
                     <env>
-                      <JAVA_OPTS>
-                        -Dspring.profiles.active=prd,test
-                      </JAVA_OPTS>
+                      <spring.profiles.active>prd,test</spring.profiles.active>
+                      <alpha.spec.names>saga-db</alpha.spec.names>
                       <spring.cloud.consul.enabled>true</spring.cloud.consul.enabled>
                       <spring.cloud.consul.host>consul.servicecomb.io</spring.cloud.consul.host>
                       <spring.cloud.consul.port>8500</spring.cloud.consul.port>
@@ -139,6 +138,7 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9092,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <omega.spec.names>saga</omega.spec.names>
                       <spring.cloud.consul.enabled>true</spring.cloud.consul.enabled>
                       <alpha.cluster.address></alpha.cluster.address>
                       <alpha.cluster.register.type>consul</alpha.cluster.register.type>
@@ -178,6 +178,7 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9093,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <omega.spec.names>saga</omega.spec.names>
                       <spring.cloud.consul.enabled>true</spring.cloud.consul.enabled>
                       <alpha.cluster.address></alpha.cluster.address>
                       <alpha.cluster.register.type>consul</alpha.cluster.register.type>
@@ -217,6 +218,7 @@
                         -Dorg.jboss.byteman.debug=true -Dorg.jboss.byteman.verbose=true
                         -javaagent:/maven/saga/byteman.jar=port:9091,address:0.0.0.0,listener:true
                       </JAVA_OPTS>
+                      <omega.spec.names>saga</omega.spec.names>
                       <spring.cloud.consul.enabled>true</spring.cloud.consul.enabled>
                       <alpha.cluster.address></alpha.cluster.address>
                       <alpha.cluster.register.type>consul</alpha.cluster.register.type>

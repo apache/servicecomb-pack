@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.servicecomb.pack.common.TransactionStatus;
 import org.apache.servicecomb.pack.omega.context.IdGenerator;
-import org.apache.servicecomb.pack.omega.transaction.TxCompensateAckFailedEvent;
-import org.apache.servicecomb.pack.omega.transaction.TxCompensateAckSucceedEvent;
 import org.apache.servicecomb.pack.omega.transaction.tcc.TccMessageHandler;
 import org.apache.servicecomb.pack.omega.transaction.tcc.events.*;
 import org.junit.After;
@@ -45,10 +43,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = {
+    "omega.spec.names=tcc",
     "spring.jpa.hibernate.ddl-auto=none",
     "spring.datasource.driver-class-name=org.h2.Driver",
     "spring.datasource.url=jdbc:h2:mem:alpha;MODE=MYSQL"},
-    classes = {TransactionTestMain.class, MessageConfig.class})
+    classes = {TransactionTestMain.class, MessageConfig.class, EclipseLinkJpaConfiguration.class})
 public class TccInterceptorTest {
 
   private static final String globalTxId = UUID.randomUUID().toString();

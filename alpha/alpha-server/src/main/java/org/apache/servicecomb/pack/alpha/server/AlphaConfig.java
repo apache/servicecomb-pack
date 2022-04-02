@@ -17,8 +17,9 @@
 
 package org.apache.servicecomb.pack.alpha.server;
 
+import com.google.common.eventbus.EventBus;
+import io.grpc.BindableService;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -28,35 +29,24 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
-import com.google.common.eventbus.EventBus;
-import org.apache.servicecomb.pack.alpha.core.*;
-import org.apache.servicecomb.pack.alpha.core.fsm.channel.ActorEventChannel;
-import org.apache.servicecomb.pack.alpha.server.fsm.GrpcSagaEventService;
-import org.apache.servicecomb.pack.alpha.server.tcc.GrpcTccEventService;
-import org.apache.servicecomb.pack.alpha.server.tcc.callback.TccPendingTaskRunner;
-import org.apache.servicecomb.pack.alpha.server.tcc.service.TccEventScanner;
-import org.apache.servicecomb.pack.alpha.server.tcc.service.TccTxEventService;
-import org.apache.servicecomb.pack.common.AlphaMetaKeys;
-import org.apache.servicecomb.pack.contract.grpc.ServerMeta;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.servicecomb.pack.alpha.core.CompositeOmegaCallback;
+import org.apache.servicecomb.pack.alpha.core.NodeStatus;
+import org.apache.servicecomb.pack.alpha.core.OmegaCallback;
+import org.apache.servicecomb.pack.alpha.core.PendingTaskRunner;
+import org.apache.servicecomb.pack.alpha.core.PushBackOmegaCallback;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import io.grpc.BindableService;
-
 @EntityScan(basePackages = "org.apache.servicecomb.pack.alpha")
 @Configuration
 public class AlphaConfig {
-  private static final Logger LOG = LoggerFactory.getLogger(AlphaConfig.class);
+
   private final BlockingQueue<Runnable> pendingCompensations = new LinkedBlockingQueue<>();
   private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -89,21 +79,6 @@ public class AlphaConfig {
   OmegaCallback omegaCallback(Map<String, Map<String, OmegaCallback>> callbacks) {
     return new PushBackOmegaCallback(pendingCompensations, new CompositeOmegaCallback(callbacks));
   }
-  
-  @Bean
-  TxEventRepository springTxEventRepository(TxEventEnvelopeRepository eventRepo) {
-    return new SpringTxEventRepository(eventRepo);
-  }
-
-  @Bean
-  CommandRepository springCommandRepository(TxEventEnvelopeRepository eventRepo, CommandEntityRepository commandRepository) {
-    return new SpringCommandRepository(eventRepo, commandRepository);
-  }
-
-  @Bean
-  TxTimeoutRepository springTxTimeoutRepository(TxTimeoutEntityRepository timeoutRepo) {
-    return new SpringTxTimeoutRepository(timeoutRepo);
-  }
 
   @Bean
   ScheduledExecutorService compensationScheduler() {
@@ -111,98 +86,21 @@ public class AlphaConfig {
   }
 
   @Bean
-  NodeStatus nodeStatus (){
-    if(masterEnabled){
+  NodeStatus nodeStatus() {
+    if (masterEnabled) {
       return new NodeStatus(NodeStatus.TypeEnum.SLAVE);
-    }else{
+    } else {
       return new NodeStatus(NodeStatus.TypeEnum.MASTER);
     }
   }
 
   @Bean
-  TxConsistentService txConsistentService(
-      @Value("${alpha.event.pollingInterval:500}") int eventPollingInterval,
-      @Value("${alpha.event.scanner.enabled:true}") boolean eventScannerEnabled,
-      ScheduledExecutorService scheduler,
-      TxEventRepository eventRepository,
-      CommandRepository commandRepository,
-      TxTimeoutRepository timeoutRepository,
-      OmegaCallback omegaCallback,
-      NodeStatus nodeStatus) {
-        if (eventScannerEnabled) {
-          new EventScanner(scheduler,
-              eventRepository, commandRepository, timeoutRepository,
-              omegaCallback, eventPollingInterval, nodeStatus).run();
-          LOG.info("Starting the EventScanner.");
-          }
-        TxConsistentService consistentService = new TxConsistentService(eventRepository);
-        return consistentService;
-  }
-
-  @Bean
-  TccPendingTaskRunner tccPendingTaskRunner() {
-    return new TccPendingTaskRunner(delay);
-  }
-
-  @Bean
-  @ConditionalOnProperty(name = "alpha.feature.tcc.enabled", havingValue = "true", matchIfMissing = true)
-  GrpcTccEventService grpcTccEventService(TccTxEventService tccTxEventService, TccPendingTaskRunner tccPendingTaskRunner, TccEventScanner tccEventScanner) {
-    // start the service which are needed for TCC
-    tccPendingTaskRunner.start();
-    tccEventScanner.start();
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      tccPendingTaskRunner.shutdown();
-      tccEventScanner.shutdown();
-    }));
-    return new GrpcTccEventService(tccTxEventService);
-  }
-
-  @Bean
-  TccEventScanner tccEventScanner(TccTxEventService tccTxEventService) {
-    return new TccEventScanner(tccTxEventService, delay, globalTxTimeoutSeconds);
-  }
-
-
-  @Bean()
-  @ConditionalOnProperty(name = "alpha.feature.akka.enabled", havingValue = "false", matchIfMissing = true)
-  ServerStartable serverStartable(GrpcServerConfig serverConfig, TxConsistentService txConsistentService,
-      Map<String, Map<String, OmegaCallback>> omegaCallbacks, @Autowired(required = false) GrpcTccEventService grpcTccEventService,
-      @Qualifier("alphaEventBus") EventBus eventBus) throws IOException {
-    ServerMeta serverMeta = ServerMeta.newBuilder()
-        .putMeta(AlphaMetaKeys.AkkaEnabled.name(), String.valueOf(false)).build();
-    List<BindableService> bindableServices = new ArrayList();
-    bindableServices.add(new GrpcTxEventEndpointImpl(txConsistentService, omegaCallbacks, serverMeta));
-    if (grpcTccEventService != null) {
-      LOG.info("alpha.feature.tcc.enable=true, starting the TCC service.");
-      bindableServices.add(grpcTccEventService);
-    } else {
-      LOG.info("alpha.feature.tcc.enable=false, the TCC service is disabled.");
-    }
+  ServerStartable serverStartableWithAkka(GrpcServerConfig serverConfig,
+      @Qualifier("alphaEventBus") EventBus eventBus, List<BindableService> bindableServices)
+      throws IOException {
     ServerStartable bootstrap = new GrpcStartable(serverConfig, eventBus,
         bindableServices.toArray(new BindableService[0]));
     new Thread(bootstrap::start).start();
-    LOG.info("alpha.feature.akka.enabled=false, starting the saga db service");
-    return bootstrap;
-  }
-
-  @Bean
-  @ConditionalOnProperty(name= "alpha.feature.akka.enabled", havingValue = "true")
-  ServerStartable serverStartableWithAkka(GrpcServerConfig serverConfig,
-      Map<String, Map<String, OmegaCallback>> omegaCallbacks, @Autowired(required = false) GrpcTccEventService grpcTccEventService,
-      @Qualifier("alphaEventBus") EventBus eventBus, ActorEventChannel actorEventChannel) throws IOException {
-    ServerMeta serverMeta = ServerMeta.newBuilder()
-        .putMeta(AlphaMetaKeys.AkkaEnabled.name(), String.valueOf(true)).build();
-    List<BindableService> bindableServices = new ArrayList();
-    bindableServices.add(new GrpcSagaEventService(actorEventChannel, omegaCallbacks, serverMeta));
-    if (grpcTccEventService != null) {
-      LOG.info("alpha.feature.tcc.enable=true, starting the TCC service.");
-      bindableServices.add(grpcTccEventService);
-    } else {
-      LOG.info("alpha.feature.tcc.enable=false, the TCC service is disabled.");
-    }
-    ServerStartable bootstrap = new GrpcStartable(serverConfig, eventBus, bindableServices.toArray(new BindableService[0]));
-    new Thread(bootstrap::start).start();
-    LOG.info("alpha.feature.akka.enabled=true, starting the saga akka service.");
     return bootstrap;
   }
 
