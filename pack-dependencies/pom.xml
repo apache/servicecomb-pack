@@ -49,7 +49,7 @@
     <spring.cloud.starter.zookeeper.discovery.version>2.2.5.RELEASE</spring.cloud.starter.zookeeper.discovery.version>
     <spring.cloud.starter.alibaba.nacos.discovery.version>2.2.6.RELEASE</spring.cloud.starter.alibaba.nacos.discovery.version>
     <spring.cloud.stream.version>3.0.13.RELEASE</spring.cloud.stream.version>
-    <spring.cloud.function.version>3.0.14.RELEASE</spring.cloud.function.version>
+    <spring.cloud.function.version>3.1.7</spring.cloud.function.version>
 
     <!-- specify the spring-framework version for cve-2022-22965 -->
     <spring-framework.version>5.2.20.RELEASE</spring-framework.version>
