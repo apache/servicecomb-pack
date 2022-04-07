@@ -70,7 +70,7 @@ java \
   -Dcom.sun.management.jmxremote.port=9090 \
   -Dcom.sun.management.jmxremote.ssl=false \
   -Dcom.sun.management.jmxremote.authenticate=false \
-  -jar alpha-server-0.5.0-SNAPSHOT-exec.jar \
+  -jar alpha-server-0.7.0-SNAPSHOT-exec.jar \
   --spring.datasource.username=saga-user \
   --spring.datasource.password=saga-password \
   --spring.datasource.url="jdbc:postgresql://0.0.09.0:5432/saga?useSSL=false" \

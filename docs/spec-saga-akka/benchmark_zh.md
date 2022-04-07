@@ -67,13 +67,12 @@ java \
   -Dcom.sun.management.jmxremote.port=9090 \
   -Dcom.sun.management.jmxremote.ssl=false \
   -Dcom.sun.management.jmxremote.authenticate=false \
-  -jar alpha-server-0.5.0-SNAPSHOT-exec.jar \
-  --spring.datasource.username=saga-user \
-  --spring.datasource.password=saga-password \
-  --spring.datasource.url="jdbc:postgresql://10.22.1.234:5432/saga?useSSL=false" \
+  -jar alpha-server-0.7.0-SNAPSHOT-exec.jar \
+  --alpha.spec.names=saga-akka \
+  --alpha.spec.saga.akka.repository.name=elasticsearch \
+  --alpha.spec.saga.akka.repository.elasticsearch.uris=http://127.0.0.1:9200 \
   --spring.profile.active=prd \
-  --alpha.feature.nativetransport=true \
-  --alpha.feature.akka.enabled=true
+  --alpha.feature.nativetransport=true
 ```
 
 ## 测试报告

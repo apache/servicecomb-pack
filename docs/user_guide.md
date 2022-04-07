@@ -106,11 +106,19 @@ Take a transfer money application as an example:
      cluster:
        address: alpha-server.servicecomb.io:8080
    ```
+4. Add omega.spec.names parameters
 
-4. Repeat step 2 for the `transferIn` service.
+   ```yaml
+   omega:
+     spec:
+       names: saga
+   ```
+   
+5. Repeat step 2 for the `transferIn` service.
 
-5. Since pack-0.3.0,  you can access the [OmegaContext](https://github.com/apache/servicecomb-pack/blob/master/omega/omega-context/src/main/java/org/apache/servicecomb/pack/omega/context/OmegaContext.java) for the gloableTxId and localTxId in the @Compensable annotated method or the cancel method.
+6. Since pack-0.3.0,  you can access the [OmegaContext](https://github.com/apache/servicecomb-pack/blob/master/omega/omega-context/src/main/java/org/apache/servicecomb/pack/omega/context/OmegaContext.java) for the gloableTxId and localTxId in the @Compensable annotated method or the cancel method.
 
+7. Sinc pack-0.7.0, You can change the distributed transaction specification through the alpha.spec.names parameter, currently supported modes are saga-db (default), tcc-db, saga-akka
 #### <a name="explicit-tx-context-passing"></a>Passing transaction context explicitly
 
 In most cases, Omega passing the transaction context for you transparently (see [Inter-Service Communication](design.md#comm) for details). Transaction context passing is implemented in a way of injecting transaction context information on the sender side and extracting it on the receiver side. Below is an example to illustrate this process:
@@ -286,8 +294,15 @@ Add TCC annotations and corresponding confirm and cancel methods
       cluster:
         address: alpha-server.servicecomb.io:8080
     ```
+ 4. Add omega.spec.names parameters
 
- 4. Repeat step 2 for the `transferIn` service.
+   ```yaml
+   omega:
+     spec:
+       names: tcc
+   ```
+   
+ 5. Repeat step 2 for the `transferIn` service.
 
 #### Passing transaction context explicitly
 
@@ -323,6 +338,9 @@ Just like Saga's `@Compensable`，`@Participate` also supports explicit transact
    alpha:
      cluster:
        address: {alpha.cluster.addresses}
+   omega:
+     spec:
+       names: saga   
    ```
 
 Then you can start your micro-services and access all saga events via http://${alpha-server:port}/saga/events.
@@ -821,9 +839,9 @@ Alpha can be highly available by deploying multiple instances, enable cluster su
 
 Alpha enabled JNI transports support with `alpha.feature.nativetransport=true`, These JNI transports add features specific to a particular platform, generate less garbage, and generally improve performance when compared to the NIO based transport.
 
-## Experiment
+## Pack Distributed Transaction Specifications
 
-[State Machine Mode](fsm/fsm_manual.md)
+[Saga-Akka Specifications](spec-saga-akka/fsm_manual.md)
 
 ## Upgrade Guide
 

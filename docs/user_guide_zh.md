@@ -106,10 +106,19 @@ Saga可通过以下任一方式进行构建：
      cluster:
        address: alpha-server.servicecomb.io:8080
    ```
+4. 增加 omega.spec.names 参数
 
-4. 对转入服务重复第二步即可。
+   ```yaml
+   omega:
+     spec:
+       names: saga
+   ```
+   
+5. 对转入服务重复第二步即可。
 
-5. 从pack-0.3.0开始, 你可以在服务函数或者取消函数中通过访问 [OmegaContext](https://github.com/apache/servicecomb-pack/blob/master/omega/omega-context/src/main/java/org/apache/servicecomb/pack/omega/context/OmegaContext.java) 来获取 gloableTxId 以及 localTxId 信息。
+6. 从 pack-0.3.0 开始, 你可以在服务函数或者取消函数中通过访问 [OmegaContext](https://github.com/apache/servicecomb-pack/blob/master/omega/omega-context/src/main/java/org/apache/servicecomb/pack/omega/context/OmegaContext.java) 来获取 gloableTxId 以及 localTxId 信息。
+
+7. 从 pack-0.7.0 开始, 你可以通过 alpha.spec.names 参数改变分布式事务规格, 目前支持的模式有 saga-db(默认), tcc-db, saga-akka
 
 #### <a name="explicit-tx-context-passing"></a>显式传递事务上下文
 
@@ -285,9 +294,17 @@ public void bar() {
         address: alpha-server.servicecomb.io:8080
     ```
 
-4. 对转入服务重复第二步即可。
+4. 增加 omega.spec.names 参数
 
-5. 从pack-0.3.0开始, 你可以在服务函数或者取消函数中通过访问 [OmegaContext](https://github.com/apache/servicecomb-pack/blob/master/omega/omega-context/src/main/java/org/apache/servicecomb/pack/omega/context/OmegaContext.java) 来获取 gloableTxId 以及 localTxId 信息。
+   ```yaml
+   omega:
+     spec:
+       names: tcc
+   ```
+   
+5. 对转入服务重复第二步即可。
+
+6. 从pack-0.3.0开始, 你可以在服务函数或者取消函数中通过访问 [OmegaContext](https://github.com/apache/servicecomb-pack/blob/master/omega/omega-context/src/main/java/org/apache/servicecomb/pack/omega/context/OmegaContext.java) 来获取 gloableTxId 以及 localTxId 信息。
 
 #### 显式传递事务上下文
 
@@ -326,6 +343,9 @@ public void bar() {
    alpha:
      cluster:
        address: {alpha.cluster.addresses}
+   omega:
+     spec:
+       names: saga
    ```
 
 然后就可以运行相关的微服务了，可通过访问http://${alpha-server:port}/saga/events 来获取所有的saga事件信息。
@@ -808,9 +828,9 @@ Alpha 使用 `alpha.feature.nativetransport=true` 开启JNI调用Socket Transpor
 [src-TransactionClientHttpRequestInterceptor]: ../omega/omega-transport/omega-transport-resttemplate/src/main/java/org/apache/servicecomb/pack/omega/transport/resttemplate/TransactionClientHttpRequestInterceptor.java
 [src-TransactionHandlerInterceptor]: ../omega/omega-transport/omega-transport-resttemplate/src/main/java/org/apache/servicecomb/pack/omega/transport/resttemplate/TransactionHandlerInterceptor.java
 
-## 实验
+## Pack 分布式事务规则
 
-[状态机模式](fsm/fsm_manual_zh.md)
+[Saga-Akka 分布式状态机规格](spec-saga-akka/fsm_manual_zh.md)
 
 ## 升级指南
 
