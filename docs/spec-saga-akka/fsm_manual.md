@@ -16,7 +16,7 @@ ServiceComb Pack 0.5.0 版本开始我们尝试使用状态机模型解决分布
 
 ## 快速开始
 
-ServiceComb Pack 0.5.0 开始支持 Saga 状态机模式，你只需要在启动 Alpha 和 Omega 端程序时增加 `alpha.feature.akka.enabled=true` 参数。你可以在 [docker hub](https://hub.docker.com/r/coolbeevip/servicecomb-pack) 找到一个 docker-compose 文件，也可以按照以下方式部署。
+ServiceComb Pack 0.5.0 开始支持 Saga 状态机模式，你只需要在启动 Alpha 时增加 `alpha.spec.names=saga-akka` 参数 和 Omega 端程序时增加 `omega.spce.names=saga` 参数。你可以在 [docker hub](https://hub.docker.com/r/coolbeevip/servicecomb-pack) 找到一个 docker-compose 文件，也可以按照以下方式部署。
 
 **注意：** 启用状态机模式后，Saga事务会工作在状态机模式，TCC依然采用数据库方式
 **注意：** 0.6.0+ 版本 Omega 端程序不需要配置 `alpha.feature.akka.enabled=true` 参数
@@ -30,7 +30,7 @@ ServiceComb Pack 0.5.0 开始支持 Saga 状态机模式，你只需要在启动
 * 启动 Elasticsearch
 
   ```bash
-  docker run --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:7.17.1
+  docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:7.17.1
   ```
 
 * 启动 Alpha
@@ -40,9 +40,10 @@ ServiceComb Pack 0.5.0 开始支持 Saga 状态机模式，你只需要在启动
     --spring.datasource.url=jdbc:postgresql://0.0.0.0:5432/saga?useSSL=false \
     --spring.datasource.username=saga \
     --spring.datasource.password=password \
-    --alpha.feature.akka.enabled=true \
-    --alpha.feature.akka.transaction.repository.type=elasticsearch \
-    --spring.elasticsearch.rest.uris=http://127.0.0.1:9200 \
+    --alpha.spec.names=saga-akka \
+    --alpha.spec.saga.akka.channel.name=memory \
+    --alpha.spec.saga.akka.repository.name=elasticsearch \
+    --alpha.spec.saga.akka.repository.elasticsearch.uris=http://127.0.0.1:9200 \
     --spring.profiles.active=prd  
   ```
 
@@ -95,7 +96,7 @@ ServiceComb Pack 0.5.0 开始支持 Saga 状态机模式，你只需要在启动
 
 * System Info
 
-   显示了当前 Alpha 服务的系统，JVM，线程等信息
+  显示了当前 Alpha 服务的系统，JVM，线程等信息
 
 **注意：**Active Transactions 中的指标值重启后自动归零
 
@@ -145,7 +146,7 @@ Sub Transactions 面板：本事务包含的子事务ID，子事务状态，子�
 
 ![image-20190927150455006](assets/alpha-cluster-architecture.png)
 
-上边是 Alpha 集群的工作架构图，表示部署了两个 Alpha 节点，分别是 8070 和 8071（这两编号是 [Gossip](https://en.wikipedia.org/wiki/Gossip_protocol) 协议的通信端口）。Omega 消息被发送到 Kafka ，并使用 globalTxId 作为分区策略，这保证了同一个全局事务下的子事务可以被有序的消费。KafkaConsumer 负责从 Kafak 中读取事件并发送给集群分片器 ShardingCoordinator，ShardingCoordinator 负责在 Alpha 集群中创建 SagaActor 并发送这个消息。运行中的 SagaActor 接收到消息后会持久化到 Redis 中，当这个集群中的节点奔溃后可以在集群其他节点恢复 SagaActor 以及它的状态。当 SagaActor 结束后就会将这一笔全局事务的数据存储到 ES。
+上边是 Alpha 集群的工作架构图，表示部署了两个 Alpha 节点，分别是 8070 和 8071（这两编号是 [Gossip](https://en.wikipedia.org/wiki/Gossip_protocol) 协议的通信端口）。Omega 消息被发送到 Kafka ，并使用 globalTxId 作为分区策略，这保证了同一个全局事务下的子事务可以被有序的消费。KafkaConsumer 负责从 Kafka 中读取事件并发送给集群分片器 ShardingCoordinator，ShardingCoordinator 负责在 Alpha 集群中创建 SagaActor 并发送这个消息。运行中的 SagaActor 接收到消息后会持久化到 Redis 中，当这个集群中的节点奔溃后可以在集群其他节点恢复 SagaActor 以及它的状态。当 SagaActor 结束后就会将这一笔全局事务的数据存储到 ES。
 
 启动 Alpha 集群非常容易，首先启动集群需要用到的中间件 Kafka Redis PostgreSQL/MySQL ElasticSearch，你使用 Docker 启动他们（在生产环境建议使用一个更可靠的部署方式），下边提供了一个 docker compose 文件 servicecomb-pack-middleware.yml，你可以直接使用命令 `docker-compose -f servicecomb-pack-middleware.yml up -d` 启动它。
 
@@ -215,14 +216,14 @@ services:
 * 端口规划
 
   | 节点    | gRPC 端口 | REST 端口 | Gossip 端口 |
-  | ------- | --------- | --------- | ----------- |
+    | ------- | --------- | --------- | ----------- |
   | Alpha 1 | 8080      | 8090      | 8070        |
   | Alpha 2 | 8081      | 8091      | 8071        |
 
 * 集群参数
 
   | 参数名                                           | 说明                                                         |
-  | ------------------------------------------------ | ------------------------------------------------------------ |
+    | ------------------------------------------------ | ------------------------------------------------------------ |
   | server.port                                      | REST 端口，默认值 8090                                       |
   | alpha.server.port                                | gRPC 端口，默认值 8080                                       |
   | akkaConfig.akka.remote.artery.canonical.port     | Gossip 端口，默认值 8070                                     |
@@ -236,16 +237,15 @@ services:
 * 启动 Alpha 1
 
   ```bash
-  java -jar alpha-server-0.6.0-SNAPSHOT-exec.jar \
+  java -jar alpha-server-0.7.0-SNAPSHOT-exec.jar \
     --server.port=8090 \
     --server.host=127.0.0.1 \
     --alpha.server.port=8080 \
-    --alpha.feature.akka.enabled=true \
-    --spring.datasource.url=jdbc:postgresql://127.0.0.1:5432/saga?useSSL=false \
-    --spring.datasource.username=saga \
-    --spring.datasource.password=password \
-    --spring.kafka.bootstrap-servers=127.0.0.1:9092 \
-    --spring.elasticsearch.rest.uris=http://127.0.0.1:9200 \
+    --alpha.spec.names=saga-akka \
+    --alpha.spec.saga.akka.repository.name=elasticsearch \
+    --alpha.spec.saga.akka.repository.elasticsearch.uris=http://127.0.0.1:9200 \
+    --alpha.spec.saga.akka.channel.name=kafka \
+    --alpha.spec.saga.akka.channel.kafka.bootstrap-servers=127.0.0.1:9092 \
     --akkaConfig.akka.remote.artery.canonical.port=8070 \
     --akkaConfig.akka.cluster.seed-nodes[0]="akka://alpha-cluster@127.0.0.1:8070" \
     --akkaConfig.akka-persistence-redis.redis.host=127.0.0.1 \
@@ -256,16 +256,15 @@ services:
 * 启动 Alpha 2
 
   ```bash
-  java -jar alpha-server-0.6.0-SNAPSHOT-exec.jar \
+  java -jar alpha-server-0.7.0-SNAPSHOT-exec.jar \
     --server.port=8091 \
     --server.host=127.0.0.1 \
     --alpha.server.port=8081 \
-    --alpha.feature.akka.enabled=true \
-    --spring.datasource.url=jdbc:postgresql://127.0.0.1:5432/saga?useSSL=false \
-    --spring.datasource.username=saga \
-    --spring.datasource.password=password \
-    --spring.kafka.bootstrap-servers=127.0.0.1:9092 \
-    --spring.elasticsearch.rest.uris=http://127.0.0.1:9200 \
+    --alpha.spec.names=saga-akka \
+    --alpha.spec.saga.akka.repository.name=elasticsearch \
+    --alpha.spec.saga.akka.repository.elasticsearch.uris=http://127.0.0.1:9200 \
+    --alpha.spec.saga.akka.channel.name=kafka \
+    --alpha.spec.saga.akka.channel.kafka.bootstrap-servers=127.0.0.1:9092 \
     --akkaConfig.akka.remote.artery.canonical.port=8071 \
     --akkaConfig.akka.cluster.seed-nodes[0]="akka://alpha-cluster@127.0.0.1:8070" \
     --akkaConfig.akka-persistence-redis.redis.host=127.0.0.1 \
@@ -275,14 +274,14 @@ services:
 
 ## 动态扩容
 
-- Alpha 支持通过动态增加节点的的方式实现在线处理能力扩容
-- Alpha 默认创建的 Kafka Topic 分区数量是 6，也就是说 Alpha 集群节点大于6个时将不能再提升处理性能，你可以根据规划在初次启动的时候使用  `kafka.numPartitions` 参数修改自动创建的 Topic 分区数
+* Alpha 支持通过动态增加节点的的方式实现在线处理能力扩容
+* Alpha 默认创建的 Kafka Topic 分区数量是 6，也就是说 Alpha 集群节点大于6个时将不能再提升处理性能，你可以根据规划在初次启动的时候使用  `kafka.numPartitions` 参数修改自动创建的 Topic 分区数
 
 ## 附件
 
 [事件通道](eventchannel_zh.md)
 
-[持久化](persistence_zh.md)
+[事务数据持久化](persistence_zh.md)
 
 [Akka 配置](akka_zh.md)
 

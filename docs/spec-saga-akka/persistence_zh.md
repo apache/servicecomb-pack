@@ -15,12 +15,12 @@
 
 ### 持久化参数
 
-| 参数名                                                       | 默认值 | 说明                                       |
-| ------------------------------------------------------------ | ------ |------------------------------------------|
-| alpha.feature.akka.transaction.repository.type               |        | 持久化类型，目前可选值 elasticsearch，如果不设置则不存储      |
-| alpha.feature.akka.transaction.repository.elasticsearch.batchSize | 100    | elasticsearch 批量入库数量                     |
-| alpha.feature.akka.transaction.repository.elasticsearch.refreshTime | 5000   | elasticsearch 定时同步到ES时间                  |
-| spring.elasticsearch.rest.uris                      |        | ES节点地址，格式：http://localhost:9200，多个地址逗号分隔 |
+| 参数名                                                         | 默认值 | 说明                      |
+|---------------------------------------------------------------|-------|-------------------------|
+| alpha.spec.saga.akka.repository.name                          |       | 持久化类型，目前可选值 elasticsearch，如果不设置则不存储 |
+| alpha.spec.saga.akka.repository.elasticsearch.batch-size      | 100   | elasticsearch 批量入库数量    |
+| alpha.spec.saga.akka.repository.elasticsearch.refresh-time    | 5000  | elasticsearch 定时同步到ES时间 |
+| alpha.spec.saga.akka.repository.elasticsearch.uris            |       | ES节点地址，格式：http://localhost:9200，多个地址逗号分隔 |
 
 ### Elasticsearch 索引
 

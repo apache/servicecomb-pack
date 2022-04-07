@@ -16,7 +16,7 @@ ServiceComb Pack 0.5.0 版本开始我们尝试使用状态机模型解决分布
 
 ## 快速开始
 
-ServiceComb Pack 0.5.0 开始支持 Saga 状态机模式，你只需要在启动 Alpha 和 Omega 端程序时增加 `alpha.feature.akka.enabled=true` 参数。你可以在 [docker hub](https://hub.docker.com/r/coolbeevip/servicecomb-pack) 找到一个 docker-compose 文件，也可以按照以下方式部署。
+ServiceComb Pack 0.5.0 开始支持 Saga 状态机模式，你只需要在启动 Alpha 时增加 `alpha.spec.names=saga-akka` 参数 和 Omega 端程序时增加 `omega.spce.names=saga` 参数。你可以在 [docker hub](https://hub.docker.com/r/coolbeevip/servicecomb-pack) 找到一个 docker-compose 文件，也可以按照以下方式部署。
 
 **注意：** 启用状态机模式后，Saga事务会工作在状态机模式，TCC依然采用数据库方式
 **注意：** 0.6.0+ 版本 Omega 端程序不需要配置 `alpha.feature.akka.enabled=true` 参数
@@ -40,9 +40,10 @@ ServiceComb Pack 0.5.0 开始支持 Saga 状态机模式，你只需要在启动
     --spring.datasource.url=jdbc:postgresql://0.0.0.0:5432/saga?useSSL=false \
     --spring.datasource.username=saga \
     --spring.datasource.password=password \
-    --alpha.feature.akka.enabled=true \
-    --alpha.feature.akka.transaction.repository.type=elasticsearch \
-    --spring.elasticsearch.rest.uris=http://127.0.0.1:9200 \
+    --alpha.spec.names=saga-akka \
+    --alpha.spec.saga.akka.channel.name=memory \
+    --alpha.spec.saga.akka.repository.name=elasticsearch \
+    --alpha.spec.saga.akka.repository.elasticsearch.uris=http://127.0.0.1:9200 \
     --spring.profiles.active=prd  
   ```
 
@@ -236,16 +237,15 @@ services:
 * 启动 Alpha 1
 
   ```bash
-  java -jar alpha-server-0.6.0-SNAPSHOT-exec.jar \
+  java -jar alpha-server-0.7.0-SNAPSHOT-exec.jar \
     --server.port=8090 \
     --server.host=127.0.0.1 \
     --alpha.server.port=8080 \
-    --alpha.feature.akka.enabled=true \
-    --spring.datasource.url=jdbc:postgresql://127.0.0.1:5432/saga?useSSL=false \
-    --spring.datasource.username=saga \
-    --spring.datasource.password=password \
-    --spring.kafka.bootstrap-servers=127.0.0.1:9092 \
-    --spring.elasticsearch.rest.uris=http://127.0.0.1:9200 \
+    --alpha.spec.names=saga-akka \
+    --alpha.spec.saga.akka.repository.name=elasticsearch \
+    --alpha.spec.saga.akka.repository.elasticsearch.uris=http://127.0.0.1:9200 \
+    --alpha.spec.saga.akka.channel.name=kafka \
+    --alpha.spec.saga.akka.channel.kafka.bootstrap-servers=127.0.0.1:9092 \
     --akkaConfig.akka.remote.artery.canonical.port=8070 \
     --akkaConfig.akka.cluster.seed-nodes[0]="akka://alpha-cluster@127.0.0.1:8070" \
     --akkaConfig.akka-persistence-redis.redis.host=127.0.0.1 \
@@ -256,16 +256,15 @@ services:
 * 启动 Alpha 2
 
   ```bash
-  java -jar alpha-server-0.6.0-SNAPSHOT-exec.jar \
+  java -jar alpha-server-0.7.0-SNAPSHOT-exec.jar \
     --server.port=8091 \
     --server.host=127.0.0.1 \
     --alpha.server.port=8081 \
-    --alpha.feature.akka.enabled=true \
-    --spring.datasource.url=jdbc:postgresql://127.0.0.1:5432/saga?useSSL=false \
-    --spring.datasource.username=saga \
-    --spring.datasource.password=password \
-    --spring.kafka.bootstrap-servers=127.0.0.1:9092 \
-    --spring.elasticsearch.rest.uris=http://127.0.0.1:9200 \
+    --alpha.spec.names=saga-akka \
+    --alpha.spec.saga.akka.repository.name=elasticsearch \
+    --alpha.spec.saga.akka.repository.elasticsearch.uris=http://127.0.0.1:9200 \
+    --alpha.spec.saga.akka.channel.name=kafka \
+    --alpha.spec.saga.akka.channel.kafka.bootstrap-servers=127.0.0.1:9092 \
     --akkaConfig.akka.remote.artery.canonical.port=8071 \
     --akkaConfig.akka.cluster.seed-nodes[0]="akka://alpha-cluster@127.0.0.1:8070" \
     --akkaConfig.akka-persistence-redis.redis.host=127.0.0.1 \
