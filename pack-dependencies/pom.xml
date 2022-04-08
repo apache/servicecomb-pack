@@ -83,7 +83,7 @@
     <zookeeper.version>3.6.2</zookeeper.version>
     <hystrix.version>1.5.12</hystrix.version>
     <openfeign.version>9.5.1</openfeign.version>
-    <commons-io.version>2.4</commons-io.version>
+    <commons-io.version>2.7</commons-io.version>
     <aspectjweaver.version>1.8.10</aspectjweaver.version>
     <javax.persistence-api.version>2.2</javax.persistence-api.version>
     <javax.interceptor-api.version>1.2</javax.interceptor-api.version>
