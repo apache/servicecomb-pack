@@ -32,6 +32,9 @@
   <packaging>pom</packaging>
 
   <properties>
+    <!-- specify the version of zstd and lz4 C libraries-->
+    <zstd-jni.version>1.5.2-2</zstd-jni.version>
+    <lz4-java.version>1.8.0</lz4-java.version>
     <!-- logging -->
     <log4j.version>2.17.1</log4j.version>
     <commons-logging.version>1.2</commons-logging.version>
@@ -194,6 +197,20 @@
         <groupId>com.alibaba.cloud</groupId>
         <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         <version>${spring.cloud.starter.alibaba.nacos.discovery.version}</version>
+      </dependency>
+
+      <!-- Zstd JNI -->
+      <dependency>
+        <groupId>com.github.luben</groupId>
+        <artifactId>zstd-jni</artifactId>
+        <version>${zstd-jni.version}</version>
+      </dependency>
+
+      <!-- lz4 Java -->
+      <dependency>
+        <groupId>org.lz4</groupId>
+        <artifactId>lz4-java</artifactId>
+        <version>${lz4-java.version}</version>
       </dependency>
 
       <!-- servicecomb -->
