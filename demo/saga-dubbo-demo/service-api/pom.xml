@@ -24,14 +24,14 @@
     <dependency>
       <groupId>org.apache.servicecomb.pack.demo</groupId>
       <artifactId>service-pub</artifactId>
-      <version>0.7.0-SNAPSHOT</version>
+      <version>${revision}</version>
     </dependency>
   </dependencies>
 
   <parent>
     <artifactId>saga-dubbo-demo</artifactId>
     <groupId>org.apache.servicecomb.pack.demo</groupId>
-    <version>0.7.0-SNAPSHOT</version>
+    <version>${revision}</version>
   </parent>
 
   <artifactId>service-api</artifactId>

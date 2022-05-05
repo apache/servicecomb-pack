@@ -28,7 +28,7 @@
   <groupId>org.apache.servicecomb.pack</groupId>
   <artifactId>pack</artifactId>
   <packaging>pom</packaging>
-  <version>0.7.0-SNAPSHOT</version>
+  <version>${revision}</version>
 
   <modules>
     <module>pack-dependencies</module>
@@ -45,7 +45,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>1.8</java.version>
-
+    <revision>0.7.0-SNAPSHOT</revision>
     <!-- plugins -->
     <jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
     <license-maven-plugin.version>1.19</license-maven-plugin.version>
@@ -69,6 +69,7 @@
     <protobuf-maven-plugin.version>0.5.0</protobuf-maven-plugin.version>
     <os-maven-plugin.version>1.5.0.Final</os-maven-plugin.version>
     <dependency-check-maven.version>6.5.3</dependency-check-maven.version>
+    <flatten-maven-plugin.version>1.2.5</flatten-maven-plugin.version>
  </properties>
 
   <name>Apache ServiceComb Pack</name>
@@ -196,7 +197,7 @@
               <mixin>
                 <groupId>org.apache.servicecomb.pack</groupId>
                 <artifactId>docker-build-config</artifactId>
-                <version>${project.version}</version>
+                <version>${revision}</version>
               </mixin>
             </mixins>
           </configuration>
