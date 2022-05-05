@@ -39,3 +39,6 @@ target/
 
 #akka distributed data
 ddata-*
+
+#flatten-maven-plugin
+**/.flattened-pom.xml

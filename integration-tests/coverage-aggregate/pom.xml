@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.apache.servicecomb.pack.tests</groupId>
     <artifactId>integration-tests</artifactId>
-    <version>0.7.0-SNAPSHOT</version>
+    <version>${revision}</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -76,12 +76,12 @@
     <dependency>
       <groupId>org.apache.servicecomb.pack.tests</groupId>
       <artifactId>pack-tests</artifactId>
-      <version>0.7.0-SNAPSHOT</version>
+      <version>${revision}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.servicecomb.pack.tests</groupId>
       <artifactId>explicit-transaction-context-tests</artifactId>
-      <version>0.7.0-SNAPSHOT</version>
+      <version>${revision}</version>
     </dependency>
   </dependencies>
 
