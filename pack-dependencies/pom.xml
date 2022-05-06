@@ -847,6 +847,7 @@
   <build>
     <pluginManagement>
       <plugins>
+        <!-- Install or deploy artifacts with Maven CI Friendly Versions https://maven.apache.org/maven-ci-friendly.html#install-deploy -->
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>flatten-maven-plugin</artifactId>
