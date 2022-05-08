@@ -59,6 +59,12 @@
       <scope>provided</scope>
     </dependency>
 
+    <!-- Fix JDK8 javadoc tool fails to process the sources (if any of them are annotated with @Transactional) -->
+    <dependency>
+      <groupId>javax.interceptor</groupId>
+      <artifactId>javax.interceptor-api</artifactId>
+    </dependency>
+
     <!-- test -->
     <dependency>
       <groupId>com.github.seanyinx</groupId>
