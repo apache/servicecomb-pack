@@ -29,10 +29,6 @@
   <name>Pack::Demo::Dubbo-Demo</name>
   <packaging>pom</packaging>
 
-  <properties>
-    <saga.version>0.7.0-SNAPSHOT</saga.version>
-  </properties>
-
   <modules>
     <module>service-api</module>
     <module>servicea</module>
@@ -45,7 +41,7 @@
     <dependency>
       <groupId>org.apache.servicecomb.pack</groupId>
       <artifactId>omega-transport-dubbo</artifactId>
-      <version>${saga.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>

@@ -24,12 +24,12 @@
     <dependency>
       <groupId>org.apache.servicecomb.pack.demo</groupId>
       <artifactId>service-api</artifactId>
-      <version>${saga.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.servicecomb.pack.demo</groupId>
       <artifactId>service-pub</artifactId>
-      <version>${saga.version}</version>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 
