@@ -344,6 +344,41 @@
           <artifactId>maven-failsafe-plugin</artifactId>
           <version>${maven.failsafe.version}</version>
         </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>flatten-maven-plugin</artifactId>
+          <version>${flatten-maven-plugin.version}</version>
+          <inherited>true</inherited>
+          <executions>
+            <execution>
+              <id>flatten</id>
+              <phase>process-resources</phase>
+              <goals>
+                <goal>flatten</goal>
+              </goals>
+              <configuration>
+                <updatePomFile>true</updatePomFile>
+                <flattenMode>bom</flattenMode>
+                <pomElements>
+                  <parent>expand</parent>
+                  <dependencies>keep</dependencies>
+                  <dependencyManagement>remove</dependencyManagement>
+                  <pluginManagement>remove</pluginManagement>
+                  <distributionManagement>remove</distributionManagement>
+                  <repositories>remove</repositories>
+                  <properties>remove</properties>
+                </pomElements>
+              </configuration>
+            </execution>
+            <execution>
+              <id>flatten-clean</id>
+              <phase>clean</phase>
+              <goals>
+                <goal>clean</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
     <!-- enable the rat check by default -->
@@ -368,6 +403,10 @@
             <exclude>**/*.css.map</exclude-->
           </excludes>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
