@@ -24,7 +24,7 @@
     <dependency>
       <groupId>org.apache.servicecomb.pack.demo</groupId>
       <artifactId>service-api</artifactId>
-      <version>${revision}</version>
+      <version>${project.version}</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
