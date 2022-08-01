@@ -24,7 +24,7 @@
     <dependency>
       <groupId>org.apache.servicecomb.pack.demo</groupId>
       <artifactId>service-pub</artifactId>
-      <version>${revision}</version>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 

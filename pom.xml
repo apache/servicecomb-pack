@@ -45,7 +45,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>1.8</java.version>
-    <revision>0.7.0</revision>
+    <revision>0.7.1-SNAPSHOT</revision>
     <!-- plugins -->
     <jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
     <license-maven-plugin.version>1.19</license-maven-plugin.version>
@@ -197,7 +197,7 @@
               <mixin>
                 <groupId>org.apache.servicecomb.pack</groupId>
                 <artifactId>docker-build-config</artifactId>
-                <version>${revision}</version>
+                <version>${project.version}</version>
               </mixin>
             </mixins>
           </configuration>
@@ -344,6 +344,41 @@
           <artifactId>maven-failsafe-plugin</artifactId>
           <version>${maven.failsafe.version}</version>
         </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>flatten-maven-plugin</artifactId>
+          <version>${flatten-maven-plugin.version}</version>
+          <inherited>true</inherited>
+          <executions>
+            <execution>
+              <id>flatten</id>
+              <phase>process-resources</phase>
+              <goals>
+                <goal>flatten</goal>
+              </goals>
+              <configuration>
+                <updatePomFile>true</updatePomFile>
+                <flattenMode>bom</flattenMode>
+                <pomElements>
+                  <parent>expand</parent>
+                  <dependencies>keep</dependencies>
+                  <dependencyManagement>remove</dependencyManagement>
+                  <pluginManagement>remove</pluginManagement>
+                  <distributionManagement>remove</distributionManagement>
+                  <repositories>remove</repositories>
+                  <properties>remove</properties>
+                </pomElements>
+              </configuration>
+            </execution>
+            <execution>
+              <id>flatten-clean</id>
+              <phase>clean</phase>
+              <goals>
+                <goal>clean</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
     <!-- enable the rat check by default -->
@@ -368,6 +403,10 @@
             <exclude>**/*.css.map</exclude-->
           </excludes>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
