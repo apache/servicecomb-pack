@@ -21,6 +21,7 @@ on:
   pull_request:
     branches:
       - master
+      - 0.7.x
 
 env:
   MAVEN_OPTS: -Xmx4g -Xms1g -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.http.retryHandler.count=3
