@@ -76,12 +76,12 @@
     <dependency>
       <groupId>org.apache.servicecomb.pack.tests</groupId>
       <artifactId>pack-tests</artifactId>
-      <version>${revision}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.servicecomb.pack.tests</groupId>
       <artifactId>explicit-transaction-context-tests</artifactId>
-      <version>${revision}</version>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 
