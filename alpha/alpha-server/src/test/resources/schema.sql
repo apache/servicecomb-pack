@@ -101,3 +101,9 @@ CREATE TABLE IF NOT EXISTS tcc_tx_event (
   lastModified TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS master_lock (
+  serviceName varchar(36) NOT NULL PRIMARY KEY,
+  expireTime TIMESTAMP NOT NULL,
+  lockedTime TIMESTAMP NOT NULL,
+  instanceId  varchar(255) NOT NULL
+);
