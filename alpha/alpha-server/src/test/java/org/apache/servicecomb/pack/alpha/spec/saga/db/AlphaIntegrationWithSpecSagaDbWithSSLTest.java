@@ -15,12 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server;
+package org.apache.servicecomb.pack.alpha.spec.saga.db;
 
 import java.io.File;
 import java.util.Arrays;
 import javax.net.ssl.SSLException;
 
+import org.apache.servicecomb.pack.alpha.server.AlphaApplication;
+import org.apache.servicecomb.pack.alpha.server.AlphaConfig;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,9 +41,13 @@ import io.netty.handler.ssl.SslProvider;
         "alpha.server.port=8092",
         "alpha.event.pollingInterval=1",
         "spring.main.allow-bean-definition-overriding=true",
+        "alpha.spec.names=saga-db",
+        "alpha.spec.saga.db.datasource.username=sa",
+        "alpha.spec.saga.db.datasource.url=jdbc:hsqldb:mem:saga",
+        "alpha.spec.saga.db.cluster.enabled=false",
         "spring.profiles.active=ssl"
     })
-public class AlphaIntegrationWithSSLTest extends AlphaIntegrationTest {
+public class AlphaIntegrationWithSpecSagaDbWithSSLTest extends AlphaIntegrationWithSpecSagaDbTest {
   private static final int port = 8092;
 
   @BeforeClass
@@ -53,7 +59,7 @@ public class AlphaIntegrationWithSSLTest extends AlphaIntegrationTest {
   }
 
   private static SslContext getSslContext(){
-    ClassLoader classLoader = AlphaIntegrationWithSSLTest.class.getClassLoader();
+    ClassLoader classLoader = AlphaIntegrationWithSpecSagaDbWithSSLTest.class.getClassLoader();
     SslContext sslContext = null;
     try {
       sslContext = GrpcSslContexts.forClient().sslProvider(SslProvider.OPENSSL)

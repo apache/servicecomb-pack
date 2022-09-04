@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server;
+package org.apache.servicecomb.pack.alpha.spec.saga.db;
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
@@ -23,9 +23,9 @@ import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.servicecomb.pack.alpha.core.*;
-import org.apache.servicecomb.pack.alpha.spec.saga.db.CommandEntityRepository;
-import org.apache.servicecomb.pack.alpha.spec.saga.db.TxEventEnvelopeRepository;
-import org.apache.servicecomb.pack.alpha.spec.saga.db.TxTimeoutEntityRepository;
+import org.apache.servicecomb.pack.alpha.server.AlphaApplication;
+import org.apache.servicecomb.pack.alpha.server.AlphaConfig;
+import org.apache.servicecomb.pack.alpha.server.ServerStartable;
 import org.apache.servicecomb.pack.common.EventType;
 import org.apache.servicecomb.pack.contract.grpc.*;
 import org.apache.servicecomb.pack.contract.grpc.TxEventServiceGrpc.TxEventServiceBlockingStub;
@@ -65,9 +65,13 @@ import static org.junit.Assert.assertThat;
         "alpha.server.portAutoIncrement=true",
         "alpha.server.portCount=100",
         "alpha.event.pollingInterval=1",
-        "spring.main.allow-bean-definition-overriding=true"
+        "spring.main.allow-bean-definition-overriding=true",
+        "alpha.spec.names=saga-db",
+        "alpha.spec.saga.db.datasource.username=sa",
+        "alpha.spec.saga.db.datasource.url=jdbc:hsqldb:mem:saga",
+        "alpha.spec.saga.db.cluster.enabled=false",
        })
-public class AlphaIntegrationWithRandomPortTest {
+public class AlphaIntegrationWithSpecSagaDbWithRandomPortTest {
 
   protected static ManagedChannel clientChannel;
   private static boolean setUpIsDone = false;

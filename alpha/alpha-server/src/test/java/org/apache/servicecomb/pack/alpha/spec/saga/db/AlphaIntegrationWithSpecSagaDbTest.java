@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.pack.alpha.server;
+package org.apache.servicecomb.pack.alpha.spec.saga.db;
 
 import static com.seanyinx.github.unit.scaffolding.Randomness.uniquify;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -48,6 +48,8 @@ import java.util.function.Consumer;
 import javax.annotation.PostConstruct;
 
 import org.apache.servicecomb.pack.alpha.core.*;
+import org.apache.servicecomb.pack.alpha.server.AlphaApplication;
+import org.apache.servicecomb.pack.alpha.server.AlphaConfig;
 import org.apache.servicecomb.pack.alpha.spec.saga.db.CommandEntityRepository;
 import org.apache.servicecomb.pack.alpha.spec.saga.db.TxEventEnvelopeRepository;
 import org.apache.servicecomb.pack.alpha.spec.saga.db.TxTimeoutEntityRepository;
@@ -78,9 +80,13 @@ import org.springframework.test.context.junit4.SpringRunner;
         "alpha.server.host=0.0.0.0",
         "alpha.server.port=8090",
         "alpha.event.pollingInterval=1",
-        "spring.main.allow-bean-definition-overriding=true"
+        "spring.main.allow-bean-definition-overriding=true",
+        "alpha.spec.names=saga-db",
+        "alpha.spec.saga.db.datasource.username=sa",
+        "alpha.spec.saga.db.datasource.url=jdbc:hsqldb:mem:saga",
+        "alpha.spec.saga.db.cluster.enabled=false"
        })
-public class AlphaIntegrationTest {
+public class AlphaIntegrationWithSpecSagaDbTest {
   private static final int port = 8090;
 
   protected static ManagedChannel clientChannel;
