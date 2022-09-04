@@ -71,6 +71,18 @@
     </dependency>
     <dependency>
       <groupId>org.apache.servicecomb.pack</groupId>
+      <artifactId>alpha-spec-saga-akka</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicecomb.pack</groupId>
+      <artifactId>alpha-spec-saga-db</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicecomb.pack</groupId>
+      <artifactId>alpha-spec-tcc-db</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicecomb.pack</groupId>
       <artifactId>alpha-server</artifactId>
     </dependency>
     <dependency>
