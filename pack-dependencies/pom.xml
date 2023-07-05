@@ -61,7 +61,7 @@
     <akka-persistence-redis.version>0.4.2</akka-persistence-redis.version>
 
     <!-- grpc netty -->
-    <grpc.version>1.44.1</grpc.version>
+    <grpc.version>1.53.0</grpc.version>
     <netty.boringssl.version>2.0.48.Final</netty.boringssl.version>
     <netty.version>4.1.86.Final</netty.version>
 
