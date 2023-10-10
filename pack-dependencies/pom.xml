@@ -63,7 +63,7 @@
     <!-- grpc netty -->
     <grpc.version>1.44.1</grpc.version>
     <netty.boringssl.version>2.0.48.Final</netty.boringssl.version>
-    <netty.version>4.1.86.Final</netty.version>
+    <netty.version>4.1.100.Final</netty.version>
 
     <!-- json -->
     <jackson.version>2.14.0</jackson.version>
