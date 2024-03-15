@@ -83,7 +83,7 @@
     <eclipse.link.version>2.7.1</eclipse.link.version>
     <jaxb.version>2.3.0</jaxb.version>
     <tomcat-annotations-api.version>6.0.53</tomcat-annotations-api.version>
-    <zookeeper.version>3.6.2</zookeeper.version>
+    <zookeeper.version>3.8.4</zookeeper.version>
     <hystrix.version>1.5.12</hystrix.version>
     <openfeign.version>9.5.1</openfeign.version>
     <commons-io.version>2.7</commons-io.version>
