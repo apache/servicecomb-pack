@@ -1,6 +1,10 @@
 # Pack | [English](README.md) [![Build Status](https://github.com/apache/servicecomb-pack/actions/workflows/master-push-build.yaml/badge.svg?branch=master)](https://github.com/apache/servicecomb-pack/actions/workflows/master-push-build.yaml?query=branch%3Amaster) [![Coverage Status](https://coveralls.io/repos/github/apache/servicecomb-pack/badge.svg?branch=master)](https://coveralls.io/github/apache/servicecomb-pack?branch=master) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.servicecomb.pack/pack/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Corg.apache.servicecomb.pack) [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=servicecomb-pack&metric=alert_status)](https://sonarcloud.io/dashboard?id=servicecomb-pack) [![Gitter](https://img.shields.io/badge/ServiceComb-Gitter-ff69b4.svg)](https://gitter.im/ServiceCombUsers/Saga)
 Apache ServiceComb Pack 是一个微服务应用的数据最终一致性解决方案。
 
+> 贡献者: 这个项目缺少维护者，如果您愿意为项目维护提供支持，请联系我们，可以将您加入项目的commiter群组，继续维护该项目. 
+
+> 用户：这个项目缺少维护者，在我们找到持续的维护者之前，建议您尽可能不要使用这个项目，避免碰到问题得不到技术支持. 
+
 
 ## 关键特性
 * 高可用：支持高可用的集群模式部署。

@@ -1,6 +1,10 @@
 # Pack | [中文](README_ZH.md) [![Build Status](https://github.com/apache/servicecomb-pack/actions/workflows/master-push-build.yaml/badge.svg?branch=master)](https://github.com/apache/servicecomb-pack/actions/workflows/master-push-build.yaml?query=branch%3Amaster) [![Coverage Status](https://coveralls.io/repos/github/apache/servicecomb-pack/badge.svg?branch=master)](https://coveralls.io/github/apache/servicecomb-pack?branch=master) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.servicecomb.pack/pack/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Corg.apache.servicecomb.pack) [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=servicecomb-pack&metric=alert_status)](https://sonarcloud.io/dashboard?id=servicecomb-pack) [![Gitter](https://img.shields.io/badge/ServiceComb-Gitter-ff69b4.svg)](https://gitter.im/ServiceCombUsers/Saga)
 Apache ServiceComb Pack is an eventually data consistency solution for micro-service applications.
 
+> Notice to contributors: this project is not active due to lack of maintainers. If you are interested in this project, please cantact us and we will help you to be a committer. 
+
+> Notice to users: this project is not active due to lack of maintainers. Before we find enough resources, do not use this project if possible. 
+
 ## Features
 * High availability. The coordinator is stateless and thus can have multiple instances.
 * High reliability. All transaction events are stored in database permanently.
